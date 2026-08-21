@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Import INE — lycéefrancoarabekeurmadiabel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #1B2A4A;
+    --paper: #F7F5F0;
+    --paper-warm: #F1ECE1;
+    --brass: #A8853F;
+    --slate: #5B6472;
+    --text: #1A1A1A;
+    --line: rgba(27,42,74,0.14);
+    --serif: 'Source Serif 4', Georgia, serif;
+    --sans: 'Inter', -apple-system, sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{ font-family:var(--sans); color:var(--text); background:var(--paper); line-height:1.55; }
+  .wrap{ max-width:640px; margin:0 auto; padding:40px 20px 80px; }
+  .eyebrow{ font-size:11.5px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--brass); margin-bottom:8px; }
+  h1{ font-family:var(--serif); font-size:28px; color:var(--ink); margin-bottom:10px; }
+  p.lead{ color:var(--slate); font-size:14.5px; margin-bottom:26px; }
+  .box{ background:var(--paper-warm); border:1px solid var(--line); padding:22px; margin-bottom:20px; }
+  .box h2{ font-family:var(--serif); font-size:17px; color:var(--ink); margin-bottom:10px; }
+  .box p{ font-size:13.5px; color:var(--slate); margin-bottom:10px; }
+  textarea{
+    width:100%; min-height:220px; padding:14px; font-family:'Courier New', monospace; font-size:13.5px;
+    border:1px solid var(--line); background:#fff; color:var(--text); resize:vertical;
+  }
+  textarea:focus{ outline:none; border-color:var(--brass); }
+  .btn{
+    display:inline-block; margin-top:14px; background:var(--ink); color:#fff; border:none;
+    padding:13px 22px; font-weight:700; font-size:14px; font-family:var(--sans); cursor:pointer;
+  }
+  .btn:hover{ background:#101a30; }
+  .btn:disabled{ opacity:0.5; cursor:not-allowed; }
+  #status{ margin-top:16px; font-size:13.5px; color:var(--text); white-space:pre-line; }
+  #status.error{ color:#B3402A; }
+  #status.success{ color:#2E7D4F; }
+  .gate{ text-align:center; padding:60px 20px; }
+  .gate a{ color:var(--ink); border-bottom:1px solid var(--brass); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="eyebrow">Administration</div>
+  <h1>Import des numéros INE</h1>
+  <p class="lead">Colle ici la liste des numéros INE des élèves de l'établissement (un par ligne, ou séparés par une virgule — copie directement depuis une colonne Excel). Les numéros déjà enregistrés ne seront jamais écrasés ni réinitialisés.</p>
+
+  <div id="gate" class="gate" style="display:none;">
+    <p>Vous devez être connecté avec un compte professeur pour accéder à cet outil.</p>
+    <p style="margin-top:14px;"><a href="identification.html">Se connecter</a></p>
+  </div>
+
+  <div id="tool" style="display:none;">
+    <div class="box">
+      <h2>1. Liste des INE</h2>
+      <textarea id="ine-input" placeholder="1234567890A
+1234567891B
+1234567892C
+..."></textarea>
+    </div>
+
+    <button id="import-btn" class="btn">Importer la liste</button>
+    <div id="status"></div>
+  </div>
+</div>
+
+<!-- ========================================================
+     CONFIGURATION FIREBASE — mêmes identifiants que les autres pages
+======================================================== -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+    authDomain: "lfakm-87dec.firebaseapp.com",
+    projectId: "lfakm-87dec",
+    storageBucket: "lfakm-87dec.firebasestorage.app",
+    messagingSenderId: "739517262614",
+    appId: "1:739517262614:web:14abd3538427960c527e37"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const gate = document.getElementById('gate');
+  const tool = document.getElementById('tool');
+  const input = document.getElementById('ine-input');
+  const importBtn = document.getElementById('import-btn');
+  const statusEl = document.getElementById('status');
+
+  onAuthStateChanged(auth, async function (user) {
+    if (user) {
+      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+      const role = snap.data()?.role;
+      if (role === 'admin' || role === 'proviseur' || role === 'censeur') {
+        tool.style.display = 'block';
+        gate.style.display = 'none';
+      } else {
+        tool.style.display = 'none';
+        gate.style.display = 'block';
+        gate.textContent = 'Accès réservé au Proviseur et au Censeur.';
+      }
+    } else {
+      tool.style.display = 'none';
+      gate.style.display = 'block';
+    }
+  });
+
+  importBtn.addEventListener('click', async function () {
+    const raw = input.value.split(/\r?\n|,|;/).map(function (s) { return s.trim(); }).filter(Boolean);
+    const ines = Array.from(new Set(raw)); // supprime les doublons
+
+    if (ines.length === 0) {
+      statusEl.className = 'error';
+      statusEl.textContent = 'Colle au moins un numéro INE avant d\'importer.';
+      return;
+    }
+
+    importBtn.disabled = true;
+    statusEl.className = '';
+    statusEl.textContent = 'Vérification de ' + ines.length + ' numéro(s)…';
+
+    try {
+      // On vérifie d'abord lesquels existent déjà, pour ne jamais
+      // réinitialiser un INE déjà marqué "utilisé" par un élève inscrit.
+      const checks = await Promise.all(ines.map(async function (ine) {
+        const snap = await getDoc(doc(db, 'ines_autorises', ine));
+        return { ine: ine, exists: snap.exists() };
+      }));
+
+      const aCreer = checks.filter(function (c) { return !c.exists; }).map(function (c) { return c.ine; });
+      const dejaPresents = checks.length - aCreer.length;
+
+      statusEl.textContent = 'Import de ' + aCreer.length + ' nouveau(x) numéro(s)…';
+
+      const LOT = 400; // limite de sécurité par lot d'écriture Firestore
+      for (let i = 0; i < aCreer.length; i += LOT) {
+        const batch = writeBatch(db);
+        aCreer.slice(i, i + LOT).forEach(function (ine) {
+          batch.set(doc(db, 'ines_autorises', ine), { utilise: false });
+        });
+        await batch.commit();
+      }
+
+      statusEl.className = 'success';
+      statusEl.textContent =
+        aCreer.length + ' numéro(s) INE ajouté(s) avec succès.' +
+        (dejaPresents > 0 ? '\n' + dejaPresents + ' existaient déjà et n\'ont pas été modifiés.' : '');
+      input.value = '';
+    } catch (err) {
+      statusEl.className = 'error';
+      statusEl.textContent = "Une erreur est survenue pendant l'import. Vérifiez votre connexion et réessayez.";
+    } finally {
+      importBtn.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>

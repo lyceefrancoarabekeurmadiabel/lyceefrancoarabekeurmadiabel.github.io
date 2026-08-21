@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Publier une Actu — LFAKM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --ink: #1B2A4A; --brass: #A8853F; --paper: #F7F5F0; --line: rgba(27,42,74,0.1); }
+  body { font-family: 'Inter', sans-serif; background: var(--paper); padding: 20px; color: var(--ink); }
+  .admin-box { background: white; max-width: 600px; margin: 40px auto; padding: 30px; border-radius: 12px; border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+  h1 { font-family: 'Source Serif 4', serif; margin-bottom: 20px; }
+  label { display: block; margin-top: 15px; font-weight: 600; font-size: 14px; }
+  input, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; }
+  textarea { height: 150px; resize: vertical; }
+  .btn-publier { background: var(--ink); color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+  .btn-publier:disabled { background: #ccc; }
+  #status { margin-top: 15px; font-size: 14px; font-weight: bold; text-align: center; }
+  .news-item { border: 1px solid var(--line); border-radius: 8px; padding: 15px; margin-top: 12px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .news-item h4 { font-size: 15px; margin-bottom: 4px; }
+  .news-item p { font-size: 12px; color: #666; }
+  .news-item .btn-suppr { background: #d9534f; color: #fff; border: none; padding: 8px 12px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div class="admin-box" id="admin-content" style="display:none;">
+  <h1>Publier une actualité</h1>
+  <form id="news-form">
+    <label>Titre de l'article</label>
+    <input type="text" id="news-title" placeholder="Ex: Cérémonie de remise des prix" required>
+
+    <label>Contenu de l'article</label>
+    <textarea id="news-text" placeholder="Écrivez votre article ici..." required></textarea>
+
+    <label>Image d'illustration (optionnel)</label>
+    <input type="file" id="news-file" accept="image/*">
+
+    <button type="submit" class="btn-publier" id="submit-btn">Publier sur le site</button>
+  </form>
+  <div id="status"></div>
+  <p style="text-align:center; margin-top:20px;"><a href="actualites.html" style="color:var(--brass); text-decoration:none;">← Voir les actualités</a></p>
+
+  <h1 style="margin-top:40px; border-top:1px solid var(--line); padding-top:25px;">Actualités publiées</h1>
+  <div id="news-list"></div>
+</div>
+
+<div id="gate" style="text-align:center; margin-top:100px;">
+    <p>Vérification des accès...</p>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+    authDomain: "lfakm-87dec.firebaseapp.com",
+    projectId: "lfakm-87dec",
+    storageBucket: "lfakm-87dec.firebasestorage.app",
+    messagingSenderId: "739517262614",
+    appId: "1:739517262614:web:14abd3538427960c527e37"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // VÉRIFICATION ACCÈS (Proviseur / Censeur / Admin uniquement)
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+      const role = snap.exists() ? snap.data().role : null;
+      if (['admin', 'proviseur', 'censeur'].includes(role)) {
+        document.getElementById('admin-content').style.display = 'block';
+        document.getElementById('gate').style.display = 'none';
+        loadNewsList();
+      } else {
+        document.getElementById('gate').innerHTML = "<p style='color:red;'>Accès refusé. Réservé au Proviseur et au Censeur.</p>";
+      }
+    } else {
+      window.location.href = 'identification.html';
+    }
+  });
+
+  function loadNewsList() {
+    const list = document.getElementById('news-list');
+    onSnapshot(query(collection(db, 'actualites'), orderBy('date', 'desc')), (snap) => {
+      list.innerHTML = snap.empty ? '<p style="color:gray;margin-top:12px;">Aucune actualité publiée pour le moment.</p>' : '';
+      snap.forEach(d => {
+        const n = d.data();
+        const date = n.date?.toDate ? n.date.toDate().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+        const item = document.createElement('div');
+        item.className = 'news-item';
+        item.innerHTML = `<div><h4>${n.titre}</h4><p>${date}</p></div>`;
+        const delBtn = document.createElement('button');
+        delBtn.className = 'btn-suppr';
+        delBtn.textContent = '✕ Supprimer';
+        delBtn.onclick = () => confirm(`Supprimer "${n.titre}" ?`) && deleteDoc(doc(db, 'actualites', d.id));
+        item.appendChild(delBtn);
+        list.appendChild(item);
+      });
+    });
+  }
+
+  // LOGIQUE DE PUBLICATION
+  const form = document.getElementById('news-form');
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    const status = document.getElementById('status');
+    
+    const title = document.getElementById('news-title').value;
+    const text = document.getElementById('news-text').value;
+    const file = document.getElementById('news-file').files[0];
+
+    if (file && file.size > 15 * 1024 * 1024) {
+      status.style.color = "red";
+      status.textContent = "❌ Image trop volumineuse (max 15 Mo).";
+      return;
+    }
+
+    btn.disabled = true;
+    status.textContent = "Publication en cours...";
+
+    let imageUrl = "";
+
+    try {
+      // 1. Upload image si présente
+      if (file) {
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('upload_preset', 'lfakm_ressources'); 
+        const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
+        const data = await res.json();
+        imageUrl = data.secure_url;
+      }
+
+      // 2. Enregistrement dans Firestore
+      await addDoc(collection(db, "actualites"), {
+        titre: title,
+        contenu: text,
+        image: imageUrl,
+        date: serverTimestamp()
+      });
+
+      status.style.color = "green";
+      status.textContent = "✅ Actualité publiée avec succès !";
+      form.reset();
+    } catch (error) {
+      status.style.color = "red";
+      status.textContent = "❌ Erreur : " + error.message;
+    } finally {
+      btn.disabled = false;
+    }
+  };
+</script>
+</body>
+</html>
