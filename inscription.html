@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inscription — LFAKM</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --ink: #1B2A4A; --paper: #F7F5F0; --brass: #A8853F; --slate: #5B6472; --line: rgba(27,42,74,0.14); }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink); display: flex; flex-direction: column; min-height: 100vh; }
+  header { background: #fff; border-bottom: 1px solid var(--line); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+  .brand { font-family: 'Source Serif 4', serif; font-weight: 700; text-decoration: none; color: var(--ink); }
+  .container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .box { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 500px; border: 1px solid var(--line); }
+  h1 { font-family: 'Source Serif 4', serif; margin-bottom: 20px; text-align: center; }
+  .role-selector { display: flex; gap: 10px; margin-bottom: 20px; }
+  .role-selector label { flex: 1; text-align: center; padding: 10px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; font-weight: 600; }
+  .role-selector input { display: none; }
+  .role-selector input:checked + label { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .field { margin-bottom: 15px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+  .field input, .field select { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 6px; background: #fafafa; }
+  .btn { width: 100%; padding: 14px; background: var(--ink); color: #fff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+  .error { color: #d9534f; font-size: 13px; margin-top: 10px; text-align: center; display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="brand">LFAKM - Inscription</a>
+  <a href="identification.html" style="font-size:13px; font-weight:600; color:var(--brass)">Se connecter</a>
+</header>
+
+<div class="container">
+  <div class="box">
+    <h1>Créer un compte</h1>
+    <form id="signup-form">
+      <div class="role-selector">
+        <input type="radio" name="role" id="role-eleve" value="eleve" checked>
+        <label for="role-eleve">Élève</label>
+        <input type="radio" name="role" id="role-prof" value="professeur">
+        <label for="role-prof">Professeur</label>
+        <input type="radio" name="role" id="role-intendant" value="intendant">
+        <label for="role-intendant">Intendant</label>
+      </div>
+      <p style="font-size:11px; color:var(--slate); margin:-10px 0 15px; text-align:center;">
+        Les comptes Proviseur et Censeur ne se créent pas ici : ils sont attribués par un Proviseur depuis l'espace de gestion.
+      </p>
+
+      <div class="field">
+        <label>Prénom</label>
+        <input type="text" id="prenom" required>
+      </div>
+      <div class="field">
+        <label>Nom</label>
+        <input type="text" id="nom" required>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="email" required>
+      </div>
+      <div class="field">
+        <label>Numéro de téléphone</label>
+        <input type="tel" id="telephone" placeholder="Ex: 77 123 45 67" required>
+        <p style="font-size:11px; color:var(--slate); margin-top:4px;">Permet à l'établissement de vous contacter si besoin.</p>
+      </div>
+
+      <!-- Champs Élève -->
+      <div id="eleve-fields">
+        <div class="field">
+          <label>Numéro INE</label>
+          <input type="text" id="ine" placeholder="Ex: 176253427G">
+        </div>
+        <div class="field">
+          <label>Cycle</label>
+          <select id="cycle">
+            <option value="college">Collège</option>
+            <option value="lycee">Lycée</option>
+          </select>
+        </div>
+        <div class="field" id="college-classe-field">
+          <label>Classe</label>
+          <select id="niveau-college">
+            <option value="6a">Sixième A</option>
+            <option value="6b">Sixième B</option>
+            <option value="6c">Sixième C</option>
+            <option value="5a">Cinquième A</option>
+            <option value="5b">Cinquième B</option>
+            <option value="4a">Quatrième A</option>
+            <option value="4b">Quatrième B</option>
+            <option value="3a">Troisième A</option>
+            <option value="3b">Troisième B</option>
+          </select>
+        </div>
+        <div class="field" id="lycee-classe-field" style="display:none;">
+          <label>Classe</label>
+          <select id="niveau-lycee-classe">
+            <option value="2">Seconde</option>
+            <option value="1">Première</option>
+            <option value="t">Terminale</option>
+          </select>
+        </div>
+        <div class="field" id="lycee-serie-field" style="display:none;">
+          <label>Série</label>
+          <select id="niveau-lycee-serie">
+            <option value="s2a">S2A (Scientifique)</option>
+            <option value="la">LA (Littéraire)</option>
+          </select>
+        </div>
+        <div class="field" id="tla-section-field" style="display:none;">
+          <label>Section</label>
+          <select id="niveau-tla-section">
+            <option value="1">Terminale LA 1</option>
+            <option value="2">Terminale LA 2</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Champs Professeur -->
+      <div id="prof-fields" style="display:none;">
+        <div class="field">
+          <label>Matricule</label>
+          <input type="text" id="matricule-prof" placeholder="Votre matricule">
+        </div>
+        <p style="font-size:12px; margin-bottom:10px; color:var(--slate)">Cochez vos disciplines :</p>
+        <label style="display:block; font-size:13px;"><input type="checkbox" name="mats" value="Mathématiques"> Mathématiques</label>
+        <label style="display:block; font-size:13px;"><input type="checkbox" name="mats" value="Français"> Français</label>
+        <label style="display:block; font-size:13px;"><input type="checkbox" name="mats" value="Anglais"> Anglais</label>
+        <label style="display:block; font-size:13px;"><input type="checkbox" name="mats" value="Arabe"> Arabe</label>
+        <label style="display:block; font-size:13px;"><input type="checkbox" name="mats" value="SVT"> SVT</label>
+        <label style="display:block; font-size:13px;"><input type="checkbox" name="mats" value="Physique-Chimie"> Physique-Chimie</label>
+        <label style="display:block; font-size:13px;"><input type="checkbox" name="mats" value="Histoire-Géo"> Histoire-Géo</label>
+        <label style="display:block; font-size:13px;"><input type="checkbox" name="mats" value="EPS"> EPS</label>
+        <label style="display:block; font-size:13px;"><input type="checkbox" name="mats" value="Éducation Religieuse"> Éducation Religieuse</label>
+        <label style="display:block; font-size:13px;"><input type="checkbox" name="mats" value="Philosophie"> Philosophie</label>
+      </div>
+
+      <!-- Champs Intendant -->
+      <div id="intendant-fields" style="display:none;">
+        <div class="field">
+          <label>Matricule</label>
+          <input type="text" id="matricule-intendant" placeholder="Votre matricule">
+        </div>
+        <p style="font-size:12px; color:var(--slate)">Votre compte sera activé après validation par le Proviseur ou le Censeur.</p>
+      </div>
+
+      <div class="field" style="margin-top:15px;">
+        <label>Mot de passe (6 car. min)</label>
+        <input type="password" id="pw" required minlength="6">
+      </div>
+
+      <div id="error-msg" class="error"></div>
+      <button type="submit" class="btn" id="submit-btn">Créer mon compte</button>
+    </form>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+    authDomain: "lfakm-87dec.firebaseapp.com",
+    projectId: "lfakm-87dec",
+    storageBucket: "lfakm-87dec.firebasestorage.app",
+    messagingSenderId: "739517262614",
+    appId: "1:739517262614:web:14abd3538427960c527e37"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const eleveFields = document.getElementById('eleve-fields');
+  const profFields = document.getElementById('prof-fields');
+  const intendantFields = document.getElementById('intendant-fields');
+  const collegeClasseField = document.getElementById('college-classe-field');
+  const lyceeClasseField = document.getElementById('lycee-classe-field');
+  const lyceeSerieField = document.getElementById('lycee-serie-field');
+  const tlaSectionField = document.getElementById('tla-section-field');
+  const lyceeClasseSelect = document.getElementById('niveau-lycee-classe');
+  const lyceeSerieSelect = document.getElementById('niveau-lycee-serie');
+
+  function updateTlaSectionVisibility() {
+    const isTerminaleLA = lyceeClasseSelect.value === 't' && lyceeSerieSelect.value === 'la';
+    tlaSectionField.style.display = isTerminaleLA ? 'block' : 'none';
+  }
+  lyceeClasseSelect.addEventListener('change', updateTlaSectionVisibility);
+  lyceeSerieSelect.addEventListener('change', updateTlaSectionVisibility);
+
+  document.getElementById('cycle').addEventListener('change', (e) => {
+    if (e.target.value === 'college') {
+      collegeClasseField.style.display = 'block';
+      lyceeClasseField.style.display = 'none';
+      lyceeSerieField.style.display = 'none';
+      tlaSectionField.style.display = 'none';
+    } else {
+      collegeClasseField.style.display = 'none';
+      lyceeClasseField.style.display = 'block';
+      lyceeSerieField.style.display = 'block';
+      updateTlaSectionVisibility();
+    }
+  });
+
+  document.getElementsByName('role').forEach(input => {
+    input.addEventListener('change', (e) => {
+      eleveFields.style.display = e.target.value === 'eleve' ? 'block' : 'none';
+      profFields.style.display = e.target.value === 'professeur' ? 'block' : 'none';
+      intendantFields.style.display = e.target.value === 'intendant' ? 'block' : 'none';
+    });
+  });
+
+  document.getElementById('signup-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    const err = document.getElementById('error-msg');
+    err.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = "Création...";
+
+    const role = document.querySelector('input[name="role"]:checked').value;
+    const email = document.getElementById('email').value;
+    const prenom = document.getElementById('prenom').value;
+    const nom = document.getElementById('nom').value;
+    const pw = document.getElementById('pw').value;
+    const telephone = document.getElementById('telephone').value.trim();
+
+    try {
+      if (role === 'eleve') {
+        const ine = document.getElementById('ine').value.trim();
+        const ineRef = doc(db, 'ines_autorises', ine);
+        const ineSnap = await getDoc(ineRef);
+        if (!ineSnap.exists() || ineSnap.data().utilise) {
+          throw new Error("INE invalide ou déjà utilisé.");
+        }
+      }
+
+      const cred = await createUserWithEmailAndPassword(auth, email, pw);
+      const userData = {
+        prenom, nom, email, telephone, role,
+        date: new Date().toISOString()
+      };
+
+      if (role === 'eleve') {
+        userData.ine = document.getElementById('ine').value.trim();
+        if (document.getElementById('cycle').value === 'college') {
+          userData.niveau = document.getElementById('niveau-college').value;
+        } else {
+          const classeLycee = document.getElementById('niveau-lycee-classe').value;
+          const serieLycee = document.getElementById('niveau-lycee-serie').value;
+          if (classeLycee === 't' && serieLycee === 'la') {
+            userData.niveau = 'tla' + document.getElementById('niveau-tla-section').value;
+          } else {
+            userData.niveau = classeLycee + serieLycee;
+          }
+        }
+        userData.statut = 'valide';
+        await updateDoc(doc(db, 'ines_autorises', userData.ine), { utilise: true });
+      } else if (role === 'professeur') {
+        userData.matricule = document.getElementById('matricule-prof').value.trim();
+        userData.disciplines = Array.from(document.querySelectorAll('input[name="mats"]:checked')).map(i => i.value);
+        userData.classes = []; // Sera rempli par l'admin plus tard
+        userData.assignedClasses = [];
+        userData.statut = 'en_attente'; // Validation requise (Proviseur ou Censeur)
+      } else if (role === 'intendant') {
+        userData.matricule = document.getElementById('matricule-intendant').value.trim();
+        userData.statut = 'en_attente'; // Validation requise (Proviseur ou Censeur)
+      }
+
+      await setDoc(doc(db, 'utilisateurs', cred.user.uid), userData);
+      window.location.href = 'ressources.html';
+
+    } catch (error) {
+      err.textContent = error.message;
+      err.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = "Créer mon compte";
+    }
+  });
+</script>
+</body>
+</html>
