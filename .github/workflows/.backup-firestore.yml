@@ -1,0 +1,37 @@
+name: Sauvegarde hebdomadaire de la base Firestore
+
+on:
+  schedule:
+    # Chaque lundi Ã  2h du matin (heure UTC)
+    - cron: '0 2 * * 1'
+  workflow_dispatch: {}  # permet aussi de lancer la sauvegarde manuellement depuis l'onglet "Actions"
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: RÃ©cupÃ©rer le dÃ©pÃ´t
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Installer firebase-admin
+        run: npm install firebase-admin
+
+      - name: Lancer la sauvegarde
+        run: node scripts/backup-firestore.js
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Enregistrer la sauvegarde dans le dÃ©pÃ´t
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add backups/
+          git diff --staged --quiet || git commit -m "Sauvegarde automatique Firestore du $(date +'%Y-%m-%d')"
+          git push
