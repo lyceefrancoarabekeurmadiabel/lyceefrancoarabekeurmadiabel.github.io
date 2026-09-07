@@ -8,38 +8,166 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Inscription — LFAKM</title>
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --ink: #1B2A4A; --paper: #F7F5F0; --brass: #A8853F; --slate: #5B6472; --line: rgba(27,42,74,0.14); }
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
+    --slate: #5B6472; --text: #1A1A1A; --line: rgba(27,42,74,0.14);
+    --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+  }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink); display: flex; flex-direction: column; min-height: 100vh; }
-  header { background: #fff; border-bottom: 1px solid var(--line); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-  .brand { font-family: 'Source Serif 4', serif; font-weight: 700; text-decoration: none; color: var(--ink); display: flex; align-items: center; gap: 10px; }
-  .brand img { width: 32px; height: 32px; }
-  .container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
-  .box { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 500px; border: 1px solid var(--line); }
-  h1 { font-family: 'Source Serif 4', serif; margin-bottom: 20px; text-align: center; }
+  body { font-family: var(--sans); color: var(--text); background: #f9f7f2; line-height:1.55; }
+  .wrap { max-width:1100px; margin:0 auto; padding:0 24px; }
+
+  /* HEADER */
+  header { background: var(--paper); border-bottom: 1px solid var(--line); height: 84px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1000; }
+  .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; }
+  .brand { display:flex; align-items:center; gap:12px; text-decoration: none; min-width: 0; }
+  .brand-mark { width:45px; height:45px; flex-shrink: 0; display:flex; align-items:center; justify-content:center; }
+  .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
+  .brand-name { font-family:var(--serif); font-weight:700; font-size:18px; color:var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  nav ul { display:flex; gap:20px; list-style:none; align-items: center; }
+  nav a { font-size:14px; font-weight:600; color:var(--ink); text-decoration: none; }
+  nav a:hover, nav a.active { color: var(--brass); }
+
+  /* MENU DÉROULANT ADMIN */
+  .admin-item { display: none; position: relative; }
+  .admin-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    min-width: 180px;
+    z-index: 100;
+    padding: 5px 0;
+  }
+  .admin-dropdown a {
+    display: block;
+    padding: 8px 15px;
+    color: var(--ink);
+    font-size: 13px;
+    text-decoration: none;
+  }
+  .admin-dropdown a:hover { background: #f5f5f5; }
+  .admin-item:hover .admin-dropdown { display: block; }
+  .admin-trigger {
+    background: var(--brass);
+    color: #fff !important;
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* PROFIL UTILISATEUR */
+  #user-profile { display: none; font-weight: 700; color: var(--brass); font-size: 14px; }
+  .nav-cta { background: var(--ink-deep); color:#fff; padding:10px 18px; border-radius:4px; font-size:13px; font-weight:600; text-decoration:none; border:none; cursor:pointer; }
+  .menu-toggle { display: none; font-size: 28px; background: none; border: none; color: var(--ink); cursor: pointer; padding: 4px 8px; flex-shrink: 0; }
+
+  @media (max-width: 900px) {
+    .brand-name { font-size: 15px; max-width: 46vw; }
+    .menu-toggle { display: block; }
+    nav ul {
+      display: none; position: absolute; top: 84px; left: 0; width: 100%;
+      flex-direction: column; background: #fff; padding: 20px; gap: 15px;
+      text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-bottom: 2px solid var(--line);
+    }
+    nav ul.show { display: flex; }
+    .admin-dropdown { position: static; box-shadow: none; border: none; }
+  }
+
+  /* ZONE D'INSCRIPTION */
+  .signup-wrap {
+    min-height: calc(100vh - 85px);
+    display:flex; align-items:center; justify-content:center; padding: 60px 24px;
+  }
+  .signup-box {
+    background: var(--paper); border: 1px solid var(--line); width:100%; max-width: 550px; padding: 48px 40px;
+    border-radius: 8px;
+  }
+  .signup-eyebrow {
+    font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--brass); font-weight: 700; margin-bottom: 12px;
+  }
+  .signup-box h1 { font-family: var(--serif); font-size: 26px; font-weight: 600; color: var(--ink); }
+  .signup-box > p { color: var(--slate); font-size: 14px; margin-top: 10px; margin-bottom: 30px; }
+
+  .field { margin-bottom: 20px; }
+  .field label { display:block; font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+  .field input, .field select {
+    width: 100%; padding: 13px 14px; border: 1px solid var(--line); border-radius: 6px;
+    background: #fff; font-family: var(--sans); font-size: 14.5px; color: var(--text);
+  }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--brass); }
+
   .role-selector { display: flex; gap: 10px; margin-bottom: 20px; }
-  .role-selector label { flex: 1; text-align: center; padding: 10px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; font-weight: 600; }
+  .role-selector label { flex: 1; text-align: center; padding: 10px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
   .role-selector input { display: none; }
   .role-selector input:checked + label { background: var(--ink); color: #fff; border-color: var(--ink); }
-  .field { margin-bottom: 15px; }
-  .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
-  .field input, .field select { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 6px; background: #fafafa; }
-  .btn { width: 100%; padding: 14px; background: var(--ink); color: #fff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; margin-top: 10px; }
-  .error { color: #d9534f; font-size: 13px; margin-top: 10px; text-align: center; display: none; }
+
+  .btn-submit {
+    width: 100%; background: var(--ink); color: #fff; padding: 15px; font-weight: 700; font-size: 14px;
+    border: none; border-radius: 6px; cursor: pointer; letter-spacing: 0.02em; font-family: var(--sans);
+  }
+  .btn-submit:hover { background: var(--ink-deep); }
+  .btn-submit:disabled { background: #ccc; }
+
+  .signup-note {
+    margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--line);
+    font-size: 12.5px; color: var(--slate); text-align: center;
+  }
+  .signup-note a { color: var(--ink); border-bottom: 1px solid var(--brass); padding-bottom: 1px; }
+  .signup-note a:hover { color: var(--brass); }
+
+  .error-msg { color: #B3402A; font-size: 13px; margin-top: 10px; text-align: center; display: none; }
+
+  footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
 </style>
 </head>
 <body>
 
 <header>
-  <a href="index.html" class="brand"><img src="logo-header.png" alt="LFAKM">LFAKM - Inscription</a>
-  <a href="identification.html" style="font-size:13px; font-weight:600; color:var(--brass)">Se connecter</a>
+  <div class="wrap nav-row">
+    <a href="index.html" class="brand">
+      <div class="brand-mark"><img src="logo-header.png" alt="LFAKM"></div>
+      <div class="brand-name">Lycée Franco Arabe de Keur Madiabel</div>
+    </a>
+    <nav>
+      <ul id="main-menu">
+        <li><a href="index.html">Accueil</a></li>
+        
+        <!-- MENU DÉROULANT ADMIN (visible uniquement pour les admins) -->
+        <li class="admin-item">
+          <span class="admin-trigger">⚙️ Outils Admin</span>
+          <div class="admin-dropdown">
+            <a href="admin-ine.html">📥 Import INE</a>
+            <a href="admin-gestion.html">👥 Gestion</a>
+            <a href="admin-news.html">📰 Actualités</a>
+          </div>
+        </li>
+
+        <li><a href="historique.html">Historique</a></li>
+        <li><a href="actualites.html">Actualités</a></li>
+        <li><a href="ressources.html">Ressources</a></li>
+        <li><a href="#" onclick="window.showContact(); return false;">📞 Contacter le Proviseur</a></li>
+        <li id="user-profile"></li>
+        <li><a href="identification.html" id="auth-link" class="nav-cta">Connexion</a></li>
+      </ul>
+    </nav>
+    <button class="menu-toggle" id="menu-toggle-btn" aria-label="Menu">☰</button>
+  </div>
 </header>
 
-<div class="container">
-  <div class="box">
+<div class="signup-wrap">
+  <div class="signup-box">
+    <div class="signup-eyebrow">Nouveau compte</div>
     <h1>Créer un compte</h1>
+    <p>Inscrivez-vous pour accéder à l'espace pédagogique.</p>
+
     <form id="signup-form">
       <div class="role-selector">
         <input type="radio" name="role" id="role-eleve" value="eleve" checked>
@@ -155,15 +283,20 @@
         <input type="password" id="pw" required minlength="6">
       </div>
 
-      <div id="error-msg" class="error"></div>
-      <button type="submit" class="btn" id="submit-btn">Créer mon compte</button>
+      <div id="error-msg" class="error-msg"></div>
+      <button type="submit" class="btn-submit" id="submit-btn">Créer mon compte</button>
     </form>
+
+    <div class="signup-note">Déjà inscrit ? <a href="identification.html">Se connecter</a></div>
   </div>
 </div>
 
+<footer>© 2026 Lycée Franco Arabe de Keur Madiabel<div id="public-contact" style="margin-top: 12px;"></div></footer>
+
+<!-- NE PAS COLLER LE SCRIPT ICI. IL EST DANS LA PARTIE 2 -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -179,6 +312,79 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
+  // Gestion du menu mobile
+  document.getElementById('menu-toggle-btn').onclick = () => document.getElementById('main-menu').classList.toggle('show');
+
+  // Protection anti-XSS : échappe tout texte saisi par un utilisateur avant de l'insérer dans le HTML
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str ?? '';
+    return div.innerHTML;
+  }
+
+  // Affichage des coordonnées du Proviseur dans le footer
+  getDoc(doc(db, 'config', 'contact')).then(snap => {
+    if (!snap.exists()) return;
+    const c = snap.data();
+    if (!c.email && !c.telephone) return;
+    document.getElementById('public-contact').innerHTML = `
+      Contacter le Proviseur${c.nom ? ' — ' + escapeHtml(c.nom) : ''} :
+      ${c.telephone ? `<a href="tel:${escapeHtml(c.telephone)}" style="color:#fff;text-decoration:underline;margin-left:8px;">${escapeHtml(c.telephone)}</a>` : ''}
+      ${c.email ? `<a href="mailto:${escapeHtml(c.email)}" style="color:#fff;text-decoration:underline;margin-left:8px;">${escapeHtml(c.email)}</a>` : ''}
+    `;
+  });
+
+  // Gestion de l'authentification (Connexion / Déconnexion / Admin)
+  onAuthStateChanged(auth, async (user) => {
+    const link = document.getElementById('auth-link');
+    const profileSpan = document.getElementById('user-profile');
+    
+    if (user) {
+      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+      const profile = snap.data();
+      
+      // Affiche le nom de l'utilisateur connecté
+      profileSpan.textContent = `👤 ${profile.prenom} ${profile.nom}`;
+      profileSpan.style.display = 'block';
+      
+      // Bouton Déconnexion
+      link.textContent = "Déconnexion";
+      link.onclick = () => signOut(auth).then(() => location.reload());
+      
+      // Affiche le menu déroulant Admin uniquement pour les admins
+      if (profile.role === 'admin' || profile.role === 'proviseur' || profile.role === 'censeur') {
+        document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
+      }
+    } else {
+      // Visiteur non connecté
+      profileSpan.style.display = 'none';
+      link.textContent = "Connexion";
+      link.href = "identification.html";
+    }
+  });
+
+  // Fonction pour afficher les coordonnées du Proviseur dans une fenêtre modale
+  window.showContact = async () => {
+    const snap = await getDoc(doc(db, 'config', 'contact'));
+    if (!snap.exists() || !snap.data().email) {
+      alert("Les coordonnées du Proviseur n'ont pas encore été renseignées.");
+      return;
+    }
+    const c = snap.data();
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
+    overlay.innerHTML = `
+      <div style="background:#fff;border-radius:12px;padding:25px;max-width:340px;width:100%;text-align:center;">
+        <h3 style="font-family:var(--serif);color:var(--ink);margin-bottom:6px;">${escapeHtml(c.nom) || 'Le Proviseur'}</h3>
+        <p style="font-size:12px;color:var(--slate);margin-bottom:18px;">Chef d'établissement — LFAKM</p>
+        ${c.telephone ? `<a href="tel:${c.telephone}" style="display:block;padding:10px;margin-bottom:8px;background:var(--ink-deep);color:#fff;border-radius:6px;text-decoration:none;">📞 ${c.telephone}</a>` : ''}
+        ${c.email ? `<a href="mailto:${c.email}" style="display:block;padding:10px;margin-bottom:14px;background:var(--brass);color:#fff;border-radius:6px;text-decoration:none;">✉️ ${c.email}</a>` : ''}
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="border:none;background:#eee;padding:8px 16px;border-radius:6px;cursor:pointer;">Fermer</button>
+      </div>`;
+    document.body.appendChild(overlay);
+  };
+
+  // Logique d'affichage conditionnel des champs selon le rôle
   const eleveFields = document.getElementById('eleve-fields');
   const profFields = document.getElementById('prof-fields');
   const intendantFields = document.getElementById('intendant-fields');
@@ -218,6 +424,7 @@
     });
   });
 
+  // Logique de soumission du formulaire d'inscription
   document.getElementById('signup-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('submit-btn');
