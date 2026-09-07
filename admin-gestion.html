@@ -237,8 +237,8 @@
         <button class="btn" onclick="document.getElementById('assign-modal').style.display='none'">Annuler</button>
     </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, collection, collectionGroup, getDocs, doc, getDoc, updateDoc, setDoc, deleteDoc, increment, onSnapshot, writeBatch, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -411,7 +411,6 @@
             const ops = [];
             const pushOp = (ref, data) => { if (data) ops.push({ ref, data }); };
 
-            // Collections simples : { id: donnees }
             const simpleCollections = {
                 utilisateurs: backup.utilisateurs,
                 actualites: backup.actualites,
@@ -424,7 +423,6 @@
                 }
             }
 
-            // Sous-collections imbriquées : liste de { chemin, donnees }
             const groupCollections = [backup.ressources_cours, backup.ressources_td, backup.devoirs, backup.rendus_devoirs];
             for (const group of groupCollections) {
                 if (!group) continue;
@@ -433,14 +431,12 @@
                 }
             }
 
-            // Documents de configuration
             if (backup.config_annee_scolaire) pushOp(doc(db, 'config', 'schoolYear'), backup.config_annee_scolaire);
             if (backup.config_stockage) pushOp(doc(db, 'config', 'usage'), backup.config_stockage);
             if (backup.config_contact_proviseur) pushOp(doc(db, 'config', 'contact'), backup.config_contact_proviseur);
 
             if (ops.length === 0) { alert("Ce fichier ne contient aucune donnée reconnue."); btn.disabled = false; btn.textContent = "Restaurer cette sauvegarde"; return; }
 
-            // Écriture par lots de 400 (limite Firestore : 500 opérations par lot)
             for (let i = 0; i < ops.length; i += 400) {
                 const chunk = ops.slice(i, i + 400);
                 const batch = writeBatch(db);
@@ -488,7 +484,6 @@
         const levelLabelMap = {};
         allLevels.forEach(l => { levelLabelMap[l.id] = l.n; });
 
-        // Élèves par classe + comptes en attente
         const usersSnap = await getDocs(collection(db, 'utilisateurs'));
         const eleveCountByNiveau = {};
         let totalEleves = 0, totalProfs = 0, totalEnAttente = 0;
@@ -517,7 +512,6 @@
             .join('');
         classesTbody.innerHTML = classesRows || '<tr><td colspan="2">Aucune donnée</td></tr>';
 
-        // Notes moyennes par matière + taux de rendu des devoirs
         const matNameBySlug = {};
         ['Mathématiques', 'Français', 'Anglais', 'Arabe', 'SVT', 'Physique-Chimie', 'Histoire-Géo', 'EPS', 'Éducation Religieuse', 'Philosophie']
             .forEach(m => { matNameBySlug[m.toLowerCase().replace(/[^a-z0-9]/g, '')] = m; });
@@ -573,4 +567,160 @@
         const tbody = document.querySelector("#users-table tbody");
         tbody.innerHTML = '';
 
-        snap.forEach((user
+        snap.forEach((userDoc) => {
+            const u = userDoc.data();
+            const id = userDoc.id;
+            window.allUsersCache.push(u);
+            const tr = document.createElement('tr');
+            tr.dataset.nom = `${u.prenom} ${u.nom}`.toLowerCase();
+            tr.dataset.role = u.role;
+            tr.dataset.niveau = u.niveau || '';
+            
+            const classesDisplay = u.assignedClasses ? u.assignedClasses.map(c => `<span class="class-badge">${c}</span>`).join('') : '<i style="color:grey">Aucune</i>';
+            const enAttente = (u.role === 'professeur' || u.role === 'intendant') && u.statut === 'en_attente';
+            const statutDisplay = enAttente ? '⏳ En attente' : '✅ Validé';
+
+            tr.innerHTML = `
+                <td>${u.prenom} ${u.nom}</td>
+                <td>${u.matricule || '-'}</td>
+                <td>${u.telephone ? `<a href="tel:${u.telephone}">${u.telephone}</a>` : '-'}</td>
+                <td>${u.role.toUpperCase()}</td>
+                <td>${statutDisplay}</td>
+                <td>${u.disciplines?.join(', ') || u.niveau || '-'}</td>
+                <td>${u.role === 'professeur' ? classesDisplay : '-'}</td>
+                <td id="act-${id}"></td>
+            `;
+            tbody.appendChild(tr);
+
+            const cell = document.getElementById(`act-${id}`);
+            if (enAttente) {
+                const validBtn = document.createElement('button');
+                validBtn.className = 'btn btn-save'; validBtn.textContent = 'Valider';
+                validBtn.style.marginRight = '5px';
+                validBtn.onclick = async () => {
+                    await updateDoc(doc(db, "utilisateurs", id), { statut: 'valide' });
+                    location.reload();
+                };
+                cell.appendChild(validBtn);
+            }
+            if (u.role === 'professeur') {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-blue'; btn.textContent = 'Affecter Classes';
+                btn.style.marginRight = '5px';
+                btn.onclick = () => openAssignModal(id, u);
+                cell.appendChild(btn);
+            }
+            const roleBtn = document.createElement('button');
+            roleBtn.className = 'btn'; roleBtn.style.background = '#eee'; roleBtn.textContent = 'Modifier rôle';
+            roleBtn.onclick = async () => {
+                const newRole = prompt("Nouveau rôle (eleve, professeur, intendant, censeur, proviseur) :", u.role);
+                if (!['eleve','professeur','intendant','censeur','proviseur'].includes(newRole)) return;
+                if (confirm(`Confirmer le passage de ${u.prenom} ${u.nom} au rôle ${newRole} ?`)) {
+                    await updateDoc(doc(db, "utilisateurs", id), { role: newRole, statut: 'valide' });
+                    location.reload();
+                }
+            };
+            cell.appendChild(roleBtn);
+        });
+
+        window.filterTable();
+    }
+
+    let selectedTeacherId = null;
+    function openAssignModal(uid, data) {
+        selectedTeacherId = uid;
+        document.getElementById('modal-teacher-name').textContent = "Affectation : " + data.prenom;
+        const container = document.getElementById('classes-checkboxes');
+        container.innerHTML = allLevels.map(l => `
+            <label style="display:block; margin:5px 0;">
+                <input type="checkbox" name="lvl-check" value="${l.id}" ${(data.assignedClasses || []).includes(l.id) ? 'checked' : ''}> ${l.n}
+            </label>
+        `).join('');
+        document.getElementById('assign-modal').style.display = 'block';
+    }
+
+    document.getElementById('confirm-assign').onclick = async () => {
+        const checks = Array.from(document.querySelectorAll('input[name="lvl-check"]:checked')).map(c => c.value);
+        await updateDoc(doc(db, "utilisateurs", selectedTeacherId), { assignedClasses: checks });
+        alert("Classes affectées !");
+        location.reload();
+    };
+
+    function getExportData() {
+        const roleFilter = document.getElementById('export-role').value;
+        const niveauFilter = document.getElementById('export-niveau').value;
+        const users = (window.allUsersCache || []).filter(u => {
+            if (roleFilter === 'eleve' && u.role !== 'eleve') return false;
+            if (roleFilter === 'personnel' && u.role === 'eleve') return false;
+            if (u.role === 'eleve' && niveauFilter !== 'tous' && u.niveau !== niveauFilter) return false;
+            return true;
+        });
+
+        const headers = ["Prénom", "Nom", "Rôle", "Classe/Niveau", "Téléphone", "Email", "Père/Tuteur", "Tél. Père", "Mère/Tutrice", "Tél. Mère", "Adresse"];
+        const rows = users.map(u => [
+            u.prenom || '', u.nom || '', u.role || '', u.niveau || u.disciplines?.join(' / ') || '',
+            u.telephone || '', u.email || '',
+            u.famille?.pereNom || '', u.famille?.pereTel || '',
+            u.famille?.mereNom || '', u.famille?.mereTel || '', u.famille?.adresse || ''
+        ]);
+
+        const suffix = roleFilter === 'eleve' ? (niveauFilter === 'tous' ? 'eleves-toutes-classes' : `eleves-${niveauFilter}`) : roleFilter;
+        return { headers, rows, suffix, count: users.length };
+    }
+
+    window.exportData = (format) => {
+        const { headers, rows, suffix, count } = getExportData();
+        if (count === 0) { alert("Aucun utilisateur ne correspond à ces filtres."); return; }
+        const filename = `LFAKM-${suffix}-${new Date().toISOString().slice(0, 10)}`;
+
+        if (format === 'csv') {
+            const esc = (v) => `"${String(v).replace(/"/g, '""')}"`;
+            const csv = "\uFEFF" + [headers, ...rows].map(r => r.map(esc).join(';')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename + '.csv';
+            link.click();
+        } else if (format === 'excel') {
+            const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+            ws['!cols'] = headers.map(() => ({ wch: 18 }));
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Liste");
+            XLSX.writeFile(wb, filename + '.xlsx');
+        }
+    };
+
+    window.promptNewYear = async () => {
+        const year = prompt("Entrez la nouvelle année scolaire (ex: 2026-2027) :");
+        if (year && confirm(`Confirmer le passage à l'année ${year} ? La base sera propre pour cette année.`)) {
+            await setDoc(doc(db, "config", "schoolYear"), { year: year });
+            location.reload();
+        }
+    };
+
+    window.archiveDevoirs = async () => {
+        if (!confirm("Cette action va SUPPRIMER DÉFINITIVEMENT tous les devoirs et les rendus des élèves (fichiers y compris) pour libérer de l'espace de stockage. Les cours et TD ne sont pas concernés. Continuer ?")) return;
+        const btn = document.getElementById('archive-btn');
+        btn.disabled = true;
+        btn.textContent = "Archivage en cours...";
+        try {
+            const devoirsSnap = await getDocs(collectionGroup(db, 'devoirs'));
+            let count = 0;
+            for (const devDoc of devoirsSnap.docs) {
+                const rendusSnap = await getDocs(collection(devDoc.ref, 'rendus'));
+                for (const r of rendusSnap.docs) {
+                    await deleteDoc(r.ref);
+                }
+                await deleteDoc(devDoc.ref);
+                count++;
+            }
+            alert(`${count} devoir(s) et tous leurs rendus ont été supprimés.`);
+        } catch (err) {
+            alert("Erreur : " + err.message + "\n\nSi Firestore demande de créer un index pour cette requête, cliquez sur le lien fourni dans la console puis réessayez.");
+        }
+        btn.disabled = false;
+        btn.textContent = "🗑 Archiver les devoirs de l'année écoulée";
+    };
+</script>
+</body>
+</html>
