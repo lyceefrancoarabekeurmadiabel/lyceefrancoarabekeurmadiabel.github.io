@@ -30,7 +30,7 @@
   nav a { font-size:13px; font-weight:600; color:var(--ink); text-decoration:none; }
   nav a:hover { color: var(--brass); }
 
-  /* ---------------- MENU DÉROULANT ADMIN ---------------- */
+  /* MENU DÉROULANT ADMIN (discret) */
   .admin-item { display: none; position: relative; }
   .admin-dropdown {
     display: none;
@@ -55,15 +55,15 @@
   .admin-dropdown a:hover { background: #f5f5f5; }
   .admin-item:hover .admin-dropdown { display: block; }
   .admin-trigger {
-    background: var(--brass);
+    background: var(--ink-deep);
     color: #fff !important;
-    padding: 8px 15px;
+    padding: 6px 12px;
     border-radius: 4px;
-    font-weight: 700;
+    font-weight: 600;
+    font-size: 12px;
     cursor: pointer;
   }
 
-  /* ---------------- PROFIL UTILISATEUR ---------------- */
   #user-profile { display: none; font-weight: 700; color: var(--brass); font-size: 14px; }
   .nav-cta { background: var(--ink-deep); color:#fff !important; padding:10px 18px; font-size:12px; font-weight:600; border-radius:4px; text-decoration:none; }
   .menu-toggle { display: none; font-size: 30px; cursor: pointer; }
@@ -167,7 +167,7 @@
         <li><a href="index.html">Accueil</a></li>
         <!-- MENU DÉROULANT ADMIN (visible uniquement pour les admins) -->
         <li class="admin-item">
-          <span class="admin-trigger">⚙️ Outils Admin</span>
+          <span class="admin-trigger">⚙️ Admin</span>
           <div class="admin-dropdown">
             <a href="admin-ine.html">📥 Import INE</a>
             <a href="admin-gestion.html">👥 Gestion</a>
@@ -244,7 +244,6 @@
 
 <footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
 
-<!-- NE PAS COLLER LE SCRIPT ICI. IL EST DANS LA PARTIE 2 -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
@@ -265,13 +264,11 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // Protection App Check (reCAPTCHA Enterprise) — obligatoire pour utiliser Firebase AI Logic
   initializeAppCheck(app, {
     provider: new ReCaptchaEnterpriseProvider('6LdOP6ItAAAAACzY2OKByptaOob6nC5aVPg8n6lx'),
     isTokenAutoRefreshEnabled: true
   });
 
-  // Assistant IA (Gemini, via Firebase AI Logic — clé jamais exposée dans le code)
   const ai = getAI(app, { backend: new GoogleAIBackend() });
   const aiModel = getGenerativeModel(ai, {
     model: "gemini-3.6-flash",
@@ -323,7 +320,6 @@
 
   let profile = null;
 
-  // Protection anti-XSS : échappe tout texte saisi par un utilisateur avant de l'insérer dans le HTML
   function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str ?? '';
