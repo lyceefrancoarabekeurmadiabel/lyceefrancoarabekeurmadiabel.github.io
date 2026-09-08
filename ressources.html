@@ -176,19 +176,32 @@
   .delete-btn { color: red; font-weight: bold; cursor: pointer; border: none; background: none; }
 
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
+  
+  /* IA CHAT */
   #ai-chat-toggle { position: fixed; bottom: 20px; right: 20px; width: 58px; height: 58px; border-radius: 50%; background: var(--brass); color: #fff; border: none; font-size: 24px; box-shadow: 0 4px 14px rgba(0,0,0,0.25); cursor: pointer; z-index: 2000; }
-  #ai-chat-panel { display: none; flex-direction: column; position: fixed; bottom: 90px; right: 20px; width: 340px; max-width: calc(100vw - 40px); height: 460px; max-height: calc(100vh - 140px); background: #fff; border-radius: 14px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 2000; overflow: hidden; }
+  #ai-chat-panel { display: none; flex-direction: column; position: fixed; bottom: 90px; right: 20px; width: 360px; max-width: calc(100vw - 40px); height: 480px; max-height: calc(100vh - 140px); background: #fff; border-radius: 14px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 2000; overflow: hidden; border: 1px solid var(--line); }
   #ai-chat-panel.show { display: flex; }
-  #ai-chat-header { background: var(--ink-deep); color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 14px; }
-  #ai-chat-header button { background: none; border: none; color: #fff; font-size: 16px; cursor: pointer; }
+  #ai-chat-header { background: var(--ink-deep); color: #fff; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 14px; }
+  #ai-chat-header .ai-status { font-size: 10px; font-weight: 400; color: #B7BCC9; }
+  #ai-chat-header .ai-status.active { color: #2ecc71; }
+  #ai-chat-header .ai-status.inactive { color: #e74c3c; }
+  #ai-chat-header button { background: none; border: none; color: #fff; font-size: 18px; cursor: pointer; }
   #ai-chat-messages { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: var(--paper); }
-  .ai-msg { max-width: 85%; padding: 10px 13px; border-radius: 12px; font-size: 13px; line-height: 1.4; }
-  .ai-msg-bot { background: #fff; border: 1px solid var(--line); align-self: flex-start; }
-  .ai-msg-user { background: var(--ink-deep); color: #fff; align-self: flex-end; }
+  .ai-msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.5; }
+  .ai-msg-bot { background: #fff; border: 1px solid var(--line); align-self: flex-start; border-bottom-left-radius: 4px; }
+  .ai-msg-user { background: var(--ink-deep); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
   .ai-msg-loading { background: #fff; border: 1px solid var(--line); align-self: flex-start; color: var(--slate); font-style: italic; }
-  #ai-chat-input-row { display: flex; border-top: 1px solid var(--line); padding: 10px; gap: 8px; }
-  #ai-chat-input { flex: 1; border: 1px solid var(--line); border-radius: 20px; padding: 10px 14px; font-size: 13px; outline: none; }
-  #ai-chat-send { background: var(--brass); color: #fff; border: none; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; flex-shrink: 0; }
+  .ai-msg-error { background: #fde8e8; border: 1px solid #f5c6cb; align-self: flex-start; color: #721c24; }
+  #ai-chat-input-row { display: flex; border-top: 1px solid var(--line); padding: 10px 14px; gap: 8px; background: #fff; }
+  #ai-chat-input { flex: 1; border: 1px solid var(--line); border-radius: 20px; padding: 10px 16px; font-size: 13px; outline: none; font-family: var(--sans); }
+  #ai-chat-input:focus { border-color: var(--brass); }
+  #ai-chat-send { background: var(--brass); color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; flex-shrink: 0; font-size: 18px; transition: background 0.3s; }
+  #ai-chat-send:hover { background: #96743a; }
+  #ai-chat-send:disabled { opacity: 0.5; cursor: not-allowed; }
+  
+  .ai-welcome { text-align: center; padding: 20px 10px; color: var(--slate); font-size: 13px; }
+  .ai-welcome .icon { font-size: 40px; display: block; margin-bottom: 10px; }
+  .ai-welcome .title { font-weight: 700; color: var(--ink); font-size: 16px; }
 </style>
 </head>
 <body>
@@ -297,6 +310,29 @@
 
 <footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
 
+<!-- IA CHAT PANEL -->
+<div id="ai-chat-panel">
+  <div id="ai-chat-header">
+    <span>🤖 Assistant LFAKM</span>
+    <span class="ai-status" id="ai-status">⏳ Chargement...</span>
+    <button id="ai-chat-close">✕</button>
+  </div>
+  <div id="ai-chat-messages">
+    <div class="ai-welcome">
+      <span class="icon">🎓</span>
+      <div class="title">Bienvenue sur l'assistant LFAKM</div>
+      <p>Posez-moi une question sur l'utilisation du site :<br>
+      connexion, devoirs, notes, contact...</p>
+    </div>
+  </div>
+  <div id="ai-chat-input-row">
+    <input type="text" id="ai-chat-input" placeholder="Écrivez votre message..." />
+    <button id="ai-chat-send" title="Envoyer">➤</button>
+  </div>
+</div>
+
+<button id="ai-chat-toggle" title="Assistant LFAKM">🤖</button>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
@@ -315,18 +351,70 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  let profile = null;
+  // ============ INITIALISATION IA GEMINI ============
   let aiModel = null;
   let aiChatSession = null;
+  let iaActive = false;
+  let iaInitialized = false;
 
-  try {
-    const { getAI, getGenerativeModel, GoogleAIBackend } = await import("https://www.gstatic.com/firebasejs/12.17.1/firebase-ai.js");
-    const ai = getAI(app, { backend: new GoogleAIBackend() });
-    aiModel = getGenerativeModel(ai, {
-      model: "gemini-3.6-flash",
-      systemInstruction: "Tu es l'assistant virtuel du site du Lycée Franco Arabe de Keur Madiabel (LFAKM)."
-    });
-  } catch (e) { console.warn('Assistant IA désactivé'); }
+  // Fonction pour initialiser l'IA
+  async function initIA() {
+    const statusEl = document.getElementById('ai-status');
+    try {
+      // Importer Firebase AI
+      const { getAI, getGenerativeModel, GoogleAIBackend } = await import("https://www.gstatic.com/firebasejs/12.17.1/firebase-ai.js");
+      
+      const ai = getAI(app, { 
+        backend: new GoogleAIBackend()
+      });
+      
+      // 🔥 Modèle valide : gemini-2.0-flash (gratuit et rapide)
+      aiModel = getGenerativeModel(ai, {
+        model: "gemini-2.0-flash",
+        systemInstruction: `Tu es l'assistant virtuel du site du Lycée Franco Arabe de Keur Madiabel (LFAKM), au Sénégal.
+        
+        Ton rôle est UNIQUEMENT d'aider les utilisateurs à utiliser le site web :
+        - Comment se connecter ou créer un compte
+        - Comment rendre un devoir (fichier, QCM, saisie directe)
+        - Comment consulter ses notes et son profil
+        - Comment contacter le Proviseur
+        - Comment utiliser l'espace ressources (cours, TD)
+        - Comment donner son avis via le formulaire de feedback
+        
+        Règles importantes :
+        - Réponds TOUJOURS en français, de façon simple, claire et chaleureuse
+        - Sois adapté à un public débutant en informatique (élèves, parents, professeurs)
+        - Si une question sort du cadre du site (questions académiques, personnelles, médicales, juridiques), explique gentiment que tu es là uniquement pour aider à utiliser le site, et oriente vers le professeur concerné ou le Proviseur
+        - Ne donne jamais de conseil médical, juridique ou financier
+        - Sois positif et encourageant
+        - Utilise des émojis pour rendre les réponses plus agréables`
+      });
+      
+      iaActive = true;
+      iaInitialized = true;
+      console.log('✅ Assistant IA activé avec Gemini 2.0 Flash');
+      
+      if (statusEl) {
+        statusEl.textContent = '✅ IA active';
+        statusEl.className = 'ai-status active';
+      }
+      
+    } catch (e) { 
+      console.warn('⚠️ Assistant IA désactivé:', e.message);
+      iaActive = false;
+      iaInitialized = true;
+      if (statusEl) {
+        statusEl.textContent = '⚠️ IA indisponible';
+        statusEl.className = 'ai-status inactive';
+      }
+    }
+  }
+
+  // Lancer l'initialisation de l'IA
+  initIA();
+
+  // ============ FONCTIONS ============
+  let profile = null;
 
   function isAdmin(role) { 
     return role === 'admin' || role === 'proviseur' || role === 'censeur'; 
@@ -429,7 +517,6 @@
           userProfile2.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
         }
         
-        // 🔥 Afficher le menu admin
         if (isAdmin(profile.role)) {
           document.querySelectorAll('.admin-item').forEach(el => {
             if (el) el.style.display = "block";
@@ -442,7 +529,7 @@
           authLink2.onclick = () => signOut(auth).then(() => window.location.reload());
         }
 
-        // 🔥 CORRECTION : Gestion du lien feedback avec vérification
+        // Afficher le lien feedback
         const feedbackItems = document.querySelectorAll('.feedback-item');
         if (feedbackItems.length > 0) {
           feedbackItems.forEach(el => {
@@ -747,7 +834,6 @@
       const slug = ul.id.replace(/^cours-|^td-/, '');
       const type = ul.id.startsWith('cours-') ? 'cours' : 'td';
       
-      // Récupérer les boutons avec vérification de sécurité
       const addBtn = ul.nextElementSibling;
       const videoBtn = addBtn ? addBtn.nextElementSibling : null;
       const driveBtn = videoBtn ? videoBtn.nextElementSibling : null;
@@ -949,6 +1035,7 @@
           reponses, score, note,
           date: serverTimestamp()
         });
+        alert('✅ QCM envoyé !');
       };
     }
   }
@@ -1319,13 +1406,19 @@
     };
   }
 
-  // ============ AI CHAT ============
+  // ============ IA CHAT ============
   const aiToggle = document.getElementById('ai-chat-toggle');
   const aiPanel = document.getElementById('ai-chat-panel');
   const aiClose = document.getElementById('ai-chat-close');
   
   if (aiToggle && aiPanel) {
-    aiToggle.onclick = () => aiPanel.classList.toggle('show');
+    aiToggle.onclick = () => {
+      aiPanel.classList.toggle('show');
+      // Si le panneau s'ouvre et que l'IA n'est pas encore initialisée
+      if (aiPanel.classList.contains('show') && !iaInitialized) {
+        initIA();
+      }
+    };
   }
   if (aiClose && aiPanel) {
     aiClose.onclick = () => aiPanel.classList.remove('show');
@@ -1333,6 +1426,7 @@
 
   const aiMessages = document.getElementById('ai-chat-messages');
   const aiInput = document.getElementById('ai-chat-input');
+  const aiSend = document.getElementById('ai-chat-send');
 
   function addAiMessage(text, sender) {
     if (!aiMessages) return null;
@@ -1348,26 +1442,46 @@
     if (!aiInput) return;
     const texte = aiInput.value.trim();
     if (!texte) return;
+    
+    // Vérifier si l'IA est active
+    if (!iaActive || !aiModel) {
+      addAiMessage("⚠️ L'assistant IA est temporairement indisponible. Veuillez réessayer plus tard.", 'error');
+      return;
+    }
+    
     aiInput.value = '';
     addAiMessage(texte, 'user');
-    const loadingDiv = addAiMessage('Réflexion en cours...', 'loading');
+    const loadingDiv = addAiMessage('🤔 Réflexion en cours...', 'loading');
 
     try {
-      if (!aiModel) throw new Error('Assistant IA non disponible');
-      if (!aiChatSession) aiChatSession = aiModel.startChat();
+      if (!aiChatSession) {
+        aiChatSession = aiModel.startChat();
+      }
       const result = await aiChatSession.sendMessage(texte);
       if (loadingDiv) loadingDiv.remove();
       addAiMessage(result.response.text(), 'bot');
     } catch (err) {
+      console.error('Erreur IA:', err);
       if (loadingDiv) loadingDiv.remove();
-      addAiMessage("Désolé, une erreur est survenue. Réessayez dans un instant, ou contactez le Proviseur si le problème persiste.", 'bot');
+      
+      // Messages d'erreur plus précis
+      let errorMsg = "Désolé, une erreur est survenue. Réessayez dans un instant.";
+      if (err.message.includes('quota')) {
+        errorMsg = "⚠️ Le quota d'utilisation de l'IA a été atteint pour aujourd'hui. Réessayez demain.";
+      } else if (err.message.includes('network') || err.message.includes('fetch')) {
+        errorMsg = "⚠️ Problème de connexion réseau. Vérifiez votre connexion internet.";
+      } else if (err.message.includes('permission')) {
+        errorMsg = "⚠️ Problème d'autorisation. Contactez l'administrateur.";
+      }
+      addAiMessage(errorMsg, 'error');
     }
   }
 
-  const aiSend = document.getElementById('ai-chat-send');
   if (aiSend) aiSend.onclick = sendAiMessage;
   if (aiInput) {
-    aiInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendAiMessage(); });
+    aiInput.addEventListener('keydown', (e) => { 
+      if (e.key === 'Enter') sendAiMessage(); 
+    });
   }
 
   // ============ RECHERCHE ============
@@ -1385,6 +1499,7 @@
   }
 
   console.log('✅ Ressources LFAKM chargées avec succès !');
+  console.log('🤖 IA Gemini:', iaActive ? '✅ Active' : '❌ Désactivée');
 </script>
 </body>
 </html>
