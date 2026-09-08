@@ -367,13 +367,13 @@
     document.getElementById('eleve-classe').textContent = eleve.niveau || 'Non définie';
     document.getElementById('eleve-ine').textContent = eleve.ine || 'Non défini';
 
-    // Récupérer l'année scolaire en cours depuis Firestore
+    // 1. Récupérer l'année scolaire en cours depuis Firestore
     const configSnap = await getDoc(doc(db, 'config', 'schoolYear'));
     if (configSnap.exists()) {
       anneeEnCours = configSnap.data().year || '';
     }
 
-    // Récupérer toutes les notes de l'élève
+    // 2. Récupérer toutes les notes de l'élève
     allNotesData = [];
     
     // Récupérer tous les devoirs
@@ -414,13 +414,13 @@
       }
     }
 
-    // Remplir le filtre des années scolaires
+    // 3. Remplir le filtre des années scolaires
     const anneeFilter = document.getElementById('annee-filter');
     const annees = Array.from(new Set(allNotesData.map(n => n.anneeScolaire))).sort();
     
     anneeFilter.innerHTML = '<option value="toutes">Toutes les années</option>';
     
-    // Ajouter l'année en cours en premier (si elle existe)
+    // Ajouter l'année en cours en PREMIER et la sélectionner par défaut
     if (anneeEnCours) {
       const option = document.createElement('option');
       option.value = anneeEnCours;
@@ -428,11 +428,23 @@
       option.selected = true;
       anneeFilter.appendChild(option);
       currentAnnee = anneeEnCours;
+    } else {
+      // Si l'année n'est pas configurée, utiliser l'année actuelle du calendrier
+      const now = new Date();
+      const anneeActuelle = now.getFullYear();
+      const anneeScolaireParDefaut = now.getMonth() >= 8 ? `${anneeActuelle}-${anneeActuelle + 1}` : `${anneeActuelle - 1}-${anneeActuelle}`;
+      
+      const option = document.createElement('option');
+      option.value = anneeScolaireParDefaut;
+      option.textContent = anneeScolaireParDefaut + ' (Année en cours)';
+      option.selected = true;
+      anneeFilter.appendChild(option);
+      currentAnnee = anneeScolaireParDefaut;
     }
     
-    // Ajouter les autres années
+    // Ajouter les autres années (si elles existent)
     annees.forEach(annee => {
-      if (annee !== anneeEnCours) {
+      if (annee !== anneeEnCours && annee !== currentAnnee) {
         const option = document.createElement('option');
         option.value = annee;
         option.textContent = annee;
@@ -440,7 +452,7 @@
       }
     });
 
-    // Afficher les données (année en cours par défaut)
+    // 4. Afficher les données (année en cours par défaut)
     afficherDonnees();
   }
 
