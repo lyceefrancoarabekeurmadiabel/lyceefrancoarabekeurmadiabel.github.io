@@ -357,20 +357,26 @@
   let iaActive = false;
   let iaInitialized = false;
 
-  // Fonction pour initialiser l'IA
   async function initIA() {
     const statusEl = document.getElementById('ai-status');
+    if (!statusEl) return;
+    
     try {
+      statusEl.textContent = '⏳ Activation...';
+      statusEl.className = 'ai-status';
+      
       // Importer Firebase AI
-      const { getAI, getGenerativeModel, GoogleAIBackend } = await import("https://www.gstatic.com/firebasejs/12.17.1/firebase-ai.js");
+      const { getAI, getGenerativeModel, GoogleAIBackend } = await import(
+        "https://www.gstatic.com/firebasejs/12.17.1/firebase-ai.js"
+      );
       
       const ai = getAI(app, { 
         backend: new GoogleAIBackend()
       });
       
-      // 🔥 Modèle stable et gratuit : gemini-1.5-flash
+      // 🔥 MODÈLE ACTUEL : gemini-2.0-flash (disponible et gratuit)
       aiModel = getGenerativeModel(ai, {
-        model: "gemini-1.5-flash",
+        model: "gemini-2.0-flash",
         generationConfig: {
           temperature: 0.7,
           maxOutputTokens: 500,
@@ -396,12 +402,10 @@
       
       iaActive = true;
       iaInitialized = true;
-      console.log('✅ Assistant IA activé avec Gemini 1.5 Flash');
+      console.log('✅ Assistant IA activé avec Gemini 2.0 Flash');
       
-      if (statusEl) {
-        statusEl.textContent = '✅ IA active';
-        statusEl.className = 'ai-status active';
-      }
+      statusEl.textContent = '✅ IA active';
+      statusEl.className = 'ai-status active';
       
     } catch (e) { 
       console.warn('⚠️ Assistant IA désactivé:', e.message);
@@ -415,7 +419,7 @@
   }
 
   // Lancer l'initialisation de l'IA
-  initIA();
+  setTimeout(initIA, 1000);
 
   // ============ VÉRIFICATION DE L'ÉTAT DE L'IA ============
   function checkIAStatus() {
