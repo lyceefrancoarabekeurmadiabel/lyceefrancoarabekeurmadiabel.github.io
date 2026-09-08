@@ -367,13 +367,24 @@
     document.getElementById('eleve-classe').textContent = eleve.niveau || 'Non définie';
     document.getElementById('eleve-ine').textContent = eleve.ine || 'Non défini';
 
-    // 1. Récupérer l'année scolaire en cours depuis Firestore
-    const configSnap = await getDoc(doc(db, 'config', 'schoolYear'));
-    if (configSnap.exists()) {
-      anneeEnCours = configSnap.data().year || '';
+    // 1. Récupérer l'année scolaire EN COURS depuis Firestore (prioritaire)
+    try {
+      const configSnap = await getDoc(doc(db, 'config', 'schoolYear'));
+      if (configSnap.exists()) {
+        anneeEnCours = configSnap.data().year || '';
+      }
+    } catch (err) {
+      console.warn("Impossible de lire l'année scolaire :", err.message);
     }
 
-    // 2. Récupérer toutes les notes de l'élève
+    // 2. Si l'année n'est pas trouvée, calculer par défaut
+    if (!anneeEnCours) {
+      const now = new Date();
+      const anneeActuelle = now.getFullYear();
+      anneeEnCours = now.getMonth() >= 8 ? `${anneeActuelle}-${anneeActuelle + 1}` : `${anneeActuelle - 1}-${anneeActuelle}`;
+    }
+
+    // 3. Récupérer toutes les notes de l'élève
     allNotesData = [];
     
     // Récupérer tous les devoirs
@@ -395,7 +406,7 @@
           const matName = getNomMatiere(matSlug);
           const dateStr = dv.date?.toDate ? dv.date.toDate().toLocaleDateString('fr-FR') : 'Date inconnue';
           
-          // Déterminer l'année scolaire à partir de la date
+          // Déterminer l'année scolaire à partir de la date du devoir
           const dateObj = dv.date?.toDate ? dv.date.toDate() : new Date();
           const mois = dateObj.getMonth();
           const annee = dateObj.getFullYear();
@@ -414,37 +425,23 @@
       }
     }
 
-    // 3. Remplir le filtre des années scolaires
+    // 4. Remplir le filtre des années scolaires
     const anneeFilter = document.getElementById('annee-filter');
     const annees = Array.from(new Set(allNotesData.map(n => n.anneeScolaire))).sort();
     
     anneeFilter.innerHTML = '<option value="toutes">Toutes les années</option>';
     
     // Ajouter l'année en cours en PREMIER et la sélectionner par défaut
-    if (anneeEnCours) {
-      const option = document.createElement('option');
-      option.value = anneeEnCours;
-      option.textContent = anneeEnCours + ' (Année en cours)';
-      option.selected = true;
-      anneeFilter.appendChild(option);
-      currentAnnee = anneeEnCours;
-    } else {
-      // Si l'année n'est pas configurée, utiliser l'année actuelle du calendrier
-      const now = new Date();
-      const anneeActuelle = now.getFullYear();
-      const anneeScolaireParDefaut = now.getMonth() >= 8 ? `${anneeActuelle}-${anneeActuelle + 1}` : `${anneeActuelle - 1}-${anneeActuelle}`;
-      
-      const option = document.createElement('option');
-      option.value = anneeScolaireParDefaut;
-      option.textContent = anneeScolaireParDefaut + ' (Année en cours)';
-      option.selected = true;
-      anneeFilter.appendChild(option);
-      currentAnnee = anneeScolaireParDefaut;
-    }
+    const optionAnneeEnCours = document.createElement('option');
+    optionAnneeEnCours.value = anneeEnCours;
+    optionAnneeEnCours.textContent = anneeEnCours + ' (Année en cours)';
+    optionAnneeEnCours.selected = true;
+    anneeFilter.appendChild(optionAnneeEnCours);
+    currentAnnee = anneeEnCours;
     
     // Ajouter les autres années (si elles existent)
     annees.forEach(annee => {
-      if (annee !== anneeEnCours && annee !== currentAnnee) {
+      if (annee !== anneeEnCours) {
         const option = document.createElement('option');
         option.value = annee;
         option.textContent = annee;
@@ -452,7 +449,7 @@
       }
     });
 
-    // 4. Afficher les données (année en cours par défaut)
+    // 5. Afficher les données (année en cours par défaut)
     afficherDonnees();
   }
 
