@@ -5,155 +5,125 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administration LFAKM — Gestion & Années</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --ink: #1B2A4A; --brass: #A8853F; --paper: #F7F5F0; --red: #d9534f; }
+        :root { --ink: #1B2A4A; --ink-deep: #10192E; --brass: #A8853F; --paper: #F7F5F0; --red: #d9534f; }
         body { font-family: sans-serif; background: var(--paper); padding: 20px; font-size: 14px; }
         .admin-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); max-width: 1200px; margin: 0 auto; }
-        
-        /* ---------- NAVIGATION RETOUR ---------- */
-        .top-nav { background: var(--ink); padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .top-nav a { color: #fff; text-decoration: none; font-size: 13px; }
-        .top-nav a:hover { text-decoration: underline; }
-        
+
         /* ---------- NAVIGATION PAR ONGLETS ---------- */
-        .tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 25px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-        }
-        .tab-btn {
-            padding: 10px 18px;
-            border: none;
-            background: #eee;
-            border-radius: 6px 6px 0 0;
-            cursor: pointer;
-            font-weight: 600;
-            color: #444;
-            font-size: 14px;
-            transition: background 0.2s, color 0.2s;
-        }
+        .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .tab-btn { padding: 10px 18px; border: none; background: #eee; border-radius: 6px 6px 0 0; cursor: pointer; font-weight: 600; color: #444; font-size: 14px; transition: background 0.2s, color 0.2s; }
         .tab-btn.active { background: var(--ink); color: #fff; }
-        
-        /* ---------- SECTIONS (cachées par défaut sauf la première) ---------- */
         .tab-section { display: none; }
         .tab-section.active { display: block; }
-        
+
+        /* ---------- FILTRE ET STATS ---------- */
         .config-bar { background: var(--ink); color: white; padding: 15px; border-radius: 8px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 25px; }
+        .stat-card { background: #fff; border: 1px solid #eee; border-left: 4px solid var(--brass); border-radius: 8px; padding: 15px; }
+        .stat-card .stat-value { font-size: 26px; font-weight: 800; color: var(--ink); }
+        .stat-card .stat-label { font-size: 11px; color: #777; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* ---------- TABLEAUX ---------- */
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+        .stats-table-wrap { overflow-x: auto; margin-bottom: 25px; }
+        .stats-table-wrap table { min-width: 500px; }
+
+        /* ---------- GRAPHIQUE ---------- */
+        .chart-container { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 20px; margin-bottom: 25px; }
+
+        /* ---------- BOUTONS ---------- */
         .btn { border: none; padding: 7px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; }
         .btn-save { background: var(--brass); color: white; }
         .btn-blue { background: #3498db; color: white; }
         .btn-danger { background: var(--red); color: white; }
         .class-badge { display: inline-block; background: #eee; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin: 2px; }
         .modal { display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 100px rgba(0,0,0,0.5); z-index: 1001; width: 400px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 25px; }
-        .stat-card { background: #fff; border: 1px solid #eee; border-left: 4px solid var(--brass); border-radius: 8px; padding: 15px; }
-        .stat-card .stat-value { font-size: 26px; font-weight: 800; color: var(--ink); }
-        .stat-card .stat-label { font-size: 11px; color: #777; text-transform: uppercase; letter-spacing: 0.5px; }
-        .stats-table-wrap { overflow-x: auto; margin-bottom: 25px; }
-        .stats-table-wrap table { min-width: 500px; }
-        .taux-bar-bg { background: #eee; border-radius: 4px; height: 8px; width: 100%; overflow: hidden; }
-        .taux-bar-fill { background: var(--brass); height: 100%; }
-        
-        /* ---------- FORMULAIRES ---------- */
         .input-group { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
         .input-group input, .input-group select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+
+        /* ---------- PROFIL UTILISATEUR ---------- */
+        .profile-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 13px; }
+        .profile-name { font-weight: 700; color: var(--brass); font-size: 14px; }
+        .profile-role { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; }
+        .contact-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 12px; }
+        .contact-label { font-weight: 600; color: var(--ink); }
+        .contact-phone { font-size: 12px; color: var(--brass); font-weight: 700; }
     </style>
 </head>
 <body>
 
-    <!-- Barre de navigation Retour -->
-    <div class="top-nav">
-        <a href="index.html">🏠 Accueil</a>
-        <div style="display: flex; gap: 15px;">
-            <a href="ressources.html">📚 Ressources</a>
-            <a href="actualites.html">📰 Actualités</a>
-            <a href="historique.html">🏫 Historique</a>
+<div class="admin-card">
+    <!-- Onglets -->
+    <div class="tabs">
+        <button class="tab-btn active" data-target="tab-dashboard">📊 Tableau de bord</button>
+        <button class="tab-btn" data-target="tab-users">👥 Utilisateurs</button>
+        <button class="tab-btn" data-target="tab-backup">💾 Sauvegarde & Maintenance</button>
+        <button class="tab-btn" data-target="tab-journal">📋 Journal</button>
+    </div>
+
+    <!-- ================= SECTION 1 : TABLEAU DE BORD ================= -->
+    <div id="tab-dashboard" class="tab-section active">
+        <h1 style="margin-bottom: 20px;">📊 Vue d'ensemble</h1>
+
+        <!-- Stats principales -->
+        <div class="stats-grid" id="stats-cards"><p>Chargement des statistiques...</p></div>
+
+        <!-- Filtre par classe -->
+        <div class="config-bar" style="background:#fff; border:1px solid #ddd; color:#333; margin-bottom:15px; flex-wrap:wrap; gap:8px;">
+            <span style="font-weight:700;">📊 Filtrer par classe :</span>
+            <select id="stats-filter-niveau" style="padding:8px; border:1px solid #ccc; border-radius:4px;" onchange="window.updateStatsByClass()">
+                <option value="tous">Toutes les classes</option>
+                <option value="6a">Sixième A</option>
+                <option value="6b">Sixième B</option>
+                <option value="6c">Sixième C</option>
+                <option value="5a">Cinquième A</option>
+                <option value="5b">Cinquième B</option>
+                <option value="4a">Quatrième A</option>
+                <option value="4b">Quatrième B</option>
+                <option value="3a">Troisième A</option>
+                <option value="3b">Troisième B</option>
+                <option value="2s2a">Seconde S2A</option>
+                <option value="1s2a">Première S2A</option>
+                <option value="ts2a">Terminale S2A</option>
+                <option value="2la">Seconde LA</option>
+                <option value="1la">Première LA</option>
+                <option value="tla1">Terminale LA 1</option>
+                <option value="tla2">Terminale LA 2</option>
+            </select>
+        </div>
+
+        <!-- Tableau statistiques détaillées par matière -->
+        <div class="stats-table-wrap">
+            <h3 style="margin-bottom:8px;">📊 Statistiques par matière (moyenne, min, max, notes)</h3>
+            <table id="stats-detail-table">
+                <thead><tr><th>Matière</th><th>Moyenne</th><th>Note min</th><th>Note max</th><th>Nb. notes</th></tr></thead>
+                <tbody><tr><td colspan="5">Chargement...</td></tr></tbody>
+            </table>
+        </div>
+
+        <!-- Graphique en barres -->
+        <div class="chart-container">
+            <h3 style="margin-bottom: 15px;">📈 Moyenne par matière (classe sélectionnée)</h3>
+            <canvas id="stats-chart" style="max-width: 100%; height: 300px;"></canvas>
         </div>
     </div>
 
-    <div class="admin-card">
-        
-        <!-- ---------- NAVIGATION ---------- -->
-        <div class="tabs">
-            <button class="tab-btn active" data-target="tab-dashboard">📊 Tableau de bord</button>
-            <button class="tab-btn" data-target="tab-users">👥 Utilisateurs</button>
-            <button class="tab-btn" data-target="tab-backup">💾 Sauvegarde & Maintenance</button>
-            <button class="tab-btn" data-target="tab-journal">📋 Journal</button>
-        </div>
+    <!-- ================= SECTION 2 : GESTION UTILISATEURS ================= -->
+    <div id="tab-users" class="tab-section">
+        <h1 style="margin-bottom: 20px;">👥 Gestion des Utilisateurs & Affectations</h1>
 
-        <!-- ================= SECTION 1 : TABLEAU DE BORD ================= -->
-        <div id="tab-dashboard" class="tab-section active">
-            <h1 style="margin-bottom: 20px;">Tableau de bord</h1>
-            
-            <!-- Stats principales -->
-            <div class="stats-grid" id="stats-cards"><p>Chargement des statistiques...</p></div>
-
-            <div class="stats-table-wrap">
-                <h3 style="margin-bottom:8px;">Élèves par classe</h3>
-                <table id="stats-classes-table"><thead><tr><th>Classe</th><th>Nombre d'élèves</th></tr></thead><tbody></tbody></table>
-            </div>
-
-            <div class="stats-table-wrap">
-                <h3 style="margin-bottom:8px;">Moyenne des notes par matière</h3>
-                <table id="stats-notes-table"><thead><tr><th>Matière</th><th>Moyenne</th><th>Nb. de notes</th></tr></thead><tbody></tbody></table>
-            </div>
-
-            <div class="stats-table-wrap">
-                <h3 style="margin-bottom:8px;">Taux de rendu des devoirs</h3>
-                <table id="stats-taux-table"><thead><tr><th>Devoir</th><th>Classe</th><th>Rendus</th><th></th></tr></thead><tbody></tbody></table>
-            </div>
-        </div>
-
-        <!-- ================= SECTION 2 : GESTION UTILISATEURS ================= -->
-        <div id="tab-users" class="tab-section">
-            <h1 style="margin-bottom: 20px;">Gestion des Utilisateurs & Affectations</h1>
-
-            <div class="config-bar" style="background:#f5f5f5; color:#333; margin-bottom:15px;">
-                <span>📥 Télécharger une liste :</span>
-                <div class="input-group">
-                    <select id="export-role">
-                        <option value="eleve">Élèves</option>
-                        <option value="personnel">Personnel (profs, censeur, intendant, proviseur)</option>
-                        <option value="tous">Tous les comptes</option>
-                    </select>
-                    <select id="export-niveau">
-                        <option value="tous">Toutes les classes</option>
-                        <option value="6a">Sixième A</option>
-                        <option value="6b">Sixième B</option>
-                        <option value="6c">Sixième C</option>
-                        <option value="5a">Cinquième A</option>
-                        <option value="5b">Cinquième B</option>
-                        <option value="4a">Quatrième A</option>
-                        <option value="4b">Quatrième B</option>
-                        <option value="3a">Troisième A</option>
-                        <option value="3b">Troisième B</option>
-                        <option value="2s2a">Seconde S2A</option>
-                        <option value="1s2a">Première S2A</option>
-                        <option value="ts2a">Terminale S2A</option>
-                        <option value="2la">Seconde LA</option>
-                        <option value="1la">Première LA</option>
-                        <option value="tla1">Terminale LA 1</option>
-                        <option value="tla2">Terminale LA 2</option>
-                    </select>
-                    <button class="btn btn-save" onclick="window.exportData('csv')">CSV</button>
-                    <button class="btn btn-save" onclick="window.exportData('excel')">Excel (.xlsx)</button>
-                    <button class="btn btn-save" onclick="window.exportData('pdf')">PDF</button>
-                </div>
-            </div>
-
-            <div class="config-bar" style="margin-bottom:15px; background:#fff; border:1px solid #ddd; color:#333; flex-wrap:wrap; gap:8px;">
-                <input id="table-search" placeholder="🔍 Rechercher un nom..." style="padding:8px;flex:2;min-width:180px;border:1px solid #ccc;border-radius:4px;" oninput="window.filterTable()">
-                <select id="table-filter-role" style="padding:8px;" onchange="window.filterTable()">
-                    <option value="tous">Tous les rôles</option>
+        <div class="config-bar" style="background:#f5f5f5; color:#333; margin-bottom:15px;">
+            <span>📥 Télécharger une liste :</span>
+            <div class="input-group">
+                <select id="export-role">
                     <option value="eleve">Élèves</option>
-                    <option value="personnel">Personnel</option>
+                    <option value="personnel">Personnel (profs, censeur, intendant, proviseur)</option>
+                    <option value="tous">Tous les comptes</option>
                 </select>
-                <select id="table-filter-niveau" style="padding:8px;" onchange="window.filterTable()">
+                <select id="export-niveau">
                     <option value="tous">Toutes les classes</option>
                     <option value="6a">Sixième A</option>
                     <option value="6b">Sixième B</option>
@@ -172,569 +142,679 @@
                     <option value="tla1">Terminale LA 1</option>
                     <option value="tla2">Terminale LA 2</option>
                 </select>
-                <span id="table-count" style="font-size:12px;color:#666;width:100%;"></span>
-            </div>
-
-            <table id="users-table">
-                <thead>
-                    <tr>
-                        <th>Nom & Prénom</th>
-                        <th>Matricule</th>
-                        <th>Téléphone</th>
-                        <th>Rôle</th>
-                        <th>Statut</th>
-                        <th>Matières / Inscription</th>
-                        <th>Classes Affectées</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-
-        <!-- ================= SECTION 3 : SAUVEGARDE & MAINTENANCE ================= -->
-        <div id="tab-backup" class="tab-section">
-            <h1 style="margin-bottom: 20px;">💾 Sauvegarde & Maintenance</h1>
-
-            <div class="config-bar">
-                <span>Année Scolaire Actuelle : <b id="current-year-display">...</b></span>
-                <button class="btn btn-save" onclick="window.promptNewYear()">🔄 Démarrer une nouvelle année</button>
-                <button class="btn btn-danger" onclick="window.archiveDevoirs()" id="archive-btn">🗑 Archiver les devoirs de l'année écoulée</button>
-            </div>
-
-            <div class="config-bar" style="margin-top:10px; background:#1B2A4A; color:#fff;">
-                <span>💾 Sauvegarde complète de la base (comptes, notes, devoirs, actualités...)</span>
-                <button class="btn btn-save" id="backup-all-btn" onclick="window.backupAll()">Télécharger la sauvegarde</button>
-            </div>
-
-            <div class="config-bar" style="margin-top:10px; background:#7a1f1f; color:#fff; flex-wrap:wrap; gap:8px;">
-                <span style="width:100%;">♻️ Restaurer une sauvegarde (fichier .json téléchargé précédemment)</span>
-                <div class="input-group">
-                    <input type="file" id="restore-file" accept="application/json" style="color:#fff;">
-                    <button class="btn" style="background:#fff;color:#7a1f1f;font-weight:700;" id="restore-btn" onclick="window.restoreBackup()">Restaurer cette sauvegarde</button>
-                </div>
-            </div>
-
-            <div class="config-bar" style="margin-top:10px; background:#f5f5f5; color:#333; flex-wrap:wrap; gap:8px;">
-                <span style="width:100%;">📞 Coordonnées affichées aux profs/élèves ("Contacter le Proviseur") :</span>
-                <div class="input-group">
-                    <input id="contact-nom" placeholder="Nom du Proviseur" style="flex:1;min-width:150px;">
-                    <input id="contact-tel" placeholder="Téléphone" style="flex:1;min-width:120px;">
-                    <input id="contact-email" placeholder="Email" style="flex:1;min-width:180px;">
-                    <button class="btn btn-save" onclick="window.saveContact()">💾 Enregistrer</button>
-                </div>
-            </div>
-
-            <div class="config-bar" style="margin-top:10px;">
-                <span>📊 Stockage estimé utilisé (Cloudinary) : <b id="usage-display">...</b></span>
-                <button class="btn" style="background:#eee;" onclick="window.resetUsage()">Réinitialiser le compteur</button>
+                <button class="btn btn-save" onclick="window.exportData('csv')">CSV</button>
+                <button class="btn btn-save" onclick="window.exportData('excel')">Excel (.xlsx)</button>
+                <button class="btn btn-save" onclick="window.exportData('pdf')">PDF</button>
             </div>
         </div>
 
-        <!-- ================= SECTION 4 : JOURNAL ================= -->
-        <div id="tab-journal" class="tab-section">
-            <h1 style="margin-bottom: 20px;">📋 Journal d'activité</h1>
-            <p style="margin-bottom: 15px; color: #666;">Créations et suppressions (50 dernières actions)</p>
-            <table id="journal-table">
-                <thead><tr><th>Date</th><th>Auteur</th><th>Rôle</th><th>Action</th><th>Détail</th></tr></thead>
-                <tbody><tr><td colspan="5">Chargement...</td></tr></tbody>
-            </table>
+        <div class="config-bar" style="margin-bottom:15px; background:#fff; border:1px solid #ddd; color:#333; flex-wrap:wrap; gap:8px;">
+            <input id="table-search" placeholder="🔍 Rechercher un nom..." style="padding:8px;flex:2;min-width:180px;border:1px solid #ccc;border-radius:4px;" oninput="window.filterTable()">
+            <select id="table-filter-role" style="padding:8px;" onchange="window.filterTable()">
+                <option value="tous">Tous les rôles</option>
+                <option value="eleve">Élèves</option>
+                <option value="personnel">Personnel</option>
+            </select>
+            <select id="table-filter-niveau" style="padding:8px;" onchange="window.filterTable()">
+                <option value="tous">Toutes les classes</option>
+                <option value="6a">Sixième A</option>
+                <option value="6b">Sixième B</option>
+                <option value="6c">Sixième C</option>
+                <option value="5a">Cinquième A</option>
+                <option value="5b">Cinquième B</option>
+                <option value="4a">Quatrième A</option>
+                <option value="4b">Quatrième B</option>
+                <option value="3a">Troisième A</option>
+                <option value="3b">Troisième B</option>
+                <option value="2s2a">Seconde S2A</option>
+                <option value="1s2a">Première S2A</option>
+                <option value="ts2a">Terminale S2A</option>
+                <option value="2la">Seconde LA</option>
+                <option value="1la">Première LA</option>
+                <option value="tla1">Terminale LA 1</option>
+                <option value="tla2">Terminale LA 2</option>
+            </select>
+            <span id="table-count" style="font-size:12px;color:#666;width:100%;"></span>
         </div>
 
+        <table id="users-table">
+            <thead>
+                <tr>
+                    <th>Nom & Prénom</th>
+                    <th>Matricule</th>
+                    <th>Téléphone</th>
+                    <th>Rôle</th>
+                    <th>Statut</th>
+                    <th>Matières / Inscription</th>
+                    <th>Classes Affectées</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
 
-    <!-- Fenêtre pour affecter les classes -->
-    <div id="assign-modal" class="modal">
-        <h3 id="modal-teacher-name">...</h3>
-        <p>Cochez les classes attribuées à ce professeur :</p>
-        <div id="classes-checkboxes" style="margin: 15px 0;"></div>
-        <button class="btn btn-save" id="confirm-assign">Enregistrer l'affectation</button>
-        <button class="btn" onclick="document.getElementById('assign-modal').style.display='none'">Annuler</button>
+    <!-- ================= SECTION 3 : SAUVEGARDE & MAINTENANCE ================= -->
+    <div id="tab-backup" class="tab-section">
+        <h1 style="margin-bottom: 20px;">💾 Sauvegarde & Maintenance</h1>
+
+        <div class="config-bar">
+            <span>Année Scolaire Actuelle : <b id="current-year-display">...</b></span>
+            <button class="btn btn-save" onclick="window.promptNewYear()">🔄 Démarrer une nouvelle année</button>
+            <button class="btn btn-danger" onclick="window.archiveDevoirs()" id="archive-btn">🗑 Archiver les devoirs de l'année écoulée</button>
+        </div>
+
+        <div class="config-bar" style="margin-top:10px; background:#1B2A4A; color:#fff;">
+            <span>💾 Sauvegarde complète de la base (comptes, notes, devoirs, actualités...)</span>
+            <button class="btn btn-save" id="backup-all-btn" onclick="window.backupAll()">Télécharger la sauvegarde</button>
+        </div>
+
+        <div class="config-bar" style="margin-top:10px; background:#7a1f1f; color:#fff; flex-wrap:wrap; gap:8px;">
+            <span style="width:100%;">♻️ Restaurer une sauvegarde (fichier .json téléchargé précédemment)</span>
+            <input type="file" id="restore-file" accept="application/json" style="color:#fff;">
+            <button class="btn" style="background:#fff;color:#7a1f1f;font-weight:700;" id="restore-btn" onclick="window.restoreBackup()">Restaurer cette sauvegarde</button>
+        </div>
+
+        <div class="config-bar" style="margin-top:10px; background:#f5f5f5; color:#333; flex-wrap:wrap; gap:8px;">
+            <span style="width:100%;">📞 Coordonnées affichées aux profs/élèves ("Contacter le Proviseur") :</span>
+            <input id="contact-nom" placeholder="Nom du Proviseur" style="padding:8px;flex:1;min-width:150px;">
+            <input id="contact-tel" placeholder="Téléphone" style="padding:8px;flex:1;min-width:120px;">
+            <input id="contact-email" placeholder="Email" style="padding:8px;flex:1;min-width:180px;">
+            <button class="btn btn-save" onclick="window.saveContact()">💾 Enregistrer</button>
+        </div>
     </div>
 
-    <script type="module">
-            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, collectionGroup, getDocs, doc, getDoc, updateDoc, setDoc, deleteDoc, increment, onSnapshot, writeBatch, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    <!-- ================= SECTION 4 : JOURNAL ================= -->
+    <div id="tab-journal" class="tab-section">
+        <h1 style="margin-bottom: 20px;">📋 Journal d'activité</h1>
+        <p style="margin-bottom: 15px; color: #666;">Créations et suppressions (50 dernières actions)</p>
+        <table id="journal-table">
+            <thead><tr><th>Date</th><th>Auteur</th><th>Rôle</th><th>Action</th><th>Détail</th></tr></thead>
+            <tbody><tr><td colspan="5">Chargement...</td></tr></tbody>
+        </table>
+    </div>
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
-        authDomain: "lfakm-87dec.firebaseapp.com",
-        projectId: "lfakm-87dec",
-        storageBucket: "lfakm-87dec.firebasestorage.app",
-        messagingSenderId: "739517262614",
-        appId: "1:739517262614:web:14abd3538427960c527e37"
-    };
+</div>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+<!-- Fenêtre pour affecter les classes -->
+<div id="assign-modal" class="modal">
+    <h3 id="modal-teacher-name">...</h3>
+    <p>Cochez les classes attribuées à ce professeur :</p>
+    <div id="classes-checkboxes" style="margin: 15px 0;"></div>
+    <button class="btn btn-save" id="confirm-assign">Enregistrer l'affectation</button>
+    <button class="btn" onclick="document.getElementById('assign-modal').style.display='none'">Annuler</button>
+</div>
 
-    /* ---------- LOGIQUE DES ONGLETS ---------- */
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(btn.dataset.target).classList.add('active');
-        });
+<script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, collectionGroup, getDocs, doc, getDoc, updateDoc, setDoc, deleteDoc, increment, onSnapshot, writeBatch, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+    authDomain: "lfakm-87dec.firebaseapp.com",
+    projectId: "lfakm-87dec",
+    storageBucket: "lfakm-87dec.firebasestorage.app",
+    messagingSenderId: "739517262614",
+    appId: "1:739517262614:web:14abd3538427960c527e37"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Gestion des onglets
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.target).classList.add('active');
+    });
+  });
+
+  const allLevels = [
+    {id:"6a", n:"6ème A"}, {id:"6b", n:"6ème B"}, {id:"6c", n:"6ème C"},
+    {id:"5a", n:"5ème A"}, {id:"5b", n:"5ème B"},
+    {id:"4a", n:"4ème A"}, {id:"4b", n:"4ème B"},
+    {id:"3a", n:"3ème A"}, {id:"3b", n:"3ème B"},
+    {id:"2s2a", n:"2nde S2A"}, {id:"1s2a", n:"1ère S2A"}, {id:"ts2a", n:"Tle S2A"},
+    {id:"2la", n:"2nde LA"}, {id:"1la", n:"1ère LA"}, {id:"tla1", n:"Tle LA 1"}, {id:"tla2", n:"Tle LA 2"}
+  ];
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return window.location.href = "identification.html";
+    const snap = await getDoc(doc(db, "utilisateurs", user.uid));
+    const current = snap.data();
+    if (!['admin', 'proviseur', 'censeur'].includes(current.role)) { document.body.innerHTML = "Accès réservé"; return; }
+
+    // Charger l'année actuelle
+    const config = await getDoc(doc(db, "config", "schoolYear"));
+    document.getElementById('current-year-display').textContent = config.data()?.year || "Non définie";
+
+    // Suivi de la consommation Cloudinary (estimation)
+    onSnapshot(doc(db, "config", "usage"), (usageSnap) => {
+      const mo = usageSnap.data()?.totalMo || 0;
+      const go = (mo / 1024).toFixed(2);
+      document.getElementById('usage-display').textContent = `${go} Go (≈ ${Math.round(mo)} Mo)`;
     });
 
-    const allLevels = [
-        {id:"6a", n:"6ème A"}, {id:"6b", n:"6ème B"}, {id:"6c", n:"6ème C"},
-        {id:"5a", n:"5ème A"}, {id:"5b", n:"5ème B"},
-        {id:"4a", n:"4ème A"}, {id:"4b", n:"4ème B"},
-        {id:"3a", n:"3ème A"}, {id:"3b", n:"3ème B"},
-        {id:"2s2a", n:"2nde S2A"}, {id:"1s2a", n:"1ère S2A"}, {id:"ts2a", n:"Tle S2A"},
-        {id:"2la", n:"2nde LA"}, {id:"1la", n:"1ère LA"}, {id:"tla1", n:"Tle LA 1"}, {id:"tla2", n:"Tle LA 2"}
-    ];
-
-    onAuthStateChanged(auth, async (user) => {
-        if (!user) return window.location.href = "identification.html";
-        const snap = await getDoc(doc(db, "utilisateurs", user.uid));
-        const current = snap.data();
-        if (!['admin', 'proviseur', 'censeur'].includes(current.role)) { document.body.innerHTML = "Accès réservé"; return; }
-        
-        const config = await getDoc(doc(db, "config", "schoolYear"));
-        document.getElementById('current-year-display').textContent = config.data()?.year || "Non définie";
-
-        onSnapshot(doc(db, "config", "usage"), (usageSnap) => {
-            const mo = usageSnap.data()?.totalMo || 0;
-            const go = (mo / 1024).toFixed(2);
-            document.getElementById('usage-display').textContent = `${go} Go (≈ ${Math.round(mo)} Mo)`;
-        });
-
-        getDoc(doc(db, "config", "contact")).then(snap => {
-            const c = snap.data() || {};
-            document.getElementById('contact-nom').value = c.nom || '';
-            document.getElementById('contact-tel').value = c.telephone || '';
-            document.getElementById('contact-email').value = c.email || '';
-        });
-
-        loadUsers();
-        loadStats();
-        loadJournal();
+    // Coordonnées du Proviseur
+    getDoc(doc(db, "config", "contact")).then(snap => {
+      const c = snap.data() || {};
+      document.getElementById('contact-nom').value = c.nom || '';
+      document.getElementById('contact-tel').value = c.telephone || '';
+      document.getElementById('contact-email').value = c.email || '';
     });
 
-    window.filterTable = () => {
-        const search = document.getElementById('table-search').value.trim().toLowerCase();
-        const roleFilter = document.getElementById('table-filter-role').value;
-        const niveauFilter = document.getElementById('table-filter-niveau').value;
-        const rows = document.querySelectorAll('#users-table tbody tr');
-        let visibleCount = 0;
+    loadStats();
+    loadUsers();
+    loadJournal();
+  });
 
-        rows.forEach(tr => {
-            let visible = true;
-            if (search && !tr.dataset.nom.includes(search)) visible = false;
-            if (roleFilter === 'eleve' && tr.dataset.role !== 'eleve') visible = false;
-            if (roleFilter === 'personnel' && tr.dataset.role === 'eleve') visible = false;
-            if (niveauFilter !== 'tous' && tr.dataset.role === 'eleve' && tr.dataset.niveau !== niveauFilter) visible = false;
-            if (niveauFilter !== 'tous' && tr.dataset.role !== 'eleve') visible = false;
-            tr.style.display = visible ? '' : 'none';
-            if (visible) visibleCount++;
-        });
+  // Fonction pour charger les statistiques principales
+  async function loadStats() {
+    const levelLabelMap = {};
+    allLevels.forEach(l => { levelLabelMap[l.id] = l.n; });
 
-        document.getElementById('table-count').textContent = `${visibleCount} résultat(s) affiché(s) sur ${rows.length}`;
-    };
+    // Élèves par classe + comptes en attente
+    const usersSnap = await getDocs(collection(db, 'utilisateurs'));
+    const eleveCountByNiveau = {};
+    let totalEleves = 0, totalProfs = 0, totalEnAttente = 0, totalDevoirs = 0, moyenneGenerale = 0;
 
-    window.saveContact = async () => {
-        await setDoc(doc(db, "config", "contact"), {
-            nom: document.getElementById('contact-nom').value.trim(),
-            telephone: document.getElementById('contact-tel').value.trim(),
-            email: document.getElementById('contact-email').value.trim()
-        });
-        alert("Coordonnées enregistrées.");
-    };
+    usersSnap.forEach(u => {
+      const d = u.data();
+      if (d.role === 'eleve') {
+        totalEleves++;
+        eleveCountByNiveau[d.niveau] = (eleveCountByNiveau[d.niveau] || 0) + 1;
+      } else {
+        if (d.role === 'professeur') totalProfs++;
+        if (d.statut === 'en_attente') totalEnAttente++;
+      }
+    });
 
-    window.backupAll = async () => {
-        const btn = document.getElementById('backup-all-btn');
-        btn.disabled = true;
-        btn.textContent = "Sauvegarde en cours...";
-        try {
-            const dumpCollection = async (name) => {
-                const snap = await getDocs(collection(db, name));
-                const out = {};
-                snap.forEach(d => { out[d.id] = d.data(); });
-                return out;
-            };
-            const dumpCollectionGroup = async (name) => {
-                const snap = await getDocs(collectionGroup(db, name));
-                const out = [];
-                snap.forEach(d => { out.push({ chemin: d.ref.path, donnees: d.data() }); });
-                return out;
-            };
-            const dumpDoc = async (path) => {
-                const snap = await getDoc(doc(db, path));
-                return snap.exists() ? snap.data() : null;
-            };
+    // Calcul du nombre de devoirs publiés
+    const devoirsSnap = await getDocs(collectionGroup(db, 'devoirs'));
+    totalDevoirs = devoirsSnap.size;
 
-            const backup = {
-                date_sauvegarde: new Date().toISOString(),
-                utilisateurs: await dumpCollection('utilisateurs'),
-                actualites: await dumpCollection('actualites'),
-                ines_autorises: await dumpCollection('ines_autorises'),
-                ressources_cours: await dumpCollectionGroup('cours'),
-                ressources_td: await dumpCollectionGroup('td'),
-                devoirs: await dumpCollectionGroup('devoirs'),
-                rendus_devoirs: await dumpCollectionGroup('rendus'),
-                config_annee_scolaire: await dumpDoc('config/schoolYear'),
-                config_stockage: await dumpDoc('config/usage'),
-                config_contact_proviseur: await dumpDoc('config/contact'),
-            };
-
-            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `LFAKM-sauvegarde-${new Date().toISOString().slice(0, 10)}.json`;
-            link.click();
-        } catch (err) {
-            alert("Erreur pendant la sauvegarde : " + err.message);
+    // Calcul de la moyenne générale
+    let sommeNotes = 0;
+    let nombreNotes = 0;
+    for (const devDoc of devoirsSnap.docs) {
+      const rendusSnap = await getDocs(collection(devDoc.ref, 'rendus'));
+      rendusSnap.forEach(r => {
+        const note = r.data().note;
+        if (typeof note === 'number') {
+          sommeNotes += note;
+          nombreNotes++;
         }
-        btn.disabled = false;
-        btn.textContent = "Télécharger la sauvegarde";
-    };
+      });
+    }
+    moyenneGenerale = nombreNotes > 0 ? sommeNotes / nombreNotes : 0;
 
-    window.restoreBackup = async () => {
-        const fileInput = document.getElementById('restore-file');
-        const file = fileInput.files[0];
-        if (!file) { alert("Sélectionnez d'abord un fichier de sauvegarde (.json)."); return; }
+    // Affichage des cartes
+    document.getElementById('stats-cards').innerHTML = `
+      <div class="stat-card"><div class="stat-value">${totalEleves}</div><div class="stat-label">Élèves</div></div>
+      <div class="stat-card"><div class="stat-value">${totalProfs}</div><div class="stat-label">Professeurs</div></div>
+      <div class="stat-card"><div class="stat-value">${totalEnAttente}</div><div class="stat-label">Comptes en attente</div></div>
+      <div class="stat-card"><div class="stat-value">${Object.keys(eleveCountByNiveau).length}</div><div class="stat-label">Classes actives</div></div>
+      <div class="stat-card"><div class="stat-value">${totalDevoirs}</div><div class="stat-label">Devoirs publiés</div></div>
+      <div class="stat-card"><div class="stat-value">${moyenneGenerale.toFixed(1)}/20</div><div class="stat-label">Moyenne générale</div></div>
+    `;
 
-        const ok = confirm(
-            "⚠️ ATTENTION\n\n" +
-            "Cette action va RÉÉCRIRE les données de la base avec celles du fichier choisi " +
-            "(comptes, notes, devoirs, actualités...).\n\n" +
-            "• Les documents déjà existants avec le même identifiant seront ÉCRASÉS par la version du fichier.\n" +
-            "• Les données créées APRÈS cette sauvegarde et absentes du fichier ne seront PAS supprimées.\n\n" +
-            "Continuer la restauration ?"
-        );
-        if (!ok) return;
+    // Affichage du tableau "Élèves par classe" (pour toutes les classes)
+    const classesTbody = document.querySelector('#stats-classes-table tbody');
+    const classesRows = Object.entries(eleveCountByNiveau)
+      .sort((a, b) => (levelLabelMap[a[0]] || a[0]).localeCompare(levelLabelMap[b[0]] || b[0]))
+      .map(([niveau, count]) => `<tr><td>${levelLabelMap[niveau] || niveau}</td><td>${count}</td></tr>`)
+      .join('');
+    classesTbody.innerHTML = classesRows || '<tr><td colspan="2">Aucune donnée</td></tr>';
+  }
 
-        const btn = document.getElementById('restore-btn');
-        btn.disabled = true;
-        btn.textContent = "Lecture du fichier...";
+  // ---------- FONCTIONS DE STATISTIQUES DÉTAILLÉES PAR CLASSE ----------
 
-        try {
-            const text = await file.text();
-            const backup = JSON.parse(text);
+  // Variable globale pour stocker les données des devoirs (chargées une fois)
+  let allDevoirData = [];
 
-            const ops = [];
-            const pushOp = (ref, data) => { if (data) ops.push({ ref, data }); };
+  // Fonction pour charger et calculer les statistiques détaillées par classe
+  window.updateStatsByClass = async () => {
+    const selectedClass = document.getElementById('stats-filter-niveau').value;
+    const tableBody = document.querySelector('#stats-detail-table tbody');
 
-            const simpleCollections = {
-                utilisateurs: backup.utilisateurs,
-                actualites: backup.actualites,
-                ines_autorises: backup.ines_autorises,
-            };
-            for (const [colName, obj] of Object.entries(simpleCollections)) {
-                if (!obj) continue;
-                for (const [id, data] of Object.entries(obj)) {
-                    pushOp(doc(db, colName, id), data);
-                }
-            }
-
-            const groupCollections = [backup.ressources_cours, backup.ressources_td, backup.devoirs, backup.rendus_devoirs];
-            for (const group of groupCollections) {
-                if (!group) continue;
-                for (const item of group) {
-                    pushOp(doc(db, item.chemin), item.donnees);
-                }
-            }
-
-            if (backup.config_annee_scolaire) pushOp(doc(db, 'config', 'schoolYear'), backup.config_annee_scolaire);
-            if (backup.config_stockage) pushOp(doc(db, 'config', 'usage'), backup.config_stockage);
-            if (backup.config_contact_proviseur) pushOp(doc(db, 'config', 'contact'), backup.config_contact_proviseur);
-
-            if (ops.length === 0) { alert("Ce fichier ne contient aucune donnée reconnue."); btn.disabled = false; btn.textContent = "Restaurer cette sauvegarde"; return; }
-
-            for (let i = 0; i < ops.length; i += 400) {
-                const chunk = ops.slice(i, i + 400);
-                const batch = writeBatch(db);
-                chunk.forEach(op => batch.set(op.ref, op.data));
-                await batch.commit();
-                btn.textContent = `Restauration... (${Math.min(i + 400, ops.length)}/${ops.length})`;
-            }
-
-            alert(`✅ Restauration terminée : ${ops.length} document(s) restauré(s).`);
-            location.reload();
-        } catch (err) {
-            alert("Erreur pendant la restauration : " + err.message + "\n\nVérifiez que le fichier est bien une sauvegarde générée par ce site.");
-        }
-        btn.disabled = false;
-        btn.textContent = "Restaurer cette sauvegarde";
-    };
-
-    window.resetUsage = async () => {
-        if (confirm("Réinitialiser le compteur à 0 ? (À faire uniquement après avoir vérifié/vidé le vrai tableau de bord Cloudinary, ou changé de plan)")) {
-            await setDoc(doc(db, "config", "usage"), { totalMo: 0 });
-        }
-    };
-
-    function loadJournal() {
-        const tbody = document.querySelector('#journal-table tbody');
-        onSnapshot(query(collection(db, 'journal_activite'), orderBy('date', 'desc'), limit(50)), (snap) => {
-            if (snap.empty) { tbody.innerHTML = '<tr><td colspan="5">Aucune activité enregistrée pour le moment.</td></tr>'; return; }
-            tbody.innerHTML = '';
-            snap.forEach(d => {
-                const j = d.data();
-                const date = j.date?.toDate ? j.date.toDate().toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
-                const couleurAction = j.action === 'suppression' ? '#B3402A' : '#2E7D32';
-                tbody.innerHTML += `<tr>
-                    <td>${date}</td>
-                    <td>${j.auteur || '-'}</td>
-                    <td>${j.role || '-'}</td>
-                    <td style="color:${couleurAction};font-weight:700;text-transform:capitalize;">${j.action}</td>
-                    <td>${j.cible || '-'}</td>
-                </tr>`;
-            });
-        });
+    if (selectedClass === 'tous') {
+      tableBody.innerHTML = '<tr><td colspan="5">Sélectionnez une classe pour voir les statistiques détaillées.</td></tr>';
+      if (window.myChart) window.myChart.destroy();
+      return;
     }
 
-    async function loadStats() {
-        const levelLabelMap = {};
-        allLevels.forEach(l => { levelLabelMap[l.id] = l.n; });
-
-        const usersSnap = await getDocs(collection(db, 'utilisateurs'));
-        const eleveCountByNiveau = {};
-        let totalEleves = 0, totalProfs = 0, totalEnAttente = 0;
-        usersSnap.forEach(u => {
-            const d = u.data();
-            if (d.role === 'eleve') {
-                totalEleves++;
-                eleveCountByNiveau[d.niveau] = (eleveCountByNiveau[d.niveau] || 0) + 1;
-            } else {
-                if (d.role === 'professeur') totalProfs++;
-                if (d.statut === 'en_attente') totalEnAttente++;
-            }
-        });
-
-        document.getElementById('stats-cards').innerHTML = `
-            <div class="stat-card"><div class="stat-value">${totalEleves}</div><div class="stat-label">Élèves</div></div>
-            <div class="stat-card"><div class="stat-value">${totalProfs}</div><div class="stat-label">Professeurs</div></div>
-            <div class="stat-card"><div class="stat-value">${totalEnAttente}</div><div class="stat-label">Comptes en attente</div></div>
-            <div class="stat-card"><div class="stat-value">${Object.keys(eleveCountByNiveau).length}</div><div class="stat-label">Classes actives</div></div>
-        `;
-
-        const classesTbody = document.querySelector('#stats-classes-table tbody');
-        const classesRows = Object.entries(eleveCountByNiveau)
-            .sort((a, b) => (levelLabelMap[a[0]] || a[0]).localeCompare(levelLabelMap[b[0]] || b[0]))
-            .map(([niveau, count]) => `<tr><td>${levelLabelMap[niveau] || niveau}</td><td>${count}</td></tr>`)
-            .join('');
-        classesTbody.innerHTML = classesRows || '<tr><td colspan="2">Aucune donnée</td></tr>';
-
-        const matNameBySlug = {};
-        ['Mathématiques', 'Français', 'Anglais', 'Arabe', 'SVT', 'Physique-Chimie', 'Histoire-Géo', 'EPS', 'Éducation Religieuse', 'Philosophie']
-            .forEach(m => { matNameBySlug[m.toLowerCase().replace(/[^a-z0-9]/g, '')] = m; });
-
-        const devoirsSnap = await getDocs(collectionGroup(db, 'devoirs'));
-        const noteSumByMat = {}, noteCountByMat = {};
-        const tauxRows = [];
-
-        for (const devDoc of devoirsSnap.docs) {
-            const dv = devDoc.data();
-            const parentSlug = devDoc.ref.parent.parent.id;
-            const dashIndex = parentSlug.indexOf('-');
-            const levelId = dashIndex === -1 ? parentSlug : parentSlug.substring(0, dashIndex);
-            const matSlug = dashIndex === -1 ? '' : parentSlug.substring(dashIndex + 1);
-            const matName = matNameBySlug[matSlug] || matSlug;
-
-            const rendusSnap = await getDocs(collection(devDoc.ref, 'rendus'));
-            let sum = 0, cnt = 0;
-            rendusSnap.forEach(r => {
-                const note = r.data().note;
-                if (typeof note === 'number') { sum += note; cnt++; }
-            });
-            if (cnt > 0) {
-                noteSumByMat[matName] = (noteSumByMat[matName] || 0) + sum;
-                noteCountByMat[matName] = (noteCountByMat[matName] || 0) + cnt;
-            }
-
-            tauxRows.push({
-                titre: dv.titre,
-                classe: levelLabelMap[levelId] || levelId,
-                rendu: rendusSnap.size,
-                total: eleveCountByNiveau[levelId] || 0
-            });
-        }
-
-        const notesTbody = document.querySelector('#stats-notes-table tbody');
-        const notesRows = Object.entries(noteSumByMat)
-            .map(([mat, sum]) => `<tr><td>${mat}</td><td>${(sum / noteCountByMat[mat]).toFixed(1)}/20</td><td>${noteCountByMat[mat]}</td></tr>`)
-            .join('');
-        notesTbody.innerHTML = notesRows || '<tr><td colspan="3">Aucune note enregistrée pour le moment</td></tr>';
-
-        const tauxTbody = document.querySelector('#stats-taux-table tbody');
-        const tauxRowsHtml = tauxRows.map(r => {
-            const pct = r.total > 0 ? Math.round((r.rendu / r.total) * 100) : 0;
-            return `<tr><td>${r.titre}</td><td>${r.classe}</td><td>${r.rendu}/${r.total || '?'}</td><td><div class="taux-bar-bg"><div class="taux-bar-fill" style="width:${pct}%;"></div></div></td></tr>`;
-        }).join('');
-        tauxTbody.innerHTML = tauxRowsHtml || '<tr><td colspan="4">Aucun devoir publié pour le moment</td></tr>';
+    // Charger tous les devoirs si ce n'est pas déjà fait
+    if (allDevoirData.length === 0) {
+      const devoirsSnap = await getDocs(collectionGroup(db, 'devoirs'));
+      allDevoirData = [];
+      for (const devDoc of devoirsSnap.docs) {
+        const dv = devDoc.data();
+        const parentSlug = devDoc.ref.parent.parent.id;
+        const dashIndex = parentSlug.indexOf('-');
+        const levelId = dashIndex === -1 ? parentSlug : parentSlug.substring(0, dashIndex);
+        const matSlug = dashIndex === -1 ? '' : parentSlug.substring(dashIndex + 1);
+        const rendusSnap = await getDocs(collection(devDoc.ref, 'rendus'));
+        allDevoirData.push({ levelId, matSlug, devoirId: devDoc.id, dv, rendus: rendusSnap.docs.map(r => r.data()) });
+      }
     }
 
-    async function loadUsers() {
-        const snap = await getDocs(collection(db, "utilisateurs"));
-        window.allUsersCache = [];
-        const tbody = document.querySelector("#users-table tbody");
-        tbody.innerHTML = '';
+    // Filtrer les devoirs par classe sélectionnée
+    const classDevoirs = allDevoirData.filter(d => d.levelId === selectedClass);
 
-        snap.forEach((userDoc) => {
-            const u = userDoc.data();
-            const id = userDoc.id;
-            window.allUsersCache.push(u);
-            const tr = document.createElement('tr');
-            tr.dataset.nom = `${u.prenom} ${u.nom}`.toLowerCase();
-            tr.dataset.role = u.role;
-            tr.dataset.niveau = u.niveau || '';
-            
-            const classesDisplay = u.assignedClasses ? u.assignedClasses.map(c => `<span class="class-badge">${c}</span>`).join('') : '<i style="color:grey">Aucune</i>';
-            const enAttente = (u.role === 'professeur' || u.role === 'intendant') && u.statut === 'en_attente';
-            const statutDisplay = enAttente ? '⏳ En attente' : '✅ Validé';
+    // Regrouper par matière
+    const statsByMat = {};
+    const matNameBySlug = {};
+    ['Mathématiques', 'Français', 'Anglais', 'Arabe', 'SVT', 'Physique-Chimie', 'Histoire-Géo', 'EPS', 'Éducation Religieuse', 'Philosophie']
+      .forEach(m => { matNameBySlug[m.toLowerCase().replace(/[^a-z0-9]/g, '')] = m; });
 
-            tr.innerHTML = `
-                <td>${u.prenom} ${u.nom}</td>
-                <td>${u.matricule || '-'}</td>
-                <td>${u.telephone ? `<a href="tel:${u.telephone}">${u.telephone}</a>` : '-'}</td>
-                <td>${u.role.toUpperCase()}</td>
-                <td>${statutDisplay}</td>
-                <td>${u.disciplines?.join(', ') || u.niveau || '-'}</td>
-                <td>${u.role === 'professeur' ? classesDisplay : '-'}</td>
-                <td id="act-${id}"></td>
-            `;
-            tbody.appendChild(tr);
+    classDevoirs.forEach(d => {
+      const matName = matNameBySlug[d.matSlug] || d.matSlug;
+      if (!statsByMat[matName]) statsByMat[matName] = { sum: 0, count: 0, min: 20, max: 0 };
 
-            const cell = document.getElementById(`act-${id}`);
-            if (enAttente) {
-                const validBtn = document.createElement('button');
-                validBtn.className = 'btn btn-save'; validBtn.textContent = 'Valider';
-                validBtn.style.marginRight = '5px';
-                validBtn.onclick = async () => {
-                    await updateDoc(doc(db, "utilisateurs", id), { statut: 'valide' });
-                    location.reload();
-                };
-                cell.appendChild(validBtn);
-            }
-            if (u.role === 'professeur') {
-                const btn = document.createElement('button');
-                btn.className = 'btn btn-blue'; btn.textContent = 'Affecter Classes';
-                btn.style.marginRight = '5px';
-                btn.onclick = () => openAssignModal(id, u);
-                cell.appendChild(btn);
-            }
-            const roleBtn = document.createElement('button');
-            roleBtn.className = 'btn'; roleBtn.style.background = '#eee'; roleBtn.textContent = 'Modifier rôle';
-            roleBtn.onclick = async () => {
-                const newRole = prompt("Nouveau rôle (eleve, professeur, intendant, censeur, proviseur) :", u.role);
-                if (!['eleve','professeur','intendant','censeur','proviseur'].includes(newRole)) return;
-                if (confirm(`Confirmer le passage de ${u.prenom} ${u.nom} au rôle ${newRole} ?`)) {
-                    await updateDoc(doc(db, "utilisateurs", id), { role: newRole, statut: 'valide' });
-                    location.reload();
-                }
-            };
-            cell.appendChild(roleBtn);
-        });
-
-        window.filterTable();
-    }
-
-    let selectedTeacherId = null;
-    function openAssignModal(uid, data) {
-        selectedTeacherId = uid;
-        document.getElementById('modal-teacher-name').textContent = "Affectation : " + data.prenom;
-        const container = document.getElementById('classes-checkboxes');
-        container.innerHTML = allLevels.map(l => `
-            <label style="display:block; margin:5px 0;">
-                <input type="checkbox" name="lvl-check" value="${l.id}" ${(data.assignedClasses || []).includes(l.id) ? 'checked' : ''}> ${l.n}
-            </label>
-        `).join('');
-        document.getElementById('assign-modal').style.display = 'block';
-    }
-
-    document.getElementById('confirm-assign').onclick = async () => {
-        const checks = Array.from(document.querySelectorAll('input[name="lvl-check"]:checked')).map(c => c.value);
-        await updateDoc(doc(db, "utilisateurs", selectedTeacherId), { assignedClasses: checks });
-        alert("Classes affectées !");
-        location.reload();
-    };
-
-    function getExportData() {
-        const roleFilter = document.getElementById('export-role').value;
-        const niveauFilter = document.getElementById('export-niveau').value;
-        const users = (window.allUsersCache || []).filter(u => {
-            if (roleFilter === 'eleve' && u.role !== 'eleve') return false;
-            if (roleFilter === 'personnel' && u.role === 'eleve') return false;
-            if (u.role === 'eleve' && niveauFilter !== 'tous' && u.niveau !== niveauFilter) return false;
-            return true;
-        });
-
-        const headers = ["Prénom", "Nom", "Rôle", "Classe/Niveau", "Téléphone", "Email", "Père/Tuteur", "Tél. Père", "Mère/Tutrice", "Tél. Mère", "Adresse"];
-        const rows = users.map(u => [
-            u.prenom || '', u.nom || '', u.role || '', u.niveau || u.disciplines?.join(' / ') || '',
-            u.telephone || '', u.email || '',
-            u.famille?.pereNom || '', u.famille?.pereTel || '',
-            u.famille?.mereNom || '', u.famille?.mereTel || '', u.famille?.adresse || ''
-        ]);
-
-        const suffix = roleFilter === 'eleve' ? (niveauFilter === 'tous' ? 'eleves-toutes-classes' : `eleves-${niveauFilter}`) : roleFilter;
-        return { headers, rows, suffix, count: users.length };
-    }
-
-    window.exportData = (format) => {
-        const { headers, rows, suffix, count } = getExportData();
-        if (count === 0) { alert("Aucun utilisateur ne correspond à ces filtres."); return; }
-        const filename = `LFAKM-${suffix}-${new Date().toISOString().slice(0, 10)}`;
-
-        if (format === 'csv') {
-            const esc = (v) => `"${String(v).replace(/"/g, '""')}"`;
-            const csv = "\uFEFF" + [headers, ...rows].map(r => r.map(esc).join(';')).join('\n');
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = filename + '.csv';
-            link.click();
-
-        } else if (format === 'excel') {
-            const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-            ws['!cols'] = headers.map(() => ({ wch: 18 }));
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Liste");
-            XLSX.writeFile(wb, filename + '.xlsx');
-        } else if (format === 'pdf') {
-            // Pour garder le code concis, nous omettons le PDF pour l'instant,
-            // mais vous pouvez réintégrer la fonction complète plus tard.
-            alert("La génération PDF a été temporairement désactivée pour éviter la coupure du code. Utilisez Excel ou CSV.");
+      d.rendus.forEach(r => {
+        const note = r.note;
+        if (typeof note === 'number') {
+          statsByMat[matName].sum += note;
+          statsByMat[matName].count++;
+          statsByMat[matName].min = Math.min(statsByMat[matName].min, note);
+          statsByMat[matName].max = Math.max(statsByMat[matName].max, note);
         }
-    };
+      });
+    });
 
-    window.promptNewYear = async () => {
-        const year = prompt("Entrez la nouvelle année scolaire (ex: 2026-2027) :");
-        if (year && confirm(`Confirmer le passage à l'année ${year} ? La base sera propre pour cette année.`)) {
-            await setDoc(doc(db, "config", "schoolYear"), { year: year });
-            location.reload();
-        }
-    };
+    // Afficher le tableau
+    tableBody.innerHTML = '';
+    Object.entries(statsByMat).forEach(([mat, stats]) => {
+      const moyenne = stats.count > 0 ? (stats.sum / stats.count).toFixed(1) : '-';
+      tableBody.innerHTML += `<tr>
+        <td>${mat}</td>
+        <td>${moyenne}/20</td>
+        <td>${stats.count > 0 ? stats.min : '-'}</td>
+        <td>${stats.count > 0 ? stats.max : '-'}</td>
+        <td>${stats.count}</td>
+      </tr>`;
+    });
 
-    window.archiveDevoirs = async () => {
-        if (!confirm("Cette action va SUPPRIMER DÉFINITIVEMENT tous les devoirs et les rendus des élèves (fichiers y compris) pour libérer de l'espace de stockage. Les cours et TD ne sont pas concernés. Continuer ?")) return;
-        const btn = document.getElementById('archive-btn');
-        btn.disabled = true;
-        btn.textContent = "Archivage en cours...";
-        try {
-            const devoirsSnap = await getDocs(collectionGroup(db, 'devoirs'));
-            let count = 0;
-            for (const devDoc of devoirsSnap.docs) {
-                const rendusSnap = await getDocs(collection(devDoc.ref, 'rendus'));
-                for (const r of rendusSnap.docs) {
-                    await deleteDoc(r.ref);
-                }
-                await deleteDoc(devDoc.ref);
-                count++;
-            }
-            alert(`${count} devoir(s) et tous leurs rendus ont été supprimés.`);
-        } catch (err) {
-            alert("Erreur : " + err.message + "\n\nSi Firestore demande de créer un index pour cette requête, cliquez sur le lien fourni dans la console puis réessayez.");
+    // Générer le graphique en barres
+    generateChart(statsByMat);
+  };
+
+  // Fonction pour générer un graphique en barres avec Chart.js
+  function generateChart(statsByMat) {
+    const ctx = document.getElementById('stats-chart').getContext('2d');
+
+    if (window.myChart) window.myChart.destroy();
+
+    const labels = Object.keys(statsByMat);
+    const data = labels.map(mat => {
+      const stats = statsByMat[mat];
+      return stats.count > 0 ? (stats.sum / stats.count).toFixed(1) : 0;
+    });
+
+    window.myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Moyenne / 20',
+          data: data,
+          backgroundColor: 'rgba(168, 133, 63, 0.7)',
+          borderColor: 'rgba(168, 133, 63, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true, max: 20 }
         }
-        btn.disabled = false;
-        btn.textContent = "🗑 Archiver les devoirs de l'année écoulée";
-    };
+      }
+    });
+  }
+
+  // ---------- GESTION DES UTILISATEURS ----------
+  window.filterTable = () => {
+    const search = document.getElementById('table-search').value.trim().toLowerCase();
+    const roleFilter = document.getElementById('table-filter-role').value;
+    const niveauFilter = document.getElementById('table-filter-niveau').value;
+    const rows = document.querySelectorAll('#users-table tbody tr');
+    let visibleCount = 0;
+
+    rows.forEach(tr => {
+      let visible = true;
+      if (search && !tr.dataset.nom.includes(search)) visible = false;
+      if (roleFilter === 'eleve' && tr.dataset.role !== 'eleve') visible = false;
+      if (roleFilter === 'personnel' && tr.dataset.role === 'eleve') visible = false;
+      if (niveauFilter !== 'tous' && tr.dataset.role === 'eleve' && tr.dataset.niveau !== niveauFilter) visible = false;
+      if (niveauFilter !== 'tous' && tr.dataset.role !== 'eleve') visible = false;
+      tr.style.display = visible ? '' : 'none';
+      if (visible) visibleCount++;
+    });
+
+    document.getElementById('table-count').textContent = `${visibleCount} résultat(s) affiché(s) sur ${rows.length}`;
+  };
+
+  window.saveContact = async () => {
+    await setDoc(doc(db, "config", "contact"), {
+      nom: document.getElementById('contact-nom').value.trim(),
+      telephone: document.getElementById('contact-tel').value.trim(),
+      email: document.getElementById('contact-email').value.trim()
+    });
+    alert("Coordonnées enregistrées.");
+  };
+
+  window.backupAll = async () => {
+    const btn = document.getElementById('backup-all-btn');
+    btn.disabled = true;
+    btn.textContent = "Sauvegarde en cours...";
+    try {
+      const dumpCollection = async (name) => {
+        const snap = await getDocs(collection(db, name));
+        const out = {};
+        snap.forEach(d => { out[d.id] = d.data(); });
+        return out;
+      };
+      const dumpCollectionGroup = async (name) => {
+        const snap = await getDocs(collectionGroup(db, name));
+        const out = [];
+        snap.forEach(d => { out.push({ chemin: d.ref.path, donnees: d.data() }); });
+        return out;
+      };
+      const dumpDoc = async (path) => {
+        const snap = await getDoc(doc(db, path));
+        return snap.exists() ? snap.data() : null;
+      };
+
+      const backup = {
+        date_sauvegarde: new Date().toISOString(),
+        utilisateurs: await dumpCollection('utilisateurs'),
+        actualites: await dumpCollection('actualites'),
+        ines_autorises: await dumpCollection('ines_autorises'),
+        ressources_cours: await dumpCollectionGroup('cours'),
+        ressources_td: await dumpCollectionGroup('td'),
+        devoirs: await dumpCollectionGroup('devoirs'),
+        rendus_devoirs: await dumpCollectionGroup('rendus'),
+        config_annee_scolaire: await dumpDoc('config/schoolYear'),
+        config_stockage: await dumpDoc('config/usage'),
+        config_contact_proviseur: await dumpDoc('config/contact'),
+      };
+
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `LFAKM-sauvegarde-${new Date().toISOString().slice(0, 10)}.json`;
+      link.click();
+    } catch (err) {
+      alert("Erreur pendant la sauvegarde : " + err.message);
+    }
+    btn.disabled = false;
+    btn.textContent = "Télécharger la sauvegarde";
+  };
+
+  window.restoreBackup = async () => {
+    const fileInput = document.getElementById('restore-file');
+    const file = fileInput.files[0];
+    if (!file) { alert("Sélectionnez d'abord un fichier de sauvegarde (.json)."); return; }
+
+    const ok = confirm(
+      "⚠️ ATTENTION\n\n" +
+      "Cette action va RÉÉCRIRE les données de la base avec celles du fichier choisi " +
+      "(comptes, notes, devoirs, actualités...).\n\n" +
+      "• Les documents déjà existants avec le même identifiant seront ÉCRASÉS par la version du fichier.\n" +
+      "• Les données créées APRÈS cette sauvegarde et absentes du fichier ne seront PAS supprimées.\n\n" +
+      "Continuer la restauration ?"
+    );
+    if (!ok) return;
+
+    const btn = document.getElementById('restore-btn');
+    btn.disabled = true;
+    btn.textContent = "Lecture du fichier...";
+
+    try {
+      const text = await file.text();
+      const backup = JSON.parse(text);
+
+      const ops = [];
+      const pushOp = (ref, data) => { if (data) ops.push({ ref, data }); };
+
+      const simpleCollections = {
+        utilisateurs: backup.utilisateurs,
+        actualites: backup.actualites,
+        ines_autorises: backup.ines_autorises,
+      };
+      for (const [colName, obj] of Object.entries(simpleCollections)) {
+        if (!obj) continue;
+        for (const [id, data] of Object.entries(obj)) {
+          pushOp(doc(db, colName, id), data);
+        }
+      }
+
+      const groupCollections = [backup.ressources_cours, backup.ressources_td, backup.devoirs, backup.rendus_devoirs];
+      for (const group of groupCollections) {
+        if (!group) continue;
+        for (const item of group) {
+          pushOp(doc(db, item.chemin), item.donnees);
+        }
+      }
+
+      if (backup.config_annee_scolaire) pushOp(doc(db, 'config', 'schoolYear'), backup.config_annee_scolaire);
+      if (backup.config_stockage) pushOp(doc(db, 'config', 'usage'), backup.config_stockage);
+      if (backup.config_contact_proviseur) pushOp(doc(db, 'config', 'contact'), backup.config_contact_proviseur);
+
+      if (ops.length === 0) { alert("Ce fichier ne contient aucune donnée reconnue."); btn.disabled = false; btn.textContent = "Restaurer cette sauvegarde"; return; }
+
+      for (let i = 0; i < ops.length; i += 400) {
+        const chunk = ops.slice(i, i + 400);
+        const batch = writeBatch(db);
+        chunk.forEach(op => batch.set(op.ref, op.data));
+        await batch.commit();
+        btn.textContent = `Restauration... (${Math.min(i + 400, ops.length)}/${ops.length})`;
+      }
+
+      alert(`✅ Restauration terminée : ${ops.length} document(s) restauré(s).`);
+      location.reload();
+    } catch (err) {
+      alert("Erreur pendant la restauration : " + err.message + "\n\nVérifiez que le fichier est bien une sauvegarde générée par ce site.");
+    }
+    btn.disabled = false;
+    btn.textContent = "Restaurer cette sauvegarde";
+  };
+
+  window.resetUsage = async () => {
+    if (confirm("Réinitialiser le compteur à 0 ? (À faire uniquement après avoir vérifié/vidé le vrai tableau de bord Cloudinary, ou changé de plan)")) {
+      await setDoc(doc(db, "config", "usage"), { totalMo: 0 });
+    }
+  };
+
+  window.promptNewYear = async () => {
+    const year = prompt("Entrez la nouvelle année scolaire (ex: 2026-2027) :");
+    if (year && confirm(`Confirmer le passage à l'année ${year} ? La base sera propre pour cette année.`)) {
+      await setDoc(doc(db, "config", "schoolYear"), { year: year });
+      location.reload();
+    }
+  };
+
+  window.archiveDevoirs = async () => {
+    if (!confirm("Cette action va SUPPRIMER DÉFINITIVEMENT tous les devoirs et les rendus des élèves (fichiers y compris) pour libérer de l'espace de stockage. Les cours et TD ne sont pas concernés. Continuer ?")) return;
+    const btn = document.getElementById('archive-btn');
+    btn.disabled = true;
+    btn.textContent = "Archivage en cours...";
+    try {
+      const devoirsSnap = await getDocs(collectionGroup(db, 'devoirs'));
+      let count = 0;
+      for (const devDoc of devoirsSnap.docs) {
+        const rendusSnap = await getDocs(collection(devDoc.ref, 'rendus'));
+        for (const r of rendusSnap.docs) {
+          await deleteDoc(r.ref);
+        }
+        await deleteDoc(devDoc.ref);
+        count++;
+      }
+      alert(`${count} devoir(s) et tous leurs rendus ont été supprimés.`);
+    } catch (err) {
+      alert("Erreur : " + err.message + "\n\nSi Firestore demande de créer un index pour cette requête, cliquez sur le lien fourni dans la console puis réessayez.");
+    }
+    btn.disabled = false;
+    btn.textContent = "🗑 Archiver les devoirs de l'année écoulée";
+  };
+
+  // ---------- LOAD USERS ----------
+  async function loadUsers() {
+    const snap = await getDocs(collection(db, "utilisateurs"));
+    window.allUsersCache = [];
+    const tbody = document.querySelector("#users-table tbody");
+    tbody.innerHTML = '';
+
+    snap.forEach((userDoc) => {
+      const u = userDoc.data();
+      const id = userDoc.id;
+      window.allUsersCache.push(u);
+      const tr = document.createElement('tr');
+      tr.dataset.nom = `${u.prenom} ${u.nom}`.toLowerCase();
+      tr.dataset.role = u.role;
+      tr.dataset.niveau = u.niveau || '';
+      
+      const classesDisplay = u.assignedClasses ? u.assignedClasses.map(c => `<span class="class-badge">${c}</span>`).join('') : '<i style="color:grey">Aucune</i>';
+      const enAttente = (u.role === 'professeur' || u.role === 'intendant') && u.statut === 'en_attente';
+      const statutDisplay = enAttente ? '⏳ En attente' : '✅ Validé';
+
+      tr.innerHTML = `
+        <td>${u.prenom} ${u.nom}</td>
+        <td>${u.matricule || '-'}</td>
+        <td>${u.telephone ? `<a href="tel:${u.telephone}">${u.telephone}</a>` : '-'}</td>
+        <td>${u.role.toUpperCase()}</td>
+        <td>${statutDisplay}</td>
+        <td>${u.disciplines?.join(', ') || u.niveau || '-'}</td>
+        <td>${u.role === 'professeur' ? classesDisplay : '-'}</td>
+        <td id="act-${id}"></td>
+      `;
+      tbody.appendChild(tr);
+
+      const cell = document.getElementById(`act-${id}`);
+      if (enAttente) {
+        const validBtn = document.createElement('button');
+        validBtn.className = 'btn btn-save'; validBtn.textContent = 'Valider';
+        validBtn.style.marginRight = '5px';
+        validBtn.onclick = async () => {
+          await updateDoc(doc(db, "utilisateurs", id), { statut: 'valide' });
+          location.reload();
+        };
+        cell.appendChild(validBtn);
+      }
+      if (u.role === 'professeur') {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-blue'; btn.textContent = 'Affecter Classes';
+        btn.style.marginRight = '5px';
+        btn.onclick = () => openAssignModal(id, u);
+        cell.appendChild(btn);
+      }
+      const roleBtn = document.createElement('button');
+      roleBtn.className = 'btn'; roleBtn.style.background = '#eee'; roleBtn.textContent = 'Modifier rôle';
+      roleBtn.onclick = async () => {
+        const newRole = prompt("Nouveau rôle (eleve, professeur, intendant, censeur, proviseur) :", u.role);
+        if (!['eleve','professeur','intendant','censeur','proviseur'].includes(newRole)) return;
+        if (confirm(`Confirmer le passage de ${u.prenom} ${u.nom} au rôle ${newRole} ?`)) {
+          await updateDoc(doc(db, "utilisateurs", id), { role: newRole, statut: 'valide' });
+          location.reload();
+        }
+      };
+      cell.appendChild(roleBtn);
+    });
+
+    window.filterTable();
+  }
+
+  let selectedTeacherId = null;
+  function openAssignModal(uid, data) {
+    selectedTeacherId = uid;
+    document.getElementById('modal-teacher-name').textContent = "Affectation : " + data.prenom;
+    const container = document.getElementById('classes-checkboxes');
+    container.innerHTML = allLevels.map(l => `
+      <label style="display:block; margin:5px 0;">
+        <input type="checkbox" name="lvl-check" value="${l.id}" ${(data.assignedClasses || []).includes(l.id) ? 'checked' : ''}> ${l.n}
+      </label>
+    `).join('');
+    document.getElementById('assign-modal').style.display = 'block';
+  }
+
+  document.getElementById('confirm-assign').onclick = async () => {
+    const checks = Array.from(document.querySelectorAll('input[name="lvl-check"]:checked')).map(c => c.value);
+    await updateDoc(doc(db, "utilisateurs", selectedTeacherId), { assignedClasses: checks });
+    alert("Classes affectées !");
+    location.reload();
+  };
+
+  // ---------- LOAD JOURNAL ----------
+  function loadJournal() {
+    const tbody = document.querySelector('#journal-table tbody');
+    onSnapshot(query(collection(db, 'journal_activite'), orderBy('date', 'desc'), limit(50)), (snap) => {
+      if (snap.empty) { tbody.innerHTML = '<tr><td colspan="5">Aucune activité enregistrée pour le moment.</td></tr>'; return; }
+      tbody.innerHTML = '';
+      snap.forEach(d => {
+        const j = d.data();
+        const date = j.date?.toDate ? j.date.toDate().toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+        const couleurAction = j.action === 'suppression' ? '#B3402A' : '#2E7D32';
+        tbody.innerHTML += `<tr>
+          <td>${date}</td>
+          <td>${j.auteur || '-'}</td>
+          <td>${j.role || '-'}</td>
+          <td style="color:${couleurAction};font-weight:700;text-transform:capitalize;">${j.action}</td>
+          <td>${j.cible || '-'}</td>
+        </tr>`;
+      });
+    });
+  }
+
+  // ---------- EXPORT DATA ----------
+  function getExportData() {
+    const roleFilter = document.getElementById('export-role').value;
+    const niveauFilter = document.getElementById('export-niveau').value;
+    const users = (window.allUsersCache || []).filter(u => {
+      if (roleFilter === 'eleve' && u.role !== 'eleve') return false;
+      if (roleFilter === 'personnel' && u.role === 'eleve') return false;
+      if (u.role === 'eleve' && niveauFilter !== 'tous' && u.niveau !== niveauFilter) return false;
+      return true;
+    });
+
+    const headers = ["Prénom", "Nom", "Rôle", "Classe/Niveau", "Téléphone", "Email", "Père/Tuteur", "Tél. Père", "Mère/Tutrice", "Tél. Mère", "Adresse"];
+    const rows = users.map(u => [
+      u.prenom || '', u.nom || '', u.role || '', u.niveau || u.disciplines?.join(' / ') || '',
+      u.telephone || '', u.email || '',
+      u.famille?.pereNom || '', u.famille?.pereTel || '',
+      u.famille?.mereNom || '', u.famille?.mereTel || '', u.famille?.adresse || ''
+    ]);
+
+    const suffix = roleFilter === 'eleve' ? (niveauFilter === 'tous' ? 'eleves-toutes-classes' : `eleves-${niveauFilter}`) : roleFilter;
+    return { headers, rows, suffix, count: users.length };
+  }
+
+  window.exportData = (format) => {
+    const { headers, rows, suffix, count } = getExportData();
+    if (count === 0) { alert("Aucun utilisateur ne correspond à ces filtres."); return; }
+    const filename = `LFAKM-${suffix}-${new Date().toISOString().slice(0, 10)}`;
+
+    if (format === 'csv') {
+      const esc = (v) => `"${String(v).replace(/"/g, '""')}"`;
+      const csv = "\uFEFF" + [headers, ...rows].map(r => r.map(esc).join(';')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename + '.csv';
+      link.click();
+    } else if (format === 'excel') {
+      const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+      ws['!cols'] = headers.map(() => ({ wch: 18 }));
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Liste");
+      XLSX.writeFile(wb, filename + '.xlsx');
+    } else if (format === 'pdf') {
+      // Version simplifiée pour éviter les problèmes de taille
+      alert("La génération PDF a été temporairement désactivée pour éviter la coupure du code. Utilisez Excel ou CSV.");
+    }
+  };
 </script>
 </body>
 </html>
