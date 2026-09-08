@@ -120,6 +120,7 @@
   .btn-voir-rendus { background: #3498db; color: #fff; }
   .btn-suppr-devoir { background: #eee; color: #333; }
   .btn-profile { background: #2e7d32; color: #fff; }
+  .btn-export { background: var(--brass); color: #fff; }
 
   #actus-strip { max-width: 1100px; margin: 20px auto 0; padding: 0 20px; }
   #actus-strip h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--brass); margin-bottom: 10px; }
@@ -150,14 +151,19 @@
   .doc-list { list-style: none; font-size: 13px; }
   .doc-list li { background: #fdfdfd; padding: 8px; border-radius: 4px; margin-bottom: 5px; display: flex; justify-content: space-between; border: 1px solid #eee; }
 
-  /* ---------- ÉLÈVES ONGLET ---------- */
+  /* ---------- ÉLÈVES ONGLET (ACCORDÉON PAR CLASSE) ---------- */
   .eleves-section { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; margin-bottom: 30px; }
   .eleves-section h2 { font-family: var(--serif); color: var(--ink); margin-bottom: 15px; }
-  .eleves-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
-  .eleve-card { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 15px; cursor: pointer; transition: 0.3s; }
-  .eleve-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-color: var(--brass); }
-  .eleve-card h4 { font-size: 15px; color: var(--ink); margin-bottom: 4px; }
-  .eleve-card p { font-size: 12px; color: var(--slate); }
+  .classes-eleves { margin-bottom: 10px; }
+  .classe-eleve { background: #f9f9f9; border: 1px solid #eee; border-radius: 8px; margin-bottom: 10px; }
+  .classe-eleve summary { cursor: pointer; padding: 12px 15px; font-weight: 600; font-size: 14px; color: var(--ink); display: flex; justify-content: space-between; align-items: center; list-style: none; }
+  .classe-eleve summary:hover { background: #f0f0f0; }
+  .classe-eleve-content { padding: 10px 15px; border-top: 1px solid #eee; }
+  .eleve-ligne { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+  .eleve-ligne:last-child { border-bottom: none; }
+  .eleve-ligne .eleve-nom { font-size: 14px; font-weight: 500; }
+  .eleve-ligne .eleve-actions { display: flex; gap: 8px; }
+  .eleve-ligne .eleve-actions button { font-size: 11px; padding: 4px 8px; border: none; border-radius: 4px; cursor: pointer; }
 
   .add-btn { display: none; margin-top: 8px; font-size: 11px; font-weight: 700; color: var(--ink); border: 1px dashed var(--brass); padding: 6px; border-radius: 4px; cursor: pointer; width: 100%; background: none; }
   .delete-btn { color: red; font-weight: bold; cursor: pointer; border: none; background: none; }
@@ -275,7 +281,7 @@
 <!-- SECTION ÉLÈVES (visible pour les professeurs et admins) -->
 <div id="eleves-section" class="eleves-section" style="display:none;">
   <h2>👥 Mes élèves</h2>
-  <div class="eleves-list" id="eleves-list"></div>
+  <div id="eleves-accordeon"></div>
 </div>
 
 <main class="wrap" id="content-area"></main>
@@ -406,7 +412,7 @@
       document.getElementById('auth-link').textContent = "Déconnexion";
       document.getElementById('auth-link').onclick = () => signOut(auth).then(() => window.location.reload());
 
-      // Si c'est un professeur, afficher la section "Mes élèves"
+      // Si c'est un professeur ou admin, afficher la section "Mes élèves"
       if (profile.role === 'professeur' || isAdmin(profile.role)) {
         document.getElementById('eleves-section').style.display = 'block';
         chargerMesEleves();
@@ -433,10 +439,10 @@
     }
   });
 
-  // Charger la liste des élèves de mes classes
+  // Charger la liste des élèves de mes classes (groupés par classe)
   async function chargerMesEleves() {
-    const list = document.getElementById('eleves-list');
-    list.innerHTML = '<p style="color:gray;">Chargement des élèves...</p>';
+    const accordeon = document.getElementById('eleves-accordeon');
+    accordeon.innerHTML = '<p style="color:gray;">Chargement des élèves...</p>';
 
     try {
       // Récupérer les classes affectées du professeur (ou toutes si admin)
@@ -460,25 +466,78 @@
       // Trier par nom
       eleves.sort((a, b) => `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`));
 
-      // Afficher les élèves
-      list.innerHTML = '';
+      // Regrouper par classe
+      const elevesParClasse = {};
       eleves.forEach(e => {
-        const card = document.createElement('div');
-        card.className = 'eleve-card';
-        card.innerHTML = `<h4>${escapeHtml(e.prenom)} ${escapeHtml(e.nom)}</h4><p>${escapeHtml(e.niveau || 'Classe non définie')}</p>`;
-        card.onclick = () => {
-          window.location.href = `profil-eleve.html?uid=${e.uid}`;
-        };
-        list.appendChild(card);
+        if (!elevesParClasse[e.niveau]) elevesParClasse[e.niveau] = [];
+        elevesParClasse[e.niveau].push(e);
       });
 
-      if (eleves.length === 0) {
-        list.innerHTML = '<p style="color:gray;">Aucun élève trouvé dans vos classes affectées.</p>';
+      // Afficher les classes en accordéon
+      accordeon.innerHTML = '';
+      const classesTriees = Object.keys(elevesParClasse).sort();
+
+      classesTriees.forEach(niveau => {
+        const classeInfo = structure.find(l => l.id === niveau);
+        const nomClasse = classeInfo ? classeInfo.name : niveau;
+
+        const classeDiv = document.createElement('details');
+        classeDiv.className = 'classe-eleve';
+        classeDiv.innerHTML = `
+          <summary>${nomClasse} (${elevesParClasse[niveau].length} élèves)</summary>
+          <div class="classe-eleve-content">
+            <div style="text-align:right; margin-bottom:10px;">
+              <button class="btn-export" onclick="window.exporterListeClasse('${niveau}')">📥 Télécharger la liste (Excel)</button>
+            </div>
+            ${elevesParClasse[niveau].map(e => `
+              <div class="eleve-ligne">
+                <span class="eleve-nom">${escapeHtml(e.prenom)} ${escapeHtml(e.nom)}</span>
+                <div class="eleve-actions">
+                  <button class="btn-profile" onclick="window.location.href='profil-eleve.html?uid=${e.uid}'">📊 Profil</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        accordeon.appendChild(classeDiv);
+      });
+
+      if (classesTriees.length === 0) {
+        accordeon.innerHTML = '<p style="color:gray;">Aucun élève trouvé dans vos classes affectées.</p>';
       }
     } catch (err) {
-      list.innerHTML = `<p style="color:red;">Erreur : ${err.message}</p>`;
+      accordeon.innerHTML = `<p style="color:red;">Erreur : ${err.message}</p>`;
     }
   }
+
+  // Exporter la liste des élèves d'une classe en Excel
+  window.exporterListeClasse = async (niveau) => {
+    const elevesSnap = await getDocs(query(collection(db, 'utilisateurs'), where('role', '==', 'eleve'), where('niveau', '==', niveau)));
+    const eleves = [];
+    elevesSnap.forEach(doc => {
+      const e = doc.data();
+      eleves.push({ uid: doc.id, ...e });
+    });
+
+    eleves.sort((a, b) => `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`));
+
+    const headers = ["Prénom", "Nom", "Classe", "Téléphone", "Email", "Père/Tuteur", "Tél. Père", "Mère/Tutrice", "Tél. Mère", "Adresse"];
+    const rows = eleves.map(e => [
+      e.prenom || '', e.nom || '', e.niveau || '', e.telephone || '', e.email || '',
+      e.famille?.pereNom || '', e.famille?.pereTel || '',
+      e.famille?.mereNom || '', e.famille?.mereTel || '', e.famille?.adresse || ''
+    ]);
+
+    const classeInfo = structure.find(l => l.id === niveau);
+    const nomClasse = classeInfo ? classeInfo.name : niveau;
+    const filename = `LFAKM-${nomClasse.replace(/[^a-z0-9]/gi, '_')}-${new Date().toISOString().slice(0, 10)}`;
+
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+    ws['!cols'] = headers.map(() => ({ wch: 18 }));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Liste");
+    XLSX.writeFile(wb, filename + '.xlsx');
+  };
 
   function loadDevoirsStrip() {
     const zone = document.getElementById('devoirs-strip');
