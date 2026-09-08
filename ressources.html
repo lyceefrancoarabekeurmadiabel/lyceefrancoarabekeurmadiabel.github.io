@@ -328,7 +328,10 @@
     });
   } catch (e) { console.warn('Assistant IA désactivé'); }
 
-  function isAdmin(role) { return role === 'admin' || role === 'proviseur' || role === 'censeur'; }
+  function isAdmin(role) { 
+    return role === 'admin' || role === 'proviseur' || role === 'censeur'; 
+  }
+
   function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str ?? '';
@@ -404,41 +407,67 @@
 
         if ((profile.role === 'professeur' || profile.role === 'intendant') && profile.statut === 'en_attente') {
           contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⏳ Votre compte est en attente de validation.</p>`;
-          document.getElementById('user-profile').style.display = "block";
-          document.getElementById('user-profile').innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
-          document.getElementById('auth-link').textContent = "Déconnexion";
-          document.getElementById('auth-link').onclick = () => signOut(auth).then(() => window.location.reload());
+          const userProfile = document.getElementById('user-profile');
+          if (userProfile) {
+            userProfile.style.display = "block";
+            userProfile.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
+          }
+          const authLink = document.getElementById('auth-link');
+          if (authLink) {
+            authLink.textContent = "Déconnexion";
+            authLink.onclick = () => signOut(auth).then(() => window.location.reload());
+          }
           return;
         }
 
-        document.getElementById('search-bar').style.display = "";
-        document.getElementById('user-profile').style.display = "block";
-        document.getElementById('user-profile').innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
-        if (isAdmin(profile.role)) document.querySelectorAll('.admin-item').forEach(el => el.style.display = "block");
-        document.getElementById('auth-link').textContent = "Déconnexion";
-        document.getElementById('auth-link').onclick = () => signOut(auth).then(() => window.location.reload());
+        const searchBar = document.getElementById('search-bar');
+        if (searchBar) searchBar.style.display = "";
+        
+        const userProfile2 = document.getElementById('user-profile');
+        if (userProfile2) {
+          userProfile2.style.display = "block";
+          userProfile2.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
+        }
+        
+        // 🔥 Afficher le menu admin
+        if (isAdmin(profile.role)) {
+          document.querySelectorAll('.admin-item').forEach(el => {
+            if (el) el.style.display = "block";
+          });
+        }
+        
+        const authLink2 = document.getElementById('auth-link');
+        if (authLink2) {
+          authLink2.textContent = "Déconnexion";
+          authLink2.onclick = () => signOut(auth).then(() => window.location.reload());
+        }
 
-        // Afficher le lien feedback selon le rôle
+        // 🔥 CORRECTION : Gestion du lien feedback avec vérification
         const feedbackItems = document.querySelectorAll('.feedback-item');
-        feedbackItems.forEach(el => {
-          el.style.display = 'block';
-          const link = el.querySelector('a');
-          if (link) {
-            if (isAdmin(profile.role)) {
-              link.href = 'feedback.html#tab-dashboard';
-              link.textContent = '📊 Voir les retours';
-            } else if (profile.role === 'professeur') {
-              link.href = 'feedback.html#tab-professeurs';
-              link.textContent = '📋 Donner mon avis (prof)';
-            } else if (profile.role === 'eleve') {
-              link.href = 'feedback.html#tab-eleves';
-              link.textContent = '📋 Donner mon avis (élève)';
+        if (feedbackItems.length > 0) {
+          feedbackItems.forEach(el => {
+            if (el) {
+              el.style.display = 'block';
+              const link = el.querySelector('a');
+              if (link) {
+                if (isAdmin(profile.role)) {
+                  link.href = 'feedback.html#tab-dashboard';
+                  link.textContent = '📊 Voir les retours';
+                } else if (profile.role === 'professeur') {
+                  link.href = 'feedback.html#tab-professeurs';
+                  link.textContent = '📋 Donner mon avis (prof)';
+                } else if (profile.role === 'eleve') {
+                  link.href = 'feedback.html#tab-eleves';
+                  link.textContent = '📋 Donner mon avis (élève)';
+                }
+              }
             }
-          }
-        });
+          });
+        }
 
         if (profile.role === 'professeur' || isAdmin(profile.role)) {
-          document.getElementById('eleves-section').style.display = 'block';
+          const elevesSection = document.getElementById('eleves-section');
+          if (elevesSection) elevesSection.style.display = 'block';
           chargerMesEleves();
         }
 
@@ -452,19 +481,29 @@
         syncDevoirs();
       } catch (err) {
         console.warn('Erreur de chargement du profil:', err.message);
-        contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⚠️ Erreur de chargement du profil. Veuillez rafraîchir la page.</p>`;
+        if (contentArea) {
+          contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⚠️ Erreur de chargement du profil. Veuillez rafraîchir la page.</p>`;
+        }
       }
     } else {
       profile = null;
-      document.getElementById('search-bar').style.display = "none";
-      document.getElementById('content-area').innerHTML =
-        `<p style="text-align:center; padding:60px 20px; color:var(--slate);">
-          🔒 Cet espace est réservé aux élèves, professeurs et personnel.<br><br>
-          <a href="identification.html" style="color:var(--brass); font-weight:700;">Se connecter</a>
-          ou
-          <a href="inscription.html" style="color:var(--brass); font-weight:700;">créer un compte</a>
-        </p>`;
-      document.querySelectorAll('.feedback-item').forEach(el => el.style.display = 'none');
+      const searchBar2 = document.getElementById('search-bar');
+      if (searchBar2) searchBar2.style.display = "none";
+      
+      const contentArea2 = document.getElementById('content-area');
+      if (contentArea2) {
+        contentArea2.innerHTML =
+          `<p style="text-align:center; padding:60px 20px; color:var(--slate);">
+            🔒 Cet espace est réservé aux élèves, professeurs et personnel.<br><br>
+            <a href="identification.html" style="color:var(--brass); font-weight:700;">Se connecter</a>
+            ou
+            <a href="inscription.html" style="color:var(--brass); font-weight:700;">créer un compte</a>
+          </p>`;
+      }
+      
+      document.querySelectorAll('.feedback-item').forEach(el => {
+        if (el) el.style.display = 'none';
+      });
     }
   });
 
@@ -861,7 +900,10 @@
         if (snap.exists()) {
           const d = snap.data();
           container.innerHTML = `<span class="rendu-status">✅ QCM rendu — Note : ${d.note ?? d.score}/${dv.bareme || dv.questions.length}</span><br><button class="add-btn" style="display:block;margin-top:6px;" id="retry-${devoirId}">Repasser le QCM</button>`;
-          document.getElementById(`retry-${devoirId}`).onclick = () => buildQcmForm(slug, devoirId, dv, container);
+          const retryBtn = document.getElementById(`retry-${devoirId}`);
+          if (retryBtn) {
+            retryBtn.onclick = () => buildQcmForm(slug, devoirId, dv, container);
+          }
         } else {
           buildQcmForm(slug, devoirId, dv, container);
         }
@@ -886,25 +928,29 @@
     });
     html += `<button class="add-btn" style="display:block;" id="submit-qcm-${devoirId}">Envoyer mes réponses</button>`;
     container.innerHTML = html;
-    document.getElementById(`submit-qcm-${devoirId}`).onclick = async () => {
-      const reponses = [];
-      let complete = true;
-      dv.questions.forEach((q, qi) => {
-        const checked = container.querySelector(`input[name="qcmrep-${devoirId}-${qi}"]:checked`);
-        if (!checked) complete = false;
-        reponses.push(checked ? parseInt(checked.value, 10) : -1);
-      });
-      if (!complete) { alert("Répondez à toutes les questions avant d'envoyer."); return; }
-      const score = reponses.filter((r, i) => r === dv.questions[i].correctIndex).length;
-      const bareme = dv.bareme || 20;
-      const note = Math.round((score / dv.questions.length) * bareme * 100) / 100;
-      const uid = auth.currentUser.uid;
-      await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
-        eleveNom: `${profile.prenom} ${profile.nom}`,
-        reponses, score, note,
-        date: serverTimestamp()
-      });
-    };
+    
+    const submitBtn = document.getElementById(`submit-qcm-${devoirId}`);
+    if (submitBtn) {
+      submitBtn.onclick = async () => {
+        const reponses = [];
+        let complete = true;
+        dv.questions.forEach((q, qi) => {
+          const checked = container.querySelector(`input[name="qcmrep-${devoirId}-${qi}"]:checked`);
+          if (!checked) complete = false;
+          reponses.push(checked ? parseInt(checked.value, 10) : -1);
+        });
+        if (!complete) { alert("Répondez à toutes les questions avant d'envoyer."); return; }
+        const score = reponses.filter((r, i) => r === dv.questions[i].correctIndex).length;
+        const bareme = dv.bareme || 20;
+        const note = Math.round((score / dv.questions.length) * bareme * 100) / 100;
+        const uid = auth.currentUser.uid;
+        await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
+          eleveNom: `${profile.prenom} ${profile.nom}`,
+          reponses, score, note,
+          date: serverTimestamp()
+        });
+      };
+    }
   }
 
   // ============ RENDUS ============
@@ -992,108 +1038,156 @@
     block.innerHTML = `<button type="button" class="qcm-remove-q" onclick="this.parentElement.remove()">✕</button>
       <input type="text" class="qcm-q-text" placeholder="Question ${idx + 1}">
       ${[0, 1, 2, 3].map(i => `<div class="qcm-option-row"><input type="radio" name="qcm-correct-${idx}" value="${i}" ${i === 0 ? 'checked' : ''}><input type="text" class="qcm-option" placeholder="Option ${i + 1} (cocher si c'est la bonne réponse)"></div>`).join('')}`;
-    document.getElementById('qcm-questions').appendChild(block);
+    const qcmQuestions = document.getElementById('qcm-questions');
+    if (qcmQuestions) qcmQuestions.appendChild(block);
   }
 
   window.newDevoir = (slug) => {
     currentDevoirSlug = slug;
-    document.getElementById('dv-titre').value = '';
-    document.getElementById('dv-consignes').value = '';
-    document.getElementById('dv-date').value = '';
-    document.getElementById('dv-bareme').value = '20';
-    document.getElementById('dv-gdoc').value = '';
-    document.getElementById('dv-fichier').value = '';
-    document.getElementById('dv-type').value = 'fichier';
-    document.getElementById('qcm-builder').style.display = 'none';
-    document.getElementById('qcm-questions').innerHTML = '';
+    
+    const titreInput = document.getElementById('dv-titre');
+    const consignesInput = document.getElementById('dv-consignes');
+    const dateInput = document.getElementById('dv-date');
+    const baremeInput = document.getElementById('dv-bareme');
+    const gdocInput = document.getElementById('dv-gdoc');
+    const fichierInput = document.getElementById('dv-fichier');
+    const typeSelect = document.getElementById('dv-type');
+    const qcmBuilder = document.getElementById('qcm-builder');
+    const qcmQuestions = document.getElementById('qcm-questions');
+    const modal = document.getElementById('devoir-modal');
+    
+    if (titreInput) titreInput.value = '';
+    if (consignesInput) consignesInput.value = '';
+    if (dateInput) dateInput.value = '';
+    if (baremeInput) baremeInput.value = '20';
+    if (gdocInput) gdocInput.value = '';
+    if (fichierInput) fichierInput.value = '';
+    if (typeSelect) typeSelect.value = 'fichier';
+    if (qcmBuilder) qcmBuilder.style.display = 'none';
+    if (qcmQuestions) qcmQuestions.innerHTML = '';
     qcmQuestionCount = 0;
     addQcmQuestion();
-    document.getElementById('devoir-modal').classList.add('show');
+    if (modal) modal.classList.add('show');
   };
 
-  document.getElementById('dv-type').addEventListener('change', (e) => {
-    document.getElementById('qcm-builder').style.display = e.target.value === 'qcm' ? 'block' : 'none';
-  });
-  document.getElementById('qcm-add-question').onclick = addQcmQuestion;
-  document.getElementById('dv-cancel').onclick = () => document.getElementById('devoir-modal').classList.remove('show');
+  const typeSelect = document.getElementById('dv-type');
+  if (typeSelect) {
+    typeSelect.addEventListener('change', (e) => {
+      const qcmBuilder = document.getElementById('qcm-builder');
+      if (qcmBuilder) qcmBuilder.style.display = e.target.value === 'qcm' ? 'block' : 'none';
+    });
+  }
 
-  document.getElementById('dv-submit').onclick = async () => {
-    const type = document.getElementById('dv-type').value;
-    const titre = document.getElementById('dv-titre').value.trim();
-    if (!titre) { alert('Le titre est obligatoire.'); return; }
+  const qcmAddBtn = document.getElementById('qcm-add-question');
+  if (qcmAddBtn) {
+    qcmAddBtn.onclick = addQcmQuestion;
+  }
 
-    try {
-      const existingSnap = await getDocs(collection(db, 'ressources', currentDevoirSlug, 'devoirs'));
-      const doublon = existingSnap.docs.find(d => (d.data().titre || '').trim().toLowerCase() === titre.toLowerCase());
-      if (doublon) {
-        const dateDoublon = doublon.data().date?.toDate ? doublon.data().date.toDate().toLocaleDateString('fr-FR') : '';
-        const confirmer = confirm(`⚠️ Un devoir intitulé "${titre}" existe déjà dans cette classe et cette matière (publié le ${dateDoublon}).\n\nVoulez-vous quand même le publier une seconde fois ?`);
-        if (!confirmer) return;
-      }
-    } catch (e) {}
-
-    const consignes = document.getElementById('dv-consignes').value.trim();
-    const dateLimite = document.getElementById('dv-date').value;
-    const bareme = parseFloat(document.getElementById('dv-bareme').value) || 20;
-    const googleDocUrl = document.getElementById('dv-gdoc').value.trim();
-    const fichierInput = document.getElementById('dv-fichier');
-
-    const devoirData = {
-      type, titre, consignes, dateLimite, bareme,
-      googleDocUrl: googleDocUrl || null,
-      profNom: `${profile.prenom} ${profile.nom}`,
-      date: serverTimestamp()
+  const cancelBtn = document.getElementById('dv-cancel');
+  if (cancelBtn) {
+    cancelBtn.onclick = () => {
+      const modal = document.getElementById('devoir-modal');
+      if (modal) modal.classList.remove('show');
     };
+  }
 
-    if (type === 'qcm') {
-      const questions = [];
-      document.querySelectorAll('#qcm-questions .qcm-question-block').forEach(block => {
-        const texte = block.querySelector('.qcm-q-text').value.trim();
-        const options = Array.from(block.querySelectorAll('.qcm-option')).map(o => o.value.trim());
-        const correctIndex = parseInt(block.querySelector('input[type=radio]:checked').value, 10);
-        if (texte && options.every(o => o)) questions.push({ texte, options, correctIndex });
-      });
-      if (questions.length === 0) { alert('Ajoutez au moins une question complète (texte + 4 options).'); return; }
-      devoirData.questions = questions;
-    }
+  const submitBtn = document.getElementById('dv-submit');
+  if (submitBtn) {
+    submitBtn.onclick = async () => {
+      const typeSelect2 = document.getElementById('dv-type');
+      const titreInput2 = document.getElementById('dv-titre');
+      const consignesInput2 = document.getElementById('dv-consignes');
+      const dateInput2 = document.getElementById('dv-date');
+      const baremeInput2 = document.getElementById('dv-bareme');
+      const gdocInput2 = document.getElementById('dv-gdoc');
+      const fichierInput2 = document.getElementById('dv-fichier');
+      const modal2 = document.getElementById('devoir-modal');
+      
+      const type = typeSelect2 ? typeSelect2.value : 'fichier';
+      const titre = titreInput2 ? titreInput2.value.trim() : '';
+      if (!titre) { alert('Le titre est obligatoire.'); return; }
 
-    const submitBtn = document.getElementById('dv-submit');
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Publication...";
-
-    if (fichierInput.files[0]) {
-      if (fichierInput.files[0].size > 15 * 1024 * 1024) {
-        alert("Fichier trop volumineux (max 15 Mo).");
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Publier le devoir";
-        return;
-      }
       try {
-        const fd = new FormData();
-        fd.append('file', fichierInput.files[0]);
-        fd.append('upload_preset', "lfakm_ressources");
-        const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
-        const data = await res.json();
-        devoirData.fichierUrl = data.secure_url;
-        devoirData.fichierNom = fichierInput.files[0].name;
+        const existingSnap = await getDocs(collection(db, 'ressources', currentDevoirSlug, 'devoirs'));
+        const doublon = existingSnap.docs.find(d => (d.data().titre || '').trim().toLowerCase() === titre.toLowerCase());
+        if (doublon) {
+          const dateDoublon = doublon.data().date?.toDate ? doublon.data().date.toDate().toLocaleDateString('fr-FR') : '';
+          const confirmer = confirm(`⚠️ Un devoir intitulé "${titre}" existe déjà dans cette classe et cette matière (publié le ${dateDoublon}).\n\nVoulez-vous quand même le publier une seconde fois ?`);
+          if (!confirmer) return;
+        }
+      } catch (e) {}
+
+      const consignes = consignesInput2 ? consignesInput2.value.trim() : '';
+      const dateLimite = dateInput2 ? dateInput2.value : '';
+      const bareme = parseFloat(baremeInput2 ? baremeInput2.value : 20) || 20;
+      const googleDocUrl = gdocInput2 ? gdocInput2.value.trim() : '';
+      const fichierInput3 = fichierInput2;
+
+      const devoirData = {
+        type, titre, consignes, dateLimite, bareme,
+        googleDocUrl: googleDocUrl || null,
+        profNom: `${profile.prenom} ${profile.nom}`,
+        date: serverTimestamp()
+      };
+
+      if (type === 'qcm') {
+        const questions = [];
+        document.querySelectorAll('#qcm-questions .qcm-question-block').forEach(block => {
+          const texte = block.querySelector('.qcm-q-text')?.value.trim() || '';
+          const options = Array.from(block.querySelectorAll('.qcm-option')).map(o => o.value.trim());
+          const correctIndex = parseInt(block.querySelector('input[type=radio]:checked')?.value || 0, 10);
+          if (texte && options.every(o => o)) questions.push({ texte, options, correctIndex });
+        });
+        if (questions.length === 0) { alert('Ajoutez au moins une question complète (texte + 4 options).'); return; }
+        devoirData.questions = questions;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Publication...";
+      }
+
+      if (fichierInput3 && fichierInput3.files && fichierInput3.files[0]) {
+        if (fichierInput3.files[0].size > 15 * 1024 * 1024) {
+          alert("Fichier trop volumineux (max 15 Mo).");
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Publier le devoir";
+          }
+          return;
+        }
+        try {
+          const fd = new FormData();
+          fd.append('file', fichierInput3.files[0]);
+          fd.append('upload_preset', "lfakm_ressources");
+          const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
+          const data = await res.json();
+          devoirData.fichierUrl = data.secure_url;
+          devoirData.fichierNom = fichierInput3.files[0].name;
+        } catch (e) {
+          alert('Erreur upload: ' + e.message);
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Publier le devoir";
+          }
+          return;
+        }
+      }
+
+      try {
+        await addDoc(collection(db, 'ressources', currentDevoirSlug, 'devoirs'), devoirData);
+        try { logActivite('création', `Devoir "${devoirData.titre}" (${currentDevoirSlug})`); } catch(e) {}
+        alert('✅ Devoir publié avec succès !');
+        if (modal2) modal2.classList.remove('show');
       } catch (e) {
-        alert('Erreur upload: ' + e.message);
+        alert('❌ Erreur: ' + e.message);
+      }
+      if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.textContent = "Publier le devoir";
-        return;
       }
-    }
-
-    try {
-      await addDoc(collection(db, 'ressources', currentDevoirSlug, 'devoirs'), devoirData);
-      try { logActivite('création', `Devoir "${devoirData.titre}" (${currentDevoirSlug})`); } catch(e) {}
-    } catch (e) {
-      alert('Erreur: ' + e.message);
-    }
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Publier le devoir";
-    document.getElementById('devoir-modal').classList.remove('show');
-  };
+    };
+  }
 
   // ============ RENDRE DEVOIR ============
   window.rendreDevoir = async (slug, devoirId) => {
@@ -1114,9 +1208,9 @@
           url: data.secure_url,
           date: serverTimestamp()
         });
-        alert('Devoir envoyé !');
+        alert('✅ Devoir envoyé !');
       } catch (e) {
-        alert('Erreur: ' + e.message);
+        alert('❌ Erreur: ' + e.message);
       }
     };
     input.click();
@@ -1155,8 +1249,9 @@
         const slug = id.replace(/^cours-|^td-/, '');
         await addDoc(collection(db, 'ressources', slug, type), { titre, url: data.secure_url, date: serverTimestamp() });
         try { logActivite('création', `${type === 'cours' ? 'Cours' : 'TD'} "${titre}" (${slug})`); } catch(e) {}
+        alert('✅ Document ajouté !');
       } catch (e) {
-        alert('Erreur: ' + e.message);
+        alert('❌ Erreur: ' + e.message);
       }
     };
     input.click();
@@ -1175,6 +1270,7 @@
     const slug = id.replace(/^cours-|^td-/, '');
     await addDoc(collection(db, 'ressources', slug, type), { titre, url, type: 'video', date: serverTimestamp() });
     try { logActivite('création', `Vidéo "${titre}" (${slug})`); } catch(e) {}
+    alert('✅ Vidéo ajoutée !');
   };
 
   window.addDrive = async (id) => {
@@ -1190,6 +1286,7 @@
     const slug = id.replace(/^cours-|^td-/, '');
     await addDoc(collection(db, 'ressources', slug, type), { titre, url, type: 'drive', date: serverTimestamp() });
     try { logActivite('création', `Lien Drive/OneDrive "${titre}" (${slug})`); } catch(e) {}
+    alert('✅ Lien ajouté !');
   };
 
   // ============ CONTACT ============
@@ -1214,15 +1311,28 @@
   };
 
   // ============ BURGER MENU ============
-  document.getElementById('burger-btn').onclick = () => document.getElementById('menu').classList.toggle('show');
+  const burgerBtn = document.getElementById('burger-btn');
+  if (burgerBtn) {
+    burgerBtn.onclick = () => {
+      const menu = document.getElementById('menu');
+      if (menu) menu.classList.toggle('show');
+    };
+  }
 
   // ============ AI CHAT ============
+  const aiToggle = document.getElementById('ai-chat-toggle');
   const aiPanel = document.getElementById('ai-chat-panel');
+  const aiClose = document.getElementById('ai-chat-close');
+  
+  if (aiToggle && aiPanel) {
+    aiToggle.onclick = () => aiPanel.classList.toggle('show');
+  }
+  if (aiClose && aiPanel) {
+    aiClose.onclick = () => aiPanel.classList.remove('show');
+  }
+
   const aiMessages = document.getElementById('ai-chat-messages');
   const aiInput = document.getElementById('ai-chat-input');
-
-  document.getElementById('ai-chat-toggle').onclick = () => aiPanel.classList.toggle('show');
-  document.getElementById('ai-chat-close').onclick = () => aiPanel.classList.remove('show');
 
   function addAiMessage(text, sender) {
     if (!aiMessages) return null;
@@ -1254,21 +1364,27 @@
     }
   }
 
-  document.getElementById('ai-chat-send').onclick = sendAiMessage;
+  const aiSend = document.getElementById('ai-chat-send');
+  if (aiSend) aiSend.onclick = sendAiMessage;
   if (aiInput) {
     aiInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendAiMessage(); });
   }
 
   // ============ RECHERCHE ============
-  document.getElementById('search-bar').oninput = (e) => {
-    const t = e.target.value.toLowerCase();
-    document.querySelectorAll('.subject').forEach(s => {
-      if (!s) return;
-      const roleAllowed = s.dataset.roleAllowed !== '0';
-      const matches = !t || s.innerText.toLowerCase().includes(t);
-      s.style.display = (roleAllowed && matches) ? '' : 'none';
-    });
-  };
+  const searchBar = document.getElementById('search-bar');
+  if (searchBar) {
+    searchBar.oninput = (e) => {
+      const t = e.target.value.toLowerCase();
+      document.querySelectorAll('.subject').forEach(s => {
+        if (!s) return;
+        const roleAllowed = s.dataset.roleAllowed !== '0';
+        const matches = !t || s.innerText.toLowerCase().includes(t);
+        s.style.display = (roleAllowed && matches) ? '' : 'none';
+      });
+    };
+  }
+
+  console.log('✅ Ressources LFAKM chargées avec succès !');
 </script>
 </body>
 </html>
