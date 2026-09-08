@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profil Élève — LFAKM</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
+    --slate: #5B6472; --text: #1A1A1A; --line: rgba(27,42,74,0.14);
+    --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: var(--sans); color: var(--text); background: #f9f7f2; line-height:1.55; }
+  .wrap { max-width:1100px; margin:0 auto; padding:0 24px; }
+
+  /* HEADER */
+  header { background: var(--paper); border-bottom: 1px solid var(--line); height: 84px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1000; }
+  .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; }
+  .brand { display:flex; align-items:center; gap:12px; text-decoration: none; min-width: 0; }
+  .brand-mark { width:45px; height:45px; flex-shrink: 0; display:flex; align-items:center; justify-content:center; }
+  .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
+  .brand-name { font-family:var(--serif); font-weight:700; font-size:14px; color:var(--ink); line-height: 1.2; text-align: center; white-space: normal; }
+  .brand-tag { font-size: 10px; color: var(--slate); text-align: center; margin-top: 2px; letter-spacing: 0.5px; }
+  nav ul { display:flex; gap:20px; list-style:none; align-items: center; }
+  nav a { font-size:14px; font-weight:600; color:var(--ink); text-decoration: none; }
+  nav a:hover, nav a.active { color: var(--brass); }
+
+  /* MENU DÉROULANT ADMIN */
+  .admin-item { display: none; position: relative; }
+  .admin-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    min-width: 180px;
+    z-index: 100;
+    padding: 5px 0;
+  }
+  .admin-dropdown a {
+    display: block;
+    padding: 8px 15px;
+    color: var(--ink);
+    font-size: 13px;
+    text-decoration: none;
+  }
+  .admin-dropdown a:hover { background: #f5f5f5; }
+  .admin-item:hover .admin-dropdown { display: block; }
+  .admin-trigger {
+    background: var(--brass);
+    color: #fff !important;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    display: inline-block;
+    line-height: 1.4;
+    text-align: center;
+    vertical-align: middle;
+    margin: 0;
+  }
+
+  /* PROFIL ET CONTACT SUR DEUX LIGNES */
+  .profile-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 13px; }
+  .profile-name { font-weight: 700; color: var(--brass); font-size: 14px; }
+  .profile-role { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; }
+  .contact-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 12px; }
+  .contact-label { font-weight: 600; color: var(--ink); }
+  .contact-phone { font-size: 12px; color: var(--brass); font-weight: 700; }
+
+  /* PROFIL UTILISATEUR */
+  #user-profile { display: none; font-weight: 700; color: var(--brass); font-size: 14px; }
+  .nav-cta { background: var(--ink-deep); color:#fff; padding:10px 18px; border-radius:4px; font-size:13px; font-weight:600; text-decoration:none; border:none; cursor:pointer; }
+  .menu-toggle { display: none; font-size: 28px; background: none; border: none; color: var(--ink); cursor: pointer; padding: 4px 8px; flex-shrink: 0; }
+
+  @media (max-width: 900px) {
+    .brand-name { font-size: 15px; max-width: 46vw; }
+    .menu-toggle { display: block; }
+    nav ul {
+      display: none; position: absolute; top: 84px; left: 0; width: 100%;
+      flex-direction: column; background: #fff; padding: 20px; gap: 15px;
+      text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-bottom: 2px solid var(--line);
+    }
+    nav ul.show { display: flex; }
+    .admin-dropdown { position: static; box-shadow: none; border: none; }
+  }
+
+  /* CONTENU PRINCIPAL */
+  .content-card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 30px; margin-top: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+  .content-card h1 { font-family: var(--serif); color: var(--ink); margin-bottom: 20px; font-size: 28px; }
+  .info-strip { background: var(--paper); border-radius: 8px; padding: 15px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 20px; }
+  .info-item { flex: 1; min-width: 150px; }
+  .info-item label { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; }
+  .info-item span { font-size: 16px; font-weight: 700; color: var(--ink); }
+
+  .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+  @media (max-width: 768px) { .chart-row { grid-template-columns: 1fr; } }
+  .chart-box { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 20px; }
+  .chart-box h3 { font-size: 16px; margin-bottom: 15px; color: var(--ink); }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+  th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+  th { background: var(--paper); font-weight: 600; color: var(--ink); }
+  .note-cell { text-align: center; font-weight: 700; }
+  .excellent { color: #2e7d32; }
+  .moyen { color: #f39c12; }
+  .faible { color: #d9534f; }
+
+  .btn-retour { display: inline-block; margin-top: 20px; background: var(--ink-deep); color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; }
+  .btn-retour:hover { background: var(--brass); }
+
+  footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav-row">
+    <a href="index.html" class="brand">
+      <div class="brand-mark"><img src="logo-header.png" alt="LFAKM"></div>
+      <div>
+        <div class="brand-name">Lycée Franco Arabe<br>de Keur Madiabel</div>
+        <div class="brand-tag">Excellence & Savoir</div>
+      </div>
+    </a>
+    <nav>
+      <ul id="main-menu">
+        <li><a href="index.html">Accueil</a></li>
+        
+        <!-- MENU DÉROULANT ADMIN (visible uniquement pour les admins) -->
+        <li class="admin-item">
+          <span class="admin-trigger" style="display: flex; align-items: center; gap: 5px; justify-content: center;">⚙️ Admin</span>
+          <div class="admin-dropdown">
+            <a href="admin-ine.html">📥 Import INE</a>
+            <a href="admin-gestion.html">👥 Gestion</a>
+            <a href="admin-news.html">📰 Actualités</a>
+          </div>
+        </li>
+
+        <li><a href="historique.html">Historique</a></li>
+        <li><a href="actualites.html">Actualités</a></li>
+        <li><a href="ressources.html">Ressources</a></li>
+        <li><a href="#" onclick="window.showContact(); return false;" class="contact-info" style="text-decoration: none;">
+          <span class="contact-label">📞 Contacter le Proviseur</span>
+          <span class="contact-phone" id="contact-phone-display">...</span>
+        </a></li>
+        <li id="user-profile" class="profile-info"></li>
+        <li><a href="identification.html" id="auth-link" class="nav-cta">Connexion</a></li>
+      </ul>
+    </nav>
+    <button class="menu-toggle" id="menu-toggle-btn" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="content-card">
+    <h1>📊 Profil de l'élève</h1>
+
+    <!-- Informations de base -->
+    <div class="info-strip">
+      <div class="info-item">
+        <label>Nom & Prénom</label>
+        <span id="eleve-nom">Chargement...</span>
+      </div>
+      <div class="info-item">
+        <label>Classe</label>
+        <span id="eleve-classe">Chargement...</span>
+      </div>
+      <div class="info-item">
+        <label>Numéro INE</label>
+        <span id="eleve-ine">Chargement...</span>
+      </div>
+      <div class="info-item">
+        <label>Moyenne générale</label>
+        <span id="eleve-moyenne">Chargement...</span>
+      </div>
+    </div>
+
+    <!-- Graphiques -->
+    <div class="chart-row">
+      <div class="chart-box">
+        <h3>🎯 Forces & Faiblesses par matière</h3>
+        <canvas id="radar-chart"></canvas>
+      </div>
+      <div class="chart-box">
+        <h3>📈 Évolution de la moyenne</h3>
+        <canvas id="line-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Tableau détaillé des notes -->
+    <div style="overflow-x: auto;">
+      <h3 style="margin-bottom: 15px; color: var(--ink);">📋 Détail des notes par matière et par devoir</h3>
+      <table id="notes-table">
+        <thead>
+          <tr>
+            <th>Matière</th>
+            <th>Devoir</th>
+            <th>Date</th>
+            <th>Note</th>
+            <th>Barème</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="6">Chargement...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <a href="admin-gestion.html" class="btn-retour">← Retour à la Gestion</a>
+  </div>
+</div>
+
+<footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc, getDocs, collection, collectionGroup, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+    authDomain: "lfakm-87dec.firebaseapp.com",
+    projectId: "lfakm-87dec",
+    storageBucket: "lfakm-87dec.firebasestorage.app",
+    messagingSenderId: "739517262614",
+    appId: "1:739517262614:web:14abd3538427960c527e37"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Gestion du menu mobile
+  document.getElementById('menu-toggle-btn').onclick = () => document.getElementById('main-menu').classList.toggle('show');
+
+  // Protection anti-XSS
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str ?? '';
+    return div.innerHTML;
+  }
+
+  // Affichage du téléphone du Proviseur dans le header
+  getDoc(doc(db, 'config', 'contact')).then(snap => {
+    if (!snap.exists()) return;
+    const c = snap.data();
+    const contactPhone = document.getElementById('contact-phone-display');
+    if (contactPhone && c.telephone) contactPhone.textContent = c.telephone;
+  });
+
+  // Gestion de l'authentification
+  onAuthStateChanged(auth, async (user) => {
+    const link = document.getElementById('auth-link');
+    const profileSpan = document.getElementById('user-profile');
+    
+    if (user) {
+      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+      const profile = snap.data();
+      
+      profileSpan.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
+      profileSpan.style.display = 'flex';
+      
+      link.textContent = "Déconnexion";
+      link.onclick = () => signOut(auth).then(() => location.reload());
+      
+      if (profile.role === 'admin' || profile.role === 'proviseur' || profile.role === 'censeur') {
+        document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
+      }
+    } else {
+      profileSpan.style.display = 'none';
+      link.textContent = "Connexion";
+      link.href = "identification.html";
+    }
+  });
+
+  // Fonction pour afficher les coordonnées du Proviseur
+  window.showContact = async () => {
+    const snap = await getDoc(doc(db, 'config', 'contact'));
+    if (!snap.exists() || !snap.data().email) {
+      alert("Les coordonnées du Proviseur n'ont pas encore été renseignées.");
+      return;
+    }
+    const c = snap.data();
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
+    overlay.innerHTML = `
+      <div style="background:#fff;border-radius:12px;padding:25px;max-width:340px;width:100%;text-align:center;">
+        <h3 style="font-family:var(--serif);color:var(--ink);margin-bottom:6px;">${escapeHtml(c.nom) || 'Le Proviseur'}</h3>
+        <p style="font-size:12px;color:var(--slate);margin-bottom:18px;">Chef d'établissement — LFAKM</p>
+        ${c.telephone ? `<a href="tel:${c.telephone}" style="display:block;padding:10px;margin-bottom:8px;background:var(--ink-deep);color:#fff;border-radius:6px;text-decoration:none;">📞 ${c.telephone}</a>` : ''}
+        ${c.email ? `<a href="mailto:${c.email}" style="display:block;padding:10px;margin-bottom:14px;background:var(--brass);color:#fff;border-radius:6px;text-decoration:none;">✉️ ${c.email}</a>` : ''}
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="border:none;background:#eee;padding:8px 16px;border-radius:6px;cursor:pointer;">Fermer</button>
+      </div>`;
+    document.body.appendChild(overlay);
+  };
+
+  // Récupérer l'ID de l'élève depuis l'URL (ex: profil-eleve.html?uid=xxxx)
+  const urlParams = new URLSearchParams(window.location.search);
+  const eleveUid = urlParams.get('uid');
+
+  if (!eleveUid) {
+    alert("Aucun élève sélectionné. Veuillez revenir à la gestion des utilisateurs et cliquer sur un élève.");
+    window.location.href = "admin-gestion.html";
+  }
+
+  // Fonction principale pour charger les données de l'élève
+  async function chargerProfilEleve() {
+    const userSnap = await getDoc(doc(db, 'utilisateurs', eleveUid));
+    if (!userSnap.exists()) {
+      alert("Élève introuvable.");
+      return;
+    }
+
+    const eleve = userSnap.data();
+    
+    // Afficher les informations de base
+    document.getElementById('eleve-nom').textContent = `${eleve.prenom} ${eleve.nom}`;
+    document.getElementById('eleve-classe').textContent = eleve.niveau || 'Non définie';
+    document.getElementById('eleve-ine').textContent = eleve.ine || 'Non défini';
+
+    // Récupérer toutes les notes de l'élève
+    // On cherche dans toutes les sous-collections "rendus" où le doc ID = eleveUid
+    const notesParMatiere = {};
+    const notesParDate = {};
+    
+    // Récupérer tous les devoirs
+    const devoirsSnap = await getDocs(collectionGroup(db, 'devoirs'));
+    
+    for (const devDoc of devoirsSnap.docs) {
+      const dv = devDoc.data();
+      const parentSlug = devDoc.ref.parent.parent.id;
+      const dashIndex = parentSlug.indexOf('-');
+      const levelId = dashIndex === -1 ? parentSlug : parentSlug.substring(0, dashIndex);
+      const matSlug = dashIndex === -1 ? '' : parentSlug.substring(dashIndex + 1);
+      
+      // Récupérer le rendu de CET élève pour CE devoir
+      const renduSnap = await getDoc(doc(db, 'ressources', parentSlug, 'devoirs', devDoc.id, 'rendus', eleveUid));
+      
+      if (renduSnap.exists()) {
+        const rendu = renduSnap.data();
+        if (typeof rendu.note === 'number') {
+          const matName = getNomMatiere(matSlug);
+          const dateStr = dv.date?.toDate ? dv.date.toDate().toLocaleDateString('fr-FR') : 'Date inconnue';
+          
+          // Regrouper par matière
+          if (!notesParMatiere[matName]) {
+            notesParMatiere[matName] = { notes: [], bareme: dv.bareme || 20 };
+          }
+          notesParMatiere[matName].notes.push({ note: rendu.note, bareme: dv.bareme || 20, date: dateStr, titre: dv.titre });
+          
+          // Regrouper par date pour l'évolution
+          if (!notesParDate[dateStr]) notesParDate[dateStr] = [];
+          notesParDate[dateStr].push(rendu.note);
+        }
+      }
+    }
+
+    // Calculer la moyenne générale
+    let sommeNotes = 0;
+    let nbNotes = 0;
+    const moyennesParMatiere = {};
+    
+    Object.entries(notesParMatiere).forEach(([mat, data]) => {
+      const matSomme = data.notes.reduce((acc, n) => acc + (n.note / n.bareme) * 20, 0);
+      const matMoyenne = matSomme / data.notes.length;
+      moyennesParMatiere[mat] = matMoyenne;
+      sommeNotes += matSomme;
+      nbNotes += data.notes.length;
+    });
+    
+    const moyenneGenerale = nbNotes > 0 ? sommeNotes / nbNotes : 0;
+    document.getElementById('eleve-moyenne').textContent = moyenneGenerale.toFixed(1) + '/20';
+
+    // Générer le graphique radar (forces & faiblesses)
+    genererRadarChart(moyennesParMatiere);
+
+    // Générer le graphique en ligne (évolution de la moyenne)
+    genererLineChart(notesParDate);
+
+    // Afficher le tableau détaillé des notes
+    afficherTableauNotes(notesParMatiere);
+  }
+
+  // Fonction pour obtenir le nom complet de la matière à partir du slug
+  function getNomMatiere(slug) {
+    const matNameBySlug = {
+      'mathmatiques': 'Mathématiques',
+      'franais': 'Français',
+      'anglais': 'Anglais',
+      'arabe': 'Arabe',
+      'svt': 'SVT',
+      'physiquechimie': 'Physique-Chimie',
+      'histoirego': 'Histoire-Géo',
+      'eps': 'EPS',
+      'ducationreligieuse': 'Éducation Religieuse',
+      'philosophie': 'Philosophie'
+    };
+    return matNameBySlug[slug] || slug;
+  }
+
+  // Fonction pour générer le graphique radar
+  function genererRadarChart(moyennesParMatiere) {
+    const ctx = document.getElementById('radar-chart').getContext('2d');
+    
+    if (window.radarChart) window.radarChart.destroy();
+
+    const labels = Object.keys(moyennesParMatiere);
+    const data = labels.map(mat => moyennesParMatiere[mat]);
+
+    window.radarChart = new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Moyenne / 20',
+          data: data,
+          backgroundColor: 'rgba(168, 133, 63, 0.2)',
+          borderColor: 'rgba(168, 133, 63, 1)',
+          pointBackgroundColor: 'rgba(168, 133, 63, 1)',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: 'rgba(168, 133, 63, 1)'
+        }]
+      },
+      options: {
+        scales: {
+          r: {
+            beginAtZero: true,
+            max: 20,
+            ticks: { stepSize: 5 }
+          }
+        }
+      }
+    });
+  }
+
+  // Fonction pour générer le graphique en ligne (évolution)
+  function genererLineChart(notesParDate) {
+    const ctx = document.getElementById('line-chart').getContext('2d');
+    
+    if (window.lineChart) window.lineChart.destroy();
+
+    const dates = Object.keys(notesParDate).sort((a, b) => new Date(a) - new Date(b));
+    const moyennesParDate = dates.map(date => {
+      const notes = notesParDate[date];
+      return notes.reduce((acc, n) => acc + n, 0) / notes.length;
+    });
+
+    window.lineChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: dates,
+        datasets: [{
+          label: 'Moyenne / 20',
+          data: moyennesParDate,
+          borderColor: 'rgba(27, 42, 74, 1)',
+          backgroundColor: 'rgba(27, 42, 74, 0.1)',
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true, max: 20 }
+        }
+      }
+    });
+  }
+
+  // Fonction pour afficher le tableau détaillé des notes
+  function afficherTableauNotes(notesParMatiere) {
+    const tbody = document.querySelector('#notes-table tbody');
+    tbody.innerHTML = '';
+
+    Object.entries(notesParMatiere).forEach(([mat, data]) => {
+      data.notes.forEach(n => {
+        const pourcentage = (n.note / n.bareme) * 100;
+        let colorClass = 'moyen';
+        if (pourcentage >= 80) colorClass = 'excellent';
+        if (pourcentage < 50) colorClass = 'faible';
+
+        tbody.innerHTML += `<tr>
+          <td>${mat}</td>
+          <td>${escapeHtml(n.titre)}</td>
+          <td>${n.date}</td>
+          <td class="note-cell ${colorClass}">${n.note}</td>
+          <td class="note-cell">${n.bareme}</td>
+          <td class="note-cell ${colorClass}">${pourcentage >= 80 ? 'Excellent' : pourcentage >= 50 ? 'Moyen' : 'Faible'}</td>
+        </tr>`;
+      });
+    });
+  }
+
+  // Charger le profil de l'élève au démarrage
+  chargerProfilEleve();
+</script>
+</body>
+</html>
