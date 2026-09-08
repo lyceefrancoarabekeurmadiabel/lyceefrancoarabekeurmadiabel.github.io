@@ -11,6 +11,12 @@
         body { font-family: sans-serif; background: var(--paper); padding: 20px; font-size: 14px; }
         .admin-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); max-width: 1200px; margin: 0 auto; }
 
+        /* ---------- NAVIGATION PRINCIPALE (Retour Accueil) ---------- */
+        .top-nav { background: var(--ink-deep); padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin-left: auto; margin-right: auto; }
+        .top-nav a { color: #fff; text-decoration: none; font-size: 13px; font-weight: 600; }
+        .top-nav a:hover { text-decoration: underline; }
+        .top-nav .nav-links { display: flex; gap: 15px; }
+
         /* ---------- NAVIGATION PAR ONGLETS ---------- */
         .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .tab-btn { padding: 10px 18px; border: none; background: #eee; border-radius: 6px 6px 0 0; cursor: pointer; font-weight: 600; color: #444; font-size: 14px; transition: background 0.2s, color 0.2s; }
@@ -47,6 +53,18 @@
     </style>
 </head>
 <body>
+
+    <!-- BARRE DE NAVIGATION PRINCIPALE -->
+    <div class="top-nav">
+        <a href="index.html">🏠 Accueil</a>
+        <div class="nav-links">
+            <a href="ressources.html">📚 Ressources</a>
+            <a href="actualites.html">📰 Actualités</a>
+            <a href="historique.html">🏫 Historique</a>
+            <a href="admin-ine.html">📥 Import INE</a>
+            <a href="admin-news.html">📰 Publier Actu</a>
+        </div>
+    </div>
 
 <div class="admin-card">
     <!-- Onglets -->
@@ -344,13 +362,6 @@
       <div class="stat-card"><div class="stat-value">${totalDevoirs}</div><div class="stat-label">Devoirs publiés</div></div>
       <div class="stat-card"><div class="stat-value">${moyenneGenerale.toFixed(1)}/20</div><div class="stat-label">Moyenne générale</div></div>
     `;
-
-    const classesTbody = document.querySelector('#stats-classes-table tbody');
-    const classesRows = Object.entries(eleveCountByNiveau)
-      .sort((a, b) => (levelLabelMap[a[0]] || a[0]).localeCompare(levelLabelMap[b[0]] || b[0]))
-      .map(([niveau, count]) => `<tr><td>${levelLabelMap[niveau] || niveau}</td><td>${count}</td></tr>`)
-      .join('');
-    classesTbody.innerHTML = classesRows || '<tr><td colspan="2">Aucune donnée</td></tr>';
   }
 
   // Variable globale pour stocker les données des devoirs (chargées une fois)
