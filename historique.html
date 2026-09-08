@@ -26,12 +26,13 @@
   .brand { display:flex; align-items:center; gap:12px; text-decoration: none; min-width: 0; }
   .brand-mark { width:45px; height:45px; flex-shrink: 0; display:flex; align-items:center; justify-content:center; }
   .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
-  .brand-name { font-family:var(--serif); font-weight:700; font-size:18px; color:var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .brand-name { font-family:var(--serif); font-weight:700; font-size:14px; color:var(--ink); line-height: 1.2; text-align: center; white-space: normal; }
+  .brand-tag { font-size: 10px; color: var(--slate); text-align: center; margin-top: 2px; letter-spacing: 0.5px; }
   nav ul { display:flex; gap:20px; list-style:none; align-items: center; }
   nav a { font-size:14px; font-weight:600; color:var(--ink); text-decoration: none; }
   nav a:hover, nav a.active { color: var(--brass); }
 
-  /* MENU DÉROULANT ADMIN (doré et centré) */
+  /* MENU DÉROULANT ADMIN */
   .admin-item { display: none; position: relative; }
   .admin-dropdown {
     display: none;
@@ -69,6 +70,14 @@
     vertical-align: middle;
     margin: 0;
   }
+
+  /* PROFIL ET CONTACT SUR DEUX LIGNES */
+  .profile-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 13px; }
+  .profile-name { font-weight: 700; color: var(--brass); font-size: 14px; }
+  .profile-role { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; }
+  .contact-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 12px; }
+  .contact-label { font-weight: 600; color: var(--ink); }
+  .contact-phone { font-size: 12px; color: var(--brass); font-weight: 700; }
 
   /* PROFIL UTILISATEUR */
   #user-profile { display: none; font-weight: 700; color: var(--brass); font-size: 14px; }
@@ -111,7 +120,10 @@
   <div class="wrap nav-row">
     <a href="index.html" class="brand">
       <div class="brand-mark"><img src="logo-header.png" alt="LFAKM"></div>
-      <div class="brand-name">Lycée Franco Arabe de Keur Madiabel</div>
+      <div>
+        <div class="brand-name">Lycée Franco Arabe<br>de Keur Madiabel</div>
+        <div class="brand-tag">Excellence & Savoir</div>
+      </div>
     </a>
     <nav>
       <ul id="main-menu">
@@ -130,8 +142,11 @@
         <li><a href="historique.html" class="active">Historique</a></li>
         <li><a href="actualites.html">Actualités</a></li>
         <li><a href="ressources.html">Ressources</a></li>
-        <li><a href="#" onclick="window.showContact(); return false;">📞 Contacter le Proviseur</a></li>
-        <li id="user-profile"></li>
+        <li><a href="#" onclick="window.showContact(); return false;" class="contact-info" style="text-decoration: none;">
+          <span class="contact-label">📞 Contacter le Proviseur</span>
+          <span class="contact-phone" id="contact-phone-display">...</span>
+        </a></li>
+        <li id="user-profile" class="profile-info"></li>
         <li><a href="identification.html" id="auth-link" class="nav-cta">Connexion</a></li>
       </ul>
     </nav>
@@ -199,16 +214,12 @@
     return div.innerHTML;
   }
 
-  // Affichage des coordonnées du Proviseur dans le footer
+  // Affichage du téléphone du Proviseur dans le header
   getDoc(doc(db, 'config', 'contact')).then(snap => {
     if (!snap.exists()) return;
     const c = snap.data();
-    if (!c.email && !c.telephone) return;
-    document.getElementById('public-contact').innerHTML = `
-      Contacter le Proviseur${c.nom ? ' — ' + escapeHtml(c.nom) : ''} :
-      ${c.telephone ? `<a href="tel:${escapeHtml(c.telephone)}" style="color:#fff;text-decoration:underline;margin-left:8px;">${escapeHtml(c.telephone)}</a>` : ''}
-      ${c.email ? `<a href="mailto:${escapeHtml(c.email)}" style="color:#fff;text-decoration:underline;margin-left:8px;">${escapeHtml(c.email)}</a>` : ''}
-    `;
+    const contactPhone = document.getElementById('contact-phone-display');
+    if (contactPhone && c.telephone) contactPhone.textContent = c.telephone;
   });
 
   // Gestion de l'authentification (Connexion / Déconnexion / Admin)
@@ -220,9 +231,9 @@
       const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
       const profile = snap.data();
       
-      // Affiche le nom de l'utilisateur connecté
-      profileSpan.textContent = `👤 ${profile.prenom} ${profile.nom}`;
-      profileSpan.style.display = 'block';
+      // Affiche le nom et le rôle de l'utilisateur connecté
+      profileSpan.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
+      profileSpan.style.display = 'flex';
       
       // Bouton Déconnexion
       link.textContent = "Déconnexion";
