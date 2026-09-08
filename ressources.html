@@ -178,30 +178,30 @@
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
   
   /* IA CHAT */
-  #ai-chat-toggle { position: fixed; bottom: 20px; right: 20px; width: 58px; height: 58px; border-radius: 50%; background: var(--brass); color: #fff; border: none; font-size: 24px; box-shadow: 0 4px 14px rgba(0,0,0,0.25); cursor: pointer; z-index: 2000; }
+  #ai-chat-toggle { position: fixed; bottom: 20px; right: 20px; width: 58px; height: 58px; border-radius: 50%; background: var(--brass); color: #fff; border: none; font-size: 24px; box-shadow: 0 4px 14px rgba(0,0,0,0.25); cursor: pointer; z-index: 2000; transition: transform 0.3s; }
+  #ai-chat-toggle:hover { transform: scale(1.1); }
   #ai-chat-panel { display: none; flex-direction: column; position: fixed; bottom: 90px; right: 20px; width: 360px; max-width: calc(100vw - 40px); height: 480px; max-height: calc(100vh - 140px); background: #fff; border-radius: 14px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 2000; overflow: hidden; border: 1px solid var(--line); }
   #ai-chat-panel.show { display: flex; }
-  #ai-chat-header { background: var(--ink-deep); color: #fff; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 14px; }
-  #ai-chat-header .ai-status { font-size: 10px; font-weight: 400; color: #B7BCC9; }
+  #ai-chat-header { background: var(--ink-deep); color: #fff; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+  #ai-chat-header .ai-status { font-size: 10px; font-weight: 400; color: #B7BCC9; transition: all 0.3s; }
   #ai-chat-header .ai-status.active { color: #2ecc71; }
   #ai-chat-header .ai-status.inactive { color: #e74c3c; }
-  #ai-chat-header button { background: none; border: none; color: #fff; font-size: 18px; cursor: pointer; }
+  #ai-chat-header button { background: none; border: none; color: #fff; font-size: 18px; cursor: pointer; padding: 0 4px; }
   #ai-chat-messages { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: var(--paper); }
-  .ai-msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.5; }
+  .ai-msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.5; word-wrap: break-word; }
   .ai-msg-bot { background: #fff; border: 1px solid var(--line); align-self: flex-start; border-bottom-left-radius: 4px; }
   .ai-msg-user { background: var(--ink-deep); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
   .ai-msg-loading { background: #fff; border: 1px solid var(--line); align-self: flex-start; color: var(--slate); font-style: italic; }
   .ai-msg-error { background: #fde8e8; border: 1px solid #f5c6cb; align-self: flex-start; color: #721c24; }
-  #ai-chat-input-row { display: flex; border-top: 1px solid var(--line); padding: 10px 14px; gap: 8px; background: #fff; }
+  .ai-welcome { text-align: center; padding: 20px 10px; color: var(--slate); font-size: 13px; }
+  .ai-welcome .icon { font-size: 40px; display: block; margin-bottom: 10px; }
+  .ai-welcome .title { font-weight: 700; color: var(--ink); font-size: 16px; }
+  #ai-chat-input-row { display: flex; border-top: 1px solid var(--line); padding: 10px 14px; gap: 8px; background: #fff; flex-shrink: 0; }
   #ai-chat-input { flex: 1; border: 1px solid var(--line); border-radius: 20px; padding: 10px 16px; font-size: 13px; outline: none; font-family: var(--sans); }
   #ai-chat-input:focus { border-color: var(--brass); }
   #ai-chat-send { background: var(--brass); color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; flex-shrink: 0; font-size: 18px; transition: background 0.3s; }
   #ai-chat-send:hover { background: #96743a; }
   #ai-chat-send:disabled { opacity: 0.5; cursor: not-allowed; }
-  
-  .ai-welcome { text-align: center; padding: 20px 10px; color: var(--slate); font-size: 13px; }
-  .ai-welcome .icon { font-size: 40px; display: block; margin-bottom: 10px; }
-  .ai-welcome .title { font-weight: 700; color: var(--ink); font-size: 16px; }
 </style>
 </head>
 <body>
@@ -368,9 +368,13 @@
         backend: new GoogleAIBackend()
       });
       
-      // 🔥 Modèle valide : gemini-2.0-flash (gratuit et rapide)
+      // 🔥 Modèle stable et gratuit : gemini-1.5-flash
       aiModel = getGenerativeModel(ai, {
-        model: "gemini-2.0-flash",
+        model: "gemini-1.5-flash",
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 500,
+        },
         systemInstruction: `Tu es l'assistant virtuel du site du Lycée Franco Arabe de Keur Madiabel (LFAKM), au Sénégal.
         
         Ton rôle est UNIQUEMENT d'aider les utilisateurs à utiliser le site web :
@@ -392,7 +396,7 @@
       
       iaActive = true;
       iaInitialized = true;
-      console.log('✅ Assistant IA activé avec Gemini 2.0 Flash');
+      console.log('✅ Assistant IA activé avec Gemini 1.5 Flash');
       
       if (statusEl) {
         statusEl.textContent = '✅ IA active';
@@ -412,6 +416,22 @@
 
   // Lancer l'initialisation de l'IA
   initIA();
+
+  // ============ VÉRIFICATION DE L'ÉTAT DE L'IA ============
+  function checkIAStatus() {
+    const statusEl = document.getElementById('ai-status');
+    if (!statusEl) return;
+    
+    if (iaActive && aiModel) {
+      statusEl.textContent = '✅ IA active';
+      statusEl.className = 'ai-status active';
+    } else {
+      statusEl.textContent = '⚠️ IA indisponible';
+      statusEl.className = 'ai-status inactive';
+    }
+  }
+
+  setTimeout(checkIAStatus, 2000);
 
   // ============ FONCTIONS ============
   let profile = null;
@@ -1414,7 +1434,6 @@
   if (aiToggle && aiPanel) {
     aiToggle.onclick = () => {
       aiPanel.classList.toggle('show');
-      // Si le panneau s'ouvre et que l'IA n'est pas encore initialisée
       if (aiPanel.classList.contains('show') && !iaInitialized) {
         initIA();
       }
@@ -1443,7 +1462,6 @@
     const texte = aiInput.value.trim();
     if (!texte) return;
     
-    // Vérifier si l'IA est active
     if (!iaActive || !aiModel) {
       addAiMessage("⚠️ L'assistant IA est temporairement indisponible. Veuillez réessayer plus tard.", 'error');
       return;
@@ -1464,7 +1482,6 @@
       console.error('Erreur IA:', err);
       if (loadingDiv) loadingDiv.remove();
       
-      // Messages d'erreur plus précis
       let errorMsg = "Désolé, une erreur est survenue. Réessayez dans un instant.";
       if (err.message.includes('quota')) {
         errorMsg = "⚠️ Le quota d'utilisation de l'IA a été atteint pour aujourd'hui. Réessayez demain.";
@@ -1472,6 +1489,8 @@
         errorMsg = "⚠️ Problème de connexion réseau. Vérifiez votre connexion internet.";
       } else if (err.message.includes('permission')) {
         errorMsg = "⚠️ Problème d'autorisation. Contactez l'administrateur.";
+      } else if (err.message.includes('404') || err.message.includes('not found')) {
+        errorMsg = "⚠️ Le modèle IA n'est pas disponible. Vérifiez que l'API Gemini est activée dans Firebase.";
       }
       addAiMessage(errorMsg, 'error');
     }
