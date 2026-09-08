@@ -130,13 +130,15 @@
   .loading-spinner { text-align: center; color: var(--slate); padding: 20px 0; }
   .error-msg { text-align: center; color: #d9534f; padding: 20px 0; font-weight: bold; }
 
-  /* Style pour le résumé des notes */
-  .note-summary { display: flex; gap: 20px; flex-wrap: wrap; margin: 15px 0; padding: 15px; background: var(--paper); border-radius: 8px; }
-  .summary-item { flex: 1; min-width: 100px; text-align: center; }
-  .summary-item .value { font-size: 24px; font-weight: 700; color: var(--ink); }
-  .summary-item .label { font-size: 11px; color: var(--slate); text-transform: uppercase; }
+  .note-summary { display: flex; gap: 20px; flex-wrap: wrap; margin: 15px 0; padding: 15px 20px; background: var(--paper); border-radius: 8px; }
+  .summary-item { flex: 1; min-width: 80px; text-align: center; }
+  .summary-item .value { font-size: 22px; font-weight: 700; color: var(--ink); }
+  .summary-item .label { font-size: 10px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.3px; }
 
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
+
+  /* Ajustement pour les barres plus fines */
+  .chart-box canvas { max-height: 260px; }
 </style>
 </head>
 <body>
@@ -199,7 +201,6 @@
       </div>
     </div>
 
-    <!-- Résumé des notes -->
     <div class="note-summary" id="note-summary" style="display:none;">
       <div class="summary-item">
         <div class="value" id="nb-notes">0</div>
@@ -207,11 +208,11 @@
       </div>
       <div class="summary-item">
         <div class="value" id="meilleure-note">-</div>
-        <div class="label">⭐ Meilleure note</div>
+        <div class="label">⭐ Meilleure</div>
       </div>
       <div class="summary-item">
         <div class="value" id="plus-faible-note">-</div>
-        <div class="label">📉 Plus faible note</div>
+        <div class="label">📉 Plus faible</div>
       </div>
       <div class="summary-item">
         <div class="value" id="moyenne-classe">-</div>
@@ -227,7 +228,6 @@
     </div>
 
     <div class="chart-row">
-      <!-- Graphique à barres horizontal -->
       <div class="chart-box">
         <h3>📊 Performance par matière <small>(barres horizontales)</small></h3>
         <canvas id="bar-chart"></canvas>
@@ -239,7 +239,6 @@
         </div>
       </div>
 
-      <!-- Évolution (simplifiée) -->
       <div class="chart-box">
         <h3>📈 Évolution des notes</h3>
         <canvas id="line-chart"></canvas>
@@ -535,7 +534,6 @@
     document.getElementById('line-chart').style.display = 'block';
     document.getElementById('line-message').style.display = 'none';
 
-    // Calcul des statistiques par matière
     let sommeNotes = 0;
     let nbNotes = 0;
     let meilleure = 0;
@@ -561,29 +559,23 @@
     const moyenneGenerale = nbNotes > 0 ? sommeNotes / nbNotes : 0;
     document.getElementById('eleve-moyenne').textContent = moyenneGenerale.toFixed(1) + '/20';
     
-    // Résumé
     document.getElementById('nb-notes').textContent = nbNotes;
     document.getElementById('meilleure-note').textContent = meilleure.toFixed(1) + '/20';
     document.getElementById('plus-faible-note').textContent = plusFaible.toFixed(1) + '/20';
     document.getElementById('moyenne-classe').textContent = moyenneGenerale.toFixed(1) + '/20';
 
-    // Graphique à barres horizontal
     genererBarChartHorizontal(moyennesParMatiere);
-    
-    // Évolution (simplifiée avec barres verticales)
     genererLineChart(notesFiltrees);
-    
     afficherTableauNotes(notesFiltrees);
   }
 
-  // 🔥 GRAPHIQUE À BARRES HORIZONTAL - LE PLUS INTUITIF
+  // 🔥 BARRES HORIZONTALES AVEC ÉPAISSEUR RÉDUITE (1/4)
   function genererBarChartHorizontal(moyennesParMatiere) {
     const canvas = document.getElementById('bar-chart');
     const ctx = canvas.getContext('2d');
     
     if (barChart) { barChart.destroy(); barChart = null; }
 
-    // Trier les matières par moyenne (du meilleur au moins bon)
     const sorted = Object.entries(moyennesParMatiere)
       .map(([mat, stats]) => ({
         matiere: mat,
@@ -602,7 +594,6 @@
       return;
     }
 
-    // Couleurs selon la note
     const colors = data.map(val => {
       if (val >= 16) return '#2e7d32';
       if (val >= 10) return '#f39c12';
@@ -618,11 +609,14 @@
           backgroundColor: colors,
           borderColor: colors.map(c => c),
           borderWidth: 1,
-          borderRadius: 4
+          borderRadius: 3,
+          // 🔥 ÉPAISSEUR RÉDUITE À 1/4 de la largeur normale
+          barPercentage: 0.25,
+          categoryPercentage: 0.6
         }]
       },
       options: {
-        indexAxis: 'y', // 🔥 BARRES HORIZONTALES
+        indexAxis: 'y',
         responsive: true,
         maintainAspectRatio: true,
         plugins: {
@@ -642,17 +636,19 @@
             min: 0,
             max: 20,
             ticks: { stepSize: 5 },
-            grid: { color: 'rgba(0,0,0,0.05)' }
+            grid: { color: 'rgba(0,0,0,0.06)' }
           },
           y: {
-            grid: { display: false }
+            grid: { display: false },
+            ticks: {
+              font: { size: 12, weight: '500' }
+            }
           }
         }
       }
     });
   }
 
-  // Graphique d'évolution simplifié
   function genererLineChart(notes) {
     const canvas = document.getElementById('line-chart');
     const ctx = canvas.getContext('2d');
@@ -665,10 +661,8 @@
       return;
     }
 
-    // Trier par date
     const notesTriees = [...notes].sort((a, b) => a.dateObj - b.dateObj);
     
-    // Si trop de notes, on prend un échantillon
     let notesAffichees = notesTriees;
     if (notesTriees.length > 20) {
       const step = Math.ceil(notesTriees.length / 20);
@@ -677,8 +671,6 @@
 
     const labels = notesAffichees.map(n => n.date);
     const data = notesAffichees.map(n => Math.round(((n.note / n.bareme) * 20) * 10) / 10);
-
-    // Couleur des points selon la note
     const pointColors = data.map(val => {
       if (val >= 16) return '#2e7d32';
       if (val >= 10) return '#f39c12';
@@ -691,15 +683,16 @@
         labels: labels,
         datasets: [{
           data: data,
-          borderColor: 'rgba(27, 42, 74, 0.3)',
-          backgroundColor: 'rgba(27, 42, 74, 0.05)',
+          borderColor: 'rgba(27, 42, 74, 0.25)',
+          backgroundColor: 'rgba(27, 42, 74, 0.04)',
           borderWidth: 1.5,
           tension: 0.3,
           fill: false,
           pointBackgroundColor: pointColors,
           pointBorderColor: '#fff',
           pointRadius: 5,
-          pointHoverRadius: 8
+          pointHoverRadius: 8,
+          pointBorderWidth: 1.5
         }]
       },
       options: {
@@ -728,7 +721,8 @@
               maxRotation: 45,
               minRotation: 0,
               autoSkip: true,
-              maxTicksLimit: 15
+              maxTicksLimit: 15,
+              font: { size: 10 }
             }
           }
         }
