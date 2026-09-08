@@ -335,1194 +335,1230 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-  import { getFirestore, doc, getDoc, getDocs, setDoc, deleteDoc, collection, collectionGroup, addDoc, onSnapshot, serverTimestamp, orderBy, query, where, increment } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, getDocs, setDoc, deleteDoc, collection, collectionGroup, addDoc, onSnapshot, serverTimestamp, orderBy, query, where, increment } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
-    authDomain: "lfakm-87dec.firebaseapp.com",
-    projectId: "lfakm-87dec",
-    storageBucket: "lfakm-87dec.firebasestorage.app",
-    messagingSenderId: "739517262614",
-    appId: "1:739517262614:web:14abd3538427960c527e37"
-  };
+    // ⚠️ IMPORTANT : PAS d'import firebase-ai.js
+    // ⚠️ IMPORTANT : PAS d'import firebase-app-check.js
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  // ============ INITIALISATION IA GEMINI ============
-  let aiModel = null;
-  let aiChatSession = null;
-  let iaActive = false;
-  let iaInitialized = false;
-
-  async function initIA() {
-    const statusEl = document.getElementById('ai-status');
-    if (!statusEl) return;
-    
-    try {
-      statusEl.textContent = '⏳ Activation...';
-      statusEl.className = 'ai-status';
-      
-      // Importer Firebase AI
-      const { getAI, getGenerativeModel, GoogleAIBackend } = await import(
-        "https://www.gstatic.com/firebasejs/12.17.1/firebase-ai.js"
-      );
-      
-      const ai = getAI(app, { 
-        backend: new GoogleAIBackend()
-      });
-      
-      // 🔥 MODÈLE ACTUEL : gemini-2.0-flash (disponible et gratuit)
-      aiModel = getGenerativeModel(ai, {
-        model: "gemini-2.0-flash",
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 500,
-        },
-        systemInstruction: `Tu es l'assistant virtuel du site du Lycée Franco Arabe de Keur Madiabel (LFAKM), au Sénégal.
-        
-        Ton rôle est UNIQUEMENT d'aider les utilisateurs à utiliser le site web :
-        - Comment se connecter ou créer un compte
-        - Comment rendre un devoir (fichier, QCM, saisie directe)
-        - Comment consulter ses notes et son profil
-        - Comment contacter le Proviseur
-        - Comment utiliser l'espace ressources (cours, TD)
-        - Comment donner son avis via le formulaire de feedback
-        
-        Règles importantes :
-        - Réponds TOUJOURS en français, de façon simple, claire et chaleureuse
-        - Sois adapté à un public débutant en informatique (élèves, parents, professeurs)
-        - Si une question sort du cadre du site (questions académiques, personnelles, médicales, juridiques), explique gentiment que tu es là uniquement pour aider à utiliser le site, et oriente vers le professeur concerné ou le Proviseur
-        - Ne donne jamais de conseil médical, juridique ou financier
-        - Sois positif et encourageant
-        - Utilise des émojis pour rendre les réponses plus agréables`
-      });
-      
-      iaActive = true;
-      iaInitialized = true;
-      console.log('✅ Assistant IA activé avec Gemini 2.0 Flash');
-      
-      statusEl.textContent = '✅ IA active';
-      statusEl.className = 'ai-status active';
-      
-    } catch (e) { 
-      console.warn('⚠️ Assistant IA désactivé:', e.message);
-      iaActive = false;
-      iaInitialized = true;
-      if (statusEl) {
-        statusEl.textContent = '⚠️ IA indisponible';
-        statusEl.className = 'ai-status inactive';
-      }
-    }
-  }
-
-  // Lancer l'initialisation de l'IA
-  setTimeout(initIA, 1000);
-
-  // ============ VÉRIFICATION DE L'ÉTAT DE L'IA ============
-  function checkIAStatus() {
-    const statusEl = document.getElementById('ai-status');
-    if (!statusEl) return;
-    
-    if (iaActive && aiModel) {
-      statusEl.textContent = '✅ IA active';
-      statusEl.className = 'ai-status active';
-    } else {
-      statusEl.textContent = '⚠️ IA indisponible';
-      statusEl.className = 'ai-status inactive';
-    }
-  }
-
-  setTimeout(checkIAStatus, 2000);
-
-  // ============ FONCTIONS ============
-  let profile = null;
-
-  function isAdmin(role) { 
-    return role === 'admin' || role === 'proviseur' || role === 'censeur'; 
-  }
-
-  function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str ?? '';
-    return div.innerHTML;
-  }
-
-  const MATS_COL = ["Mathématiques", "Français", "Anglais", "Arabe", "SVT", "Physique-Chimie", "Histoire-Géo", "EPS", "Éducation Religieuse"];
-  const structure = [
-    { area: "college-area", id: "6a", name: "Sixième A", mats: MATS_COL.filter(m => m !== "Physique-Chimie") },
-    { area: "college-area", id: "6b", name: "Sixième B", mats: MATS_COL.filter(m => m !== "Physique-Chimie") },
-    { area: "college-area", id: "6c", name: "Sixième C", mats: MATS_COL.filter(m => m !== "Physique-Chimie") },
-    { area: "college-area", id: "5a", name: "Cinquième A", mats: MATS_COL.filter(m => m !== "Physique-Chimie") },
-    { area: "college-area", id: "5b", name: "Cinquième B", mats: MATS_COL.filter(m => m !== "Physique-Chimie") },
-    { area: "college-area", id: "4a", name: "Quatrième A", mats: MATS_COL },
-    { area: "college-area", id: "4b", name: "Quatrième B", mats: MATS_COL },
-    { area: "college-area", id: "3a", name: "Troisième A", mats: MATS_COL },
-    { area: "college-area", id: "3b", name: "Troisième B", mats: MATS_COL },
-    { area: "lycee-area", id: "2s2a", name: "Seconde S2A", mats: ["Mathématiques", "Physique-Chimie", "SVT", "Français", "Arabe", "Anglais", "Histoire-Géo", "EPS"] },
-    { area: "lycee-area", id: "1s2a", name: "Première S2A", mats: ["Mathématiques", "Physique-Chimie", "SVT", "Français", "Arabe", "Anglais", "Histoire-Géo", "EPS"] },
-    { area: "lycee-area", id: "ts2a", name: "Terminale S2A", mats: ["Mathématiques", "Physique-Chimie", "SVT", "Philosophie", "Français", "Arabe", "Anglais", "Histoire-Géo", "EPS"] },
-    { area: "lycee-area", id: "2la", name: "Seconde LA", mats: ["Mathématiques", "Français", "Arabe", "Anglais", "Histoire-Géo", "EPS"] },
-    { area: "lycee-area", id: "1la", name: "Première LA", mats: ["Mathématiques", "Français", "Arabe", "Anglais", "Histoire-Géo", "EPS"] },
-    { area: "lycee-area", id: "tla1", name: "Terminale LA 1", mats: ["Mathématiques", "Philosophie", "Français", "Arabe", "Anglais", "Histoire-Géo", "EPS"] },
-    { area: "lycee-area", id: "tla2", name: "Terminale LA 2", mats: ["Mathématiques", "Philosophie", "Français", "Arabe", "Anglais", "Histoire-Géo", "EPS"] }
-  ];
-
-  function buildUI() {
-    let html = '';
-    const cycles = [
-      { key: 'college-area', label: 'Collège' },
-      { key: 'lycee-area', label: 'Lycée' }
-    ];
-    cycles.forEach(cycle => {
-      const levels = structure.filter(c => c.area === cycle.key);
-      if (levels.length === 0) return;
-      html += `<h2 class="cycle-title" data-area="${cycle.key}"><span>${cycle.label}</span><img src="logo-section.png" alt=""></h2>`;
-      levels.forEach(l => {
-        html += `<details class="level" data-level="${l.id}" data-area="${cycle.key}"><summary>${l.name} <span>+</span></summary><div class="level-content">`;
-        l.mats.forEach(m => {
-          const slugMat = m.toLowerCase().replace(/[^a-z0-9]/g, '');
-          html += `<details class="subject" data-mat="${m}"><summary>${m} <span>▼</span></summary><div class="subject-grid"><div class="doc-col"><h5>Cours</h5><ul class="doc-list" id="cours-${l.id}-${slugMat}"></ul><button class="add-btn" onclick="window.up('cours-${l.id}-${slugMat}')">+ Ajouter (petit fichier)</button><button class="add-btn" onclick="window.addVideo('cours-${l.id}-${slugMat}')">🎥 Lien vidéo YouTube</button><button class="add-btn" onclick="window.addDrive('cours-${l.id}-${slugMat}')">🔗 Lien Drive/OneDrive</button></div><div class="doc-col"><h5>TD</h5><ul class="doc-list" id="td-${l.id}-${slugMat}"></ul><button class="add-btn" onclick="window.up('td-${l.id}-${slugMat}')">+ Ajouter (petit fichier)</button><button class="add-btn" onclick="window.addVideo('td-${l.id}-${slugMat}')">🎥 Lien vidéo YouTube</button><button class="add-btn" onclick="window.addDrive('td-${l.id}-${slugMat}')">🔗 Lien Drive/OneDrive</button></div></div><div class="devoirs-section"><h5>Devoirs</h5><div class="devoirs-list" id="devoirs-${l.id}-${slugMat}"></div><button class="add-btn" id="devoiradd-${l.id}-${slugMat}" onclick="window.newDevoir('${l.id}-${slugMat}')">+ Proposer un devoir</button></div></details>`;
-        });
-        html += `</div></details>`;
-      });
-    });
-    document.getElementById('content-area').innerHTML = html;
-  }
-
-  getDoc(doc(db, 'config', 'contact')).then(snap => {
-    if (!snap.exists()) return;
-    const c = snap.data();
-    const contactPhone = document.getElementById('contact-phone-display');
-    if (contactPhone && c.telephone) contactPhone.textContent = c.telephone;
-  });
-
-  window.openProfil = () => {
-    if (profile && profile.role === 'eleve' && auth.currentUser) {
-      window.location.href = `profil-eleve.html?uid=${auth.currentUser.uid}`;
-    }
-  };
-
-  // ============ AUTH ============
-  onAuthStateChanged(auth, async (user) => {
-    const contentArea = document.getElementById('content-area');
-    if (user) {
-      try {
-        const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
-        if (!snap.exists()) {
-          contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⚠️ Votre compte n'est pas complet.</p>`;
-          return;
-        }
-        profile = snap.data();
-
-        if ((profile.role === 'professeur' || profile.role === 'intendant') && profile.statut === 'en_attente') {
-          contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⏳ Votre compte est en attente de validation.</p>`;
-          const userProfile = document.getElementById('user-profile');
-          if (userProfile) {
-            userProfile.style.display = "block";
-            userProfile.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
-          }
-          const authLink = document.getElementById('auth-link');
-          if (authLink) {
-            authLink.textContent = "Déconnexion";
-            authLink.onclick = () => signOut(auth).then(() => window.location.reload());
-          }
-          return;
-        }
-
-        const searchBar = document.getElementById('search-bar');
-        if (searchBar) searchBar.style.display = "";
-        
-        const userProfile2 = document.getElementById('user-profile');
-        if (userProfile2) {
-          userProfile2.style.display = "block";
-          userProfile2.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
-        }
-        
-        if (isAdmin(profile.role)) {
-          document.querySelectorAll('.admin-item').forEach(el => {
-            if (el) el.style.display = "block";
-          });
-        }
-        
-        const authLink2 = document.getElementById('auth-link');
-        if (authLink2) {
-          authLink2.textContent = "Déconnexion";
-          authLink2.onclick = () => signOut(auth).then(() => window.location.reload());
-        }
-
-        // Afficher le lien feedback
-        const feedbackItems = document.querySelectorAll('.feedback-item');
-        if (feedbackItems.length > 0) {
-          feedbackItems.forEach(el => {
-            if (el) {
-              el.style.display = 'block';
-              const link = el.querySelector('a');
-              if (link) {
-                if (isAdmin(profile.role)) {
-                  link.href = 'feedback.html#tab-dashboard';
-                  link.textContent = '📊 Voir les retours';
-                } else if (profile.role === 'professeur') {
-                  link.href = 'feedback.html#tab-professeurs';
-                  link.textContent = '📋 Donner mon avis (prof)';
-                } else if (profile.role === 'eleve') {
-                  link.href = 'feedback.html#tab-eleves';
-                  link.textContent = '📋 Donner mon avis (élève)';
-                }
-              }
-            }
-          });
-        }
-
-        if (profile.role === 'professeur' || isAdmin(profile.role)) {
-          const elevesSection = document.getElementById('eleves-section');
-          if (elevesSection) elevesSection.style.display = 'block';
-          chargerMesEleves();
-        }
-
-        if (profile.role === 'eleve') renderFicheFamille();
-        loadActusStrip();
-        loadDevoirsStrip();
-
-        buildUI();
-        applyLevelVisibility();
-        syncDocs();
-        syncDevoirs();
-      } catch (err) {
-        console.warn('Erreur de chargement du profil:', err.message);
-        if (contentArea) {
-          contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⚠️ Erreur de chargement du profil. Veuillez rafraîchir la page.</p>`;
-        }
-      }
-    } else {
-      profile = null;
-      const searchBar2 = document.getElementById('search-bar');
-      if (searchBar2) searchBar2.style.display = "none";
-      
-      const contentArea2 = document.getElementById('content-area');
-      if (contentArea2) {
-        contentArea2.innerHTML =
-          `<p style="text-align:center; padding:60px 20px; color:var(--slate);">
-            🔒 Cet espace est réservé aux élèves, professeurs et personnel.<br><br>
-            <a href="identification.html" style="color:var(--brass); font-weight:700;">Se connecter</a>
-            ou
-            <a href="inscription.html" style="color:var(--brass); font-weight:700;">créer un compte</a>
-          </p>`;
-      }
-      
-      document.querySelectorAll('.feedback-item').forEach(el => {
-        if (el) el.style.display = 'none';
-      });
-    }
-  });
-
-  // ============ CHARGER ÉLÈVES ============
-  async function chargerMesEleves() {
-    const accordeon = document.getElementById('eleves-accordeon');
-    if (!accordeon) return;
-    accordeon.innerHTML = '<p style="color:gray;">Chargement des élèves...</p>';
-    try {
-      let classesConcernees = [];
-      if (profile.role === 'professeur') {
-        classesConcernees = profile.assignedClasses || [];
-      } else {
-        classesConcernees = structure.map(l => l.id);
-      }
-      const elevesSnap = await getDocs(query(collection(db, 'utilisateurs'), where('role', '==', 'eleve')));
-      const eleves = [];
-      elevesSnap.forEach(doc => {
-        const e = doc.data();
-        if (classesConcernees.includes(e.niveau)) {
-          eleves.push({ uid: doc.id, ...e });
-        }
-      });
-      eleves.sort((a, b) => `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`));
-      const elevesParClasse = {};
-      eleves.forEach(e => {
-        if (!elevesParClasse[e.niveau]) elevesParClasse[e.niveau] = [];
-        elevesParClasse[e.niveau].push(e);
-      });
-      accordeon.innerHTML = '';
-      const classesTriees = Object.keys(elevesParClasse).sort();
-      classesTriees.forEach(niveau => {
-        const classeInfo = structure.find(l => l.id === niveau);
-        const nomClasse = classeInfo ? classeInfo.name : niveau;
-        const classeDiv = document.createElement('details');
-        classeDiv.className = 'classe-eleve';
-        classeDiv.innerHTML = `
-          <summary>${nomClasse} (${elevesParClasse[niveau].length} élèves)</summary>
-          <div class="classe-eleve-content">
-            <div style="text-align:right; margin-bottom:10px;">
-              <button class="btn-export" onclick="window.exporterListeClasse('${niveau}')">📥 Télécharger la liste (Excel)</button>
-            </div>
-            ${elevesParClasse[niveau].map(e => `
-              <div class="eleve-ligne">
-                <span class="eleve-nom">${escapeHtml(e.prenom)} ${escapeHtml(e.nom)}</span>
-                <div class="eleve-actions">
-                  <button class="btn-profile" onclick="window.location.href='profil-eleve.html?uid=${e.uid}'">📊 Profil</button>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        `;
-        accordeon.appendChild(classeDiv);
-      });
-      if (classesTriees.length === 0) {
-        accordeon.innerHTML = '<p style="color:gray;">Aucun élève trouvé dans vos classes affectées.</p>';
-      }
-    } catch (err) {
-      accordeon.innerHTML = `<p style="color:red;">Erreur : ${err.message}</p>`;
-    }
-  }
-
-  window.exporterListeClasse = async (niveau) => {
-    try {
-      const elevesSnap = await getDocs(query(collection(db, 'utilisateurs'), where('role', '==', 'eleve'), where('niveau', '==', niveau)));
-      const eleves = [];
-      elevesSnap.forEach(doc => {
-        const e = doc.data();
-        eleves.push({ uid: doc.id, ...e });
-      });
-      eleves.sort((a, b) => `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`));
-      const headers = ["Prénom", "Nom", "Classe", "Téléphone", "Email", "Père/Tuteur", "Tél. Père", "Mère/Tutrice", "Tél. Mère", "Adresse"];
-      const rows = eleves.map(e => [
-        e.prenom || '', e.nom || '', e.niveau || '', e.telephone || '', e.email || '',
-        e.famille?.pereNom || '', e.famille?.pereTel || '',
-        e.famille?.mereNom || '', e.famille?.mereTel || '', e.famille?.adresse || ''
-      ]);
-      const classeInfo = structure.find(l => l.id === niveau);
-      const nomClasse = classeInfo ? classeInfo.name : niveau;
-      const filename = `LFAKM-${nomClasse.replace(/[^a-z0-9]/gi, '_')}-${new Date().toISOString().slice(0, 10)}`;
-      const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-      ws['!cols'] = headers.map(() => ({ wch: 18 }));
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Liste");
-      XLSX.writeFile(wb, filename + '.xlsx');
-    } catch (err) {
-      alert('Erreur lors de l\'export: ' + err.message);
-    }
-  };
-
-  // ============ STRIPS ============
-  function loadDevoirsStrip() {
-    const zone = document.getElementById('devoirs-strip');
-    const role = profile?.role;
-    if (!zone || (role !== 'eleve' && role !== 'professeur')) { 
-      if (zone) zone.innerHTML = ''; 
-      return; 
-    }
-    try {
-      onSnapshot(query(collectionGroup(db, 'devoirs'), orderBy('date', 'desc')), (snap) => {
-        const cards = [];
-        snap.forEach(d => {
-          if (cards.length >= 8) return;
-          const parentSlug = d.ref.parent.parent.id;
-          const dashIndex = parentSlug.indexOf('-');
-          const levelId = dashIndex === -1 ? parentSlug : parentSlug.substring(0, dashIndex);
-          let pertinent = false;
-          if (role === 'eleve') {
-            pertinent = profile.niveau === levelId;
-          } else if (role === 'professeur') {
-            pertinent = (profile.assignedClasses || []).includes(levelId);
-          }
-          if (!pertinent) return;
-          const dv = d.data();
-          const level = structure.find(l => l.id === levelId);
-          const dateStr = dv.date?.toDate ? dv.date.toDate().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
-          cards.push(`
-            <div class="dv-notif-card">
-              <h4>📌 ${escapeHtml(dv.titre)}</h4>
-              <span>${level ? level.name : ''}</span>
-              <span>Déposé le ${dateStr}</span>
-            </div>`);
-        });
-        zone.innerHTML = cards.length === 0 ? '' : `<h3>🔔 Derniers devoirs</h3><div class="actus-scroll">${cards.join('')}</div>`;
-      });
-    } catch (err) {
-      console.warn('Erreur chargement devoirs:', err.message);
-    }
-  }
-
-  function loadActusStrip() {
-    const zone = document.getElementById('actus-strip');
-    if (!zone) return;
-    try {
-      onSnapshot(query(collection(db, 'actualites'), orderBy('date', 'desc')), (snap) => {
-        const cards = [];
-        snap.forEach(d => {
-          if (cards.length >= 10) return;
-          const n = d.data();
-          const dest = n.destinataire || 'tous';
-          if (dest !== 'tous' && dest !== profile?.role && !isAdmin(profile?.role)) return;
-          const date = n.date?.toDate ? n.date.toDate().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
-          cards.push(`
-            <a class="actus-card" href="actualites.html">
-              ${n.image ? `<img src="${n.image}" alt="">` : ''}
-              <div class="actus-card-body">
-                <h4>${escapeHtml(n.titre)}</h4>
-                <span>${date}</span>
-              </div>
-            </a>`);
-        });
-        zone.innerHTML = cards.length === 0 ? '' : `<h3>📰 Actualités du lycée</h3><div class="actus-scroll">${cards.join('')}</div>`;
-      });
-    } catch (err) {
-      console.warn('Erreur chargement actualités:', err.message);
-    }
-  }
-
-  // ============ FICHE FAMILLE ============
-  function renderFicheFamille() {
-    const f = profile.famille || {};
-    const zone = document.getElementById('fiche-famille-zone');
-    if (!zone) return;
-    zone.innerHTML = `
-      <details class="level" style="max-width:1100px; margin:20px auto 0;">
-        <summary>👪 Ma fiche famille ${f.pereTel || f.mereTel ? '✅' : '⚠️ à compléter'} <span>+</span></summary>
-        <div class="level-content" style="padding:20px;">
-          <div class="subject-grid" style="grid-template-columns:1fr 1fr;">
-            <div><label style="font-size:12px;font-weight:700;">Nom du père / tuteur</label><input id="ff-pere-nom" value="${f.pereNom || ''}" style="width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:6px;"></div>
-            <div><label style="font-size:12px;font-weight:700;">Téléphone du père / tuteur</label><input id="ff-pere-tel" type="tel" value="${f.pereTel || ''}" style="width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:6px;"></div>
-            <div><label style="font-size:12px;font-weight:700;">Nom de la mère / tutrice</label><input id="ff-mere-nom" value="${f.mereNom || ''}" style="width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:6px;"></div>
-            <div><label style="font-size:12px;font-weight:700;">Téléphone de la mère / tutrice</label><input id="ff-mere-tel" type="tel" value="${f.mereTel || ''}" style="width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:6px;"></div>
-          </div>
-          <label style="font-size:12px;font-weight:700;">Adresse du domicile</label>
-          <input id="ff-adresse" value="${f.adresse || ''}" style="width:100%;padding:10px;margin:5px 0 15px;border:1px solid var(--line);border-radius:6px;">
-          <button class="add-btn" style="display:block;" onclick="window.saveFicheFamille()">💾 Enregistrer</button>
-          <p id="ff-status" style="font-size:12px;color:#2e7d32;margin-top:8px;"></p>
-        </div>
-      </details>`;
-  }
-
-  window.saveFicheFamille = async () => {
-    try {
-      const famille = {
-        pereNom: document.getElementById('ff-pere-nom').value.trim(),
-        pereTel: document.getElementById('ff-pere-tel').value.trim(),
-        mereNom: document.getElementById('ff-mere-nom').value.trim(),
-        mereTel: document.getElementById('ff-mere-tel').value.trim(),
-        adresse: document.getElementById('ff-adresse').value.trim()
-      };
-      await setDoc(doc(db, 'utilisateurs', auth.currentUser.uid), { famille }, { merge: true });
-      profile.famille = famille;
-      document.getElementById('ff-status').textContent = "✅ Enregistré.";
-    } catch (err) {
-      document.getElementById('ff-status').textContent = "❌ Erreur: " + err.message;
-    }
-  };
-
-  // ============ VISIBILITÉ ============
-  function applyLevelVisibility() {
-    const role = profile?.role;
-    const profMats = profile?.disciplines || [];
-    const cycleVisible = {};
-    document.querySelectorAll('details.level').forEach(levelEl => {
-      if (!levelEl) return;
-      const lvlId = levelEl.dataset.level;
-      const area = levelEl.dataset.area;
-      let visible = true;
-      if (role === 'professeur') {
-        visible = (profile.assignedClasses || []).includes(lvlId);
-      } else if (role === 'eleve') {
-        visible = profile.niveau === lvlId;
-      }
-      levelEl.style.display = visible ? '' : 'none';
-      if (visible) cycleVisible[area] = true;
-      if (visible) {
-        levelEl.querySelectorAll('details.subject').forEach(subjectEl => {
-          if (!subjectEl) return;
-          let matVisible = true;
-          if (role === 'professeur') {
-            matVisible = profMats.includes(subjectEl.dataset.mat);
-          }
-          subjectEl.dataset.roleAllowed = matVisible ? '1' : '0';
-          subjectEl.style.display = matVisible ? '' : 'none';
-        });
-      }
-    });
-    document.querySelectorAll('.cycle-title').forEach(header => {
-      if (!header) return;
-      header.style.display = cycleVisible[header.dataset.area] ? '' : 'none';
-    });
-  }
-
-  // ============ SYNC DOCS ============
-  function syncDocs() {
-    const role = profile?.role;
-    const profMats = profile?.disciplines || [];
-
-    document.querySelectorAll('.doc-list').forEach(ul => {
-      if (!ul) return;
-      const slug = ul.id.replace(/^cours-|^td-/, '');
-      const type = ul.id.startsWith('cours-') ? 'cours' : 'td';
-      
-      const addBtn = ul.nextElementSibling;
-      const videoBtn = addBtn ? addBtn.nextElementSibling : null;
-      const driveBtn = videoBtn ? videoBtn.nextElementSibling : null;
-      
-      const subjectEl = ul.closest('.subject');
-      const matName = subjectEl ? subjectEl.querySelector('summary')?.textContent?.toLowerCase() || '' : '';
-
-      if (role === 'professeur' || isAdmin(role)) {
-        const showButtons = (role === 'professeur' && profMats.some(d => matName.includes(d.toLowerCase()))) || isAdmin(role);
-        if (addBtn && showButtons) addBtn.style.display = "block";
-        if (videoBtn && showButtons) videoBtn.style.display = "block";
-        if (driveBtn && showButtons) driveBtn.style.display = "block";
-      }
-
-      try {
-        onSnapshot(query(collection(db, 'ressources', slug, type), orderBy('date', 'desc')), (snap) => {
-          if (!ul) return;
-          ul.innerHTML = snap.empty ? '<li style="color:gray;border:none;background:none;">Aucun fichier</li>' : '';
-          snap.forEach(docSnap => {
-            const d = docSnap.data();
-            const icon = d.type === 'video' ? '🎥' : d.type === 'drive' ? '🔗' : '📄';
-            const li = document.createElement('li');
-            li.innerHTML = `<a href="${d.url}" target="_blank">${icon} ${escapeHtml(d.titre)}</a>`;
-            if (role === 'professeur' || isAdmin(role)) {
-              const del = document.createElement('button');
-              del.innerHTML = '✕'; del.className = 'delete-btn';
-              del.onclick = () => {
-                if (!confirm('Supprimer ?')) return;
-                deleteDoc(doc(db, 'ressources', slug, type, docSnap.id));
-              };
-              li.appendChild(del);
-            }
-            ul.appendChild(li);
-          });
-        });
-      } catch (err) {
-        console.warn('Erreur sync docs:', err.message);
-      }
-    });
-  }
-
-  // ============ SYNC DEVOIRS ============
-  function syncDevoirs() {
-    const role = profile?.role;
-    const profMats = profile?.disciplines || [];
-
-    document.querySelectorAll('.devoirs-list').forEach(container => {
-      if (!container) return;
-      const slug = container.id.replace(/^devoirs-/, '');
-      const subjectEl = container.closest('.subject');
-      const matName = subjectEl ? subjectEl.dataset.mat : '';
-      const addBtn = document.getElementById(`devoiradd-${slug}`);
-
-      if (addBtn) {
-        const showButton = (role === 'professeur' && profMats.includes(matName)) || isAdmin(role);
-        addBtn.style.display = showButton ? "block" : "none";
-      }
-
-      try {
-        onSnapshot(query(collection(db, 'ressources', slug, 'devoirs'), orderBy('date', 'desc')), (snap) => {
-          if (!container) return;
-          container.innerHTML = snap.empty ? '<p style="color:gray;font-size:12px;">Aucun devoir pour le moment</p>' : '';
-          snap.forEach(devDoc => {
-            const dv = devDoc.data();
-            const dvType = dv.type === 'qcm' ? 'qcm' : 'fichier';
-            const item = document.createElement('div');
-            item.className = 'devoir-item';
-            item.innerHTML = `<h6>📌 ${escapeHtml(dv.titre)}${dvType === 'qcm' ? ' <span style="font-size:10px; color:var(--brass); font-weight:700;">QCM</span>' : ''}</h6>
-              <div class="devoir-meta">📅 À rendre pour le ${dv.dateLimite || 'non précisé'} — proposé par ${dv.profNom || 'le professeur'}</div>
-              ${dv.consignes ? `<p style="font-size:13px; margin-bottom:8px;">${dv.consignes}</p>` : ''}
-              ${dv.googleDocUrl ? `<p style="margin-bottom:8px;"><a href="${dv.googleDocUrl}" target="_blank">📄 Ouvrir le document Google Doc</a></p>` : ''}
-              ${dv.fichierUrl ? `<p style="margin-bottom:8px;"><a href="${dv.fichierUrl}" target="_blank">📎 ${dv.fichierNom || 'Fichier joint'}</a></p>` : ''}`;
-
-            if (role === 'eleve') {
-              const responseArea = document.createElement('div');
-              item.appendChild(responseArea);
-              if (dvType === 'qcm') {
-                renderQcmForStudent(slug, devDoc.id, dv, responseArea);
-              } else {
-                checkRendu(slug, devDoc.id, responseArea);
-              }
-            } else if (role === 'professeur' || isAdmin(role)) {
-              const rendusBox = document.createElement('div');
-              rendusBox.style.display = 'none';
-              rendusBox.style.marginTop = '8px';
-
-              const voirBtn = document.createElement('button');
-              voirBtn.className = 'devoir-btn btn-voir-rendus';
-              voirBtn.textContent = 'Voir les rendus';
-              voirBtn.onclick = () => {
-                const showing = rendusBox.style.display === 'block';
-                rendusBox.style.display = showing ? 'none' : 'block';
-                if (!showing) loadRendus(slug, devDoc.id, rendusBox, dv);
-              };
-              item.appendChild(voirBtn);
-
-              const exportBtn = document.createElement('button');
-              exportBtn.className = 'devoir-btn btn-voir-rendus';
-              exportBtn.style.background = '#2e7d32';
-              exportBtn.textContent = '📥 Exporter les notes';
-              exportBtn.onclick = () => exportNotes(slug, devDoc.id, dv);
-              item.appendChild(exportBtn);
-
-              const delBtn = document.createElement('button');
-              delBtn.className = 'devoir-btn btn-suppr-devoir';
-              delBtn.textContent = '✕ Supprimer';
-              delBtn.onclick = () => {
-                if (!confirm('Supprimer ce devoir ?')) return;
-                deleteDoc(doc(db, 'ressources', slug, 'devoirs', devDoc.id));
-              };
-              item.appendChild(delBtn);
-
-              item.appendChild(rendusBox);
-            }
-            container.appendChild(item);
-          });
-        });
-      } catch (err) {
-        console.warn('Erreur sync devoirs:', err.message);
-      }
-    });
-  }
-
-  // ============ RENDU FICHIER ============
-  function checkRendu(slug, devoirId, statusDiv) {
-    const uid = auth.currentUser?.uid;
-    if (!uid || !statusDiv) return;
-    try {
-      onSnapshot(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), (snap) => {
-        if (!statusDiv) return;
-        if (snap.exists()) {
-          const d = snap.data();
-          statusDiv.innerHTML = `<span class="rendu-status">✅ Devoir rendu</span> — <a href="${d.url}" target="_blank">voir mon fichier</a><br><button class="add-btn" style="display:block;margin-top:6px;" onclick="window.rendreDevoir('${slug}','${devoirId}')">Renvoyer un autre fichier</button>`;
-        } else {
-          statusDiv.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir</button>`;
-        }
-      });
-    } catch (err) {
-      if (statusDiv) statusDiv.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir</button>`;
-    }
-  }
-
-  // ============ RENDU QCM ============
-  function renderQcmForStudent(slug, devoirId, dv, container) {
-    const uid = auth.currentUser?.uid;
-    if (!uid || !container) return;
-    try {
-      onSnapshot(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), (snap) => {
-        if (!container) return;
-        if (snap.exists()) {
-          const d = snap.data();
-          container.innerHTML = `<span class="rendu-status">✅ QCM rendu — Note : ${d.note ?? d.score}/${dv.bareme || dv.questions.length}</span><br><button class="add-btn" style="display:block;margin-top:6px;" id="retry-${devoirId}">Repasser le QCM</button>`;
-          const retryBtn = document.getElementById(`retry-${devoirId}`);
-          if (retryBtn) {
-            retryBtn.onclick = () => buildQcmForm(slug, devoirId, dv, container);
-          }
-        } else {
-          buildQcmForm(slug, devoirId, dv, container);
-        }
-      });
-    } catch (err) {
-      if (container) container.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir</button>`;
-    }
-  }
-
-  function buildQcmForm(slug, devoirId, dv, container) {
-    if (!container || !dv.questions || dv.questions.length === 0) {
-      if (container) container.innerHTML = '<p style="color:gray;">Ce QCM n\'a pas encore de questions.</p>';
-      return;
-    }
-    let html = '';
-    dv.questions.forEach((q, qi) => {
-      html += `<div style="margin-bottom:10px;"><p style="font-size:13px;font-weight:700;margin-bottom:6px;">${qi + 1}. ${q.texte}</p>`;
-      q.options.forEach((opt, oi) => {
-        html += `<label style="display:block;font-size:13px;margin-bottom:4px;"><input type="radio" name="qcmrep-${devoirId}-${qi}" value="${oi}"> ${opt}</label>`;
-      });
-      html += `</div>`;
-    });
-    html += `<button class="add-btn" style="display:block;" id="submit-qcm-${devoirId}">Envoyer mes réponses</button>`;
-    container.innerHTML = html;
-    
-    const submitBtn = document.getElementById(`submit-qcm-${devoirId}`);
-    if (submitBtn) {
-      submitBtn.onclick = async () => {
-        const reponses = [];
-        let complete = true;
-        dv.questions.forEach((q, qi) => {
-          const checked = container.querySelector(`input[name="qcmrep-${devoirId}-${qi}"]:checked`);
-          if (!checked) complete = false;
-          reponses.push(checked ? parseInt(checked.value, 10) : -1);
-        });
-        if (!complete) { alert("Répondez à toutes les questions avant d'envoyer."); return; }
-        const score = reponses.filter((r, i) => r === dv.questions[i].correctIndex).length;
-        const bareme = dv.bareme || 20;
-        const note = Math.round((score / dv.questions.length) * bareme * 100) / 100;
-        const uid = auth.currentUser.uid;
-        await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
-          eleveNom: `${profile.prenom} ${profile.nom}`,
-          reponses, score, note,
-          date: serverTimestamp()
-        });
-        alert('✅ QCM envoyé !');
-      };
-    }
-  }
-
-  // ============ RENDUS ============
-  function loadRendus(slug, devoirId, container, dv) {
-    const bareme = dv.bareme || 20;
-    if (!container) return;
-    try {
-      onSnapshot(collection(db, 'ressources', slug, 'devoirs', devoirId, 'rendus'), (snap) => {
-        if (!container) return;
-        container.innerHTML = snap.empty ? '<p style="font-size:12px;color:gray;">Aucun rendu pour le moment</p>' : '';
-        snap.forEach(rd => {
-          const d = rd.data();
-          const p = document.createElement('div');
-          p.className = 'rendu-item';
-          if (dv.type === 'qcm') {
-            p.innerHTML = `${escapeHtml(d.eleveNom)} — Note : <b>${d.note ?? '-'}/${bareme}</b> (${d.score}/${dv.questions.length} bonnes réponses)`;
-          } else {
-            const noteId = `note-${rd.id}`;
-            p.innerHTML = `<a href="${d.url}" target="_blank">📄 ${escapeHtml(d.eleveNom)}</a> —
-              <input type="number" id="${noteId}" value="${d.note ?? ''}" min="0" max="${bareme}" step="0.5" placeholder="/${bareme}" style="width:55px;padding:3px;margin-left:6px;border:1px solid #ccc;border-radius:4px;">
-              <button class="devoir-btn btn-voir-rendus" style="padding:3px 8px;font-size:10px;" data-note-id="${noteId}">Noter</button>
-              <button class="devoir-btn btn-profile" style="padding:3px 8px;font-size:10px; margin-left:5px;" onclick="window.location.href='profil-eleve.html?uid=${rd.id}'">📊 Voir profil</button>`;
-          }
-          container.appendChild(p);
-        });
-        if (dv.type !== 'qcm') {
-          container.querySelectorAll('button[data-note-id]').forEach(btn => {
-            btn.onclick = async () => {
-              const input = document.getElementById(btn.dataset.noteId);
-              const uid = btn.dataset.noteId.replace('note-', '');
-              const note = parseFloat(input.value);
-              if (isNaN(note) || note < 0 || note > bareme) { alert(`Entrez une note entre 0 et ${bareme}.`); return; }
-              await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), { note }, { merge: true });
-            };
-          });
-        }
-      });
-    } catch (err) {
-      if (container) container.innerHTML = '<p style="color:gray;">Erreur de chargement des rendus.</p>';
-    }
-  }
-
-  // ============ EXPORT NOTES ============
-  async function exportNotes(slug, devoirId, dv) {
-    const bareme = dv.bareme || 20;
-    const niveauId = slug.split('-')[0];
-    try {
-      const rendusSnap = await getDocs(collection(db, 'ressources', slug, 'devoirs', devoirId, 'rendus'));
-      const rendusParUid = {};
-      rendusSnap.forEach(rd => { rendusParUid[rd.id] = rd.data(); });
-      let eleves = [];
-      try {
-        const elevesSnap = await getDocs(query(collection(db, 'utilisateurs'), where('role', '==', 'eleve'), where('niveau', '==', niveauId)));
-        elevesSnap.forEach(e => eleves.push({ uid: e.id, ...e.data() }));
-      } catch (err) {
-        eleves = Object.entries(rendusParUid).map(([uid, d]) => ({ uid, prenom: '', nom: d.eleveNom || '' }));
-      }
-      if (eleves.length === 0) { alert("Aucun élève trouvé pour cette classe."); return; }
-      eleves.sort((a, b) => `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`));
-      const rows = eleves.map(e => {
-        const rd = rendusParUid[e.uid];
-        const nomComplet = rd?.eleveNom || `${e.prenom || ''} ${e.nom || ''}`.trim();
-        return [nomComplet, rd?.note ?? '', bareme, rd ? 'Rendu' : 'Non rendu'];
-      });
-      const headers = ["Élève", "Note", "Barème", "Statut"];
-      const filename = `Notes-${dv.titre.replace(/[^a-z0-9]/gi, '_')}-${new Date().toISOString().slice(0, 10)}`;
-      const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-      ws['!cols'] = [{ wch: 28 }, { wch: 10 }, { wch: 10 }, { wch: 12 }];
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Notes");
-      XLSX.writeFile(wb, filename + '.xlsx');
-    } catch (err) {
-      alert('Erreur lors de l\'export: ' + err.message);
-    }
-  }
-
-  // ============ CRÉATION DEVOIR ============
-  let currentDevoirSlug = null;
-  let qcmQuestionCount = 0;
-
-  function addQcmQuestion() {
-    const idx = qcmQuestionCount++;
-    const block = document.createElement('div');
-    block.className = 'qcm-question-block';
-    block.innerHTML = `<button type="button" class="qcm-remove-q" onclick="this.parentElement.remove()">✕</button>
-      <input type="text" class="qcm-q-text" placeholder="Question ${idx + 1}">
-      ${[0, 1, 2, 3].map(i => `<div class="qcm-option-row"><input type="radio" name="qcm-correct-${idx}" value="${i}" ${i === 0 ? 'checked' : ''}><input type="text" class="qcm-option" placeholder="Option ${i + 1} (cocher si c'est la bonne réponse)"></div>`).join('')}`;
-    const qcmQuestions = document.getElementById('qcm-questions');
-    if (qcmQuestions) qcmQuestions.appendChild(block);
-  }
-
-  window.newDevoir = (slug) => {
-    currentDevoirSlug = slug;
-    
-    const titreInput = document.getElementById('dv-titre');
-    const consignesInput = document.getElementById('dv-consignes');
-    const dateInput = document.getElementById('dv-date');
-    const baremeInput = document.getElementById('dv-bareme');
-    const gdocInput = document.getElementById('dv-gdoc');
-    const fichierInput = document.getElementById('dv-fichier');
-    const typeSelect = document.getElementById('dv-type');
-    const qcmBuilder = document.getElementById('qcm-builder');
-    const qcmQuestions = document.getElementById('qcm-questions');
-    const modal = document.getElementById('devoir-modal');
-    
-    if (titreInput) titreInput.value = '';
-    if (consignesInput) consignesInput.value = '';
-    if (dateInput) dateInput.value = '';
-    if (baremeInput) baremeInput.value = '20';
-    if (gdocInput) gdocInput.value = '';
-    if (fichierInput) fichierInput.value = '';
-    if (typeSelect) typeSelect.value = 'fichier';
-    if (qcmBuilder) qcmBuilder.style.display = 'none';
-    if (qcmQuestions) qcmQuestions.innerHTML = '';
-    qcmQuestionCount = 0;
-    addQcmQuestion();
-    if (modal) modal.classList.add('show');
-  };
-
-  const typeSelect = document.getElementById('dv-type');
-  if (typeSelect) {
-    typeSelect.addEventListener('change', (e) => {
-      const qcmBuilder = document.getElementById('qcm-builder');
-      if (qcmBuilder) qcmBuilder.style.display = e.target.value === 'qcm' ? 'block' : 'none';
-    });
-  }
-
-  const qcmAddBtn = document.getElementById('qcm-add-question');
-  if (qcmAddBtn) {
-    qcmAddBtn.onclick = addQcmQuestion;
-  }
-
-  const cancelBtn = document.getElementById('dv-cancel');
-  if (cancelBtn) {
-    cancelBtn.onclick = () => {
-      const modal = document.getElementById('devoir-modal');
-      if (modal) modal.classList.remove('show');
+    const firebaseConfig = {
+        apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+        authDomain: "lfakm-87dec.firebaseapp.com",
+        projectId: "lfakm-87dec",
+        storageBucket: "lfakm-87dec.firebasestorage.app",
+        messagingSenderId: "739517262614",
+        appId: "1:739517262614:web:14abd3538427960c527e37"
     };
-  }
 
-  const submitBtn = document.getElementById('dv-submit');
-  if (submitBtn) {
-    submitBtn.onclick = async () => {
-      const typeSelect2 = document.getElementById('dv-type');
-      const titreInput2 = document.getElementById('dv-titre');
-      const consignesInput2 = document.getElementById('dv-consignes');
-      const dateInput2 = document.getElementById('dv-date');
-      const baremeInput2 = document.getElementById('dv-bareme');
-      const gdocInput2 = document.getElementById('dv-gdoc');
-      const fichierInput2 = document.getElementById('dv-fichier');
-      const modal2 = document.getElementById('devoir-modal');
-      
-      const type = typeSelect2 ? typeSelect2.value : 'fichier';
-      const titre = titreInput2 ? titreInput2.value.trim() : '';
-      if (!titre) { alert('Le titre est obligatoire.'); return; }
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-      try {
-        const existingSnap = await getDocs(collection(db, 'ressources', currentDevoirSlug, 'devoirs'));
-        const doublon = existingSnap.docs.find(d => (d.data().titre || '').trim().toLowerCase() === titre.toLowerCase());
-        if (doublon) {
-          const dateDoublon = doublon.data().date?.toDate ? doublon.data().date.toDate().toLocaleDateString('fr-FR') : '';
-          const confirmer = confirm(`⚠️ Un devoir intitulé "${titre}" existe déjà dans cette classe et cette matière (publié le ${dateDoublon}).\n\nVoulez-vous quand même le publier une seconde fois ?`);
-          if (!confirmer) return;
+    // ================================================
+    // ============ API GEMINI REST - SOLUTION GRATUITE ============
+    // ================================================
+    
+    const GEMINI_API_KEY = "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag";
+    const GEMINI_MODEL = "gemini-2.0-flash";
+    let iaActive = false;
+    let iaInitialized = false;
+
+    // ---------- Tester la disponibilité de l'API ----------
+    async function testGeminiAPI() {
+        const statusEl = document.getElementById('ai-status');
+        if (!statusEl) return;
+        
+        try {
+            statusEl.textContent = '⏳ Vérification...';
+            statusEl.className = 'ai-status';
+            
+            // Tester l'API avec une requête simple
+            const response = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models?key=${GEMINI_API_KEY}`
+            );
+            
+            if (response.ok) {
+                iaActive = true;
+                iaInitialized = true;
+                console.log('✅ API Gemini 2.0 Flash disponible');
+                statusEl.textContent = '✅ IA active';
+                statusEl.className = 'ai-status active';
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || 'API non disponible');
+            }
+        } catch (e) {
+            console.warn('⚠️ API Gemini indisponible:', e.message);
+            iaActive = false;
+            iaInitialized = true;
+            if (statusEl) {
+                statusEl.textContent = '⚠️ IA indisponible';
+                statusEl.className = 'ai-status inactive';
+            }
         }
-      } catch (e) {}
+    }
 
-      const consignes = consignesInput2 ? consignesInput2.value.trim() : '';
-      const dateLimite = dateInput2 ? dateInput2.value : '';
-      const bareme = parseFloat(baremeInput2 ? baremeInput2.value : 20) || 20;
-      const googleDocUrl = gdocInput2 ? gdocInput2.value.trim() : '';
-      const fichierInput3 = fichierInput2;
+    // ---------- Envoyer un message à Gemini ----------
+    async function sendToGemini(message) {
+        if (!iaActive) {
+            throw new Error('L\'API Gemini n\'est pas disponible.');
+        }
+        
+        try {
+            const response = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: message }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.7,
+                            maxOutputTokens: 500,
+                        },
+                        systemInstruction: {
+                            parts: [{
+                                text: `Tu es l'assistant virtuel du site du Lycée Franco Arabe de Keur Madiabel (LFAKM), au Sénégal.
+                                
+                                Ton rôle est UNIQUEMENT d'aider les utilisateurs à utiliser le site web :
+                                - Comment se connecter ou créer un compte
+                                - Comment rendre un devoir (fichier, QCM, saisie directe)
+                                - Comment consulter ses notes et son profil
+                                - Comment contacter le Proviseur
+                                - Comment utiliser l'espace ressources (cours, TD)
+                                - Comment donner son avis via le formulaire de feedback
+                                
+                                Règles importantes :
+                                - Réponds TOUJOURS en français, de façon simple, claire et chaleureuse
+                                - Sois adapté à un public débutant en informatique (élèves, parents, professeurs)
+                                - Si une question sort du cadre du site (questions académiques, personnelles, médicales, juridiques), explique gentiment que tu es là uniquement pour aider à utiliser le site, et oriente vers le professeur concerné ou le Proviseur
+                                - Ne donne jamais de conseil médical, juridique ou financier
+                                - Sois positif et encourageant
+                                - Utilise des émojis pour rendre les réponses plus agréables`
+                            }]
+                        }
+                    })
+                }
+            );
 
-      const devoirData = {
-        type, titre, consignes, dateLimite, bareme,
-        googleDocUrl: googleDocUrl || null,
-        profNom: `${profile.prenom} ${profile.nom}`,
-        date: serverTimestamp()
-      };
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Erreur API Gemini:', errorData);
+                throw new Error(errorData.error?.message || 'Erreur API Gemini');
+            }
 
-      if (type === 'qcm') {
-        const questions = [];
-        document.querySelectorAll('#qcm-questions .qcm-question-block').forEach(block => {
-          const texte = block.querySelector('.qcm-q-text')?.value.trim() || '';
-          const options = Array.from(block.querySelectorAll('.qcm-option')).map(o => o.value.trim());
-          const correctIndex = parseInt(block.querySelector('input[type=radio]:checked')?.value || 0, 10);
-          if (texte && options.every(o => o)) questions.push({ texte, options, correctIndex });
+            const data = await response.json();
+            return data.candidates[0]?.content?.parts[0]?.text || 'Je n\'ai pas pu générer une réponse.';
+        } catch (error) {
+            console.error('Erreur Gemini:', error);
+            throw error;
+        }
+    }
+
+    // ---------- Fonction d'envoi dans le chat ----------
+    async function sendAiMessage() {
+        const aiInput = document.getElementById('ai-chat-input');
+        const aiMessages = document.getElementById('ai-chat-messages');
+        
+        if (!aiInput) return;
+        const texte = aiInput.value.trim();
+        if (!texte) return;
+        
+        // Vérifier si l'IA est active
+        if (!iaActive) {
+            addAiMessage(aiMessages, "⚠️ L'assistant IA est temporairement indisponible. Veuillez réessayer plus tard.", 'error');
+            return;
+        }
+        
+        aiInput.value = '';
+        addAiMessage(aiMessages, texte, 'user');
+        const loadingDiv = addAiMessage(aiMessages, '🤔 Réflexion en cours...', 'loading');
+
+        try {
+            const response = await sendToGemini(texte);
+            if (loadingDiv) loadingDiv.remove();
+            addAiMessage(aiMessages, response, 'bot');
+        } catch (err) {
+            console.error('Erreur IA:', err);
+            if (loadingDiv) loadingDiv.remove();
+            
+            let errorMsg = "Désolé, une erreur est survenue. Réessayez dans un instant.";
+            if (err.message.includes('quota') || err.message.includes('exceeded')) {
+                errorMsg = "⚠️ Le quota d'utilisation de l'IA a été atteint pour aujourd'hui. Réessayez demain.";
+            } else if (err.message.includes('network') || err.message.includes('fetch')) {
+                errorMsg = "⚠️ Problème de connexion réseau. Vérifiez votre connexion internet.";
+            } else if (err.message.includes('permission') || err.message.includes('key') || err.message.includes('auth')) {
+                errorMsg = "⚠️ Problème de clé API. Vérifiez la configuration dans Google Cloud Console.";
+            } else if (err.message.includes('model') || err.message.includes('not found')) {
+                errorMsg = "⚠️ Le modèle n'est pas disponible. Vérifiez que l'API Gemini est activée.";
+            }
+            addAiMessage(aiMessages, errorMsg, 'error');
+        }
+    }
+
+    // ---------- Ajouter un message dans le chat ----------
+    function addAiMessage(container, text, sender) {
+        if (!container) return null;
+        const div = document.createElement('div');
+        div.className = `ai-msg ai-msg-${sender}`;
+        div.textContent = text;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+        return div;
+    }
+
+    // ---------- Lancer le test de l'API ----------
+    setTimeout(testGeminiAPI, 1500);
+
+    // ================================================
+    // ============ GESTION DU CHAT IA ============
+    // ================================================
+
+    const aiToggle = document.getElementById('ai-chat-toggle');
+    const aiPanel = document.getElementById('ai-chat-panel');
+    const aiClose = document.getElementById('ai-chat-close');
+    
+    if (aiToggle && aiPanel) {
+        aiToggle.onclick = () => {
+            aiPanel.classList.toggle('show');
+            if (aiPanel.classList.contains('show') && !iaInitialized) {
+                testGeminiAPI();
+            }
+        };
+    }
+    if (aiClose && aiPanel) {
+        aiClose.onclick = () => aiPanel.classList.remove('show');
+    }
+
+    const aiSend = document.getElementById('ai-chat-send');
+    const aiInput2 = document.getElementById('ai-chat-input');
+
+    if (aiSend) {
+        aiSend.onclick = sendAiMessage;
+    }
+    if (aiInput2) {
+        aiInput2.addEventListener('keydown', (e) => { 
+            if (e.key === 'Enter') sendAiMessage(); 
         });
-        if (questions.length === 0) { alert('Ajoutez au moins une question complète (texte + 4 options).'); return; }
-        devoirData.questions = questions;
-      }
+    }
 
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Publication...";
-      }
+    // ================================================
+    // ============ LE RESTE DE VOTRE CODE ============
+    // ================================================
+    
+    // ---------- FONCTIONS ----------
+    let profile = null;
 
-      if (fichierInput3 && fichierInput3.files && fichierInput3.files[0]) {
-        if (fichierInput3.files[0].size > 15 * 1024 * 1024) {
-          alert("Fichier trop volumineux (max 15 Mo).");
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Publier le devoir";
-          }
-          return;
+    function isAdmin(role) { 
+        return role === 'admin' || role === 'proviseur' || role === 'censeur'; 
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str ?? '';
+        return div.innerHTML;
+    }
+
+    const MATS_COL = ["Mathématiques", "Français", "Anglais", "Arabe", "SVT", "Physique-Chimie", "Histoire-Géo", "EPS", "Éducation Religieuse"];
+    const structure = [
+        { area: "college-area", id: "6a", name: "Sixième A", mats: MATS_COL.filter(m => m !== "Physique-Chimie") },
+        { area: "college-area", id: "6b", name: "Sixième B", mats: MATS_COL.filter(m => m !== "Physique-Chimie") },
+        { area: "college-area", id: "6c", name: "Sixième C", mats: MATS_COL.filter(m => m !== "Physique-Chimie") },
+        { area: "college-area", id: "5a", name: "Cinquième A", mats: MATS_COL.filter(m => m !== "Physique-Chimie") },
+        { area: "college-area", id: "5b", name: "Cinquième B", mats: MATS_COL.filter(m => m !== "Physique-Chimie") },
+        { area: "college-area", id: "4a", name: "Quatrième A", mats: MATS_COL },
+        { area: "college-area", id: "4b", name: "Quatrième B", mats: MATS_COL },
+        { area: "college-area", id: "3a", name: "Troisième A", mats: MATS_COL },
+        { area: "college-area", id: "3b", name: "Troisième B", mats: MATS_COL },
+        { area: "lycee-area", id: "2s2a", name: "Seconde S2A", mats: ["Mathématiques", "Physique-Chimie", "SVT", "Français", "Arabe", "Anglais", "Histoire-Géo", "EPS"] },
+        { area: "lycee-area", id: "1s2a", name: "Première S2A", mats: ["Mathématiques", "Physique-Chimie", "SVT", "Français", "Arabe", "Anglais", "Histoire-Géo", "EPS"] },
+        { area: "lycee-area", id: "ts2a", name: "Terminale S2A", mats: ["Mathématiques", "Physique-Chimie", "SVT", "Philosophie", "Français", "Arabe", "Anglais", "Histoire-Géo", "EPS"] },
+        { area: "lycee-area", id: "2la", name: "Seconde LA", mats: ["Mathématiques", "Français", "Arabe", "Anglais", "Histoire-Géo", "EPS"] },
+        { area: "lycee-area", id: "1la", name: "Première LA", mats: ["Mathématiques", "Français", "Arabe", "Anglais", "Histoire-Géo", "EPS"] },
+        { area: "lycee-area", id: "tla1", name: "Terminale LA 1", mats: ["Mathématiques", "Philosophie", "Français", "Arabe", "Anglais", "Histoire-Géo", "EPS"] },
+        { area: "lycee-area", id: "tla2", name: "Terminale LA 2", mats: ["Mathématiques", "Philosophie", "Français", "Arabe", "Anglais", "Histoire-Géo", "EPS"] }
+    ];
+
+    function buildUI() {
+        let html = '';
+        const cycles = [
+            { key: 'college-area', label: 'Collège' },
+            { key: 'lycee-area', label: 'Lycée' }
+        ];
+        cycles.forEach(cycle => {
+            const levels = structure.filter(c => c.area === cycle.key);
+            if (levels.length === 0) return;
+            html += `<h2 class="cycle-title" data-area="${cycle.key}"><span>${cycle.label}</span><img src="logo-section.png" alt=""></h2>`;
+            levels.forEach(l => {
+                html += `<details class="level" data-level="${l.id}" data-area="${cycle.key}"><summary>${l.name} <span>+</span></summary><div class="level-content">`;
+                l.mats.forEach(m => {
+                    const slugMat = m.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    html += `<details class="subject" data-mat="${m}"><summary>${m} <span>▼</span></summary><div class="subject-grid"><div class="doc-col"><h5>Cours</h5><ul class="doc-list" id="cours-${l.id}-${slugMat}"></ul><button class="add-btn" onclick="window.up('cours-${l.id}-${slugMat}')">+ Ajouter (petit fichier)</button><button class="add-btn" onclick="window.addVideo('cours-${l.id}-${slugMat}')">🎥 Lien vidéo YouTube</button><button class="add-btn" onclick="window.addDrive('cours-${l.id}-${slugMat}')">🔗 Lien Drive/OneDrive</button></div><div class="doc-col"><h5>TD</h5><ul class="doc-list" id="td-${l.id}-${slugMat}"></ul><button class="add-btn" onclick="window.up('td-${l.id}-${slugMat}')">+ Ajouter (petit fichier)</button><button class="add-btn" onclick="window.addVideo('td-${l.id}-${slugMat}')">🎥 Lien vidéo YouTube</button><button class="add-btn" onclick="window.addDrive('td-${l.id}-${slugMat}')">🔗 Lien Drive/OneDrive</button></div></div><div class="devoirs-section"><h5>Devoirs</h5><div class="devoirs-list" id="devoirs-${l.id}-${slugMat}"></div><button class="add-btn" id="devoiradd-${l.id}-${slugMat}" onclick="window.newDevoir('${l.id}-${slugMat}')">+ Proposer un devoir</button></div></details>`;
+                });
+                html += `</div></details>`;
+            });
+        });
+        document.getElementById('content-area').innerHTML = html;
+    }
+
+    getDoc(doc(db, 'config', 'contact')).then(snap => {
+        if (!snap.exists()) return;
+        const c = snap.data();
+        const contactPhone = document.getElementById('contact-phone-display');
+        if (contactPhone && c.telephone) contactPhone.textContent = c.telephone;
+    });
+
+    window.openProfil = () => {
+        if (profile && profile.role === 'eleve' && auth.currentUser) {
+            window.location.href = `profil-eleve.html?uid=${auth.currentUser.uid}`;
+        }
+    };
+
+    // ---------- AUTH ----------
+    onAuthStateChanged(auth, async (user) => {
+        const contentArea = document.getElementById('content-area');
+        if (user) {
+            try {
+                const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+                if (!snap.exists()) {
+                    contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⚠️ Votre compte n'est pas complet.</p>`;
+                    return;
+                }
+                profile = snap.data();
+
+                if ((profile.role === 'professeur' || profile.role === 'intendant') && profile.statut === 'en_attente') {
+                    contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⏳ Votre compte est en attente de validation.</p>`;
+                    const userProfile = document.getElementById('user-profile');
+                    if (userProfile) {
+                        userProfile.style.display = "block";
+                        userProfile.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
+                    }
+                    const authLink = document.getElementById('auth-link');
+                    if (authLink) {
+                        authLink.textContent = "Déconnexion";
+                        authLink.onclick = () => signOut(auth).then(() => window.location.reload());
+                    }
+                    return;
+                }
+
+                const searchBar = document.getElementById('search-bar');
+                if (searchBar) searchBar.style.display = "";
+                
+                const userProfile2 = document.getElementById('user-profile');
+                if (userProfile2) {
+                    userProfile2.style.display = "block";
+                    userProfile2.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
+                }
+                
+                if (isAdmin(profile.role)) {
+                    document.querySelectorAll('.admin-item').forEach(el => {
+                        if (el) el.style.display = "block";
+                    });
+                }
+                
+                const authLink2 = document.getElementById('auth-link');
+                if (authLink2) {
+                    authLink2.textContent = "Déconnexion";
+                    authLink2.onclick = () => signOut(auth).then(() => window.location.reload());
+                }
+
+                // Afficher le lien feedback
+                const feedbackItems = document.querySelectorAll('.feedback-item');
+                if (feedbackItems.length > 0) {
+                    feedbackItems.forEach(el => {
+                        if (el) {
+                            el.style.display = 'block';
+                            const link = el.querySelector('a');
+                            if (link) {
+                                if (isAdmin(profile.role)) {
+                                    link.href = 'feedback.html#tab-dashboard';
+                                    link.textContent = '📊 Voir les retours';
+                                } else if (profile.role === 'professeur') {
+                                    link.href = 'feedback.html#tab-professeurs';
+                                    link.textContent = '📋 Donner mon avis (prof)';
+                                } else if (profile.role === 'eleve') {
+                                    link.href = 'feedback.html#tab-eleves';
+                                    link.textContent = '📋 Donner mon avis (élève)';
+                                }
+                            }
+                        }
+                    });
+                }
+
+                if (profile.role === 'professeur' || isAdmin(profile.role)) {
+                    const elevesSection = document.getElementById('eleves-section');
+                    if (elevesSection) elevesSection.style.display = 'block';
+                    chargerMesEleves();
+                }
+
+                if (profile.role === 'eleve') renderFicheFamille();
+                loadActusStrip();
+                loadDevoirsStrip();
+
+                buildUI();
+                applyLevelVisibility();
+                syncDocs();
+                syncDevoirs();
+            } catch (err) {
+                console.warn('Erreur de chargement du profil:', err.message);
+                if (contentArea) {
+                    contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⚠️ Erreur de chargement du profil. Veuillez rafraîchir la page.</p>`;
+                }
+            }
+        } else {
+            profile = null;
+            const searchBar2 = document.getElementById('search-bar');
+            if (searchBar2) searchBar2.style.display = "none";
+            
+            const contentArea2 = document.getElementById('content-area');
+            if (contentArea2) {
+                contentArea2.innerHTML =
+                    `<p style="text-align:center; padding:60px 20px; color:var(--slate);">
+                        🔒 Cet espace est réservé aux élèves, professeurs et personnel.<br><br>
+                        <a href="identification.html" style="color:var(--brass); font-weight:700;">Se connecter</a>
+                        ou
+                        <a href="inscription.html" style="color:var(--brass); font-weight:700;">créer un compte</a>
+                    </p>`;
+            }
+            
+            document.querySelectorAll('.feedback-item').forEach(el => {
+                if (el) el.style.display = 'none';
+            });
+        }
+    });
+
+    // ---------- CHARGER ÉLÈVES ----------
+    async function chargerMesEleves() {
+        const accordeon = document.getElementById('eleves-accordeon');
+        if (!accordeon) return;
+        accordeon.innerHTML = '<p style="color:gray;">Chargement des élèves...</p>';
+        try {
+            let classesConcernees = [];
+            if (profile.role === 'professeur') {
+                classesConcernees = profile.assignedClasses || [];
+            } else {
+                classesConcernees = structure.map(l => l.id);
+            }
+            const elevesSnap = await getDocs(query(collection(db, 'utilisateurs'), where('role', '==', 'eleve')));
+            const eleves = [];
+            elevesSnap.forEach(doc => {
+                const e = doc.data();
+                if (classesConcernees.includes(e.niveau)) {
+                    eleves.push({ uid: doc.id, ...e });
+                }
+            });
+            eleves.sort((a, b) => `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`));
+            const elevesParClasse = {};
+            eleves.forEach(e => {
+                if (!elevesParClasse[e.niveau]) elevesParClasse[e.niveau] = [];
+                elevesParClasse[e.niveau].push(e);
+            });
+            accordeon.innerHTML = '';
+            const classesTriees = Object.keys(elevesParClasse).sort();
+            classesTriees.forEach(niveau => {
+                const classeInfo = structure.find(l => l.id === niveau);
+                const nomClasse = classeInfo ? classeInfo.name : niveau;
+                const classeDiv = document.createElement('details');
+                classeDiv.className = 'classe-eleve';
+                classeDiv.innerHTML = `
+                    <summary>${nomClasse} (${elevesParClasse[niveau].length} élèves)</summary>
+                    <div class="classe-eleve-content">
+                        <div style="text-align:right; margin-bottom:10px;">
+                            <button class="btn-export" onclick="window.exporterListeClasse('${niveau}')">📥 Télécharger la liste (Excel)</button>
+                        </div>
+                        ${elevesParClasse[niveau].map(e => `
+                            <div class="eleve-ligne">
+                                <span class="eleve-nom">${escapeHtml(e.prenom)} ${escapeHtml(e.nom)}</span>
+                                <div class="eleve-actions">
+                                    <button class="btn-profile" onclick="window.location.href='profil-eleve.html?uid=${e.uid}'">📊 Profil</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                accordeon.appendChild(classeDiv);
+            });
+            if (classesTriees.length === 0) {
+                accordeon.innerHTML = '<p style="color:gray;">Aucun élève trouvé dans vos classes affectées.</p>';
+            }
+        } catch (err) {
+            accordeon.innerHTML = `<p style="color:red;">Erreur : ${err.message}</p>`;
+        }
+    }
+
+    window.exporterListeClasse = async (niveau) => {
+        try {
+            const elevesSnap = await getDocs(query(collection(db, 'utilisateurs'), where('role', '==', 'eleve'), where('niveau', '==', niveau)));
+            const eleves = [];
+            elevesSnap.forEach(doc => {
+                const e = doc.data();
+                eleves.push({ uid: doc.id, ...e });
+            });
+            eleves.sort((a, b) => `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`));
+            const headers = ["Prénom", "Nom", "Classe", "Téléphone", "Email", "Père/Tuteur", "Tél. Père", "Mère/Tutrice", "Tél. Mère", "Adresse"];
+            const rows = eleves.map(e => [
+                e.prenom || '', e.nom || '', e.niveau || '', e.telephone || '', e.email || '',
+                e.famille?.pereNom || '', e.famille?.pereTel || '',
+                e.famille?.mereNom || '', e.famille?.mereTel || '', e.famille?.adresse || ''
+            ]);
+            const classeInfo = structure.find(l => l.id === niveau);
+            const nomClasse = classeInfo ? classeInfo.name : niveau;
+            const filename = `LFAKM-${nomClasse.replace(/[^a-z0-9]/gi, '_')}-${new Date().toISOString().slice(0, 10)}`;
+            const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+            ws['!cols'] = headers.map(() => ({ wch: 18 }));
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Liste");
+            XLSX.writeFile(wb, filename + '.xlsx');
+        } catch (err) {
+            alert('Erreur lors de l\'export: ' + err.message);
+        }
+    };
+
+    // ---------- STRIPS ----------
+    function loadDevoirsStrip() {
+        const zone = document.getElementById('devoirs-strip');
+        const role = profile?.role;
+        if (!zone || (role !== 'eleve' && role !== 'professeur')) { 
+            if (zone) zone.innerHTML = ''; 
+            return; 
         }
         try {
-          const fd = new FormData();
-          fd.append('file', fichierInput3.files[0]);
-          fd.append('upload_preset', "lfakm_ressources");
-          const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
-          const data = await res.json();
-          devoirData.fichierUrl = data.secure_url;
-          devoirData.fichierNom = fichierInput3.files[0].name;
-        } catch (e) {
-          alert('Erreur upload: ' + e.message);
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Publier le devoir";
-          }
-          return;
+            onSnapshot(query(collectionGroup(db, 'devoirs'), orderBy('date', 'desc')), (snap) => {
+                const cards = [];
+                snap.forEach(d => {
+                    if (cards.length >= 8) return;
+                    const parentSlug = d.ref.parent.parent.id;
+                    const dashIndex = parentSlug.indexOf('-');
+                    const levelId = dashIndex === -1 ? parentSlug : parentSlug.substring(0, dashIndex);
+                    let pertinent = false;
+                    if (role === 'eleve') {
+                        pertinent = profile.niveau === levelId;
+                    } else if (role === 'professeur') {
+                        pertinent = (profile.assignedClasses || []).includes(levelId);
+                    }
+                    if (!pertinent) return;
+                    const dv = d.data();
+                    const level = structure.find(l => l.id === levelId);
+                    const dateStr = dv.date?.toDate ? dv.date.toDate().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
+                    cards.push(`
+                        <div class="dv-notif-card">
+                            <h4>📌 ${escapeHtml(dv.titre)}</h4>
+                            <span>${level ? level.name : ''}</span>
+                            <span>Déposé le ${dateStr}</span>
+                        </div>`);
+                });
+                zone.innerHTML = cards.length === 0 ? '' : `<h3>🔔 Derniers devoirs</h3><div class="actus-scroll">${cards.join('')}</div>`;
+            });
+        } catch (err) {
+            console.warn('Erreur chargement devoirs:', err.message);
         }
-      }
+    }
 
-      try {
-        await addDoc(collection(db, 'ressources', currentDevoirSlug, 'devoirs'), devoirData);
-        try { logActivite('création', `Devoir "${devoirData.titre}" (${currentDevoirSlug})`); } catch(e) {}
-        alert('✅ Devoir publié avec succès !');
-        if (modal2) modal2.classList.remove('show');
-      } catch (e) {
-        alert('❌ Erreur: ' + e.message);
-      }
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Publier le devoir";
-      }
+    function loadActusStrip() {
+        const zone = document.getElementById('actus-strip');
+        if (!zone) return;
+        try {
+            onSnapshot(query(collection(db, 'actualites'), orderBy('date', 'desc')), (snap) => {
+                const cards = [];
+                snap.forEach(d => {
+                    if (cards.length >= 10) return;
+                    const n = d.data();
+                    const dest = n.destinataire || 'tous';
+                    if (dest !== 'tous' && dest !== profile?.role && !isAdmin(profile?.role)) return;
+                    const date = n.date?.toDate ? n.date.toDate().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
+                    cards.push(`
+                        <a class="actus-card" href="actualites.html">
+                            ${n.image ? `<img src="${n.image}" alt="">` : ''}
+                            <div class="actus-card-body">
+                                <h4>${escapeHtml(n.titre)}</h4>
+                                <span>${date}</span>
+                            </div>
+                        </a>`);
+                });
+                zone.innerHTML = cards.length === 0 ? '' : `<h3>📰 Actualités du lycée</h3><div class="actus-scroll">${cards.join('')}</div>`;
+            });
+        } catch (err) {
+            console.warn('Erreur chargement actualités:', err.message);
+        }
+    }
+
+    // ---------- FICHE FAMILLE ----------
+    function renderFicheFamille() {
+        const f = profile.famille || {};
+        const zone = document.getElementById('fiche-famille-zone');
+        if (!zone) return;
+        zone.innerHTML = `
+            <details class="level" style="max-width:1100px; margin:20px auto 0;">
+                <summary>👪 Ma fiche famille ${f.pereTel || f.mereTel ? '✅' : '⚠️ à compléter'} <span>+</span></summary>
+                <div class="level-content" style="padding:20px;">
+                    <div class="subject-grid" style="grid-template-columns:1fr 1fr;">
+                        <div><label style="font-size:12px;font-weight:700;">Nom du père / tuteur</label><input id="ff-pere-nom" value="${f.pereNom || ''}" style="width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:6px;"></div>
+                        <div><label style="font-size:12px;font-weight:700;">Téléphone du père / tuteur</label><input id="ff-pere-tel" type="tel" value="${f.pereTel || ''}" style="width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:6px;"></div>
+                        <div><label style="font-size:12px;font-weight:700;">Nom de la mère / tutrice</label><input id="ff-mere-nom" value="${f.mereNom || ''}" style="width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:6px;"></div>
+                        <div><label style="font-size:12px;font-weight:700;">Téléphone de la mère / tutrice</label><input id="ff-mere-tel" type="tel" value="${f.mereTel || ''}" style="width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:6px;"></div>
+                    </div>
+                    <label style="font-size:12px;font-weight:700;">Adresse du domicile</label>
+                    <input id="ff-adresse" value="${f.adresse || ''}" style="width:100%;padding:10px;margin:5px 0 15px;border:1px solid var(--line);border-radius:6px;">
+                    <button class="add-btn" style="display:block;" onclick="window.saveFicheFamille()">💾 Enregistrer</button>
+                    <p id="ff-status" style="font-size:12px;color:#2e7d32;margin-top:8px;"></p>
+                </div>
+            </details>`;
+    }
+
+    window.saveFicheFamille = async () => {
+        try {
+            const famille = {
+                pereNom: document.getElementById('ff-pere-nom').value.trim(),
+                pereTel: document.getElementById('ff-pere-tel').value.trim(),
+                mereNom: document.getElementById('ff-mere-nom').value.trim(),
+                mereTel: document.getElementById('ff-mere-tel').value.trim(),
+                adresse: document.getElementById('ff-adresse').value.trim()
+            };
+            await setDoc(doc(db, 'utilisateurs', auth.currentUser.uid), { famille }, { merge: true });
+            profile.famille = famille;
+            document.getElementById('ff-status').textContent = "✅ Enregistré.";
+        } catch (err) {
+            document.getElementById('ff-status').textContent = "❌ Erreur: " + err.message;
+        }
     };
-  }
 
-  // ============ RENDRE DEVOIR ============
-  window.rendreDevoir = async (slug, devoirId) => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*,.pdf,.doc,.docx';
-    input.onchange = async () => {
-      if (input.files[0].size > 15 * 1024 * 1024) { alert("Fichier trop volumineux (max 15 Mo)."); return; }
-      try {
-        const fd = new FormData();
-        fd.append('file', input.files[0]);
-        fd.append('upload_preset', "lfakm_ressources");
-        const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
-        const data = await res.json();
-        const uid = auth.currentUser.uid;
-        await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
-          eleveNom: `${profile.prenom} ${profile.nom}`,
-          url: data.secure_url,
-          date: serverTimestamp()
+    // ---------- VISIBILITÉ ----------
+    function applyLevelVisibility() {
+        const role = profile?.role;
+        const profMats = profile?.disciplines || [];
+        const cycleVisible = {};
+        document.querySelectorAll('details.level').forEach(levelEl => {
+            if (!levelEl) return;
+            const lvlId = levelEl.dataset.level;
+            const area = levelEl.dataset.area;
+            let visible = true;
+            if (role === 'professeur') {
+                visible = (profile.assignedClasses || []).includes(lvlId);
+            } else if (role === 'eleve') {
+                visible = profile.niveau === lvlId;
+            }
+            levelEl.style.display = visible ? '' : 'none';
+            if (visible) cycleVisible[area] = true;
+            if (visible) {
+                levelEl.querySelectorAll('details.subject').forEach(subjectEl => {
+                    if (!subjectEl) return;
+                    let matVisible = true;
+                    if (role === 'professeur') {
+                        matVisible = profMats.includes(subjectEl.dataset.mat);
+                    }
+                    subjectEl.dataset.roleAllowed = matVisible ? '1' : '0';
+                    subjectEl.style.display = matVisible ? '' : 'none';
+                });
+            }
         });
-        alert('✅ Devoir envoyé !');
-      } catch (e) {
-        alert('❌ Erreur: ' + e.message);
-      }
+        document.querySelectorAll('.cycle-title').forEach(header => {
+            if (!header) return;
+            header.style.display = cycleVisible[header.dataset.area] ? '' : 'none';
+        });
+    }
+
+    // ---------- SYNC DOCS ----------
+    function syncDocs() {
+        const role = profile?.role;
+        const profMats = profile?.disciplines || [];
+
+        document.querySelectorAll('.doc-list').forEach(ul => {
+            if (!ul) return;
+            const slug = ul.id.replace(/^cours-|^td-/, '');
+            const type = ul.id.startsWith('cours-') ? 'cours' : 'td';
+            
+            const addBtn = ul.nextElementSibling;
+            const videoBtn = addBtn ? addBtn.nextElementSibling : null;
+            const driveBtn = videoBtn ? videoBtn.nextElementSibling : null;
+            
+            const subjectEl = ul.closest('.subject');
+            const matName = subjectEl ? subjectEl.querySelector('summary')?.textContent?.toLowerCase() || '' : '';
+
+            if (role === 'professeur' || isAdmin(role)) {
+                const showButtons = (role === 'professeur' && profMats.some(d => matName.includes(d.toLowerCase()))) || isAdmin(role);
+                if (addBtn && showButtons) addBtn.style.display = "block";
+                if (videoBtn && showButtons) videoBtn.style.display = "block";
+                if (driveBtn && showButtons) driveBtn.style.display = "block";
+            }
+
+            try {
+                onSnapshot(query(collection(db, 'ressources', slug, type), orderBy('date', 'desc')), (snap) => {
+                    if (!ul) return;
+                    ul.innerHTML = snap.empty ? '<li style="color:gray;border:none;background:none;">Aucun fichier</li>' : '';
+                    snap.forEach(docSnap => {
+                        const d = docSnap.data();
+                        const icon = d.type === 'video' ? '🎥' : d.type === 'drive' ? '🔗' : '📄';
+                        const li = document.createElement('li');
+                        li.innerHTML = `<a href="${d.url}" target="_blank">${icon} ${escapeHtml(d.titre)}</a>`;
+                        if (role === 'professeur' || isAdmin(role)) {
+                            const del = document.createElement('button');
+                            del.innerHTML = '✕'; del.className = 'delete-btn';
+                            del.onclick = () => {
+                                if (!confirm('Supprimer ?')) return;
+                                deleteDoc(doc(db, 'ressources', slug, type, docSnap.id));
+                            };
+                            li.appendChild(del);
+                        }
+                        ul.appendChild(li);
+                    });
+                });
+            } catch (err) {
+                console.warn('Erreur sync docs:', err.message);
+            }
+        });
+    }
+
+    // ---------- SYNC DEVOIRS ----------
+    function syncDevoirs() {
+        const role = profile?.role;
+        const profMats = profile?.disciplines || [];
+
+        document.querySelectorAll('.devoirs-list').forEach(container => {
+            if (!container) return;
+            const slug = container.id.replace(/^devoirs-/, '');
+            const subjectEl = container.closest('.subject');
+            const matName = subjectEl ? subjectEl.dataset.mat : '';
+            const addBtn = document.getElementById(`devoiradd-${slug}`);
+
+            if (addBtn) {
+                const showButton = (role === 'professeur' && profMats.includes(matName)) || isAdmin(role);
+                addBtn.style.display = showButton ? "block" : "none";
+            }
+
+            try {
+                onSnapshot(query(collection(db, 'ressources', slug, 'devoirs'), orderBy('date', 'desc')), (snap) => {
+                    if (!container) return;
+                    container.innerHTML = snap.empty ? '<p style="color:gray;font-size:12px;">Aucun devoir pour le moment</p>' : '';
+                    snap.forEach(devDoc => {
+                        const dv = devDoc.data();
+                        const dvType = dv.type === 'qcm' ? 'qcm' : 'fichier';
+                        const item = document.createElement('div');
+                        item.className = 'devoir-item';
+                        item.innerHTML = `<h6>📌 ${escapeHtml(dv.titre)}${dvType === 'qcm' ? ' <span style="font-size:10px; color:var(--brass); font-weight:700;">QCM</span>' : ''}</h6>
+                            <div class="devoir-meta">📅 À rendre pour le ${dv.dateLimite || 'non précisé'} — proposé par ${dv.profNom || 'le professeur'}</div>
+                            ${dv.consignes ? `<p style="font-size:13px; margin-bottom:8px;">${dv.consignes}</p>` : ''}
+                            ${dv.googleDocUrl ? `<p style="margin-bottom:8px;"><a href="${dv.googleDocUrl}" target="_blank">📄 Ouvrir le document Google Doc</a></p>` : ''}
+                            ${dv.fichierUrl ? `<p style="margin-bottom:8px;"><a href="${dv.fichierUrl}" target="_blank">📎 ${dv.fichierNom || 'Fichier joint'}</a></p>` : ''}`;
+
+                        if (role === 'eleve') {
+                            const responseArea = document.createElement('div');
+                            item.appendChild(responseArea);
+                            if (dvType === 'qcm') {
+                                renderQcmForStudent(slug, devDoc.id, dv, responseArea);
+                            } else {
+                                checkRendu(slug, devDoc.id, responseArea);
+                            }
+                        } else if (role === 'professeur' || isAdmin(role)) {
+                            const rendusBox = document.createElement('div');
+                            rendusBox.style.display = 'none';
+                            rendusBox.style.marginTop = '8px';
+
+                            const voirBtn = document.createElement('button');
+                            voirBtn.className = 'devoir-btn btn-voir-rendus';
+                            voirBtn.textContent = 'Voir les rendus';
+                            voirBtn.onclick = () => {
+                                const showing = rendusBox.style.display === 'block';
+                                rendusBox.style.display = showing ? 'none' : 'block';
+                                if (!showing) loadRendus(slug, devDoc.id, rendusBox, dv);
+                            };
+                            item.appendChild(voirBtn);
+
+                            const exportBtn = document.createElement('button');
+                            exportBtn.className = 'devoir-btn btn-voir-rendus';
+                            exportBtn.style.background = '#2e7d32';
+                            exportBtn.textContent = '📥 Exporter les notes';
+                            exportBtn.onclick = () => exportNotes(slug, devDoc.id, dv);
+                            item.appendChild(exportBtn);
+
+                            const delBtn = document.createElement('button');
+                            delBtn.className = 'devoir-btn btn-suppr-devoir';
+                            delBtn.textContent = '✕ Supprimer';
+                            delBtn.onclick = () => {
+                                if (!confirm('Supprimer ce devoir ?')) return;
+                                deleteDoc(doc(db, 'ressources', slug, 'devoirs', devDoc.id));
+                            };
+                            item.appendChild(delBtn);
+
+                            item.appendChild(rendusBox);
+                        }
+                        container.appendChild(item);
+                    });
+                });
+            } catch (err) {
+                console.warn('Erreur sync devoirs:', err.message);
+            }
+        });
+    }
+
+    // ---------- RENDU FICHIER ----------
+    function checkRendu(slug, devoirId, statusDiv) {
+        const uid = auth.currentUser?.uid;
+        if (!uid || !statusDiv) return;
+        try {
+            onSnapshot(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), (snap) => {
+                if (!statusDiv) return;
+                if (snap.exists()) {
+                    const d = snap.data();
+                    statusDiv.innerHTML = `<span class="rendu-status">✅ Devoir rendu</span> — <a href="${d.url}" target="_blank">voir mon fichier</a><br><button class="add-btn" style="display:block;margin-top:6px;" onclick="window.rendreDevoir('${slug}','${devoirId}')">Renvoyer un autre fichier</button>`;
+                } else {
+                    statusDiv.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir</button>`;
+                }
+            });
+        } catch (err) {
+            if (statusDiv) statusDiv.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir</button>`;
+        }
+    }
+
+    // ---------- RENDU QCM ----------
+    function renderQcmForStudent(slug, devoirId, dv, container) {
+        const uid = auth.currentUser?.uid;
+        if (!uid || !container) return;
+        try {
+            onSnapshot(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), (snap) => {
+                if (!container) return;
+                if (snap.exists()) {
+                    const d = snap.data();
+                    container.innerHTML = `<span class="rendu-status">✅ QCM rendu — Note : ${d.note ?? d.score}/${dv.bareme || dv.questions.length}</span><br><button class="add-btn" style="display:block;margin-top:6px;" id="retry-${devoirId}">Repasser le QCM</button>`;
+                    const retryBtn = document.getElementById(`retry-${devoirId}`);
+                    if (retryBtn) {
+                        retryBtn.onclick = () => buildQcmForm(slug, devoirId, dv, container);
+                    }
+                } else {
+                    buildQcmForm(slug, devoirId, dv, container);
+                }
+            });
+        } catch (err) {
+            if (container) container.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir</button>`;
+        }
+    }
+
+    function buildQcmForm(slug, devoirId, dv, container) {
+        if (!container || !dv.questions || dv.questions.length === 0) {
+            if (container) container.innerHTML = '<p style="color:gray;">Ce QCM n\'a pas encore de questions.</p>';
+            return;
+        }
+        let html = '';
+        dv.questions.forEach((q, qi) => {
+            html += `<div style="margin-bottom:10px;"><p style="font-size:13px;font-weight:700;margin-bottom:6px;">${qi + 1}. ${q.texte}</p>`;
+            q.options.forEach((opt, oi) => {
+                html += `<label style="display:block;font-size:13px;margin-bottom:4px;"><input type="radio" name="qcmrep-${devoirId}-${qi}" value="${oi}"> ${opt}</label>`;
+            });
+            html += `</div>`;
+        });
+        html += `<button class="add-btn" style="display:block;" id="submit-qcm-${devoirId}">Envoyer mes réponses</button>`;
+        container.innerHTML = html;
+        
+        const submitBtn = document.getElementById(`submit-qcm-${devoirId}`);
+        if (submitBtn) {
+            submitBtn.onclick = async () => {
+                const reponses = [];
+                let complete = true;
+                dv.questions.forEach((q, qi) => {
+                    const checked = container.querySelector(`input[name="qcmrep-${devoirId}-${qi}"]:checked`);
+                    if (!checked) complete = false;
+                    reponses.push(checked ? parseInt(checked.value, 10) : -1);
+                });
+                if (!complete) { alert("Répondez à toutes les questions avant d'envoyer."); return; }
+                const score = reponses.filter((r, i) => r === dv.questions[i].correctIndex).length;
+                const bareme = dv.bareme || 20;
+                const note = Math.round((score / dv.questions.length) * bareme * 100) / 100;
+                const uid = auth.currentUser.uid;
+                await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
+                    eleveNom: `${profile.prenom} ${profile.nom}`,
+                    reponses, score, note,
+                    date: serverTimestamp()
+                });
+                alert('✅ QCM envoyé !');
+            };
+        }
+    }
+
+    // ---------- RENDUS ----------
+    function loadRendus(slug, devoirId, container, dv) {
+        const bareme = dv.bareme || 20;
+        if (!container) return;
+        try {
+            onSnapshot(collection(db, 'ressources', slug, 'devoirs', devoirId, 'rendus'), (snap) => {
+                if (!container) return;
+                container.innerHTML = snap.empty ? '<p style="font-size:12px;color:gray;">Aucun rendu pour le moment</p>' : '';
+                snap.forEach(rd => {
+                    const d = rd.data();
+                    const p = document.createElement('div');
+                    p.className = 'rendu-item';
+                    if (dv.type === 'qcm') {
+                        p.innerHTML = `${escapeHtml(d.eleveNom)} — Note : <b>${d.note ?? '-'}/${bareme}</b> (${d.score}/${dv.questions.length} bonnes réponses)`;
+                    } else {
+                        const noteId = `note-${rd.id}`;
+                        p.innerHTML = `<a href="${d.url}" target="_blank">📄 ${escapeHtml(d.eleveNom)}</a> —
+                            <input type="number" id="${noteId}" value="${d.note ?? ''}" min="0" max="${bareme}" step="0.5" placeholder="/${bareme}" style="width:55px;padding:3px;margin-left:6px;border:1px solid #ccc;border-radius:4px;">
+                            <button class="devoir-btn btn-voir-rendus" style="padding:3px 8px;font-size:10px;" data-note-id="${noteId}">Noter</button>
+                            <button class="devoir-btn btn-profile" style="padding:3px 8px;font-size:10px; margin-left:5px;" onclick="window.location.href='profil-eleve.html?uid=${rd.id}'">📊 Voir profil</button>`;
+                    }
+                    container.appendChild(p);
+                });
+                if (dv.type !== 'qcm') {
+                    container.querySelectorAll('button[data-note-id]').forEach(btn => {
+                        btn.onclick = async () => {
+                            const input = document.getElementById(btn.dataset.noteId);
+                            const uid = btn.dataset.noteId.replace('note-', '');
+                            const note = parseFloat(input.value);
+                            if (isNaN(note) || note < 0 || note > bareme) { alert(`Entrez une note entre 0 et ${bareme}.`); return; }
+                            await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), { note }, { merge: true });
+                        };
+                    });
+                }
+            });
+        } catch (err) {
+            if (container) container.innerHTML = '<p style="color:gray;">Erreur de chargement des rendus.</p>';
+        }
+    }
+
+    // ---------- EXPORT NOTES ----------
+    async function exportNotes(slug, devoirId, dv) {
+        const bareme = dv.bareme || 20;
+        const niveauId = slug.split('-')[0];
+        try {
+            const rendusSnap = await getDocs(collection(db, 'ressources', slug, 'devoirs', devoirId, 'rendus'));
+            const rendusParUid = {};
+            rendusSnap.forEach(rd => { rendusParUid[rd.id] = rd.data(); });
+            let eleves = [];
+            try {
+                const elevesSnap = await getDocs(query(collection(db, 'utilisateurs'), where('role', '==', 'eleve'), where('niveau', '==', niveauId)));
+                elevesSnap.forEach(e => eleves.push({ uid: e.id, ...e.data() }));
+            } catch (err) {
+                eleves = Object.entries(rendusParUid).map(([uid, d]) => ({ uid, prenom: '', nom: d.eleveNom || '' }));
+            }
+            if (eleves.length === 0) { alert("Aucun élève trouvé pour cette classe."); return; }
+            eleves.sort((a, b) => `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`));
+            const rows = eleves.map(e => {
+                const rd = rendusParUid[e.uid];
+                const nomComplet = rd?.eleveNom || `${e.prenom || ''} ${e.nom || ''}`.trim();
+                return [nomComplet, rd?.note ?? '', bareme, rd ? 'Rendu' : 'Non rendu'];
+            });
+            const headers = ["Élève", "Note", "Barème", "Statut"];
+            const filename = `Notes-${dv.titre.replace(/[^a-z0-9]/gi, '_')}-${new Date().toISOString().slice(0, 10)}`;
+            const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+            ws['!cols'] = [{ wch: 28 }, { wch: 10 }, { wch: 10 }, { wch: 12 }];
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Notes");
+            XLSX.writeFile(wb, filename + '.xlsx');
+        } catch (err) {
+            alert('Erreur lors de l\'export: ' + err.message);
+        }
+    }
+
+    // ---------- CRÉATION DEVOIR ----------
+    let currentDevoirSlug = null;
+    let qcmQuestionCount = 0;
+
+    function addQcmQuestion() {
+        const idx = qcmQuestionCount++;
+        const block = document.createElement('div');
+        block.className = 'qcm-question-block';
+        block.innerHTML = `<button type="button" class="qcm-remove-q" onclick="this.parentElement.remove()">✕</button>
+            <input type="text" class="qcm-q-text" placeholder="Question ${idx + 1}">
+            ${[0, 1, 2, 3].map(i => `<div class="qcm-option-row"><input type="radio" name="qcm-correct-${idx}" value="${i}" ${i === 0 ? 'checked' : ''}><input type="text" class="qcm-option" placeholder="Option ${i + 1} (cocher si c'est la bonne réponse)"></div>`).join('')}`;
+        const qcmQuestions = document.getElementById('qcm-questions');
+        if (qcmQuestions) qcmQuestions.appendChild(block);
+    }
+
+    window.newDevoir = (slug) => {
+        currentDevoirSlug = slug;
+        
+        const titreInput = document.getElementById('dv-titre');
+        const consignesInput = document.getElementById('dv-consignes');
+        const dateInput = document.getElementById('dv-date');
+        const baremeInput = document.getElementById('dv-bareme');
+        const gdocInput = document.getElementById('dv-gdoc');
+        const fichierInput = document.getElementById('dv-fichier');
+        const typeSelect = document.getElementById('dv-type');
+        const qcmBuilder = document.getElementById('qcm-builder');
+        const qcmQuestions = document.getElementById('qcm-questions');
+        const modal = document.getElementById('devoir-modal');
+        
+        if (titreInput) titreInput.value = '';
+        if (consignesInput) consignesInput.value = '';
+        if (dateInput) dateInput.value = '';
+        if (baremeInput) baremeInput.value = '20';
+        if (gdocInput) gdocInput.value = '';
+        if (fichierInput) fichierInput.value = '';
+        if (typeSelect) typeSelect.value = 'fichier';
+        if (qcmBuilder) qcmBuilder.style.display = 'none';
+        if (qcmQuestions) qcmQuestions.innerHTML = '';
+        qcmQuestionCount = 0;
+        addQcmQuestion();
+        if (modal) modal.classList.add('show');
     };
-    input.click();
-  };
 
-  // ============ LOG ACTIVITÉ ============
-  function logActivite(action, cible) {
-    try {
-      addDoc(collection(db, 'journal_activite'), {
-        action, cible,
-        auteur: `${profile?.prenom || ''} ${profile?.nom || ''}`.trim(),
-        role: profile?.role || '',
-        date: serverTimestamp()
-      }).catch(() => {});
-    } catch (e) {}
-  }
+    const typeSelect = document.getElementById('dv-type');
+    if (typeSelect) {
+        typeSelect.addEventListener('change', (e) => {
+            const qcmBuilder = document.getElementById('qcm-builder');
+            if (qcmBuilder) qcmBuilder.style.display = e.target.value === 'qcm' ? 'block' : 'none';
+        });
+    }
 
-  // ============ AJOUT FICHIERS ============
-  window.up = async (id) => {
-    const titre = prompt('Nom du document :');
-    if (!titre) return;
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.onchange = async () => {
-      if (input.files[0].size > 5 * 1024 * 1024) {
-        alert("Fichier trop volumineux pour un envoi direct (max 5 Mo). Pour un cours ou un TD plus lourd, utilisez plutôt le bouton 🔗 Lien Drive/OneDrive (ou 🎥 Lien vidéo YouTube pour une vidéo).");
-        return;
-      }
-      try {
-        const fd = new FormData();
-        fd.append('file', input.files[0]);
-        fd.append('upload_preset', "lfakm_ressources");
-        const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
-        const data = await res.json();
+    const qcmAddBtn = document.getElementById('qcm-add-question');
+    if (qcmAddBtn) {
+        qcmAddBtn.onclick = addQcmQuestion;
+    }
+
+    const cancelBtn = document.getElementById('dv-cancel');
+    if (cancelBtn) {
+        cancelBtn.onclick = () => {
+            const modal = document.getElementById('devoir-modal');
+            if (modal) modal.classList.remove('show');
+        };
+    }
+
+    const submitBtn = document.getElementById('dv-submit');
+    if (submitBtn) {
+        submitBtn.onclick = async () => {
+            const typeSelect2 = document.getElementById('dv-type');
+            const titreInput2 = document.getElementById('dv-titre');
+            const consignesInput2 = document.getElementById('dv-consignes');
+            const dateInput2 = document.getElementById('dv-date');
+            const baremeInput2 = document.getElementById('dv-bareme');
+            const gdocInput2 = document.getElementById('dv-gdoc');
+            const fichierInput2 = document.getElementById('dv-fichier');
+            const modal2 = document.getElementById('devoir-modal');
+            
+            const type = typeSelect2 ? typeSelect2.value : 'fichier';
+            const titre = titreInput2 ? titreInput2.value.trim() : '';
+            if (!titre) { alert('Le titre est obligatoire.'); return; }
+
+            try {
+                const existingSnap = await getDocs(collection(db, 'ressources', currentDevoirSlug, 'devoirs'));
+                const doublon = existingSnap.docs.find(d => (d.data().titre || '').trim().toLowerCase() === titre.toLowerCase());
+                if (doublon) {
+                    const dateDoublon = doublon.data().date?.toDate ? doublon.data().date.toDate().toLocaleDateString('fr-FR') : '';
+                    const confirmer = confirm(`⚠️ Un devoir intitulé "${titre}" existe déjà dans cette classe et cette matière (publié le ${dateDoublon}).\n\nVoulez-vous quand même le publier une seconde fois ?`);
+                    if (!confirmer) return;
+                }
+            } catch (e) {}
+
+            const consignes = consignesInput2 ? consignesInput2.value.trim() : '';
+            const dateLimite = dateInput2 ? dateInput2.value : '';
+            const bareme = parseFloat(baremeInput2 ? baremeInput2.value : 20) || 20;
+            const googleDocUrl = gdocInput2 ? gdocInput2.value.trim() : '';
+            const fichierInput3 = fichierInput2;
+
+            const devoirData = {
+                type, titre, consignes, dateLimite, bareme,
+                googleDocUrl: googleDocUrl || null,
+                profNom: `${profile.prenom} ${profile.nom}`,
+                date: serverTimestamp()
+            };
+
+            if (type === 'qcm') {
+                const questions = [];
+                document.querySelectorAll('#qcm-questions .qcm-question-block').forEach(block => {
+                    const texte = block.querySelector('.qcm-q-text')?.value.trim() || '';
+                    const options = Array.from(block.querySelectorAll('.qcm-option')).map(o => o.value.trim());
+                    const correctIndex = parseInt(block.querySelector('input[type=radio]:checked')?.value || 0, 10);
+                    if (texte && options.every(o => o)) questions.push({ texte, options, correctIndex });
+                });
+                if (questions.length === 0) { alert('Ajoutez au moins une question complète (texte + 4 options).'); return; }
+                devoirData.questions = questions;
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Publication...";
+            }
+
+            if (fichierInput3 && fichierInput3.files && fichierInput3.files[0]) {
+                if (fichierInput3.files[0].size > 15 * 1024 * 1024) {
+                    alert("Fichier trop volumineux (max 15 Mo).");
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = "Publier le devoir";
+                    }
+                    return;
+                }
+                try {
+                    const fd = new FormData();
+                    fd.append('file', fichierInput3.files[0]);
+                    fd.append('upload_preset', "lfakm_ressources");
+                    const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
+                    const data = await res.json();
+                    devoirData.fichierUrl = data.secure_url;
+                    devoirData.fichierNom = fichierInput3.files[0].name;
+                } catch (e) {
+                    alert('Erreur upload: ' + e.message);
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = "Publier le devoir";
+                    }
+                    return;
+                }
+            }
+
+            try {
+                await addDoc(collection(db, 'ressources', currentDevoirSlug, 'devoirs'), devoirData);
+                try { logActivite('création', `Devoir "${devoirData.titre}" (${currentDevoirSlug})`); } catch(e) {}
+                alert('✅ Devoir publié avec succès !');
+                if (modal2) modal2.classList.remove('show');
+            } catch (e) {
+                alert('❌ Erreur: ' + e.message);
+            }
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Publier le devoir";
+            }
+        };
+    }
+
+    // ---------- RENDRE DEVOIR ----------
+    window.rendreDevoir = async (slug, devoirId) => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*,.pdf,.doc,.docx';
+        input.onchange = async () => {
+            if (input.files[0].size > 15 * 1024 * 1024) { alert("Fichier trop volumineux (max 15 Mo)."); return; }
+            try {
+                const fd = new FormData();
+                fd.append('file', input.files[0]);
+                fd.append('upload_preset', "lfakm_ressources");
+                const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
+                const data = await res.json();
+                const uid = auth.currentUser.uid;
+                await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
+                    eleveNom: `${profile.prenom} ${profile.nom}`,
+                    url: data.secure_url,
+                    date: serverTimestamp()
+                });
+                alert('✅ Devoir envoyé !');
+            } catch (e) {
+                alert('❌ Erreur: ' + e.message);
+            }
+        };
+        input.click();
+    };
+
+    // ---------- LOG ACTIVITÉ ----------
+    function logActivite(action, cible) {
+        try {
+            addDoc(collection(db, 'journal_activite'), {
+                action, cible,
+                auteur: `${profile?.prenom || ''} ${profile?.nom || ''}`.trim(),
+                role: profile?.role || '',
+                date: serverTimestamp()
+            }).catch(() => {});
+        } catch (e) {}
+    }
+
+    // ---------- AJOUT FICHIERS ----------
+    window.up = async (id) => {
+        const titre = prompt('Nom du document :');
+        if (!titre) return;
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.onchange = async () => {
+            if (input.files[0].size > 5 * 1024 * 1024) {
+                alert("Fichier trop volumineux pour un envoi direct (max 5 Mo). Pour un cours ou un TD plus lourd, utilisez plutôt le bouton 🔗 Lien Drive/OneDrive (ou 🎥 Lien vidéo YouTube pour une vidéo).");
+                return;
+            }
+            try {
+                const fd = new FormData();
+                fd.append('file', input.files[0]);
+                fd.append('upload_preset', "lfakm_ressources");
+                const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
+                const data = await res.json();
+                const type = id.startsWith('cours-') ? 'cours' : 'td';
+                const slug = id.replace(/^cours-|^td-/, '');
+                await addDoc(collection(db, 'ressources', slug, type), { titre, url: data.secure_url, date: serverTimestamp() });
+                try { logActivite('création', `${type === 'cours' ? 'Cours' : 'TD'} "${titre}" (${slug})`); } catch(e) {}
+                alert('✅ Document ajouté !');
+            } catch (e) {
+                alert('❌ Erreur: ' + e.message);
+            }
+        };
+        input.click();
+    };
+
+    window.addVideo = async (id) => {
+        const titre = prompt('Titre de la vidéo :');
+        if (!titre) return;
+        const url = prompt('Collez le lien YouTube de la vidéo :');
+        if (!url) return;
+        if (!/youtube\.com|youtu\.be/i.test(url)) {
+            alert("Ce lien ne semble pas être un lien YouTube. Merci de coller un lien du type https://youtube.com/... ou https://youtu.be/...");
+            return;
+        }
         const type = id.startsWith('cours-') ? 'cours' : 'td';
         const slug = id.replace(/^cours-|^td-/, '');
-        await addDoc(collection(db, 'ressources', slug, type), { titre, url: data.secure_url, date: serverTimestamp() });
-        try { logActivite('création', `${type === 'cours' ? 'Cours' : 'TD'} "${titre}" (${slug})`); } catch(e) {}
-        alert('✅ Document ajouté !');
-      } catch (e) {
-        alert('❌ Erreur: ' + e.message);
-      }
+        await addDoc(collection(db, 'ressources', slug, type), { titre, url, type: 'video', date: serverTimestamp() });
+        try { logActivite('création', `Vidéo "${titre}" (${slug})`); } catch(e) {}
+        alert('✅ Vidéo ajoutée !');
     };
-    input.click();
-  };
 
-  window.addVideo = async (id) => {
-    const titre = prompt('Titre de la vidéo :');
-    if (!titre) return;
-    const url = prompt('Collez le lien YouTube de la vidéo :');
-    if (!url) return;
-    if (!/youtube\.com|youtu\.be/i.test(url)) {
-      alert("Ce lien ne semble pas être un lien YouTube. Merci de coller un lien du type https://youtube.com/... ou https://youtu.be/...");
-      return;
-    }
-    const type = id.startsWith('cours-') ? 'cours' : 'td';
-    const slug = id.replace(/^cours-|^td-/, '');
-    await addDoc(collection(db, 'ressources', slug, type), { titre, url, type: 'video', date: serverTimestamp() });
-    try { logActivite('création', `Vidéo "${titre}" (${slug})`); } catch(e) {}
-    alert('✅ Vidéo ajoutée !');
-  };
-
-  window.addDrive = async (id) => {
-    const titre = prompt('Titre du document :');
-    if (!titre) return;
-    const url = prompt("Collez le lien Google Drive ou OneDrive (pensez à le partager en \"Toute personne disposant du lien\") :");
-    if (!url) return;
-    if (!/drive\.google\.com|docs\.google\.com|onedrive\.live\.com|1drv\.ms|sharepoint\.com/i.test(url)) {
-      alert("Ce lien ne semble pas être un lien Google Drive/Docs ou OneDrive. Merci de coller un lien du type https://drive.google.com/..., https://docs.google.com/... ou https://1drv.ms/...");
-      return;
-    }
-    const type = id.startsWith('cours-') ? 'cours' : 'td';
-    const slug = id.replace(/^cours-|^td-/, '');
-    await addDoc(collection(db, 'ressources', slug, type), { titre, url, type: 'drive', date: serverTimestamp() });
-    try { logActivite('création', `Lien Drive/OneDrive "${titre}" (${slug})`); } catch(e) {}
-    alert('✅ Lien ajouté !');
-  };
-
-  // ============ CONTACT ============
-  window.showContact = async () => {
-    const snap = await getDoc(doc(db, 'config', 'contact'));
-    if (!snap.exists() || !snap.data().email) {
-      alert("Les coordonnées du Proviseur n'ont pas encore été renseignées.");
-      return;
-    }
-    const c = snap.data();
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
-    overlay.innerHTML = `
-      <div style="background:#fff;border-radius:12px;padding:25px;max-width:340px;width:100%;text-align:center;">
-        <h3 style="font-family:var(--serif);color:var(--ink);margin-bottom:6px;">${escapeHtml(c.nom) || 'Le Proviseur'}</h3>
-        <p style="font-size:12px;color:var(--slate);margin-bottom:18px;">Chef d'établissement — LFAKM</p>
-        ${c.telephone ? `<a href="tel:${c.telephone}" style="display:block;padding:10px;margin-bottom:8px;background:var(--ink-deep);color:#fff;border-radius:6px;text-decoration:none;">📞 ${c.telephone}</a>` : ''}
-        ${c.email ? `<a href="mailto:${c.email}" style="display:block;padding:10px;margin-bottom:14px;background:var(--brass);color:#fff;border-radius:6px;text-decoration:none;">✉️ ${c.email}</a>` : ''}
-        <button onclick="this.closest('div[style*=fixed]').remove()" style="border:none;background:#eee;padding:8px 16px;border-radius:6px;cursor:pointer;">Fermer</button>
-      </div>`;
-    document.body.appendChild(overlay);
-  };
-
-  // ============ BURGER MENU ============
-  const burgerBtn = document.getElementById('burger-btn');
-  if (burgerBtn) {
-    burgerBtn.onclick = () => {
-      const menu = document.getElementById('menu');
-      if (menu) menu.classList.toggle('show');
+    window.addDrive = async (id) => {
+        const titre = prompt('Titre du document :');
+        if (!titre) return;
+        const url = prompt("Collez le lien Google Drive ou OneDrive (pensez à le partager en \"Toute personne disposant du lien\") :");
+        if (!url) return;
+        if (!/drive\.google\.com|docs\.google\.com|onedrive\.live\.com|1drv\.ms|sharepoint\.com/i.test(url)) {
+            alert("Ce lien ne semble pas être un lien Google Drive/Docs ou OneDrive. Merci de coller un lien du type https://drive.google.com/..., https://docs.google.com/... ou https://1drv.ms/...");
+            return;
+        }
+        const type = id.startsWith('cours-') ? 'cours' : 'td';
+        const slug = id.replace(/^cours-|^td-/, '');
+        await addDoc(collection(db, 'ressources', slug, type), { titre, url, type: 'drive', date: serverTimestamp() });
+        try { logActivite('création', `Lien Drive/OneDrive "${titre}" (${slug})`); } catch(e) {}
+        alert('✅ Lien ajouté !');
     };
-  }
 
-  // ============ IA CHAT ============
-  const aiToggle = document.getElementById('ai-chat-toggle');
-  const aiPanel = document.getElementById('ai-chat-panel');
-  const aiClose = document.getElementById('ai-chat-close');
-  
-  if (aiToggle && aiPanel) {
-    aiToggle.onclick = () => {
-      aiPanel.classList.toggle('show');
-      if (aiPanel.classList.contains('show') && !iaInitialized) {
-        initIA();
-      }
+    // ---------- CONTACT ----------
+    window.showContact = async () => {
+        const snap = await getDoc(doc(db, 'config', 'contact'));
+        if (!snap.exists() || !snap.data().email) {
+            alert("Les coordonnées du Proviseur n'ont pas encore été renseignées.");
+            return;
+        }
+        const c = snap.data();
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
+        overlay.innerHTML = `
+            <div style="background:#fff;border-radius:12px;padding:25px;max-width:340px;width:100%;text-align:center;">
+                <h3 style="font-family:var(--serif);color:var(--ink);margin-bottom:6px;">${escapeHtml(c.nom) || 'Le Proviseur'}</h3>
+                <p style="font-size:12px;color:var(--slate);margin-bottom:18px;">Chef d'établissement — LFAKM</p>
+                ${c.telephone ? `<a href="tel:${c.telephone}" style="display:block;padding:10px;margin-bottom:8px;background:var(--ink-deep);color:#fff;border-radius:6px;text-decoration:none;">📞 ${c.telephone}</a>` : ''}
+                ${c.email ? `<a href="mailto:${c.email}" style="display:block;padding:10px;margin-bottom:14px;background:var(--brass);color:#fff;border-radius:6px;text-decoration:none;">✉️ ${c.email}</a>` : ''}
+                <button onclick="this.closest('div[style*=fixed]').remove()" style="border:none;background:#eee;padding:8px 16px;border-radius:6px;cursor:pointer;">Fermer</button>
+            </div>`;
+        document.body.appendChild(overlay);
     };
-  }
-  if (aiClose && aiPanel) {
-    aiClose.onclick = () => aiPanel.classList.remove('show');
-  }
 
-  const aiMessages = document.getElementById('ai-chat-messages');
-  const aiInput = document.getElementById('ai-chat-input');
-  const aiSend = document.getElementById('ai-chat-send');
-
-  function addAiMessage(text, sender) {
-    if (!aiMessages) return null;
-    const div = document.createElement('div');
-    div.className = `ai-msg ai-msg-${sender}`;
-    div.textContent = text;
-    aiMessages.appendChild(div);
-    aiMessages.scrollTop = aiMessages.scrollHeight;
-    return div;
-  }
-
-  async function sendAiMessage() {
-    if (!aiInput) return;
-    const texte = aiInput.value.trim();
-    if (!texte) return;
-    
-    if (!iaActive || !aiModel) {
-      addAiMessage("⚠️ L'assistant IA est temporairement indisponible. Veuillez réessayer plus tard.", 'error');
-      return;
+    // ---------- BURGER MENU ----------
+    const burgerBtn = document.getElementById('burger-btn');
+    if (burgerBtn) {
+        burgerBtn.onclick = () => {
+            const menu = document.getElementById('menu');
+            if (menu) menu.classList.toggle('show');
+        };
     }
-    
-    aiInput.value = '';
-    addAiMessage(texte, 'user');
-    const loadingDiv = addAiMessage('🤔 Réflexion en cours...', 'loading');
 
-    try {
-      if (!aiChatSession) {
-        aiChatSession = aiModel.startChat();
-      }
-      const result = await aiChatSession.sendMessage(texte);
-      if (loadingDiv) loadingDiv.remove();
-      addAiMessage(result.response.text(), 'bot');
-    } catch (err) {
-      console.error('Erreur IA:', err);
-      if (loadingDiv) loadingDiv.remove();
-      
-      let errorMsg = "Désolé, une erreur est survenue. Réessayez dans un instant.";
-      if (err.message.includes('quota')) {
-        errorMsg = "⚠️ Le quota d'utilisation de l'IA a été atteint pour aujourd'hui. Réessayez demain.";
-      } else if (err.message.includes('network') || err.message.includes('fetch')) {
-        errorMsg = "⚠️ Problème de connexion réseau. Vérifiez votre connexion internet.";
-      } else if (err.message.includes('permission')) {
-        errorMsg = "⚠️ Problème d'autorisation. Contactez l'administrateur.";
-      } else if (err.message.includes('404') || err.message.includes('not found')) {
-        errorMsg = "⚠️ Le modèle IA n'est pas disponible. Vérifiez que l'API Gemini est activée dans Firebase.";
-      }
-      addAiMessage(errorMsg, 'error');
+    // ---------- RECHERCHE ----------
+    const searchBar = document.getElementById('search-bar');
+    if (searchBar) {
+        searchBar.oninput = (e) => {
+            const t = e.target.value.toLowerCase();
+            document.querySelectorAll('.subject').forEach(s => {
+                if (!s) return;
+                const roleAllowed = s.dataset.roleAllowed !== '0';
+                const matches = !t || s.innerText.toLowerCase().includes(t);
+                s.style.display = (roleAllowed && matches) ? '' : 'none';
+            });
+        };
     }
-  }
 
-  if (aiSend) aiSend.onclick = sendAiMessage;
-  if (aiInput) {
-    aiInput.addEventListener('keydown', (e) => { 
-      if (e.key === 'Enter') sendAiMessage(); 
-    });
-  }
-
-  // ============ RECHERCHE ============
-  const searchBar = document.getElementById('search-bar');
-  if (searchBar) {
-    searchBar.oninput = (e) => {
-      const t = e.target.value.toLowerCase();
-      document.querySelectorAll('.subject').forEach(s => {
-        if (!s) return;
-        const roleAllowed = s.dataset.roleAllowed !== '0';
-        const matches = !t || s.innerText.toLowerCase().includes(t);
-        s.style.display = (roleAllowed && matches) ? '' : 'none';
-      });
-    };
-  }
-
-  console.log('✅ Ressources LFAKM chargées avec succès !');
-  console.log('🤖 IA Gemini:', iaActive ? '✅ Active' : '❌ Désactivée');
+    console.log('✅ Ressources LFAKM chargées avec succès !');
+    console.log('🤖 IA Gemini:', iaActive ? '✅ Active' : '❌ Désactivée');
 </script>
 </body>
 </html>
