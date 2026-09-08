@@ -150,6 +150,15 @@
   .doc-list { list-style: none; font-size: 13px; }
   .doc-list li { background: #fdfdfd; padding: 8px; border-radius: 4px; margin-bottom: 5px; display: flex; justify-content: space-between; border: 1px solid #eee; }
 
+  /* ---------- ÉLÈVES ONGLET ---------- */
+  .eleves-section { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; margin-bottom: 30px; }
+  .eleves-section h2 { font-family: var(--serif); color: var(--ink); margin-bottom: 15px; }
+  .eleves-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+  .eleve-card { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 15px; cursor: pointer; transition: 0.3s; }
+  .eleve-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-color: var(--brass); }
+  .eleve-card h4 { font-size: 15px; color: var(--ink); margin-bottom: 4px; }
+  .eleve-card p { font-size: 12px; color: var(--slate); }
+
   .add-btn { display: none; margin-top: 8px; font-size: 11px; font-weight: 700; color: var(--ink); border: 1px dashed var(--brass); padding: 6px; border-radius: 4px; cursor: pointer; width: 100%; background: none; }
   .delete-btn { color: red; font-weight: bold; cursor: pointer; border: none; background: none; }
 
@@ -262,6 +271,13 @@
 <div id="actus-strip"></div>
 <div id="devoirs-strip"></div>
 <div id="fiche-famille-zone"></div>
+
+<!-- SECTION ÉLÈVES (visible pour les professeurs et admins) -->
+<div id="eleves-section" class="eleves-section" style="display:none;">
+  <h2>👥 Mes élèves</h2>
+  <div class="eleves-list" id="eleves-list"></div>
+</div>
+
 <main class="wrap" id="content-area"></main>
 
 <footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
@@ -390,6 +406,12 @@
       document.getElementById('auth-link').textContent = "Déconnexion";
       document.getElementById('auth-link').onclick = () => signOut(auth).then(() => window.location.reload());
 
+      // Si c'est un professeur, afficher la section "Mes élèves"
+      if (profile.role === 'professeur' || isAdmin(profile.role)) {
+        document.getElementById('eleves-section').style.display = 'block';
+        chargerMesEleves();
+      }
+
       if (profile.role === 'eleve') renderFicheFamille();
       loadActusStrip();
       loadDevoirsStrip();
@@ -410,6 +432,53 @@
         </p>`;
     }
   });
+
+  // Charger la liste des élèves de mes classes
+  async function chargerMesEleves() {
+    const list = document.getElementById('eleves-list');
+    list.innerHTML = '<p style="color:gray;">Chargement des élèves...</p>';
+
+    try {
+      // Récupérer les classes affectées du professeur (ou toutes si admin)
+      let classesConcernees = [];
+      if (profile.role === 'professeur') {
+        classesConcernees = profile.assignedClasses || [];
+      } else {
+        classesConcernees = structure.map(l => l.id);
+      }
+
+      // Récupérer tous les élèves
+      const elevesSnap = await getDocs(query(collection(db, 'utilisateurs'), where('role', '==', 'eleve')));
+      const eleves = [];
+      elevesSnap.forEach(doc => {
+        const e = doc.data();
+        if (classesConcernees.includes(e.niveau)) {
+          eleves.push({ uid: doc.id, ...e });
+        }
+      });
+
+      // Trier par nom
+      eleves.sort((a, b) => `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`));
+
+      // Afficher les élèves
+      list.innerHTML = '';
+      eleves.forEach(e => {
+        const card = document.createElement('div');
+        card.className = 'eleve-card';
+        card.innerHTML = `<h4>${escapeHtml(e.prenom)} ${escapeHtml(e.nom)}</h4><p>${escapeHtml(e.niveau || 'Classe non définie')}</p>`;
+        card.onclick = () => {
+          window.location.href = `profil-eleve.html?uid=${e.uid}`;
+        };
+        list.appendChild(card);
+      });
+
+      if (eleves.length === 0) {
+        list.innerHTML = '<p style="color:gray;">Aucun élève trouvé dans vos classes affectées.</p>';
+      }
+    } catch (err) {
+      list.innerHTML = `<p style="color:red;">Erreur : ${err.message}</p>`;
+    }
+  }
 
   function loadDevoirsStrip() {
     const zone = document.getElementById('devoirs-strip');
