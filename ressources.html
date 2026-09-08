@@ -138,7 +138,7 @@
 
   .modal-overlay { display:none; position:fixed; inset:0; background:rgba(16,25,46,0.6); z-index:2000; align-items:flex-start; justify-content:center; padding:20px; overflow-y:auto; }
   .modal-overlay.show { display:flex; }
-  .modal-box { background:#fff; border-radius:10px; padding:22px; width:100%; max-width:600px; margin-top:20px; max-height:90vh; overflow-y:auto; }
+  .modal-box { background:#fff; border-radius:10px; padding:22px; width:100%; max-width:700px; margin-top:20px; max-height:90vh; overflow-y:auto; }
   .modal-box h3 { font-family:var(--serif); margin-bottom:15px; color:var(--ink); }
   .modal-box .field { margin-bottom:12px; }
   .modal-box label { display:block; font-size:12px; font-weight:700; margin-bottom:4px; color:var(--slate); }
@@ -168,11 +168,30 @@
   .eleve-ligne .eleve-actions button { font-size: 11px; padding: 4px 8px; border: none; border-radius: 4px; cursor: pointer; }
 
   .add-btn { display: none; margin-top: 8px; font-size: 11px; font-weight: 700; color: var(--ink); border: 1px dashed var(--brass); padding: 6px; border-radius: 4px; cursor: pointer; width: 100%; background: none; }
+  .add-btn:hover { background: var(--paper); }
   .delete-btn { color: red; font-weight: bold; cursor: pointer; border: none; background: none; }
 
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
 
-  /* Styles pour les réponses des élèves */
+  .type-selector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+  .type-selector-item { background: #fff; border: 2px solid var(--line); border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.3s; text-align: center; }
+  .type-selector-item:hover { border-color: var(--brass); }
+  .type-selector-item.active { border-color: var(--brass); background: #fdf8f0; }
+  .type-selector-item input[type="checkbox"] { display: none; }
+  .type-selector-item .icon { font-size: 24px; display: block; }
+  .type-selector-item .label { font-size: 12px; font-weight: 600; color: var(--ink); }
+  .type-selector-item .desc { font-size: 10px; color: var(--slate); }
+  .type-selector-item .points-input { margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+  .type-selector-item .points-input input { width: 50px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; text-align: center; font-size: 12px; }
+  .type-selector-item .points-input span { font-size: 11px; color: var(--slate); }
+
+  .badge-mixte { background: #9b59b6; color: #fff; }
+  .badge-saisie { background: #e67e22; color: #fff; }
+  .badge-fichier { background: #3498db; color: #fff; }
+  .badge-qcm { background: #2ecc71; color: #fff; }
+
+  .devoir-type-badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; }
+
   .reponse-eleve { background: #f0f7ff; border-left: 3px solid var(--brass); padding: 10px; margin: 8px 0; border-radius: 4px; }
   .reponse-eleve .label { font-size: 11px; color: var(--slate); font-weight: 600; }
   .reponse-eleve .value { font-size: 13px; }
@@ -180,12 +199,6 @@
   .correction-juste { background: #d4edda; color: #155724; }
   .correction-faux { background: #f8d7da; color: #721c24; }
   .correction-partiel { background: #fff3cd; color: #856404; }
-
-  .devoir-type-badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; }
-  .badge-fichier { background: #3498db; color: #fff; }
-  .badge-qcm { background: #2ecc71; color: #fff; }
-  .badge-mixte { background: #9b59b6; color: #fff; }
-  .badge-saisie { background: #e67e22; color: #fff; }
 
   #ai-chat-toggle { position: fixed; bottom: 20px; right: 20px; width: 58px; height: 58px; border-radius: 50%; background: var(--brass); color: #fff; border: none; font-size: 24px; box-shadow: 0 4px 14px rgba(0,0,0,0.25); cursor: pointer; z-index: 2000; }
   #ai-chat-panel { display: none; flex-direction: column; position: fixed; bottom: 90px; right: 20px; width: 340px; max-width: calc(100vw - 40px); height: 460px; max-height: calc(100vh - 140px); background: #fff; border-radius: 14px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 2000; overflow: hidden; }
@@ -247,7 +260,7 @@
       <select id="dv-type" onchange="window.toggleDevoirType()">
         <option value="fichier">📄 Fichier à rendre</option>
         <option value="qcm">📝 QCM en ligne</option>
-        <option value="mixte">🧩 Devoir mixte (plusieurs types)</option>
+        <option value="mixte" selected>🧩 Devoir mixte (choix libre)</option>
         <option value="saisie">✏️ Saisie directe</option>
       </select>
     </div>
@@ -265,13 +278,9 @@
       <label>Date limite</label>
       <input type="date" id="dv-date">
     </div>
-    <div class="field">
-      <label>Barème (nombre de points)</label>
-      <input type="number" id="dv-bareme" value="20" min="1" step="0.5">
-    </div>
 
     <!-- Option fichier -->
-    <div id="fichier-options">
+    <div id="fichier-options" style="display:none;">
       <div class="field">
         <label>Lien Google Doc (facultatif)</label>
         <input type="url" id="dv-gdoc" placeholder="https://docs.google.com/...">
@@ -284,29 +293,119 @@
 
     <!-- Option QCM -->
     <div id="qcm-builder" style="display:none;">
+      <div class="field">
+        <label>Barème total</label>
+        <input type="number" id="dv-bareme-qcm" value="20" min="1" step="0.5">
+      </div>
       <label>Questions du QCM</label>
       <div id="qcm-questions"></div>
       <button type="button" class="add-btn" id="qcm-add-question" style="display:block;">+ Ajouter une question</button>
     </div>
 
-    <!-- Option Mixte -->
-    <div id="mixte-builder" style="display:none;">
-      <label>Questions mixtes</label>
+    <!-- Option MIXTE - AVEC CHOIX LIBRE -->
+    <div id="mixte-builder">
+      <div class="field">
+        <label>Barème total</label>
+        <input type="number" id="dv-bareme-mixte" value="20" min="1" step="0.5">
+      </div>
+      
+      <!-- Sélecteur de types de questions -->
+      <div class="field">
+        <label>📋 Types de questions à inclure</label>
+        <p style="font-size:11px;color:var(--slate);margin-bottom:8px;">Cochez les types que vous souhaitez utiliser. Décochez ceux que vous ne voulez pas.</p>
+        <div class="type-selector-grid">
+          <!-- QCM -->
+          <div class="type-selector-item active" data-type="qcm" onclick="window.toggleTypeSelector(this)">
+            <input type="checkbox" checked>
+            <span class="icon">📝</span>
+            <span class="label">QCM</span>
+            <span class="desc">Choix multiples</span>
+            <div class="points-input">
+              <span>Points :</span>
+              <input type="number" class="type-points" value="1" min="0.5" step="0.5">
+              <span>par question</span>
+            </div>
+          </div>
+          
+          <!-- Texte à trous -->
+          <div class="type-selector-item active" data-type="text-trou" onclick="window.toggleTypeSelector(this)">
+            <input type="checkbox" checked>
+            <span class="icon">📖</span>
+            <span class="label">Texte à trous</span>
+            <span class="desc">Complétion</span>
+            <div class="points-input">
+              <span>Points :</span>
+              <input type="number" class="type-points" value="2" min="0.5" step="0.5">
+              <span>par trou</span>
+            </div>
+          </div>
+          
+          <!-- Association -->
+          <div class="type-selector-item active" data-type="association" onclick="window.toggleTypeSelector(this)">
+            <input type="checkbox" checked>
+            <span class="icon">🔗</span>
+            <span class="label">Association</span>
+            <span class="desc">Relier colonnes</span>
+            <div class="points-input">
+              <span>Points :</span>
+              <input type="number" class="type-points" value="1" min="0.5" step="0.5">
+              <span>par association</span>
+            </div>
+          </div>
+          
+          <!-- Réponse libre -->
+          <div class="type-selector-item" data-type="reponse-libre" onclick="window.toggleTypeSelector(this)">
+            <input type="checkbox">
+            <span class="icon">✍️</span>
+            <span class="label">Réponse libre</span>
+            <span class="desc">Texte long</span>
+            <div class="points-input">
+              <span>Points :</span>
+              <input type="number" class="type-points" value="3" min="0.5" step="0.5">
+              <span>par question</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Liste des questions -->
+      <label>📋 Questions</label>
       <div id="mixed-questions-list"></div>
       <button type="button" class="add-btn" id="add-mixed-question" style="display:block;background:var(--brass);color:#fff;">+ Ajouter une question</button>
     </div>
 
-    <!-- Option Saisie directe -->
+    <!-- Option SAISIE DIRECTE -->
     <div id="saisie-builder" style="display:none;">
       <div class="field">
-        <label>Structure du devoir (texte avec ___ pour les trous)</label>
-        <textarea id="saisie-structure" rows="6" placeholder="Ex: Définis le terme 'Vizir' : ___
-
-Complète le texte : C'est en Nubie que le ___ est apparu..."></textarea>
+        <label>Barème total</label>
+        <input type="number" id="dv-bareme-saisie" value="20" min="1" step="0.5">
       </div>
       <div class="field">
-        <label>Réponses attendues (séparées par des points-virgules)</label>
-        <input type="text" id="saisie-reponses" placeholder="Vizir; fer; Epoque; riche; Egypte">
+        <label>📄 Structure du devoir</label>
+        <p style="font-size:11px;color:var(--slate);margin-bottom:6px;">
+          Utilisez <strong>___</strong> pour marquer les trous. Exemple : 
+          <em>"C'est en Nubie que le ___ est apparu vers 500 avant Jésus-Christ."</em>
+        </p>
+        <textarea id="saisie-structure" rows="6" placeholder="Entrez votre texte avec des ___ pour les trous..." style="width:100%;padding:10px;border:1px solid #ccc;border-radius:4px;font-family:monospace;"></textarea>
+      </div>
+      <div class="field">
+        <label>🔑 Mots attendus (séparés par des points-virgules)</label>
+        <p style="font-size:11px;color:var(--slate);margin-bottom:6px;">
+          Entrez les réponses correctes dans l'ordre des trous.
+        </p>
+        <input type="text" id="saisie-reponses" placeholder="fer; Epoque; riche; Egypte" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:4px;">
+      </div>
+      <div class="field">
+        <label>🎯 Mode de correction</label>
+        <select id="saisie-mode" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:4px;">
+          <option value="exact">Exact (mot identique)</option>
+          <option value="insensible" selected>Insensible à la casse</option>
+          <option value="approximative">Approximative (tolérance)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>💡 Indice pour les élèves (facultatif)</label>
+        <input type="text" id="saisie-indice" placeholder="Ex: Les mots se trouvent dans le texte..." style="width:100%;padding:10px;border:1px solid #ccc;border-radius:4px;">
       </div>
     </div>
 
@@ -367,7 +466,6 @@ Complète le texte : C'est en Nubie que le ___ est apparu..."></textarea>
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // Assistant IA
   let aiModel = null;
   let aiChatSession = null;
   try {
@@ -472,7 +570,103 @@ Complète le texte : C'est en Nubie que le ___ est apparu..."></textarea>
     }
   };
 
-  // ----- QCM -----
+  // ============ TOGGLE TYPE SELECTOR ============
+  
+  window.toggleTypeSelector = (el) => {
+    const checkbox = el.querySelector('input[type="checkbox"]');
+    if (checkbox) {
+      checkbox.checked = !checkbox.checked;
+      el.classList.toggle('active');
+      
+      // Mettre à jour l'affichage des questions existantes
+      const type = el.dataset.type;
+      document.querySelectorAll('.mixed-question').forEach(q => {
+        const qType = q.dataset.qtype;
+        if (qType === type) {
+          q.style.display = checkbox.checked ? 'block' : 'none';
+        }
+      });
+    }
+  };
+
+  // ============ QUESTIONS MIXTES ============
+  
+  function addMixedQuestion() {
+    const container = document.getElementById('mixed-questions-list');
+    const idx = container.children.length;
+    const div = document.createElement('div');
+    div.className = 'mixed-question';
+    div.dataset.qtype = 'qcm';
+    div.innerHTML = `
+      <div class="field" style="display:flex;gap:10px;align-items:center;">
+        <select class="q-type-select" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;" onchange="window.changeQuestionType(this)">
+          <option value="qcm">📝 QCM</option>
+          <option value="text-trou">📖 Texte à trous</option>
+          <option value="association">🔗 Association</option>
+          <option value="reponse-libre">✍️ Réponse libre</option>
+        </select>
+        <button class="delete-btn" onclick="this.closest('.mixed-question').remove()" style="font-size:16px;padding:4px 8px;">✕</button>
+      </div>
+      <div class="field">
+        <label>Question</label>
+        <input type="text" class="q-text" placeholder="Ex: Définis le terme 'Vizir'" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
+      </div>
+      <div class="field">
+        <label>Points</label>
+        <input type="number" class="q-points" value="1" min="0.5" step="0.5" style="width:80px;padding:8px;border:1px solid #ccc;border-radius:4px;">
+      </div>
+      <div class="q-options qcm-options">
+        <label>Options</label>
+        ${[1,2,3,4].map(i => `
+          <div style="display:flex;align-items:center;gap:5px;margin:3px 0;">
+            <input type="radio" name="mix-correct-${idx}" value="${i-1}">
+            <input type="text" class="q-option" placeholder="Option ${i}" style="flex:1;padding:6px;border:1px solid #ccc;border-radius:4px;">
+          </div>
+        `).join('')}
+      </div>
+      <div class="q-options text-trou-options" style="display:none;">
+        <label>Texte avec trous (___ = trou)</label>
+        <textarea class="q-text-trou" rows="3" placeholder="Ex: C'est en Nubie que le ___ est apparu..." style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;"></textarea>
+        <label style="margin-top:6px;">Mots attendus (séparés par des virgules)</label>
+        <input type="text" class="q-mots-trou" placeholder="fer, Epoque, riche, Egypte" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
+      </div>
+      <div class="q-options association-options" style="display:none;">
+        <label>Colonne A (séparés par des virgules)</label>
+        <input type="text" class="q-assoc-a" placeholder="Oligarchie, Gérontocratie, Dynastie" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
+        <label style="margin-top:6px;">Colonne B (séparés par des virgules)</label>
+        <input type="text" class="q-assoc-b" placeholder="Définition 1, Définition 2, Définition 3" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
+        <label style="margin-top:6px;">Associations correctes (ex: 0-1, 1-0, 2-2)</label>
+        <input type="text" class="q-assoc-correct" placeholder="0-1, 1-0, 2-2" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
+      </div>
+      <div class="q-options reponse-libre-options" style="display:none;">
+        <label>Réponse attendue (facultatif pour correction auto)</label>
+        <input type="text" class="q-reponse-attendue" placeholder="Mot-clé ou phrase attendue..." style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
+      </div>
+    `;
+    container.appendChild(div);
+  }
+
+  window.changeQuestionType = (select) => {
+    const parent = select.closest('.mixed-question');
+    if (!parent) return;
+    const type = select.value;
+    parent.dataset.qtype = type;
+    
+    const qcmOpts = parent.querySelector('.qcm-options');
+    const textTrouOpts = parent.querySelector('.text-trou-options');
+    const assocOpts = parent.querySelector('.association-options');
+    const reponseLibreOpts = parent.querySelector('.reponse-libre-options');
+    
+    if (qcmOpts) qcmOpts.style.display = type === 'qcm' ? 'block' : 'none';
+    if (textTrouOpts) textTrouOpts.style.display = type === 'text-trou' ? 'block' : 'none';
+    if (assocOpts) assocOpts.style.display = type === 'association' ? 'block' : 'none';
+    if (reponseLibreOpts) reponseLibreOpts.style.display = type === 'reponse-libre' ? 'block' : 'none';
+  };
+
+  document.getElementById('add-mixed-question')?.addEventListener('click', addMixedQuestion);
+
+  // ============ QCM ============
+  
   function addQcmQuestion() {
     const idx = document.getElementById('qcm-questions').children.length;
     const block = document.createElement('div');
@@ -485,6 +679,10 @@ Complète le texte : C'est en Nubie que le ___ est apparu..."></textarea>
     block.innerHTML = `
       <button type="button" class="qcm-remove-q" onclick="this.parentElement.remove()">✕</button>
       <input type="text" class="qcm-q-text" placeholder="Question ${idx + 1}" style="width:100%;padding:8px;margin-bottom:8px;border:1px solid #ccc;border-radius:4px;">
+      <div class="field">
+        <label>Points</label>
+        <input type="number" class="qcm-points" value="1" min="0.5" step="0.5" style="width:80px;padding:8px;border:1px solid #ccc;border-radius:4px;">
+      </div>
       ${[0, 1, 2, 3].map(i => `
         <div class="qcm-option-row">
           <input type="radio" name="qcm-correct-${idx}" value="${i}" ${i === 0 ? 'checked' : ''}>
@@ -497,70 +695,9 @@ Complète le texte : C'est en Nubie que le ___ est apparu..."></textarea>
 
   document.getElementById('qcm-add-question')?.addEventListener('click', addQcmQuestion);
 
-  // ----- MIXTE -----
-  function addMixedQuestion() {
-    const idx = document.getElementById('mixed-questions-list').children.length;
-    const div = document.createElement('div');
-    div.className = 'mixed-question';
-    div.innerHTML = `
-      <div class="field">
-        <label>Type de question</label>
-        <select class="q-type" onchange="window.toggleMixedType(this)">
-          <option value="qcm">QCM (choix unique)</option>
-          <option value="text-trou">Texte à trous</option>
-          <option value="association">Association</option>
-          <option value="reponse-libre">Réponse libre</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Question</label>
-        <input type="text" class="q-text" placeholder="Ex: Définis le terme 'Vizir'" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
-      </div>
-      <div class="q-options qcm-options">
-        <label>Options</label>
-        ${[1,2,3,4].map(i => `
-          <div style="display:flex;align-items:center;gap:5px;margin:3px 0;">
-            <input type="radio" name="mix-correct-${idx}" value="${i-1}">
-            <input type="text" class="q-option" placeholder="Option ${i}" style="flex:1;padding:6px;border:1px solid #ccc;border-radius:4px;">
-          </div>
-        `).join('')}
-      </div>
-      <div class="q-options text-trou-options" style="display:none;">
-        <label>Texte avec trous (utilisez ___ pour les trous)</label>
-        <textarea class="q-text-trou" rows="3" placeholder="Ex: C'est en Nubie que le ___ est apparu vers 500 avant Jésus-Christ." style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;"></textarea>
-        <label style="margin-top:6px;">Mots à placer (séparés par des virgules)</label>
-        <input type="text" class="q-mots-trou" placeholder="fer, Epoque, riche, Egypte" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
-      </div>
-      <div class="q-options association-options" style="display:none;">
-        <label>Colonne A (séparés par des virgules)</label>
-        <input type="text" class="q-assoc-a" placeholder="Oligarchie, Gérontocratie, Dynastie" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
-        <label style="margin-top:6px;">Colonne B (séparés par des virgules)</label>
-        <input type="text" class="q-assoc-b" placeholder="Définition 1, Définition 2, Définition 3" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
-      </div>
-      <button class="add-btn" onclick="this.parentElement.remove()" style="background:#eee;color:red;display:block;">🗑 Supprimer</button>
-    `;
-    document.getElementById('mixed-questions-list').appendChild(div);
-  }
-
-  window.toggleMixedType = (select) => {
-    const parent = select.closest('.mixed-question');
-    if (!parent) return;
-    const qcmOpts = parent.querySelector('.qcm-options');
-    const textTrouOpts = parent.querySelector('.text-trou-options');
-    const assocOpts = parent.querySelector('.association-options');
-    if (qcmOpts) qcmOpts.style.display = 'none';
-    if (textTrouOpts) textTrouOpts.style.display = 'none';
-    if (assocOpts) assocOpts.style.display = 'none';
-    if (select.value === 'qcm' && qcmOpts) qcmOpts.style.display = 'block';
-    if (select.value === 'text-trou' && textTrouOpts) textTrouOpts.style.display = 'block';
-    if (select.value === 'association' && assocOpts) assocOpts.style.display = 'block';
-  };
-
-  document.getElementById('add-mixed-question')?.addEventListener('click', addMixedQuestion);
-
-  // ----- FONCTIONS DE PUBLICATION -----
+  // ============ PUBLICATION DU DEVOIR ============
+  
   let currentDevoirSlug = null;
-  let qcmQuestionCount = 0;
 
   window.newDevoir = (slug) => {
     currentDevoirSlug = slug;
@@ -570,17 +707,29 @@ Complète le texte : C'est en Nubie que le ___ est apparu..."></textarea>
     document.getElementById('dv-titre').value = '';
     document.getElementById('dv-consignes').value = '';
     document.getElementById('dv-date').value = '';
-    document.getElementById('dv-bareme').value = '20';
     document.getElementById('dv-gdoc').value = '';
     document.getElementById('dv-fichier').value = '';
-    document.getElementById('dv-type').value = 'fichier';
+    document.getElementById('dv-type').value = 'mixte';
+    document.getElementById('fichier-options').style.display = 'none';
     document.getElementById('qcm-builder').style.display = 'none';
-    document.getElementById('mixte-builder').style.display = 'none';
+    document.getElementById('mixte-builder').style.display = 'block';
     document.getElementById('saisie-builder').style.display = 'none';
-    document.getElementById('fichier-options').style.display = 'block';
     document.getElementById('qcm-questions').innerHTML = '';
     document.getElementById('mixed-questions-list').innerHTML = '';
-    qcmQuestionCount = 0;
+    document.getElementById('saisie-structure').value = '';
+    document.getElementById('saisie-reponses').value = '';
+    document.getElementById('saisie-indice').value = '';
+    document.getElementById('dv-bareme-mixte').value = '20';
+    document.getElementById('dv-bareme-qcm').value = '20';
+    document.getElementById('dv-bareme-saisie').value = '20';
+    
+    // Réinitialiser les sélecteurs de types
+    document.querySelectorAll('.type-selector-item').forEach(el => {
+      const cb = el.querySelector('input[type="checkbox"]');
+      if (cb) cb.checked = true;
+      el.classList.add('active');
+    });
+    
     modal.classList.add('show');
   };
 
@@ -603,14 +752,14 @@ Complète le texte : C'est en Nubie que le ___ est apparu..."></textarea>
         titre: titre,
         consignes: document.getElementById('dv-consignes').value.trim(),
         dateLimite: document.getElementById('dv-date').value,
-        bareme: parseFloat(document.getElementById('dv-bareme').value) || 20,
-        googleDocUrl: document.getElementById('dv-gdoc').value.trim() || null,
         profNom: `${profile.prenom} ${profile.nom}`,
         date: serverTimestamp()
       };
 
       // ---- Type FICHIER ----
       if (type === 'fichier') {
+        devoirData.bareme = parseFloat(document.getElementById('dv-bareme')?.value) || 20;
+        devoirData.googleDocUrl = document.getElementById('dv-gdoc').value.trim() || null;
         const fichierInput = document.getElementById('dv-fichier');
         if (fichierInput && fichierInput.files && fichierInput.files[0]) {
           if (fichierInput.files[0].size > 15 * 1024 * 1024) {
@@ -631,24 +780,49 @@ Complète le texte : C'est en Nubie que le ___ est apparu..."></textarea>
 
       // ---- Type QCM ----
       if (type === 'qcm') {
+        devoirData.bareme = parseFloat(document.getElementById('dv-bareme-qcm').value) || 20;
         const questions = [];
         document.querySelectorAll('#qcm-questions .qcm-question-block').forEach(block => {
           const texte = block.querySelector('.qcm-q-text')?.value.trim() || '';
           const options = Array.from(block.querySelectorAll('.qcm-option')).map(o => o.value.trim());
           const correctIndex = parseInt(block.querySelector('input[type=radio]:checked')?.value || 0, 10);
-          if (texte && options.every(o => o)) questions.push({ texte, options, correctIndex });
+          const points = parseFloat(block.querySelector('.qcm-points')?.value) || 1;
+          if (texte && options.every(o => o)) questions.push({ texte, options, correctIndex, points });
         });
         if (questions.length === 0) { alert('Ajoutez au moins une question complète.'); submitBtn.disabled = false; submitBtn.textContent = "Publier le devoir"; return; }
         devoirData.questions = questions;
+        // Recalculer le barème total
+        const totalPoints = questions.reduce((sum, q) => sum + q.points, 0);
+        devoirData.bareme = totalPoints;
       }
 
       // ---- Type MIXTE ----
       if (type === 'mixte') {
+        const bareme = parseFloat(document.getElementById('dv-bareme-mixte').value) || 20;
+        devoirData.bareme = bareme;
+        
+        // Récupérer les types actifs et leurs points
+        const typesActifs = {};
+        document.querySelectorAll('.type-selector-item').forEach(el => {
+          const cb = el.querySelector('input[type="checkbox"]');
+          if (cb && cb.checked) {
+            const typeName = el.dataset.type;
+            const points = parseFloat(el.querySelector('.type-points')?.value) || 1;
+            typesActifs[typeName] = points;
+          }
+        });
+        
         const questions = [];
+        let totalPoints = 0;
+        
         document.querySelectorAll('#mixed-questions-list .mixed-question').forEach(block => {
-          const qType = block.querySelector('.q-type')?.value || 'qcm';
+          const qType = block.dataset.qtype || 'qcm';
+          // Vérifier si ce type est actif
+          if (!typesActifs[qType]) return;
+          
           const texte = block.querySelector('.q-text')?.value.trim() || '';
-          let qData = { type: qType, texte: texte };
+          const points = parseFloat(block.querySelector('.q-points')?.value) || typesActifs[qType] || 1;
+          let qData = { type: qType, texte: texte, points: points };
           
           if (qType === 'qcm') {
             const options = Array.from(block.querySelectorAll('.qcm-options .q-option')).map(o => o.value.trim());
@@ -663,19 +837,36 @@ Complète le texte : C'est en Nubie que le ___ est apparu..."></textarea>
           } else if (qType === 'association') {
             const colA = block.querySelector('.q-assoc-a')?.value.trim() || '';
             const colB = block.querySelector('.q-assoc-b')?.value.trim() || '';
+            const correct = block.querySelector('.q-assoc-correct')?.value.trim() || '';
             qData.colonneA = colA.split(',').map(m => m.trim()).filter(Boolean);
             qData.colonneB = colB.split(',').map(m => m.trim()).filter(Boolean);
+            qData.correctAssociations = correct.split(',').map(m => m.trim()).filter(Boolean);
+          } else if (qType === 'reponse-libre') {
+            qData.reponseAttendue = block.querySelector('.q-reponse-attendue')?.value.trim() || '';
           }
-          if (texte) questions.push(qData);
+          
+          if (texte) {
+            questions.push(qData);
+            totalPoints += points;
+          }
         });
+        
         if (questions.length === 0) { alert('Ajoutez au moins une question.'); submitBtn.disabled = false; submitBtn.textContent = "Publier le devoir"; return; }
         devoirData.questions = questions;
+        devoirData.typesActifs = typesActifs;
+        devoirData.bareme = totalPoints || bareme;
       }
 
       // ---- Type SAISIE DIRECTE ----
       if (type === 'saisie') {
+        devoirData.bareme = parseFloat(document.getElementById('dv-bareme-saisie').value) || 20;
         devoirData.structure = document.getElementById('saisie-structure').value.trim();
         devoirData.reponsesAttendues = document.getElementById('saisie-reponses').value.trim().split(';').map(r => r.trim()).filter(Boolean);
+        devoirData.modeCorrection = document.getElementById('saisie-mode').value;
+        devoirData.indice = document.getElementById('saisie-indice').value.trim() || null;
+        
+        if (!devoirData.structure) { alert('Entrez une structure de texte.'); submitBtn.disabled = false; submitBtn.textContent = "Publier le devoir"; return; }
+        if (devoirData.reponsesAttendues.length === 0) { alert('Entrez les mots attendus.'); submitBtn.disabled = false; submitBtn.textContent = "Publier le devoir"; return; }
       }
 
       await addDoc(collection(db, 'ressources', currentDevoirSlug, 'devoirs'), devoirData);
@@ -865,11 +1056,21 @@ Complète le texte : C'est en Nubie que le ___ est apparu..."></textarea>
             else if (dvType === 'mixte') badge = '<span class="devoir-type-badge badge-mixte">🧩 Mixte</span>';
             else if (dvType === 'saisie') badge = '<span class="devoir-type-badge badge-saisie">✏️ Saisie</span>';
             
-            item.innerHTML = `<h6>📌 ${escapeHtml(dv.titre)} ${badge}</h6>
+            let typesInfo = '';
+            if (dvType === 'mixte' && dv.typesActifs) {
+              const types = Object.keys(dv.typesActifs).map(t => {
+                const labels = { qcm: 'QCM', 'text-trou': 'Trous', association: 'Association', 'reponse-libre': 'Libre' };
+                return labels[t] || t;
+              });
+              typesInfo = ` <span style="font-size:10px;color:var(--slate);">(${types.join(', ')})</span>`;
+            }
+            
+            item.innerHTML = `<h6>📌 ${escapeHtml(dv.titre)} ${badge}${typesInfo}</h6>
               <div class="devoir-meta">📅 À rendre pour le ${dv.dateLimite || 'non précisé'} — proposé par ${dv.profNom || 'le professeur'}</div>
               ${dv.consignes ? `<p style="font-size:13px; margin-bottom:8px;">${dv.consignes}</p>` : ''}
               ${dv.googleDocUrl ? `<p style="margin-bottom:8px;"><a href="${dv.googleDocUrl}" target="_blank">📄 Ouvrir le document Google Doc</a></p>` : ''}
-              ${dv.fichierUrl ? `<p style="margin-bottom:8px;"><a href="${dv.fichierUrl}" target="_blank">📎 ${dv.fichierNom || 'Fichier joint'}</a></p>` : ''}`;
+              ${dv.fichierUrl ? `<p style="margin-bottom:8px;"><a href="${dv.fichierUrl}" target="_blank">📎 ${dv.fichierNom || 'Fichier joint'}</a></p>` : ''}
+              ${dv.bareme ? `<p style="font-size:11px;color:var(--slate);">📊 Barème : ${dv.bareme} points</p>` : ''}`;
 
             if (role === 'eleve') {
               const responseArea = document.createElement('div');
@@ -979,7 +1180,8 @@ Complète le texte : C'est en Nubie que le ___ est apparu..."></textarea>
     }
     let html = '';
     dv.questions.forEach((q, qi) => {
-      html += `<div style="margin-bottom:12px;"><p style="font-weight:700;font-size:13px;">${qi + 1}. ${q.texte}</p>`;
+      html += `<div style="margin-bottom:12px;padding:8px;background:#f9f9f9;border-radius:6px;">`;
+      html += `<p style="font-weight:700;font-size:13px;">${qi + 1}. ${q.texte} <span style="font-weight:400;font-size:11px;color:var(--slate);">(${q.points || 1} pt${(q.points || 1) > 1 ? 's' : ''})</span></p>`;
       q.options.forEach((opt, oi) => {
         html += `<label style="display:block;font-size:13px;margin:4px 0;"><input type="radio" name="qcmrep-${devoirId}-${qi}" value="${oi}"> ${opt}</label>`;
       });
@@ -997,15 +1199,24 @@ Complète le texte : C'est en Nubie que le ___ est apparu..."></textarea>
         reponses.push(checked ? parseInt(checked.value, 10) : -1);
       });
       if (!complete) { alert("Répondez à toutes les questions avant d'envoyer."); return; }
-      const score = reponses.filter((r, i) => r === dv.questions[i].correctIndex).length;
-      const bareme = dv.bareme || 20;
-      const note = Math.round((score / dv.questions.length) * bareme * 100) / 100;
+      
+      let totalPoints = 0;
+      let pointsObtenus = 0;
+      dv.questions.forEach((q, qi) => {
+        const points = q.points || 1;
+        totalPoints += points;
+        if (reponses[qi] === q.correctIndex) pointsObtenus += points;
+      });
+      
+      const bareme = dv.bareme || totalPoints;
+      const note = totalPoints > 0 ? Math.round((pointsObtenus / totalPoints) * bareme * 100) / 100 : 0;
+      
       await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
         eleveNom: `${profile.prenom} ${profile.nom}`,
-        reponses, score, note,
+        reponses, pointsObtenus, totalPoints, note,
         date: serverTimestamp()
       });
-      alert('✅ QCM envoyé !');
+      alert(`✅ QCM envoyé ! Note : ${note}/${bareme}`);
       location.reload();
     };
   }
@@ -1045,7 +1256,7 @@ Complète le texte : C'est en Nubie que le ___ est apparu..."></textarea>
     let html = '';
     dv.questions.forEach((q, qi) => {
       html += `<div style="margin-bottom:15px;padding:10px;background:#f9f9f9;border-radius:6px;">`;
-      html += `<p style="font-weight:700;">Question ${qi + 1}</p>`;
+      html += `<p style="font-weight:700;">Question ${qi + 1} <span style="font-weight:400;font-size:11px;color:var(--slate);">(${q.points || 1} pt${(q.points || 1) > 1 ? 's' : ''})</span></p>`;
       html += `<p style="margin-bottom:8px;">${q.texte}</p>`;
       
       if (q.type === 'qcm' || !q.type) {
@@ -1065,7 +1276,10 @@ Complète le texte : C'est en Nubie que le ___ est apparu..."></textarea>
         html += `</div><div><p style="font-weight:600;font-size:12px;">Colonne B</p>`;
         q.colonneB.forEach((item, idx) => {
           html += `<div style="margin:4px 0;">
-            <input type="text" class="mix-assoc-rep" data-q="${qi}" data-idx="${idx}" placeholder="Associer à..." style="width:100%;padding:4px;border:1px solid #ccc;border-radius:4px;">
+            <select class="mix-assoc-rep" data-q="${qi}" data-idx="${idx}" style="width:100%;padding:4px;border:1px solid #ccc;border-radius:4px;">
+              <option value="">-- Choisir --</option>
+              ${q.colonneA.map((a, ai) => `<option value="${ai}">${a}</option>`).join('')}
+            </select>
           </div>`;
         });
         html += `</div></div>`;
@@ -1088,8 +1302,8 @@ Complète le texte : C'est en Nubie que le ___ est apparu..."></textarea>
           rep = container.querySelector(`.mix-text-rep[data-q="${qi}"]`)?.value || '';
         } else if (q.type === 'association') {
           const assocs = {};
-          container.querySelectorAll(`.mix-assoc-rep[data-q="${qi}"]`).forEach(input => {
-            assocs[input.dataset.idx] = input.value.trim();
+          container.querySelectorAll(`.mix-assoc-rep[data-q="${qi}"]`).forEach(select => {
+            assocs[select.dataset.idx] = select.value;
           });
           rep = assocs;
         }
@@ -1122,8 +1336,26 @@ Complète le texte : C'est en Nubie que le ___ est apparu..."></textarea>
         if (!container) return;
         if (snap.exists()) {
           const d = snap.data();
-          container.innerHTML = `<span class="rendu-status">✅ Devoir rendu</span> — Note : ${d.note ?? '-'}/${dv.bareme || 20}
-            <br><button class="add-btn" style="display:block;margin-top:6px;" onclick="window.reprendreSaisie('${slug}','${devoirId}')">Reprendre le devoir</button>`;
+          let resultHtml = `<span class="rendu-status">✅ Devoir rendu</span> — Note : ${d.note ?? '-'}/${dv.bareme || 20}`;
+          
+          if (d.corrections) {
+            resultHtml += `<div style="background:#f0f8ff;border:1px solid var(--brass);border-radius:8px;padding:10px;margin:10px 0;">`;
+            resultHtml += `<p style="font-size:12px;font-weight:600;">📊 Détail : ${d.score}/${d.total} bonnes réponses</p>`;
+            d.corrections.forEach((c, idx) => {
+              resultHtml += `<div style="display:flex;align-items:center;gap:8px;padding:2px 0;font-size:12px;border-bottom:1px solid #eee;">`;
+              resultHtml += `<span style="min-width:25px;">${idx+1}.</span>`;
+              resultHtml += `<span style="${c.estCorrect ? 'color:#2e7d32;' : 'color:#d9534f;'}">${escapeHtml(c.reponse || '—')}</span>`;
+              if (!c.estCorrect && c.attendue) {
+                resultHtml += `<span style="color:var(--slate);font-size:11px;">→ attendu : <strong>${escapeHtml(c.attendue)}</strong></span>`;
+              }
+              resultHtml += `<span style="margin-left:auto;">${c.estCorrect ? '✅' : '❌'}</span>`;
+              resultHtml += `</div>`;
+            });
+            resultHtml += `</div>`;
+          }
+          
+          resultHtml += `<br><button class="add-btn" style="display:block;margin-top:6px;" onclick="window.reprendreSaisie('${slug}','${devoirId}')">🔄 Reprendre le devoir</button>`;
+          container.innerHTML = resultHtml;
         } else {
           buildSaisieForm(slug, devoirId, dv, container);
         }
@@ -1139,17 +1371,33 @@ Complète le texte : C'est en Nubie que le ___ est apparu..."></textarea>
       return;
     }
     
+    let html = '';
+    if (dv.indice) {
+      html += `<div style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:10px;margin-bottom:15px;">
+        <span style="font-weight:600;">💡 Indice :</span> ${escapeHtml(dv.indice)}
+      </div>`;
+    }
+    
+    html += `<p style="margin-bottom:10px;font-weight:500;">📝 Complétez les trous dans le texte ci-dessous :</p>`;
+    html += `<div style="background:#f9f9f9;padding:15px;border-radius:6px;font-size:14px;line-height:2.2;border:1px solid var(--line);">`;
+    
     const parts = dv.structure.split('___');
-    let html = '<p style="margin-bottom:10px;">Complétez les trous dans le texte ci-dessous :</p>';
-    html += `<div style="background:#f9f9f9;padding:15px;border-radius:6px;font-size:14px;line-height:2;">`;
+    const totalTrous = parts.length - 1;
+    
     parts.forEach((part, i) => {
       html += part;
       if (i < parts.length - 1) {
-        html += `<input type="text" class="saisie-trou" data-idx="${i}" style="width:120px;padding:4px 8px;border:1px solid #ccc;border-radius:4px;border-bottom:2px solid var(--brass);" placeholder="...">`;
+        const placeholder = `Mot ${i+1}`;
+        html += `<input type="text" class="saisie-trou" data-idx="${i}" 
+          style="width:140px;padding:5px 10px;border:1px solid #ccc;border-radius:4px;border-bottom:3px solid var(--brass);
+          font-size:14px;text-align:center;"
+          placeholder="${placeholder}">`;
       }
     });
+    
     html += `</div>`;
-    html += `<button class="add-btn" style="display:block;margin-top:15px;" id="submit-saisie-${devoirId}">📤 Envoyer mes réponses</button>`;
+    html += `<div style="margin-top:10px;font-size:12px;color:var(--slate);">🔢 ${totalTrous} mot(s) à compléter</div>`;
+    html += `<button class="add-btn" style="display:block;margin-top:15px;background:var(--brass);color:#fff;" id="submit-saisie-${devoirId}">📤 Envoyer mes réponses</button>`;
     container.innerHTML = html;
 
     document.getElementById(`submit-saisie-${devoirId}`).onclick = async () => {
@@ -1158,12 +1406,53 @@ Complète le texte : C'est en Nubie que le ___ est apparu..."></textarea>
         reponses.push(input.value.trim());
       });
       
+      const vides = reponses.filter(r => r === '').length;
+      if (vides > 0) {
+        if (!confirm(`⚠️ Il vous reste ${vides} trou(s) à remplir. Voulez-vous quand même envoyer ?`)) {
+          return;
+        }
+      }
+      
+      let score = 0;
+      const total = dv.reponsesAttendues?.length || 0;
+      const corrections = [];
+      
+      if (dv.reponsesAttendues && dv.reponsesAttendues.length > 0) {
+        const mode = dv.modeCorrection || 'insensible';
+        reponses.forEach((rep, idx) => {
+          const attendue = dv.reponsesAttendues[idx] || '';
+          let estCorrect = false;
+          
+          if (mode === 'exact') {
+            estCorrect = rep === attendue;
+          } else if (mode === 'insensible') {
+            estCorrect = rep.toLowerCase() === attendue.toLowerCase();
+          } else if (mode === 'approximative') {
+            estCorrect = rep.toLowerCase().includes(attendue.toLowerCase()) || 
+                         attendue.toLowerCase().includes(rep.toLowerCase()) ||
+                         rep.toLowerCase().charAt(0) === attendue.toLowerCase().charAt(0);
+          }
+          
+          if (estCorrect && rep !== '') score++;
+          corrections.push({ reponse: rep, attendue: attendue, estCorrect: estCorrect });
+        });
+      }
+      
+      const bareme = dv.bareme || 20;
+      const note = total > 0 ? Math.round((score / total) * bareme * 100) / 100 : 0;
+      
+      const uid = auth.currentUser.uid;
       await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
         eleveNom: `${profile.prenom} ${profile.nom}`,
         reponses: reponses,
+        corrections: corrections,
+        score: score,
+        total: total,
+        note: note,
         date: serverTimestamp()
       });
-      alert('✅ Devoir envoyé !');
+      
+      alert(`✅ Devoir envoyé !\n📊 Score : ${score}/${total} (${note}/${bareme})`);
       location.reload();
     };
   }
@@ -1192,42 +1481,70 @@ Complète le texte : C'est en Nubie que le ___ est apparu..."></textarea>
         return;
       }
       
-      let html = '';
+      let html = `<div style="margin-bottom:15px;">
+        <p><strong>📝 Devoir :</strong> ${escapeHtml(dv.titre)}</p>
+        <p><strong>📊 Barème :</strong> ${dv.bareme || 20} points</p>
+        ${dv.type === 'mixte' && dv.typesActifs ? 
+          `<p><strong>📋 Types :</strong> ${Object.keys(dv.typesActifs).map(t => {
+            const labels = { qcm: 'QCM', 'text-trou': 'Trous', association: 'Association', 'reponse-libre': 'Libre' };
+            return labels[t] || t;
+          }).join(', ')}</p>` : ''}
+        <hr style="margin:15px 0;">
+      </div>`;
+      
       rendusSnap.forEach(rd => {
         const d = rd.data();
         const eleveNom = d.eleveNom || rd.id;
         html += `<div style="border:1px solid var(--line);border-radius:6px;padding:12px;margin-bottom:10px;">`;
         html += `<p><strong>👤 ${escapeHtml(eleveNom)}</strong>`;
-        if (d.note !== undefined) {
-          html += ` <span style="color:var(--brass);font-weight:700;">Note: ${d.note}/${dv.bareme || 20}</span>`;
+        html += ` <span style="color:var(--brass);font-weight:700;">Note: ${d.note || '-'}/${dv.bareme || 20}</span>`;
+        if (d.score !== undefined) {
+          html += ` <span style="font-size:12px;color:var(--slate);">(${d.score}/${d.total || '?'} bonnes réponses)</span>`;
         }
         html += `</p>`;
         
-        if (d.reponses) {
+        // Afficher les détails des réponses si disponibles
+        if (d.corrections && d.corrections.length > 0) {
+          html += `<div style="background:#f5f5f5;padding:8px;border-radius:4px;font-size:12px;margin-top:5px;">`;
+          d.corrections.forEach((c, idx) => {
+            const color = c.estCorrect ? '#2e7d32' : '#d9534f';
+            html += `<div style="display:flex;align-items:center;gap:8px;padding:2px 0;border-bottom:1px solid #eee;">`;
+            html += `<span style="font-weight:600;min-width:25px;">${idx+1}.</span>`;
+            html += `<span style="color:${color};">${escapeHtml(c.reponse || '—')}</span>`;
+            if (!c.estCorrect && c.attendue) {
+              html += `<span style="color:var(--slate);font-size:11px;">→ attendu : <strong>${escapeHtml(c.attendue)}</strong></span>`;
+            }
+            html += `<span style="margin-left:auto;">${c.estCorrect ? '✅' : '❌'}</span>`;
+            html += `</div>`;
+          });
+          html += `</div>`;
+        } else if (d.reponses) {
           html += `<div style="background:#f5f5f5;padding:8px;border-radius:4px;font-size:12px;margin-top:5px;">`;
           if (dv.type === 'qcm') {
-            const score = d.reponses.filter((r, i) => r === dv.questions[i].correctIndex).length;
-            html += `<p>Score: ${score}/${dv.questions.length}</p>`;
+            const total = dv.questions?.length || 0;
+            const correct = d.reponses.filter((r, i) => r === dv.questions[i]?.correctIndex).length;
+            html += `<p>Score : ${correct}/${total}</p>`;
           } else if (dv.type === 'mixte') {
-            html += `<p>Réponses: ${d.reponses.length} question(s) traitée(s)</p>`;
+            html += `<p>${d.reponses.length} question(s) traitée(s)</p>`;
           } else if (dv.type === 'saisie') {
-            html += `<p>Réponses: ${d.reponses.join(' | ')}</p>`;
+            html += `<p>Réponses : ${d.reponses.join(' | ')}</p>`;
           }
           html += `</div>`;
         }
         
-        html += `<div style="margin-top:8px;">
+        html += `<div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
           <input type="number" class="corr-note" data-uid="${rd.id}" value="${d.note || ''}" 
             min="0" max="${dv.bareme || 20}" step="0.5" 
             style="width:70px;padding:4px;border:1px solid #ccc;border-radius:4px;" placeholder="Note">
           <span style="font-size:12px;color:var(--slate);">/${dv.bareme || 20}</span>
           <button class="devoir-btn btn-export" onclick="window.sauverNote('${slug}','${devoirId}','${rd.id}')">💾 Enregistrer</button>
+          <button class="devoir-btn btn-voir-rendus" onclick="window.recalculerNoteAuto('${slug}','${devoirId}','${rd.id}')">🔄 Recalculer auto</button>
         </div>`;
         html += `</div>`;
       });
+      
       content.innerHTML = html;
       
-      // Sauvegarder le bouton
       document.getElementById('correction-save').onclick = async () => {
         const inputs = content.querySelectorAll('.corr-note');
         for (const input of inputs) {
@@ -1256,6 +1573,53 @@ Complète le texte : C'est en Nubie que le ___ est apparu..."></textarea>
     if (note > bareme) { alert(`La note ne peut pas dépasser ${bareme}.`); return; }
     await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), { note: note }, { merge: true });
     alert('✅ Note enregistrée !');
+  };
+
+  window.recalculerNoteAuto = async (slug, devoirId, uid) => {
+    try {
+      const renduSnap = await getDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid));
+      if (!renduSnap.exists()) return;
+      
+      const d = renduSnap.data();
+      const dvSnap = await getDoc(doc(db, 'ressources', slug, 'devoirs', devoirId));
+      const dv = dvSnap.data();
+      
+      // Différents calculs selon le type
+      let note = d.note;
+      let score = d.score;
+      let total = d.total;
+      
+      if (dv.type === 'saisie' && d.corrections) {
+        score = d.corrections.filter(c => c.estCorrect).length;
+        total = dv.reponsesAttendues?.length || 0;
+        const bareme = dv.bareme || 20;
+        note = total > 0 ? Math.round((score / total) * bareme * 100) / 100 : 0;
+      } else if (dv.type === 'qcm' && d.reponses && dv.questions) {
+        score = d.reponses.filter((r, i) => r === dv.questions[i]?.correctIndex).length;
+        total = dv.questions.length;
+        // Calcul pondéré par points
+        let totalPoints = 0;
+        let pointsObtenus = 0;
+        dv.questions.forEach((q, qi) => {
+          const pts = q.points || 1;
+          totalPoints += pts;
+          if (d.reponses[qi] === q.correctIndex) pointsObtenus += pts;
+        });
+        const bareme = dv.bareme || totalPoints;
+        note = totalPoints > 0 ? Math.round((pointsObtenus / totalPoints) * bareme * 100) / 100 : 0;
+      }
+      
+      await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
+        score: score,
+        total: total,
+        note: note
+      }, { merge: true });
+      
+      alert(`✅ Note recalculée : ${note}/${dv.bareme || 20} (${score}/${total} bonnes réponses)`);
+      location.reload();
+    } catch (err) {
+      alert('❌ Erreur: ' + err.message);
+    }
   };
 
   document.getElementById('correction-cancel')?.addEventListener('click', () => {
