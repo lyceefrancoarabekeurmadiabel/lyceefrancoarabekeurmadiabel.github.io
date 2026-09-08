@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulaire de Retour - LFAKM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #1B2A4A;
+            --ink-deep: #10192E;
+            --paper: #F7F5F0;
+            --brass: #A8853F;
+            --slate: #5B6472;
+            --text: #1A1A1A;
+            --line: rgba(27,42,74,0.14);
+            --serif: 'Source Serif 4', Georgia, serif;
+            --sans: 'Inter', sans-serif;
+            --success: #2e7d32;
+            --error: #d9534f;
+            --warning: #f39c12;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: var(--sans); color: var(--text); background: #f9f7f2; line-height:1.6; padding: 20px; }
+        
+        .container { max-width: 800px; margin: 0 auto; }
+        
+        .header {
+            background: var(--ink-deep);
+            color: #fff;
+            padding: 30px;
+            border-radius: 12px 12px 0 0;
+            text-align: center;
+        }
+        .header h1 { font-family: var(--serif); font-size: 28px; margin-bottom: 10px; }
+        .header p { color: #B7BCC9; font-size: 14px; }
+        
+        .tabs {
+            display: flex;
+            background: #fff;
+            border-bottom: 2px solid var(--line);
+            border-radius: 0 0 12px 12px;
+            overflow: hidden;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            background: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--slate);
+            transition: all 0.3s;
+            font-family: var(--sans);
+        }
+        .tab-btn:hover { background: var(--paper); }
+        .tab-btn.active { 
+            color: var(--brass);
+            border-bottom: 3px solid var(--brass);
+            background: var(--paper);
+        }
+        
+        .tab-content {
+            display: none;
+            background: #fff;
+            padding: 30px;
+            border-radius: 0 0 12px 12px;
+            border: 1px solid var(--line);
+            border-top: none;
+        }
+        .tab-content.active { display: block; }
+        
+        .section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--line);
+        }
+        .section:last-child { border-bottom: none; margin-bottom: 0; }
+        .section h2 { 
+            font-family: var(--serif); 
+            font-size: 18px; 
+            color: var(--ink);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section h2 .badge {
+            font-size: 11px;
+            background: var(--brass);
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-family: var(--sans);
+        }
+        
+        .field {
+            margin-bottom: 15px;
+        }
+        .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 5px;
+        }
+        .field .helper {
+            font-size: 11px;
+            color: var(--slate);
+            margin-top: 3px;
+        }
+        .field input,
+        .field select,
+        .field textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            font-family: var(--sans);
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus {
+            outline: none;
+            border-color: var(--brass);
+        }
+        .field textarea { resize: vertical; min-height: 60px; }
+        
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 400;
+            font-size: 13px;
+            padding: 5px 0;
+            cursor: pointer;
+        }
+        .checkbox-group label input[type="checkbox"],
+        .checkbox-group label input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        
+        .rating-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .rating-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 14px;
+            border: 2px solid var(--line);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+        }
+        .rating-group label:hover { border-color: var(--brass); background: var(--paper); }
+        .rating-group label input[type="radio"] { display: none; }
+        .rating-group label.active { border-color: var(--brass); background: #fdf8f0; }
+        .rating-group label .emoji { font-size: 18px; }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--brass);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: var(--sans);
+        }
+        .submit-btn:hover { background: #96743a; }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        #status-msg {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            display: none;
+            font-weight: 600;
+        }
+        #status-msg.success { display: block; background: #d4edda; color: var(--success); border: 1px solid var(--success); }
+        #status-msg.error { display: block; background: #f8d7da; color: var(--error); border: 1px solid var(--error); }
+        #status-msg.info { display: block; background: #d1ecf1; color: #0c5460; border: 1px solid #0c5460; }
+        
+        .progress-bar {
+            height: 4px;
+            background: var(--line);
+            border-radius: 2px;
+            margin: 10px 0 20px;
+            overflow: hidden;
+        }
+        .progress-bar .fill {
+            height: 100%;
+            background: var(--brass);
+            transition: width 0.5s;
+            width: 0%;
+            border-radius: 2px;
+        }
+        
+        .stats-preview {
+            background: var(--paper);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            display: none;
+        }
+        .stats-preview.show { display: block; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+        .stats-item {
+            text-align: center;
+            padding: 10px;
+            background: #fff;
+            border-radius: 6px;
+        }
+        .stats-item .number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+        .stats-item .label {
+            font-size: 11px;
+            color: var(--slate);
+        }
+        
+        @media (max-width: 600px) {
+            .header { padding: 20px; }
+            .header h1 { font-size: 22px; }
+            .tab-btn { font-size: 12px; padding: 10px; }
+            .tab-content { padding: 15px; }
+            .rating-group label { padding: 6px 10px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- HEADER -->
+    <div class="header">
+        <h1>📋 Retour d'Expérience</h1>
+        <p>Votre avis nous aide à améliorer la plateforme du Lycée Franco Arabe de Keur Madiabel.</p>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="professeurs">👨‍🏫 Professeurs</button>
+        <button class="tab-btn" data-tab="eleves">🎓 Élèves</button>
+        <button class="tab-btn" data-tab="dashboard">📊 Dashboard</button>
+    </div>
+
+    <!-- ==================== TAB PROFESSEURS ==================== -->
+    <div id="tab-professeurs" class="tab-content active">
+        <form id="form-professeurs">
+            <div class="progress-bar"><div class="fill" id="progress-profs"></div></div>
+
+            <!-- SECTION 1: Profil -->
+            <div class="section">
+                <h2>👤 Votre profil</h2>
+                <div class="field">
+                    <label>Nom et prénom *</label>
+                    <input type="text" id="prof-nom" placeholder="Ex: Diallo Mamadou" required>
+                </div>
+                <div class="field">
+                    <label>Matière(s) enseignée(s) *</label>
+                    <input type="text" id="prof-matieres" placeholder="Ex: Mathématiques, Physique-Chimie" required>
+                </div>
+                <div class="field">
+                    <label>Classe(s) concernée(s)</label>
+                    <input type="text" id="prof-classes" placeholder="Ex: 2s2a, 1s2a, ts2a">
+                </div>
+                <div class="field">
+                    <label>Email (facultatif)</label>
+                    <input type="email" id="prof-email" placeholder="votre.email@lfakm.sn">
+                </div>
+            </div>
+
+            <!-- SECTION 2: Types de devoirs -->
+            <div class="section">
+                <h2>📝 Types de devoirs</h2>
+                <div class="field">
+                    <label>Quels types de devoirs utilisez-vous le plus ?</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" class="prof-type" value="fichier"> 📄 Fichier à rendre</label>
+                        <label><input type="checkbox" class="prof-type" value="qcm"> 📝 QCM</label>
+                        <label><input type="checkbox" class="prof-type" value="mixte"> 🧩 Devoir mixte</label>
+                        <label><input type="checkbox" class="prof-type" value="saisie"> ✏️ Saisie directe</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Manque-t-il un type de question ?</label>
+                    <textarea id="prof-types-manquants" rows="2" placeholder="Décrivez ce que vous aimeriez avoir..."></textarea>
+                    <div class="helper">Ex: Exercice à trous avec image, QCM à réponses multiples, etc.</div>
+                </div>
+                <div class="field">
+                    <label>Quelle est la durée moyenne de création d'un devoir ?</label>
+                    <select id="prof-duree-creation">
+                        <option value="moins-5">Moins de 5 minutes</option>
+                        <option value="5-10">5 à 10 minutes</option>
+                        <option value="10-20">10 à 20 minutes</option>
+                        <option value="plus-20">Plus de 20 minutes</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- SECTION 3: Interface -->
+            <div class="section">
+                <h2>🖥️ Interface</h2>
+                <div class="field">
+                    <label>L'interface de création est-elle intuitive ?</label>
+                    <div class="rating-group" id="prof-intuitive">
+                        <label data-value="1"><input type="radio" name="prof-intuitive" value="1"><span class="emoji">😞</span> Très complexe</label>
+                        <label data-value="2"><input type="radio" name="prof-intuitive" value="2"><span class="emoji">😕</span> Complexe</label>
+                        <label data-value="3"><input type="radio" name="prof-intuitive" value="3"><span class="emoji">😐</span> Moyenne</label>
+                        <label data-value="4"><input type="radio" name="prof-intuitive" value="4"><span class="emoji">😊</span> Intuitive</label>
+                        <label data-value="5"><input type="radio" name="prof-intuitive" value="5"><span class="emoji">🤩</span> Très intuitive</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>La correction est-elle facile à utiliser ?</label>
+                    <div class="rating-group" id="prof-correction">
+                        <label data-value="1"><input type="radio" name="prof-correction" value="1"><span class="emoji">😞</span> Très difficile</label>
+                        <label data-value="2"><input type="radio" name="prof-correction" value="2"><span class="emoji">😕</span> Difficile</label>
+                        <label data-value="3"><input type="radio" name="prof-correction" value="3"><span class="emoji">😐</span> Moyen</label>
+                        <label data-value="4"><input type="radio" name="prof-correction" value="4"><span class="emoji">😊</span> Facile</label>
+                        <label data-value="5"><input type="radio" name="prof-correction" value="5"><span class="emoji">🤩</span> Très facile</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Qu'est-ce qui pourrait être amélioré dans l'interface ?</label>
+                    <textarea id="prof-interface-ameliorations" rows="3" placeholder="Vos suggestions..."></textarea>
+                </div>
+            </div>
+
+            <!-- SECTION 4: Correction automatique -->
+            <div class="section">
+                <h2>🤖 Correction automatique</h2>
+                <div class="field">
+                    <label>La correction des QCM est-elle fiable ?</label>
+                    <div class="rating-group" id="prof-qcm-fiable">
+                        <label data-value="1"><input type="radio" name="prof-qcm-fiable" value="1"><span class="emoji">😞</span> Pas fiable</label>
+                        <label data-value="2"><input type="radio" name="prof-qcm-fiable" value="2"><span class="emoji">😕</span> Peu fiable</label>
+                        <label data-value="3"><input type="radio" name="prof-qcm-fiable" value="3"><span class="emoji">😐</span> Moyen</label>
+                        <label data-value="4"><input type="radio" name="prof-qcm-fiable" value="4"><span class="emoji">😊</span> Fiable</label>
+                        <label data-value="5"><input type="radio" name="prof-qcm-fiable" value="5"><span class="emoji">🤩</span> Très fiable</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>La correction des textes à trous est-elle satisfaisante ?</label>
+                    <div class="rating-group" id="prof-trous-satisfaisant">
+                        <label data-value="1"><input type="radio" name="prof-trous-satisfaisant" value="1"><span class="emoji">😞</span> Pas du tout</label>
+                        <label data-value="2"><input type="radio" name="prof-trous-satisfaisant" value="2"><span class="emoji">😕</span> Peu</label>
+                        <label data-value="3"><input type="radio" name="prof-trous-satisfaisant" value="3"><span class="emoji">😐</span> Moyen</label>
+                        <label data-value="4"><input type="radio" name="prof-trous-satisfaisant" value="4"><span class="emoji">😊</span> Satisfaisant</label>
+                        <label data-value="5"><input type="radio" name="prof-trous-satisfaisant" value="5"><span class="emoji">🤩</span> Très satisfaisant</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Souhaitez-vous une correction par IA pour les réponses libres ?</label>
+                    <div class="checkbox-group">
+                        <label><input type="radio" name="prof-ia-correction" value="oui"> ✅ Oui, intéressant</label>
+                        <label><input type="radio" name="prof-ia-correction" value="non" checked> ❌ Non, je préfère corriger moi-même</label>
+                        <label><input type="radio" name="prof-ia-correction" value="peut-etre"> 🤔 Peut-être, à tester</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Si une IA corrigeait les copies, quelle serait votre principale inquiétude ?</label>
+                    <textarea id="prof-ia-inquietude" rows="2" placeholder="Ex: Manque de précision, perte de contrôle, etc."></textarea>
+                </div>
+            </div>
+
+            <!-- SECTION 5: Fonctionnalités souhaitées -->
+            <div class="section">
+                <h2>⭐ Fonctionnalités souhaitées <span class="badge">Priorité</span></h2>
+                <div class="field">
+                    <label>Quelles fonctionnalités aimeriez-vous avoir en priorité ?</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" class="prof-souhait" value="multi-classes"> 📚 Publier dans plusieurs classes</label>
+                        <label><input type="checkbox" class="prof-souhait" value="modeles"> 📁 Modèles de devoirs</label>
+                        <label><input type="checkbox" class="prof-souhait" value="statistiques"> 📊 Statistiques par matière</label>
+                        <label><input type="checkbox" class="prof-souhait" value="annotations"> 🖊️ Annotations sur copies</label>
+                        <label><input type="checkbox" class="prof-souhait" value="rappels"> 🔔 Rappels automatiques</label>
+                        <label><input type="checkbox" class="prof-souhait" value="export-pdf"> 📄 Export PDF des corrections</label>
+                        <label><input type="checkbox" class="prof-souhait" value="groupe"> 👥 Groupes de travail</label>
+                        <label><input type="checkbox" class="prof-souhait" value="autres"> 💡 Autre (précisez ci-dessous)</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Autres suggestions</label>
+                    <textarea id="prof-autres-suggestions" rows="3" placeholder="Vos idées..."></textarea>
+                </div>
+            </div>
+
+            <!-- SECTION 6: Difficultés -->
+            <div class="section">
+                <h2>⚠️ Difficultés rencontrées</h2>
+                <div class="field">
+                    <label>Avez-vous rencontré des problèmes ?</label>
+                    <textarea id="prof-problemes" rows="3" placeholder="Décrivez les problèmes rencontrés..."></textarea>
+                </div>
+                <div class="field">
+                    <label>Fonctionnalités que vous n'utilisez jamais</label>
+                    <input type="text" id="prof-inutilises" placeholder="Ex: QCM, export Excel, etc.">
+                </div>
+                <div class="field">
+                    <label>Quel est le plus grand frein à l'utilisation de la plateforme ?</label>
+                    <select id="prof-frein">
+                        <option value="aucun">Aucun, j'adore l'utiliser</option>
+                        <option value="temps">Manque de temps</option>
+                        <option value="technique">Difficultés techniques</option>
+                        <option value="habitude">Je préfère le papier</option>
+                        <option value="eleves">Les élèves ne l'utilisent pas assez</option>
+                        <option value="autre">Autre (précisez ci-dessous)</option>
+                    </select>
+                </div>
+                <div class="field" id="prof-frein-autre" style="display:none;">
+                    <label>Précisez</label>
+                    <input type="text" id="prof-frein-autre-texte" placeholder="Détaillez...">
+                </div>
+            </div>
+
+            <!-- SECTION 7: Conclusion -->
+            <div class="section">
+                <h2>📊 Conclusion</h2>
+                <div class="field">
+                    <label>Note globale de la plateforme</label>
+                    <div class="rating-group" id="prof-note-globale">
+                        <label data-value="1"><input type="radio" name="prof-note-globale" value="1"><span class="emoji">⭐</span> 1/5</label>
+                        <label data-value="2"><input type="radio" name="prof-note-globale" value="2"><span class="emoji">⭐⭐</span> 2/5</label>
+                        <label data-value="3"><input type="radio" name="prof-note-globale" value="3"><span class="emoji">⭐⭐⭐</span> 3/5</label>
+                        <label data-value="4"><input type="radio" name="prof-note-globale" value="4"><span class="emoji">⭐⭐⭐⭐</span> 4/5</label>
+                        <label data-value="5"><input type="radio" name="prof-note-globale" value="5"><span class="emoji">⭐⭐⭐⭐⭐</span> 5/5</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Recommanderiez-vous cette plateforme à d'autres professeurs ?</label>
+                    <div class="checkbox-group">
+                        <label><input type="radio" name="prof-recommander" value="oui"> ✅ Oui, absolument</label>
+                        <label><input type="radio" name="prof-recommander" value="peut-etre"> 🤔 Peut-être</label>
+                        <label><input type="radio" name="prof-recommander" value="non"> ❌ Non, pas encore</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Un dernier mot ?</label>
+                    <textarea id="prof-dernier-mot" rows="2" placeholder="Votre message..."></textarea>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">📤 Envoyer mon retour</button>
+            <div id="status-msg-profs"></div>
+        </form>
+    </div>
+
+    <!-- ==================== TAB ÉLÈVES ==================== -->
+    <div id="tab-eleves" class="tab-content">
+        <form id="form-eleves">
+            <div class="progress-bar"><div class="fill" id="progress-eleves"></div></div>
+
+            <!-- SECTION 1: Profil -->
+            <div class="section">
+                <h2>👤 Ton profil</h2>
+                <div class="field">
+                    <label>Nom et prénom *</label>
+                    <input type="text" id="eleve-nom" placeholder="Ex: Tall Djiby" required>
+                </div>
+                <div class="field">
+                    <label>Classe *</label>
+                    <select id="eleve-classe" required>
+                        <option value="">-- Choisis ta classe --</option>
+                        <option value="6a">6ème A</option>
+                        <option value="6b">6ème B</option>
+                        <option value="6c">6ème C</option>
+                        <option value="5a">5ème A</option>
+                        <option value="5b">5ème B</option>
+                        <option value="4a">4ème A</option>
+                        <option value="4b">4ème B</option>
+                        <option value="3a">3ème A</option>
+                        <option value="3b">3ème B</option>
+                        <option value="2s2a">Seconde S2A</option>
+                        <option value="1s2a">Première S2A</option>
+                        <option value="ts2a">Terminale S2A</option>
+                        <option value="2la">Seconde LA</option>
+                        <option value="1la">Première LA</option>
+                        <option value="tla1">Terminale LA 1</option>
+                        <option value="tla2">Terminale LA 2</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- SECTION 2: Utilisation -->
+            <div class="section">
+                <h2>📱 Utilisation</h2>
+                <div class="field">
+                    <label>Comment trouves-tu la plateforme ?</label>
+                    <div class="rating-group" id="eleve-facilite">
+                        <label data-value="1"><input type="radio" name="eleve-facilite" value="1"><span class="emoji">😞</span> Très difficile</label>
+                        <label data-value="2"><input type="radio" name="eleve-facilite" value="2"><span class="emoji">😕</span> Difficile</label>
+                        <label data-value="3"><input type="radio" name="eleve-facilite" value="3"><span class="emoji">😐</span> Moyen</label>
+                        <label data-value="4"><input type="radio" name="eleve-facilite" value="4"><span class="emoji">😊</span> Facile</label>
+                        <label data-value="5"><input type="radio" name="eleve-facilite" value="5"><span class="emoji">🤩</span> Très facile</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Quel type de devoir préfères-tu ?</label>
+                    <div class="checkbox-group">
+                        <label><input type="radio" name="eleve-type-prefere" value="fichier"> 📄 Fichier à rendre</label>
+                        <label><input type="radio" name="eleve-type-prefere" value="qcm"> 📝 QCM</label>
+                        <label><input type="radio" name="eleve-type-prefere" value="mixte"> 🧩 Devoir mixte</label>
+                        <label><input type="radio" name="eleve-type-prefere" value="saisie"> ✏️ Saisie directe</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>À quelle fréquence utilises-tu la plateforme ?</label>
+                    <select id="eleve-frequence">
+                        <option value="quotidien">Tous les jours</option>
+                        <option value="plusieurs-fois-semaine">Plusieurs fois par semaine</option>
+                        <option value="une-fois-semaine">Une fois par semaine</option>
+                        <option value="rarement">Rarement</option>
+                        <option value="premiere-fois">C'est la première fois</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- SECTION 3: Rendre un devoir -->
+            <div class="section">
+                <h2>📤 Rendre un devoir</h2>
+                <div class="field">
+                    <label>Est-ce facile de rendre un devoir ?</label>
+                    <div class="rating-group" id="eleve-rendu-facile">
+                        <label data-value="1"><input type="radio" name="eleve-rendu-facile" value="1"><span class="emoji">😞</span> Très difficile</label>
+                        <label data-value="2"><input type="radio" name="eleve-rendu-facile" value="2"><span class="emoji">😕</span> Difficile</label>
+                        <label data-value="3"><input type="radio" name="eleve-rendu-facile" value="3"><span class="emoji">😐</span> Moyen</label>
+                        <label data-value="4"><input type="radio" name="eleve-rendu-facile" value="4"><span class="emoji">😊</span> Facile</label>
+                        <label data-value="5"><input type="radio" name="eleve-rendu-facile" value="5"><span class="emoji">🤩</span> Très facile</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>As-tu déjà eu un problème pour rendre un devoir ?</label>
+                    <div class="checkbox-group">
+                        <label><input type="radio" name="eleve-probleme-rendu" value="non"> ✅ Non, jamais</label>
+                        <label><input type="radio" name="eleve-probleme-rendu" value="une-fois"> ⚠️ Une fois</label>
+                        <label><input type="radio" name="eleve-probleme-rendu" value="plusieurs"> ❌ Plusieurs fois</label>
+                    </div>
+                </div>
+                <div class="field" id="eleve-probleme-detail" style="display:none;">
+                    <label>Décris le problème</label>
+                    <textarea id="eleve-probleme-texte" rows="2" placeholder="Ex: Le fichier ne s'envoyait pas..."></textarea>
+                </div>
+                <div class="field">
+                    <label>Est-ce que tu reçois un retour sur tes devoirs rendus ?</label>
+                    <div class="checkbox-group">
+                        <label><input type="radio" name="eleve-retour" value="oui"> ✅ Oui, toujours</label>
+                        <label><input type="radio" name="eleve-retour" value="parfois"> 🤔 Parfois</label>
+                        <label><input type="radio" name="eleve-retour" value="non"> ❌ Non, jamais</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 4: Feedback -->
+            <div class="section">
+                <h2>💬 Retour</h2>
+                <div class="field">
+                    <label>Comprends-tu bien les consignes des devoirs ?</label>
+                    <div class="rating-group" id="eleve-consignes">
+                        <label data-value="1"><input type="radio" name="eleve-consignes" value="1"><span class="emoji">😞</span> Pas claires</label>
+                        <label data-value="2"><input type="radio" name="eleve-consignes" value="2"><span class="emoji">😕</span> Peu claires</label>
+                        <label data-value="3"><input type="radio" name="eleve-consignes" value="3"><span class="emoji">😐</span> Moyen</label>
+                        <label data-value="4"><input type="radio" name="eleve-consignes" value="4"><span class="emoji">😊</span> Claires</label>
+                        <label data-value="5"><input type="radio" name="eleve-consignes" value="5"><span class="emoji">🤩</span> Très claires</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Aimes-tu les QCM en ligne ?</label>
+                    <div class="checkbox-group">
+                        <label><input type="radio" name="eleve-aime-qcm" value="oui"> ✅ Oui, beaucoup</label>
+                        <label><input type="radio" name="eleve-aime-qcm" value="moyen"> 🤔 Moyen</label>
+                        <label><input type="radio" name="eleve-aime-qcm" value="non"> ❌ Non, je préfère sur papier</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Qu'est-ce qui pourrait être amélioré ?</label>
+                    <textarea id="eleve-ameliorations" rows="3" placeholder="Tes suggestions..."></textarea>
+                </div>
+                <div class="field">
+                    <label>Si tu pouvais changer une chose, ce serait quoi ?</label>
+                    <input type="text" id="eleve-une-chose" placeholder="Ex: Plus de QCM, des vidéos, etc.">
+                </div>
+            </div>
+
+            <!-- SECTION 5: Conclusion -->
+            <div class="section">
+                <h2>⭐ Conclusion</h2>
+                <div class="field">
+                    <label>Note globale de la plateforme</label>
+                    <div class="rating-group" id="eleve-note-globale">
+                        <label data-value="1"><input type="radio" name="eleve-note-globale" value="1"><span class="emoji">⭐</span> 1/5</label>
+                        <label data-value="2"><input type="radio" name="eleve-note-globale" value="2"><span class="emoji">⭐⭐</span> 2/5</label>
+                        <label data-value="3"><input type="radio" name="eleve-note-globale" value="3"><span class="emoji">⭐⭐⭐</span> 3/5</label>
+                        <label data-value="4"><input type="radio" name="eleve-note-globale" value="4"><span class="emoji">⭐⭐⭐⭐</span> 4/5</label>
+                        <label data-value="5"><input type="radio" name="eleve-note-globale" value="5"><span class="emoji">⭐⭐⭐⭐⭐</span> 5/5</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Un dernier mot ?</label>
+                    <textarea id="eleve-dernier-mot" rows="2" placeholder="Ton message..."></textarea>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">📤 Envoyer mon avis</button>
+            <div id="status-msg-eleves"></div>
+        </form>
+    </div>
+
+    <!-- ==================== TAB DASHBOARD ==================== -->
+    <div id="tab-dashboard" class="tab-content">
+        <h2 style="font-family:var(--serif);color:var(--ink);margin-bottom:20px;">📊 Tableau de bord des retours</h2>
+        <div id="dashboard-stats">
+            <div class="stats-preview show">
+                <div class="stats-grid">
+                    <div class="stats-item">
+                        <div class="number" id="dash-profs">0</div>
+                        <div class="label">👨‍🏫 Professeurs</div>
+                    </div>
+                    <div class="stats-item">
+                        <div class="number" id="dash-eleves">0</div>
+                        <div class="label">🎓 Élèves</div>
+                    </div>
+                    <div class="stats-item">
+                        <div class="number" id="dash-note-profs">-</div>
+                        <div class="label">📊 Note moyenne profs</div>
+                    </div>
+                    <div class="stats-item">
+                        <div class="number" id="dash-note-eleves">-</div>
+                        <div class="label">📊 Note moyenne élèves</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="dashboard-details">
+            <p style="color:var(--slate);text-align:center;padding:30px;">📊 Les données s'afficheront ici une fois les retours collectés.</p>
+        </div>
+        <button class="submit-btn" onclick="rafraichirDashboard()" style="margin-top:20px;">🔄 Rafraîchir</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, getDocs, collection, addDoc, serverTimestamp, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+        authDomain: "lfakm-87dec.firebaseapp.com",
+        projectId: "lfakm-87dec",
+        storageBucket: "lfakm-87dec.firebasestorage.app",
+        messagingSenderId: "739517262614",
+        appId: "1:739517262614:web:14abd3538427960c527e37"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // ============ GESTION DES TABS ============
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        });
+    });
+
+    // ============ RATING GROUPS ============
+    document.querySelectorAll('.rating-group').forEach(group => {
+        group.querySelectorAll('label').forEach(label => {
+            label.addEventListener('click', () => {
+                group.querySelectorAll('label').forEach(l => l.classList.remove('active'));
+                label.classList.add('active');
+                const radio = label.querySelector('input[type="radio"]');
+                if (radio) radio.checked = true;
+            });
+        });
+    });
+
+    // ============ PROGRESS BAR ============
+    function updateProgress(formId, progressId) {
+        const form = document.getElementById(formId);
+        if (!form) return;
+        const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+        let filled = 0;
+        inputs.forEach(input => {
+            if (input.value && input.value.trim() !== '') filled++;
+        });
+        const pct = Math.round((filled / inputs.length) * 100);
+        document.getElementById(progressId).style.width = Math.min(pct, 100) + '%';
+    }
+
+    document.querySelectorAll('#form-professeurs input, #form-professeurs select, #form-professeurs textarea').forEach(el => {
+        el.addEventListener('change', () => updateProgress('form-professeurs', 'progress-profs'));
+        el.addEventListener('input', () => updateProgress('form-professeurs', 'progress-profs'));
+    });
+
+    document.querySelectorAll('#form-eleves input, #form-eleves select, #form-eleves textarea').forEach(el => {
+        el.addEventListener('change', () => updateProgress('form-eleves', 'progress-eleves'));
+        el.addEventListener('input', () => updateProgress('form-eleves', 'progress-eleves'));
+    });
+
+    // ============ FREIN AUTRE ============
+    document.getElementById('prof-frein')?.addEventListener('change', (e) => {
+        document.getElementById('prof-frein-autre').style.display = e.target.value === 'autre' ? 'block' : 'none';
+    });
+
+    // ============ PROBLÈME RENDU DÉTAIL ============
+    document.querySelectorAll('input[name="eleve-probleme-rendu"]').forEach(el => {
+        el.addEventListener('change', () => {
+            document.getElementById('eleve-probleme-detail').style.display = 
+                document.querySelector('input[name="eleve-probleme-rendu"]:checked')?.value !== 'non' ? 'block' : 'none';
+        });
+    });
+
+    // ============ SOUMISSION PROFESSEURS ============
+    document.getElementById('form-professeurs').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('.submit-btn');
+        const status = document.getElementById('status-msg-profs');
+        btn.disabled = true;
+        btn.textContent = '📤 Envoi en cours...';
+
+        try {
+            const data = {
+                type: 'professeur',
+                nom: document.getElementById('prof-nom').value,
+                matieres: document.getElementById('prof-matieres').value,
+                classes: document.getElementById('prof-classes').value,
+                email: document.getElementById('prof-email').value,
+                types: Array.from(document.querySelectorAll('.prof-type:checked')).map(c => c.value),
+                typesManquants: document.getElementById('prof-types-manquants').value,
+                dureeCreation: document.getElementById('prof-duree-creation').value,
+                intuitive: document.querySelector('input[name="prof-intuitive"]:checked')?.value || null,
+                correction: document.querySelector('input[name="prof-correction"]:checked')?.value || null,
+                interfaceAmeliorations: document.getElementById('prof-interface-ameliorations').value,
+                qcmFiable: document.querySelector('input[name="prof-qcm-fiable"]:checked')?.value || null,
+                trousSatisfaisant: document.querySelector('input[name="prof-trous-satisfaisant"]:checked')?.value || null,
+                iaCorrection: document.querySelector('input[name="prof-ia-correction"]:checked')?.value || 'non',
+                iaInquietude: document.getElementById('prof-ia-inquietude').value,
+                souhaits: Array.from(document.querySelectorAll('.prof-souhait:checked')).map(c => c.value),
+                autresSuggestions: document.getElementById('prof-autres-suggestions').value,
+                problemes: document.getElementById('prof-problemes').value,
+                inutilises: document.getElementById('prof-inutilises').value,
+                frein: document.getElementById('prof-frein').value,
+                freinAutre: document.getElementById('prof-frein-autre-texte').value,
+                noteGlobale: document.querySelector('input[name="prof-note-globale"]:checked')?.value || null,
+                recommander: document.querySelector('input[name="prof-recommander"]:checked')?.value || null,
+                dernierMot: document.getElementById('prof-dernier-mot').value,
+                date: serverTimestamp()
+            };
+
+            await addDoc(collection(db, 'feedbacks_professeurs'), data);
+            status.className = 'success';
+            status.textContent = '✅ Merci ! Votre retour a été enregistré avec succès.';
+            e.target.reset();
+            document.querySelectorAll('.rating-group label').forEach(l => l.classList.remove('active'));
+            updateProgress('form-professeurs', 'progress-profs');
+
+        } catch (err) {
+            status.className = 'error';
+            status.textContent = '❌ Erreur: ' + err.message;
+        }
+
+        btn.disabled = false;
+        btn.textContent = '📤 Envoyer mon retour';
+    });
+
+    // ============ SOUMISSION ÉLÈVES ============
+    document.getElementById('form-eleves').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('.submit-btn');
+        const status = document.getElementById('status-msg-eleves');
+        btn.disabled = true;
+        btn.textContent = '📤 Envoi en cours...';
+
+        try {
+            const data = {
+                type: 'eleve',
+                nom: document.getElementById('eleve-nom').value,
+                classe: document.getElementById('eleve-classe').value,
+                facilite: document.querySelector('input[name="eleve-facilite"]:checked')?.value || null,
+                typePrefere: document.querySelector('input[name="eleve-type-prefere"]:checked')?.value || null,
+                frequence: document.getElementById('eleve-frequence').value,
+                renduFacile: document.querySelector('input[name="eleve-rendu-facile"]:checked')?.value || null,
+                problemeRendu: document.querySelector('input[name="eleve-probleme-rendu"]:checked')?.value || 'non',
+                problemeTexte: document.getElementById('eleve-probleme-texte').value,
+                retour: document.querySelector('input[name="eleve-retour"]:checked')?.value || null,
+                consignes: document.querySelector('input[name="eleve-consignes"]:checked')?.value || null,
+                aimeQcm: document.querySelector('input[name="eleve-aime-qcm"]:checked')?.value || null,
+                ameliorations: document.getElementById('eleve-ameliorations').value,
+                uneChose: document.getElementById('eleve-une-chose').value,
+                noteGlobale: document.querySelector('input[name="eleve-note-globale"]:checked')?.value || null,
+                dernierMot: document.getElementById('eleve-dernier-mot').value,
+                date: serverTimestamp()
+            };
+
+            await addDoc(collection(db, 'feedbacks_eleves'), data);
+            status.className = 'success';
+            status.textContent = '✅ Merci ! Ton avis a été enregistré avec succès.';
+            e.target.reset();
+            document.querySelectorAll('.rating-group label').forEach(l => l.classList.remove('active'));
+            updateProgress('form-eleves', 'progress-eleves');
+
+        } catch (err) {
+            status.className = 'error';
+            status.textContent = '❌ Erreur: ' + err.message;
+        }
+
+        btn.disabled = false;
+        btn.textContent = '📤 Envoyer mon avis';
+    });
+
+    // ============ DASHBOARD ============
+    window.rafraichirDashboard = async () => {
+        try {
+            const profsSnap = await getDocs(query(collection(db, 'feedbacks_professeurs'), orderBy('date', 'desc'), limit(100)));
+            const elevesSnap = await getDocs(query(collection(db, 'feedbacks_eleves'), orderBy('date', 'desc'), limit(100)));
+
+            const profs = profsSnap.docs.map(d => d.data());
+            const eleves = elevesSnap.docs.map(d => d.data());
+
+            document.getElementById('dash-profs').textContent = profs.length;
+            document.getElementById('dash-eleves').textContent = eleves.length;
+
+            // Calcul des notes moyennes
+            const notesProfs = profs.filter(p => p.noteGlobale).map(p => parseInt(p.noteGlobale));
+            const notesEleves = eleves.filter(e => e.noteGlobale).map(e => parseInt(e.noteGlobale));
+
+            const moyProfs = notesProfs.length > 0 ? (notesProfs.reduce((a, b) => a + b, 0) / notesProfs.length).toFixed(1) : '-';
+            const moyEleves = notesEleves.length > 0 ? (notesEleves.reduce((a, b) => a + b, 0) / notesEleves.length).toFixed(1) : '-';
+
+            document.getElementById('dash-note-profs').textContent = moyProfs + '/5';
+            document.getElementById('dash-note-eleves').textContent = moyEleves + '/5';
+
+            // Détails des derniers retours
+            const detailsDiv = document.getElementById('dashboard-details');
+            let html = '<h3 style="font-family:var(--serif);color:var(--ink);margin:20px 0 15px;">📋 Derniers retours</h3>';
+            
+            // Derniers professeurs
+            if (profs.length > 0) {
+                html += `<h4 style="color:var(--brass);margin:10px 0;">👨‍🏫 Professeurs (${profs.length})</h4>`;
+                html += `<div style="max-height:300px;overflow-y:auto;">`;
+                profs.slice(0, 5).forEach(p => {
+                    const date = p.date?.toDate ? p.date.toDate().toLocaleDateString('fr-FR') : 'Date inconnue';
+                    html += `<div style="background:var(--paper);padding:10px;border-radius:6px;margin-bottom:8px;font-size:13px;">`;
+                    html += `<strong>${p.nom || 'Anonyme'}</strong> — ${p.matieres || 'Sans matière'} <span style="color:var(--slate);font-size:11px;">${date}</span>`;
+                    if (p.noteGlobale) html += ` <span style="color:var(--brass);font-weight:700;">⭐ ${p.noteGlobale}/5</span>`;
+                    if (p.dernierMot) html += `<p style="font-size:12px;color:var(--slate);margin-top:4px;">"${p.dernierMot}"</p>`;
+                    html += `</div>`;
+                });
+                html += `</div>`;
+            }
+
+            // Derniers élèves
+            if (eleves.length > 0) {
+                html += `<h4 style="color:var(--brass);margin:15px 0 10px;">🎓 Élèves (${eleves.length})</h4>`;
+                html += `<div style="max-height:300px;overflow-y:auto;">`;
+                eleves.slice(0, 5).forEach(e => {
+                    const date = e.date?.toDate ? e.date.toDate().toLocaleDateString('fr-FR') : 'Date inconnue';
+                    html += `<div style="background:var(--paper);padding:10px;border-radius:6px;margin-bottom:8px;font-size:13px;">`;
+                    html += `<strong>${e.nom || 'Anonyme'}</strong> — ${e.classe || 'Sans classe'} <span style="color:var(--slate);font-size:11px;">${date}</span>`;
+                    if (e.noteGlobale) html += ` <span style="color:var(--brass);font-weight:700;">⭐ ${e.noteGlobale}/5</span>`;
+                    if (e.dernierMot) html += `<p style="font-size:12px;color:var(--slate);margin-top:4px;">"${e.dernierMot}"</p>`;
+                    html += `</div>`;
+                });
+                html += `</div>`;
+            }
+
+            if (profs.length === 0 && eleves.length === 0) {
+                html += `<p style="color:var(--slate);text-align:center;padding:20px;">📊 Aucun retour pour le moment.</p>`;
+            }
+
+            detailsDiv.innerHTML = html;
+
+        } catch (err) {
+            document.getElementById('dashboard-details').innerHTML = `<p style="color:var(--error);">❌ Erreur de chargement: ${err.message}</p>`;
+        }
+    };
+
+    // Charger le dashboard au démarrage
+    rafraichirDashboard();
+
+    // ============ COMPATIBILITÉ ============
+    console.log('✅ Formulaire de retour LFAKM chargé avec succès !');
+    console.log('📊 Pour voir les retours, allez dans l\'onglet "Dashboard"');
+
+</script>
+</body>
+</html>
