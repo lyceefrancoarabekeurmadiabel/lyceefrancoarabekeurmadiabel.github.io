@@ -108,6 +108,7 @@
   @media (max-width: 768px) { .chart-row { grid-template-columns: 1fr; } }
   .chart-box { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 20px; min-height: 300px; position: relative; }
   .chart-box h3 { font-size: 16px; margin-bottom: 15px; color: var(--ink); }
+  .chart-box h3 small { font-size: 12px; font-weight: normal; color: var(--slate); }
 
   table { width: 100%; border-collapse: collapse; margin-top: 15px; }
   th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
@@ -202,7 +203,7 @@
         <div id="radar-message" class="aucune-note" style="display:none;">Aucune donnée disponible</div>
       </div>
       <div class="chart-box">
-        <h3>📈 Évolution de la moyenne</h3>
+        <h3>📈 Évolution de la moyenne <small id="line-info"></small></h3>
         <canvas id="line-chart"></canvas>
         <div id="line-message" class="aucune-note" style="display:none;">Aucune donnée disponible</div>
       </div>
@@ -243,8 +244,6 @@
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getFirestore, doc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  console.log("=== DÉBUT SCRIPT PROFIL ÉLÈVE ===");
-
   const firebaseConfig = {
     apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
     authDomain: "lfakm-87dec.firebaseapp.com",
@@ -258,7 +257,6 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // Menu mobile
   document.getElementById('menu-toggle-btn').onclick = () => {
     document.getElementById('main-menu').classList.toggle('show');
   };
@@ -269,7 +267,6 @@
     return div.innerHTML;
   }
 
-  // Contact
   getDoc(doc(db, 'config', 'contact')).then(snap => {
     if (!snap.exists()) return;
     const c = snap.data();
@@ -277,7 +274,6 @@
     if (contactPhone && c.telephone) contactPhone.textContent = c.telephone;
   });
 
-  // Auth
   onAuthStateChanged(auth, async (user) => {
     const link = document.getElementById('auth-link');
     const profileSpan = document.getElementById('user-profile');
@@ -328,7 +324,6 @@
     document.body.appendChild(overlay);
   };
 
-  // Récupérer l'UID depuis l'URL
   const urlParams = new URLSearchParams(window.location.search);
   const eleveUid = urlParams.get('uid');
 
@@ -337,19 +332,17 @@
     document.getElementById('eleve-classe').textContent = '-';
     document.getElementById('eleve-ine').textContent = '-';
     document.getElementById('eleve-moyenne').textContent = '-';
-    document.getElementById('notes-body').innerHTML = '<tr><td colspan="6" class="error-msg">❌ Aucun élève sélectionné. Veuillez revenir à la gestion.</td></tr>';
+    document.getElementById('notes-body').innerHTML = '<tr><td colspan="6" class="error-msg">❌ Aucun élève sélectionné.</td></tr>';
   } else {
     chargerProfilEleve();
   }
 
-  // Variables globales
   let allNotesData = [];
   let currentAnnee = 'toutes';
   let anneeEnCours = '';
   let radarChart = null;
   let lineChart = null;
 
-  // Mapping des matières
   function getNomMatiere(slug) {
     const map = {
       'mathmatiques': 'Mathématiques',
@@ -366,15 +359,11 @@
     return map[slug] || slug;
   }
 
-  // Liste des classes et matières
   const CLASSES = ['6a', '6b', '6c', '5a', '5b', '4a', '4b', '3a', '3b', '2s2a', '1s2a', 'ts2a', '2la', '1la', 'tla1', 'tla2'];
   const MATIERES = ['mathmatiques', 'franais', 'anglais', 'arabe', 'svt', 'physiquechimie', 'histoirego', 'eps', 'ducationreligieuse', 'philosophie'];
 
   async function chargerProfilEleve() {
-    console.log("=== Début chargerProfilEleve ===");
     try {
-      // 1. Récupérer les infos de l'élève
-      console.log("1. Récupération des infos de l'élève...");
       const userSnap = await getDoc(doc(db, 'utilisateurs', eleveUid));
       if (!userSnap.exists()) {
         document.getElementById('eleve-nom').textContent = '❌ Élève introuvable';
@@ -383,19 +372,14 @@
       }
 
       const eleve = userSnap.data();
-      console.log("2. Élève trouvé:", eleve.prenom, eleve.nom, "Classe:", eleve.niveau);
-      
       document.getElementById('eleve-nom').textContent = `${eleve.prenom} ${eleve.nom}`;
       document.getElementById('eleve-classe').textContent = eleve.niveau || 'Non définie';
       document.getElementById('eleve-ine').textContent = eleve.ine || 'Non défini';
 
-      // 2. Récupérer l'année scolaire en cours
-      console.log("3. Récupération de l'année scolaire...");
       try {
         const configSnap = await getDoc(doc(db, 'config', 'schoolYear'));
         if (configSnap.exists()) {
           anneeEnCours = configSnap.data().year || '';
-          console.log("4. Année scolaire configurée:", anneeEnCours);
         }
       } catch (err) {
         console.warn("Erreur lecture année scolaire:", err.message);
@@ -405,39 +389,23 @@
         const now = new Date();
         const anneeActuelle = now.getFullYear();
         anneeEnCours = now.getMonth() >= 8 ? `${anneeActuelle}-${anneeActuelle + 1}` : `${anneeActuelle - 1}-${anneeActuelle}`;
-        console.log("5. Année scolaire calculée par défaut:", anneeEnCours);
       }
 
-      // 3. Récupérer les notes de l'élève - APPROCHE SÉCURISÉE
-      // On parcourt toutes les combinaisons classe/matière
-      // Chaque élève ne peut lire que ses propres rendus (grâce aux règles)
-      console.log("6. Récupération des notes (parcours classe/matière)...");
       allNotesData = [];
-      let totalDevoirsParcourus = 0;
-      let notesTrouvees = 0;
-
-      // Limiter la recherche à la classe de l'élève pour optimiser
       const classesARechercher = eleve.niveau ? [eleve.niveau] : CLASSES;
-      console.log("7. Classes à rechercher:", classesARechercher);
 
       for (const classe of classesARechercher) {
         for (const matiere of MATIERES) {
           const slug = `${classe}-${matiere}`;
           try {
-            // Récupérer la liste des devoirs pour cette classe/matière
             const devoirsSnap = await getDocs(collection(db, 'ressources', slug, 'devoirs'));
-            
             for (const devDoc of devoirsSnap.docs) {
-              totalDevoirsParcourus++;
               const dv = devDoc.data();
-              
-              // Essayer de lire le rendu de CET élève pour CE devoir
               try {
                 const renduSnap = await getDoc(doc(db, 'ressources', slug, 'devoirs', devDoc.id, 'rendus', eleveUid));
                 if (renduSnap.exists()) {
                   const rendu = renduSnap.data();
                   if (typeof rendu.note === 'number') {
-                    notesTrouvees++;
                     const matName = getNomMatiere(matiere);
                     const dateStr = dv.date?.toDate ? dv.date.toDate().toLocaleDateString('fr-FR') : 'Date inconnue';
                     const dateObj = dv.date?.toDate ? dv.date.toDate() : new Date();
@@ -449,40 +417,27 @@
                       matiere: matName || matiere,
                       titre: dv.titre || 'Devoir',
                       date: dateStr,
+                      dateObj: dateObj,
                       note: rendu.note,
                       bareme: dv.bareme || 20,
                       anneeScolaire: anneeScolaire
                     });
                   }
                 }
-              } catch (err) {
-                // Erreur de permission pour ce rendu - ignorer silencieusement
-                // C'est normal si l'élève n'a pas accès à ce rendu
-              }
+              } catch (err) {}
             }
-          } catch (err) {
-            // Erreur de permission pour cette classe/matière - ignorer
-            // C'est normal car l'élève n'a pas accès à toutes les classes
-          }
+          } catch (err) {}
         }
       }
 
-      console.log("8. Devoirs parcourus:", totalDevoirsParcourus);
-      console.log("9. Notes trouvées:", notesTrouvees);
-      console.log("10. allNotesData:", allNotesData.length);
-
-      // 4. Remplir le filtre des années
-      console.log("11. Remplissage du filtre des années...");
       const anneeFilter = document.getElementById('annee-filter');
       const annees = Array.from(new Set(allNotesData.map(n => n.anneeScolaire))).sort();
-      console.log("12. Années disponibles:", annees);
       
       anneeFilter.innerHTML = '<option value="toutes">📅 Toutes les années</option>';
       
       if (annees.length > 0) {
         const anneeExistante = annees.includes(anneeEnCours);
         const anneeParDefaut = anneeExistante ? anneeEnCours : annees[0];
-        console.log("13. Année par défaut:", anneeParDefaut);
         
         annees.forEach(annee => {
           const option = document.createElement('option');
@@ -496,7 +451,6 @@
         });
         currentAnnee = anneeParDefaut;
       } else {
-        console.log("14. Aucune note trouvée");
         const option = document.createElement('option');
         option.value = anneeEnCours;
         option.textContent = anneeEnCours + ' (Année en cours)';
@@ -505,10 +459,7 @@
         currentAnnee = anneeEnCours;
       }
 
-      // 5. Afficher les données
-      console.log("15. Affichage des données...");
       afficherDonnees();
-      console.log("=== Fin chargerProfilEleve ===");
 
     } catch (error) {
       console.error("❌ ERREUR:", error);
@@ -517,32 +468,88 @@
     }
   }
 
-  // Filtrer par année
   window.filtrerParAnnee = () => {
-    console.log("16. Filtrer par année:", currentAnnee);
     currentAnnee = document.getElementById('annee-filter').value;
     afficherDonnees();
   };
 
-  function afficherDonnees() {
-    console.log("17. === Début afficherDonnees ===");
-    console.log("18. allNotesData.length:", allNotesData.length);
-    console.log("19. currentAnnee:", currentAnnee);
+  // 🔥 FONCTION OPTIMISÉE POUR LE LINE CHART
+  function agregerParMois(notes) {
+    const groupes = {};
+    notes.forEach(n => {
+      const date = n.dateObj;
+      const moisAnnee = `${date.getMonth() + 1}/${date.getFullYear()}`;
+      if (!groupes[moisAnnee]) {
+        groupes[moisAnnee] = { notes: [], date: date };
+      }
+      groupes[moisAnnee].notes.push(n);
+    });
     
+    const result = Object.keys(groupes).sort((a, b) => {
+      const [ma, aa] = a.split('/');
+      const [mb, ab] = b.split('/');
+      return new Date(aa, ma-1, 1) - new Date(ab, mb-1, 1);
+    });
+    
+    return result.map(key => {
+      const groupe = groupes[key];
+      const moyennes = groupe.notes.map(n => (n.note / n.bareme) * 20);
+      const moyenne = moyennes.reduce((sum, v) => sum + v, 0) / moyennes.length;
+      const mois = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'][groupe.date.getMonth()];
+      const annee = groupe.date.getFullYear();
+      return {
+        label: `${mois} ${annee}`,
+        moyenne: Math.round(moyenne * 10) / 10,
+        nbNotes: groupe.notes.length
+      };
+    });
+  }
+
+  function agregerParSemaine(notes) {
+    const groupes = {};
+    notes.forEach(n => {
+      const date = n.dateObj;
+      const semaine = getSemaine(date);
+      const key = `${date.getFullYear()}-W${semaine}`;
+      if (!groupes[key]) {
+        groupes[key] = { notes: [], date: date };
+      }
+      groupes[key].notes.push(n);
+    });
+    
+    const result = Object.keys(groupes).sort();
+    return result.map(key => {
+      const groupe = groupes[key];
+      const moyennes = groupe.notes.map(n => (n.note / n.bareme) * 20);
+      const moyenne = moyennes.reduce((sum, v) => sum + v, 0) / moyennes.length;
+      return {
+        label: `S${getSemaine(groupe.date)}`,
+        moyenne: Math.round(moyenne * 10) / 10,
+        nbNotes: groupe.notes.length
+      };
+    });
+  }
+
+  function getSemaine(date) {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+    const week1 = new Date(d.getFullYear(), 0, 4);
+    return 1 + Math.round(((d - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+  }
+
+  function afficherDonnees() {
     const notesFiltrees = currentAnnee === 'toutes' 
       ? allNotesData 
       : allNotesData.filter(n => n.anneeScolaire === currentAnnee);
-    
-    console.log("20. notesFiltrees.length:", notesFiltrees.length);
 
     if (notesFiltrees.length === 0) {
-      console.log("21. Aucune note pour cette année");
       document.getElementById('eleve-moyenne').textContent = 'Aucune note';
-      
       document.getElementById('radar-chart').style.display = 'none';
       document.getElementById('radar-message').style.display = 'block';
       document.getElementById('line-chart').style.display = 'none';
       document.getElementById('line-message').style.display = 'block';
+      document.getElementById('line-info').textContent = '';
       
       if (radarChart) { radarChart.destroy(); radarChart = null; }
       if (lineChart) { lineChart.destroy(); lineChart = null; }
@@ -556,8 +563,6 @@
     document.getElementById('line-chart').style.display = 'block';
     document.getElementById('line-message').style.display = 'none';
 
-    // Calculer les statistiques
-    console.log("22. Calcul des statistiques...");
     let sommeNotes = 0;
     let nbNotes = 0;
     const moyennesParMatiere = {};
@@ -576,16 +581,125 @@
     
     const moyenneGenerale = nbNotes > 0 ? sommeNotes / nbNotes : 0;
     document.getElementById('eleve-moyenne').textContent = moyenneGenerale.toFixed(1) + '/20';
-    console.log("23. Moyenne générale:", moyenneGenerale.toFixed(1));
 
-    // Générer les graphiques
-    console.log("24. Génération du radar...");
     genererRadarChart(moyennesParMatiere);
-    console.log("25. Génération du line chart...");
-    genererLineChart(notesFiltrees);
-    console.log("26. Génération du tableau...");
+    
+    // 🔥 LINE CHART OPTIMISÉ : agrégation selon le nombre de notes
+    genererLineChartOptimise(notesFiltrees);
+    
     afficherTableauNotes(notesFiltrees);
-    console.log("27. === Fin afficherDonnees ===");
+  }
+
+  // 🔥 NOUVELLE VERSION OPTIMISÉE DU LINE CHART
+  function genererLineChartOptimise(notes) {
+    const canvas = document.getElementById('line-chart');
+    const ctx = canvas.getContext('2d');
+    const info = document.getElementById('line-info');
+    
+    if (lineChart) { lineChart.destroy(); lineChart = null; }
+
+    if (notes.length === 0) {
+      document.getElementById('line-chart').style.display = 'none';
+      document.getElementById('line-message').style.display = 'block';
+      info.textContent = '';
+      return;
+    }
+
+    // Trier les notes par date
+    const notesTriees = [...notes].sort((a, b) => a.dateObj - b.dateObj);
+    
+    // Déterminer le niveau d'agrégation
+    let dataPoints;
+    let labelUnite;
+    
+    if (notesTriees.length <= 10) {
+      // Peu de notes : afficher chaque note individuellement
+      dataPoints = notesTriees.map(n => ({
+        label: n.date,
+        moyenne: Math.round(((n.note / n.bareme) * 20) * 10) / 10,
+        nbNotes: 1
+      }));
+      labelUnite = '(notes individuelles)';
+    } else if (notesTriees.length <= 30) {
+      // Nombre modéré : agréger par semaine
+      dataPoints = agregerParSemaine(notesTriees);
+      labelUnite = '(moyennes hebdomadaires)';
+    } else {
+      // Beaucoup de notes : agréger par mois
+      dataPoints = agregerParMois(notesTriees);
+      labelUnite = '(moyennes mensuelles)';
+    }
+
+    info.textContent = dataPoints.length > 0 ? labelUnite : '';
+
+    if (dataPoints.length === 0) {
+      document.getElementById('line-chart').style.display = 'none';
+      document.getElementById('line-message').style.display = 'block';
+      info.textContent = '';
+      return;
+    }
+
+    const labels = dataPoints.map(d => d.label);
+    const data = dataPoints.map(d => d.moyenne);
+
+    try {
+      lineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Moyenne / 20',
+            data: data,
+            borderColor: 'rgba(27, 42, 74, 1)',
+            backgroundColor: 'rgba(27, 42, 74, 0.08)',
+            borderWidth: 2,
+            tension: 0.3,
+            fill: true,
+            pointBackgroundColor: 'rgba(168, 133, 63, 1)',
+            pointBorderColor: '#fff',
+            pointRadius: labels.length > 15 ? 3 : 5,
+            pointHoverRadius: 7
+          }]
+        },
+        options: {
+          scales: {
+            y: { 
+              beginAtZero: true, 
+              max: 20,
+              ticks: { stepSize: 5 }
+            },
+            x: {
+              ticks: {
+                maxRotation: 45,
+                minRotation: 0,
+                autoSkip: true,
+                maxTicksLimit: 15
+              }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const idx = context.dataIndex;
+                  const point = dataPoints[idx];
+                  let label = `Moyenne: ${context.parsed.y.toFixed(1)}/20`;
+                  if (point && point.nbNotes > 1) {
+                    label += ` (${point.nbNotes} notes)`;
+                  }
+                  return label;
+                }
+              }
+            }
+          },
+          responsive: true,
+          maintainAspectRatio: true
+        }
+      });
+    } catch (error) {
+      console.error("❌ Erreur line chart:", error);
+    }
   }
 
   function genererRadarChart(moyennesParMatiere) {
@@ -599,8 +713,6 @@
       const stats = moyennesParMatiere[mat];
       return stats.count > 0 ? parseFloat((stats.sum / stats.count).toFixed(1)) : 0;
     });
-
-    console.log("28. Radar - labels:", labels);
 
     if (labels.length === 0) {
       document.getElementById('radar-chart').style.display = 'none';
@@ -637,78 +749,8 @@
           maintainAspectRatio: true
         }
       });
-      console.log("29. Radar créé ✓");
     } catch (error) {
       console.error("❌ Erreur radar:", error);
-    }
-  }
-
-  function genererLineChart(notes) {
-    const canvas = document.getElementById('line-chart');
-    const ctx = canvas.getContext('2d');
-    
-    if (lineChart) { lineChart.destroy(); lineChart = null; }
-
-    if (notes.length === 0) {
-      document.getElementById('line-chart').style.display = 'none';
-      document.getElementById('line-message').style.display = 'block';
-      return;
-    }
-
-    const notesParDate = {};
-    notes.forEach(n => {
-      if (!notesParDate[n.date]) notesParDate[n.date] = [];
-      notesParDate[n.date].push((n.note / n.bareme) * 20);
-    });
-
-    const dates = Object.keys(notesParDate).sort((a, b) => {
-      const [da, ma, aa] = a.split('/');
-      const [db, mb, ab] = b.split('/');
-      return new Date(aa, ma-1, da) - new Date(ab, mb-1, db);
-    });
-    
-    const moyennesParDate = dates.map(date => {
-      const notesList = notesParDate[date];
-      return notesList.reduce((acc, n) => acc + n, 0) / notesList.length;
-    });
-
-    console.log("30. Line - dates:", dates);
-
-    if (dates.length === 0) {
-      document.getElementById('line-chart').style.display = 'none';
-      document.getElementById('line-message').style.display = 'block';
-      return;
-    }
-
-    try {
-      lineChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: dates,
-          datasets: [{
-            label: 'Moyenne / 20',
-            data: moyennesParDate,
-            borderColor: 'rgba(27, 42, 74, 1)',
-            backgroundColor: 'rgba(27, 42, 74, 0.1)',
-            tension: 0.3,
-            fill: true,
-            pointBackgroundColor: 'rgba(168, 133, 63, 1)',
-            pointBorderColor: '#fff',
-            pointRadius: 5
-          }]
-        },
-        options: {
-          scales: {
-            y: { beginAtZero: true, max: 20 }
-          },
-          plugins: { legend: { display: false } },
-          responsive: true,
-          maintainAspectRatio: true
-        }
-      });
-      console.log("31. Line chart créé ✓");
-    } catch (error) {
-      console.error("❌ Erreur line chart:", error);
     }
   }
 
@@ -722,9 +764,7 @@
     }
 
     const notesTriees = [...notes].sort((a, b) => {
-      const [da, ma, aa] = a.date.split('/');
-      const [db, mb, ab] = b.date.split('/');
-      return new Date(ab, mb-1, db) - new Date(aa, ma-1, da);
+      return b.dateObj - a.dateObj;
     });
 
     notesTriees.forEach(n => {
@@ -743,10 +783,7 @@
         <td class="note-cell ${colorClass}">${statut}</td>
       </tr>`;
     });
-    console.log("32. Tableau affiché,", notesTriees.length, "lignes");
   }
-
-  console.log("=== FIN DU SCRIPT ===");
 </script>
 </body>
 </html>
