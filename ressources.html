@@ -119,6 +119,7 @@
   .devoir-btn { font-size: 11px; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; margin-right: 6px; margin-top: 4px; }
   .btn-voir-rendus { background: #3498db; color: #fff; }
   .btn-suppr-devoir { background: #eee; color: #333; }
+  .btn-profile { background: #2e7d32; color: #fff; }
 
   #actus-strip { max-width: 1100px; margin: 20px auto 0; padding: 0 20px; }
   #actus-strip h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--brass); margin-bottom: 10px; }
@@ -196,7 +197,7 @@
           <span class="contact-label">📞 Contacter le Proviseur</span>
           <span class="contact-phone" id="contact-phone-display">...</span>
         </a></li>
-        <li id="user-profile" class="profile-info"></li>
+        <li id="user-profile" class="profile-info" onclick="window.openProfil()" style="cursor:pointer;" title="Voir mon profil"></li>
         <li><a href="identification.html" class="nav-cta" id="auth-link">Se connecter</a></li>
       </ul>
     </nav>
@@ -357,6 +358,13 @@
     const contactPhone = document.getElementById('contact-phone-display');
     if (contactPhone && c.telephone) contactPhone.textContent = c.telephone;
   });
+
+  // Ouvrir le profil de l'élève connecté
+  window.openProfil = () => {
+    if (profile && profile.role === 'eleve') {
+      window.location.href = `profil-eleve.html?uid=${auth.currentUser.uid}`;
+    }
+  };
 
   onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -717,7 +725,8 @@
           const noteId = `note-${rd.id}`;
           p.innerHTML = `<a href="${d.url}" target="_blank">📄 ${escapeHtml(d.eleveNom)}</a> —
             <input type="number" id="${noteId}" value="${d.note ?? ''}" min="0" max="${bareme}" step="0.5" placeholder="/${bareme}" style="width:55px;padding:3px;margin-left:6px;border:1px solid #ccc;border-radius:4px;">
-            <button class="devoir-btn btn-voir-rendus" style="padding:3px 8px;font-size:10px;" data-note-id="${noteId}">Noter</button>`;
+            <button class="devoir-btn btn-voir-rendus" style="padding:3px 8px;font-size:10px;" data-note-id="${noteId}">Noter</button>
+            <button class="devoir-btn btn-profile" style="padding:3px 8px;font-size:10px; margin-left:5px;" onclick="window.location.href='profil-eleve.html?uid=${rd.id}'">📊 Voir profil</button>`;
         }
         container.appendChild(p);
       });
