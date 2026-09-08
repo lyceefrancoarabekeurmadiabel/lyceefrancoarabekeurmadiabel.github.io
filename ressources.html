@@ -81,6 +81,16 @@
   .nav-cta { background: var(--ink-deep); color:#fff !important; padding:10px 18px; font-size:12px; font-weight:600; border-radius:4px; text-decoration:none; }
   .menu-toggle { display: none; font-size: 30px; cursor: pointer; }
 
+  .feedback-item { display: none; }
+  .feedback-link { 
+    background: var(--brass); 
+    color: #fff !important; 
+    padding: 4px 12px; 
+    border-radius: 4px; 
+    font-size: 11px;
+  }
+  .feedback-link:hover { background: #96743a; color: #fff !important; }
+
   @media (max-width: 1024px) {
     .menu-toggle { display: block; }
     nav ul { display: none; flex-direction: column; position: absolute; top: 84px; left: 0; width: 100%; background: #fff; padding: 20px; border-bottom: 2px solid var(--line); gap: 15px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
@@ -119,7 +129,6 @@
   .btn-suppr-devoir { background: #eee; color: #333; }
   .btn-profile { background: #2e7d32; color: #fff; }
   .btn-export { background: var(--brass); color: #fff; }
-  .btn-correction { background: #9b59b6; color: #fff; }
 
   #actus-strip { max-width: 1100px; margin: 20px auto 0; padding: 0 20px; }
   #actus-strip h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--brass); margin-bottom: 10px; }
@@ -138,18 +147,14 @@
 
   .modal-overlay { display:none; position:fixed; inset:0; background:rgba(16,25,46,0.6); z-index:2000; align-items:flex-start; justify-content:center; padding:20px; overflow-y:auto; }
   .modal-overlay.show { display:flex; }
-  .modal-box { background:#fff; border-radius:10px; padding:22px; width:100%; max-width:700px; margin-top:20px; max-height:90vh; overflow-y:auto; }
+  .modal-box { background:#fff; border-radius:10px; padding:22px; width:100%; max-width:480px; margin-top:20px; }
   .modal-box h3 { font-family:var(--serif); margin-bottom:15px; color:var(--ink); }
   .modal-box .field { margin-bottom:12px; }
   .modal-box label { display:block; font-size:12px; font-weight:700; margin-bottom:4px; color:var(--slate); }
   .modal-box input, .modal-box select, .modal-box textarea { width:100%; padding:10px; border:1px solid var(--line); border-radius:6px; font-family:inherit; font-size:14px; }
-  
-  .mixed-question { background: #f9f9f9; border: 1px solid var(--line); border-radius: 8px; padding: 15px; margin-bottom: 15px; }
-  .mixed-question .field { margin-bottom: 10px; }
-  .mixed-question .q-options { margin-top: 10px; padding: 10px; background: #fff; border-radius: 6px; border: 1px solid #eee; }
-  .mixed-question .q-options label { font-size: 11px; color: var(--slate); }
-
-  .qcm-option-row { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+  .qcm-question-block { border:1px solid var(--line); border-radius:6px; padding:12px; margin-bottom:10px; position:relative; }
+  .qcm-question-block input[type=text] { margin-bottom:6px; }
+  .qcm-option-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
   .qcm-remove-q { position:absolute; top:8px; right:8px; background:none; border:none; color:#d9534f; cursor:pointer; font-weight:bold; font-size:16px; }
   .doc-list { list-style: none; font-size: 13px; }
   .doc-list li { background: #fdfdfd; padding: 8px; border-radius: 4px; margin-bottom: 5px; display: flex; justify-content: space-between; border: 1px solid #eee; }
@@ -168,38 +173,9 @@
   .eleve-ligne .eleve-actions button { font-size: 11px; padding: 4px 8px; border: none; border-radius: 4px; cursor: pointer; }
 
   .add-btn { display: none; margin-top: 8px; font-size: 11px; font-weight: 700; color: var(--ink); border: 1px dashed var(--brass); padding: 6px; border-radius: 4px; cursor: pointer; width: 100%; background: none; }
-  .add-btn:hover { background: var(--paper); }
   .delete-btn { color: red; font-weight: bold; cursor: pointer; border: none; background: none; }
 
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
-
-  .type-selector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
-  .type-selector-item { background: #fff; border: 2px solid var(--line); border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.3s; text-align: center; }
-  .type-selector-item:hover { border-color: var(--brass); }
-  .type-selector-item.active { border-color: var(--brass); background: #fdf8f0; }
-  .type-selector-item input[type="checkbox"] { display: none; }
-  .type-selector-item .icon { font-size: 24px; display: block; }
-  .type-selector-item .label { font-size: 12px; font-weight: 600; color: var(--ink); }
-  .type-selector-item .desc { font-size: 10px; color: var(--slate); }
-  .type-selector-item .points-input { margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 4px; }
-  .type-selector-item .points-input input { width: 50px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; text-align: center; font-size: 12px; }
-  .type-selector-item .points-input span { font-size: 11px; color: var(--slate); }
-
-  .badge-mixte { background: #9b59b6; color: #fff; }
-  .badge-saisie { background: #e67e22; color: #fff; }
-  .badge-fichier { background: #3498db; color: #fff; }
-  .badge-qcm { background: #2ecc71; color: #fff; }
-
-  .devoir-type-badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; }
-
-  .reponse-eleve { background: #f0f7ff; border-left: 3px solid var(--brass); padding: 10px; margin: 8px 0; border-radius: 4px; }
-  .reponse-eleve .label { font-size: 11px; color: var(--slate); font-weight: 600; }
-  .reponse-eleve .value { font-size: 13px; }
-  .correction-indicateur { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; margin-left: 8px; }
-  .correction-juste { background: #d4edda; color: #155724; }
-  .correction-faux { background: #f8d7da; color: #721c24; }
-  .correction-partiel { background: #fff3cd; color: #856404; }
-
   #ai-chat-toggle { position: fixed; bottom: 20px; right: 20px; width: 58px; height: 58px; border-radius: 50%; background: var(--brass); color: #fff; border: none; font-size: 24px; box-shadow: 0 4px 14px rgba(0,0,0,0.25); cursor: pointer; z-index: 2000; }
   #ai-chat-panel { display: none; flex-direction: column; position: fixed; bottom: 90px; right: 20px; width: 340px; max-width: calc(100vw - 40px); height: 460px; max-height: calc(100vh - 140px); background: #fff; border-radius: 14px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 2000; overflow: hidden; }
   #ai-chat-panel.show { display: flex; }
@@ -236,6 +212,7 @@
             <a href="admin-ine.html">📥 Import INE</a>
             <a href="admin-gestion.html">👥 Gestion</a>
             <a href="admin-news.html">📰 Actualités</a>
+            <a href="feedback.html#tab-dashboard">📊 Retours</a>
           </div>
         </li>
         <li><a href="#" onclick="window.showContact(); return false;" class="contact-info" style="text-decoration: none;">
@@ -243,184 +220,56 @@
           <span class="contact-phone" id="contact-phone-display">...</span>
         </a></li>
         <li id="user-profile" class="profile-info" onclick="window.openProfil()" style="cursor:pointer;" title="Voir mon profil"></li>
+        <li class="feedback-item">
+          <a href="feedback.html" class="feedback-link">📋 Donner mon avis</a>
+        </li>
         <li><a href="identification.html" class="nav-cta" id="auth-link">Se connecter</a></li>
       </ul>
     </nav>
   </div>
 </header>
 
-<!-- MODAL DE DEVOIR -->
 <div class="modal-overlay" id="devoir-modal">
   <div class="modal-box">
-    <h3>📝 Créer un devoir</h3>
-    
-    <!-- Type de devoir -->
+    <h3>Proposer un devoir</h3>
     <div class="field">
       <label>Type de devoir</label>
-      <select id="dv-type" onchange="window.toggleDevoirType()">
-        <option value="fichier">📄 Fichier à rendre</option>
-        <option value="qcm">📝 QCM en ligne</option>
-        <option value="mixte" selected>🧩 Devoir mixte (choix libre)</option>
-        <option value="saisie">✏️ Saisie directe</option>
+      <select id="dv-type">
+        <option value="fichier">Fichier à rendre</option>
+        <option value="qcm">QCM en ligne</option>
       </select>
     </div>
-
-    <!-- Infos générales -->
     <div class="field">
       <label>Titre</label>
-      <input type="text" id="dv-titre" placeholder="Ex : Composition Histoire-Géo">
+      <input type="text" id="dv-titre" placeholder="Ex : Contrôle chapitre 3">
     </div>
     <div class="field">
       <label>Consignes</label>
-      <textarea id="dv-consignes" rows="2" placeholder="Instructions pour les élèves..."></textarea>
+      <textarea id="dv-consignes" rows="3" placeholder="Facultatif"></textarea>
     </div>
     <div class="field">
       <label>Date limite</label>
       <input type="date" id="dv-date">
     </div>
-
-    <!-- Option fichier -->
-    <div id="fichier-options" style="display:none;">
-      <div class="field">
-        <label>Lien Google Doc (facultatif)</label>
-        <input type="url" id="dv-gdoc" placeholder="https://docs.google.com/...">
-      </div>
-      <div class="field">
-        <label>Fichier joint au devoir</label>
-        <input type="file" id="dv-fichier">
-      </div>
+    <div class="field">
+      <label>Barème (nombre de points)</label>
+      <input type="number" id="dv-bareme" value="20" min="1" step="0.5">
     </div>
-
-    <!-- Option QCM -->
+    <div class="field">
+      <label>Lien Google Doc (facultatif)</label>
+      <input type="url" id="dv-gdoc" placeholder="https://docs.google.com/...">
+    </div>
+    <div class="field">
+      <label>Fichier joint au devoir (facultatif)</label>
+      <input type="file" id="dv-fichier">
+    </div>
     <div id="qcm-builder" style="display:none;">
-      <div class="field">
-        <label>Barème total</label>
-        <input type="number" id="dv-bareme-qcm" value="20" min="1" step="0.5">
-      </div>
       <label>Questions du QCM</label>
       <div id="qcm-questions"></div>
       <button type="button" class="add-btn" id="qcm-add-question" style="display:block;">+ Ajouter une question</button>
     </div>
-
-    <!-- Option MIXTE - AVEC CHOIX LIBRE -->
-    <div id="mixte-builder">
-      <div class="field">
-        <label>Barème total</label>
-        <input type="number" id="dv-bareme-mixte" value="20" min="1" step="0.5">
-      </div>
-      
-      <!-- Sélecteur de types de questions -->
-      <div class="field">
-        <label>📋 Types de questions à inclure</label>
-        <p style="font-size:11px;color:var(--slate);margin-bottom:8px;">Cochez les types que vous souhaitez utiliser. Décochez ceux que vous ne voulez pas.</p>
-        <div class="type-selector-grid">
-          <!-- QCM -->
-          <div class="type-selector-item active" data-type="qcm" onclick="window.toggleTypeSelector(this)">
-            <input type="checkbox" checked>
-            <span class="icon">📝</span>
-            <span class="label">QCM</span>
-            <span class="desc">Choix multiples</span>
-            <div class="points-input">
-              <span>Points :</span>
-              <input type="number" class="type-points" value="1" min="0.5" step="0.5">
-              <span>par question</span>
-            </div>
-          </div>
-          
-          <!-- Texte à trous -->
-          <div class="type-selector-item active" data-type="text-trou" onclick="window.toggleTypeSelector(this)">
-            <input type="checkbox" checked>
-            <span class="icon">📖</span>
-            <span class="label">Texte à trous</span>
-            <span class="desc">Complétion</span>
-            <div class="points-input">
-              <span>Points :</span>
-              <input type="number" class="type-points" value="2" min="0.5" step="0.5">
-              <span>par trou</span>
-            </div>
-          </div>
-          
-          <!-- Association -->
-          <div class="type-selector-item active" data-type="association" onclick="window.toggleTypeSelector(this)">
-            <input type="checkbox" checked>
-            <span class="icon">🔗</span>
-            <span class="label">Association</span>
-            <span class="desc">Relier colonnes</span>
-            <div class="points-input">
-              <span>Points :</span>
-              <input type="number" class="type-points" value="1" min="0.5" step="0.5">
-              <span>par association</span>
-            </div>
-          </div>
-          
-          <!-- Réponse libre -->
-          <div class="type-selector-item" data-type="reponse-libre" onclick="window.toggleTypeSelector(this)">
-            <input type="checkbox">
-            <span class="icon">✍️</span>
-            <span class="label">Réponse libre</span>
-            <span class="desc">Texte long</span>
-            <div class="points-input">
-              <span>Points :</span>
-              <input type="number" class="type-points" value="3" min="0.5" step="0.5">
-              <span>par question</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Liste des questions -->
-      <label>📋 Questions</label>
-      <div id="mixed-questions-list"></div>
-      <button type="button" class="add-btn" id="add-mixed-question" style="display:block;background:var(--brass);color:#fff;">+ Ajouter une question</button>
-    </div>
-
-    <!-- Option SAISIE DIRECTE -->
-    <div id="saisie-builder" style="display:none;">
-      <div class="field">
-        <label>Barème total</label>
-        <input type="number" id="dv-bareme-saisie" value="20" min="1" step="0.5">
-      </div>
-      <div class="field">
-        <label>📄 Structure du devoir</label>
-        <p style="font-size:11px;color:var(--slate);margin-bottom:6px;">
-          Utilisez <strong>___</strong> pour marquer les trous. Exemple : 
-          <em>"C'est en Nubie que le ___ est apparu vers 500 avant Jésus-Christ."</em>
-        </p>
-        <textarea id="saisie-structure" rows="6" placeholder="Entrez votre texte avec des ___ pour les trous..." style="width:100%;padding:10px;border:1px solid #ccc;border-radius:4px;font-family:monospace;"></textarea>
-      </div>
-      <div class="field">
-        <label>🔑 Mots attendus (séparés par des points-virgules)</label>
-        <p style="font-size:11px;color:var(--slate);margin-bottom:6px;">
-          Entrez les réponses correctes dans l'ordre des trous.
-        </p>
-        <input type="text" id="saisie-reponses" placeholder="fer; Epoque; riche; Egypte" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:4px;">
-      </div>
-      <div class="field">
-        <label>🎯 Mode de correction</label>
-        <select id="saisie-mode" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:4px;">
-          <option value="exact">Exact (mot identique)</option>
-          <option value="insensible" selected>Insensible à la casse</option>
-          <option value="approximative">Approximative (tolérance)</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>💡 Indice pour les élèves (facultatif)</label>
-        <input type="text" id="saisie-indice" placeholder="Ex: Les mots se trouvent dans le texte..." style="width:100%;padding:10px;border:1px solid #ccc;border-radius:4px;">
-      </div>
-    </div>
-
-    <button class="add-btn" id="dv-submit" style="display:block; margin-top:15px;background:var(--brass);color:#fff;">Publier le devoir</button>
+    <button class="add-btn" id="dv-submit" style="display:block; margin-top:15px;">Publier le devoir</button>
     <button class="add-btn" id="dv-cancel" style="display:block; border-color:#ccc; color:#999;">Annuler</button>
-  </div>
-</div>
-
-<!-- MODAL DE CORRECTION -->
-<div class="modal-overlay" id="correction-modal">
-  <div class="modal-box">
-    <h3>📊 Corriger le devoir</h3>
-    <div id="correction-content"></div>
-    <button class="add-btn" id="correction-save" style="display:block;background:var(--brass);color:#fff;">💾 Enregistrer les notes</button>
-    <button class="add-btn" id="correction-cancel" style="display:block;border-color:#ccc;color:#999;">Fermer</button>
   </div>
 </div>
 
@@ -451,7 +300,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-  import { getFirestore, doc, getDoc, getDocs, setDoc, deleteDoc, collection, collectionGroup, addDoc, onSnapshot, serverTimestamp, orderBy, query, where } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, getDocs, setDoc, deleteDoc, collection, collectionGroup, addDoc, onSnapshot, serverTimestamp, orderBy, query, where, increment } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
@@ -466,16 +315,17 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  let aiModel = null;
-  let aiChatSession = null;
-  try {
-    const { getAI, getGenerativeModel, GoogleAIBackend } = await import("https://www.gstatic.com/firebasejs/12.17.1/firebase-ai.js");
-    const ai = getAI(app, { backend: new GoogleAIBackend() });
-    aiModel = getGenerativeModel(ai, {
-      model: "gemini-3.6-flash",
-      systemInstruction: "Tu es l'assistant virtuel du site du Lycée Franco Arabe de Keur Madiabel (LFAKM)."
-    });
-  } catch (e) { console.warn('Assistant IA désactivé'); }
+  let profile = null;
+
+  function isAdmin(role) {
+    return role === 'admin' || role === 'proviseur' || role === 'censeur';
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str ?? '';
+    return div.innerHTML;
+  }
 
   const MATS_COL = ["Mathématiques", "Français", "Anglais", "Arabe", "SVT", "Physique-Chimie", "Histoire-Géo", "EPS", "Éducation Religieuse"];
   const structure = [
@@ -499,7 +349,10 @@
 
   function buildUI() {
     let html = '';
-    const cycles = [{ key: 'college-area', label: 'Collège' }, { key: 'lycee-area', label: 'Lycée' }];
+    const cycles = [
+      { key: 'college-area', label: 'Collège' },
+      { key: 'lycee-area', label: 'Lycée' }
+    ];
     cycles.forEach(cycle => {
       const levels = structure.filter(c => c.area === cycle.key);
       if (levels.length === 0) return;
@@ -508,37 +361,13 @@
         html += `<details class="level" data-level="${l.id}" data-area="${cycle.key}"><summary>${l.name} <span>+</span></summary><div class="level-content">`;
         l.mats.forEach(m => {
           const slugMat = m.toLowerCase().replace(/[^a-z0-9]/g, '');
-          html += `<details class="subject" data-mat="${m}"><summary>${m} <span>▼</span></summary>
-            <div class="subject-grid">
-              <div class="doc-col"><h5>Cours</h5><ul class="doc-list" id="cours-${l.id}-${slugMat}"></ul>
-                <button class="add-btn" onclick="window.up('cours-${l.id}-${slugMat}')">+ Ajouter (petit fichier)</button>
-                <button class="add-btn" onclick="window.addVideo('cours-${l.id}-${slugMat}')">🎥 Lien vidéo YouTube</button>
-                <button class="add-btn" onclick="window.addDrive('cours-${l.id}-${slugMat}')">🔗 Lien Drive/OneDrive</button>
-              </div>
-              <div class="doc-col"><h5>TD</h5><ul class="doc-list" id="td-${l.id}-${slugMat}"></ul>
-                <button class="add-btn" onclick="window.up('td-${l.id}-${slugMat}')">+ Ajouter (petit fichier)</button>
-                <button class="add-btn" onclick="window.addVideo('td-${l.id}-${slugMat}')">🎥 Lien vidéo YouTube</button>
-                <button class="add-btn" onclick="window.addDrive('td-${l.id}-${slugMat}')">🔗 Lien Drive/OneDrive</button>
-              </div>
-            </div>
-            <div class="devoirs-section"><h5>Devoirs</h5><div class="devoirs-list" id="devoirs-${l.id}-${slugMat}"></div>
-            <button class="add-btn" id="devoiradd-${l.id}-${slugMat}" onclick="window.newDevoir('${l.id}-${slugMat}')">+ Proposer un devoir</button></div></details>`;
+          html += `<details class="subject" data-mat="${m}"><summary>${m} <span>▼</span></summary><div class="subject-grid"><div class="doc-col"><h5>Cours</h5><ul class="doc-list" id="cours-${l.id}-${slugMat}"></ul><button class="add-btn" onclick="window.up('cours-${l.id}-${slugMat}')">+ Ajouter (petit fichier)</button><button class="add-btn" onclick="window.addVideo('cours-${l.id}-${slugMat}')">🎥 Lien vidéo YouTube</button><button class="add-btn" onclick="window.addDrive('cours-${l.id}-${slugMat}')">🔗 Lien Drive/OneDrive</button></div><div class="doc-col"><h5>TD</h5><ul class="doc-list" id="td-${l.id}-${slugMat}"></ul><button class="add-btn" onclick="window.up('td-${l.id}-${slugMat}')">+ Ajouter (petit fichier)</button><button class="add-btn" onclick="window.addVideo('td-${l.id}-${slugMat}')">🎥 Lien vidéo YouTube</button><button class="add-btn" onclick="window.addDrive('td-${l.id}-${slugMat}')">🔗 Lien Drive/OneDrive</button></div></div><div class="devoirs-section"><h5>Devoirs</h5><div class="devoirs-list" id="devoirs-${l.id}-${slugMat}"></div><button class="add-btn" id="devoiradd-${l.id}-${slugMat}" onclick="window.newDevoir('${l.id}-${slugMat}')">+ Proposer un devoir</button></div></details>`;
         });
         html += `</div></details>`;
       });
     });
-    const contentArea = document.getElementById('content-area');
-    if (contentArea) contentArea.innerHTML = html;
+    document.getElementById('content-area').innerHTML = html;
   }
-
-  let profile = null;
-
-  function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str ?? '';
-    return div.innerHTML;
-  }
-  function isAdmin(role) { return role === 'admin' || role === 'proviseur' || role === 'censeur'; }
 
   getDoc(doc(db, 'config', 'contact')).then(snap => {
     if (!snap.exists()) return;
@@ -553,339 +382,8 @@
     }
   };
 
-  // ============ GESTION DU MODAL DEVOIR ============
-  
-  window.toggleDevoirType = () => {
-    const type = document.getElementById('dv-type').value;
-    document.getElementById('fichier-options').style.display = type === 'fichier' ? 'block' : 'none';
-    document.getElementById('qcm-builder').style.display = type === 'qcm' ? 'block' : 'none';
-    document.getElementById('mixte-builder').style.display = type === 'mixte' ? 'block' : 'none';
-    document.getElementById('saisie-builder').style.display = type === 'saisie' ? 'block' : 'none';
-    
-    if (type === 'qcm' && document.getElementById('qcm-questions').children.length === 0) {
-      addQcmQuestion();
-    }
-    if (type === 'mixte' && document.getElementById('mixed-questions-list').children.length === 0) {
-      addMixedQuestion();
-    }
-  };
-
-  // ============ TOGGLE TYPE SELECTOR ============
-  
-  window.toggleTypeSelector = (el) => {
-    const checkbox = el.querySelector('input[type="checkbox"]');
-    if (checkbox) {
-      checkbox.checked = !checkbox.checked;
-      el.classList.toggle('active');
-      
-      // Mettre à jour l'affichage des questions existantes
-      const type = el.dataset.type;
-      document.querySelectorAll('.mixed-question').forEach(q => {
-        const qType = q.dataset.qtype;
-        if (qType === type) {
-          q.style.display = checkbox.checked ? 'block' : 'none';
-        }
-      });
-    }
-  };
-
-  // ============ QUESTIONS MIXTES ============
-  
-  function addMixedQuestion() {
-    const container = document.getElementById('mixed-questions-list');
-    const idx = container.children.length;
-    const div = document.createElement('div');
-    div.className = 'mixed-question';
-    div.dataset.qtype = 'qcm';
-    div.innerHTML = `
-      <div class="field" style="display:flex;gap:10px;align-items:center;">
-        <select class="q-type-select" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;" onchange="window.changeQuestionType(this)">
-          <option value="qcm">📝 QCM</option>
-          <option value="text-trou">📖 Texte à trous</option>
-          <option value="association">🔗 Association</option>
-          <option value="reponse-libre">✍️ Réponse libre</option>
-        </select>
-        <button class="delete-btn" onclick="this.closest('.mixed-question').remove()" style="font-size:16px;padding:4px 8px;">✕</button>
-      </div>
-      <div class="field">
-        <label>Question</label>
-        <input type="text" class="q-text" placeholder="Ex: Définis le terme 'Vizir'" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
-      </div>
-      <div class="field">
-        <label>Points</label>
-        <input type="number" class="q-points" value="1" min="0.5" step="0.5" style="width:80px;padding:8px;border:1px solid #ccc;border-radius:4px;">
-      </div>
-      <div class="q-options qcm-options">
-        <label>Options</label>
-        ${[1,2,3,4].map(i => `
-          <div style="display:flex;align-items:center;gap:5px;margin:3px 0;">
-            <input type="radio" name="mix-correct-${idx}" value="${i-1}">
-            <input type="text" class="q-option" placeholder="Option ${i}" style="flex:1;padding:6px;border:1px solid #ccc;border-radius:4px;">
-          </div>
-        `).join('')}
-      </div>
-      <div class="q-options text-trou-options" style="display:none;">
-        <label>Texte avec trous (___ = trou)</label>
-        <textarea class="q-text-trou" rows="3" placeholder="Ex: C'est en Nubie que le ___ est apparu..." style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;"></textarea>
-        <label style="margin-top:6px;">Mots attendus (séparés par des virgules)</label>
-        <input type="text" class="q-mots-trou" placeholder="fer, Epoque, riche, Egypte" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
-      </div>
-      <div class="q-options association-options" style="display:none;">
-        <label>Colonne A (séparés par des virgules)</label>
-        <input type="text" class="q-assoc-a" placeholder="Oligarchie, Gérontocratie, Dynastie" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
-        <label style="margin-top:6px;">Colonne B (séparés par des virgules)</label>
-        <input type="text" class="q-assoc-b" placeholder="Définition 1, Définition 2, Définition 3" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
-        <label style="margin-top:6px;">Associations correctes (ex: 0-1, 1-0, 2-2)</label>
-        <input type="text" class="q-assoc-correct" placeholder="0-1, 1-0, 2-2" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
-      </div>
-      <div class="q-options reponse-libre-options" style="display:none;">
-        <label>Réponse attendue (facultatif pour correction auto)</label>
-        <input type="text" class="q-reponse-attendue" placeholder="Mot-clé ou phrase attendue..." style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
-      </div>
-    `;
-    container.appendChild(div);
-  }
-
-  window.changeQuestionType = (select) => {
-    const parent = select.closest('.mixed-question');
-    if (!parent) return;
-    const type = select.value;
-    parent.dataset.qtype = type;
-    
-    const qcmOpts = parent.querySelector('.qcm-options');
-    const textTrouOpts = parent.querySelector('.text-trou-options');
-    const assocOpts = parent.querySelector('.association-options');
-    const reponseLibreOpts = parent.querySelector('.reponse-libre-options');
-    
-    if (qcmOpts) qcmOpts.style.display = type === 'qcm' ? 'block' : 'none';
-    if (textTrouOpts) textTrouOpts.style.display = type === 'text-trou' ? 'block' : 'none';
-    if (assocOpts) assocOpts.style.display = type === 'association' ? 'block' : 'none';
-    if (reponseLibreOpts) reponseLibreOpts.style.display = type === 'reponse-libre' ? 'block' : 'none';
-  };
-
-  document.getElementById('add-mixed-question')?.addEventListener('click', addMixedQuestion);
-
-  // ============ QCM ============
-  
-  function addQcmQuestion() {
-    const idx = document.getElementById('qcm-questions').children.length;
-    const block = document.createElement('div');
-    block.className = 'qcm-question-block';
-    block.style.border = '1px solid var(--line)';
-    block.style.borderRadius = '6px';
-    block.style.padding = '12px';
-    block.style.marginBottom = '10px';
-    block.style.position = 'relative';
-    block.innerHTML = `
-      <button type="button" class="qcm-remove-q" onclick="this.parentElement.remove()">✕</button>
-      <input type="text" class="qcm-q-text" placeholder="Question ${idx + 1}" style="width:100%;padding:8px;margin-bottom:8px;border:1px solid #ccc;border-radius:4px;">
-      <div class="field">
-        <label>Points</label>
-        <input type="number" class="qcm-points" value="1" min="0.5" step="0.5" style="width:80px;padding:8px;border:1px solid #ccc;border-radius:4px;">
-      </div>
-      ${[0, 1, 2, 3].map(i => `
-        <div class="qcm-option-row">
-          <input type="radio" name="qcm-correct-${idx}" value="${i}" ${i === 0 ? 'checked' : ''}>
-          <input type="text" class="qcm-option" placeholder="Option ${i + 1}" style="flex:1;padding:6px;border:1px solid #ccc;border-radius:4px;">
-        </div>
-      `).join('')}
-    `;
-    document.getElementById('qcm-questions').appendChild(block);
-  }
-
-  document.getElementById('qcm-add-question')?.addEventListener('click', addQcmQuestion);
-
-  // ============ PUBLICATION DU DEVOIR ============
-  
-  let currentDevoirSlug = null;
-
-  window.newDevoir = (slug) => {
-    currentDevoirSlug = slug;
-    const modal = document.getElementById('devoir-modal');
-    if (!modal) return;
-    
-    document.getElementById('dv-titre').value = '';
-    document.getElementById('dv-consignes').value = '';
-    document.getElementById('dv-date').value = '';
-    document.getElementById('dv-gdoc').value = '';
-    document.getElementById('dv-fichier').value = '';
-    document.getElementById('dv-type').value = 'mixte';
-    document.getElementById('fichier-options').style.display = 'none';
-    document.getElementById('qcm-builder').style.display = 'none';
-    document.getElementById('mixte-builder').style.display = 'block';
-    document.getElementById('saisie-builder').style.display = 'none';
-    document.getElementById('qcm-questions').innerHTML = '';
-    document.getElementById('mixed-questions-list').innerHTML = '';
-    document.getElementById('saisie-structure').value = '';
-    document.getElementById('saisie-reponses').value = '';
-    document.getElementById('saisie-indice').value = '';
-    document.getElementById('dv-bareme-mixte').value = '20';
-    document.getElementById('dv-bareme-qcm').value = '20';
-    document.getElementById('dv-bareme-saisie').value = '20';
-    
-    // Réinitialiser les sélecteurs de types
-    document.querySelectorAll('.type-selector-item').forEach(el => {
-      const cb = el.querySelector('input[type="checkbox"]');
-      if (cb) cb.checked = true;
-      el.classList.add('active');
-    });
-    
-    modal.classList.add('show');
-  };
-
-  document.getElementById('dv-cancel')?.addEventListener('click', () => {
-    document.getElementById('devoir-modal').classList.remove('show');
-  });
-
-  document.getElementById('dv-submit')?.addEventListener('click', async () => {
-    const type = document.getElementById('dv-type').value;
-    const titre = document.getElementById('dv-titre').value.trim();
-    if (!titre) { alert('Le titre est obligatoire.'); return; }
-
-    const submitBtn = document.getElementById('dv-submit');
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Publication...";
-
-    try {
-      const devoirData = {
-        type: type,
-        titre: titre,
-        consignes: document.getElementById('dv-consignes').value.trim(),
-        dateLimite: document.getElementById('dv-date').value,
-        profNom: `${profile.prenom} ${profile.nom}`,
-        date: serverTimestamp()
-      };
-
-      // ---- Type FICHIER ----
-      if (type === 'fichier') {
-        devoirData.bareme = parseFloat(document.getElementById('dv-bareme')?.value) || 20;
-        devoirData.googleDocUrl = document.getElementById('dv-gdoc').value.trim() || null;
-        const fichierInput = document.getElementById('dv-fichier');
-        if (fichierInput && fichierInput.files && fichierInput.files[0]) {
-          if (fichierInput.files[0].size > 15 * 1024 * 1024) {
-            alert("Fichier trop volumineux (max 15 Mo).");
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Publier le devoir";
-            return;
-          }
-          const fd = new FormData();
-          fd.append('file', fichierInput.files[0]);
-          fd.append('upload_preset', "lfakm_ressources");
-          const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
-          const data = await res.json();
-          devoirData.fichierUrl = data.secure_url;
-          devoirData.fichierNom = fichierInput.files[0].name;
-        }
-      }
-
-      // ---- Type QCM ----
-      if (type === 'qcm') {
-        devoirData.bareme = parseFloat(document.getElementById('dv-bareme-qcm').value) || 20;
-        const questions = [];
-        document.querySelectorAll('#qcm-questions .qcm-question-block').forEach(block => {
-          const texte = block.querySelector('.qcm-q-text')?.value.trim() || '';
-          const options = Array.from(block.querySelectorAll('.qcm-option')).map(o => o.value.trim());
-          const correctIndex = parseInt(block.querySelector('input[type=radio]:checked')?.value || 0, 10);
-          const points = parseFloat(block.querySelector('.qcm-points')?.value) || 1;
-          if (texte && options.every(o => o)) questions.push({ texte, options, correctIndex, points });
-        });
-        if (questions.length === 0) { alert('Ajoutez au moins une question complète.'); submitBtn.disabled = false; submitBtn.textContent = "Publier le devoir"; return; }
-        devoirData.questions = questions;
-        // Recalculer le barème total
-        const totalPoints = questions.reduce((sum, q) => sum + q.points, 0);
-        devoirData.bareme = totalPoints;
-      }
-
-      // ---- Type MIXTE ----
-      if (type === 'mixte') {
-        const bareme = parseFloat(document.getElementById('dv-bareme-mixte').value) || 20;
-        devoirData.bareme = bareme;
-        
-        // Récupérer les types actifs et leurs points
-        const typesActifs = {};
-        document.querySelectorAll('.type-selector-item').forEach(el => {
-          const cb = el.querySelector('input[type="checkbox"]');
-          if (cb && cb.checked) {
-            const typeName = el.dataset.type;
-            const points = parseFloat(el.querySelector('.type-points')?.value) || 1;
-            typesActifs[typeName] = points;
-          }
-        });
-        
-        const questions = [];
-        let totalPoints = 0;
-        
-        document.querySelectorAll('#mixed-questions-list .mixed-question').forEach(block => {
-          const qType = block.dataset.qtype || 'qcm';
-          // Vérifier si ce type est actif
-          if (!typesActifs[qType]) return;
-          
-          const texte = block.querySelector('.q-text')?.value.trim() || '';
-          const points = parseFloat(block.querySelector('.q-points')?.value) || typesActifs[qType] || 1;
-          let qData = { type: qType, texte: texte, points: points };
-          
-          if (qType === 'qcm') {
-            const options = Array.from(block.querySelectorAll('.qcm-options .q-option')).map(o => o.value.trim());
-            const correctIndex = parseInt(block.querySelector('.qcm-options input[type=radio]:checked')?.value || 0, 10);
-            qData.options = options;
-            qData.correctIndex = correctIndex;
-          } else if (qType === 'text-trou') {
-            const textTrou = block.querySelector('.q-text-trou')?.value.trim() || '';
-            const mots = block.querySelector('.q-mots-trou')?.value.trim() || '';
-            qData.textTrou = textTrou;
-            qData.mots = mots.split(',').map(m => m.trim()).filter(Boolean);
-          } else if (qType === 'association') {
-            const colA = block.querySelector('.q-assoc-a')?.value.trim() || '';
-            const colB = block.querySelector('.q-assoc-b')?.value.trim() || '';
-            const correct = block.querySelector('.q-assoc-correct')?.value.trim() || '';
-            qData.colonneA = colA.split(',').map(m => m.trim()).filter(Boolean);
-            qData.colonneB = colB.split(',').map(m => m.trim()).filter(Boolean);
-            qData.correctAssociations = correct.split(',').map(m => m.trim()).filter(Boolean);
-          } else if (qType === 'reponse-libre') {
-            qData.reponseAttendue = block.querySelector('.q-reponse-attendue')?.value.trim() || '';
-          }
-          
-          if (texte) {
-            questions.push(qData);
-            totalPoints += points;
-          }
-        });
-        
-        if (questions.length === 0) { alert('Ajoutez au moins une question.'); submitBtn.disabled = false; submitBtn.textContent = "Publier le devoir"; return; }
-        devoirData.questions = questions;
-        devoirData.typesActifs = typesActifs;
-        devoirData.bareme = totalPoints || bareme;
-      }
-
-      // ---- Type SAISIE DIRECTE ----
-      if (type === 'saisie') {
-        devoirData.bareme = parseFloat(document.getElementById('dv-bareme-saisie').value) || 20;
-        devoirData.structure = document.getElementById('saisie-structure').value.trim();
-        devoirData.reponsesAttendues = document.getElementById('saisie-reponses').value.trim().split(';').map(r => r.trim()).filter(Boolean);
-        devoirData.modeCorrection = document.getElementById('saisie-mode').value;
-        devoirData.indice = document.getElementById('saisie-indice').value.trim() || null;
-        
-        if (!devoirData.structure) { alert('Entrez une structure de texte.'); submitBtn.disabled = false; submitBtn.textContent = "Publier le devoir"; return; }
-        if (devoirData.reponsesAttendues.length === 0) { alert('Entrez les mots attendus.'); submitBtn.disabled = false; submitBtn.textContent = "Publier le devoir"; return; }
-      }
-
-      await addDoc(collection(db, 'ressources', currentDevoirSlug, 'devoirs'), devoirData);
-      alert('✅ Devoir publié avec succès !');
-      document.getElementById('devoir-modal').classList.remove('show');
-      
-    } catch (err) {
-      alert('❌ Erreur: ' + err.message);
-    }
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Publier le devoir";
-  });
-
-  // ============ FONCTIONS PRINCIPALES ============
-  
   onAuthStateChanged(auth, async (user) => {
     const contentArea = document.getElementById('content-area');
-    if (!contentArea) return;
-    
     if (user) {
       try {
         const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
@@ -897,27 +395,39 @@
 
         if ((profile.role === 'professeur' || profile.role === 'intendant') && profile.statut === 'en_attente') {
           contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⏳ Votre compte est en attente de validation.</p>`;
+          document.getElementById('user-profile').style.display = "block";
+          document.getElementById('user-profile').innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
+          document.getElementById('auth-link').textContent = "Déconnexion";
+          document.getElementById('auth-link').onclick = () => signOut(auth).then(() => window.location.reload());
           return;
         }
 
         document.getElementById('search-bar').style.display = "";
-        const userProfile = document.getElementById('user-profile');
-        if (userProfile) {
-          userProfile.style.display = "block";
-          userProfile.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
-        }
-        
+        document.getElementById('user-profile').style.display = "block";
+        document.getElementById('user-profile').innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
         if (isAdmin(profile.role)) document.querySelectorAll('.admin-item').forEach(el => el.style.display = "block");
-        
-        const authLink = document.getElementById('auth-link');
-        if (authLink) {
-          authLink.textContent = "Déconnexion";
-          authLink.onclick = () => signOut(auth).then(() => window.location.reload());
-        }
+        document.getElementById('auth-link').textContent = "Déconnexion";
+        document.getElementById('auth-link').onclick = () => signOut(auth).then(() => window.location.reload());
+
+        // NOUVEAU : Afficher le lien feedback selon le rôle
+        const feedbackItems = document.querySelectorAll('.feedback-item');
+        feedbackItems.forEach(el => {
+          el.style.display = 'block';
+          const link = el.querySelector('a');
+          if (isAdmin(profile.role)) {
+            link.href = 'feedback.html#tab-dashboard';
+            link.textContent = '📊 Voir les retours';
+          } else if (profile.role === 'professeur') {
+            link.href = 'feedback.html#tab-professeurs';
+            link.textContent = '📋 Donner mon avis (prof)';
+          } else if (profile.role === 'eleve') {
+            link.href = 'feedback.html#tab-eleves';
+            link.textContent = '📋 Donner mon avis (élève)';
+          }
+        });
 
         if (profile.role === 'professeur' || isAdmin(profile.role)) {
-          const elevesSection = document.getElementById('eleves-section');
-          if (elevesSection) elevesSection.style.display = 'block';
+          document.getElementById('eleves-section').style.display = 'block';
           chargerMesEleves();
         }
 
@@ -931,6 +441,7 @@
         syncDevoirs();
       } catch (err) {
         console.warn('Erreur de chargement du profil:', err.message);
+        contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⚠️ Erreur de chargement du profil. Veuillez rafraîchir la page.</p>`;
       }
     } else {
       profile = null;
@@ -942,899 +453,12 @@
           ou
           <a href="inscription.html" style="color:var(--brass); font-weight:700;">créer un compte</a>
         </p>`;
+      document.querySelectorAll('.feedback-item').forEach(el => el.style.display = 'none');
     }
   });
-
-  function applyLevelVisibility() {
-    const role = profile?.role;
-    const profMats = profile?.disciplines || [];
-    const cycleVisible = {};
-    document.querySelectorAll('details.level').forEach(levelEl => {
-      if (!levelEl) return;
-      const lvlId = levelEl.dataset.level;
-      const area = levelEl.dataset.area;
-      let visible = true;
-      if (role === 'professeur') visible = (profile.assignedClasses || []).includes(lvlId);
-      else if (role === 'eleve') visible = profile.niveau === lvlId;
-      levelEl.style.display = visible ? '' : 'none';
-      if (visible) cycleVisible[area] = true;
-      if (visible) {
-        levelEl.querySelectorAll('details.subject').forEach(subjectEl => {
-          if (!subjectEl) return;
-          let matVisible = true;
-          if (role === 'professeur') matVisible = profMats.includes(subjectEl.dataset.mat);
-          subjectEl.dataset.roleAllowed = matVisible ? '1' : '0';
-          subjectEl.style.display = matVisible ? '' : 'none';
-        });
-      }
-    });
-    document.querySelectorAll('.cycle-title').forEach(header => {
-      if (!header) return;
-      header.style.display = cycleVisible[header.dataset.area] ? '' : 'none';
-    });
-  }
-
-  // ============ SYNC DOCS ET DEVOIRS ============
-  
-  function syncDocs() {
-    const role = profile?.role;
-    const profMats = profile?.disciplines || [];
-
-    document.querySelectorAll('.doc-list').forEach(ul => {
-      if (!ul) return;
-      const slug = ul.id.replace(/^cours-|^td-/, '');
-      const type = ul.id.startsWith('cours-') ? 'cours' : 'td';
-      
-      const addBtn = ul.nextElementSibling;
-      const videoBtn = addBtn ? addBtn.nextElementSibling : null;
-      const driveBtn = videoBtn ? videoBtn.nextElementSibling : null;
-      
-      const subjectEl = ul.closest('.subject');
-      const matName = subjectEl ? subjectEl.querySelector('summary')?.textContent?.toLowerCase() || '' : '';
-
-      if (role === 'professeur' || isAdmin(role)) {
-        const showButtons = (role === 'professeur' && profMats.some(d => matName.includes(d.toLowerCase()))) || isAdmin(role);
-        if (addBtn && showButtons) addBtn.style.display = "block";
-        if (videoBtn && showButtons) videoBtn.style.display = "block";
-        if (driveBtn && showButtons) driveBtn.style.display = "block";
-      }
-
-      try {
-        onSnapshot(query(collection(db, 'ressources', slug, type), orderBy('date', 'desc')), (snap) => {
-          if (!ul) return;
-          ul.innerHTML = snap.empty ? '<li style="color:gray;border:none;background:none;">Aucun fichier</li>' : '';
-          snap.forEach(docSnap => {
-            const d = docSnap.data();
-            const icon = d.type === 'video' ? '🎥' : d.type === 'drive' ? '🔗' : '📄';
-            const li = document.createElement('li');
-            li.innerHTML = `<a href="${d.url}" target="_blank">${icon} ${escapeHtml(d.titre)}</a>`;
-            if (role === 'professeur' || isAdmin(role)) {
-              const del = document.createElement('button');
-              del.innerHTML = '✕'; del.className = 'delete-btn';
-              del.onclick = () => {
-                if (!confirm('Supprimer ?')) return;
-                deleteDoc(doc(db, 'ressources', slug, type, docSnap.id));
-              };
-              li.appendChild(del);
-            }
-            ul.appendChild(li);
-          });
-        });
-      } catch (err) { console.warn('Erreur sync docs:', err.message); }
-    });
-  }
-
-  function syncDevoirs() {
-    const role = profile?.role;
-    const profMats = profile?.disciplines || [];
-
-    document.querySelectorAll('.devoirs-list').forEach(container => {
-      if (!container) return;
-      const slug = container.id.replace(/^devoirs-/, '');
-      const subjectEl = container.closest('.subject');
-      const matName = subjectEl ? subjectEl.dataset.mat : '';
-      const addBtn = document.getElementById(`devoiradd-${slug}`);
-
-      if (addBtn) {
-        const showButton = (role === 'professeur' && profMats.includes(matName)) || isAdmin(role);
-        addBtn.style.display = showButton ? "block" : "none";
-      }
-
-      try {
-        onSnapshot(query(collection(db, 'ressources', slug, 'devoirs'), orderBy('date', 'desc')), (snap) => {
-          if (!container) return;
-          container.innerHTML = snap.empty ? '<p style="color:gray;font-size:12px;">Aucun devoir pour le moment</p>' : '';
-          snap.forEach(devDoc => {
-            const dv = devDoc.data();
-            const dvType = dv.type || 'fichier';
-            const item = document.createElement('div');
-            item.className = 'devoir-item';
-            
-            let badge = '';
-            if (dvType === 'fichier') badge = '<span class="devoir-type-badge badge-fichier">📄 Fichier</span>';
-            else if (dvType === 'qcm') badge = '<span class="devoir-type-badge badge-qcm">📝 QCM</span>';
-            else if (dvType === 'mixte') badge = '<span class="devoir-type-badge badge-mixte">🧩 Mixte</span>';
-            else if (dvType === 'saisie') badge = '<span class="devoir-type-badge badge-saisie">✏️ Saisie</span>';
-            
-            let typesInfo = '';
-            if (dvType === 'mixte' && dv.typesActifs) {
-              const types = Object.keys(dv.typesActifs).map(t => {
-                const labels = { qcm: 'QCM', 'text-trou': 'Trous', association: 'Association', 'reponse-libre': 'Libre' };
-                return labels[t] || t;
-              });
-              typesInfo = ` <span style="font-size:10px;color:var(--slate);">(${types.join(', ')})</span>`;
-            }
-            
-            item.innerHTML = `<h6>📌 ${escapeHtml(dv.titre)} ${badge}${typesInfo}</h6>
-              <div class="devoir-meta">📅 À rendre pour le ${dv.dateLimite || 'non précisé'} — proposé par ${dv.profNom || 'le professeur'}</div>
-              ${dv.consignes ? `<p style="font-size:13px; margin-bottom:8px;">${dv.consignes}</p>` : ''}
-              ${dv.googleDocUrl ? `<p style="margin-bottom:8px;"><a href="${dv.googleDocUrl}" target="_blank">📄 Ouvrir le document Google Doc</a></p>` : ''}
-              ${dv.fichierUrl ? `<p style="margin-bottom:8px;"><a href="${dv.fichierUrl}" target="_blank">📎 ${dv.fichierNom || 'Fichier joint'}</a></p>` : ''}
-              ${dv.bareme ? `<p style="font-size:11px;color:var(--slate);">📊 Barème : ${dv.bareme} points</p>` : ''}`;
-
-            if (role === 'eleve') {
-              const responseArea = document.createElement('div');
-              item.appendChild(responseArea);
-              if (dvType === 'qcm') {
-                renderQcmForStudent(slug, devDoc.id, dv, responseArea);
-              } else if (dvType === 'mixte') {
-                renderMixedForStudent(slug, devDoc.id, dv, responseArea);
-              } else if (dvType === 'saisie') {
-                renderSaisieForStudent(slug, devDoc.id, dv, responseArea);
-              } else {
-                checkRendu(slug, devDoc.id, responseArea);
-              }
-            } else if (role === 'professeur' || isAdmin(role)) {
-              const rendusBox = document.createElement('div');
-              rendusBox.style.display = 'none';
-              rendusBox.style.marginTop = '8px';
-
-              const voirBtn = document.createElement('button');
-              voirBtn.className = 'devoir-btn btn-voir-rendus';
-              voirBtn.textContent = '👀 Voir les rendus';
-              voirBtn.onclick = () => {
-                const showing = rendusBox.style.display === 'block';
-                rendusBox.style.display = showing ? 'none' : 'block';
-                if (!showing) loadRendus(slug, devDoc.id, rendusBox, dv);
-              };
-              item.appendChild(voirBtn);
-
-              const exportBtn = document.createElement('button');
-              exportBtn.className = 'devoir-btn btn-export';
-              exportBtn.textContent = '📥 Exporter';
-              exportBtn.onclick = () => exportNotes(slug, devDoc.id, dv);
-              item.appendChild(exportBtn);
-
-              if (dvType === 'mixte' || dvType === 'saisie' || dvType === 'qcm') {
-                const corrBtn = document.createElement('button');
-                corrBtn.className = 'devoir-btn btn-correction';
-                corrBtn.textContent = '📊 Corriger';
-                corrBtn.onclick = () => openCorrectionModal(slug, devDoc.id, dv);
-                item.appendChild(corrBtn);
-              }
-
-              const delBtn = document.createElement('button');
-              delBtn.className = 'devoir-btn btn-suppr-devoir';
-              delBtn.textContent = '✕ Supprimer';
-              delBtn.onclick = () => {
-                if (!confirm('Supprimer ce devoir ?')) return;
-                deleteDoc(doc(db, 'ressources', slug, 'devoirs', devDoc.id));
-              };
-              item.appendChild(delBtn);
-
-              item.appendChild(rendusBox);
-            }
-            container.appendChild(item);
-          });
-        });
-      } catch (err) { console.warn('Erreur sync devoirs:', err.message); }
-    });
-  }
-
-  // ============ RENDU DES DEVOIRS ============
-  
-  function checkRendu(slug, devoirId, statusDiv) {
-    const uid = auth.currentUser?.uid;
-    if (!uid || !statusDiv) return;
-    try {
-      onSnapshot(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), (snap) => {
-        if (!statusDiv) return;
-        if (snap.exists()) {
-          const d = snap.data();
-          statusDiv.innerHTML = `<span class="rendu-status">✅ Devoir rendu</span> — <a href="${d.url}" target="_blank">voir mon fichier</a><br>
-            <button class="add-btn" style="display:block;margin-top:6px;" onclick="window.rendreDevoir('${slug}','${devoirId}')">Renvoyer un autre fichier</button>`;
-        } else {
-          statusDiv.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir</button>`;
-        }
-      });
-    } catch (err) {
-      if (statusDiv) statusDiv.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir</button>`;
-    }
-  }
-
-  // ----- RENDU QCM -----
-  function renderQcmForStudent(slug, devoirId, dv, container) {
-    const uid = auth.currentUser?.uid;
-    if (!uid || !container) return;
-    try {
-      onSnapshot(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), (snap) => {
-        if (!container) return;
-        if (snap.exists()) {
-          const d = snap.data();
-          const note = d.note ?? d.score;
-          container.innerHTML = `<span class="rendu-status">✅ QCM rendu — Note : ${note}/${dv.bareme || 20}</span>
-            <br><button class="add-btn" style="display:block;margin-top:6px;" onclick="window.reprendreQcm('${slug}','${devoirId}')">Repasser le QCM</button>`;
-        } else {
-          buildQcmForm(slug, devoirId, dv, container);
-        }
-      });
-    } catch (err) {
-      if (container) container.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir</button>`;
-    }
-  }
-
-  function buildQcmForm(slug, devoirId, dv, container) {
-    if (!container || !dv.questions || dv.questions.length === 0) {
-      if (container) container.innerHTML = '<p style="color:gray;">Ce QCM n\'a pas encore de questions.</p>';
-      return;
-    }
-    let html = '';
-    dv.questions.forEach((q, qi) => {
-      html += `<div style="margin-bottom:12px;padding:8px;background:#f9f9f9;border-radius:6px;">`;
-      html += `<p style="font-weight:700;font-size:13px;">${qi + 1}. ${q.texte} <span style="font-weight:400;font-size:11px;color:var(--slate);">(${q.points || 1} pt${(q.points || 1) > 1 ? 's' : ''})</span></p>`;
-      q.options.forEach((opt, oi) => {
-        html += `<label style="display:block;font-size:13px;margin:4px 0;"><input type="radio" name="qcmrep-${devoirId}-${qi}" value="${oi}"> ${opt}</label>`;
-      });
-      html += `</div>`;
-    });
-    html += `<button class="add-btn" style="display:block;" id="submit-qcm-${devoirId}">📤 Envoyer mes réponses</button>`;
-    container.innerHTML = html;
-    
-    document.getElementById(`submit-qcm-${devoirId}`).onclick = async () => {
-      const reponses = [];
-      let complete = true;
-      dv.questions.forEach((q, qi) => {
-        const checked = container.querySelector(`input[name="qcmrep-${devoirId}-${qi}"]:checked`);
-        if (!checked) complete = false;
-        reponses.push(checked ? parseInt(checked.value, 10) : -1);
-      });
-      if (!complete) { alert("Répondez à toutes les questions avant d'envoyer."); return; }
-      
-      let totalPoints = 0;
-      let pointsObtenus = 0;
-      dv.questions.forEach((q, qi) => {
-        const points = q.points || 1;
-        totalPoints += points;
-        if (reponses[qi] === q.correctIndex) pointsObtenus += points;
-      });
-      
-      const bareme = dv.bareme || totalPoints;
-      const note = totalPoints > 0 ? Math.round((pointsObtenus / totalPoints) * bareme * 100) / 100 : 0;
-      
-      await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
-        eleveNom: `${profile.prenom} ${profile.nom}`,
-        reponses, pointsObtenus, totalPoints, note,
-        date: serverTimestamp()
-      });
-      alert(`✅ QCM envoyé ! Note : ${note}/${bareme}`);
-      location.reload();
-    };
-  }
-
-  window.reprendreQcm = async (slug, devoirId) => {
-    const uid = auth.currentUser?.uid;
-    if (!uid) return;
-    await deleteDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid));
-    location.reload();
-  };
-
-  // ----- RENDU MIXTE -----
-  function renderMixedForStudent(slug, devoirId, dv, container) {
-    const uid = auth.currentUser?.uid;
-    if (!uid || !container) return;
-    try {
-      onSnapshot(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), (snap) => {
-        if (!container) return;
-        if (snap.exists()) {
-          const d = snap.data();
-          container.innerHTML = `<span class="rendu-status">✅ Devoir rendu</span> — Note : ${d.note ?? '-'}/${dv.bareme || 20}
-            <br><button class="add-btn" style="display:block;margin-top:6px;" onclick="window.reprendreMixte('${slug}','${devoirId}')">Reprendre le devoir</button>`;
-        } else {
-          buildMixedForm(slug, devoirId, dv, container);
-        }
-      });
-    } catch (err) {
-      if (container) container.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir</button>`;
-    }
-  }
-
-  function buildMixedForm(slug, devoirId, dv, container) {
-    if (!container || !dv.questions || dv.questions.length === 0) {
-      if (container) container.innerHTML = '<p style="color:gray;">Ce devoir n\'a pas encore de questions.</p>';
-      return;
-    }
-    let html = '';
-    dv.questions.forEach((q, qi) => {
-      html += `<div style="margin-bottom:15px;padding:10px;background:#f9f9f9;border-radius:6px;">`;
-      html += `<p style="font-weight:700;">Question ${qi + 1} <span style="font-weight:400;font-size:11px;color:var(--slate);">(${q.points || 1} pt${(q.points || 1) > 1 ? 's' : ''})</span></p>`;
-      html += `<p style="margin-bottom:8px;">${q.texte}</p>`;
-      
-      if (q.type === 'qcm' || !q.type) {
-        q.options.forEach((opt, oi) => {
-          html += `<label style="display:block;font-size:13px;margin:4px 0;">
-            <input type="radio" name="mix-rep-${devoirId}-${qi}" value="${oi}"> ${opt}
-          </label>`;
-        });
-      } else if (q.type === 'text-trou') {
-        html += `<textarea class="mix-text-rep" data-q="${qi}" rows="2" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;" placeholder="Écrivez votre réponse..."></textarea>`;
-      } else if (q.type === 'association') {
-        html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">`;
-        html += `<div><p style="font-weight:600;font-size:12px;">Colonne A</p>`;
-        q.colonneA.forEach((item, idx) => {
-          html += `<div style="margin:4px 0;">${idx+1}. ${item}</div>`;
-        });
-        html += `</div><div><p style="font-weight:600;font-size:12px;">Colonne B</p>`;
-        q.colonneB.forEach((item, idx) => {
-          html += `<div style="margin:4px 0;">
-            <select class="mix-assoc-rep" data-q="${qi}" data-idx="${idx}" style="width:100%;padding:4px;border:1px solid #ccc;border-radius:4px;">
-              <option value="">-- Choisir --</option>
-              ${q.colonneA.map((a, ai) => `<option value="${ai}">${a}</option>`).join('')}
-            </select>
-          </div>`;
-        });
-        html += `</div></div>`;
-      } else if (q.type === 'reponse-libre') {
-        html += `<textarea class="mix-text-rep" data-q="${qi}" rows="3" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;" placeholder="Écrivez votre réponse..."></textarea>`;
-      }
-      html += `</div>`;
-    });
-    html += `<button class="add-btn" style="display:block;" id="submit-mixed-${devoirId}">📤 Envoyer mes réponses</button>`;
-    container.innerHTML = html;
-
-    document.getElementById(`submit-mixed-${devoirId}`).onclick = async () => {
-      const reponses = [];
-      dv.questions.forEach((q, qi) => {
-        let rep = null;
-        if (q.type === 'qcm' || !q.type) {
-          const checked = container.querySelector(`input[name="mix-rep-${devoirId}-${qi}"]:checked`);
-          rep = checked ? parseInt(checked.value, 10) : -1;
-        } else if (q.type === 'text-trou' || q.type === 'reponse-libre') {
-          rep = container.querySelector(`.mix-text-rep[data-q="${qi}"]`)?.value || '';
-        } else if (q.type === 'association') {
-          const assocs = {};
-          container.querySelectorAll(`.mix-assoc-rep[data-q="${qi}"]`).forEach(select => {
-            assocs[select.dataset.idx] = select.value;
-          });
-          rep = assocs;
-        }
-        reponses.push(rep);
-      });
-      
-      await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
-        eleveNom: `${profile.prenom} ${profile.nom}`,
-        reponses: reponses,
-        date: serverTimestamp()
-      });
-      alert('✅ Devoir envoyé !');
-      location.reload();
-    };
-  }
-
-  window.reprendreMixte = async (slug, devoirId) => {
-    const uid = auth.currentUser?.uid;
-    if (!uid) return;
-    await deleteDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid));
-    location.reload();
-  };
-
-  // ----- RENDU SAISIE DIRECTE -----
-  function renderSaisieForStudent(slug, devoirId, dv, container) {
-    const uid = auth.currentUser?.uid;
-    if (!uid || !container) return;
-    try {
-      onSnapshot(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), (snap) => {
-        if (!container) return;
-        if (snap.exists()) {
-          const d = snap.data();
-          let resultHtml = `<span class="rendu-status">✅ Devoir rendu</span> — Note : ${d.note ?? '-'}/${dv.bareme || 20}`;
-          
-          if (d.corrections) {
-            resultHtml += `<div style="background:#f0f8ff;border:1px solid var(--brass);border-radius:8px;padding:10px;margin:10px 0;">`;
-            resultHtml += `<p style="font-size:12px;font-weight:600;">📊 Détail : ${d.score}/${d.total} bonnes réponses</p>`;
-            d.corrections.forEach((c, idx) => {
-              resultHtml += `<div style="display:flex;align-items:center;gap:8px;padding:2px 0;font-size:12px;border-bottom:1px solid #eee;">`;
-              resultHtml += `<span style="min-width:25px;">${idx+1}.</span>`;
-              resultHtml += `<span style="${c.estCorrect ? 'color:#2e7d32;' : 'color:#d9534f;'}">${escapeHtml(c.reponse || '—')}</span>`;
-              if (!c.estCorrect && c.attendue) {
-                resultHtml += `<span style="color:var(--slate);font-size:11px;">→ attendu : <strong>${escapeHtml(c.attendue)}</strong></span>`;
-              }
-              resultHtml += `<span style="margin-left:auto;">${c.estCorrect ? '✅' : '❌'}</span>`;
-              resultHtml += `</div>`;
-            });
-            resultHtml += `</div>`;
-          }
-          
-          resultHtml += `<br><button class="add-btn" style="display:block;margin-top:6px;" onclick="window.reprendreSaisie('${slug}','${devoirId}')">🔄 Reprendre le devoir</button>`;
-          container.innerHTML = resultHtml;
-        } else {
-          buildSaisieForm(slug, devoirId, dv, container);
-        }
-      });
-    } catch (err) {
-      if (container) container.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir</button>`;
-    }
-  }
-
-  function buildSaisieForm(slug, devoirId, dv, container) {
-    if (!container || !dv.structure) {
-      if (container) container.innerHTML = '<p style="color:gray;">Ce devoir n\'a pas encore de structure.</p>';
-      return;
-    }
-    
-    let html = '';
-    if (dv.indice) {
-      html += `<div style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:10px;margin-bottom:15px;">
-        <span style="font-weight:600;">💡 Indice :</span> ${escapeHtml(dv.indice)}
-      </div>`;
-    }
-    
-    html += `<p style="margin-bottom:10px;font-weight:500;">📝 Complétez les trous dans le texte ci-dessous :</p>`;
-    html += `<div style="background:#f9f9f9;padding:15px;border-radius:6px;font-size:14px;line-height:2.2;border:1px solid var(--line);">`;
-    
-    const parts = dv.structure.split('___');
-    const totalTrous = parts.length - 1;
-    
-    parts.forEach((part, i) => {
-      html += part;
-      if (i < parts.length - 1) {
-        const placeholder = `Mot ${i+1}`;
-        html += `<input type="text" class="saisie-trou" data-idx="${i}" 
-          style="width:140px;padding:5px 10px;border:1px solid #ccc;border-radius:4px;border-bottom:3px solid var(--brass);
-          font-size:14px;text-align:center;"
-          placeholder="${placeholder}">`;
-      }
-    });
-    
-    html += `</div>`;
-    html += `<div style="margin-top:10px;font-size:12px;color:var(--slate);">🔢 ${totalTrous} mot(s) à compléter</div>`;
-    html += `<button class="add-btn" style="display:block;margin-top:15px;background:var(--brass);color:#fff;" id="submit-saisie-${devoirId}">📤 Envoyer mes réponses</button>`;
-    container.innerHTML = html;
-
-    document.getElementById(`submit-saisie-${devoirId}`).onclick = async () => {
-      const reponses = [];
-      container.querySelectorAll('.saisie-trou').forEach(input => {
-        reponses.push(input.value.trim());
-      });
-      
-      const vides = reponses.filter(r => r === '').length;
-      if (vides > 0) {
-        if (!confirm(`⚠️ Il vous reste ${vides} trou(s) à remplir. Voulez-vous quand même envoyer ?`)) {
-          return;
-        }
-      }
-      
-      let score = 0;
-      const total = dv.reponsesAttendues?.length || 0;
-      const corrections = [];
-      
-      if (dv.reponsesAttendues && dv.reponsesAttendues.length > 0) {
-        const mode = dv.modeCorrection || 'insensible';
-        reponses.forEach((rep, idx) => {
-          const attendue = dv.reponsesAttendues[idx] || '';
-          let estCorrect = false;
-          
-          if (mode === 'exact') {
-            estCorrect = rep === attendue;
-          } else if (mode === 'insensible') {
-            estCorrect = rep.toLowerCase() === attendue.toLowerCase();
-          } else if (mode === 'approximative') {
-            estCorrect = rep.toLowerCase().includes(attendue.toLowerCase()) || 
-                         attendue.toLowerCase().includes(rep.toLowerCase()) ||
-                         rep.toLowerCase().charAt(0) === attendue.toLowerCase().charAt(0);
-          }
-          
-          if (estCorrect && rep !== '') score++;
-          corrections.push({ reponse: rep, attendue: attendue, estCorrect: estCorrect });
-        });
-      }
-      
-      const bareme = dv.bareme || 20;
-      const note = total > 0 ? Math.round((score / total) * bareme * 100) / 100 : 0;
-      
-      const uid = auth.currentUser.uid;
-      await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
-        eleveNom: `${profile.prenom} ${profile.nom}`,
-        reponses: reponses,
-        corrections: corrections,
-        score: score,
-        total: total,
-        note: note,
-        date: serverTimestamp()
-      });
-      
-      alert(`✅ Devoir envoyé !\n📊 Score : ${score}/${total} (${note}/${bareme})`);
-      location.reload();
-    };
-  }
-
-  window.reprendreSaisie = async (slug, devoirId) => {
-    const uid = auth.currentUser?.uid;
-    if (!uid) return;
-    await deleteDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid));
-    location.reload();
-  };
-
-  // ============ CORRECTION ============
-  
-  async function openCorrectionModal(slug, devoirId, dv) {
-    const modal = document.getElementById('correction-modal');
-    const content = document.getElementById('correction-content');
-    if (!modal || !content) return;
-    
-    modal.classList.add('show');
-    content.innerHTML = '<p>Chargement des rendus...</p>';
-    
-    try {
-      const rendusSnap = await getDocs(collection(db, 'ressources', slug, 'devoirs', devoirId, 'rendus'));
-      if (rendusSnap.empty) {
-        content.innerHTML = '<p style="color:gray;">Aucun rendu pour le moment.</p>';
-        return;
-      }
-      
-      let html = `<div style="margin-bottom:15px;">
-        <p><strong>📝 Devoir :</strong> ${escapeHtml(dv.titre)}</p>
-        <p><strong>📊 Barème :</strong> ${dv.bareme || 20} points</p>
-        ${dv.type === 'mixte' && dv.typesActifs ? 
-          `<p><strong>📋 Types :</strong> ${Object.keys(dv.typesActifs).map(t => {
-            const labels = { qcm: 'QCM', 'text-trou': 'Trous', association: 'Association', 'reponse-libre': 'Libre' };
-            return labels[t] || t;
-          }).join(', ')}</p>` : ''}
-        <hr style="margin:15px 0;">
-      </div>`;
-      
-      rendusSnap.forEach(rd => {
-        const d = rd.data();
-        const eleveNom = d.eleveNom || rd.id;
-        html += `<div style="border:1px solid var(--line);border-radius:6px;padding:12px;margin-bottom:10px;">`;
-        html += `<p><strong>👤 ${escapeHtml(eleveNom)}</strong>`;
-        html += ` <span style="color:var(--brass);font-weight:700;">Note: ${d.note || '-'}/${dv.bareme || 20}</span>`;
-        if (d.score !== undefined) {
-          html += ` <span style="font-size:12px;color:var(--slate);">(${d.score}/${d.total || '?'} bonnes réponses)</span>`;
-        }
-        html += `</p>`;
-        
-        // Afficher les détails des réponses si disponibles
-        if (d.corrections && d.corrections.length > 0) {
-          html += `<div style="background:#f5f5f5;padding:8px;border-radius:4px;font-size:12px;margin-top:5px;">`;
-          d.corrections.forEach((c, idx) => {
-            const color = c.estCorrect ? '#2e7d32' : '#d9534f';
-            html += `<div style="display:flex;align-items:center;gap:8px;padding:2px 0;border-bottom:1px solid #eee;">`;
-            html += `<span style="font-weight:600;min-width:25px;">${idx+1}.</span>`;
-            html += `<span style="color:${color};">${escapeHtml(c.reponse || '—')}</span>`;
-            if (!c.estCorrect && c.attendue) {
-              html += `<span style="color:var(--slate);font-size:11px;">→ attendu : <strong>${escapeHtml(c.attendue)}</strong></span>`;
-            }
-            html += `<span style="margin-left:auto;">${c.estCorrect ? '✅' : '❌'}</span>`;
-            html += `</div>`;
-          });
-          html += `</div>`;
-        } else if (d.reponses) {
-          html += `<div style="background:#f5f5f5;padding:8px;border-radius:4px;font-size:12px;margin-top:5px;">`;
-          if (dv.type === 'qcm') {
-            const total = dv.questions?.length || 0;
-            const correct = d.reponses.filter((r, i) => r === dv.questions[i]?.correctIndex).length;
-            html += `<p>Score : ${correct}/${total}</p>`;
-          } else if (dv.type === 'mixte') {
-            html += `<p>${d.reponses.length} question(s) traitée(s)</p>`;
-          } else if (dv.type === 'saisie') {
-            html += `<p>Réponses : ${d.reponses.join(' | ')}</p>`;
-          }
-          html += `</div>`;
-        }
-        
-        html += `<div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <input type="number" class="corr-note" data-uid="${rd.id}" value="${d.note || ''}" 
-            min="0" max="${dv.bareme || 20}" step="0.5" 
-            style="width:70px;padding:4px;border:1px solid #ccc;border-radius:4px;" placeholder="Note">
-          <span style="font-size:12px;color:var(--slate);">/${dv.bareme || 20}</span>
-          <button class="devoir-btn btn-export" onclick="window.sauverNote('${slug}','${devoirId}','${rd.id}')">💾 Enregistrer</button>
-          <button class="devoir-btn btn-voir-rendus" onclick="window.recalculerNoteAuto('${slug}','${devoirId}','${rd.id}')">🔄 Recalculer auto</button>
-        </div>`;
-        html += `</div>`;
-      });
-      
-      content.innerHTML = html;
-      
-      document.getElementById('correction-save').onclick = async () => {
-        const inputs = content.querySelectorAll('.corr-note');
-        for (const input of inputs) {
-          const uid = input.dataset.uid;
-          const note = parseFloat(input.value);
-          if (!isNaN(note) && note >= 0) {
-            await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), { note: note }, { merge: true });
-          }
-        }
-        alert('✅ Notes enregistrées !');
-        modal.classList.remove('show');
-      };
-      
-    } catch (err) {
-      content.innerHTML = `<p style="color:red;">❌ Erreur: ${err.message}</p>`;
-    }
-  }
-
-  window.sauverNote = async (slug, devoirId, uid) => {
-    const input = document.querySelector(`.corr-note[data-uid="${uid}"]`);
-    if (!input) return;
-    const note = parseFloat(input.value);
-    if (isNaN(note) || note < 0) { alert('Entrez une note valide.'); return; }
-    const dvSnap = await getDoc(doc(db, 'ressources', slug, 'devoirs', devoirId));
-    const bareme = dvSnap.data()?.bareme || 20;
-    if (note > bareme) { alert(`La note ne peut pas dépasser ${bareme}.`); return; }
-    await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), { note: note }, { merge: true });
-    alert('✅ Note enregistrée !');
-  };
-
-  window.recalculerNoteAuto = async (slug, devoirId, uid) => {
-    try {
-      const renduSnap = await getDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid));
-      if (!renduSnap.exists()) return;
-      
-      const d = renduSnap.data();
-      const dvSnap = await getDoc(doc(db, 'ressources', slug, 'devoirs', devoirId));
-      const dv = dvSnap.data();
-      
-      // Différents calculs selon le type
-      let note = d.note;
-      let score = d.score;
-      let total = d.total;
-      
-      if (dv.type === 'saisie' && d.corrections) {
-        score = d.corrections.filter(c => c.estCorrect).length;
-        total = dv.reponsesAttendues?.length || 0;
-        const bareme = dv.bareme || 20;
-        note = total > 0 ? Math.round((score / total) * bareme * 100) / 100 : 0;
-      } else if (dv.type === 'qcm' && d.reponses && dv.questions) {
-        score = d.reponses.filter((r, i) => r === dv.questions[i]?.correctIndex).length;
-        total = dv.questions.length;
-        // Calcul pondéré par points
-        let totalPoints = 0;
-        let pointsObtenus = 0;
-        dv.questions.forEach((q, qi) => {
-          const pts = q.points || 1;
-          totalPoints += pts;
-          if (d.reponses[qi] === q.correctIndex) pointsObtenus += pts;
-        });
-        const bareme = dv.bareme || totalPoints;
-        note = totalPoints > 0 ? Math.round((pointsObtenus / totalPoints) * bareme * 100) / 100 : 0;
-      }
-      
-      await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
-        score: score,
-        total: total,
-        note: note
-      }, { merge: true });
-      
-      alert(`✅ Note recalculée : ${note}/${dv.bareme || 20} (${score}/${total} bonnes réponses)`);
-      location.reload();
-    } catch (err) {
-      alert('❌ Erreur: ' + err.message);
-    }
-  };
-
-  document.getElementById('correction-cancel')?.addEventListener('click', () => {
-    document.getElementById('correction-modal').classList.remove('show');
-  });
-
-  // ============ RENDU FICHIER (élève) ============
-  
-  window.rendreDevoir = async (slug, devoirId) => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*,.pdf,.doc,.docx';
-    input.onchange = async () => {
-      if (input.files[0].size > 15 * 1024 * 1024) { alert("Fichier trop volumineux (max 15 Mo)."); return; }
-      try {
-        const fd = new FormData();
-        fd.append('file', input.files[0]);
-        fd.append('upload_preset', "lfakm_ressources");
-        const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
-        const data = await res.json();
-        const uid = auth.currentUser.uid;
-        await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
-          eleveNom: `${profile.prenom} ${profile.nom}`,
-          url: data.secure_url,
-          date: serverTimestamp()
-        });
-        alert('✅ Devoir envoyé !');
-        location.reload();
-      } catch (e) {
-        alert('❌ Erreur: ' + e.message);
-      }
-    };
-    input.click();
-  };
-
-  // ============ AUTRES FONCTIONS ============
-  
-  window.up = async (id) => {
-    const titre = prompt('Nom du document :');
-    if (!titre) return;
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.onchange = async () => {
-      if (input.files[0].size > 5 * 1024 * 1024) {
-        alert("Fichier trop volumineux (max 5 Mo). Utilisez plutôt le bouton 🔗 Lien Drive/OneDrive.");
-        return;
-      }
-      try {
-        const fd = new FormData();
-        fd.append('file', input.files[0]);
-        fd.append('upload_preset', "lfakm_ressources");
-        const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
-        const data = await res.json();
-        const type = id.startsWith('cours-') ? 'cours' : 'td';
-        const slug = id.replace(/^cours-|^td-/, '');
-        await addDoc(collection(db, 'ressources', slug, type), { titre, url: data.secure_url, date: serverTimestamp() });
-      } catch (e) {
-        alert('❌ Erreur: ' + e.message);
-      }
-    };
-    input.click();
-  };
-
-  window.addVideo = async (id) => {
-    const titre = prompt('Titre de la vidéo :');
-    if (!titre) return;
-    const url = prompt('Collez le lien YouTube :');
-    if (!url) return;
-    if (!/youtube\.com|youtu\.be/i.test(url)) {
-      alert("Ce lien n'est pas un lien YouTube valide.");
-      return;
-    }
-    const type = id.startsWith('cours-') ? 'cours' : 'td';
-    const slug = id.replace(/^cours-|^td-/, '');
-    await addDoc(collection(db, 'ressources', slug, type), { titre, url, type: 'video', date: serverTimestamp() });
-  };
-
-  window.addDrive = async (id) => {
-    const titre = prompt('Titre du document :');
-    if (!titre) return;
-    const url = prompt("Collez le lien Google Drive ou OneDrive :");
-    if (!url) return;
-    if (!/drive\.google\.com|docs\.google\.com|onedrive\.live\.com|1drv\.ms|sharepoint\.com/i.test(url)) {
-      alert("Ce lien n'est pas un lien Google Drive/Docs ou OneDrive valide.");
-      return;
-    }
-    const type = id.startsWith('cours-') ? 'cours' : 'td';
-    const slug = id.replace(/^cours-|^td-/, '');
-    await addDoc(collection(db, 'ressources', slug, type), { titre, url, type: 'drive', date: serverTimestamp() });
-  };
-
-  window.showContact = async () => {
-    const snap = await getDoc(doc(db, 'config', 'contact'));
-    if (!snap.exists() || !snap.data().email) {
-      alert("Les coordonnées du Proviseur n'ont pas encore été renseignées.");
-      return;
-    }
-    const c = snap.data();
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
-    overlay.innerHTML = `
-      <div style="background:#fff;border-radius:12px;padding:25px;max-width:340px;width:100%;text-align:center;">
-        <h3 style="font-family:var(--serif);color:var(--ink);margin-bottom:6px;">${escapeHtml(c.nom) || 'Le Proviseur'}</h3>
-        <p style="font-size:12px;color:var(--slate);margin-bottom:18px;">Chef d'établissement — LFAKM</p>
-        ${c.telephone ? `<a href="tel:${c.telephone}" style="display:block;padding:10px;margin-bottom:8px;background:var(--ink-deep);color:#fff;border-radius:6px;text-decoration:none;">📞 ${c.telephone}</a>` : ''}
-        ${c.email ? `<a href="mailto:${c.email}" style="display:block;padding:10px;margin-bottom:14px;background:var(--brass);color:#fff;border-radius:6px;text-decoration:none;">✉️ ${c.email}</a>` : ''}
-        <button onclick="this.closest('div[style*=fixed]').remove()" style="border:none;background:#eee;padding:8px 16px;border-radius:6px;cursor:pointer;">Fermer</button>
-      </div>`;
-    document.body.appendChild(overlay);
-  };
-
-  // ============ LOAD ACTUS & DEVOIRS ============
-  
-  function loadActusStrip() {
-    const zone = document.getElementById('actus-strip');
-    if (!zone) return;
-    try {
-      onSnapshot(query(collection(db, 'actualites'), orderBy('date', 'desc')), (snap) => {
-        const cards = [];
-        snap.forEach(d => {
-          if (cards.length >= 10) return;
-          const n = d.data();
-          const dest = n.destinataire || 'tous';
-          if (dest !== 'tous' && dest !== profile?.role && !isAdmin(profile?.role)) return;
-          const date = n.date?.toDate ? n.date.toDate().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
-          cards.push(`
-            <a class="actus-card" href="actualites.html">
-              ${n.image ? `<img src="${n.image}" alt="">` : ''}
-              <div class="actus-card-body">
-                <h4>${escapeHtml(n.titre)}</h4>
-                <span>${date}</span>
-              </div>
-            </a>`);
-        });
-        zone.innerHTML = cards.length === 0 ? '' : `<h3>📰 Actualités du lycée</h3><div class="actus-scroll">${cards.join('')}</div>`;
-      });
-    } catch (err) { console.warn('Erreur chargement actualités:', err.message); }
-  }
-
-  function loadDevoirsStrip() {
-    const zone = document.getElementById('devoirs-strip');
-    const role = profile?.role;
-    if (!zone || (role !== 'eleve' && role !== 'professeur')) { 
-      if (zone) zone.innerHTML = ''; 
-      return; 
-    }
-    try {
-      onSnapshot(query(collectionGroup(db, 'devoirs'), orderBy('date', 'desc')), (snap) => {
-        const cards = [];
-        snap.forEach(d => {
-          if (cards.length >= 8) return;
-          const parentSlug = d.ref.parent.parent.id;
-          const dashIndex = parentSlug.indexOf('-');
-          const levelId = dashIndex === -1 ? parentSlug : parentSlug.substring(0, dashIndex);
-          let pertinent = false;
-          if (role === 'eleve') pertinent = profile.niveau === levelId;
-          else if (role === 'professeur') pertinent = (profile.assignedClasses || []).includes(levelId);
-          if (!pertinent) return;
-          const dv = d.data();
-          const level = structure.find(l => l.id === levelId);
-          const dateStr = dv.date?.toDate ? dv.date.toDate().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
-          cards.push(`
-            <div class="dv-notif-card">
-              <h4>📌 ${escapeHtml(dv.titre)}</h4>
-              <span>${level ? level.name : ''}</span>
-              <span>Déposé le ${dateStr}</span>
-            </div>`);
-        });
-        zone.innerHTML = cards.length === 0 ? '' : `<h3>🔔 Derniers devoirs</h3><div class="actus-scroll">${cards.join('')}</div>`;
-      });
-    } catch (err) { console.warn('Erreur chargement devoirs:', err.message); }
-  }
-
-  function renderFicheFamille() {
-    const f = profile.famille || {};
-    const zone = document.getElementById('fiche-famille-zone');
-    if (!zone) return;
-    zone.innerHTML = `
-      <details class="level" style="max-width:1100px; margin:20px auto 0;">
-        <summary>👪 Ma fiche famille ${f.pereTel || f.mereTel ? '✅' : '⚠️ à compléter'} <span>+</span></summary>
-        <div class="level-content" style="padding:20px;">
-          <div class="subject-grid" style="grid-template-columns:1fr 1fr;">
-            <div><label style="font-size:12px;font-weight:700;">Nom du père / tuteur</label><input id="ff-pere-nom" value="${f.pereNom || ''}" style="width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:6px;"></div>
-            <div><label style="font-size:12px;font-weight:700;">Téléphone du père / tuteur</label><input id="ff-pere-tel" type="tel" value="${f.pereTel || ''}" style="width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:6px;"></div>
-            <div><label style="font-size:12px;font-weight:700;">Nom de la mère / tutrice</label><input id="ff-mere-nom" value="${f.mereNom || ''}" style="width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:6px;"></div>
-            <div><label style="font-size:12px;font-weight:700;">Téléphone de la mère / tutrice</label><input id="ff-mere-tel" type="tel" value="${f.mereTel || ''}" style="width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:6px;"></div>
-          </div>
-          <label style="font-size:12px;font-weight:700;">Adresse du domicile</label>
-          <input id="ff-adresse" value="${f.adresse || ''}" style="width:100%;padding:10px;margin:5px 0 15px;border:1px solid var(--line);border-radius:6px;">
-          <button class="add-btn" style="display:block;" onclick="window.saveFicheFamille()">💾 Enregistrer</button>
-          <p id="ff-status" style="font-size:12px;color:#2e7d32;margin-top:8px;"></p>
-        </div>
-      </details>`;
-  }
-
-  window.saveFicheFamille = async () => {
-    try {
-      const famille = {
-        pereNom: document.getElementById('ff-pere-nom').value.trim(),
-        pereTel: document.getElementById('ff-pere-tel').value.trim(),
-        mereNom: document.getElementById('ff-mere-nom').value.trim(),
-        mereTel: document.getElementById('ff-mere-tel').value.trim(),
-        adresse: document.getElementById('ff-adresse').value.trim()
-      };
-      await setDoc(doc(db, 'utilisateurs', auth.currentUser.uid), { famille }, { merge: true });
-      profile.famille = famille;
-      document.getElementById('ff-status').textContent = "✅ Enregistré.";
-    } catch (err) {
-      document.getElementById('ff-status').textContent = "❌ Erreur: " + err.message;
-    }
-  };
 
   async function chargerMesEleves() {
     const accordeon = document.getElementById('eleves-accordeon');
-    if (!accordeon) return;
     accordeon.innerHTML = '<p style="color:gray;">Chargement des élèves...</p>';
     try {
       let classesConcernees = [];
@@ -1918,6 +542,382 @@
     }
   };
 
+  function loadDevoirsStrip() {
+    const zone = document.getElementById('devoirs-strip');
+    const role = profile?.role;
+    if (role !== 'eleve' && role !== 'professeur') { zone.innerHTML = ''; return; }
+
+    try {
+      onSnapshot(query(collectionGroup(db, 'devoirs'), orderBy('date', 'desc')), (snap) => {
+        const cards = [];
+        snap.forEach(d => {
+          if (cards.length >= 8) return;
+          const parentSlug = d.ref.parent.parent.id;
+          const dashIndex = parentSlug.indexOf('-');
+          const levelId = dashIndex === -1 ? parentSlug : parentSlug.substring(0, dashIndex);
+          let pertinent = false;
+          if (role === 'eleve') {
+            pertinent = profile.niveau === levelId;
+          } else if (role === 'professeur') {
+            pertinent = (profile.assignedClasses || []).includes(levelId);
+          }
+          if (!pertinent) return;
+          const dv = d.data();
+          const level = structure.find(l => l.id === levelId);
+          const dateStr = dv.date?.toDate ? dv.date.toDate().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
+          cards.push(`
+            <div class="dv-notif-card">
+              <h4>📌 ${escapeHtml(dv.titre)}</h4>
+              <span>${level ? level.name : ''}</span>
+              <span>Déposé le ${dateStr}${dv.dateLimite ? ' — à rendre pour le ' + new Date(dv.dateLimite).toLocaleDateString('fr-FR') : ''}</span>
+            </div>`);
+        });
+        zone.innerHTML = cards.length === 0 ? '' : `<h3>🔔 Derniers devoirs</h3><div class="actus-scroll">${cards.join('')}</div>`;
+      });
+    } catch (err) {
+      console.warn('Erreur chargement devoirs:', err.message);
+    }
+  }
+
+  function loadActusStrip() {
+    const zone = document.getElementById('actus-strip');
+    try {
+      onSnapshot(query(collection(db, 'actualites'), orderBy('date', 'desc')), (snap) => {
+        const cards = [];
+        snap.forEach(d => {
+          if (cards.length >= 10) return;
+          const n = d.data();
+          const dest = n.destinataire || 'tous';
+          if (dest !== 'tous' && dest !== profile?.role && !isAdmin(profile?.role)) return;
+          const date = n.date?.toDate ? n.date.toDate().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
+          cards.push(`
+            <a class="actus-card" href="actualites.html">
+              ${n.image ? `<img src="${n.image}" alt="">` : ''}
+              <div class="actus-card-body">
+                <h4>${escapeHtml(n.titre)}</h4>
+                <span>${date}</span>
+              </div>
+            </a>`);
+        });
+        zone.innerHTML = cards.length === 0 ? '' : `<h3>📰 Actualités du lycée</h3><div class="actus-scroll">${cards.join('')}</div>`;
+      });
+    } catch (err) {
+      console.warn('Erreur chargement actualités:', err.message);
+    }
+  }
+
+  function renderFicheFamille() {
+    const f = profile.famille || {};
+    const zone = document.getElementById('fiche-famille-zone');
+    zone.innerHTML = `
+      <details class="level" style="max-width:1100px; margin:20px auto 0;">
+        <summary>👪 Ma fiche famille ${f.pereTel || f.mereTel ? '✅' : '⚠️ à compléter'} <span>+</span></summary>
+        <div class="level-content" style="padding:20px;">
+          <div class="subject-grid" style="grid-template-columns:1fr 1fr;">
+            <div><label style="font-size:12px;font-weight:700;">Nom du père / tuteur</label><input id="ff-pere-nom" value="${f.pereNom || ''}" style="width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:6px;"></div>
+            <div><label style="font-size:12px;font-weight:700;">Téléphone du père / tuteur</label><input id="ff-pere-tel" type="tel" value="${f.pereTel || ''}" style="width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:6px;"></div>
+            <div><label style="font-size:12px;font-weight:700;">Nom de la mère / tutrice</label><input id="ff-mere-nom" value="${f.mereNom || ''}" style="width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:6px;"></div>
+            <div><label style="font-size:12px;font-weight:700;">Téléphone de la mère / tutrice</label><input id="ff-mere-tel" type="tel" value="${f.mereTel || ''}" style="width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:6px;"></div>
+          </div>
+          <label style="font-size:12px;font-weight:700;">Adresse du domicile</label>
+          <input id="ff-adresse" value="${f.adresse || ''}" style="width:100%;padding:10px;margin:5px 0 15px;border:1px solid var(--line);border-radius:6px;">
+          <button class="add-btn" style="display:block;" onclick="window.saveFicheFamille()">💾 Enregistrer</button>
+          <p id="ff-status" style="font-size:12px;color:#2e7d32;margin-top:8px;"></p>
+        </div>
+      </details>`;
+  }
+
+  window.saveFicheFamille = async () => {
+    try {
+      const famille = {
+        pereNom: document.getElementById('ff-pere-nom').value.trim(),
+        pereTel: document.getElementById('ff-pere-tel').value.trim(),
+        mereNom: document.getElementById('ff-mere-nom').value.trim(),
+        mereTel: document.getElementById('ff-mere-tel').value.trim(),
+        adresse: document.getElementById('ff-adresse').value.trim()
+      };
+      await setDoc(doc(db, 'utilisateurs', auth.currentUser.uid), { famille }, { merge: true });
+      profile.famille = famille;
+      document.getElementById('ff-status').textContent = "✅ Enregistré.";
+    } catch (err) {
+      document.getElementById('ff-status').textContent = "❌ Erreur: " + err.message;
+    }
+  };
+
+  function applyLevelVisibility() {
+    const role = profile?.role;
+    const profMats = profile?.disciplines || [];
+    const cycleVisible = {};
+    document.querySelectorAll('details.level').forEach(levelEl => {
+      if (!levelEl) return;
+      const lvlId = levelEl.dataset.level;
+      const area = levelEl.dataset.area;
+      let visible = true;
+      if (role === 'professeur') {
+        visible = (profile.assignedClasses || []).includes(lvlId);
+      } else if (role === 'eleve') {
+        visible = profile.niveau === lvlId;
+      }
+      levelEl.style.display = visible ? '' : 'none';
+      if (visible) cycleVisible[area] = true;
+      if (visible) {
+        levelEl.querySelectorAll('details.subject').forEach(subjectEl => {
+          if (!subjectEl) return;
+          let matVisible = true;
+          if (role === 'professeur') {
+            matVisible = profMats.includes(subjectEl.dataset.mat);
+          }
+          subjectEl.dataset.roleAllowed = matVisible ? '1' : '0';
+          subjectEl.style.display = matVisible ? '' : 'none';
+        });
+      }
+    });
+    document.querySelectorAll('.cycle-title').forEach(header => {
+      if (!header) return;
+      header.style.display = cycleVisible[header.dataset.area] ? '' : 'none';
+    });
+  }
+
+  // ============ FONCTIONS SIMPLIFIÉES (version compatible) ============
+  
+  function syncDocs() {
+    const role = profile?.role;
+    const profMats = profile?.disciplines || [];
+
+    document.querySelectorAll('.doc-list').forEach(ul => {
+      if (!ul) return;
+      const slug = ul.id.replace(/^cours-|^td-/, '');
+      const type = ul.id.startsWith('cours-') ? 'cours' : 'td';
+      
+      const addBtn = ul.nextElementSibling;
+      const videoBtn = addBtn ? addBtn.nextElementSibling : null;
+      const driveBtn = videoBtn ? videoBtn.nextElementSibling : null;
+      
+      const subjectEl = ul.closest('.subject');
+      const matName = subjectEl ? subjectEl.querySelector('summary')?.textContent?.toLowerCase() || '' : '';
+
+      if (role === 'professeur' || isAdmin(role)) {
+        const showButtons = (role === 'professeur' && profMats.some(d => matName.includes(d.toLowerCase()))) || isAdmin(role);
+        if (addBtn && showButtons) addBtn.style.display = "block";
+        if (videoBtn && showButtons) videoBtn.style.display = "block";
+        if (driveBtn && showButtons) driveBtn.style.display = "block";
+      }
+
+      try {
+        onSnapshot(query(collection(db, 'ressources', slug, type), orderBy('date', 'desc')), (snap) => {
+          if (!ul) return;
+          ul.innerHTML = snap.empty ? '<li style="color:gray;border:none;background:none;">Aucun fichier</li>' : '';
+          snap.forEach(docSnap => {
+            const d = docSnap.data();
+            const icon = d.type === 'video' ? '🎥' : d.type === 'drive' ? '🔗' : '📄';
+            const li = document.createElement('li');
+            li.innerHTML = `<a href="${d.url}" target="_blank">${icon} ${escapeHtml(d.titre)}</a>`;
+            if (role === 'professeur' || isAdmin(role)) {
+              const del = document.createElement('button');
+              del.innerHTML = '✕'; del.className = 'delete-btn';
+              del.onclick = () => {
+                if (!confirm('Supprimer ?')) return;
+                deleteDoc(doc(db, 'ressources', slug, type, docSnap.id));
+              };
+              li.appendChild(del);
+            }
+            ul.appendChild(li);
+          });
+        });
+      } catch (err) { console.warn('Erreur sync docs:', err.message); }
+    });
+  }
+
+  function syncDevoirs() {
+    const role = profile?.role;
+    const profMats = profile?.disciplines || [];
+
+    document.querySelectorAll('.devoirs-list').forEach(container => {
+      if (!container) return;
+      const slug = container.id.replace(/^devoirs-/, '');
+      const subjectEl = container.closest('.subject');
+      const matName = subjectEl ? subjectEl.dataset.mat : '';
+      const addBtn = document.getElementById(`devoiradd-${slug}`);
+
+      if (addBtn) {
+        const showButton = (role === 'professeur' && profMats.includes(matName)) || isAdmin(role);
+        addBtn.style.display = showButton ? "block" : "none";
+      }
+
+      try {
+        onSnapshot(query(collection(db, 'ressources', slug, 'devoirs'), orderBy('date', 'desc')), (snap) => {
+          if (!container) return;
+          container.innerHTML = snap.empty ? '<p style="color:gray;font-size:12px;">Aucun devoir pour le moment</p>' : '';
+          snap.forEach(devDoc => {
+            const dv = devDoc.data();
+            const dvType = dv.type === 'qcm' ? 'qcm' : 'fichier';
+            const item = document.createElement('div');
+            item.className = 'devoir-item';
+            item.innerHTML = `<h6>📌 ${escapeHtml(dv.titre)}${dvType === 'qcm' ? ' <span style="font-size:10px; color:var(--brass); font-weight:700;">QCM</span>' : ''}</h6>
+              <div class="devoir-meta">📅 À rendre pour le ${dv.dateLimite || 'non précisé'} — proposé par ${dv.profNom || 'le professeur'}</div>
+              ${dv.consignes ? `<p style="font-size:13px; margin-bottom:8px;">${dv.consignes}</p>` : ''}
+              ${dv.googleDocUrl ? `<p style="margin-bottom:8px;"><a href="${dv.googleDocUrl}" target="_blank">📄 Ouvrir le document Google Doc</a></p>` : ''}
+              ${dv.fichierUrl ? `<p style="margin-bottom:8px;"><a href="${dv.fichierUrl}" target="_blank">📎 ${dv.fichierNom || 'Fichier joint'}</a></p>` : ''}`;
+
+            if (role === 'eleve') {
+              const responseArea = document.createElement('div');
+              item.appendChild(responseArea);
+              if (dvType === 'qcm') {
+                renderQcmForStudent(slug, devDoc.id, dv, responseArea);
+              } else {
+                checkRendu(slug, devDoc.id, responseArea);
+              }
+            } else if (role === 'professeur' || isAdmin(role)) {
+              const rendusBox = document.createElement('div');
+              rendusBox.style.display = 'none';
+              rendusBox.style.marginTop = '8px';
+
+              const voirBtn = document.createElement('button');
+              voirBtn.className = 'devoir-btn btn-voir-rendus';
+              voirBtn.textContent = 'Voir les rendus';
+              voirBtn.onclick = () => {
+                const showing = rendusBox.style.display === 'block';
+                rendusBox.style.display = showing ? 'none' : 'block';
+                if (!showing) loadRendus(slug, devDoc.id, rendusBox, dv);
+              };
+              item.appendChild(voirBtn);
+
+              const exportBtn = document.createElement('button');
+              exportBtn.className = 'devoir-btn btn-voir-rendus';
+              exportBtn.style.background = '#2e7d32';
+              exportBtn.textContent = '📥 Exporter les notes';
+              exportBtn.onclick = () => exportNotes(slug, devDoc.id, dv);
+              item.appendChild(exportBtn);
+
+              const delBtn = document.createElement('button');
+              delBtn.className = 'devoir-btn btn-suppr-devoir';
+              delBtn.textContent = '✕ Supprimer';
+              delBtn.onclick = () => {
+                if (!confirm('Supprimer ce devoir ?')) return;
+                deleteDoc(doc(db, 'ressources', slug, 'devoirs', devDoc.id));
+              };
+              item.appendChild(delBtn);
+
+              item.appendChild(rendusBox);
+            }
+            container.appendChild(item);
+          });
+        });
+      } catch (err) { console.warn('Erreur sync devoirs:', err.message); }
+    });
+  }
+
+  function checkRendu(slug, devoirId, statusDiv) {
+    const uid = auth.currentUser?.uid;
+    if (!uid || !statusDiv) return;
+    try {
+      onSnapshot(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), (snap) => {
+        if (!statusDiv) return;
+        if (snap.exists()) {
+          const d = snap.data();
+          statusDiv.innerHTML = `<span class="rendu-status">✅ Devoir rendu</span> — <a href="${d.url}" target="_blank">voir mon fichier</a><br><button class="add-btn" style="display:block;margin-top:6px;" onclick="window.rendreDevoir('${slug}','${devoirId}')">Renvoyer un autre fichier</button>`;
+        } else {
+          statusDiv.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir (fichier ou capture d'écran)</button>`;
+        }
+      });
+    } catch (err) {
+      if (statusDiv) statusDiv.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir</button>`;
+    }
+  }
+
+  function renderQcmForStudent(slug, devoirId, dv, container) {
+    const uid = auth.currentUser?.uid;
+    if (!uid || !container) return;
+    try {
+      onSnapshot(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), (snap) => {
+        if (!container) return;
+        if (snap.exists()) {
+          const d = snap.data();
+          container.innerHTML = `<span class="rendu-status">✅ QCM rendu — Note : ${d.note ?? d.score}/${dv.bareme || dv.questions.length}</span><br><button class="add-btn" style="display:block;margin-top:6px;" id="retry-${devoirId}">Repasser le QCM</button>`;
+          document.getElementById(`retry-${devoirId}`).onclick = () => buildQcmForm(slug, devoirId, dv, container);
+        } else {
+          buildQcmForm(slug, devoirId, dv, container);
+        }
+      });
+    } catch (err) {
+      if (container) container.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir</button>`;
+    }
+  }
+
+  function buildQcmForm(slug, devoirId, dv, container) {
+    if (!container || !dv.questions || dv.questions.length === 0) {
+      if (container) container.innerHTML = '<p style="color:gray;">Ce QCM n\'a pas encore de questions.</p>';
+      return;
+    }
+    let html = '';
+    dv.questions.forEach((q, qi) => {
+      html += `<div style="margin-bottom:10px;"><p style="font-size:13px;font-weight:700;margin-bottom:6px;">${qi + 1}. ${q.texte}</p>`;
+      q.options.forEach((opt, oi) => {
+        html += `<label style="display:block;font-size:13px;margin-bottom:4px;"><input type="radio" name="qcmrep-${devoirId}-${qi}" value="${oi}"> ${opt}</label>`;
+      });
+      html += `</div>`;
+    });
+    html += `<button class="add-btn" style="display:block;" id="submit-qcm-${devoirId}">Envoyer mes réponses</button>`;
+    container.innerHTML = html;
+    document.getElementById(`submit-qcm-${devoirId}`).onclick = async () => {
+      const reponses = [];
+      let complete = true;
+      dv.questions.forEach((q, qi) => {
+        const checked = container.querySelector(`input[name="qcmrep-${devoirId}-${qi}"]:checked`);
+        if (!checked) complete = false;
+        reponses.push(checked ? parseInt(checked.value, 10) : -1);
+      });
+      if (!complete) { alert("Répondez à toutes les questions avant d'envoyer."); return; }
+      const score = reponses.filter((r, i) => r === dv.questions[i].correctIndex).length;
+      const bareme = dv.bareme || 20;
+      const note = Math.round((score / dv.questions.length) * bareme * 100) / 100;
+      const uid = auth.currentUser.uid;
+      await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
+        eleveNom: `${profile.prenom} ${profile.nom}`,
+        reponses, score, note,
+        date: serverTimestamp()
+      });
+    };
+  }
+
+  function loadRendus(slug, devoirId, container, dv) {
+    const bareme = dv.bareme || 20;
+    try {
+      onSnapshot(collection(db, 'ressources', slug, 'devoirs', devoirId, 'rendus'), (snap) => {
+        if (!container) return;
+        container.innerHTML = snap.empty ? '<p style="font-size:12px;color:gray;">Aucun rendu pour le moment</p>' : '';
+        snap.forEach(rd => {
+          const d = rd.data();
+          const p = document.createElement('div');
+          p.className = 'rendu-item';
+          if (dv.type === 'qcm') {
+            p.innerHTML = `${escapeHtml(d.eleveNom)} — Note : <b>${d.note ?? '-'}/${bareme}</b> (${d.score}/${dv.questions.length} bonnes réponses)`;
+          } else {
+            const noteId = `note-${rd.id}`;
+            p.innerHTML = `<a href="${d.url}" target="_blank">📄 ${escapeHtml(d.eleveNom)}</a> —
+              <input type="number" id="${noteId}" value="${d.note ?? ''}" min="0" max="${bareme}" step="0.5" placeholder="/${bareme}" style="width:55px;padding:3px;margin-left:6px;border:1px solid #ccc;border-radius:4px;">
+              <button class="devoir-btn btn-voir-rendus" style="padding:3px 8px;font-size:10px;" data-note-id="${noteId}">Noter</button>
+              <button class="devoir-btn btn-profile" style="padding:3px 8px;font-size:10px; margin-left:5px;" onclick="window.location.href='profil-eleve.html?uid=${rd.id}'">📊 Voir profil</button>`;
+          }
+          container.appendChild(p);
+        });
+        if (dv.type !== 'qcm') {
+          container.querySelectorAll('button[data-note-id]').forEach(btn => {
+            btn.onclick = async () => {
+              const input = document.getElementById(btn.dataset.noteId);
+              const uid = btn.dataset.noteId.replace('note-', '');
+              const note = parseFloat(input.value);
+              if (isNaN(note) || note < 0 || note > bareme) { alert(`Entrez une note entre 0 et ${bareme}.`); return; }
+              await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), { note }, { merge: true });
+            };
+          });
+        }
+      });
+    } catch (err) {
+      if (container) container.innerHTML = '<p style="color:gray;">Erreur de chargement des rendus.</p>';
+    }
+  }
+
   async function exportNotes(slug, devoirId, dv) {
     const bareme = dv.bareme || 20;
     const niveauId = slug.split('-')[0];
@@ -1951,52 +951,241 @@
     }
   }
 
-  async function loadRendus(slug, devoirId, container, dv) {
-    if (!container) return;
-    const bareme = dv.bareme || 20;
+  let currentDevoirSlug = null;
+  let qcmQuestionCount = 0;
+
+  function addQcmQuestion() {
+    const idx = qcmQuestionCount++;
+    const block = document.createElement('div');
+    block.className = 'qcm-question-block';
+    block.innerHTML = `<button type="button" class="qcm-remove-q" onclick="this.parentElement.remove()">✕</button>
+      <input type="text" class="qcm-q-text" placeholder="Question ${idx + 1}">
+      ${[0, 1, 2, 3].map(i => `<div class="qcm-option-row"><input type="radio" name="qcm-correct-${idx}" value="${i}" ${i === 0 ? 'checked' : ''}><input type="text" class="qcm-option" placeholder="Option ${i + 1} (cocher si c'est la bonne réponse)"></div>`).join('')}`;
+    document.getElementById('qcm-questions').appendChild(block);
+  }
+
+  window.newDevoir = (slug) => {
+    currentDevoirSlug = slug;
+    document.getElementById('dv-titre').value = '';
+    document.getElementById('dv-consignes').value = '';
+    document.getElementById('dv-date').value = '';
+    document.getElementById('dv-bareme').value = '20';
+    document.getElementById('dv-gdoc').value = '';
+    document.getElementById('dv-fichier').value = '';
+    document.getElementById('dv-type').value = 'fichier';
+    document.getElementById('qcm-builder').style.display = 'none';
+    document.getElementById('qcm-questions').innerHTML = '';
+    qcmQuestionCount = 0;
+    addQcmQuestion();
+    document.getElementById('devoir-modal').classList.add('show');
+  };
+
+  document.getElementById('dv-type').addEventListener('change', (e) => {
+    document.getElementById('qcm-builder').style.display = e.target.value === 'qcm' ? 'block' : 'none';
+  });
+  document.getElementById('qcm-add-question').onclick = addQcmQuestion;
+  document.getElementById('dv-cancel').onclick = () => document.getElementById('devoir-modal').classList.remove('show');
+
+  document.getElementById('dv-submit').onclick = async () => {
+    const type = document.getElementById('dv-type').value;
+    const titre = document.getElementById('dv-titre').value.trim();
+    if (!titre) { alert('Le titre est obligatoire.'); return; }
+
     try {
-      onSnapshot(collection(db, 'ressources', slug, 'devoirs', devoirId, 'rendus'), (snap) => {
-        if (!container) return;
-        container.innerHTML = snap.empty ? '<p style="font-size:12px;color:gray;">Aucun rendu pour le moment</p>' : '';
-        snap.forEach(rd => {
-          const d = rd.data();
-          const p = document.createElement('div');
-          p.className = 'rendu-item';
-          p.innerHTML = `<a href="${d.url}" target="_blank">📄 ${escapeHtml(d.eleveNom)}</a> — 
-            <input type="number" id="note-${rd.id}" value="${d.note ?? ''}" min="0" max="${bareme}" step="0.5" placeholder="/${bareme}" style="width:55px;padding:3px;margin-left:6px;border:1px solid #ccc;border-radius:4px;">
-            <button class="devoir-btn btn-voir-rendus" style="padding:3px 8px;font-size:10px;" onclick="window.sauverNote('${slug}','${devoirId}','${rd.id}')">Noter</button>
-            <button class="devoir-btn btn-profile" style="padding:3px 8px;font-size:10px;margin-left:5px;" onclick="window.location.href='profil-eleve.html?uid=${rd.id}'">📊 Profil</button>`;
-          container.appendChild(p);
-        });
-      });
-    } catch (err) {
-      container.innerHTML = '<p style="color:gray;">Erreur de chargement des rendus.</p>';
-    }
-  }
+      const existingSnap = await getDocs(collection(db, 'ressources', currentDevoirSlug, 'devoirs'));
+      const doublon = existingSnap.docs.find(d => (d.data().titre || '').trim().toLowerCase() === titre.toLowerCase());
+      if (doublon) {
+        const dateDoublon = doublon.data().date?.toDate ? doublon.data().date.toDate().toLocaleDateString('fr-FR') : '';
+        const confirmer = confirm(`⚠️ Un devoir intitulé "${titre}" existe déjà dans cette classe et cette matière (publié le ${dateDoublon}).\n\nVoulez-vous quand même le publier une seconde fois ?`);
+        if (!confirmer) return;
+      }
+    } catch (e) {}
 
-  // ============ CHAT IA ============
-  
-  const burgerBtn = document.getElementById('burger-btn');
-  if (burgerBtn) {
-    burgerBtn.onclick = () => {
-      const menu = document.getElementById('menu');
-      if (menu) menu.classList.toggle('show');
+    const consignes = document.getElementById('dv-consignes').value.trim();
+    const dateLimite = document.getElementById('dv-date').value;
+    const bareme = parseFloat(document.getElementById('dv-bareme').value) || 20;
+    const googleDocUrl = document.getElementById('dv-gdoc').value.trim();
+    const fichierInput = document.getElementById('dv-fichier');
+
+    const devoirData = {
+      type, titre, consignes, dateLimite, bareme,
+      googleDocUrl: googleDocUrl || null,
+      profNom: `${profile.prenom} ${profile.nom}`,
+      date: serverTimestamp()
     };
+
+    if (type === 'qcm') {
+      const questions = [];
+      document.querySelectorAll('#qcm-questions .qcm-question-block').forEach(block => {
+        const texte = block.querySelector('.qcm-q-text').value.trim();
+        const options = Array.from(block.querySelectorAll('.qcm-option')).map(o => o.value.trim());
+        const correctIndex = parseInt(block.querySelector('input[type=radio]:checked').value, 10);
+        if (texte && options.every(o => o)) questions.push({ texte, options, correctIndex });
+      });
+      if (questions.length === 0) { alert('Ajoutez au moins une question complète (texte + 4 options).'); return; }
+      devoirData.questions = questions;
+    }
+
+    const submitBtn = document.getElementById('dv-submit');
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Publication...";
+
+    if (fichierInput.files[0]) {
+      if (fichierInput.files[0].size > 15 * 1024 * 1024) {
+        alert("Fichier trop volumineux (max 15 Mo).");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Publier le devoir";
+        return;
+      }
+      try {
+        const fd = new FormData();
+        fd.append('file', fichierInput.files[0]);
+        fd.append('upload_preset', "lfakm_ressources");
+        const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
+        const data = await res.json();
+        devoirData.fichierUrl = data.secure_url;
+        devoirData.fichierNom = fichierInput.files[0].name;
+      } catch (e) {
+        alert('Erreur upload: ' + e.message);
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Publier le devoir";
+        return;
+      }
+    }
+
+    try {
+      await addDoc(collection(db, 'ressources', currentDevoirSlug, 'devoirs'), devoirData);
+      try { logActivite('création', `Devoir "${devoirData.titre}" (${currentDevoirSlug})`); } catch(e) {}
+    } catch (e) {
+      alert('Erreur: ' + e.message);
+    }
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Publier le devoir";
+    document.getElementById('devoir-modal').classList.remove('show');
+  };
+
+  window.rendreDevoir = async (slug, devoirId) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*,.pdf,.doc,.docx';
+    input.onchange = async () => {
+      if (input.files[0].size > 15 * 1024 * 1024) { alert("Fichier trop volumineux (max 15 Mo)."); return; }
+      try {
+        const fd = new FormData();
+        fd.append('file', input.files[0]);
+        fd.append('upload_preset', "lfakm_ressources");
+        const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
+        const data = await res.json();
+        const uid = auth.currentUser.uid;
+        await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
+          eleveNom: `${profile.prenom} ${profile.nom}`,
+          url: data.secure_url,
+          date: serverTimestamp()
+        });
+        alert('Devoir envoyé !');
+      } catch (e) {
+        alert('Erreur: ' + e.message);
+      }
+    };
+    input.click();
+  };
+
+  function logActivite(action, cible) {
+    try {
+      addDoc(collection(db, 'journal_activite'), {
+        action, cible,
+        auteur: `${profile?.prenom || ''} ${profile?.nom || ''}`.trim(),
+        role: profile?.role || '',
+        date: serverTimestamp()
+      }).catch(() => {});
+    } catch (e) {}
   }
 
-  const aiToggle = document.getElementById('ai-chat-toggle');
+  window.up = async (id) => {
+    const titre = prompt('Nom du document :');
+    if (!titre) return;
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = async () => {
+      if (input.files[0].size > 5 * 1024 * 1024) {
+        alert("Fichier trop volumineux pour un envoi direct (max 5 Mo). Pour un cours ou un TD plus lourd, utilisez plutôt le bouton 🔗 Lien Drive/OneDrive (ou 🎥 Lien vidéo YouTube pour une vidéo).");
+        return;
+      }
+      try {
+        const fd = new FormData();
+        fd.append('file', input.files[0]);
+        fd.append('upload_preset', "lfakm_ressources");
+        const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
+        const data = await res.json();
+        const type = id.startsWith('cours-') ? 'cours' : 'td';
+        const slug = id.replace(/^cours-|^td-/, '');
+        await addDoc(collection(db, 'ressources', slug, type), { titre, url: data.secure_url, date: serverTimestamp() });
+        try { logActivite('création', `${type === 'cours' ? 'Cours' : 'TD'} "${titre}" (${slug})`); } catch(e) {}
+      } catch (e) {
+        alert('Erreur: ' + e.message);
+      }
+    };
+    input.click();
+  };
+
+  window.addVideo = async (id) => {
+    const titre = prompt('Titre de la vidéo :');
+    if (!titre) return;
+    const url = prompt('Collez le lien YouTube de la vidéo :');
+    if (!url) return;
+    if (!/youtube\.com|youtu\.be/i.test(url)) {
+      alert("Ce lien ne semble pas être un lien YouTube. Merci de coller un lien du type https://youtube.com/... ou https://youtu.be/...");
+      return;
+    }
+    const type = id.startsWith('cours-') ? 'cours' : 'td';
+    const slug = id.replace(/^cours-|^td-/, '');
+    await addDoc(collection(db, 'ressources', slug, type), { titre, url, type: 'video', date: serverTimestamp() });
+    try { logActivite('création', `Vidéo "${titre}" (${slug})`); } catch(e) {}
+  };
+
+  window.addDrive = async (id) => {
+    const titre = prompt('Titre du document :');
+    if (!titre) return;
+    const url = prompt("Collez le lien Google Drive ou OneDrive (pensez à le partager en \"Toute personne disposant du lien\") :");
+    if (!url) return;
+    if (!/drive\.google\.com|docs\.google\.com|onedrive\.live\.com|1drv\.ms|sharepoint\.com/i.test(url)) {
+      alert("Ce lien ne semble pas être un lien Google Drive/Docs ou OneDrive. Merci de coller un lien du type https://drive.google.com/..., https://docs.google.com/... ou https://1drv.ms/...");
+      return;
+    }
+    const type = id.startsWith('cours-') ? 'cours' : 'td';
+    const slug = id.replace(/^cours-|^td-/, '');
+    await addDoc(collection(db, 'ressources', slug, type), { titre, url, type: 'drive', date: serverTimestamp() });
+    try { logActivite('création', `Lien Drive/OneDrive "${titre}" (${slug})`); } catch(e) {}
+  };
+
+  window.showContact = async () => {
+    const snap = await getDoc(doc(db, 'config', 'contact'));
+    if (!snap.exists() || !snap.data().email) {
+      alert("Les coordonnées du Proviseur n'ont pas encore été renseignées.");
+      return;
+    }
+    const c = snap.data();
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
+    overlay.innerHTML = `
+      <div style="background:#fff;border-radius:12px;padding:25px;max-width:340px;width:100%;text-align:center;">
+        <h3 style="font-family:var(--serif);color:var(--ink);margin-bottom:6px;">${escapeHtml(c.nom) || 'Le Proviseur'}</h3>
+        <p style="font-size:12px;color:var(--slate);margin-bottom:18px;">Chef d'établissement — LFAKM</p>
+        ${c.telephone ? `<a href="tel:${c.telephone}" style="display:block;padding:10px;margin-bottom:8px;background:var(--ink-deep);color:#fff;border-radius:6px;text-decoration:none;">📞 ${c.telephone}</a>` : ''}
+        ${c.email ? `<a href="mailto:${c.email}" style="display:block;padding:10px;margin-bottom:14px;background:var(--brass);color:#fff;border-radius:6px;text-decoration:none;">✉️ ${c.email}</a>` : ''}
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="border:none;background:#eee;padding:8px 16px;border-radius:6px;cursor:pointer;">Fermer</button>
+      </div>`;
+    document.body.appendChild(overlay);
+  };
+
+  document.getElementById('burger-btn').onclick = () => document.getElementById('menu').classList.toggle('show');
+
   const aiPanel = document.getElementById('ai-chat-panel');
-  const aiClose = document.getElementById('ai-chat-close');
-  
-  if (aiToggle && aiPanel) {
-    aiToggle.onclick = () => aiPanel.classList.toggle('show');
-  }
-  if (aiClose && aiPanel) {
-    aiClose.onclick = () => aiPanel.classList.remove('show');
-  }
-
   const aiMessages = document.getElementById('ai-chat-messages');
   const aiInput = document.getElementById('ai-chat-input');
+
+  document.getElementById('ai-chat-toggle').onclick = () => aiPanel.classList.toggle('show');
+  document.getElementById('ai-chat-close').onclick = () => aiPanel.classList.remove('show');
 
   function addAiMessage(text, sender) {
     if (!aiMessages) return null;
@@ -2024,28 +1213,24 @@
       addAiMessage(result.response.text(), 'bot');
     } catch (err) {
       if (loadingDiv) loadingDiv.remove();
-      addAiMessage("Désolé, une erreur est survenue. Réessayez dans un instant.", 'bot');
+      addAiMessage("Désolé, une erreur est survenue. Réessayez dans un instant, ou contactez le Proviseur si le problème persiste.", 'bot');
     }
   }
 
-  const aiSend = document.getElementById('ai-chat-send');
-  if (aiSend) aiSend.onclick = sendAiMessage;
+  document.getElementById('ai-chat-send').onclick = sendAiMessage;
   if (aiInput) {
     aiInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendAiMessage(); });
   }
 
-  const searchBar = document.getElementById('search-bar');
-  if (searchBar) {
-    searchBar.oninput = (e) => {
-      const t = e.target.value.toLowerCase();
-      document.querySelectorAll('.subject').forEach(s => {
-        if (!s) return;
-        const roleAllowed = s.dataset.roleAllowed !== '0';
-        const matches = !t || s.innerText.toLowerCase().includes(t);
-        s.style.display = (roleAllowed && matches) ? '' : 'none';
-      });
-    };
-  }
+  document.getElementById('search-bar').oninput = (e) => {
+    const t = e.target.value.toLowerCase();
+    document.querySelectorAll('.subject').forEach(s => {
+      if (!s) return;
+      const roleAllowed = s.dataset.roleAllowed !== '0';
+      const matches = !t || s.innerText.toLowerCase().includes(t);
+      s.style.display = (roleAllowed && matches) ? '' : 'none';
+    });
+  };
 </script>
 </body>
 </html>
