@@ -80,7 +80,6 @@
   .contact-label { font-weight: 600; color: var(--ink); }
   .contact-phone { font-size: 12px; color: var(--brass); font-weight: 700; }
 
-  /* PROFIL UTILISATEUR */
   #user-profile { display: none; font-weight: 700; color: var(--brass); font-size: 14px; }
   .nav-cta { background: var(--ink-deep); color:#fff; padding:10px 18px; border-radius:4px; font-size:13px; font-weight:600; text-decoration:none; border:none; cursor:pointer; }
   .menu-toggle { display: none; font-size: 28px; background: none; border: none; color: var(--ink); cursor: pointer; padding: 4px 8px; flex-shrink: 0; }
@@ -117,9 +116,6 @@
   .excellent { color: #2e7d32; }
   .moyen { color: #f39c12; }
   .faible { color: #d9534f; }
-
-  .btn-retour { display: inline-block; margin-top: 20px; background: var(--ink-deep); color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; }
-  .btn-retour:hover { background: var(--brass); }
 
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
 </style>
@@ -220,7 +216,15 @@
       </table>
     </div>
 
-    <a href="admin-gestion.html" class="btn-retour">← Retour à la Gestion</a>
+    <!-- Bouton retour UNIQUEMENT pour les admins (affiché dynamiquement) -->
+    <div id="admin-back-button" style="display:none; margin-top:20px;">
+      <a href="admin-gestion.html" style="display:inline-block; background: var(--ink-deep); color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600;">← Retour à la Gestion</a>
+    </div>
+
+    <!-- Bouton retour pour l'élève/professeur -->
+    <div id="user-back-button" style="display:none; margin-top:20px;">
+      <a href="ressources.html" style="display:inline-block; background: var(--brass); color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600;">← Retour aux Ressources</a>
+    </div>
   </div>
 </div>
 
@@ -277,8 +281,16 @@
       link.textContent = "Déconnexion";
       link.onclick = () => signOut(auth).then(() => location.reload());
       
+      // Affiche le menu déroulant Admin uniquement pour les admins
       if (profile.role === 'admin' || profile.role === 'proviseur' || profile.role === 'censeur') {
         document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
+      }
+
+      // Afficher le bouton retour selon le rôle
+      if (profile.role === 'admin' || profile.role === 'proviseur' || profile.role === 'censeur') {
+        document.getElementById('admin-back-button').style.display = 'block';
+      } else {
+        document.getElementById('user-back-button').style.display = 'block';
       }
     } else {
       profileSpan.style.display = 'none';
@@ -333,7 +345,6 @@
     document.getElementById('eleve-ine').textContent = eleve.ine || 'Non défini';
 
     // Récupérer toutes les notes de l'élève
-    // On cherche dans toutes les sous-collections "rendus" où le doc ID = eleveUid
     const notesParMatiere = {};
     const notesParDate = {};
     
