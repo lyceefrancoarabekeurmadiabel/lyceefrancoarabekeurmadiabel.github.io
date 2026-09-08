@@ -179,6 +179,9 @@
   #ai-chat-input-row { display: flex; border-top: 1px solid var(--line); padding: 10px; gap: 8px; }
   #ai-chat-input { flex: 1; border: 1px solid var(--line); border-radius: 20px; padding: 10px 14px; font-size: 13px; outline: none; }
   #ai-chat-send { background: var(--brass); color: #fff; border: none; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; flex-shrink: 0; }
+
+  /* Message d'erreur pour les permissions */
+  .perm-error { color: #d9534f; font-size: 12px; padding: 5px 10px; background: #fde8e8; border-radius: 4px; margin: 5px 0; }
 </style>
 </head>
 <body>
@@ -288,7 +291,7 @@
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
   import { getFirestore, doc, getDoc, getDocs, setDoc, deleteDoc, collection, collectionGroup, addDoc, onSnapshot, serverTimestamp, orderBy, query, where, increment } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
-  // 🔥 ON N'IMPORTE PAS AppCheck pour éviter les erreurs de connexion
+  // Désactiver AppCheck pour éviter les erreurs réseau
   // import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app-check.js";
 
   const firebaseConfig = {
@@ -304,22 +307,7 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // 🔥 AppCheck désactivé pour les élèves (évite les erreurs réseau)
-  // Si vous voulez le réactiver pour les admins seulement, décommentez ce qui suit
-  /*
-  if (window.location.hostname !== 'localhost') {
-    try {
-      initializeAppCheck(app, {
-        provider: new ReCaptchaEnterpriseProvider('6LdOP6ItAAAAACzY2OKByptaOob6nC5aVPg8n6lx'),
-        isTokenAutoRefreshEnabled: true
-      });
-    } catch (e) {
-      console.warn('AppCheck désactivé:', e.message);
-    }
-  }
-  */
-
-  // Assistant IA (Gemini) - on le désactive si pas disponible
+  // Assistant IA (optionnel)
   let aiModel = null;
   let aiChatSession = null;
   try {
@@ -327,10 +315,10 @@
     const ai = getAI(app, { backend: new GoogleAIBackend() });
     aiModel = getGenerativeModel(ai, {
       model: "gemini-3.6-flash",
-      systemInstruction: "Tu es l'assistant virtuel du site du Lycée Franco Arabe de Keur Madiabel (LFAKM), au Sénégal. Ton rôle est UNIQUEMENT d'aider et d'orienter les nouveaux utilisateurs..."
+      systemInstruction: "Tu es l'assistant virtuel du site du Lycée Franco Arabe de Keur Madiabel (LFAKM)."
     });
   } catch (e) {
-    console.warn('Assistant IA désactivé:', e.message);
+    console.warn('Assistant IA désactivé');
   }
 
   const MATS_COL = ["Mathématiques", "Français", "Anglais", "Arabe", "SVT", "Physique-Chimie", "Histoire-Géo", "EPS", "Éducation Religieuse"];
@@ -672,21 +660,29 @@
     });
   }
 
+  // 🔥 VERSION CORRIGÉE - avec vérification des éléments DOM
   function syncDocs() {
     const role = profile?.role;
     const profMats = profile?.disciplines || [];
+
     document.querySelectorAll('.doc-list').forEach(ul => {
       const slug = ul.id.replace(/^cours-|^td-/, '');
       const type = ul.id.startsWith('cours-') ? 'cours' : 'td';
+      
+      // Récupérer les boutons avec vérification
       const addBtn = ul.nextElementSibling;
-      const videoBtn = addBtn.nextElementSibling;
-      const driveBtn = videoBtn.nextElementSibling;
-      const matName = ul.closest('.subject').querySelector('summary').textContent.toLowerCase();
+      const videoBtn = addBtn ? addBtn.nextElementSibling : null;
+      const driveBtn = videoBtn ? videoBtn.nextElementSibling : null;
+      
+      const subjectEl = ul.closest('.subject');
+      const matName = subjectEl ? subjectEl.querySelector('summary').textContent.toLowerCase() : '';
 
-      if ((role === 'professeur' && profMats.some(d => matName.includes(d.toLowerCase()))) || isAdmin(role)) {
-        if (addBtn) addBtn.style.display = "block";
-        if (videoBtn) videoBtn.style.display = "block";
-        if (driveBtn) driveBtn.style.display = "block";
+      // Afficher les boutons uniquement si nécessaire et s'ils existent
+      if (role === 'professeur' || isAdmin(role)) {
+        const showButtons = (role === 'professeur' && profMats.some(d => matName.includes(d.toLowerCase()))) || isAdmin(role);
+        if (addBtn && showButtons) addBtn.style.display = "block";
+        if (videoBtn && showButtons) videoBtn.style.display = "block";
+        if (driveBtn && showButtons) driveBtn.style.display = "block";
       }
 
       try {
@@ -723,11 +719,13 @@
     document.querySelectorAll('.devoirs-list').forEach(container => {
       const slug = container.id.replace(/^devoirs-/, '');
       const subjectEl = container.closest('.subject');
-      const matName = subjectEl.dataset.mat;
+      const matName = subjectEl ? subjectEl.dataset.mat : '';
       const addBtn = document.getElementById(`devoiradd-${slug}`);
 
-      if ((role === 'professeur' && profMats.includes(matName)) || isAdmin(role)) {
-        if (addBtn) addBtn.style.display = "block";
+      // Afficher le bouton uniquement si nécessaire
+      if (addBtn) {
+        const showButton = (role === 'professeur' && profMats.includes(matName)) || isAdmin(role);
+        addBtn.style.display = showButton ? "block" : "none";
       }
 
       try {
