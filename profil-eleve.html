@@ -107,7 +107,7 @@
   /* FILTRE PAR ANNÉE SCOLAIRE */
   .filter-bar { background: var(--paper); border: 1px solid #eee; border-radius: 8px; padding: 15px; margin-bottom: 20px; }
   .filter-bar label { font-size: 13px; font-weight: 600; color: var(--ink); margin-right: 10px; }
-  .filter-bar select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
+  .filter-bar select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; background: #fff; cursor: pointer; min-width: 200px; }
 
   .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
   @media (max-width: 768px) { .chart-row { grid-template-columns: 1fr; } }
@@ -126,6 +126,8 @@
   .btn-retour-admin, .btn-retour-user { display: inline-block; margin-top: 20px; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; }
   .btn-retour-admin { background: var(--ink-deep); color: #fff; }
   .btn-retour-user { background: var(--brass); color: #fff; }
+
+  .aucune-note { text-align: center; color: var(--slate); padding: 30px 0; font-style: italic; }
 
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
 </style>
@@ -247,7 +249,6 @@
 </div>
 
 <footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
-
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -410,7 +411,7 @@
           const dateObj = dv.date?.toDate ? dv.date.toDate() : new Date();
           const mois = dateObj.getMonth();
           const annee = dateObj.getFullYear();
-          // Si mois >= 9 (septembre), c'est le début de l'année scolaire
+          // Si mois >= 8 (septembre), c'est le début de l'année scolaire
           const anneeScolaire = mois >= 8 ? `${annee}-${annee + 1}` : `${annee - 1}-${annee}`;
           
           allNotesData.push({
@@ -429,15 +430,15 @@
     const anneeFilter = document.getElementById('annee-filter');
     const annees = Array.from(new Set(allNotesData.map(n => n.anneeScolaire))).sort();
     
-    anneeFilter.innerHTML = '<option value="toutes">Toutes les années</option>';
+    // Vider les options actuelles
+    anneeFilter.innerHTML = '<option value="toutes">📅 Toutes les années</option>';
     
-    // Ajouter l'année en cours en PREMIER et la sélectionner par défaut
+    // Ajouter d'abord l'année en cours (si elle existe ou si on a des notes)
     const optionAnneeEnCours = document.createElement('option');
     optionAnneeEnCours.value = anneeEnCours;
     optionAnneeEnCours.textContent = anneeEnCours + ' (Année en cours)';
     optionAnneeEnCours.selected = true;
     anneeFilter.appendChild(optionAnneeEnCours);
-    currentAnnee = anneeEnCours;
     
     // Ajouter les autres années (si elles existent)
     annees.forEach(annee => {
@@ -449,7 +450,8 @@
       }
     });
 
-    // 5. Afficher les données (année en cours par défaut)
+    // 5. Définir l'année par défaut et afficher les données
+    currentAnnee = anneeEnCours;
     afficherDonnees();
   }
 
@@ -465,6 +467,20 @@
     const notesFiltrees = currentAnnee === 'toutes' 
       ? allNotesData 
       : allNotesData.filter(n => n.anneeScolaire === currentAnnee);
+
+    // Vérifier si on a des notes
+    if (notesFiltrees.length === 0) {
+      document.getElementById('eleve-moyenne').textContent = 'Aucune note';
+      
+      // Afficher un message dans les graphiques
+      afficherMessageGraphique('radar-chart', 'Aucune note pour cette année');
+      afficherMessageGraphique('line-chart', 'Aucune note pour cette année');
+      
+      // Tableau vide
+      const tbody = document.querySelector('#notes-table tbody');
+      tbody.innerHTML = '<tr><td colspan="6" class="aucune-note">Aucune note pour cette année scolaire.</td></tr>';
+      return;
+    }
 
     // Calculer la moyenne générale
     let sommeNotes = 0;
@@ -496,6 +512,33 @@
     afficherTableauNotes(notesFiltrees);
   }
 
+  // Fonction pour afficher un message dans un canvas
+  function afficherMessageGraphique(canvasId, message) {
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
+    const parent = canvas.parentElement;
+    
+    // Supprimer le canvas existant
+    const existingMsg = parent.querySelector('.msg-absence');
+    if (existingMsg) existingMsg.remove();
+    
+    // Supprimer l'ancien graphique s'il existe
+    if (canvasId === 'radar-chart' && window.radarChart) {
+      window.radarChart.destroy();
+      window.radarChart = null;
+    } else if (canvasId === 'line-chart' && window.lineChart) {
+      window.lineChart.destroy();
+      window.lineChart = null;
+    }
+    
+    // Afficher un message
+    const msg = document.createElement('div');
+    msg.className = 'msg-absence';
+    msg.style.cssText = 'text-align:center;color:var(--slate);padding:30px 0;font-style:italic;';
+    msg.textContent = message;
+    parent.appendChild(msg);
+  }
+
   // Fonction pour obtenir le nom complet de la matière à partir du slug
   function getNomMatiere(slug) {
     const matNameBySlug = {
@@ -515,9 +558,19 @@
 
   // Fonction pour générer le graphique radar
   function genererRadarChart(moyennesParMatiere) {
-    const ctx = document.getElementById('radar-chart').getContext('2d');
+    const canvas = document.getElementById('radar-chart');
+    const parent = canvas.parentElement;
     
-    if (window.radarChart) window.radarChart.destroy();
+    // Supprimer les anciens messages
+    const existingMsg = parent.querySelector('.msg-absence');
+    if (existingMsg) existingMsg.remove();
+    
+    const ctx = canvas.getContext('2d');
+    
+    if (window.radarChart) {
+      window.radarChart.destroy();
+      window.radarChart = null;
+    }
 
     const labels = Object.keys(moyennesParMatiere);
     const data = labels.map(mat => {
@@ -547,6 +600,11 @@
             max: 20,
             ticks: { stepSize: 5 }
           }
+        },
+        plugins: {
+          legend: {
+            display: false
+          }
         }
       }
     });
@@ -554,9 +612,19 @@
 
   // Fonction pour générer le graphique en ligne (évolution)
   function genererLineChart(notes) {
-    const ctx = document.getElementById('line-chart').getContext('2d');
+    const canvas = document.getElementById('line-chart');
+    const parent = canvas.parentElement;
     
-    if (window.lineChart) window.lineChart.destroy();
+    // Supprimer les anciens messages
+    const existingMsg = parent.querySelector('.msg-absence');
+    if (existingMsg) existingMsg.remove();
+    
+    const ctx = canvas.getContext('2d');
+    
+    if (window.lineChart) {
+      window.lineChart.destroy();
+      window.lineChart = null;
+    }
 
     // Regrouper par date
     const notesParDate = {};
@@ -565,11 +633,23 @@
       notesParDate[n.date].push((n.note / n.bareme) * 20);
     });
 
-    const dates = Object.keys(notesParDate).sort((a, b) => new Date(a) - new Date(b));
+    const dates = Object.keys(notesParDate).sort((a, b) => {
+      // Trier par date (format: jj/mm/aaaa)
+      const [da, ma, aa] = a.split('/');
+      const [db, mb, ab] = b.split('/');
+      return new Date(aa, ma-1, da) - new Date(ab, mb-1, db);
+    });
+    
     const moyennesParDate = dates.map(date => {
       const notesList = notesParDate[date];
       return notesList.reduce((acc, n) => acc + n, 0) / notesList.length;
     });
+
+    // Si une seule date, le graphique en ligne ne s'affiche pas bien, on affiche un point
+    if (dates.length === 0) {
+      afficherMessageGraphique('line-chart', 'Pas assez de données pour l\'évolution');
+      return;
+    }
 
     window.lineChart = new Chart(ctx, {
       type: 'line',
@@ -581,12 +661,20 @@
           borderColor: 'rgba(27, 42, 74, 1)',
           backgroundColor: 'rgba(27, 42, 74, 0.1)',
           tension: 0.3,
-          fill: true
+          fill: true,
+          pointBackgroundColor: 'rgba(168, 133, 63, 1)',
+          pointBorderColor: '#fff',
+          pointRadius: 5
         }]
       },
       options: {
         scales: {
           y: { beginAtZero: true, max: 20 }
+        },
+        plugins: {
+          legend: {
+            display: false
+          }
         }
       }
     });
@@ -597,11 +685,24 @@
     const tbody = document.querySelector('#notes-table tbody');
     tbody.innerHTML = '';
 
-    notes.forEach(n => {
+    if (notes.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="aucune-note">Aucune note trouvée pour cette année.</td></tr>';
+      return;
+    }
+
+    // Trier les notes par date (du plus récent au plus ancien)
+    const notesTriees = [...notes].sort((a, b) => {
+      const [da, ma, aa] = a.date.split('/');
+      const [db, mb, ab] = b.date.split('/');
+      return new Date(ab, mb-1, db) - new Date(aa, ma-1, da);
+    });
+
+    notesTriees.forEach(n => {
       const pourcentage = (n.note / n.bareme) * 100;
       let colorClass = 'moyen';
-      if (pourcentage >= 80) colorClass = 'excellent';
-      if (pourcentage < 50) colorClass = 'faible';
+      let statut = 'Moyen';
+      if (pourcentage >= 80) { colorClass = 'excellent'; statut = 'Excellent'; }
+      if (pourcentage < 50) { colorClass = 'faible'; statut = 'Faible'; }
 
       tbody.innerHTML += `<tr>
         <td>${escapeHtml(n.matiere)}</td>
@@ -609,13 +710,9 @@
         <td>${escapeHtml(n.date)}</td>
         <td class="note-cell ${colorClass}">${n.note}</td>
         <td class="note-cell">${n.bareme}</td>
-        <td class="note-cell ${colorClass}">${pourcentage >= 80 ? 'Excellent' : pourcentage >= 50 ? 'Moyen' : 'Faible'}</td>
+        <td class="note-cell ${colorClass}">${statut}</td>
       </tr>`;
     });
-
-    if (notes.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6">Aucune note trouvée pour cette année.</td></tr>';
-    }
   }
 
   // Charger le profil de l'élève au démarrage
