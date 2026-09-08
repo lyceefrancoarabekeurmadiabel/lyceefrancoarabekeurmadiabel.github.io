@@ -180,7 +180,6 @@
   #ai-chat-input { flex: 1; border: 1px solid var(--line); border-radius: 20px; padding: 10px 14px; font-size: 13px; outline: none; }
   #ai-chat-send { background: var(--brass); color: #fff; border: none; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; flex-shrink: 0; }
 
-  /* Message d'erreur pour les permissions */
   .perm-error { color: #d9534f; font-size: 12px; padding: 5px 10px; background: #fde8e8; border-radius: 4px; margin: 5px 0; }
 </style>
 </head>
@@ -289,7 +288,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-  import { getFirestore, doc, getDoc, getDocs, setDoc, deleteDoc, collection, collectionGroup, addDoc, onSnapshot, serverTimestamp, orderBy, query, where, increment } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, getDocs, setDoc, deleteDoc, collection, collectionGroup, addDoc, onSnapshot, serverTimestamp, orderBy, query, where } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
   // Désactiver AppCheck pour éviter les erreurs réseau
   // import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app-check.js";
@@ -360,7 +359,8 @@
         html += `</div></details>`;
       });
     });
-    document.getElementById('content-area').innerHTML = html;
+    const contentArea = document.getElementById('content-area');
+    if (contentArea) contentArea.innerHTML = html;
   }
 
   let profile = null;
@@ -387,6 +387,8 @@
 
   onAuthStateChanged(auth, async (user) => {
     const contentArea = document.getElementById('content-area');
+    if (!contentArea) return;
+    
     if (user) {
       try {
         const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
@@ -398,22 +400,41 @@
 
         if ((profile.role === 'professeur' || profile.role === 'intendant') && profile.statut === 'en_attente') {
           contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⏳ Votre compte est en attente de validation par le Proviseur ou le Censeur.</p>`;
-          document.getElementById('user-profile').style.display = "block";
-          document.getElementById('user-profile').innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
-          document.getElementById('auth-link').textContent = "Déconnexion";
-          document.getElementById('auth-link').onclick = () => signOut(auth).then(() => window.location.reload());
+          const userProfile = document.getElementById('user-profile');
+          if (userProfile) {
+            userProfile.style.display = "block";
+            userProfile.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
+          }
+          const authLink = document.getElementById('auth-link');
+          if (authLink) {
+            authLink.textContent = "Déconnexion";
+            authLink.onclick = () => signOut(auth).then(() => window.location.reload());
+          }
           return;
         }
 
-        document.getElementById('search-bar').style.display = "";
-        document.getElementById('user-profile').style.display = "block";
-        document.getElementById('user-profile').innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
-        if (isAdmin(profile.role)) document.querySelectorAll('.admin-item').forEach(el => el.style.display = "block");
-        document.getElementById('auth-link').textContent = "Déconnexion";
-        document.getElementById('auth-link').onclick = () => signOut(auth).then(() => window.location.reload());
+        const searchBar = document.getElementById('search-bar');
+        if (searchBar) searchBar.style.display = "";
+        
+        const userProfile = document.getElementById('user-profile');
+        if (userProfile) {
+          userProfile.style.display = "block";
+          userProfile.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
+        }
+        
+        if (isAdmin(profile.role)) {
+          document.querySelectorAll('.admin-item').forEach(el => el.style.display = "block");
+        }
+        
+        const authLink = document.getElementById('auth-link');
+        if (authLink) {
+          authLink.textContent = "Déconnexion";
+          authLink.onclick = () => signOut(auth).then(() => window.location.reload());
+        }
 
         if (profile.role === 'professeur' || isAdmin(profile.role)) {
-          document.getElementById('eleves-section').style.display = 'block';
+          const elevesSection = document.getElementById('eleves-section');
+          if (elevesSection) elevesSection.style.display = 'block';
           chargerMesEleves();
         }
 
@@ -427,23 +448,31 @@
         syncDevoirs();
       } catch (err) {
         console.warn('Erreur de chargement du profil:', err.message);
-        contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⚠️ Erreur de chargement du profil. Veuillez rafraîchir la page.</p>`;
+        if (contentArea) {
+          contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⚠️ Erreur de chargement du profil. Veuillez rafraîchir la page.</p>`;
+        }
       }
     } else {
       profile = null;
-      document.getElementById('search-bar').style.display = "none";
-      document.getElementById('content-area').innerHTML =
-        `<p style="text-align:center; padding:60px 20px; color:var(--slate);">
-          🔒 Cet espace est réservé aux élèves, professeurs et personnel du Lycée Franco Arabe de Keur Madiabel.<br><br>
-          <a href="identification.html" style="color:var(--brass); font-weight:700;">Se connecter</a>
-          ou
-          <a href="inscription.html" style="color:var(--brass); font-weight:700;">créer un compte</a>
-        </p>`;
+      const searchBar = document.getElementById('search-bar');
+      if (searchBar) searchBar.style.display = "none";
+      
+      const contentArea2 = document.getElementById('content-area');
+      if (contentArea2) {
+        contentArea2.innerHTML =
+          `<p style="text-align:center; padding:60px 20px; color:var(--slate);">
+            🔒 Cet espace est réservé aux élèves, professeurs et personnel du Lycée Franco Arabe de Keur Madiabel.<br><br>
+            <a href="identification.html" style="color:var(--brass); font-weight:700;">Se connecter</a>
+            ou
+            <a href="inscription.html" style="color:var(--brass); font-weight:700;">créer un compte</a>
+          </p>`;
+      }
     }
   });
 
   async function chargerMesEleves() {
     const accordeon = document.getElementById('eleves-accordeon');
+    if (!accordeon) return;
     accordeon.innerHTML = '<p style="color:gray;">Chargement des élèves...</p>';
     try {
       let classesConcernees = [];
@@ -530,7 +559,10 @@
   function loadDevoirsStrip() {
     const zone = document.getElementById('devoirs-strip');
     const role = profile?.role;
-    if (role !== 'eleve' && role !== 'professeur') { zone.innerHTML = ''; return; }
+    if (!zone || (role !== 'eleve' && role !== 'professeur')) { 
+      if (zone) zone.innerHTML = ''; 
+      return; 
+    }
 
     try {
       onSnapshot(query(collectionGroup(db, 'devoirs'), orderBy('date', 'desc')), (snap) => {
@@ -566,6 +598,7 @@
 
   function loadActusStrip() {
     const zone = document.getElementById('actus-strip');
+    if (!zone) return;
     try {
       onSnapshot(query(collection(db, 'actualites'), orderBy('date', 'desc')), (snap) => {
         const cards = [];
@@ -594,6 +627,7 @@
   function renderFicheFamille() {
     const f = profile.famille || {};
     const zone = document.getElementById('fiche-famille-zone');
+    if (!zone) return;
     zone.innerHTML = `
       <details class="level" style="max-width:1100px; margin:20px auto 0;">
         <summary>👪 Ma fiche famille ${f.pereTel || f.mereTel ? '✅' : '⚠️ à compléter'} <span>+</span></summary>
@@ -634,6 +668,7 @@
     const profMats = profile?.disciplines || [];
     const cycleVisible = {};
     document.querySelectorAll('details.level').forEach(levelEl => {
+      if (!levelEl) return;
       const lvlId = levelEl.dataset.level;
       const area = levelEl.dataset.area;
       let visible = true;
@@ -646,6 +681,7 @@
       if (visible) cycleVisible[area] = true;
       if (visible) {
         levelEl.querySelectorAll('details.subject').forEach(subjectEl => {
+          if (!subjectEl) return;
           let matVisible = true;
           if (role === 'professeur') {
             matVisible = profMats.includes(subjectEl.dataset.mat);
@@ -656,16 +692,19 @@
       }
     });
     document.querySelectorAll('.cycle-title').forEach(header => {
+      if (!header) return;
       header.style.display = cycleVisible[header.dataset.area] ? '' : 'none';
     });
   }
 
-  // 🔥 VERSION CORRIGÉE - avec vérification des éléments DOM
+  // 🔥 VERSION CORRIGÉE - avec vérification systématique des éléments
   function syncDocs() {
     const role = profile?.role;
     const profMats = profile?.disciplines || [];
 
     document.querySelectorAll('.doc-list').forEach(ul => {
+      if (!ul) return;
+      
       const slug = ul.id.replace(/^cours-|^td-/, '');
       const type = ul.id.startsWith('cours-') ? 'cours' : 'td';
       
@@ -675,7 +714,7 @@
       const driveBtn = videoBtn ? videoBtn.nextElementSibling : null;
       
       const subjectEl = ul.closest('.subject');
-      const matName = subjectEl ? subjectEl.querySelector('summary').textContent.toLowerCase() : '';
+      const matName = subjectEl ? subjectEl.querySelector('summary')?.textContent?.toLowerCase() || '' : '';
 
       // Afficher les boutons uniquement si nécessaire et s'ils existent
       if (role === 'professeur' || isAdmin(role)) {
@@ -687,6 +726,7 @@
 
       try {
         onSnapshot(query(collection(db, 'ressources', slug, type), orderBy('date', 'desc')), (snap) => {
+          if (!ul) return;
           ul.innerHTML = snap.empty ? '<li style="color:gray;border:none;background:none;">Aucun fichier</li>' : '';
           snap.forEach(docSnap => {
             const d = docSnap.data();
@@ -717,6 +757,8 @@
     const profMats = profile?.disciplines || [];
 
     document.querySelectorAll('.devoirs-list').forEach(container => {
+      if (!container) return;
+      
       const slug = container.id.replace(/^devoirs-/, '');
       const subjectEl = container.closest('.subject');
       const matName = subjectEl ? subjectEl.dataset.mat : '';
@@ -730,6 +772,7 @@
 
       try {
         onSnapshot(query(collection(db, 'ressources', slug, 'devoirs'), orderBy('date', 'desc')), (snap) => {
+          if (!container) return;
           container.innerHTML = snap.empty ? '<p style="color:gray;font-size:12px;">Aucun devoir pour le moment</p>' : '';
           snap.forEach(devDoc => {
             const dv = devDoc.data();
@@ -795,9 +838,10 @@
 
   function checkRendu(slug, devoirId, statusDiv) {
     const uid = auth.currentUser?.uid;
-    if (!uid) return;
+    if (!uid || !statusDiv) return;
     try {
       onSnapshot(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), (snap) => {
+        if (!statusDiv) return;
         if (snap.exists()) {
           const d = snap.data();
           statusDiv.innerHTML = `<span class="rendu-status">✅ Devoir rendu</span> — <a href="${d.url}" target="_blank">voir mon fichier</a><br><button class="add-btn" style="display:block;margin-top:6px;" onclick="window.rendreDevoir('${slug}','${devoirId}')">Renvoyer un autre fichier</button>`;
@@ -806,29 +850,36 @@
         }
       });
     } catch (err) {
-      statusDiv.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir</button>`;
+      if (statusDiv) {
+        statusDiv.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir</button>`;
+      }
     }
   }
 
   function renderQcmForStudent(slug, devoirId, dv, container) {
     const uid = auth.currentUser?.uid;
-    if (!uid) return;
+    if (!uid || !container) return;
     try {
       onSnapshot(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), (snap) => {
+        if (!container) return;
         if (snap.exists()) {
           const d = snap.data();
           container.innerHTML = `<span class="rendu-status">✅ QCM rendu — Note : ${d.note ?? d.score}/${dv.bareme || dv.questions?.length || 0}</span><br><button class="add-btn" style="display:block;margin-top:6px;" id="retry-${devoirId}">Repasser le QCM</button>`;
-          document.getElementById(`retry-${devoirId}`).onclick = () => buildQcmForm(slug, devoirId, dv, container);
+          const retryBtn = document.getElementById(`retry-${devoirId}`);
+          if (retryBtn) retryBtn.onclick = () => buildQcmForm(slug, devoirId, dv, container);
         } else {
           buildQcmForm(slug, devoirId, dv, container);
         }
       });
     } catch (err) {
-      container.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir</button>`;
+      if (container) {
+        container.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir</button>`;
+      }
     }
   }
 
   function buildQcmForm(slug, devoirId, dv, container) {
+    if (!container) return;
     if (!dv.questions || dv.questions.length === 0) {
       container.innerHTML = '<p style="color:gray;">Ce QCM n\'a pas encore de questions.</p>';
       return;
@@ -843,31 +894,37 @@
     });
     html += `<button class="add-btn" style="display:block;" id="submit-qcm-${devoirId}">Envoyer mes réponses</button>`;
     container.innerHTML = html;
-    document.getElementById(`submit-qcm-${devoirId}`).onclick = async () => {
-      const reponses = [];
-      let complete = true;
-      dv.questions.forEach((q, qi) => {
-        const checked = container.querySelector(`input[name="qcmrep-${devoirId}-${qi}"]:checked`);
-        if (!checked) complete = false;
-        reponses.push(checked ? parseInt(checked.value, 10) : -1);
-      });
-      if (!complete) { alert("Répondez à toutes les questions avant d'envoyer."); return; }
-      const score = reponses.filter((r, i) => r === dv.questions[i].correctIndex).length;
-      const bareme = dv.bareme || 20;
-      const note = Math.round((score / dv.questions.length) * bareme * 100) / 100;
-      const uid = auth.currentUser.uid;
-      await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
-        eleveNom: `${profile.prenom} ${profile.nom}`,
-        reponses, score, note,
-        date: serverTimestamp()
-      });
-    };
+    const submitBtn = document.getElementById(`submit-qcm-${devoirId}`);
+    if (submitBtn) {
+      submitBtn.onclick = async () => {
+        const reponses = [];
+        let complete = true;
+        dv.questions.forEach((q, qi) => {
+          const checked = container.querySelector(`input[name="qcmrep-${devoirId}-${qi}"]:checked`);
+          if (!checked) complete = false;
+          reponses.push(checked ? parseInt(checked.value, 10) : -1);
+        });
+        if (!complete) { alert("Répondez à toutes les questions avant d'envoyer."); return; }
+        const score = reponses.filter((r, i) => r === dv.questions[i].correctIndex).length;
+        const bareme = dv.bareme || 20;
+        const note = Math.round((score / dv.questions.length) * bareme * 100) / 100;
+        const uid = auth.currentUser.uid;
+        await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
+          eleveNom: `${profile.prenom} ${profile.nom}`,
+          reponses, score, note,
+          date: serverTimestamp()
+        });
+        alert('QCM envoyé !');
+      };
+    }
   }
 
   function loadRendus(slug, devoirId, container, dv) {
+    if (!container) return;
     const bareme = dv.bareme || 20;
     try {
       onSnapshot(collection(db, 'ressources', slug, 'devoirs', devoirId, 'rendus'), (snap) => {
+        if (!container) return;
         container.innerHTML = snap.empty ? '<p style="font-size:12px;color:gray;">Aucun rendu pour le moment</p>' : '';
         snap.forEach(rd => {
           const d = rd.data();
@@ -944,108 +1001,153 @@
     block.innerHTML = `<button type="button" class="qcm-remove-q" onclick="this.parentElement.remove()">✕</button>
       <input type="text" class="qcm-q-text" placeholder="Question ${idx + 1}">
       ${[0, 1, 2, 3].map(i => `<div class="qcm-option-row"><input type="radio" name="qcm-correct-${idx}" value="${i}" ${i === 0 ? 'checked' : ''}><input type="text" class="qcm-option" placeholder="Option ${i + 1} (cocher si c'est la bonne réponse)"></div>`).join('')}`;
-    document.getElementById('qcm-questions').appendChild(block);
+    const qcmQuestions = document.getElementById('qcm-questions');
+    if (qcmQuestions) qcmQuestions.appendChild(block);
   }
 
   window.newDevoir = (slug) => {
     currentDevoirSlug = slug;
-    document.getElementById('dv-titre').value = '';
-    document.getElementById('dv-consignes').value = '';
-    document.getElementById('dv-date').value = '';
-    document.getElementById('dv-bareme').value = '20';
-    document.getElementById('dv-gdoc').value = '';
-    document.getElementById('dv-fichier').value = '';
-    document.getElementById('dv-type').value = 'fichier';
-    document.getElementById('qcm-builder').style.display = 'none';
-    document.getElementById('qcm-questions').innerHTML = '';
+    const titreInput = document.getElementById('dv-titre');
+    const consignesInput = document.getElementById('dv-consignes');
+    const dateInput = document.getElementById('dv-date');
+    const baremeInput = document.getElementById('dv-bareme');
+    const gdocInput = document.getElementById('dv-gdoc');
+    const fichierInput = document.getElementById('dv-fichier');
+    const typeSelect = document.getElementById('dv-type');
+    const qcmBuilder = document.getElementById('qcm-builder');
+    const qcmQuestions = document.getElementById('qcm-questions');
+    const modal = document.getElementById('devoir-modal');
+    
+    if (titreInput) titreInput.value = '';
+    if (consignesInput) consignesInput.value = '';
+    if (dateInput) dateInput.value = '';
+    if (baremeInput) baremeInput.value = '20';
+    if (gdocInput) gdocInput.value = '';
+    if (fichierInput) fichierInput.value = '';
+    if (typeSelect) typeSelect.value = 'fichier';
+    if (qcmBuilder) qcmBuilder.style.display = 'none';
+    if (qcmQuestions) qcmQuestions.innerHTML = '';
     qcmQuestionCount = 0;
     addQcmQuestion();
-    document.getElementById('devoir-modal').classList.add('show');
+    if (modal) modal.classList.add('show');
   };
 
-  document.getElementById('dv-type').addEventListener('change', (e) => {
-    document.getElementById('qcm-builder').style.display = e.target.value === 'qcm' ? 'block' : 'none';
-  });
-  document.getElementById('qcm-add-question').onclick = addQcmQuestion;
-  document.getElementById('dv-cancel').onclick = () => document.getElementById('devoir-modal').classList.remove('show');
+  const typeSelect = document.getElementById('dv-type');
+  if (typeSelect) {
+    typeSelect.addEventListener('change', (e) => {
+      const qcmBuilder = document.getElementById('qcm-builder');
+      if (qcmBuilder) qcmBuilder.style.display = e.target.value === 'qcm' ? 'block' : 'none';
+    });
+  }
 
-  document.getElementById('dv-submit').onclick = async () => {
-    const type = document.getElementById('dv-type').value;
-    const titre = document.getElementById('dv-titre').value.trim();
-    if (!titre) { alert('Le titre est obligatoire.'); return; }
+  const qcmAddBtn = document.getElementById('qcm-add-question');
+  if (qcmAddBtn) qcmAddBtn.onclick = addQcmQuestion;
 
-    try {
-      const existingSnap = await getDocs(collection(db, 'ressources', currentDevoirSlug, 'devoirs'));
-      const doublon = existingSnap.docs.find(d => (d.data().titre || '').trim().toLowerCase() === titre.toLowerCase());
-      if (doublon) {
-        const dateDoublon = doublon.data().date?.toDate ? doublon.data().date.toDate().toLocaleDateString('fr-FR') : '';
-        const confirmer = confirm(`⚠️ Un devoir intitulé "${titre}" existe déjà dans cette classe et cette matière (publié le ${dateDoublon}).\n\nVoulez-vous quand même le publier une seconde fois ?`);
-        if (!confirmer) return;
-      }
-    } catch (e) {}
-
-    const consignes = document.getElementById('dv-consignes').value.trim();
-    const dateLimite = document.getElementById('dv-date').value;
-    const bareme = parseFloat(document.getElementById('dv-bareme').value) || 20;
-    const googleDocUrl = document.getElementById('dv-gdoc').value.trim();
-    const fichierInput = document.getElementById('dv-fichier');
-
-    const devoirData = {
-      type, titre, consignes, dateLimite, bareme,
-      googleDocUrl: googleDocUrl || null,
-      profNom: `${profile.prenom} ${profile.nom}`,
-      date: serverTimestamp()
+  const cancelBtn = document.getElementById('dv-cancel');
+  if (cancelBtn) {
+    cancelBtn.onclick = () => {
+      const modal = document.getElementById('devoir-modal');
+      if (modal) modal.classList.remove('show');
     };
+  }
 
-    if (type === 'qcm') {
-      const questions = [];
-      document.querySelectorAll('#qcm-questions .qcm-question-block').forEach(block => {
-        const texte = block.querySelector('.qcm-q-text').value.trim();
-        const options = Array.from(block.querySelectorAll('.qcm-option')).map(o => o.value.trim());
-        const correctIndex = parseInt(block.querySelector('input[type=radio]:checked').value, 10);
-        if (texte && options.every(o => o)) questions.push({ texte, options, correctIndex });
-      });
-      if (questions.length === 0) { alert('Ajoutez au moins une question complète (texte + 4 options).'); return; }
-      devoirData.questions = questions;
-    }
+  const submitBtn = document.getElementById('dv-submit');
+  if (submitBtn) {
+    submitBtn.onclick = async () => {
+      const typeSelect2 = document.getElementById('dv-type');
+      const titreInput2 = document.getElementById('dv-titre');
+      const consignesInput2 = document.getElementById('dv-consignes');
+      const dateInput2 = document.getElementById('dv-date');
+      const baremeInput2 = document.getElementById('dv-bareme');
+      const gdocInput2 = document.getElementById('dv-gdoc');
+      const fichierInput2 = document.getElementById('dv-fichier');
+      const modal2 = document.getElementById('devoir-modal');
+      
+      const type = typeSelect2 ? typeSelect2.value : 'fichier';
+      const titre = titreInput2 ? titreInput2.value.trim() : '';
+      if (!titre) { alert('Le titre est obligatoire.'); return; }
 
-    const submitBtn = document.getElementById('dv-submit');
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Publication...";
-
-    if (fichierInput.files[0]) {
-      if (fichierInput.files[0].size > 15 * 1024 * 1024) {
-        alert("Fichier trop volumineux (max 15 Mo).");
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Publier le devoir";
-        return;
-      }
       try {
-        const fd = new FormData();
-        fd.append('file', fichierInput.files[0]);
-        fd.append('upload_preset', "lfakm_ressources");
-        const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
-        const data = await res.json();
-        devoirData.fichierUrl = data.secure_url;
-        devoirData.fichierNom = fichierInput.files[0].name;
+        const existingSnap = await getDocs(collection(db, 'ressources', currentDevoirSlug, 'devoirs'));
+        const doublon = existingSnap.docs.find(d => (d.data().titre || '').trim().toLowerCase() === titre.toLowerCase());
+        if (doublon) {
+          const dateDoublon = doublon.data().date?.toDate ? doublon.data().date.toDate().toLocaleDateString('fr-FR') : '';
+          const confirmer = confirm(`⚠️ Un devoir intitulé "${titre}" existe déjà dans cette classe et cette matière (publié le ${dateDoublon}).\n\nVoulez-vous quand même le publier une seconde fois ?`);
+          if (!confirmer) return;
+        }
+      } catch (e) {}
+
+      const consignes = consignesInput2 ? consignesInput2.value.trim() : '';
+      const dateLimite = dateInput2 ? dateInput2.value : '';
+      const bareme = parseFloat(baremeInput2 ? baremeInput2.value : 20) || 20;
+      const googleDocUrl = gdocInput2 ? gdocInput2.value.trim() : '';
+      const fichierInput3 = fichierInput2;
+
+      const devoirData = {
+        type, titre, consignes, dateLimite, bareme,
+        googleDocUrl: googleDocUrl || null,
+        profNom: `${profile.prenom} ${profile.nom}`,
+        date: serverTimestamp()
+      };
+
+      if (type === 'qcm') {
+        const questions = [];
+        document.querySelectorAll('#qcm-questions .qcm-question-block').forEach(block => {
+          const texte = block.querySelector('.qcm-q-text')?.value.trim() || '';
+          const options = Array.from(block.querySelectorAll('.qcm-option')).map(o => o.value.trim());
+          const correctIndex = parseInt(block.querySelector('input[type=radio]:checked')?.value || 0, 10);
+          if (texte && options.every(o => o)) questions.push({ texte, options, correctIndex });
+        });
+        if (questions.length === 0) { alert('Ajoutez au moins une question complète (texte + 4 options).'); return; }
+        devoirData.questions = questions;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Publication...";
+      }
+
+      if (fichierInput3 && fichierInput3.files && fichierInput3.files[0]) {
+        if (fichierInput3.files[0].size > 15 * 1024 * 1024) {
+          alert("Fichier trop volumineux (max 15 Mo).");
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Publier le devoir";
+          }
+          return;
+        }
+        try {
+          const fd = new FormData();
+          fd.append('file', fichierInput3.files[0]);
+          fd.append('upload_preset', "lfakm_ressources");
+          const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
+          const data = await res.json();
+          devoirData.fichierUrl = data.secure_url;
+          devoirData.fichierNom = fichierInput3.files[0].name;
+        } catch (e) {
+          alert('Erreur upload: ' + e.message);
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Publier le devoir";
+          }
+          return;
+        }
+      }
+
+      try {
+        await addDoc(collection(db, 'ressources', currentDevoirSlug, 'devoirs'), devoirData);
+        try { logActivite('création', `Devoir "${devoirData.titre}" (${currentDevoirSlug})`); } catch(e) {}
+        alert('Devoir publié avec succès !');
+        if (modal2) modal2.classList.remove('show');
       } catch (e) {
-        alert('Erreur upload: ' + e.message);
+        alert('Erreur: ' + e.message);
+      }
+      if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.textContent = "Publier le devoir";
-        return;
       }
-    }
-
-    try {
-      await addDoc(collection(db, 'ressources', currentDevoirSlug, 'devoirs'), devoirData);
-      try { logActivite('création', `Devoir "${devoirData.titre}" (${currentDevoirSlug})`); } catch(e) {}
-    } catch (e) {
-      alert('Erreur: ' + e.message);
-    }
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Publier le devoir";
-    document.getElementById('devoir-modal').classList.remove('show');
-  };
+    };
+  }
 
   window.rendreDevoir = async (slug, devoirId) => {
     const input = document.createElement('input');
@@ -1161,16 +1263,30 @@
     document.body.appendChild(overlay);
   };
 
-  document.getElementById('burger-btn').onclick = () => document.getElementById('menu').classList.toggle('show');
+  const burgerBtn = document.getElementById('burger-btn');
+  if (burgerBtn) {
+    burgerBtn.onclick = () => {
+      const menu = document.getElementById('menu');
+      if (menu) menu.classList.toggle('show');
+    };
+  }
 
+  const aiToggle = document.getElementById('ai-chat-toggle');
   const aiPanel = document.getElementById('ai-chat-panel');
+  const aiClose = document.getElementById('ai-chat-close');
+  
+  if (aiToggle && aiPanel) {
+    aiToggle.onclick = () => aiPanel.classList.toggle('show');
+  }
+  if (aiClose && aiPanel) {
+    aiClose.onclick = () => aiPanel.classList.remove('show');
+  }
+
   const aiMessages = document.getElementById('ai-chat-messages');
   const aiInput = document.getElementById('ai-chat-input');
 
-  document.getElementById('ai-chat-toggle').onclick = () => aiPanel.classList.toggle('show');
-  document.getElementById('ai-chat-close').onclick = () => aiPanel.classList.remove('show');
-
   function addAiMessage(text, sender) {
+    if (!aiMessages) return null;
     const div = document.createElement('div');
     div.className = `ai-msg ai-msg-${sender}`;
     div.textContent = text;
@@ -1180,6 +1296,7 @@
   }
 
   async function sendAiMessage() {
+    if (!aiInput) return;
     const texte = aiInput.value.trim();
     if (!texte) return;
     aiInput.value = '';
@@ -1190,24 +1307,32 @@
       if (!aiModel) throw new Error('Assistant IA non disponible');
       if (!aiChatSession) aiChatSession = aiModel.startChat();
       const result = await aiChatSession.sendMessage(texte);
-      loadingDiv.remove();
+      if (loadingDiv) loadingDiv.remove();
       addAiMessage(result.response.text(), 'bot');
     } catch (err) {
-      loadingDiv.remove();
+      if (loadingDiv) loadingDiv.remove();
       addAiMessage("Désolé, une erreur est survenue. Réessayez dans un instant, ou contactez le Proviseur si le problème persiste.", 'bot');
     }
   }
 
-  document.getElementById('ai-chat-send').onclick = sendAiMessage;
-  aiInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendAiMessage(); });
-  document.getElementById('search-bar').oninput = (e) => {
-    const t = e.target.value.toLowerCase();
-    document.querySelectorAll('.subject').forEach(s => {
-      const roleAllowed = s.dataset.roleAllowed !== '0';
-      const matches = !t || s.innerText.toLowerCase().includes(t);
-      s.style.display = (roleAllowed && matches) ? '' : 'none';
-    });
-  };
+  const aiSend = document.getElementById('ai-chat-send');
+  if (aiSend) aiSend.onclick = sendAiMessage;
+  if (aiInput) {
+    aiInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendAiMessage(); });
+  }
+
+  const searchBar = document.getElementById('search-bar');
+  if (searchBar) {
+    searchBar.oninput = (e) => {
+      const t = e.target.value.toLowerCase();
+      document.querySelectorAll('.subject').forEach(s => {
+        if (!s) return;
+        const roleAllowed = s.dataset.roleAllowed !== '0';
+        const matches = !t || s.innerText.toLowerCase().includes(t);
+        s.style.display = (roleAllowed && matches) ? '' : 'none';
+      });
+    };
+  }
 </script>
 </body>
 </html>
