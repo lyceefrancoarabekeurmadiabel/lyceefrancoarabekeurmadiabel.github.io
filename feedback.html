@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulaire de Retour - LFAKM</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1B2A4A">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -26,7 +30,6 @@
         
         .container { max-width: 800px; margin: 0 auto; }
         
-        /* Navigation de retour */
         .nav-return {
             max-width: 800px;
             margin: 0 auto 20px;
@@ -306,36 +309,30 @@
 </head>
 <body>
 
-<!-- ============ NAVIGATION DE RETOUR ============ -->
 <div class="nav-return">
     <a href="javascript:history.back()">← Retour</a>
     <span class="sep">|</span>
     <a href="index.html">🏠 Accueil</a>
     <span class="sep">|</span>
     <a href="ressources.html">📚 Ressources</a>
-    <span id="nav-user-info" class="user-info">
-        <!-- Rempli par JavaScript -->
-    </span>
+    <span id="nav-user-info" class="user-info"></span>
 </div>
 
-<!-- ============ HEADER ============ -->
 <div class="header">
     <h1>📋 Retour d'Expérience</h1>
     <p>Votre avis nous aide à améliorer la plateforme du Lycée Franco Arabe de Keur Madiabel.</p>
 </div>
 
-<!-- ============ TABS ============ -->
 <div class="tabs" id="feedback-tabs">
     <button class="tab-btn" data-tab="professeurs" id="tab-btn-profs">👨‍🏫 Professeurs</button>
     <button class="tab-btn" data-tab="eleves" id="tab-btn-eleves">🎓 Élèves</button>
     <button class="tab-btn" data-tab="dashboard" id="tab-btn-dash">📊 Dashboard</button>
 </div>
 
-<!-- ==================== TAB PROFESSEURS ==================== -->
+<!-- TAB PROFESSEURS -->
 <div id="tab-professeurs" class="tab-content">
     <form id="form-professeurs">
         <div class="progress-bar"><div class="fill" id="progress-profs"></div></div>
-
         <div class="section">
             <h2>👤 Votre profil</h2>
             <div class="field">
@@ -370,7 +367,6 @@
             <div class="field">
                 <label>Manque-t-il un type de question ?</label>
                 <textarea id="prof-types-manquants" rows="2" placeholder="Décrivez ce que vous aimeriez avoir..."></textarea>
-                <div class="helper">Ex: Exercice à trous avec image, QCM à réponses multiples, etc.</div>
             </div>
             <div class="field">
                 <label>Quelle est la durée moyenne de création d'un devoir ?</label>
@@ -443,7 +439,7 @@
             </div>
             <div class="field">
                 <label>Si une IA corrigeait les copies, quelle serait votre principale inquiétude ?</label>
-                <textarea id="prof-ia-inquietude" rows="2" placeholder="Ex: Manque de précision, perte de contrôle, etc."></textarea>
+                <textarea id="prof-ia-inquietude" rows="2" placeholder="Ex: Manque de précision, perte de contrôle..."></textarea>
             </div>
         </div>
 
@@ -526,11 +522,10 @@
     </form>
 </div>
 
-<!-- ==================== TAB ÉLÈVES ==================== -->
+<!-- TAB ÉLÈVES -->
 <div id="tab-eleves" class="tab-content">
     <form id="form-eleves">
         <div class="progress-bar"><div class="fill" id="progress-eleves"></div></div>
-
         <div class="section">
             <h2>👤 Ton profil</h2>
             <div class="field">
@@ -681,10 +676,9 @@
     </form>
 </div>
 
-<!-- ==================== TAB DASHBOARD ==================== -->
+<!-- TAB DASHBOARD -->
 <div id="tab-dashboard" class="tab-content">
     <h2 style="font-family:var(--serif);color:var(--ink);margin-bottom:20px;">📊 Tableau de bord des retours</h2>
-    
     <div class="stats-preview">
         <div class="stats-grid">
             <div class="stats-item">
@@ -705,15 +699,12 @@
             </div>
         </div>
     </div>
-
     <div id="dashboard-details">
         <p style="color:var(--slate);text-align:center;padding:30px;">📊 Les données s'afficheront ici une fois les retours collectés.</p>
     </div>
-
     <button class="submit-btn" onclick="rafraichirDashboard()" style="margin-top:20px;">🔄 Rafraîchir</button>
 </div>
 
-<!-- ============ SCRIPT ============ -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
@@ -732,14 +723,11 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let currentUser = null;
     let currentProfile = null;
 
-    // ============ AUTHENTIFICATION ============
+    // ============ AUTH ============
     onAuthStateChanged(auth, async (user) => {
-        currentUser = user;
         const navInfo = document.getElementById('nav-user-info');
-        const tabs = document.getElementById('feedback-tabs');
         const btnProfs = document.getElementById('tab-btn-profs');
         const btnEleves = document.getElementById('tab-btn-eleves');
         const btnDash = document.getElementById('tab-btn-dash');
@@ -754,7 +742,6 @@
                     <span style="color:var(--brass);">${currentProfile.role}</span>
                 `;
 
-                // Afficher les tabs selon le rôle
                 if (currentProfile.role === 'admin' || currentProfile.role === 'proviseur' || currentProfile.role === 'censeur') {
                     btnProfs.disabled = false;
                     btnEleves.disabled = false;
@@ -763,13 +750,11 @@
                     btnProfs.disabled = false;
                     btnEleves.disabled = true;
                     btnDash.disabled = true;
-                    // Ouvrir automatiquement l'onglet professeur
                     switchTab('professeurs');
                 } else if (currentProfile.role === 'eleve') {
                     btnProfs.disabled = true;
                     btnEleves.disabled = false;
                     btnDash.disabled = true;
-                    // Ouvrir automatiquement l'onglet élève
                     switchTab('eleves');
                 }
             }
@@ -781,7 +766,7 @@
         }
     });
 
-    // ============ GESTION DES TABS ============
+    // ============ TABS ============
     function switchTab(tabName) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -810,7 +795,7 @@
         });
     });
 
-    // ============ PROGRESS BAR ============
+    // ============ PROGRESS ============
     function updateProgress(formId, progressId) {
         const form = document.getElementById(formId);
         if (!form) return;
@@ -827,7 +812,6 @@
         el.addEventListener('change', () => updateProgress('form-professeurs', 'progress-profs'));
         el.addEventListener('input', () => updateProgress('form-professeurs', 'progress-profs'));
     });
-
     document.querySelectorAll('#form-eleves input, #form-eleves select, #form-eleves textarea').forEach(el => {
         el.addEventListener('change', () => updateProgress('form-eleves', 'progress-eleves'));
         el.addEventListener('input', () => updateProgress('form-eleves', 'progress-eleves'));
@@ -838,7 +822,7 @@
         document.getElementById('prof-frein-autre').style.display = e.target.value === 'autre' ? 'block' : 'none';
     });
 
-    // ============ PROBLÈME RENDU DÉTAIL ============
+    // ============ PROBLÈME RENDU ============
     document.querySelectorAll('input[name="eleve-probleme-rendu"]').forEach(el => {
         el.addEventListener('change', () => {
             document.getElementById('eleve-probleme-detail').style.display = 
@@ -889,12 +873,10 @@
             e.target.reset();
             document.querySelectorAll('.rating-group label').forEach(l => l.classList.remove('active'));
             updateProgress('form-professeurs', 'progress-profs');
-
         } catch (err) {
             status.className = 'error';
             status.textContent = '❌ Erreur: ' + err.message;
         }
-
         btn.disabled = false;
         btn.textContent = '📤 Envoyer mon retour';
     });
@@ -934,12 +916,10 @@
             e.target.reset();
             document.querySelectorAll('.rating-group label').forEach(l => l.classList.remove('active'));
             updateProgress('form-eleves', 'progress-eleves');
-
         } catch (err) {
             status.className = 'error';
             status.textContent = '❌ Erreur: ' + err.message;
         }
-
         btn.disabled = false;
         btn.textContent = '📤 Envoyer mon avis';
     });
@@ -970,8 +950,6 @@
             
             if (profs.length > 0 || eleves.length > 0) {
                 html += `<div class="feedback-list">`;
-                
-                // Profs
                 if (profs.length > 0) {
                     html += `<h4 style="color:var(--brass);margin:10px 0;">👨‍🏫 Professeurs (${profs.length})</h4>`;
                     profs.slice(0, 5).forEach(p => {
@@ -984,8 +962,6 @@
                         html += `</div>`;
                     });
                 }
-
-                // Eleves
                 if (eleves.length > 0) {
                     html += `<h4 style="color:var(--brass);margin:15px 0 10px;">🎓 Élèves (${eleves.length})</h4>`;
                     eleves.slice(0, 5).forEach(e => {
@@ -998,21 +974,16 @@
                         html += `</div>`;
                     });
                 }
-
                 html += `</div>`;
             } else {
                 html += `<p style="color:var(--slate);text-align:center;padding:20px;">📊 Aucun retour pour le moment.</p>`;
             }
-
             detailsDiv.innerHTML = html;
-
         } catch (err) {
             document.getElementById('dashboard-details').innerHTML = `<p style="color:var(--error);">❌ Erreur de chargement: ${err.message}</p>`;
         }
     };
 
-    // ============ INITIALISATION ============
-    // Rafraîchir le dashboard au chargement si l'utilisateur est admin
     setTimeout(() => {
         if (currentProfile && (currentProfile.role === 'admin' || currentProfile.role === 'proviseur' || currentProfile.role === 'censeur')) {
             rafraichirDashboard();
