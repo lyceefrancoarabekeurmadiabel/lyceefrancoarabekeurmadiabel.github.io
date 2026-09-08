@@ -39,18 +39,11 @@
         .btn-save { background: var(--brass); color: white; }
         .btn-blue { background: #3498db; color: white; }
         .btn-danger { background: var(--red); color: white; }
+        .btn-profile { background: #2e7d32; color: #fff; }
         .class-badge { display: inline-block; background: #eee; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin: 2px; }
         .modal { display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 100px rgba(0,0,0,0.5); z-index: 1001; width: 400px; }
         .input-group { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
         .input-group input, .input-group select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-
-        /* ---------- PROFIL UTILISATEUR ---------- */
-        .profile-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 13px; }
-        .profile-name { font-weight: 700; color: var(--brass); font-size: 14px; }
-        .profile-role { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; }
-        .contact-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 12px; }
-        .contact-label { font-weight: 600; color: var(--ink); }
-        .contact-phone { font-size: 12px; color: var(--brass); font-weight: 700; }
     </style>
 </head>
 <body>
@@ -68,10 +61,8 @@
     <div id="tab-dashboard" class="tab-section active">
         <h1 style="margin-bottom: 20px;">📊 Vue d'ensemble</h1>
 
-        <!-- Stats principales -->
         <div class="stats-grid" id="stats-cards"><p>Chargement des statistiques...</p></div>
 
-        <!-- Filtre par classe -->
         <div class="config-bar" style="background:#fff; border:1px solid #ddd; color:#333; margin-bottom:15px; flex-wrap:wrap; gap:8px;">
             <span style="font-weight:700;">📊 Filtrer par classe :</span>
             <select id="stats-filter-niveau" style="padding:8px; border:1px solid #ccc; border-radius:4px;" onchange="window.updateStatsByClass()">
@@ -95,7 +86,6 @@
             </select>
         </div>
 
-        <!-- Tableau statistiques détaillées par matière -->
         <div class="stats-table-wrap">
             <h3 style="margin-bottom:8px;">📊 Statistiques par matière (moyenne, min, max, notes)</h3>
             <table id="stats-detail-table">
@@ -104,7 +94,6 @@
             </table>
         </div>
 
-        <!-- Graphique en barres -->
         <div class="chart-container">
             <h3 style="margin-bottom: 15px;">📈 Moyenne par matière (classe sélectionnée)</h3>
             <canvas id="stats-chart" style="max-width: 100%; height: 300px;"></canvas>
@@ -288,18 +277,15 @@
     const current = snap.data();
     if (!['admin', 'proviseur', 'censeur'].includes(current.role)) { document.body.innerHTML = "Accès réservé"; return; }
 
-    // Charger l'année actuelle
     const config = await getDoc(doc(db, "config", "schoolYear"));
     document.getElementById('current-year-display').textContent = config.data()?.year || "Non définie";
 
-    // Suivi de la consommation Cloudinary (estimation)
     onSnapshot(doc(db, "config", "usage"), (usageSnap) => {
       const mo = usageSnap.data()?.totalMo || 0;
       const go = (mo / 1024).toFixed(2);
       document.getElementById('usage-display').textContent = `${go} Go (≈ ${Math.round(mo)} Mo)`;
     });
 
-    // Coordonnées du Proviseur
     getDoc(doc(db, "config", "contact")).then(snap => {
       const c = snap.data() || {};
       document.getElementById('contact-nom').value = c.nom || '';
@@ -312,12 +298,12 @@
     loadJournal();
   });
 
-  // Fonction pour charger les statistiques principales
+  // ---------- FONCTIONS DE STATISTIQUES ----------
+
   async function loadStats() {
     const levelLabelMap = {};
     allLevels.forEach(l => { levelLabelMap[l.id] = l.n; });
 
-    // Élèves par classe + comptes en attente
     const usersSnap = await getDocs(collection(db, 'utilisateurs'));
     const eleveCountByNiveau = {};
     let totalEleves = 0, totalProfs = 0, totalEnAttente = 0, totalDevoirs = 0, moyenneGenerale = 0;
@@ -333,11 +319,9 @@
       }
     });
 
-    // Calcul du nombre de devoirs publiés
     const devoirsSnap = await getDocs(collectionGroup(db, 'devoirs'));
     totalDevoirs = devoirsSnap.size;
 
-    // Calcul de la moyenne générale
     let sommeNotes = 0;
     let nombreNotes = 0;
     for (const devDoc of devoirsSnap.docs) {
@@ -352,7 +336,6 @@
     }
     moyenneGenerale = nombreNotes > 0 ? sommeNotes / nombreNotes : 0;
 
-    // Affichage des cartes
     document.getElementById('stats-cards').innerHTML = `
       <div class="stat-card"><div class="stat-value">${totalEleves}</div><div class="stat-label">Élèves</div></div>
       <div class="stat-card"><div class="stat-value">${totalProfs}</div><div class="stat-label">Professeurs</div></div>
@@ -362,7 +345,6 @@
       <div class="stat-card"><div class="stat-value">${moyenneGenerale.toFixed(1)}/20</div><div class="stat-label">Moyenne générale</div></div>
     `;
 
-    // Affichage du tableau "Élèves par classe" (pour toutes les classes)
     const classesTbody = document.querySelector('#stats-classes-table tbody');
     const classesRows = Object.entries(eleveCountByNiveau)
       .sort((a, b) => (levelLabelMap[a[0]] || a[0]).localeCompare(levelLabelMap[b[0]] || b[0]))
@@ -371,12 +353,9 @@
     classesTbody.innerHTML = classesRows || '<tr><td colspan="2">Aucune donnée</td></tr>';
   }
 
-  // ---------- FONCTIONS DE STATISTIQUES DÉTAILLÉES PAR CLASSE ----------
-
   // Variable globale pour stocker les données des devoirs (chargées une fois)
   let allDevoirData = [];
 
-  // Fonction pour charger et calculer les statistiques détaillées par classe
   window.updateStatsByClass = async () => {
     const selectedClass = document.getElementById('stats-filter-niveau').value;
     const tableBody = document.querySelector('#stats-detail-table tbody');
@@ -387,7 +366,6 @@
       return;
     }
 
-    // Charger tous les devoirs si ce n'est pas déjà fait
     if (allDevoirData.length === 0) {
       const devoirsSnap = await getDocs(collectionGroup(db, 'devoirs'));
       allDevoirData = [];
@@ -402,10 +380,8 @@
       }
     }
 
-    // Filtrer les devoirs par classe sélectionnée
     const classDevoirs = allDevoirData.filter(d => d.levelId === selectedClass);
 
-    // Regrouper par matière
     const statsByMat = {};
     const matNameBySlug = {};
     ['Mathématiques', 'Français', 'Anglais', 'Arabe', 'SVT', 'Physique-Chimie', 'Histoire-Géo', 'EPS', 'Éducation Religieuse', 'Philosophie']
@@ -426,7 +402,6 @@
       });
     });
 
-    // Afficher le tableau
     tableBody.innerHTML = '';
     Object.entries(statsByMat).forEach(([mat, stats]) => {
       const moyenne = stats.count > 0 ? (stats.sum / stats.count).toFixed(1) : '-';
@@ -439,11 +414,9 @@
       </tr>`;
     });
 
-    // Générer le graphique en barres
     generateChart(statsByMat);
   };
 
-  // Fonction pour générer un graphique en barres avec Chart.js
   function generateChart(statsByMat) {
     const ctx = document.getElementById('stats-chart').getContext('2d');
 
@@ -476,6 +449,7 @@
   }
 
   // ---------- GESTION DES UTILISATEURS ----------
+
   window.filterTable = () => {
     const search = document.getElementById('table-search').value.trim().toLowerCase();
     const roleFilter = document.getElementById('table-filter-role').value;
@@ -711,6 +685,16 @@
         btn.onclick = () => openAssignModal(id, u);
         cell.appendChild(btn);
       }
+      if (u.role === 'eleve') {
+        const profileBtn = document.createElement('button');
+        profileBtn.className = 'btn btn-profile';
+        profileBtn.textContent = '📊 Voir profil';
+        profileBtn.style.marginRight = '5px';
+        profileBtn.onclick = () => {
+          window.location.href = `profil-eleve.html?uid=${id}`;
+        };
+        cell.appendChild(profileBtn);
+      }
       const roleBtn = document.createElement('button');
       roleBtn.className = 'btn'; roleBtn.style.background = '#eee'; roleBtn.textContent = 'Modifier rôle';
       roleBtn.onclick = async () => {
@@ -811,7 +795,6 @@
       XLSX.utils.book_append_sheet(wb, ws, "Liste");
       XLSX.writeFile(wb, filename + '.xlsx');
     } else if (format === 'pdf') {
-      // Version simplifiée pour éviter les problèmes de taille
       alert("La génération PDF a été temporairement désactivée pour éviter la coupure du code. Utilisez Excel ou CSV.");
     }
   };
