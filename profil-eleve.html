@@ -110,6 +110,10 @@
   .chart-box h3 { font-size: 16px; margin-bottom: 15px; color: var(--ink); }
   .chart-box h3 small { font-size: 12px; font-weight: normal; color: var(--slate); }
 
+  .legend-bar { display: flex; gap: 20px; justify-content: center; margin-top: 10px; font-size: 12px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-color { width: 16px; height: 16px; border-radius: 3px; }
+
   table { width: 100%; border-collapse: collapse; margin-top: 15px; }
   th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
   th { background: var(--paper); font-weight: 600; color: var(--ink); }
@@ -125,6 +129,12 @@
   .aucune-note { text-align: center; color: var(--slate); padding: 30px 0; font-style: italic; }
   .loading-spinner { text-align: center; color: var(--slate); padding: 20px 0; }
   .error-msg { text-align: center; color: #d9534f; padding: 20px 0; font-weight: bold; }
+
+  /* Style pour le résumé des notes */
+  .note-summary { display: flex; gap: 20px; flex-wrap: wrap; margin: 15px 0; padding: 15px; background: var(--paper); border-radius: 8px; }
+  .summary-item { flex: 1; min-width: 100px; text-align: center; }
+  .summary-item .value { font-size: 24px; font-weight: 700; color: var(--ink); }
+  .summary-item .label { font-size: 11px; color: var(--slate); text-transform: uppercase; }
 
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
 </style>
@@ -189,6 +199,26 @@
       </div>
     </div>
 
+    <!-- Résumé des notes -->
+    <div class="note-summary" id="note-summary" style="display:none;">
+      <div class="summary-item">
+        <div class="value" id="nb-notes">0</div>
+        <div class="label">📝 Notes</div>
+      </div>
+      <div class="summary-item">
+        <div class="value" id="meilleure-note">-</div>
+        <div class="label">⭐ Meilleure note</div>
+      </div>
+      <div class="summary-item">
+        <div class="value" id="plus-faible-note">-</div>
+        <div class="label">📉 Plus faible note</div>
+      </div>
+      <div class="summary-item">
+        <div class="value" id="moyenne-classe">-</div>
+        <div class="label">📊 Moyenne</div>
+      </div>
+    </div>
+
     <div class="filter-bar">
       <label for="annee-filter">📅 Année scolaire :</label>
       <select id="annee-filter" onchange="window.filtrerParAnnee()">
@@ -197,13 +227,21 @@
     </div>
 
     <div class="chart-row">
+      <!-- Graphique à barres horizontal -->
       <div class="chart-box">
-        <h3>🎯 Forces & Faiblesses par matière</h3>
-        <canvas id="radar-chart"></canvas>
-        <div id="radar-message" class="aucune-note" style="display:none;">Aucune donnée disponible</div>
+        <h3>📊 Performance par matière <small>(barres horizontales)</small></h3>
+        <canvas id="bar-chart"></canvas>
+        <div id="bar-message" class="aucune-note" style="display:none;">Aucune donnée disponible</div>
+        <div class="legend-bar">
+          <span class="legend-item"><span class="legend-color" style="background:#2e7d32;"></span> Excellent (≥ 16/20)</span>
+          <span class="legend-item"><span class="legend-color" style="background:#f39c12;"></span> Moyen (10-16/20)</span>
+          <span class="legend-item"><span class="legend-color" style="background:#d9534f;"></span> À améliorer (&lt; 10/20)</span>
+        </div>
       </div>
+
+      <!-- Évolution (simplifiée) -->
       <div class="chart-box">
-        <h3>📈 Évolution de la moyenne <small id="line-info"></small></h3>
+        <h3>📈 Évolution des notes</h3>
         <canvas id="line-chart"></canvas>
         <div id="line-message" class="aucune-note" style="display:none;">Aucune donnée disponible</div>
       </div>
@@ -340,7 +378,7 @@
   let allNotesData = [];
   let currentAnnee = 'toutes';
   let anneeEnCours = '';
-  let radarChart = null;
+  let barChart = null;
   let lineChart = null;
 
   function getNomMatiere(slug) {
@@ -381,9 +419,7 @@
         if (configSnap.exists()) {
           anneeEnCours = configSnap.data().year || '';
         }
-      } catch (err) {
-        console.warn("Erreur lecture année scolaire:", err.message);
-      }
+      } catch (err) {}
 
       if (!anneeEnCours) {
         const now = new Date();
@@ -473,71 +509,6 @@
     afficherDonnees();
   };
 
-  // 🔥 FONCTION OPTIMISÉE POUR LE LINE CHART
-  function agregerParMois(notes) {
-    const groupes = {};
-    notes.forEach(n => {
-      const date = n.dateObj;
-      const moisAnnee = `${date.getMonth() + 1}/${date.getFullYear()}`;
-      if (!groupes[moisAnnee]) {
-        groupes[moisAnnee] = { notes: [], date: date };
-      }
-      groupes[moisAnnee].notes.push(n);
-    });
-    
-    const result = Object.keys(groupes).sort((a, b) => {
-      const [ma, aa] = a.split('/');
-      const [mb, ab] = b.split('/');
-      return new Date(aa, ma-1, 1) - new Date(ab, mb-1, 1);
-    });
-    
-    return result.map(key => {
-      const groupe = groupes[key];
-      const moyennes = groupe.notes.map(n => (n.note / n.bareme) * 20);
-      const moyenne = moyennes.reduce((sum, v) => sum + v, 0) / moyennes.length;
-      const mois = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'][groupe.date.getMonth()];
-      const annee = groupe.date.getFullYear();
-      return {
-        label: `${mois} ${annee}`,
-        moyenne: Math.round(moyenne * 10) / 10,
-        nbNotes: groupe.notes.length
-      };
-    });
-  }
-
-  function agregerParSemaine(notes) {
-    const groupes = {};
-    notes.forEach(n => {
-      const date = n.dateObj;
-      const semaine = getSemaine(date);
-      const key = `${date.getFullYear()}-W${semaine}`;
-      if (!groupes[key]) {
-        groupes[key] = { notes: [], date: date };
-      }
-      groupes[key].notes.push(n);
-    });
-    
-    const result = Object.keys(groupes).sort();
-    return result.map(key => {
-      const groupe = groupes[key];
-      const moyennes = groupe.notes.map(n => (n.note / n.bareme) * 20);
-      const moyenne = moyennes.reduce((sum, v) => sum + v, 0) / moyennes.length;
-      return {
-        label: `S${getSemaine(groupe.date)}`,
-        moyenne: Math.round(moyenne * 10) / 10,
-        nbNotes: groupe.notes.length
-      };
-    });
-  }
-
-  function getSemaine(date) {
-    const d = new Date(date);
-    d.setHours(0, 0, 0, 0);
-    d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
-    const week1 = new Date(d.getFullYear(), 0, 4);
-    return 1 + Math.round(((d - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-  }
-
   function afficherDonnees() {
     const notesFiltrees = currentAnnee === 'toutes' 
       ? allNotesData 
@@ -545,32 +516,40 @@
 
     if (notesFiltrees.length === 0) {
       document.getElementById('eleve-moyenne').textContent = 'Aucune note';
-      document.getElementById('radar-chart').style.display = 'none';
-      document.getElementById('radar-message').style.display = 'block';
+      document.getElementById('note-summary').style.display = 'none';
+      document.getElementById('bar-chart').style.display = 'none';
+      document.getElementById('bar-message').style.display = 'block';
       document.getElementById('line-chart').style.display = 'none';
       document.getElementById('line-message').style.display = 'block';
-      document.getElementById('line-info').textContent = '';
       
-      if (radarChart) { radarChart.destroy(); radarChart = null; }
+      if (barChart) { barChart.destroy(); barChart = null; }
       if (lineChart) { lineChart.destroy(); lineChart = null; }
       
       document.getElementById('notes-body').innerHTML = '<tr><td colspan="6" class="aucune-note">Aucune note pour cette année scolaire.</td></tr>';
       return;
     }
 
-    document.getElementById('radar-chart').style.display = 'block';
-    document.getElementById('radar-message').style.display = 'none';
+    document.getElementById('note-summary').style.display = 'flex';
+    document.getElementById('bar-chart').style.display = 'block';
+    document.getElementById('bar-message').style.display = 'none';
     document.getElementById('line-chart').style.display = 'block';
     document.getElementById('line-message').style.display = 'none';
 
+    // Calcul des statistiques par matière
     let sommeNotes = 0;
     let nbNotes = 0;
+    let meilleure = 0;
+    let plusFaible = 20;
     const moyennesParMatiere = {};
+    const toutesNotes = [];
     
     notesFiltrees.forEach(n => {
       const noteSur20 = (n.note / n.bareme) * 20;
+      toutesNotes.push(noteSur20);
       sommeNotes += noteSur20;
       nbNotes++;
+      meilleure = Math.max(meilleure, noteSur20);
+      plusFaible = Math.min(plusFaible, noteSur20);
       
       if (!moyennesParMatiere[n.matiere]) {
         moyennesParMatiere[n.matiere] = { sum: 0, count: 0 };
@@ -581,177 +560,180 @@
     
     const moyenneGenerale = nbNotes > 0 ? sommeNotes / nbNotes : 0;
     document.getElementById('eleve-moyenne').textContent = moyenneGenerale.toFixed(1) + '/20';
-
-    genererRadarChart(moyennesParMatiere);
     
-    // 🔥 LINE CHART OPTIMISÉ : agrégation selon le nombre de notes
-    genererLineChartOptimise(notesFiltrees);
+    // Résumé
+    document.getElementById('nb-notes').textContent = nbNotes;
+    document.getElementById('meilleure-note').textContent = meilleure.toFixed(1) + '/20';
+    document.getElementById('plus-faible-note').textContent = plusFaible.toFixed(1) + '/20';
+    document.getElementById('moyenne-classe').textContent = moyenneGenerale.toFixed(1) + '/20';
+
+    // Graphique à barres horizontal
+    genererBarChartHorizontal(moyennesParMatiere);
+    
+    // Évolution (simplifiée avec barres verticales)
+    genererLineChart(notesFiltrees);
     
     afficherTableauNotes(notesFiltrees);
   }
 
-  // 🔥 NOUVELLE VERSION OPTIMISÉE DU LINE CHART
-  function genererLineChartOptimise(notes) {
+  // 🔥 GRAPHIQUE À BARRES HORIZONTAL - LE PLUS INTUITIF
+  function genererBarChartHorizontal(moyennesParMatiere) {
+    const canvas = document.getElementById('bar-chart');
+    const ctx = canvas.getContext('2d');
+    
+    if (barChart) { barChart.destroy(); barChart = null; }
+
+    // Trier les matières par moyenne (du meilleur au moins bon)
+    const sorted = Object.entries(moyennesParMatiere)
+      .map(([mat, stats]) => ({
+        matiere: mat,
+        moyenne: stats.count > 0 ? stats.sum / stats.count : 0,
+        count: stats.count
+      }))
+      .sort((a, b) => b.moyenne - a.moyenne);
+
+    const labels = sorted.map(d => d.matiere);
+    const data = sorted.map(d => Math.round(d.moyenne * 10) / 10);
+    const counts = sorted.map(d => d.count);
+
+    if (labels.length === 0) {
+      document.getElementById('bar-chart').style.display = 'none';
+      document.getElementById('bar-message').style.display = 'block';
+      return;
+    }
+
+    // Couleurs selon la note
+    const colors = data.map(val => {
+      if (val >= 16) return '#2e7d32';
+      if (val >= 10) return '#f39c12';
+      return '#d9534f';
+    });
+
+    barChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: colors,
+          borderColor: colors.map(c => c),
+          borderWidth: 1,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        indexAxis: 'y', // 🔥 BARRES HORIZONTALES
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const idx = context.dataIndex;
+                const d = sorted[idx];
+                return `Moyenne: ${d.moyenne.toFixed(1)}/20 (${d.count} note${d.count > 1 ? 's' : ''})`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            min: 0,
+            max: 20,
+            ticks: { stepSize: 5 },
+            grid: { color: 'rgba(0,0,0,0.05)' }
+          },
+          y: {
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  }
+
+  // Graphique d'évolution simplifié
+  function genererLineChart(notes) {
     const canvas = document.getElementById('line-chart');
     const ctx = canvas.getContext('2d');
-    const info = document.getElementById('line-info');
     
     if (lineChart) { lineChart.destroy(); lineChart = null; }
 
     if (notes.length === 0) {
       document.getElementById('line-chart').style.display = 'none';
       document.getElementById('line-message').style.display = 'block';
-      info.textContent = '';
       return;
     }
 
-    // Trier les notes par date
+    // Trier par date
     const notesTriees = [...notes].sort((a, b) => a.dateObj - b.dateObj);
     
-    // Déterminer le niveau d'agrégation
-    let dataPoints;
-    let labelUnite;
-    
-    if (notesTriees.length <= 10) {
-      // Peu de notes : afficher chaque note individuellement
-      dataPoints = notesTriees.map(n => ({
-        label: n.date,
-        moyenne: Math.round(((n.note / n.bareme) * 20) * 10) / 10,
-        nbNotes: 1
-      }));
-      labelUnite = '(notes individuelles)';
-    } else if (notesTriees.length <= 30) {
-      // Nombre modéré : agréger par semaine
-      dataPoints = agregerParSemaine(notesTriees);
-      labelUnite = '(moyennes hebdomadaires)';
-    } else {
-      // Beaucoup de notes : agréger par mois
-      dataPoints = agregerParMois(notesTriees);
-      labelUnite = '(moyennes mensuelles)';
+    // Si trop de notes, on prend un échantillon
+    let notesAffichees = notesTriees;
+    if (notesTriees.length > 20) {
+      const step = Math.ceil(notesTriees.length / 20);
+      notesAffichees = notesTriees.filter((_, i) => i % step === 0);
     }
 
-    info.textContent = dataPoints.length > 0 ? labelUnite : '';
+    const labels = notesAffichees.map(n => n.date);
+    const data = notesAffichees.map(n => Math.round(((n.note / n.bareme) * 20) * 10) / 10);
 
-    if (dataPoints.length === 0) {
-      document.getElementById('line-chart').style.display = 'none';
-      document.getElementById('line-message').style.display = 'block';
-      info.textContent = '';
-      return;
-    }
-
-    const labels = dataPoints.map(d => d.label);
-    const data = dataPoints.map(d => d.moyenne);
-
-    try {
-      lineChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Moyenne / 20',
-            data: data,
-            borderColor: 'rgba(27, 42, 74, 1)',
-            backgroundColor: 'rgba(27, 42, 74, 0.08)',
-            borderWidth: 2,
-            tension: 0.3,
-            fill: true,
-            pointBackgroundColor: 'rgba(168, 133, 63, 1)',
-            pointBorderColor: '#fff',
-            pointRadius: labels.length > 15 ? 3 : 5,
-            pointHoverRadius: 7
-          }]
-        },
-        options: {
-          scales: {
-            y: { 
-              beginAtZero: true, 
-              max: 20,
-              ticks: { stepSize: 5 }
-            },
-            x: {
-              ticks: {
-                maxRotation: 45,
-                minRotation: 0,
-                autoSkip: true,
-                maxTicksLimit: 15
-              }
-            }
-          },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  const idx = context.dataIndex;
-                  const point = dataPoints[idx];
-                  let label = `Moyenne: ${context.parsed.y.toFixed(1)}/20`;
-                  if (point && point.nbNotes > 1) {
-                    label += ` (${point.nbNotes} notes)`;
-                  }
-                  return label;
-                }
-              }
-            }
-          },
-          responsive: true,
-          maintainAspectRatio: true
-        }
-      });
-    } catch (error) {
-      console.error("❌ Erreur line chart:", error);
-    }
-  }
-
-  function genererRadarChart(moyennesParMatiere) {
-    const canvas = document.getElementById('radar-chart');
-    const ctx = canvas.getContext('2d');
-    
-    if (radarChart) { radarChart.destroy(); radarChart = null; }
-
-    const labels = Object.keys(moyennesParMatiere);
-    const data = labels.map(mat => {
-      const stats = moyennesParMatiere[mat];
-      return stats.count > 0 ? parseFloat((stats.sum / stats.count).toFixed(1)) : 0;
+    // Couleur des points selon la note
+    const pointColors = data.map(val => {
+      if (val >= 16) return '#2e7d32';
+      if (val >= 10) return '#f39c12';
+      return '#d9534f';
     });
 
-    if (labels.length === 0) {
-      document.getElementById('radar-chart').style.display = 'none';
-      document.getElementById('radar-message').style.display = 'block';
-      return;
-    }
-
-    try {
-      radarChart = new Chart(ctx, {
-        type: 'radar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Moyenne / 20',
-            data: data,
-            backgroundColor: 'rgba(168, 133, 63, 0.2)',
-            borderColor: 'rgba(168, 133, 63, 1)',
-            pointBackgroundColor: 'rgba(168, 133, 63, 1)',
-            pointBorderColor: '#fff',
-            pointHoverBackgroundColor: '#fff',
-            pointHoverBorderColor: 'rgba(168, 133, 63, 1)'
-          }]
-        },
-        options: {
-          scales: {
-            r: {
-              beginAtZero: true,
-              max: 20,
-              ticks: { stepSize: 5 }
+    lineChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          borderColor: 'rgba(27, 42, 74, 0.3)',
+          backgroundColor: 'rgba(27, 42, 74, 0.05)',
+          borderWidth: 1.5,
+          tension: 0.3,
+          fill: false,
+          pointBackgroundColor: pointColors,
+          pointBorderColor: '#fff',
+          pointRadius: 5,
+          pointHoverRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const idx = context.dataIndex;
+                const n = notesAffichees[idx];
+                return `Note: ${n.note}/${n.bareme} (${data[idx].toFixed(1)}/20) - ${n.matiere}`;
+              }
             }
+          }
+        },
+        scales: {
+          y: {
+            min: 0,
+            max: 20,
+            ticks: { stepSize: 5 }
           },
-          plugins: { legend: { display: false } },
-          responsive: true,
-          maintainAspectRatio: true
+          x: {
+            ticks: {
+              maxRotation: 45,
+              minRotation: 0,
+              autoSkip: true,
+              maxTicksLimit: 15
+            }
+          }
         }
-      });
-    } catch (error) {
-      console.error("❌ Erreur radar:", error);
-    }
+      }
+    });
   }
 
   function afficherTableauNotes(notes) {
@@ -763,9 +745,7 @@
       return;
     }
 
-    const notesTriees = [...notes].sort((a, b) => {
-      return b.dateObj - a.dateObj;
-    });
+    const notesTriees = [...notes].sort((a, b) => b.dateObj - a.dateObj);
 
     notesTriees.forEach(n => {
       const pourcentage = (n.note / n.bareme) * 100;
