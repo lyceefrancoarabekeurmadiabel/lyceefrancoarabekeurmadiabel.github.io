@@ -111,8 +111,9 @@
 
   .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
   @media (max-width: 768px) { .chart-row { grid-template-columns: 1fr; } }
-  .chart-box { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 20px; }
+  .chart-box { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 20px; min-height: 300px; position: relative; }
   .chart-box h3 { font-size: 16px; margin-bottom: 15px; color: var(--ink); }
+  .chart-box canvas { width: 100% !important; max-height: 280px; }
 
   table { width: 100%; border-collapse: collapse; margin-top: 15px; }
   th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
@@ -128,6 +129,7 @@
   .btn-retour-user { background: var(--brass); color: #fff; }
 
   .aucune-note { text-align: center; color: var(--slate); padding: 30px 0; font-style: italic; }
+  .loading-spinner { text-align: center; color: var(--slate); padding: 20px 0; }
 
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
 </style>
@@ -147,7 +149,7 @@
       <ul id="main-menu">
         <li><a href="index.html">Accueil</a></li>
         
-        <!-- MENU DÉROULANT ADMIN (visible uniquement pour les admins) -->
+        <!-- MENU DÉROULANT ADMIN -->
         <li class="admin-item">
           <span class="admin-trigger" style="display: flex; align-items: center; gap: 5px; justify-content: center;">⚙️ Admin</span>
           <div class="admin-dropdown">
@@ -209,10 +211,12 @@
       <div class="chart-box">
         <h3>🎯 Forces & Faiblesses par matière</h3>
         <canvas id="radar-chart"></canvas>
+        <div id="radar-message" class="aucune-note" style="display:none;">Aucune donnée disponible</div>
       </div>
       <div class="chart-box">
         <h3>📈 Évolution de la moyenne</h3>
         <canvas id="line-chart"></canvas>
+        <div id="line-message" class="aucune-note" style="display:none;">Aucune donnée disponible</div>
       </div>
     </div>
 
@@ -230,18 +234,16 @@
             <th>Statut</th>
           </tr>
         </thead>
-        <tbody>
-          <tr><td colspan="6">Chargement...</td></tr>
+        <tbody id="notes-body">
+          <tr><td colspan="6" class="loading-spinner">⏳ Chargement des notes...</td></tr>
         </tbody>
       </table>
     </div>
 
-    <!-- Bouton retour UNIQUEMENT pour les admins (affiché dynamiquement) -->
+    <!-- Boutons retour -->
     <div id="admin-back-button" style="display:none;">
       <a href="admin-gestion.html" class="btn-retour-admin">← Retour à la Gestion</a>
     </div>
-
-    <!-- Bouton retour pour l'élève/professeur -->
     <div id="user-back-button" style="display:none;">
       <a href="ressources.html" class="btn-retour-user">← Retour aux Ressources</a>
     </div>
@@ -249,11 +251,13 @@
 </div>
 
 <footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, doc, getDoc, getDocs, collection, collectionGroup, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, getDocs, collection, collectionGroup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+  // Configuration Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
     authDomain: "lfakm-87dec.firebaseapp.com",
@@ -300,12 +304,10 @@
       link.textContent = "Déconnexion";
       link.onclick = () => signOut(auth).then(() => location.reload());
       
-      // Affiche le menu déroulant Admin uniquement pour les admins
       if (profile.role === 'admin' || profile.role === 'proviseur' || profile.role === 'censeur') {
         document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
       }
 
-      // Afficher le bouton retour selon le rôle
       if (profile.role === 'admin' || profile.role === 'proviseur' || profile.role === 'censeur') {
         document.getElementById('admin-back-button').style.display = 'block';
       } else {
@@ -339,150 +341,193 @@
     document.body.appendChild(overlay);
   };
 
-  // Récupérer l'ID de l'élève depuis l'URL (ex: profil-eleve.html?uid=xxxx)
+  // Récupérer l'ID de l'élève depuis l'URL
   const urlParams = new URLSearchParams(window.location.search);
   const eleveUid = urlParams.get('uid');
 
   if (!eleveUid) {
-    alert("Aucun élève sélectionné. Veuillez revenir à la gestion des utilisateurs et cliquer sur un élève.");
-    window.location.href = "admin-gestion.html";
+    document.getElementById('eleve-nom').textContent = '❌ Aucun élève sélectionné';
+    document.getElementById('eleve-classe').textContent = '-';
+    document.getElementById('eleve-ine').textContent = '-';
+    document.getElementById('eleve-moyenne').textContent = '-';
+    document.getElementById('notes-body').innerHTML = '<tr><td colspan="6" class="aucune-note">Veuillez revenir à la gestion des utilisateurs et cliquer sur un élève.</td></tr>';
+    throw new Error("Aucun UID fourni dans l'URL");
   }
 
-  // Variable globale pour stocker les notes par année
+  // Variables globales
   let allNotesData = [];
   let currentAnnee = 'toutes';
   let anneeEnCours = '';
+  let radarChart = null;
+  let lineChart = null;
 
-  // Fonction principale pour charger les données de l'élève
-  async function chargerProfilEleve() {
-    const userSnap = await getDoc(doc(db, 'utilisateurs', eleveUid));
-    if (!userSnap.exists()) {
-      alert("Élève introuvable.");
-      return;
-    }
-
-    const eleve = userSnap.data();
-    
-    // Afficher les informations de base
-    document.getElementById('eleve-nom').textContent = `${eleve.prenom} ${eleve.nom}`;
-    document.getElementById('eleve-classe').textContent = eleve.niveau || 'Non définie';
-    document.getElementById('eleve-ine').textContent = eleve.ine || 'Non défini';
-
-    // 1. Récupérer l'année scolaire EN COURS depuis Firestore (prioritaire)
-    try {
-      const configSnap = await getDoc(doc(db, 'config', 'schoolYear'));
-      if (configSnap.exists()) {
-        anneeEnCours = configSnap.data().year || '';
-      }
-    } catch (err) {
-      console.warn("Impossible de lire l'année scolaire :", err.message);
-    }
-
-    // 2. Si l'année n'est pas trouvée, calculer par défaut
-    if (!anneeEnCours) {
-      const now = new Date();
-      const anneeActuelle = now.getFullYear();
-      anneeEnCours = now.getMonth() >= 8 ? `${anneeActuelle}-${anneeActuelle + 1}` : `${anneeActuelle - 1}-${anneeActuelle}`;
-    }
-
-    // 3. Récupérer toutes les notes de l'élève
-    allNotesData = [];
-    
-    // Récupérer tous les devoirs
-    const devoirsSnap = await getDocs(collectionGroup(db, 'devoirs'));
-    
-    for (const devDoc of devoirsSnap.docs) {
-      const dv = devDoc.data();
-      const parentSlug = devDoc.ref.parent.parent.id;
-      const dashIndex = parentSlug.indexOf('-');
-      const levelId = dashIndex === -1 ? parentSlug : parentSlug.substring(0, dashIndex);
-      const matSlug = dashIndex === -1 ? '' : parentSlug.substring(dashIndex + 1);
-      
-      // Récupérer le rendu de CET élève pour CE devoir
-      const renduSnap = await getDoc(doc(db, 'ressources', parentSlug, 'devoirs', devDoc.id, 'rendus', eleveUid));
-      
-      if (renduSnap.exists()) {
-        const rendu = renduSnap.data();
-        if (typeof rendu.note === 'number') {
-          const matName = getNomMatiere(matSlug);
-          const dateStr = dv.date?.toDate ? dv.date.toDate().toLocaleDateString('fr-FR') : 'Date inconnue';
-          
-          // Déterminer l'année scolaire à partir de la date du devoir
-          const dateObj = dv.date?.toDate ? dv.date.toDate() : new Date();
-          const mois = dateObj.getMonth();
-          const annee = dateObj.getFullYear();
-          // Si mois >= 8 (septembre), c'est le début de l'année scolaire
-          const anneeScolaire = mois >= 8 ? `${annee}-${annee + 1}` : `${annee - 1}-${annee}`;
-          
-          allNotesData.push({
-            matiere: matName,
-            titre: dv.titre,
-            date: dateStr,
-            note: rendu.note,
-            bareme: dv.bareme || 20,
-            anneeScolaire: anneeScolaire
-          });
-        }
-      }
-    }
-
-    // 4. Remplir le filtre des années scolaires
-    const anneeFilter = document.getElementById('annee-filter');
-    const annees = Array.from(new Set(allNotesData.map(n => n.anneeScolaire))).sort();
-    
-    // Vider les options actuelles
-    anneeFilter.innerHTML = '<option value="toutes">📅 Toutes les années</option>';
-    
-    // Ajouter d'abord l'année en cours (si elle existe ou si on a des notes)
-    const optionAnneeEnCours = document.createElement('option');
-    optionAnneeEnCours.value = anneeEnCours;
-    optionAnneeEnCours.textContent = anneeEnCours + ' (Année en cours)';
-    optionAnneeEnCours.selected = true;
-    anneeFilter.appendChild(optionAnneeEnCours);
-    
-    // Ajouter les autres années (si elles existent)
-    annees.forEach(annee => {
-      if (annee !== anneeEnCours) {
-        const option = document.createElement('option');
-        option.value = annee;
-        option.textContent = annee;
-        anneeFilter.appendChild(option);
-      }
-    });
-
-    // 5. Définir l'année par défaut et afficher les données
-    currentAnnee = anneeEnCours;
-    afficherDonnees();
+  // Mapping des matières
+  function getNomMatiere(slug) {
+    const matNameBySlug = {
+      'mathmatiques': 'Mathématiques',
+      'franais': 'Français',
+      'anglais': 'Anglais',
+      'arabe': 'Arabe',
+      'svt': 'SVT',
+      'physiquechimie': 'Physique-Chimie',
+      'histoirego': 'Histoire-Géo',
+      'eps': 'EPS',
+      'ducationreligieuse': 'Éducation Religieuse',
+      'philosophie': 'Philosophie'
+    };
+    return matNameBySlug[slug] || slug;
   }
 
-  // Fonction pour filtrer par année scolaire
+  // Fonction principale pour charger les données
+  async function chargerProfilEleve() {
+    try {
+      // Récupérer les infos de l'élève
+      const userSnap = await getDoc(doc(db, 'utilisateurs', eleveUid));
+      if (!userSnap.exists()) {
+        document.getElementById('eleve-nom').textContent = '❌ Élève introuvable';
+        document.getElementById('notes-body').innerHTML = '<tr><td colspan="6" class="aucune-note">Cet élève n\'existe pas dans la base.</td></tr>';
+        return;
+      }
+
+      const eleve = userSnap.data();
+      
+      // Afficher les informations de base
+      document.getElementById('eleve-nom').textContent = `${eleve.prenom} ${eleve.nom}`;
+      document.getElementById('eleve-classe').textContent = eleve.niveau || 'Non définie';
+      document.getElementById('eleve-ine').textContent = eleve.ine || 'Non défini';
+
+      // 1. Récupérer l'année scolaire en cours
+      try {
+        const configSnap = await getDoc(doc(db, 'config', 'schoolYear'));
+        if (configSnap.exists()) {
+          anneeEnCours = configSnap.data().year || '';
+        }
+      } catch (err) {
+        console.warn("Impossible de lire l'année scolaire :", err.message);
+      }
+
+      if (!anneeEnCours) {
+        const now = new Date();
+        const anneeActuelle = now.getFullYear();
+        anneeEnCours = now.getMonth() >= 8 ? `${anneeActuelle}-${anneeActuelle + 1}` : `${anneeActuelle - 1}-${anneeActuelle}`;
+      }
+
+      // 2. Récupérer toutes les notes de l'élève
+      allNotesData = [];
+      
+      const devoirsSnap = await getDocs(collectionGroup(db, 'devoirs'));
+      
+      for (const devDoc of devoirsSnap.docs) {
+        const dv = devDoc.data();
+        const parentSlug = devDoc.ref.parent.parent.id;
+        const dashIndex = parentSlug.indexOf('-');
+        const matSlug = dashIndex === -1 ? '' : parentSlug.substring(dashIndex + 1);
+        
+        const renduSnap = await getDoc(doc(db, 'ressources', parentSlug, 'devoirs', devDoc.id, 'rendus', eleveUid));
+        
+        if (renduSnap.exists()) {
+          const rendu = renduSnap.data();
+          if (typeof rendu.note === 'number') {
+            const matName = getNomMatiere(matSlug);
+            const dateStr = dv.date?.toDate ? dv.date.toDate().toLocaleDateString('fr-FR') : 'Date inconnue';
+            
+            const dateObj = dv.date?.toDate ? dv.date.toDate() : new Date();
+            const mois = dateObj.getMonth();
+            const annee = dateObj.getFullYear();
+            const anneeScolaire = mois >= 8 ? `${annee}-${annee + 1}` : `${annee - 1}-${annee}`;
+            
+            allNotesData.push({
+              matiere: matName || matSlug,
+              titre: dv.titre || 'Devoir',
+              date: dateStr,
+              note: rendu.note,
+              bareme: dv.bareme || 20,
+              anneeScolaire: anneeScolaire
+            });
+          }
+        }
+      }
+
+      // 3. Remplir le filtre des années
+      const anneeFilter = document.getElementById('annee-filter');
+      const annees = Array.from(new Set(allNotesData.map(n => n.anneeScolaire))).sort();
+      
+      anneeFilter.innerHTML = '<option value="toutes">📅 Toutes les années</option>';
+      
+      if (annees.length > 0) {
+        // Si l'année en cours existe dans les données, on la sélectionne
+        const anneeExistante = annees.includes(anneeEnCours);
+        const anneeParDefaut = anneeExistante ? anneeEnCours : annees[0];
+        
+        annees.forEach(annee => {
+          const option = document.createElement('option');
+          option.value = annee;
+          const estAnneeEnCours = annee === anneeEnCours;
+          option.textContent = annee + (estAnneeEnCours ? ' (Année en cours)' : '');
+          if (annee === anneeParDefaut) {
+            option.selected = true;
+          }
+          anneeFilter.appendChild(option);
+        });
+        
+        currentAnnee = anneeParDefaut;
+      } else {
+        // Aucune note - on garde l'année en cours comme sélection
+        const option = document.createElement('option');
+        option.value = anneeEnCours;
+        option.textContent = anneeEnCours + ' (Année en cours)';
+        option.selected = true;
+        anneeFilter.appendChild(option);
+        currentAnnee = anneeEnCours;
+      }
+
+      // 4. Afficher les données
+      afficherDonnees();
+
+    } catch (error) {
+      console.error("Erreur lors du chargement :", error);
+      document.getElementById('eleve-nom').textContent = '❌ Erreur de chargement';
+      document.getElementById('notes-body').innerHTML = `<tr><td colspan="6" class="aucune-note">Erreur : ${error.message}</td></tr>`;
+    }
+  }
+
+  // Fonction pour filtrer par année
   window.filtrerParAnnee = () => {
     currentAnnee = document.getElementById('annee-filter').value;
     afficherDonnees();
   };
 
-  // Fonction pour afficher les données (graphiques + tableau)
+  // Fonction pour afficher les données
   function afficherDonnees() {
-    // Filtrer les données selon l'année sélectionnée
     const notesFiltrees = currentAnnee === 'toutes' 
       ? allNotesData 
       : allNotesData.filter(n => n.anneeScolaire === currentAnnee);
 
-    // Vérifier si on a des notes
+    // Mettre à jour la moyenne
     if (notesFiltrees.length === 0) {
       document.getElementById('eleve-moyenne').textContent = 'Aucune note';
       
-      // Afficher un message dans les graphiques
-      afficherMessageGraphique('radar-chart', 'Aucune note pour cette année');
-      afficherMessageGraphique('line-chart', 'Aucune note pour cette année');
+      // Cacher les graphiques et afficher les messages
+      document.getElementById('radar-chart').style.display = 'none';
+      document.getElementById('radar-message').style.display = 'block';
+      document.getElementById('line-chart').style.display = 'none';
+      document.getElementById('line-message').style.display = 'block';
       
-      // Tableau vide
-      const tbody = document.querySelector('#notes-table tbody');
-      tbody.innerHTML = '<tr><td colspan="6" class="aucune-note">Aucune note pour cette année scolaire.</td></tr>';
+      // Détruire les anciens graphiques
+      if (radarChart) { radarChart.destroy(); radarChart = null; }
+      if (lineChart) { lineChart.destroy(); lineChart = null; }
+      
+      document.getElementById('notes-body').innerHTML = '<tr><td colspan="6" class="aucune-note">Aucune note pour cette année scolaire.</td></tr>';
       return;
     }
 
-    // Calculer la moyenne générale
+    // Afficher les graphiques
+    document.getElementById('radar-chart').style.display = 'block';
+    document.getElementById('radar-message').style.display = 'none';
+    document.getElementById('line-chart').style.display = 'block';
+    document.getElementById('line-message').style.display = 'none';
+
+    // Calculer les statistiques
     let sommeNotes = 0;
     let nbNotes = 0;
     const moyennesParMatiere = {};
@@ -502,83 +547,32 @@
     const moyenneGenerale = nbNotes > 0 ? sommeNotes / nbNotes : 0;
     document.getElementById('eleve-moyenne').textContent = moyenneGenerale.toFixed(1) + '/20';
 
-    // Générer le graphique radar (forces & faiblesses)
+    // Générer les graphiques
     genererRadarChart(moyennesParMatiere);
-
-    // Générer le graphique en ligne (évolution de la moyenne par date)
     genererLineChart(notesFiltrees);
-
-    // Afficher le tableau détaillé des notes
     afficherTableauNotes(notesFiltrees);
   }
 
-  // Fonction pour afficher un message dans un canvas
-  function afficherMessageGraphique(canvasId, message) {
-    const canvas = document.getElementById(canvasId);
-    const ctx = canvas.getContext('2d');
-    const parent = canvas.parentElement;
-    
-    // Supprimer le canvas existant
-    const existingMsg = parent.querySelector('.msg-absence');
-    if (existingMsg) existingMsg.remove();
-    
-    // Supprimer l'ancien graphique s'il existe
-    if (canvasId === 'radar-chart' && window.radarChart) {
-      window.radarChart.destroy();
-      window.radarChart = null;
-    } else if (canvasId === 'line-chart' && window.lineChart) {
-      window.lineChart.destroy();
-      window.lineChart = null;
-    }
-    
-    // Afficher un message
-    const msg = document.createElement('div');
-    msg.className = 'msg-absence';
-    msg.style.cssText = 'text-align:center;color:var(--slate);padding:30px 0;font-style:italic;';
-    msg.textContent = message;
-    parent.appendChild(msg);
-  }
-
-  // Fonction pour obtenir le nom complet de la matière à partir du slug
-  function getNomMatiere(slug) {
-    const matNameBySlug = {
-      'mathmatiques': 'Mathématiques',
-      'franais': 'Français',
-      'anglais': 'Anglais',
-      'arabe': 'Arabe',
-      'svt': 'SVT',
-      'physiquechimie': 'Physique-Chimie',
-      'histoirego': 'Histoire-Géo',
-      'eps': 'EPS',
-      'ducationreligieuse': 'Éducation Religieuse',
-      'philosophie': 'Philosophie'
-    };
-    return matNameBySlug[slug] || slug;
-  }
-
-  // Fonction pour générer le graphique radar
+  // Graphique radar
   function genererRadarChart(moyennesParMatiere) {
     const canvas = document.getElementById('radar-chart');
-    const parent = canvas.parentElement;
-    
-    // Supprimer les anciens messages
-    const existingMsg = parent.querySelector('.msg-absence');
-    if (existingMsg) existingMsg.remove();
-    
     const ctx = canvas.getContext('2d');
     
-    if (window.radarChart) {
-      window.radarChart.destroy();
-      window.radarChart = null;
-    }
+    if (radarChart) { radarChart.destroy(); radarChart = null; }
 
     const labels = Object.keys(moyennesParMatiere);
     const data = labels.map(mat => {
       const stats = moyennesParMatiere[mat];
-      return stats.count > 0 ? (stats.sum / stats.count).toFixed(1) : 0;
+      return stats.count > 0 ? parseFloat((stats.sum / stats.count).toFixed(1)) : 0;
     });
 
-    window.radarChart = new Chart(ctx, {
+    if (labels.length === 0) {
+      document.getElementById('radar-chart').style.display = 'none';
+      document.getElementById('radar-message').style.display = 'block';
+      return;
+    }
+
+    radarChart = new Chart(ctx, {
       type: 'radar',
       data: {
         labels: labels,
@@ -602,28 +596,25 @@
           }
         },
         plugins: {
-          legend: {
-            display: false
-          }
-        }
+          legend: { display: false }
+        },
+        responsive: true,
+        maintainAspectRatio: true
       }
     });
   }
 
-  // Fonction pour générer le graphique en ligne (évolution)
+  // Graphique en ligne
   function genererLineChart(notes) {
     const canvas = document.getElementById('line-chart');
-    const parent = canvas.parentElement;
-    
-    // Supprimer les anciens messages
-    const existingMsg = parent.querySelector('.msg-absence');
-    if (existingMsg) existingMsg.remove();
-    
     const ctx = canvas.getContext('2d');
     
-    if (window.lineChart) {
-      window.lineChart.destroy();
-      window.lineChart = null;
+    if (lineChart) { lineChart.destroy(); lineChart = null; }
+
+    if (notes.length === 0) {
+      document.getElementById('line-chart').style.display = 'none';
+      document.getElementById('line-message').style.display = 'block';
+      return;
     }
 
     // Regrouper par date
@@ -634,7 +625,6 @@
     });
 
     const dates = Object.keys(notesParDate).sort((a, b) => {
-      // Trier par date (format: jj/mm/aaaa)
       const [da, ma, aa] = a.split('/');
       const [db, mb, ab] = b.split('/');
       return new Date(aa, ma-1, da) - new Date(ab, mb-1, db);
@@ -645,13 +635,13 @@
       return notesList.reduce((acc, n) => acc + n, 0) / notesList.length;
     });
 
-    // Si une seule date, le graphique en ligne ne s'affiche pas bien, on affiche un point
     if (dates.length === 0) {
-      afficherMessageGraphique('line-chart', 'Pas assez de données pour l\'évolution');
+      document.getElementById('line-chart').style.display = 'none';
+      document.getElementById('line-message').style.display = 'block';
       return;
     }
 
-    window.lineChart = new Chart(ctx, {
+    lineChart = new Chart(ctx, {
       type: 'line',
       data: {
         labels: dates,
@@ -672,17 +662,17 @@
           y: { beginAtZero: true, max: 20 }
         },
         plugins: {
-          legend: {
-            display: false
-          }
-        }
+          legend: { display: false }
+        },
+        responsive: true,
+        maintainAspectRatio: true
       }
     });
   }
 
-  // Fonction pour afficher le tableau détaillé des notes
+  // Tableau des notes
   function afficherTableauNotes(notes) {
-    const tbody = document.querySelector('#notes-table tbody');
+    const tbody = document.getElementById('notes-body');
     tbody.innerHTML = '';
 
     if (notes.length === 0) {
@@ -690,7 +680,7 @@
       return;
     }
 
-    // Trier les notes par date (du plus récent au plus ancien)
+    // Trier par date (du plus récent au plus ancien)
     const notesTriees = [...notes].sort((a, b) => {
       const [da, ma, aa] = a.date.split('/');
       const [db, mb, ab] = b.date.split('/');
@@ -702,7 +692,7 @@
       let colorClass = 'moyen';
       let statut = 'Moyen';
       if (pourcentage >= 80) { colorClass = 'excellent'; statut = 'Excellent'; }
-      if (pourcentage < 50) { colorClass = 'faible'; statut = 'Faible'; }
+      else if (pourcentage < 50) { colorClass = 'faible'; statut = 'Faible'; }
 
       tbody.innerHTML += `<tr>
         <td>${escapeHtml(n.matiere)}</td>
@@ -715,7 +705,7 @@
     });
   }
 
-  // Charger le profil de l'élève au démarrage
+  // Lancer le chargement
   chargerProfilEleve();
 </script>
 </body>
