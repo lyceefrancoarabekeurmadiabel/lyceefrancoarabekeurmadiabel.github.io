@@ -350,6 +350,7 @@
   // Variable globale pour stocker les notes par année
   let allNotesData = [];
   let currentAnnee = 'toutes';
+  let anneeEnCours = '';
 
   // Fonction principale pour charger les données de l'élève
   async function chargerProfilEleve() {
@@ -365,6 +366,12 @@
     document.getElementById('eleve-nom').textContent = `${eleve.prenom} ${eleve.nom}`;
     document.getElementById('eleve-classe').textContent = eleve.niveau || 'Non définie';
     document.getElementById('eleve-ine').textContent = eleve.ine || 'Non défini';
+
+    // Récupérer l'année scolaire en cours depuis Firestore
+    const configSnap = await getDoc(doc(db, 'config', 'schoolYear'));
+    if (configSnap.exists()) {
+      anneeEnCours = configSnap.data().year || '';
+    }
 
     // Récupérer toutes les notes de l'élève
     allNotesData = [];
@@ -412,14 +419,28 @@
     const annees = Array.from(new Set(allNotesData.map(n => n.anneeScolaire))).sort();
     
     anneeFilter.innerHTML = '<option value="toutes">Toutes les années</option>';
-    annees.forEach(annee => {
+    
+    // Ajouter l'année en cours en premier (si elle existe)
+    if (anneeEnCours) {
       const option = document.createElement('option');
-      option.value = annee;
-      option.textContent = annee;
+      option.value = anneeEnCours;
+      option.textContent = anneeEnCours + ' (Année en cours)';
+      option.selected = true;
       anneeFilter.appendChild(option);
+      currentAnnee = anneeEnCours;
+    }
+    
+    // Ajouter les autres années
+    annees.forEach(annee => {
+      if (annee !== anneeEnCours) {
+        const option = document.createElement('option');
+        option.value = annee;
+        option.textContent = annee;
+        anneeFilter.appendChild(option);
+      }
     });
 
-    // Afficher les données (toutes les années)
+    // Afficher les données (année en cours par défaut)
     afficherDonnees();
   }
 
