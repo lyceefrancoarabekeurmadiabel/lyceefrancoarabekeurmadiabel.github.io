@@ -316,11 +316,19 @@
   const db = getFirestore(app);
 
   let profile = null;
+  let aiModel = null;
+  let aiChatSession = null;
 
-  function isAdmin(role) {
-    return role === 'admin' || role === 'proviseur' || role === 'censeur';
-  }
+  try {
+    const { getAI, getGenerativeModel, GoogleAIBackend } = await import("https://www.gstatic.com/firebasejs/12.17.1/firebase-ai.js");
+    const ai = getAI(app, { backend: new GoogleAIBackend() });
+    aiModel = getGenerativeModel(ai, {
+      model: "gemini-3.6-flash",
+      systemInstruction: "Tu es l'assistant virtuel du site du Lycée Franco Arabe de Keur Madiabel (LFAKM)."
+    });
+  } catch (e) { console.warn('Assistant IA désactivé'); }
 
+  function isAdmin(role) { return role === 'admin' || role === 'proviseur' || role === 'censeur'; }
   function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str ?? '';
@@ -382,6 +390,7 @@
     }
   };
 
+  // ============ AUTH ============
   onAuthStateChanged(auth, async (user) => {
     const contentArea = document.getElementById('content-area');
     if (user) {
@@ -409,20 +418,22 @@
         document.getElementById('auth-link').textContent = "Déconnexion";
         document.getElementById('auth-link').onclick = () => signOut(auth).then(() => window.location.reload());
 
-        // NOUVEAU : Afficher le lien feedback selon le rôle
+        // Afficher le lien feedback selon le rôle
         const feedbackItems = document.querySelectorAll('.feedback-item');
         feedbackItems.forEach(el => {
           el.style.display = 'block';
           const link = el.querySelector('a');
-          if (isAdmin(profile.role)) {
-            link.href = 'feedback.html#tab-dashboard';
-            link.textContent = '📊 Voir les retours';
-          } else if (profile.role === 'professeur') {
-            link.href = 'feedback.html#tab-professeurs';
-            link.textContent = '📋 Donner mon avis (prof)';
-          } else if (profile.role === 'eleve') {
-            link.href = 'feedback.html#tab-eleves';
-            link.textContent = '📋 Donner mon avis (élève)';
+          if (link) {
+            if (isAdmin(profile.role)) {
+              link.href = 'feedback.html#tab-dashboard';
+              link.textContent = '📊 Voir les retours';
+            } else if (profile.role === 'professeur') {
+              link.href = 'feedback.html#tab-professeurs';
+              link.textContent = '📋 Donner mon avis (prof)';
+            } else if (profile.role === 'eleve') {
+              link.href = 'feedback.html#tab-eleves';
+              link.textContent = '📋 Donner mon avis (élève)';
+            }
           }
         });
 
@@ -457,8 +468,10 @@
     }
   });
 
+  // ============ CHARGER ÉLÈVES ============
   async function chargerMesEleves() {
     const accordeon = document.getElementById('eleves-accordeon');
+    if (!accordeon) return;
     accordeon.innerHTML = '<p style="color:gray;">Chargement des élèves...</p>';
     try {
       let classesConcernees = [];
@@ -542,11 +555,14 @@
     }
   };
 
+  // ============ STRIPS ============
   function loadDevoirsStrip() {
     const zone = document.getElementById('devoirs-strip');
     const role = profile?.role;
-    if (role !== 'eleve' && role !== 'professeur') { zone.innerHTML = ''; return; }
-
+    if (!zone || (role !== 'eleve' && role !== 'professeur')) { 
+      if (zone) zone.innerHTML = ''; 
+      return; 
+    }
     try {
       onSnapshot(query(collectionGroup(db, 'devoirs'), orderBy('date', 'desc')), (snap) => {
         const cards = [];
@@ -569,7 +585,7 @@
             <div class="dv-notif-card">
               <h4>📌 ${escapeHtml(dv.titre)}</h4>
               <span>${level ? level.name : ''}</span>
-              <span>Déposé le ${dateStr}${dv.dateLimite ? ' — à rendre pour le ' + new Date(dv.dateLimite).toLocaleDateString('fr-FR') : ''}</span>
+              <span>Déposé le ${dateStr}</span>
             </div>`);
         });
         zone.innerHTML = cards.length === 0 ? '' : `<h3>🔔 Derniers devoirs</h3><div class="actus-scroll">${cards.join('')}</div>`;
@@ -581,6 +597,7 @@
 
   function loadActusStrip() {
     const zone = document.getElementById('actus-strip');
+    if (!zone) return;
     try {
       onSnapshot(query(collection(db, 'actualites'), orderBy('date', 'desc')), (snap) => {
         const cards = [];
@@ -606,9 +623,11 @@
     }
   }
 
+  // ============ FICHE FAMILLE ============
   function renderFicheFamille() {
     const f = profile.famille || {};
     const zone = document.getElementById('fiche-famille-zone');
+    if (!zone) return;
     zone.innerHTML = `
       <details class="level" style="max-width:1100px; margin:20px auto 0;">
         <summary>👪 Ma fiche famille ${f.pereTel || f.mereTel ? '✅' : '⚠️ à compléter'} <span>+</span></summary>
@@ -644,6 +663,7 @@
     }
   };
 
+  // ============ VISIBILITÉ ============
   function applyLevelVisibility() {
     const role = profile?.role;
     const profMats = profile?.disciplines || [];
@@ -678,8 +698,7 @@
     });
   }
 
-  // ============ FONCTIONS SIMPLIFIÉES (version compatible) ============
-  
+  // ============ SYNC DOCS ============
   function syncDocs() {
     const role = profile?.role;
     const profMats = profile?.disciplines || [];
@@ -689,6 +708,7 @@
       const slug = ul.id.replace(/^cours-|^td-/, '');
       const type = ul.id.startsWith('cours-') ? 'cours' : 'td';
       
+      // Récupérer les boutons avec vérification de sécurité
       const addBtn = ul.nextElementSibling;
       const videoBtn = addBtn ? addBtn.nextElementSibling : null;
       const driveBtn = videoBtn ? videoBtn.nextElementSibling : null;
@@ -724,10 +744,13 @@
             ul.appendChild(li);
           });
         });
-      } catch (err) { console.warn('Erreur sync docs:', err.message); }
+      } catch (err) {
+        console.warn('Erreur sync docs:', err.message);
+      }
     });
   }
 
+  // ============ SYNC DEVOIRS ============
   function syncDevoirs() {
     const role = profile?.role;
     const profMats = profile?.disciplines || [];
@@ -803,10 +826,13 @@
             container.appendChild(item);
           });
         });
-      } catch (err) { console.warn('Erreur sync devoirs:', err.message); }
+      } catch (err) {
+        console.warn('Erreur sync devoirs:', err.message);
+      }
     });
   }
 
+  // ============ RENDU FICHIER ============
   function checkRendu(slug, devoirId, statusDiv) {
     const uid = auth.currentUser?.uid;
     if (!uid || !statusDiv) return;
@@ -817,7 +843,7 @@
           const d = snap.data();
           statusDiv.innerHTML = `<span class="rendu-status">✅ Devoir rendu</span> — <a href="${d.url}" target="_blank">voir mon fichier</a><br><button class="add-btn" style="display:block;margin-top:6px;" onclick="window.rendreDevoir('${slug}','${devoirId}')">Renvoyer un autre fichier</button>`;
         } else {
-          statusDiv.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir (fichier ou capture d'écran)</button>`;
+          statusDiv.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir</button>`;
         }
       });
     } catch (err) {
@@ -825,6 +851,7 @@
     }
   }
 
+  // ============ RENDU QCM ============
   function renderQcmForStudent(slug, devoirId, dv, container) {
     const uid = auth.currentUser?.uid;
     if (!uid || !container) return;
@@ -880,8 +907,10 @@
     };
   }
 
+  // ============ RENDUS ============
   function loadRendus(slug, devoirId, container, dv) {
     const bareme = dv.bareme || 20;
+    if (!container) return;
     try {
       onSnapshot(collection(db, 'ressources', slug, 'devoirs', devoirId, 'rendus'), (snap) => {
         if (!container) return;
@@ -918,6 +947,7 @@
     }
   }
 
+  // ============ EXPORT NOTES ============
   async function exportNotes(slug, devoirId, dv) {
     const bareme = dv.bareme || 20;
     const niveauId = slug.split('-')[0];
@@ -951,6 +981,7 @@
     }
   }
 
+  // ============ CRÉATION DEVOIR ============
   let currentDevoirSlug = null;
   let qcmQuestionCount = 0;
 
@@ -1064,6 +1095,7 @@
     document.getElementById('devoir-modal').classList.remove('show');
   };
 
+  // ============ RENDRE DEVOIR ============
   window.rendreDevoir = async (slug, devoirId) => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -1090,6 +1122,7 @@
     input.click();
   };
 
+  // ============ LOG ACTIVITÉ ============
   function logActivite(action, cible) {
     try {
       addDoc(collection(db, 'journal_activite'), {
@@ -1101,6 +1134,7 @@
     } catch (e) {}
   }
 
+  // ============ AJOUT FICHIERS ============
   window.up = async (id) => {
     const titre = prompt('Nom du document :');
     if (!titre) return;
@@ -1158,6 +1192,7 @@
     try { logActivite('création', `Lien Drive/OneDrive "${titre}" (${slug})`); } catch(e) {}
   };
 
+  // ============ CONTACT ============
   window.showContact = async () => {
     const snap = await getDoc(doc(db, 'config', 'contact'));
     if (!snap.exists() || !snap.data().email) {
@@ -1178,8 +1213,10 @@
     document.body.appendChild(overlay);
   };
 
+  // ============ BURGER MENU ============
   document.getElementById('burger-btn').onclick = () => document.getElementById('menu').classList.toggle('show');
 
+  // ============ AI CHAT ============
   const aiPanel = document.getElementById('ai-chat-panel');
   const aiMessages = document.getElementById('ai-chat-messages');
   const aiInput = document.getElementById('ai-chat-input');
@@ -1222,6 +1259,7 @@
     aiInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendAiMessage(); });
   }
 
+  // ============ RECHERCHE ============
   document.getElementById('search-bar').oninput = (e) => {
     const t = e.target.value.toLowerCase();
     document.querySelectorAll('.subject').forEach(s => {
