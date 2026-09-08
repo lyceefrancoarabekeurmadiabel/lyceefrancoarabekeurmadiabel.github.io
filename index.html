@@ -20,7 +20,6 @@
   body { font-family: var(--sans); color: var(--text); background: #f9f7f2; line-height:1.55; }
   .wrap { max-width:1100px; margin:0 auto; padding:0 24px; }
 
-  /* HEADER */
   header { background: var(--paper); border-bottom: 1px solid var(--line); height: 84px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1000; }
   .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; }
   .brand { display:flex; align-items:center; gap:12px; text-decoration: none; min-width: 0; }
@@ -32,7 +31,6 @@
   nav a { font-size:14px; font-weight:600; color:var(--ink); text-decoration: none; }
   nav a:hover, nav a.active { color: var(--brass); }
 
-  /* MENU DÉROULANT ADMIN */
   .admin-item { display: none; position: relative; }
   .admin-dropdown {
     display: none;
@@ -71,7 +69,6 @@
     margin: 0;
   }
 
-  /* PROFIL ET CONTACT SUR DEUX LIGNES */
   .profile-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 13px; }
   .profile-name { font-weight: 700; color: var(--brass); font-size: 14px; }
   .profile-role { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -79,10 +76,20 @@
   .contact-label { font-weight: 600; color: var(--ink); }
   .contact-phone { font-size: 12px; color: var(--brass); font-weight: 700; }
 
-  /* PROFIL UTILISATEUR */
   #user-profile { display: none; font-weight: 700; color: var(--brass); font-size: 14px; }
   .nav-cta { background: var(--ink-deep); color:#fff; padding:10px 18px; border-radius:4px; font-size:13px; font-weight:600; text-decoration:none; border:none; cursor:pointer; }
   .menu-toggle { display: none; font-size: 28px; background: none; border: none; color: var(--ink); cursor: pointer; padding: 4px 8px; flex-shrink: 0; }
+
+  /* NOUVEAU : Lien Feedback */
+  .feedback-item { display: none; }
+  .feedback-link { 
+    background: var(--brass); 
+    color: #fff !important; 
+    padding: 6px 14px; 
+    border-radius: 4px; 
+    font-size: 12px;
+  }
+  .feedback-link:hover { background: #96743a; color: #fff !important; }
 
   @media (max-width: 900px) {
     .brand-name { font-size: 15px; max-width: 46vw; }
@@ -96,16 +103,13 @@
     .admin-dropdown { position: static; box-shadow: none; border: none; }
   }
 
-  /* HERO SECTION */
   .page-hero { background: var(--ink-deep); color: #fff; padding: 80px 0; text-align: center; }
   .page-hero h1 { font-family: var(--serif); font-size: clamp(32px, 5vw, 48px); margin-bottom: 20px; }
   .page-hero p { color: #C7CBD6; max-width: 700px; margin: 0 auto 30px; font-size: 18px; }
 
-  /* SECTION DE CONTENU */
   section { padding: 60px 0; }
   .section-title { font-family: var(--serif); color: var(--ink); margin-bottom: 30px; border-bottom: 2px solid var(--brass); display: inline-block; padding-bottom: 5px; font-size: 28px;}
 
-  /* GRILLE DE PRÉSENTATION */
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
   .card { background: #fff; border: 1px solid var(--line); padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: 0.3s; }
   .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
@@ -113,7 +117,6 @@
   .card p { color: var(--slate); font-size: 15px; margin-bottom: 20px; }
   .card-link { color: var(--brass); font-weight: 700; text-decoration: none; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
 
-  /* FOOTER */
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 60px 0; text-align: center; font-size: 14px; }
 </style>
 </head>
@@ -132,19 +135,25 @@
       <ul id="main-menu">
         <li><a href="index.html" class="active">Accueil</a></li>
         
-        <!-- MENU DÉROULANT ADMIN (visible uniquement pour les admins) -->
-        <li class="admin-item">
-          <span class="admin-trigger" style="display: flex; align-items: center; gap: 5px; justify-content: center;">⚙️ Admin</span>
+        <li class="admin-item" style="display:none;">
+          <span class="admin-trigger">⚙️ Admin</span>
           <div class="admin-dropdown">
             <a href="admin-ine.html">📥 Import INE</a>
             <a href="admin-gestion.html">👥 Gestion</a>
             <a href="admin-news.html">📰 Actualités</a>
+            <a href="feedback.html#tab-dashboard">📊 Retours</a>
           </div>
         </li>
 
         <li><a href="historique.html">Historique</a></li>
         <li><a href="actualites.html">Actualités</a></li>
         <li><a href="ressources.html">Ressources</a></li>
+        
+        <!-- NOUVEAU : Lien Feedback -->
+        <li class="feedback-item">
+          <a href="feedback.html" class="feedback-link">📋 Donner mon avis</a>
+        </li>
+        
         <li><a href="#" onclick="window.showContact(); return false;" class="contact-info" style="text-decoration: none;">
           <span class="contact-label">📞 Contacter le Proviseur</span>
           <span class="contact-phone" id="contact-phone-display">...</span>
@@ -189,6 +198,25 @@
   </div>
 </section>
 
+<!-- NOUVEAU : Section Feedback -->
+<section style="background: #fff; border-top: 1px solid var(--line);">
+  <div class="wrap">
+    <h2 class="section-title">📋 Participez à l'amélioration</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>📋 Donner votre avis</h3>
+        <p>Votre retour est précieux pour améliorer la plateforme. Professeurs et élèves, partagez votre expérience !</p>
+        <a href="feedback.html" class="card-link" id="feedback-home-link">Donner mon avis →</a>
+      </div>
+      <div class="card">
+        <h3>📊 Retours et Statistiques</h3>
+        <p>Consultez les retours des utilisateurs et les statistiques d'utilisation de la plateforme.</p>
+        <a href="feedback.html#tab-dashboard" class="card-link" id="dashboard-home-link">Voir le dashboard →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section style="background: #fff; border-top: 1px solid var(--line);">
     <div class="wrap" style="text-align: center;">
         <h2 class="section-title">Un Cadre d'Épanouissement</h2>
@@ -222,17 +250,18 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // Protection anti-XSS : échappe tout texte saisi par un utilisateur avant de l'insérer dans le HTML
+  function isAdmin(role) {
+    return role === 'admin' || role === 'proviseur' || role === 'censeur';
+  }
+
   function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str ?? '';
     return div.innerHTML;
   }
 
-  // Gestion du menu mobile
   document.getElementById('menu-toggle-btn').onclick = () => document.getElementById('main-menu').classList.toggle('show');
 
-  // Affichage du téléphone du Proviseur dans le header
   getDoc(doc(db, 'config', 'contact')).then(snap => {
     if (!snap.exists()) return;
     const c = snap.data();
@@ -240,36 +269,69 @@
     if (contactPhone && c.telephone) contactPhone.textContent = c.telephone;
   });
 
-  // Gestion de l'authentification (Connexion / Déconnexion / Admin)
   onAuthStateChanged(auth, async (user) => {
     const link = document.getElementById('auth-link');
     const profileSpan = document.getElementById('user-profile');
+    const feedbackItems = document.querySelectorAll('.feedback-item');
+    const feedbackHomeLink = document.getElementById('feedback-home-link');
+    const dashboardHomeLink = document.getElementById('dashboard-home-link');
     
     if (user) {
       const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
       const profile = snap.data();
       
-      // Affiche le nom et le rôle de l'utilisateur connecté
       profileSpan.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
       profileSpan.style.display = 'flex';
       
-      // Bouton Déconnexion
       link.textContent = "Déconnexion";
       link.onclick = () => signOut(auth).then(() => location.reload());
       
-      // Affiche le menu déroulant Admin uniquement pour les admins
-      if (profile.role === 'admin' || profile.role === 'proviseur' || profile.role === 'censeur') {
+      if (isAdmin(profile.role)) {
         document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
       }
+
+      // Afficher les liens feedback selon le rôle
+      feedbackItems.forEach(el => {
+        el.style.display = 'block';
+        const linkEl = el.querySelector('a');
+        if (isAdmin(profile.role)) {
+          linkEl.href = 'feedback.html#tab-dashboard';
+          linkEl.textContent = '📊 Voir les retours';
+        } else {
+          linkEl.href = 'feedback.html';
+          linkEl.textContent = '📋 Donner mon avis';
+        }
+      });
+
+      if (feedbackHomeLink) {
+        feedbackHomeLink.style.display = 'inline';
+        if (isAdmin(profile.role)) {
+          feedbackHomeLink.href = 'feedback.html#tab-dashboard';
+          feedbackHomeLink.textContent = '📊 Voir le dashboard →';
+        } else {
+          feedbackHomeLink.href = 'feedback.html';
+          feedbackHomeLink.textContent = '📋 Donner mon avis →';
+        }
+      }
+
+      if (dashboardHomeLink) {
+        if (isAdmin(profile.role)) {
+          dashboardHomeLink.style.display = 'inline';
+        } else {
+          dashboardHomeLink.style.display = 'none';
+        }
+      }
+
     } else {
-      // Visiteur non connecté
       profileSpan.style.display = 'none';
       link.textContent = "Connexion";
       link.href = "identification.html";
+      document.querySelectorAll('.feedback-item').forEach(el => el.style.display = 'none');
+      if (feedbackHomeLink) feedbackHomeLink.style.display = 'none';
+      if (dashboardHomeLink) dashboardHomeLink.style.display = 'none';
     }
   });
 
-  // Fonction pour afficher les coordonnées du Proviseur dans une fenêtre modale
   window.showContact = async () => {
     const snap = await getDoc(doc(db, 'config', 'contact'));
     if (!snap.exists() || !snap.data().email) {
