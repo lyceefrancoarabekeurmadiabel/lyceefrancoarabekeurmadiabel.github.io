@@ -52,6 +52,7 @@
   .nav-cta { background: var(--ink-deep); color:#fff !important; padding:10px 18px; font-size:12px; font-weight:600; border-radius:4px; text-decoration:none; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
   .menu-toggle { display: none; font-size: 30px; cursor: pointer; }
 
+  .labo-item { display: none; }
   .feedback-item { display: none; }
   .feedback-link { background: var(--brass); color: #fff !important; padding: 4px 12px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
   .feedback-link:hover { background: #96743a; color: #fff !important; }
@@ -151,8 +152,12 @@
   .delete-btn { color: red; font-weight: bold; cursor: pointer; border: none; background: none; }
 
   /* Titre et message recherche */
-  #search-header { display: none; margin: 20px 0; font-size: 18px; font-weight: 700; color: var(--ink); }
-  #no-results { display: none; text-align: center; padding: 20px; color: var(--slate); font-size: 15px; }
+  .search-results-zone { display: none; margin-bottom: 30px; }
+  .search-results-zone h3 { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 15px; }
+  .devoir-search-item { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+  .devoir-search-item h4 { font-size: 15px; color: var(--ink); margin-bottom: 5px; }
+  .devoir-search-item p { font-size: 12px; color: var(--slate); margin-bottom: 8px; }
+  #no-results-search { display: none; text-align: center; padding: 30px; color: var(--slate); background: #fff; border-radius: 10px; border: 1px dashed var(--line); font-size: 15px; }
 
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
 </style>
@@ -183,6 +188,7 @@
         </li>
         <li><a href="historique.html">Historique</a></li>
         <li><a href="actualites.html">Actualités</a></li>
+        <li class="labo-item"><a href="labo-virtuel.html">🧪 Laboratoire</a></li>
         <li><a href="ressources.html">Ressources</a></li>
         <li><a href="#" onclick="window.showContact(); return false;" class="contact-info" style="text-decoration: none;">
           <span class="contact-label">📞 Contacter le Proviseur</span>
@@ -255,7 +261,7 @@
 </section>
 
 <div class="search-container">
-  <input type="text" id="search-bar" placeholder="Rechercher une matière, un devoir, un fichier...">
+  <input type="text" id="search-bar" placeholder="Rechercher un devoir par titre...">
 </div>
 
 <div id="actus-strip"></div>
@@ -268,8 +274,12 @@
 </div>
 
 <div class="wrap">
-  <h2 id="search-header">🔍 Résultat de la recherche :</h2>
-  <div id="no-results">Aucun cours, devoir ou matière ne correspond à votre recherche.</div>
+  <!-- Zone de résultats de recherche dédiée aux devoirs -->
+  <div id="search-results-zone" class="search-results-zone">
+    <h3>🔍 Résultat de la recherche :</h3>
+    <div id="search-results-list"></div>
+    <div id="no-results-search">Aucun fichier ne correspond à votre recherche.</div>
+  </div>
 </div>
 
 <main class="wrap" id="content-area"></main>
@@ -407,6 +417,19 @@
                     document.querySelectorAll('.admin-item').forEach(el => {
                         if (el) el.style.display = "block";
                     });
+                    document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'block');
+                }
+
+                // Visibilité du Laboratoire pour les profs de sciences et élèves
+                let laboVisible = false;
+                if (profile.role === 'professeur') {
+                    const mats = profile.disciplines || [];
+                    laboVisible = mats.includes('Mathématiques') || mats.includes('SVT') || mats.includes('Physique-Chimie');
+                } else if (profile.role === 'eleve') {
+                    laboVisible = true;
+                }
+                if (laboVisible) {
+                    document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'block');
                 }
                 
                 const authLink2 = document.getElementById('auth-link');
@@ -1366,102 +1389,91 @@
     }
 
     // ======================================================================
-    // RECHERCHE AVEC AFFICHAGE DU TITRE ET PERMISSIONS PAR RÔLE
+    // RECHERCHE DES DEVOIRS UNIQUEMENT (Avec filtre par classe, matière et rôle)
     // ======================================================================
     const searchBar = document.getElementById('search-bar');
-    const searchHeader = document.getElementById('search-header');
-    const noRes = document.getElementById('no-results');
+    const resultsZone = document.getElementById('search-results-zone');
+    const resultsList = document.getElementById('search-results-list');
+    const noResults = document.getElementById('no-results-search');
 
     if (searchBar) {
-        searchBar.oninput = (e) => {
+        searchBar.oninput = async (e) => {
             const t = e.target.value.toLowerCase().trim();
-            let resultatsTrouves = false;
+            
+            if (!t) {
+                resultsZone.style.display = 'none';
+                noResults.style.display = 'none';
+                return;
+            }
 
-            // Vérifier si l'utilisateur est Admin (aucune restriction)
+            const results = [];
+            const niveau = profile?.niveau || '';
+            const profMats = profile?.disciplines || [];
+            const profClasses = profile?.assignedClasses || [];
             const isAdminUser = profile && isAdmin(profile.role);
 
-            // 1. Parcourir les matières
-            document.querySelectorAll('.subject-accordion').forEach(s => {
-                if (!s) return;
-
-                // Restrictions :
-                if (!isAdminUser) {
-                    // Un prof ne voit que ses classes et matières
-                    if (profile?.role === 'professeur') {
-                        const classesPermises = profile.assignedClasses || [];
-                        const classLevel = s.closest('.level')?.dataset.level;
-                        if (!classesPermises.includes(classLevel)) return;
-                        
-                        const profMats = profile.disciplines || [];
-                        const matName = s.dataset.mat;
-                        if (!profMats.includes(matName)) return;
-                    }
+            // Récupérer tous les devoirs
+            try {
+                const devoirsSnap = await getDocs(collectionGroup(db, 'devoirs'));
+                
+                devoirsSnap.forEach(devDoc => {
+                    const dv = devDoc.data();
+                    const parentSlug = devDoc.ref.parent.parent.id;
+                    const dashIndex = parentSlug.indexOf('-');
+                    const levelId = dashIndex === -1 ? parentSlug : parentSlug.substring(0, dashIndex);
+                    const matSlug = dashIndex === -1 ? '' : parentSlug.substring(dashIndex + 1);
                     
-                    // Un élève ne voit que sa classe
-                    if (profile?.role === 'eleve') {
-                        const classLevel = s.closest('.level')?.dataset.level;
-                        if (classLevel !== profile.niveau) return;
+                    // Trouver le nom de la matière
+                    let matName = matSlug;
+                    MATS_COL.forEach(mat => {
+                        if (mat.toLowerCase().replace(/[^a-z0-9]/g, '') === matSlug) matName = mat;
+                    });
+
+                    // Vérifier les permissions
+                    let allowed = false;
+                    if (isAdminUser) {
+                        allowed = true;
+                    } else if (profile?.role === 'professeur') {
+                        allowed = profClasses.includes(levelId) && profMats.includes(matName);
+                    } else if (profile?.role === 'eleve') {
+                        allowed = niveau === levelId;
                     }
-                }
 
-                // Recherche globale dans la matière, les fichiers et devoirs
-                const contenuComplet = s.innerText.toLowerCase();
-                const matiereMatches = contenuComplet.includes(t);
+                    if (!allowed) return;
 
-                if (t && matiereMatches) {
-                    s.classList.add('open');
-                    resultatsTrouves = true;
-                } else if (t) {
-                    s.classList.remove('open');
-                }
-
-                s.style.display = (!t || matiereMatches) ? '' : 'none';
-            });
-
-            // 2. Ouvrir les classes contenant des résultats
-            document.querySelectorAll('.accordion-item.level').forEach(levelEl => {
-                if (!levelEl) return;
-
-                let hasVisibleSubject = false;
-                levelEl.querySelectorAll('.subject-accordion').forEach(subjectEl => {
-                    if (subjectEl.style.display !== 'none') {
-                        hasVisibleSubject = true;
-                        if (t) levelEl.classList.add('open');
-                    }
-                });
-
-                if (!hasVisibleSubject && t) {
-                    levelEl.style.display = 'none';
-                } else {
-                    levelEl.style.display = '';
-                    if (t && hasVisibleSubject) resultatsTrouves = true;
-                }
-            });
-
-            // 3. Masquer les titres vides
-            document.querySelectorAll('.cycle-title').forEach(header => {
-                if (!header) return;
-                const area = header.dataset.area;
-                let hasVisibleLevel = false;
-                document.querySelectorAll(`.accordion-item.level[data-area="${area}"]`).forEach(levelEl => {
-                    if (levelEl.style.display !== 'none') {
-                        hasVisibleLevel = true;
+                    // Vérifier si le titre du devoir correspond à la recherche
+                    if (dv.titre && dv.titre.toLowerCase().includes(t)) {
+                        const level = structure.find(l => l.id === levelId);
+                        const nomClasse = level ? level.name : levelId;
+                        results.push({ 
+                            titre: dv.titre, 
+                            classe: nomClasse, 
+                            matiere: matName, 
+                            date: dv.date?.toDate ? dv.date.toDate().toLocaleDateString('fr-FR') : '',
+                            url: dv.fichierUrl || '',
+                            type: dv.type || 'fichier'
+                        });
                     }
                 });
-                header.style.display = hasVisibleLevel ? '' : 'none';
-            });
 
-            // 4. Afficher le titre "Résultat de la recherche" et le message "Aucun résultat"
-            if (t) {
-                searchHeader.style.display = 'block';
-                if (!resultatsTrouves) {
-                    noRes.style.display = 'block';
+                // Afficher les résultats
+                if (results.length > 0) {
+                    resultsZone.style.display = 'block';
+                    noResults.style.display = 'none';
+                    resultsList.innerHTML = results.map(r => `
+                        <div class="devoir-search-item">
+                            <h4>📌 ${escapeHtml(r.titre)}</h4>
+                            <p>Classe : ${escapeHtml(r.classe)} • Matière : ${escapeHtml(r.matiere)} • Date : ${r.date}</p>
+                            ${r.url ? `<a href="${r.url}" target="_blank" style="color:var(--brass); font-weight:600;">📎 Voir le fichier</a>` : `<span style="color:var(--slate);">Devoir en ligne</span>`}
+                        </div>`).join('');
                 } else {
-                    noRes.style.display = 'none';
+                    resultsZone.style.display = 'block';
+                    resultsList.innerHTML = '';
+                    noResults.style.display = 'block';
                 }
-            } else {
-                searchHeader.style.display = 'none';
-                noRes.style.display = 'none';
+
+            } catch (err) {
+                console.warn('Erreur lors de la recherche :', err.message);
             }
         };
     }
