@@ -1,35 +1,45 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<link rel="icon" type="image/png" href="favicon.png">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1B2A4A">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Accueil — Lycée Franco Arabe de Keur Madiabel</title>
+<title>Accueil — LFAKM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
-    --slate: #5B6472; --text: #1A1A1A; --line: rgba(27,42,74,0.14);
-    --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --slate: #5B6472; --line: rgba(27,42,74,0.14); --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family: var(--sans); color: var(--text); background: #f9f7f2; line-height:1.55; }
-  .wrap { max-width:1100px; margin:0 auto; padding:0 24px; }
+  body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; }
 
-  header { background: var(--paper); border-bottom: 1px solid var(--line); height: 84px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1000; }
-  .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; }
-  .brand { display:flex; align-items:center; gap:12px; text-decoration: none; min-width: 0; }
-  .brand-mark { width:45px; height:45px; flex-shrink: 0; display:flex; align-items:center; justify-content:center; }
+  /* ============ CORRECTIF DE L'ALIGNEMENT ============ */
+  header { position:sticky; top:0; z-index:1000; background:var(--paper); border-bottom:1px solid var(--line); height: 84px; display: flex; align-items: center; }
+  
+  .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; max-width:1180px; margin:0 auto; padding:0 24px; }
+  
+  .brand { 
+    display: flex; 
+    align-items: center; 
+    gap: 12px; 
+    text-decoration: none; 
+    color: var(--ink); 
+    /* CORRECTIF : Largeur fixe pour éviter que le menu ne bouge */
+    min-width: 230px; 
+    justify-content: flex-start; 
+  }
+  
+  .brand-mark { width:55px; height:45px; display:flex; align-items:center; justify-content:center; }
   .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
   .brand-name { font-family:var(--serif); font-weight:700; font-size:14px; color:var(--ink); line-height: 1.2; text-align: center; white-space: normal; }
   .brand-tag { font-size: 10px; color: var(--slate); text-align: center; margin-top: 2px; letter-spacing: 0.5px; }
-  nav ul { display:flex; gap:20px; list-style:none; align-items: center; }
-  nav a { font-size:14px; font-weight:600; color:var(--ink); text-decoration: none; }
-  nav a:hover, nav a.active { color: var(--brass); }
+  
+  nav { flex: 1; display: flex; justify-content: flex-end; }
+  nav ul { display:flex; gap:20px; list-style:none; align-items: center; justify-content: flex-end; }
+  
+  nav a { font-size:13px; font-weight:600; color:var(--ink); text-decoration:none; white-space: nowrap; }
+  nav a:hover { color: var(--brass); }
 
   .admin-item { display: none; position: relative; }
   .admin-dropdown {
@@ -51,6 +61,7 @@
     color: var(--ink);
     font-size: 13px;
     text-decoration: none;
+    white-space: normal; /* Permet le retour à la ligne dans le menu déroulant */
   }
   .admin-dropdown a:hover { background: #f5f5f5; }
   .admin-item:hover .admin-dropdown { display: block; }
@@ -67,6 +78,7 @@
     text-align: center;
     vertical-align: middle;
     margin: 0;
+    white-space: nowrap;
   }
 
   .profile-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 13px; }
@@ -77,47 +89,52 @@
   .contact-phone { font-size: 12px; color: var(--brass); font-weight: 700; }
 
   #user-profile { display: none; font-weight: 700; color: var(--brass); font-size: 14px; }
-  .nav-cta { background: var(--ink-deep); color:#fff; padding:10px 18px; border-radius:4px; font-size:13px; font-weight:600; text-decoration:none; border:none; cursor:pointer; }
-  .menu-toggle { display: none; font-size: 28px; background: none; border: none; color: var(--ink); cursor: pointer; padding: 4px 8px; flex-shrink: 0; }
+  .nav-cta { background: var(--ink-deep); color:#fff !important; padding:10px 18px; font-size:12px; font-weight:600; border-radius:4px; text-decoration:none; white-space: nowrap; }
+  .menu-toggle { display: none; font-size: 30px; cursor: pointer; }
 
-  /* NOUVEAU : Lien Feedback */
   .feedback-item { display: none; }
   .feedback-link { 
     background: var(--brass); 
     color: #fff !important; 
-    padding: 6px 14px; 
+    padding: 4px 12px; 
     border-radius: 4px; 
-    font-size: 12px;
+    font-size: 11px;
+    white-space: nowrap;
   }
   .feedback-link:hover { background: #96743a; color: #fff !important; }
 
-  @media (max-width: 900px) {
-    .brand-name { font-size: 15px; max-width: 46vw; }
+  @media (max-width: 1024px) {
     .menu-toggle { display: block; }
-    nav ul {
-      display: none; position: absolute; top: 84px; left: 0; width: 100%;
-      flex-direction: column; background: #fff; padding: 20px; gap: 15px;
-      text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-bottom: 2px solid var(--line);
-    }
+    nav ul { display: none; flex-direction: column; position: absolute; top: 84px; left: 0; width: 100%; background: #fff; padding: 20px; border-bottom: 2px solid var(--line); gap: 15px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
     nav ul.show { display: flex; }
     .admin-dropdown { position: static; box-shadow: none; border: none; }
+    .brand { min-width: 0; } /* Sur mobile, on retire la contrainte de largeur */
   }
 
-  .page-hero { background: var(--ink-deep); color: #fff; padding: 80px 0; text-align: center; }
-  .page-hero h1 { font-family: var(--serif); font-size: clamp(32px, 5vw, 48px); margin-bottom: 20px; }
-  .page-hero p { color: #C7CBD6; max-width: 700px; margin: 0 auto 30px; font-size: 18px; }
+  /* ============ STYLE DE LA PAGE D'ACCUEIL ============ */
+  .hero { background: var(--ink-deep); color:#EFE9DC; padding: 100px 20px; text-align: center; }
+  .hero h1 { font-family: var(--serif); font-size: 48px; margin-bottom: 20px; line-height: 1.2; }
+  .hero p { font-size: 18px; opacity: 0.8; }
+  .hero-logo { width: 160px; margin: 0 auto 30px; display: block; }
 
-  section { padding: 60px 0; }
-  .section-title { font-family: var(--serif); color: var(--ink); margin-bottom: 30px; border-bottom: 2px solid var(--brass); display: inline-block; padding-bottom: 5px; font-size: 28px;}
+  .wrap { max-width:1100px; margin:0 auto; padding:0 20px; }
+  .section-title { border-left: 5px solid var(--brass); padding-left: 15px; margin: 40px 0 20px; font-family: var(--serif); color: var(--ink); }
+  
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 50px; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+  .card h3 { font-size: 18px; color: var(--ink); margin-bottom: 10px; }
+  .card p { font-size: 14px; color: var(--slate); }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-  .card { background: #fff; border: 1px solid var(--line); padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: 0.3s; }
-  .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-  .card h3 { font-family: var(--serif); color: var(--ink); margin-bottom: 15px; font-size: 22px; }
-  .card p { color: var(--slate); font-size: 15px; margin-bottom: 20px; }
-  .card-link { color: var(--brass); font-weight: 700; text-decoration: none; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+  #actus-strip { max-width: 1100px; margin: 20px auto 0; padding: 0 20px; }
+  #actus-strip h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--brass); margin-bottom: 10px; }
+  .actus-scroll { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding-bottom: 8px; }
+  .actus-card { scroll-snap-align: start; flex: 0 0 240px; background: #fff; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .actus-card img { width: 100%; height: 90px; object-fit: cover; display: block; }
+  .actus-card-body { padding: 12px; }
+  .actus-card-body h4 { font-size: 13px; color: var(--ink); margin-bottom: 4px; line-height: 1.3; }
+  .actus-card-body span { font-size: 11px; color: var(--slate); }
 
-  footer { background: var(--ink-deep); color: #B7BCC9; padding: 60px 0; text-align: center; font-size: 14px; }
+  footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
 </style>
 </head>
 <body>
@@ -131,11 +148,11 @@
         <div class="brand-tag">Excellence & Savoir</div>
       </div>
     </a>
+    <div class="menu-toggle" id="burger-btn">☰</div>
     <nav>
-      <ul id="main-menu">
-        <li><a href="index.html" class="active">Accueil</a></li>
-        
-        <li class="admin-item" style="display:none;">
+      <ul id="menu">
+        <li><a href="index.html">Accueil</a></li>
+        <li class="admin-item">
           <span class="admin-trigger">⚙️ Admin</span>
           <div class="admin-dropdown">
             <a href="admin-ine.html">📥 Import INE</a>
@@ -144,221 +161,202 @@
             <a href="feedback.html#tab-dashboard">📊 Retours</a>
           </div>
         </li>
-
         <li><a href="historique.html">Historique</a></li>
         <li><a href="actualites.html">Actualités</a></li>
         <li><a href="ressources.html">Ressources</a></li>
-        
-        <!-- NOUVEAU : Lien Feedback -->
-        <li class="feedback-item">
-          <a href="feedback.html" class="feedback-link">📋 Donner mon avis</a>
-        </li>
-        
         <li><a href="#" onclick="window.showContact(); return false;" class="contact-info" style="text-decoration: none;">
           <span class="contact-label">📞 Contacter le Proviseur</span>
           <span class="contact-phone" id="contact-phone-display">...</span>
         </a></li>
-        <li id="user-profile" class="profile-info"></li>
-        <li><a href="identification.html" id="auth-link" class="nav-cta">Connexion</a></li>
+        <li id="user-profile" class="profile-info" onclick="window.openProfil()" style="cursor:pointer;" title="Voir mon profil"></li>
+        <li class="feedback-item">
+          <a href="feedback.html" class="feedback-link">📋 Voir les retours</a>
+        </li>
+        <li><a href="identification.html" class="nav-cta" id="auth-link">Se connecter</a></li>
       </ul>
     </nav>
-    <button class="menu-toggle" id="menu-toggle-btn" aria-label="Menu">☰</button>
   </div>
 </header>
 
-<section class="page-hero">
-  <div class="wrap">
-    <img src="logo-hero.png" alt="Lycée Franco Arabe de Keur Madiabel" style="width: 160px; height: 160px; margin: 0 auto 25px; display: block;">
-    <h1>L'Excellence au Cœur de la Tradition et de la Modernité</h1>
-    <p>Le Lycée Franco-Arabe de Keur Madiabel forme les leaders de demain à travers un enseignement bilingue de haute qualité.</p>
-    <div style="margin-top: 20px;">
-        <a href="ressources.html" class="nav-cta" style="background: var(--brass); padding: 15px 30px; font-size: 16px;">Accéder aux cours</a>
-    </div>
-  </div>
+<section class="hero">
+  <img src="logo-section.png" alt="LFAKM" class="hero-logo">
+  <h1>L'Excellence au Cœur de la Tradition et de la Modernité</h1>
+  <p>Le Lycée Franco-Arabe de Keur Madiabel forme les leaders de demain à travers un enseignement bilingue et des valeurs fortes.</p>
 </section>
 
-<section class="wrap">
-  <h2 class="section-title">Notre Établissement</h2>
-  <div class="grid">
+<div class="wrap">
+  <h2 class="section-title">🎓 Pourquoi choisir le LFAKM ?</h2>
+  <div class="cards-grid">
     <div class="card">
-      <h3>Enseignement Bilingue</h3>
-      <p>Un cursus complet alliant le programme national français et une maîtrise approfondie de la langue arabe et des sciences islamiques.</p>
-      <a href="historique.html" class="card-link">En savoir plus →</a>
+      <h3>Excellence Académique</h3>
+      <p>Un programme rigoureux alliant sciences, langues et cultures pour garantir la réussite de chaque élève.</p>
     </div>
     <div class="card">
-      <h3>Ressources Numériques</h3>
-      <p>Un espace dédié aux élèves et professeurs pour partager cours, exercices et devoirs en ligne, accessible partout et à tout moment.</p>
-      <a href="ressources.html" class="card-link">Consulter →</a>
+      <h3>Valeurs Humaines</h3>
+      <p>Le respect, l'intégrité et le sens du partage sont au cœur de notre pédagogie quotidienne.</p>
     </div>
     <div class="card">
-      <h3>Vie Scolaire</h3>
-      <p>Découvrez les dernières actualités, les événements culturels et les performances de nos élèves au sein du lycée.</p>
-      <a href="actualites.html" class="card-link">Voir les actus →</a>
+      <h3>Innovation Numérique</h3>
+      <p>Utilisation des nouvelles technologies pour offrir une expérience d'apprentissage moderne et efficace.</p>
     </div>
   </div>
-</section>
+</div>
 
-<!-- NOUVEAU : Section Feedback -->
-<section style="background: #fff; border-top: 1px solid var(--line);">
-  <div class="wrap">
-    <h2 class="section-title">📋 Participez à l'amélioration</h2>
-    <div class="grid">
-      <div class="card">
-        <h3>📋 Donner votre avis</h3>
-        <p>Votre retour est précieux pour améliorer la plateforme. Professeurs et élèves, partagez votre expérience !</p>
-        <a href="feedback.html" class="card-link" id="feedback-home-link">Donner mon avis →</a>
-      </div>
-      <div class="card">
-        <h3>📊 Retours et Statistiques</h3>
-        <p>Consultez les retours des utilisateurs et les statistiques d'utilisation de la plateforme.</p>
-        <a href="feedback.html#tab-dashboard" class="card-link" id="dashboard-home-link">Voir le dashboard →</a>
-      </div>
-    </div>
-  </div>
-</section>
+<div id="actus-strip"></div>
 
-<section style="background: #fff; border-top: 1px solid var(--line);">
-    <div class="wrap" style="text-align: center;">
-        <h2 class="section-title">Un Cadre d'Épanouissement</h2>
-        <p style="max-width: 800px; margin: 0 auto; color: var(--slate);">Le LFAKM offre un environnement d'apprentissage stimulant où chaque élève est encouragé à donner le meilleur de lui-même, dans le respect de ses valeurs culturelles et religieuses.</p>
-    </div>
-</section>
-
-<footer>
-  <div class="wrap">
-    <p style="margin-bottom: 20px;">Lycée Franco Arabe de Keur Madiabel — Sénégal</p>
-    <div id="public-contact" style="margin-bottom: 20px;"></div>
-    <p>© 2026 Tous droits réservés.</p>
-  </div>
-</footer>
+<footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, getDocs, collection, onSnapshot, orderBy, query } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
-    authDomain: "lfakm-87dec.firebaseapp.com",
-    projectId: "lfakm-87dec",
-    storageBucket: "lfakm-87dec.firebasestorage.app",
-    messagingSenderId: "739517262614",
-    appId: "1:739517262614:web:14abd3538427960c527e37"
-  };
+    const firebaseConfig = {
+        apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+        authDomain: "lfakm-87dec.firebaseapp.com",
+        projectId: "lfakm-87dec",
+        storageBucket: "lfakm-87dec.firebasestorage.app",
+        messagingSenderId: "739517262614",
+        appId: "1:739517262614:web:14abd3538427960c527e37"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  function isAdmin(role) {
-    return role === 'admin' || role === 'proviseur' || role === 'censeur';
-  }
+    let profile = null;
+    const isAdmin = (role) => role === 'admin' || role === 'proviseur' || role === 'censeur';
+    const escapeHtml = (str) => { const div = document.createElement('div'); div.textContent = str ?? ''; return div.innerHTML; };
 
-  function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str ?? '';
-    return div.innerHTML;
-  }
-
-  document.getElementById('menu-toggle-btn').onclick = () => document.getElementById('main-menu').classList.toggle('show');
-
-  getDoc(doc(db, 'config', 'contact')).then(snap => {
-    if (!snap.exists()) return;
-    const c = snap.data();
-    const contactPhone = document.getElementById('contact-phone-display');
-    if (contactPhone && c.telephone) contactPhone.textContent = c.telephone;
-  });
-
-  onAuthStateChanged(auth, async (user) => {
-    const link = document.getElementById('auth-link');
-    const profileSpan = document.getElementById('user-profile');
-    const feedbackItems = document.querySelectorAll('.feedback-item');
-    const feedbackHomeLink = document.getElementById('feedback-home-link');
-    const dashboardHomeLink = document.getElementById('dashboard-home-link');
-    
-    if (user) {
-      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
-      const profile = snap.data();
-      
-      profileSpan.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
-      profileSpan.style.display = 'flex';
-      
-      link.textContent = "Déconnexion";
-      link.onclick = () => signOut(auth).then(() => location.reload());
-      
-      if (isAdmin(profile.role)) {
-        document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
-      }
-
-      // Afficher les liens feedback selon le rôle
-      feedbackItems.forEach(el => {
-        el.style.display = 'block';
-        const linkEl = el.querySelector('a');
-        if (isAdmin(profile.role)) {
-          linkEl.href = 'feedback.html#tab-dashboard';
-          linkEl.textContent = '📊 Voir les retours';
-        } else {
-          linkEl.href = 'feedback.html';
-          linkEl.textContent = '📋 Donner mon avis';
-        }
-      });
-
-      if (feedbackHomeLink) {
-        feedbackHomeLink.style.display = 'inline';
-        if (isAdmin(profile.role)) {
-          feedbackHomeLink.href = 'feedback.html#tab-dashboard';
-          feedbackHomeLink.textContent = '📊 Voir le dashboard →';
-        } else {
-          feedbackHomeLink.href = 'feedback.html';
-          feedbackHomeLink.textContent = '📋 Donner mon avis →';
-        }
-      }
-
-      if (dashboardHomeLink) {
-        if (isAdmin(profile.role)) {
-          dashboardHomeLink.style.display = 'inline';
-        } else {
-          dashboardHomeLink.style.display = 'none';
-        }
-      }
-
-    } else {
-      profileSpan.style.display = 'none';
-      link.textContent = "Connexion";
-      link.href = "identification.html";
-      document.querySelectorAll('.feedback-item').forEach(el => el.style.display = 'none');
-      if (feedbackHomeLink) feedbackHomeLink.style.display = 'none';
-      if (dashboardHomeLink) dashboardHomeLink.style.display = 'none';
-    }
-  });
-
-  window.showContact = async () => {
-    const snap = await getDoc(doc(db, 'config', 'contact'));
-    if (!snap.exists() || !snap.data().email) {
-      alert("Les coordonnées du Proviseur n'ont pas encore été renseignées.");
-      return;
-    }
-    const c = snap.data();
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
-    overlay.innerHTML = `
-      <div style="background:#fff;border-radius:12px;padding:25px;max-width:340px;width:100%;text-align:center;">
-        <h3 style="font-family:var(--serif);color:var(--ink);margin-bottom:6px;">${escapeHtml(c.nom) || 'Le Proviseur'}</h3>
-        <p style="font-size:12px;color:var(--slate);margin-bottom:18px;">Chef d'établissement — LFAKM</p>
-        ${c.telephone ? `<a href="tel:${c.telephone}" style="display:block;padding:10px;margin-bottom:8px;background:var(--ink-deep);color:#fff;border-radius:6px;text-decoration:none;">📞 ${c.telephone}</a>` : ''}
-        ${c.email ? `<a href="mailto:${c.email}" style="display:block;padding:10px;margin-bottom:14px;background:var(--brass);color:#fff;border-radius:6px;text-decoration:none;">✉️ ${c.email}</a>` : ''}
-        <button onclick="this.closest('div[style*=fixed]').remove()" style="border:none;background:#eee;padding:8px 16px;border-radius:6px;cursor:pointer;">Fermer</button>
-      </div>`;
-    document.body.appendChild(overlay);
-  };
-</script>
-
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('service-worker.js').catch(err => console.warn('Service worker non enregistré :', err));
+    // AFFICHAGE DU CONTACT
+    getDoc(doc(db, 'config', 'contact')).then(snap => {
+        if (!snap.exists()) return;
+        const c = snap.data();
+        const contactPhone = document.getElementById('contact-phone-display');
+        if (contactPhone && c.telephone) contactPhone.textContent = c.telephone;
     });
-  }
+
+    // GESTION DU PROFIL & AUTHENTIFICATION
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            try {
+                const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+                profile = snap.exists() ? snap.data() : null;
+
+                if (!profile) return;
+
+                // Mise à jour du profil utilisateur dans le menu
+                const userProfile = document.getElementById('user-profile');
+                if (userProfile) {
+                    userProfile.style.display = "block";
+                    userProfile.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
+                }
+
+                // Afficher le menu Admin si nécessaire
+                if (isAdmin(profile.role)) {
+                    document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
+                }
+
+                // Afficher le lien Feedback pour les profs et admins
+                const feedbackItems = document.querySelectorAll('.feedback-item');
+                if (feedbackItems.length > 0) {
+                    feedbackItems.forEach(el => {
+                        el.style.display = 'block';
+                        const link = el.querySelector('a');
+                        if (link) {
+                            if (isAdmin(profile.role)) {
+                                link.href = 'feedback.html#tab-dashboard';
+                                link.textContent = '📊 Voir les retours';
+                            } else if (profile.role === 'professeur') {
+                                link.href = 'feedback.html#tab-professeurs';
+                                link.textContent = '📋 Donner mon avis (prof)';
+                            } else if (profile.role === 'eleve') {
+                                link.href = 'feedback.html#tab-eleves';
+                                link.textContent = '📋 Donner mon avis (élève)';
+                            }
+                        }
+                    });
+                }
+
+                // Remplacer le bouton "Se connecter" par "Déconnexion"
+                const authLink = document.getElementById('auth-link');
+                if (authLink) {
+                    authLink.textContent = "Déconnexion";
+                    authLink.onclick = () => signOut(auth).then(() => window.location.reload());
+                }
+
+            } catch (err) {
+                console.warn("Erreur lors du chargement du profil:", err);
+            }
+        } else {
+            // Utilisateur non connecté
+            const userProfile = document.getElementById('user-profile');
+            if (userProfile) userProfile.style.display = "none";
+            document.querySelectorAll('.feedback-item').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'none');
+        }
+    });
+
+    // CHARGEMENT ACTUALITÉS
+    function loadActusStrip() {
+        const zone = document.getElementById('actus-strip');
+        if (!zone) return;
+        try {
+            onSnapshot(query(collection(db, 'actualites'), orderBy('date', 'desc')), (snap) => {
+                const cards = [];
+                snap.forEach(d => {
+                    if (cards.length >= 10) return;
+                    const n = d.data();
+                    const dest = n.destinataire || 'tous';
+                    if (dest !== 'tous' && dest !== profile?.role && !isAdmin(profile?.role)) return;
+                    const date = n.date?.toDate ? n.date.toDate().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
+                    cards.push(`
+                        <a class="actus-card" href="actualites.html">
+                            ${n.image ? `<img src="${n.image}" alt="">` : ''}
+                            <div class="actus-card-body">
+                                <h4>${escapeHtml(n.titre)}</h4>
+                                <span>${date}</span>
+                            </div>
+                        </a>`);
+                });
+                zone.innerHTML = cards.length === 0 ? '' : `<h3>📰 Actualités du lycée</h3><div class="actus-scroll">${cards.join('')}</div>`;
+            });
+        } catch (err) {
+            console.warn('Erreur chargement actualités:', err.message);
+        }
+    }
+
+    loadActusStrip();
+
+    // BURGER MENU
+    const burgerBtn = document.getElementById('burger-btn');
+    if (burgerBtn) {
+        burgerBtn.onclick = () => {
+            const menu = document.getElementById('menu');
+            if (menu) menu.classList.toggle('show');
+        };
+    }
+
+    // POPUP CONTACT
+    window.showContact = async () => {
+        const snap = await getDoc(doc(db, 'config', 'contact'));
+        if (!snap.exists() || !snap.data().email) {
+            alert("Les coordonnées du Proviseur n'ont pas encore été renseignées.");
+            return;
+        }
+        const c = snap.data();
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
+        overlay.innerHTML = `
+            <div style="background:#fff;border-radius:12px;padding:25px;max-width:340px;width:100%;text-align:center;">
+                <h3 style="font-family:var(--serif);color:var(--ink);margin-bottom:6px;">${escapeHtml(c.nom) || 'Le Proviseur'}</h3>
+                <p style="font-size:12px;color:var(--slate);margin-bottom:18px;">Chef d'établissement — LFAKM</p>
+                ${c.telephone ? `<a href="tel:${c.telephone}" style="display:block;padding:10px;margin-bottom:8px;background:var(--ink-deep);color:#fff;border-radius:6px;text-decoration:none;">📞 ${c.telephone}</a>` : ''}
+                ${c.email ? `<a href="mailto:${c.email}" style="display:block;padding:10px;margin-bottom:14px;background:var(--brass);color:#fff;border-radius:6px;text-decoration:none;">✉️ ${c.email}</a>` : ''}
+                <button onclick="this.closest('div[style*=fixed]').remove()" style="border:none;background:#eee;padding:8px 16px;border-radius:6px;cursor:pointer;">Fermer</button>
+            </div>`;
+        document.body.appendChild(overlay);
+    };
 </script>
 </body>
 </html>
