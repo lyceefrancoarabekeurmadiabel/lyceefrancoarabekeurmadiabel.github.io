@@ -72,14 +72,22 @@
   .cycle-title { border-left: 5px solid var(--brass); padding-left: 15px; margin: 40px 0 20px; font-family: var(--serif); color: var(--ink); display: flex; align-items: center; justify-content: space-between; gap: 15px; }
   .cycle-title img { width: 42px; height: 42px; flex-shrink: 0; }
 
-  details.level { background: #fff; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 12px; }
-  details.level > summary { cursor: pointer; padding: 20px; font-weight: 700; font-size: 18px; display: flex; justify-content: space-between; list-style: none; }
-  .level-content { padding: 0 15px 20px; background: #fafafa; border-top: 1px solid #eee; }
+  /* --- SYSTÈME D'ACCORDÉON PERSONNALISÉ (Pour éviter les bugs de details) --- */
+  .accordion-item { background: #fff; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+  .accordion-item > .accordion-header { cursor: pointer; padding: 20px; font-weight: 700; font-size: 18px; display: flex; justify-content: space-between; align-items: center; list-style: none; background: #fff; user-select: none; transition: background 0.2s; }
+  .accordion-item > .accordion-header:hover { background: #fafafa; }
+  .accordion-item.open > .accordion-header { border-bottom: 1px solid #eee; }
+  .accordion-content { display: none; padding: 0 15px 20px; background: #fafafa; border-top: 1px solid #eee; }
+  .accordion-item.open > .accordion-content { display: block; }
 
-  details.subject { background: #fff; border: 1px solid var(--line); margin-top: 8px; border-radius: 6px; }
-  details.subject > summary { cursor: pointer; padding: 12px; font-weight: 600; display: flex; justify-content: space-between; font-size: 14px; list-style: none; }
+  .subject-accordion { background: #fff; border: 1px solid var(--line); margin-top: 8px; border-radius: 6px; overflow: hidden; }
+  .subject-accordion > .subject-header { cursor: pointer; padding: 12px; font-weight: 600; display: flex; justify-content: space-between; font-size: 14px; list-style: none; user-select: none; }
+  .subject-accordion > .subject-header:hover { background: #f9f9f9; }
+  .subject-accordion.open > .subject-header { background: #fcfcfc; border-bottom: 1px solid #eee; }
+  .subject-content { display: none; padding: 15px; }
+  .subject-accordion.open > .subject-content { display: block; }
 
-  .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
+  .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
   @media (max-width: 768px) { .subject-grid { grid-template-columns: 1fr; } }
 
   .doc-col h5 { font-size: 11px; text-transform: uppercase; color: var(--brass); margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
@@ -128,11 +136,11 @@
 
   .eleves-section { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; margin-bottom: 30px; }
   .eleves-section h2 { font-family: var(--serif); color: var(--ink); margin-bottom: 15px; }
-  .classes-eleves { margin-bottom: 10px; }
-  .classe-eleve { background: #f9f9f9; border: 1px solid #eee; border-radius: 8px; margin-bottom: 10px; }
-  .classe-eleve summary { cursor: pointer; padding: 12px 15px; font-weight: 600; font-size: 14px; color: var(--ink); display: flex; justify-content: space-between; align-items: center; list-style: none; }
-  .classe-eleve summary:hover { background: #f0f0f0; }
-  .classe-eleve-content { padding: 10px 15px; border-top: 1px solid #eee; }
+  .classe-eleve { background: #f9f9f9; border: 1px solid #eee; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+  .classe-eleve > .classe-header { cursor: pointer; padding: 12px 15px; font-weight: 600; font-size: 14px; color: var(--ink); display: flex; justify-content: space-between; align-items: center; user-select: none; }
+  .classe-eleve.open > .classe-header { border-bottom: 1px solid #eee; }
+  .classe-eleve-content { display: none; padding: 10px 15px; border-top: 1px solid #eee; }
+  .classe-eleve.open > .classe-eleve-content { display: block; }
   .eleve-ligne { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
   .eleve-ligne:last-child { border-bottom: none; }
   .eleve-ligne .eleve-nom { font-size: 14px; font-weight: 500; }
@@ -141,6 +149,7 @@
 
   .add-btn { display: none; margin-top: 8px; font-size: 11px; font-weight: 700; color: var(--ink); border: 1px dashed var(--brass); padding: 6px; border-radius: 4px; cursor: pointer; width: 100%; background: none; }
   .delete-btn { color: red; font-weight: bold; cursor: pointer; border: none; background: none; }
+  #no-results { display: none; text-align: center; padding: 20px; color: var(--slate); font-size: 15px; }
 
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
 </style>
@@ -219,13 +228,11 @@
       <input type="url" id="dv-gdoc" placeholder="https://docs.google.com/...">
     </div>
     
-    <!-- Zone visible si type = fichier ou mixte -->
     <div class="field" id="dv-fichier-field" style="display:none;">
       <label>Fichier joint au devoir (facultatif)</label>
       <input type="file" id="dv-fichier">
     </div>
 
-    <!-- Zone visible si type = qcm ou mixte -->
     <div id="qcm-builder" style="display:none;">
       <label>Questions du QCM</label>
       <div id="qcm-questions"></div>
@@ -245,7 +252,7 @@
 </section>
 
 <div class="search-container">
-  <input type="text" id="search-bar" placeholder="Rechercher une matière (ex: Maths)...">
+  <input type="text" id="search-bar" placeholder="Rechercher une matière, un devoir, un fichier...">
 </div>
 
 <div id="actus-strip"></div>
@@ -257,7 +264,9 @@
   <div id="eleves-accordeon"></div>
 </div>
 
-<main class="wrap" id="content-area"></main>
+<main class="wrap" id="content-area">
+  <div id="no-results">🔍 Aucun cours, devoir ou matière ne correspond à votre recherche.</div>
+</main>
 
 <footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
 
@@ -303,6 +312,11 @@
         { area: "lycee-area", id: "tla2", name: "Terminale LA 2", mats: ["Mathématiques", "Philosophie", "Français", "Arabe", "Anglais", "Histoire-Géo", "EPS"] }
     ];
 
+    // Fonction pour gérer l'ouverture/fermeture des accordéons
+    window.toggleAccordion = (element) => {
+        element.parentElement.classList.toggle('open');
+    };
+
     function buildUI() {
         let html = '';
         const cycles = [
@@ -314,12 +328,23 @@
             if (levels.length === 0) return;
             html += `<h2 class="cycle-title" data-area="${cycle.key}"><span>${cycle.label}</span><img src="logo-section.png" alt=""></h2>`;
             levels.forEach(l => {
-                html += `<details class="level" data-level="${l.id}" data-area="${cycle.key}"><summary>${l.name} <span>+</span></summary><div class="level-content">`;
+                html += `<div class="accordion-item level" data-level="${l.id}" data-area="${cycle.key}">
+                            <div class="accordion-header" onclick="toggleAccordion(this)">${l.name} <span>+</span></div>
+                            <div class="accordion-content">`;
                 l.mats.forEach(m => {
                     const slugMat = m.toLowerCase().replace(/[^a-z0-9]/g, '');
-                    html += `<details class="subject" data-mat="${m}"><summary>${m} <span>▼</span></summary><div class="subject-grid"><div class="doc-col"><h5>Cours</h5><ul class="doc-list" id="cours-${l.id}-${slugMat}"></ul><button class="add-btn" onclick="window.up('cours-${l.id}-${slugMat}')">+ Ajouter (petit fichier)</button><button class="add-btn" onclick="window.addVideo('cours-${l.id}-${slugMat}')">🎥 Lien vidéo YouTube</button><button class="add-btn" onclick="window.addDrive('cours-${l.id}-${slugMat}')">🔗 Lien Drive/OneDrive</button></div><div class="doc-col"><h5>TD</h5><ul class="doc-list" id="td-${l.id}-${slugMat}"></ul><button class="add-btn" onclick="window.up('td-${l.id}-${slugMat}')">+ Ajouter (petit fichier)</button><button class="add-btn" onclick="window.addVideo('td-${l.id}-${slugMat}')">🎥 Lien vidéo YouTube</button><button class="add-btn" onclick="window.addDrive('td-${l.id}-${slugMat}')">🔗 Lien Drive/OneDrive</button></div></div><div class="devoirs-section"><h5>Devoirs</h5><div class="devoirs-list" id="devoirs-${l.id}-${slugMat}"></div><button class="add-btn" id="devoiradd-${l.id}-${slugMat}" onclick="window.newDevoir('${l.id}-${slugMat}')">+ Proposer un devoir</button></div></details>`;
+                    html += `<div class="subject-accordion" data-mat="${m}">
+                                <div class="subject-header" onclick="toggleAccordion(this)">${m} <span>▼</span></div>
+                                <div class="subject-content">
+                                    <div class="subject-grid">
+                                        <div class="doc-col"><h5>Cours</h5><ul class="doc-list" id="cours-${l.id}-${slugMat}"></ul><button class="add-btn" onclick="window.up('cours-${l.id}-${slugMat}')">+ Ajouter (petit fichier)</button><button class="add-btn" onclick="window.addVideo('cours-${l.id}-${slugMat}')">🎥 Lien vidéo YouTube</button><button class="add-btn" onclick="window.addDrive('cours-${l.id}-${slugMat}')">🔗 Lien Drive/OneDrive</button></div>
+                                        <div class="doc-col"><h5>TD</h5><ul class="doc-list" id="td-${l.id}-${slugMat}"></ul><button class="add-btn" onclick="window.up('td-${l.id}-${slugMat}')">+ Ajouter (petit fichier)</button><button class="add-btn" onclick="window.addVideo('td-${l.id}-${slugMat}')">🎥 Lien vidéo YouTube</button><button class="add-btn" onclick="window.addDrive('td-${l.id}-${slugMat}')">🔗 Lien Drive/OneDrive</button></div>
+                                    </div>
+                                    <div class="devoirs-section"><h5>Devoirs</h5><div class="devoirs-list" id="devoirs-${l.id}-${slugMat}"></div><button class="add-btn" id="devoiradd-${l.id}-${slugMat}" onclick="window.newDevoir('${l.id}-${slugMat}')">+ Proposer un devoir</button></div>
+                                </div>
+                            </div>`;
                 });
-                html += `</div></details>`;
+                html += `</div></div>`;
             });
         });
         document.getElementById('content-area').innerHTML = html;
@@ -479,10 +504,10 @@
             classesTriees.forEach(niveau => {
                 const classeInfo = structure.find(l => l.id === niveau);
                 const nomClasse = classeInfo ? classeInfo.name : niveau;
-                const classeDiv = document.createElement('details');
+                const classeDiv = document.createElement('div');
                 classeDiv.className = 'classe-eleve';
                 classeDiv.innerHTML = `
-                    <summary>${nomClasse} (${elevesParClasse[niveau].length} élèves)</summary>
+                    <div class="classe-header" onclick="this.parentElement.classList.toggle('open')">${nomClasse} (${elevesParClasse[niveau].length} élèves) <span>▼</span></div>
                     <div class="classe-eleve-content">
                         <div style="text-align:right; margin-bottom:10px;">
                             <button class="btn-export" onclick="window.exporterListeClasse('${niveau}')">📥 Télécharger la liste (Excel)</button>
@@ -495,8 +520,7 @@
                                 </div>
                             </div>
                         `).join('')}
-                    </div>
-                `;
+                    </div>`;
                 accordeon.appendChild(classeDiv);
             });
             if (classesTriees.length === 0) {
@@ -607,10 +631,10 @@
         const zone = document.getElementById('fiche-famille-zone');
         if (!zone) return;
         zone.innerHTML = `
-            <details class="level" style="max-width:1100px; margin:20px auto 0;">
-                <summary>👪 Ma fiche famille ${f.pereTel || f.mereTel ? '✅' : '⚠️ à compléter'} <span>+</span></summary>
-                <div class="level-content" style="padding:20px;">
-                    <div class="subject-grid" style="grid-template-columns:1fr 1fr;">
+            <div class="accordion-item" style="max-width:1100px; margin:20px auto 0;">
+                <div class="accordion-header" onclick="toggleAccordion(this)">👪 Ma fiche famille ${f.pereTel || f.mereTel ? '✅' : '⚠️ à compléter'} <span>+</span></div>
+                <div class="accordion-content" style="padding:20px;">
+                    <div class="subject-grid">
                         <div><label style="font-size:12px;font-weight:700;">Nom du père / tuteur</label><input id="ff-pere-nom" value="${f.pereNom || ''}" style="width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:6px;"></div>
                         <div><label style="font-size:12px;font-weight:700;">Téléphone du père / tuteur</label><input id="ff-pere-tel" type="tel" value="${f.pereTel || ''}" style="width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:6px;"></div>
                         <div><label style="font-size:12px;font-weight:700;">Nom de la mère / tutrice</label><input id="ff-mere-nom" value="${f.mereNom || ''}" style="width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:6px;"></div>
@@ -621,7 +645,7 @@
                     <button class="add-btn" style="display:block;" onclick="window.saveFicheFamille()">💾 Enregistrer</button>
                     <p id="ff-status" style="font-size:12px;color:#2e7d32;margin-top:8px;"></p>
                 </div>
-            </details>`;
+            </div>`;
     }
 
     window.saveFicheFamille = async () => {
@@ -645,7 +669,7 @@
         const role = profile?.role;
         const profMats = profile?.disciplines || [];
         const cycleVisible = {};
-        document.querySelectorAll('details.level').forEach(levelEl => {
+        document.querySelectorAll('.level').forEach(levelEl => {
             if (!levelEl) return;
             const lvlId = levelEl.dataset.level;
             const area = levelEl.dataset.area;
@@ -658,7 +682,7 @@
             levelEl.style.display = visible ? '' : 'none';
             if (visible) cycleVisible[area] = true;
             if (visible) {
-                levelEl.querySelectorAll('details.subject').forEach(subjectEl => {
+                levelEl.querySelectorAll('.subject-accordion').forEach(subjectEl => {
                     if (!subjectEl) return;
                     let matVisible = true;
                     if (role === 'professeur') {
@@ -688,8 +712,8 @@
             const videoBtn = addBtn ? addBtn.nextElementSibling : null;
             const driveBtn = videoBtn ? videoBtn.nextElementSibling : null;
             
-            const subjectEl = ul.closest('.subject');
-            const matName = subjectEl ? subjectEl.querySelector('summary')?.textContent?.toLowerCase() || '' : '';
+            const subjectEl = ul.closest('.subject-accordion');
+            const matName = subjectEl ? subjectEl.querySelector('.subject-header')?.textContent?.toLowerCase() || '' : '';
 
             if (role === 'professeur' || isAdmin(role)) {
                 const showButtons = (role === 'professeur' && profMats.some(d => matName.includes(d.toLowerCase()))) || isAdmin(role);
@@ -732,7 +756,7 @@
         document.querySelectorAll('.devoirs-list').forEach(container => {
             if (!container) return;
             const slug = container.id.replace(/^devoirs-/, '');
-            const subjectEl = container.closest('.subject');
+            const subjectEl = container.closest('.subject-accordion');
             const matName = subjectEl ? subjectEl.dataset.mat : '';
             const addBtn = document.getElementById(`devoiradd-${slug}`);
 
@@ -747,7 +771,7 @@
                     container.innerHTML = snap.empty ? '<p style="color:gray;font-size:12px;">Aucun devoir pour le moment</p>' : '';
                     snap.forEach(devDoc => {
                         const dv = devDoc.data();
-                        const dvType = dv.type || 'fichier'; // 'fichier', 'qcm', 'mixte'
+                        const dvType = dv.type || 'fichier';
                         const item = document.createElement('div');
                         item.className = 'devoir-item';
                         item.innerHTML = `<h6>📌 ${escapeHtml(dv.titre)}${dvType === 'qcm' ? ' <span style="font-size:10px; color:var(--brass); font-weight:700;">QCM</span>' : dvType === 'mixte' ? ' <span style="font-size:10px; color:#4D6BFE; font-weight:700;">Mixte</span>' : ''}</h6>
@@ -756,7 +780,6 @@
                             ${dv.googleDocUrl ? `<p style="margin-bottom:8px;"><a href="${dv.googleDocUrl}" target="_blank">📄 Ouvrir le document Google Doc</a></p>` : ''}
                             ${dv.fichierUrl ? `<p style="margin-bottom:8px;"><a href="${dv.fichierUrl}" target="_blank">📎 ${dv.fichierNom || 'Fichier joint'}</a></p>` : ''}`;
 
-                        // Gestion du rendu selon le type
                         if (role === 'eleve') {
                             const responseArea = document.createElement('div');
                             item.appendChild(responseArea);
@@ -810,7 +833,6 @@
         });
     }
 
-    // Nouvelle fonction pour le rendu Mixte
     function renderMixteForStudent(slug, devoirId, dv, container) {
         const uid = auth.currentUser?.uid;
         if (!uid || !container) return;
@@ -904,7 +926,7 @@
                 if (!container) return;
                 if (snap.exists()) {
                     const d = snap.data();
-                    if (d.reponses) { // Si QCM déjà répondu
+                    if (d.reponses) {
                         container.innerHTML = `<span class="rendu-status">✅ QCM rendu — Note : ${d.note ?? d.score}/${dv.bareme || dv.questions.length}</span><br><button class="add-btn" style="display:block;margin-top:6px;" id="retry-${devoirId}">Repasser le QCM</button>`;
                         const retryBtn = document.getElementById(`retry-${devoirId}`);
                         if (retryBtn) {
@@ -1338,57 +1360,74 @@
         };
     }
 
-    // ---------- RECHERCHE GLOBALE (TOUS ROLES CONFONDUS) ----------
+    // ---------- RECHERCHE GLOBALE (Matières, Fichiers, Devoirs) ----------
     const searchBar = document.getElementById('search-bar');
     if (searchBar) {
         searchBar.oninput = (e) => {
             const t = e.target.value.toLowerCase().trim();
-            
-            // 1. On parcourt toutes les matières
-            document.querySelectorAll('.subject').forEach(s => {
+            let resultatsTrouves = false;
+
+            // 1. On parcourt toutes les matières et leur contenu
+            document.querySelectorAll('.subject-accordion').forEach(s => {
                 if (!s) return;
                 const roleAllowed = s.dataset.roleAllowed !== '0';
-                if (!roleAllowed) return; // On ne montre jamais les matières interdites
+                if (!roleAllowed) return;
 
-                const matiereMatches = s.innerText.toLowerCase().includes(t);
+                // On cherche dans le titre de la matière, les fichiers et les devoirs
+                const contenuComplet = s.innerText.toLowerCase();
+                const matiereMatches = contenuComplet.includes(t);
+
+                // Ouverture automatique si trouvé
+                if (t && matiereMatches) {
+                    s.classList.add('open');
+                    resultatsTrouves = true;
+                } else if (t) {
+                    s.classList.remove('open');
+                }
 
                 s.style.display = (!t || matiereMatches) ? '' : 'none';
             });
 
-            // 2. On vérifie si chaque classe contient encore des matières visibles
-            document.querySelectorAll('details.level').forEach(levelEl => {
+            // 2. On vérifie les classes et on ouvre celles qui contiennent des résultats
+            document.querySelectorAll('.accordion-item.level').forEach(levelEl => {
                 if (!levelEl) return;
 
                 let hasVisibleSubject = false;
-                levelEl.querySelectorAll('details.subject').forEach(subjectEl => {
+                levelEl.querySelectorAll('.subject-accordion').forEach(subjectEl => {
                     if (subjectEl.style.display !== 'none') {
                         hasVisibleSubject = true;
+                        if (t) levelEl.classList.add('open'); // Ouvre les classes contenant des résultats
                     }
                 });
 
-                // Si la classe est vide, on cache. Sinon on ouvre.
                 if (!hasVisibleSubject && t) {
                     levelEl.style.display = 'none';
                 } else {
                     levelEl.style.display = '';
-                    if (t) {
-                        levelEl.setAttribute('open', '');
-                    }
+                    if (t && hasVisibleSubject) resultatsTrouves = true;
                 }
             });
 
-            // 3. On masque les titres "Collège / Lycée" s'ils sont vides
+            // 3. On masque les titres vides
             document.querySelectorAll('.cycle-title').forEach(header => {
                 if (!header) return;
                 const area = header.dataset.area;
                 let hasVisibleLevel = false;
-                document.querySelectorAll(`details.level[data-area="${area}"]`).forEach(levelEl => {
+                document.querySelectorAll(`.accordion-item.level[data-area="${area}"]`).forEach(levelEl => {
                     if (levelEl.style.display !== 'none') {
                         hasVisibleLevel = true;
                     }
                 });
                 header.style.display = hasVisibleLevel ? '' : 'none';
             });
+
+            // 4. Affichage du message "Aucun résultat"
+            const noRes = document.getElementById('no-results');
+            if (t && !resultatsTrouves) {
+                noRes.style.display = 'block';
+            } else {
+                noRes.style.display = 'none';
+            }
         };
     }
 
