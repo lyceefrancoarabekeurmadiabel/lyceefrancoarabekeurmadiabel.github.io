@@ -1338,15 +1338,56 @@
         };
     }
 
+    // ---------- RECHERCHE GLOBALE (TOUS ROLES CONFONDUS) ----------
     const searchBar = document.getElementById('search-bar');
     if (searchBar) {
         searchBar.oninput = (e) => {
-            const t = e.target.value.toLowerCase();
+            const t = e.target.value.toLowerCase().trim();
+            
+            // 1. On parcourt toutes les matières
             document.querySelectorAll('.subject').forEach(s => {
                 if (!s) return;
                 const roleAllowed = s.dataset.roleAllowed !== '0';
-                const matches = !t || s.innerText.toLowerCase().includes(t);
-                s.style.display = (roleAllowed && matches) ? '' : 'none';
+                if (!roleAllowed) return; // On ne montre jamais les matières interdites
+
+                const matiereMatches = s.innerText.toLowerCase().includes(t);
+
+                s.style.display = (!t || matiereMatches) ? '' : 'none';
+            });
+
+            // 2. On vérifie si chaque classe contient encore des matières visibles
+            document.querySelectorAll('details.level').forEach(levelEl => {
+                if (!levelEl) return;
+
+                let hasVisibleSubject = false;
+                levelEl.querySelectorAll('details.subject').forEach(subjectEl => {
+                    if (subjectEl.style.display !== 'none') {
+                        hasVisibleSubject = true;
+                    }
+                });
+
+                // Si la classe est vide, on cache. Sinon on ouvre.
+                if (!hasVisibleSubject && t) {
+                    levelEl.style.display = 'none';
+                } else {
+                    levelEl.style.display = '';
+                    if (t) {
+                        levelEl.setAttribute('open', '');
+                    }
+                }
+            });
+
+            // 3. On masque les titres "Collège / Lycée" s'ils sont vides
+            document.querySelectorAll('.cycle-title').forEach(header => {
+                if (!header) return;
+                const area = header.dataset.area;
+                let hasVisibleLevel = false;
+                document.querySelectorAll(`details.level[data-area="${area}"]`).forEach(levelEl => {
+                    if (levelEl.style.display !== 'none') {
+                        hasVisibleLevel = true;
+                    }
+                });
+                header.style.display = hasVisibleLevel ? '' : 'none';
             });
         };
     }
