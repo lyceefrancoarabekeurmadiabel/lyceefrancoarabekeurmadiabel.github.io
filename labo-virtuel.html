@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laboratoire Virtuel — LFAKM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
+    --slate: #5B6472; --line: rgba(27,42,74,0.14); --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; }
+
+  /* Header identique */
+  header { position:sticky; top:0; z-index:1000; background:var(--paper); border-bottom:1px solid var(--line); height: 84px; display: flex; align-items: center; }
+  .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; max-width:1180px; margin:0 auto; padding:0 24px; }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); width: 220px; flex-shrink: 0; }
+  .brand-mark { width:55px; height:45px; display:flex; align-items:center; justify-content:center; flex-shrink: 0; }
+  .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
+  .brand-name { font-family:var(--serif); font-weight:700; font-size:14px; color:var(--ink); line-height: 1.3; text-align: center; width: 100%; white-space: normal; }
+  .brand-tag { font-size: 10px; color: var(--slate); text-align: center; margin-top: 2px; letter-spacing: 0.5px; white-space: nowrap; }
+  nav { flex: 1; display: flex; justify-content: flex-end; align-items: center; }
+  nav ul { display:flex; gap:18px; list-style:none; align-items: center; justify-content: flex-end; }
+  nav a { font-size:13px; font-weight:600; color:var(--ink); text-decoration:none; white-space: nowrap; display: flex; align-items: center; }
+  nav a:hover { color: var(--brass); }
+  .admin-item { display: none; position: relative; }
+  .admin-dropdown { display: none; position: absolute; top: 100%; right: 0; background: #fff; border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); min-width: 180px; z-index: 100; padding: 5px 0; }
+  .admin-dropdown a { display: block; padding: 8px 15px; color: var(--ink); font-size: 13px; text-decoration: none; }
+  .admin-dropdown a:hover { background: #f5f5f5; }
+  .admin-item:hover .admin-dropdown { display: block; }
+  .admin-trigger { background: var(--brass); color: #fff !important; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 12px; cursor: pointer; display: inline-block; line-height: 1.4; text-align: center; margin: 0; white-space: nowrap; }
+  .profile-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 13px; }
+  .profile-name { font-weight: 700; color: var(--brass); font-size: 14px; }
+  .profile-role { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; }
+  .contact-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 12px; }
+  .contact-label { font-weight: 600; color: var(--ink); }
+  .contact-phone { font-size: 12px; color: var(--brass); font-weight: 700; }
+  #user-profile { display: none; font-weight: 700; color: var(--brass); font-size: 14px; }
+  .nav-cta { background: var(--ink-deep); color:#fff !important; padding:10px 18px; font-size:12px; font-weight:600; border-radius:4px; text-decoration:none; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
+  .menu-toggle { display: none; font-size: 30px; cursor: pointer; }
+  .labo-item { display: none; }
+  .feedback-item { display: none; }
+  .feedback-link { background: var(--brass); color: #fff !important; padding: 4px 12px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
+  .feedback-link:hover { background: #96743a; color: #fff !important; }
+
+  @media (max-width: 1024px) {
+    .menu-toggle { display: block; }
+    nav ul { display: none; flex-direction: column; position: absolute; top: 84px; left: 0; width: 100%; background: #fff; padding: 20px; border-bottom: 2px solid var(--line); gap: 15px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    nav ul.show { display: flex; }
+    .admin-dropdown { position: static; box-shadow: none; border: none; }
+    .brand { width: auto; }
+  }
+
+  /* Contenu */
+  .hero { background: var(--ink-deep); color:#EFE9DC; padding: 60px 20px; text-align: center; }
+  .hero h1 { font-family: var(--serif); font-size: 36px; margin-bottom: 10px; }
+  .hero p { font-size: 16px; opacity: 0.8; }
+  .wrap { max-width:1100px; margin:0 auto; padding: 20px; }
+  .section-title { border-left: 5px solid var(--brass); padding-left: 15px; margin: 30px 0 20px; font-family: var(--serif); color: var(--ink); font-size: 24px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  .sim-card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; }
+  .sim-card:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+  .sim-card h4 { font-size: 16px; color: var(--ink); margin-bottom: 8px; }
+  .sim-card p { font-size: 13px; color: var(--slate); }
+  .badge { display: inline-block; background: var(--brass); color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-top: 10px; font-weight: 700; }
+  footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav-row">
+    <a href="index.html" class="brand">
+      <div class="brand-mark"><img src="logo-header.png" alt="LFAKM"></div>
+      <div>
+        <div class="brand-name">Lycée Franco<br>Arabe de Keur<br>Madiabel</div>
+        <div class="brand-tag">Excellence & Savoir</div>
+      </div>
+    </a>
+    <div class="menu-toggle" id="burger-btn">☰</div>
+    <nav>
+      <ul id="menu">
+        <li><a href="index.html">Accueil</a></li>
+        <li class="admin-item">
+          <span class="admin-trigger">⚙️ Admin</span>
+          <div class="admin-dropdown">
+            <a href="admin-ine.html">📥 Import INE</a>
+            <a href="admin-gestion.html">👥 Gestion</a>
+            <a href="admin-news.html">📰 Actualités</a>
+            <a href="feedback.html#tab-dashboard">📊 Retours</a>
+          </div>
+        </li>
+        <li><a href="historique.html">Historique</a></li>
+        <li><a href="actualites.html">Actualités</a></li>
+        <li class="labo-item"><a href="labo-virtuel.html">🧪 Laboratoire</a></li>
+        <li><a href="ressources.html">Ressources</a></li>
+        <li><a href="#" onclick="window.showContact(); return false;" class="contact-info" style="text-decoration: none;">
+          <span class="contact-label">📞 Contacter le Proviseur</span>
+          <span class="contact-phone" id="contact-phone-display">...</span>
+        </a></li>
+        <li id="user-profile" class="profile-info" onclick="window.openProfil()" style="cursor:pointer;" title="Voir mon profil"></li>
+        <li class="feedback-item">
+          <a href="feedback.html" class="feedback-link">📋 Donner mon avis</a>
+        </li>
+        <li><a href="identification.html" class="nav-cta" id="auth-link">Se connecter</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>🧪 Laboratoire Virtuel</h1>
+    <p>Simulateurs scientifiques en ligne. <strong>Aucun téléchargement de fichier n'est nécessaire.</strong></p>
+  </div>
+</section>
+
+<div class="wrap">
+  <h2 class="section-title" id="maths-title">📐 Mathématiques</h2>
+  <div class="grid" id="maths-grid"></div>
+
+  <h2 class="section-title" id="svt-title">🔬 SVT</h2>
+  <div class="grid" id="svt-grid"></div>
+
+  <h2 class="section-title" id="pc-title">🧪 Physique-Chimie</h2>
+  <div class="grid" id="pc-grid"></div>
+</div>
+
+<footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+        authDomain: "lfakm-87dec.firebaseapp.com",
+        projectId: "lfakm-87dec",
+        storageBucket: "lfakm-87dec.firebasestorage.app",
+        messagingSenderId: "739517262614",
+        appId: "1:739517262614:web:14abd3538427960c527e37"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let profile = null;
+    const isAdmin = (role) => role === 'admin' || role === 'proviseur' || role === 'censeur';
+
+    // Liste des simulations PhET (Open Source - Ne consomme PAS votre Cloudinary)
+    // Liens directs vers phet.colorado.edu
+    const simulations = [
+      // MATHS (6ème à Terminale)
+      { matiere: 'maths', lien: "https://phet.colorado.edu/sims/html/arithmetic/latest/arithmetic_fr.html", titre: "Arithmétique", desc: "Additions, soustractions, multiplications et divisions (6ème, 5ème)." },
+      { matiere: 'maths', lien: "https://phet.colorado.edu/sims/html/function-builder/latest/function-builder_fr.html", titre: "Constructeur de fonctions", desc: "Comprendre les fonctions (Seconde, Première, Terminale)." },
+      { matiere: 'maths', lien: "https://phet.colorado.edu/sims/html/graphing-lines/latest/graphing-lines_fr.html", titre: "Graphique de droites", desc: "Équations de droites et pentes (Seconde, Première)." },
+      { matiere: 'maths', lien: "https://phet.colorado.edu/sims/html/unit-conversion/latest/unit-conversion_fr.html", titre: "Conversion d'unités", desc: "Grandeurs et mesures (6ème à 3ème)." },
+      { matiere: 'maths', lien: "https://phet.colorado.edu/sims/html/proportion-playground/latest/proportion-playground_fr.html", titre: "Proportions", desc: "Rapports et proportions (6ème, 5ème, 4ème)." },
+      
+      // SVT (6ème à Terminale)
+      { matiere: 'svt', lien: "https://phet.colorado.edu/sims/html/natural-selection/latest/natural-selection_fr.html", titre: "Sélection Naturelle", desc: "Évolution et adaptation des espèces (3ème, Terminale)." },
+      { matiere: 'svt', lien: "https://phet.colorado.edu/sims/html/gene-expression-essentials/latest/gene-expression-essentials_fr.html", titre: "Expression génétique", desc: "Synthèse des protéines (Terminale)." },
+      { matiere: 'svt', lien: "https://phet.colorado.edu/sims/html/ecosystem/latest/ecosystem_fr.html", titre: "Écosystème", desc: "Chaînes alimentaires et équilibre écologique (6ème, 5ème)." },
+      { matiere: 'svt', lien: "https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_fr.html", titre: "Forces et mouvement", desc: "Mouvement et forces (5ème, 4ème, 3ème)." },
+      { matiere: 'svt', lien: "https://phet.colorado.edu/sims/html/membrane-channels/latest/membrane-channels_fr.html", titre: "Canaux membranaires", desc: "Diffusion et transport cellulaire (Terminale)." },
+
+      // PHYSIQUE-CHIMIE (4ème à Terminale)
+      { matiere: 'pc', lien: "https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_fr.html", titre: "Circuits électriques (DC)", desc: "Montages en série et en dérivation (4ème, 3ème, Seconde)." },
+      { matiere: 'pc', lien: "https://phet.colorado.edu/sims/html/acid-base-solutions/latest/acid-base-solutions_fr.html", titre: "Solutions acides et basiques", desc: "pH et réactions (3ème, Première, Terminale)." },
+      { matiere: 'pc', lien: "https://phet.colorado.edu/sims/html/gas-properties/latest/gas-properties_fr.html", titre: "Propriétés des gaz", desc: "Pression, volume et température (Seconde, Première, Terminale)." },
+      { matiere: 'pc', lien: "https://phet.colorado.edu/sims/html/molarity/latest/molarity_fr.html", titre: "Molarité", desc: "Concentration des solutions (Première, Terminale)." },
+      { matiere: 'pc', lien: "https://phet.colorado.edu/sims/html/waves-intro/latest/waves-intro_fr.html", titre: "Ondes", desc: "Ondes sonores et lumineuses (Seconde, Terminale)." },
+      { matiere: 'pc', lien: "https://phet.colorado.edu/sims/html/states-of-matter/latest/states-of-matter_fr.html", titre: "États de la matière", desc: "Solide, liquide, gaz (4ème, 3ème)." }
+    ];
+
+    // Remplissage des catégories selon les rôles
+    function chargerSimulations() {
+        const mathsGrid = document.getElementById('maths-grid');
+        const svtGrid = document.getElementById('svt-grid');
+        const pcGrid = document.getElementById('pc-grid');
+
+        // Par défaut (pour admin), tout est visible
+        let mathsVisible = true, svtVisible = true, pcVisible = true;
+        let niveau = '', disciplines = [];
+
+        if (profile) {
+            niveau = profile.niveau || '';
+            disciplines = profile.disciplines || [];
+
+            if (profile.role === 'eleve') {
+                // Classes de 6ème à 3ème : pas de Physique-Chimie
+                if (['6a', '6b', '6c', '5a', '5b', '4a', '4b', '3a', '3b'].includes(niveau)) {
+                    pcVisible = false;
+                }
+                // Tous les élèves ont Maths et SVT
+            } else if (profile.role === 'professeur') {
+                // Si le prof n'enseigne pas une matière, on cache la section
+                mathsVisible = disciplines.includes('Mathématiques');
+                svtVisible = disciplines.includes('SVT');
+                pcVisible = disciplines.includes('Physique-Chimie') || disciplines.includes('Chimie');
+            }
+        }
+
+        document.getElementById('maths-title').style.display = mathsVisible ? 'block' : 'none';
+        mathsGrid.style.display = mathsVisible ? 'grid' : 'none';
+
+        document.getElementById('svt-title').style.display = svtVisible ? 'block' : 'none';
+        svtGrid.style.display = svtVisible ? 'grid' : 'none';
+
+        document.getElementById('pc-title').style.display = pcVisible ? 'block' : 'none';
+        pcGrid.style.display = pcVisible ? 'grid' : 'none';
+
+        // Remplir chaque grille
+        mathsGrid.innerHTML = simulations.filter(s => s.matiere === 'maths').map(sim => creerCarte(sim)).join('');
+        svtGrid.innerHTML = simulations.filter(s => s.matiere === 'svt').map(sim => creerCarte(sim)).join('');
+        pcGrid.innerHTML = simulations.filter(s => s.matiere === 'pc').map(sim => creerCarte(sim)).join('');
+    }
+
+    function creerCarte(sim) {
+        return `
+            <a href="${sim.lien}" target="_blank" class="sim-card">
+                <h4>${sim.titre}</h4>
+                <p>${sim.desc}</p>
+                <span class="badge">🖥️ Ouvrir le simulateur</span>
+            </a>`;
+    }
+
+    getDoc(doc(db, 'config', 'contact')).then(snap => {
+        if (!snap.exists()) return;
+        const c = snap.data();
+        const contactPhone = document.getElementById('contact-phone-display');
+        if (contactPhone && c.telephone) contactPhone.textContent = c.telephone;
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+        const link = document.getElementById('auth-link');
+        const profileSpan = document.getElementById('user-profile');
+        
+        if (user) {
+            const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+            profile = snap.exists() ? snap.data() : null;
+            if (!profile) return;
+
+            profileSpan.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
+            profileSpan.style.display = 'flex';
+            
+            link.textContent = "Déconnexion";
+            link.onclick = () => signOut(auth).then(() => location.reload());
+
+            // Menu Admin
+            if (isAdmin(profile.role)) {
+                document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
+                document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'block');
+            }
+
+            // Visibilité du Laboratoire pour Profs de sciences et élèves concernés
+            let laboVisible = false;
+            if (profile.role === 'professeur') {
+                const mats = profile.disciplines || [];
+                laboVisible = mats.includes('Mathématiques') || mats.includes('SVT') || mats.includes('Physique-Chimie');
+            } else if (profile.role === 'eleve') {
+                // Tous les élèves ont accès au labo (car Maths et SVT sont pour tous). 
+                // La page elle-même masquera la Physique-Chimie pour les plus jeunes.
+                laboVisible = true;
+            }
+
+            if (laboVisible) {
+                document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'block');
+            }
+
+            // Feedback
+            const feedbackItems = document.querySelectorAll('.feedback-item');
+            if (feedbackItems.length > 0) {
+                feedbackItems.forEach(el => {
+                    el.style.display = 'block';
+                    const link = el.querySelector('a');
+                    if (link) {
+                        if (isAdmin(profile.role)) {
+                            link.href = 'feedback.html#tab-dashboard';
+                            link.textContent = '📊 Voir les retours';
+                        } else if (profile.role === 'professeur') {
+                            link.href = 'feedback.html#tab-professeurs';
+                            link.textContent = '📋 Donner mon avis (prof)';
+                        } else if (profile.role === 'eleve') {
+                            link.href = 'feedback.html#tab-eleves';
+                            link.textContent = '📋 Donner mon avis (élève)';
+                        }
+                    }
+                });
+            }
+
+            chargerSimulations();
+
+        } else {
+            profile = null;
+            profileSpan.style.display = 'none';
+            link.textContent = "Connexion";
+            link.href = "identification.html";
+            
+            // On masque tout pour les non-connectés
+            document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.feedback-item').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'none');
+        }
+    });
+
+    // Menu mobile
+    document.getElementById('burger-btn').onclick = () => document.getElementById('menu').classList.toggle('show');
+
+    window.showContact = async () => {
+        const snap = await getDoc(doc(db, 'config', 'contact'));
+        if (!snap.exists() || !snap.data().email) return;
+        const c = snap.data();
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
+        overlay.innerHTML = `
+            <div style="background:#fff;border-radius:12px;padding:25px;max-width:340px;width:100%;text-align:center;">
+                <h3 style="font-family:var(--serif);color:var(--ink);margin-bottom:6px;">${c.nom || 'Le Proviseur'}</h3>
+                <p style="font-size:12px;color:var(--slate);margin-bottom:18px;">Chef d'établissement — LFAKM</p>
+                ${c.telephone ? `<a href="tel:${c.telephone}" style="display:block;padding:10px;margin-bottom:8px;background:var(--ink-deep);color:#fff;border-radius:6px;text-decoration:none;">📞 ${c.telephone}</a>` : ''}
+                ${c.email ? `<a href="mailto:${c.email}" style="display:block;padding:10px;margin-bottom:14px;background:var(--brass);color:#fff;border-radius:6px;text-decoration:none;">✉️ ${c.email}</a>` : ''}
+                <button onclick="this.closest('div[style*=fixed]').remove()" style="border:none;background:#eee;padding:8px 16px;border-radius:6px;cursor:pointer;">Fermer</button>
+            </div>`;
+        document.body.appendChild(overlay);
+    };
+</script>
+</body>
+</html>
