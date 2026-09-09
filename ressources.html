@@ -20,56 +20,25 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; }
 
-  /* ============ HEADER ORIGINAL (PROPRE) ============ */
+  /* ============ HEADER UNIFORME (3 LIGNES ET CENTRÉ) ============ */
   header { position:sticky; top:0; z-index:1000; background:var(--paper); border-bottom:1px solid var(--line); height: 84px; display: flex; align-items: center; }
   .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; max-width:1180px; margin:0 auto; padding:0 24px; }
-  .brand { display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--ink); }
-  .brand-mark { width:55px; height:45px; display:flex; align-items:center; justify-content:center; }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); width: 220px; flex-shrink: 0; }
+  .brand-mark { width:55px; height:45px; display:flex; align-items:center; justify-content:center; flex-shrink: 0; }
   .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
-  .brand-name { font-family:var(--serif); font-weight:700; font-size:14px; color:var(--ink); line-height: 1.2; text-align: center; white-space: normal; }
-  .brand-tag { font-size: 10px; color: var(--slate); text-align: center; margin-top: 2px; letter-spacing: 0.5px; }
-  
-  nav ul { display:flex; gap:20px; list-style:none; align-items: center; }
-  nav a { font-size:13px; font-weight:600; color:var(--ink); text-decoration:none; }
+  .brand-name { font-family:var(--serif); font-weight:700; font-size:14px; color:var(--ink); line-height: 1.3; text-align: center; width: 100%; white-space: normal; }
+  .brand-tag { font-size: 10px; color: var(--slate); text-align: center; margin-top: 2px; letter-spacing: 0.5px; white-space: nowrap; }
+  nav { flex: 1; display: flex; justify-content: flex-end; align-items: center; }
+  nav ul { display:flex; gap:20px; list-style:none; align-items: center; justify-content: flex-end; }
+  nav a { font-size:13px; font-weight:600; color:var(--ink); text-decoration:none; white-space: nowrap; display: flex; align-items: center; }
   nav a:hover { color: var(--brass); }
 
   .admin-item { display: none; position: relative; }
-  .admin-dropdown {
-    display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    min-width: 180px;
-    z-index: 100;
-    padding: 5px 0;
-  }
-  .admin-dropdown a {
-    display: block;
-    padding: 8px 15px;
-    color: var(--ink);
-    font-size: 13px;
-    text-decoration: none;
-  }
+  .admin-dropdown { display: none; position: absolute; top: 100%; right: 0; background: #fff; border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); min-width: 180px; z-index: 100; padding: 5px 0; }
+  .admin-dropdown a { display: block; padding: 8px 15px; color: var(--ink); font-size: 13px; text-decoration: none; white-space: normal; }
   .admin-dropdown a:hover { background: #f5f5f5; }
   .admin-item:hover .admin-dropdown { display: block; }
-  .admin-trigger {
-    background: var(--brass);
-    color: #fff !important;
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-weight: 700;
-    font-size: 12px;
-    cursor: pointer;
-    display: inline-block;
-    line-height: 1.4;
-    text-align: center;
-    vertical-align: middle;
-    margin: 0;
-  }
+  .admin-trigger { background: var(--brass); color: #fff !important; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 12px; cursor: pointer; display: inline-block; line-height: 1.4; text-align: center; vertical-align: middle; margin: 0; white-space: nowrap; }
 
   .profile-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 13px; }
   .profile-name { font-weight: 700; color: var(--brass); font-size: 14px; }
@@ -79,25 +48,12 @@
   .contact-phone { font-size: 12px; color: var(--brass); font-weight: 700; }
 
   #user-profile { display: none; font-weight: 700; color: var(--brass); font-size: 14px; }
-  .nav-cta { background: var(--ink-deep); color:#fff !important; padding:10px 18px; font-size:12px; font-weight:600; border-radius:4px; text-decoration:none; }
+  .nav-cta { background: var(--ink-deep); color:#fff !important; padding:10px 18px; font-size:12px; font-weight:600; border-radius:4px; text-decoration:none; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
   .menu-toggle { display: none; font-size: 30px; cursor: pointer; }
 
   .feedback-item { display: none; }
-  .feedback-link { 
-    background: var(--brass); 
-    color: #fff !important; 
-    padding: 4px 12px; 
-    border-radius: 4px; 
-    font-size: 11px;
-  }
+  .feedback-link { background: var(--brass); color: #fff !important; padding: 4px 12px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
   .feedback-link:hover { background: #96743a; color: #fff !important; }
-
-  @media (max-width: 1024px) {
-    .menu-toggle { display: block; }
-    nav ul { display: none; flex-direction: column; position: absolute; top: 84px; left: 0; width: 100%; background: #fff; padding: 20px; border-bottom: 2px solid var(--line); gap: 15px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-    nav ul.show { display: flex; }
-    .admin-dropdown { position: static; box-shadow: none; border: none; }
-  }
 
   /* ============ ZONE PROF (DeepSeek et Classes) ============ */
   .prof-zone { display: none; background: #fff; border-bottom: 1px solid var(--line); padding: 10px 0; margin-top: 84px; }
@@ -105,6 +61,14 @@
   .deepseek-link { background: #4D6BFE; color: #fff !important; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 700; }
   .deepseek-link:hover { background: #3b56d9; }
   .prof-classes { font-size: 13px; color: var(--ink); font-weight: 600; }
+
+  @media (max-width: 1024px) {
+    .menu-toggle { display: block; }
+    nav ul { display: none; flex-direction: column; position: absolute; top: 84px; left: 0; width: 100%; background: #fff; padding: 20px; border-bottom: 2px solid var(--line); gap: 15px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    nav ul.show { display: flex; }
+    .admin-dropdown { position: static; box-shadow: none; border: none; }
+    .brand { width: auto; }
+  }
 
   /* ============ STYLE DE LA PAGE RESSOURCES ============ */
   .page-hero { background: var(--ink-deep); color:#EFE9DC; padding: 60px 0; text-align: center; }
@@ -194,7 +158,7 @@
     <a href="index.html" class="brand">
       <div class="brand-mark"><img src="logo-header.png" alt="LFAKM"></div>
       <div>
-        <div class="brand-name">Lycée Franco Arabe<br>de Keur Madiabel</div>
+        <div class="brand-name">Lycée Franco<br>Arabe de Keur<br>Madiabel</div>
         <div class="brand-tag">Excellence & Savoir</div>
       </div>
     </a>
@@ -236,14 +200,16 @@
   </div>
 </div>
 
+<!-- MODAL DE CRÉATION DE DEVOIR -->
 <div class="modal-overlay" id="devoir-modal">
   <div class="modal-box">
     <h3>Proposer un devoir</h3>
     <div class="field">
-      <label>Type de devoir</label>
+      <label>Type d'évaluation</label>
       <select id="dv-type">
-        <option value="fichier">Fichier à rendre</option>
-        <option value="qcm">QCM en ligne</option>
+        <option value="fichier">📄 Fichier à rendre</option>
+        <option value="qcm">✅ QCM en ligne</option>
+        <option value="mixte">🎯 Mixte (QCM + Fichier)</option>
       </select>
     </div>
     <div class="field">
@@ -266,15 +232,20 @@
       <label>Lien Google Doc (facultatif)</label>
       <input type="url" id="dv-gdoc" placeholder="https://docs.google.com/...">
     </div>
-    <div class="field">
+    
+    <!-- Zone visible si type = fichier ou mixte -->
+    <div class="field" id="dv-fichier-field" style="display:none;">
       <label>Fichier joint au devoir (facultatif)</label>
       <input type="file" id="dv-fichier">
     </div>
+
+    <!-- Zone visible si type = qcm ou mixte -->
     <div id="qcm-builder" style="display:none;">
       <label>Questions du QCM</label>
       <div id="qcm-questions"></div>
       <button type="button" class="add-btn" id="qcm-add-question" style="display:block;">+ Ajouter une question</button>
     </div>
+    
     <button class="add-btn" id="dv-submit" style="display:block; margin-top:15px;">Publier le devoir</button>
     <button class="add-btn" id="dv-cancel" style="display:block; border-color:#ccc; color:#999;">Annuler</button>
   </div>
@@ -305,9 +276,9 @@
 <footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, getDocs, setDoc, deleteDoc, collection, collectionGroup, addDoc, onSnapshot, serverTimestamp, orderBy, query, where } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, getDocs, setDoc, deleteDoc, collection, collectionGroup, addDoc, onSnapshot, serverTimestamp, orderBy, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
@@ -422,18 +393,13 @@
                     });
                 }
 
-                // ============ AFFICHAGE ZONE PROF (DeepSeek + Classes) ============
                 if (profile.role === 'professeur' || isAdmin(profile.role)) {
                     const profZone = document.getElementById('prof-zone');
                     const classesText = document.getElementById('prof-classes-text');
                     if (profZone && classesText) {
                         profZone.style.display = 'block';
                         const classes = profile.assignedClasses || [];
-                        if (classes.length > 0) {
-                            classesText.textContent = `🎯 Mes classes : ${classes.join(', ')}`;
-                        } else {
-                            classesText.textContent = "Aucune classe assignée pour le moment";
-                        }
+                        classesText.textContent = classes.length > 0 ? `🎯 Mes classes : ${classes.join(', ')}` : "Aucune classe assignée";
                     }
                 }
                 
@@ -805,20 +771,25 @@
                     container.innerHTML = snap.empty ? '<p style="color:gray;font-size:12px;">Aucun devoir pour le moment</p>' : '';
                     snap.forEach(devDoc => {
                         const dv = devDoc.data();
-                        const dvType = dv.type === 'qcm' ? 'qcm' : 'fichier';
+                        const dvType = dv.type || 'fichier'; // 'fichier', 'qcm', 'mixte'
                         const item = document.createElement('div');
                         item.className = 'devoir-item';
-                        item.innerHTML = `<h6>📌 ${escapeHtml(dv.titre)}${dvType === 'qcm' ? ' <span style="font-size:10px; color:var(--brass); font-weight:700;">QCM</span>' : ''}</h6>
+                        item.innerHTML = `<h6>📌 ${escapeHtml(dv.titre)}${dvType === 'qcm' ? ' <span style="font-size:10px; color:var(--brass); font-weight:700;">QCM</span>' : dvType === 'mixte' ? ' <span style="font-size:10px; color:#4D6BFE; font-weight:700;">Mixte</span>' : ''}</h6>
                             <div class="devoir-meta">📅 À rendre pour le ${dv.dateLimite || 'non précisé'} — proposé par ${dv.profNom || 'le professeur'}</div>
                             ${dv.consignes ? `<p style="font-size:13px; margin-bottom:8px;">${dv.consignes}</p>` : ''}
                             ${dv.googleDocUrl ? `<p style="margin-bottom:8px;"><a href="${dv.googleDocUrl}" target="_blank">📄 Ouvrir le document Google Doc</a></p>` : ''}
                             ${dv.fichierUrl ? `<p style="margin-bottom:8px;"><a href="${dv.fichierUrl}" target="_blank">📎 ${dv.fichierNom || 'Fichier joint'}</a></p>` : ''}`;
 
+                        // Gestion du rendu selon le type
                         if (role === 'eleve') {
                             const responseArea = document.createElement('div');
                             item.appendChild(responseArea);
+                            
                             if (dvType === 'qcm') {
                                 renderQcmForStudent(slug, devDoc.id, dv, responseArea);
+                            } else if (dvType === 'mixte') {
+                                // Pour le mixte : QCM ET dépôt de fichier
+                                renderMixteForStudent(slug, devDoc.id, dv, responseArea);
                             } else {
                                 checkRendu(slug, devDoc.id, responseArea);
                             }
@@ -864,6 +835,76 @@
         });
     }
 
+    // Nouvelle fonction pour le rendu Mixte
+    function renderMixteForStudent(slug, devoirId, dv, container) {
+        const uid = auth.currentUser?.uid;
+        if (!uid || !container) return;
+
+        let sectionQcm = document.createElement('div');
+        sectionQcm.style.marginBottom = '15px';
+        let sectionFile = document.createElement('div');
+        sectionFile.style.borderTop = '1px solid #eee';
+        sectionFile.style.paddingTop = '10px';
+
+        container.appendChild(sectionQcm);
+        container.appendChild(sectionFile);
+
+        // Chargement QCM
+        onSnapshot(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), (snap) => {
+            if (!sectionQcm) return;
+            if (snap.exists()) {
+                const d = snap.data();
+                let qcmDone = d.reponses && d.reponses.length > 0;
+                if (qcmDone) {
+                    sectionQcm.innerHTML = `<span class="rendu-status">✅ QCM rendu — Note : ${d.note ?? d.score}/${dv.bareme || dv.questions.length}</span><br>`;
+                } else {
+                    buildQcmForm(slug, devoirId, dv, sectionQcm);
+                }
+
+                if (d.url) {
+                    sectionFile.innerHTML = `<span class="rendu-status">✅ Fichier rendu</span> — <a href="${d.url}" target="_blank">voir mon fichier</a><br><button class="add-btn" style="display:block;margin-top:6px;" onclick="window.rendreFichierMixte('${slug}','${devoirId}')">Renvoyer un autre fichier</button>`;
+                } else {
+                    sectionFile.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreFichierMixte('${slug}','${devoirId}')">📤 Déposer mon fichier (Partie 2)</button>`;
+                }
+
+                if (qcmDone && !d.url) {
+                   sectionQcm.innerHTML += `<br><button class="add-btn" style="display:block;" id="retry-${devoirId}">Repasser le QCM</button>`;
+                   document.getElementById(`retry-${devoirId}`).onclick = () => buildQcmForm(slug, devoirId, dv, sectionQcm);
+                }
+            } else {
+                buildQcmForm(slug, devoirId, dv, sectionQcm);
+                sectionFile.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreFichierMixte('${slug}','${devoirId}')">📤 Déposer mon fichier (Partie 2)</button>`;
+            }
+        });
+    }
+
+    window.rendreFichierMixte = async (slug, devoirId) => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*,.pdf,.doc,.docx';
+        input.onchange = async () => {
+            if (input.files[0].size > 15 * 1024 * 1024) { alert("Fichier trop volumineux (max 15 Mo)."); return; }
+            try {
+                const fd = new FormData();
+                fd.append('file', input.files[0]);
+                fd.append('upload_preset', "lfakm_ressources");
+                const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
+                const data = await res.json();
+                const uid = auth.currentUser.uid;
+                // Mise à jour du document de rendu (ajout du fichier sans toucher au QCM)
+                await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
+                    eleveNom: `${profile.prenom} ${profile.nom}`,
+                    url: data.secure_url,
+                    date: serverTimestamp()
+                }, { merge: true }); // Merge pour ne pas écraser les réponses QCM
+                alert('✅ Fichier envoyé !');
+            } catch (e) {
+                alert('❌ Erreur: ' + e.message);
+            }
+        };
+        input.click();
+    };
+
     function checkRendu(slug, devoirId, statusDiv) {
         const uid = auth.currentUser?.uid;
         if (!uid || !statusDiv) return;
@@ -890,10 +931,14 @@
                 if (!container) return;
                 if (snap.exists()) {
                     const d = snap.data();
-                    container.innerHTML = `<span class="rendu-status">✅ QCM rendu — Note : ${d.note ?? d.score}/${dv.bareme || dv.questions.length}</span><br><button class="add-btn" style="display:block;margin-top:6px;" id="retry-${devoirId}">Repasser le QCM</button>`;
-                    const retryBtn = document.getElementById(`retry-${devoirId}`);
-                    if (retryBtn) {
-                        retryBtn.onclick = () => buildQcmForm(slug, devoirId, dv, container);
+                    if (d.reponses) { // Si QCM déjà répondu
+                        container.innerHTML = `<span class="rendu-status">✅ QCM rendu — Note : ${d.note ?? d.score}/${dv.bareme || dv.questions.length}</span><br><button class="add-btn" style="display:block;margin-top:6px;" id="retry-${devoirId}">Repasser le QCM</button>`;
+                        const retryBtn = document.getElementById(`retry-${devoirId}`);
+                        if (retryBtn) {
+                            retryBtn.onclick = () => buildQcmForm(slug, devoirId, dv, container);
+                        }
+                    } else {
+                         buildQcmForm(slug, devoirId, dv, container);
                     }
                 } else {
                     buildQcmForm(slug, devoirId, dv, container);
@@ -935,11 +980,12 @@
                 const bareme = dv.bareme || 20;
                 const note = Math.round((score / dv.questions.length) * bareme * 100) / 100;
                 const uid = auth.currentUser.uid;
+                // On utilise merge: true pour ne pas écraser le fichier s'il a déjà été envoyé
                 await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
                     eleveNom: `${profile.prenom} ${profile.nom}`,
                     reponses, score, note,
                     date: serverTimestamp()
-                });
+                }, { merge: true });
                 alert('✅ QCM envoyé !');
             };
         }
@@ -956,8 +1002,10 @@
                     const d = rd.data();
                     const p = document.createElement('div');
                     p.className = 'rendu-item';
-                    if (dv.type === 'qcm') {
-                        p.innerHTML = `${escapeHtml(d.eleveNom)} — Note : <b>${d.note ?? '-'}/${bareme}</b> (${d.score}/${dv.questions.length} bonnes réponses)`;
+                    if (dv.type === 'qcm' || (dv.type === 'mixte' && d.reponses)) {
+                        let note = d.note ?? '-';
+                        p.innerHTML = `${escapeHtml(d.eleveNom)} — Note QCM : <b>${note}/${bareme}</b>`;
+                        if (d.url) p.innerHTML += ` — <a href="${d.url}" target="_blank">Voir fichier</a>`;
                     } else {
                         const noteId = `note-${rd.id}`;
                         p.innerHTML = `<a href="${d.url}" target="_blank">📄 ${escapeHtml(d.eleveNom)}</a> —
@@ -1042,6 +1090,7 @@
         const fichierInput = document.getElementById('dv-fichier');
         const typeSelect = document.getElementById('dv-type');
         const qcmBuilder = document.getElementById('qcm-builder');
+        const fichierField = document.getElementById('dv-fichier-field');
         const qcmQuestions = document.getElementById('qcm-questions');
         const modal = document.getElementById('devoir-modal');
         
@@ -1053,6 +1102,7 @@
         if (fichierInput) fichierInput.value = '';
         if (typeSelect) typeSelect.value = 'fichier';
         if (qcmBuilder) qcmBuilder.style.display = 'none';
+        if (fichierField) fichierField.style.display = 'block';
         if (qcmQuestions) qcmQuestions.innerHTML = '';
         qcmQuestionCount = 0;
         addQcmQuestion();
@@ -1063,7 +1113,18 @@
     if (typeSelect) {
         typeSelect.addEventListener('change', (e) => {
             const qcmBuilder = document.getElementById('qcm-builder');
-            if (qcmBuilder) qcmBuilder.style.display = e.target.value === 'qcm' ? 'block' : 'none';
+            const fichierField = document.getElementById('dv-fichier-field');
+            const val = e.target.value;
+            if (val === 'qcm') {
+                if (qcmBuilder) qcmBuilder.style.display = 'block';
+                if (fichierField) fichierField.style.display = 'none';
+            } else if (val === 'mixte') {
+                if (qcmBuilder) qcmBuilder.style.display = 'block';
+                if (fichierField) fichierField.style.display = 'block';
+            } else {
+                if (qcmBuilder) qcmBuilder.style.display = 'none';
+                if (fichierField) fichierField.style.display = 'block';
+            }
         });
     }
 
@@ -1119,7 +1180,7 @@
                 date: serverTimestamp()
             };
 
-            if (type === 'qcm') {
+            if (type === 'qcm' || type === 'mixte') {
                 const questions = [];
                 document.querySelectorAll('#qcm-questions .qcm-question-block').forEach(block => {
                     const texte = block.querySelector('.qcm-q-text')?.value.trim() || '';
@@ -1136,30 +1197,32 @@
                 submitBtn.textContent = "Publication...";
             }
 
-            if (fichierInput3 && fichierInput3.files && fichierInput3.files[0]) {
-                if (fichierInput3.files[0].size > 15 * 1024 * 1024) {
-                    alert("Fichier trop volumineux (max 15 Mo).");
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = "Publier le devoir";
+            if (type === 'fichier' || type === 'mixte') {
+                if (fichierInput3 && fichierInput3.files && fichierInput3.files[0]) {
+                    if (fichierInput3.files[0].size > 15 * 1024 * 1024) {
+                        alert("Fichier trop volumineux (max 15 Mo).");
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = "Publier le devoir";
+                        }
+                        return;
                     }
-                    return;
-                }
-                try {
-                    const fd = new FormData();
-                    fd.append('file', fichierInput3.files[0]);
-                    fd.append('upload_preset', "lfakm_ressources");
-                    const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
-                    const data = await res.json();
-                    devoirData.fichierUrl = data.secure_url;
-                    devoirData.fichierNom = fichierInput3.files[0].name;
-                } catch (e) {
-                    alert('Erreur upload: ' + e.message);
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = "Publier le devoir";
+                    try {
+                        const fd = new FormData();
+                        fd.append('file', fichierInput3.files[0]);
+                        fd.append('upload_preset', "lfakm_ressources");
+                        const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
+                        const data = await res.json();
+                        devoirData.fichierUrl = data.secure_url;
+                        devoirData.fichierNom = fichierInput3.files[0].name;
+                    } catch (e) {
+                        alert('Erreur upload: ' + e.message);
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = "Publier le devoir";
+                        }
+                        return;
                     }
-                    return;
                 }
             }
 
@@ -1195,7 +1258,7 @@
                     eleveNom: `${profile.prenom} ${profile.nom}`,
                     url: data.secure_url,
                     date: serverTimestamp()
-                });
+                }, { merge: true });
                 alert('✅ Devoir envoyé !');
             } catch (e) {
                 alert('❌ Erreur: ' + e.message);
