@@ -150,7 +150,7 @@
   .add-btn { display: none; margin-top: 8px; font-size: 11px; font-weight: 700; color: var(--ink); border: 1px dashed var(--brass); padding: 6px; border-radius: 4px; cursor: pointer; width: 100%; background: none; }
   .delete-btn { color: red; font-weight: bold; cursor: pointer; border: none; background: none; }
 
-  /* ZONE DE RECHERCHE LISTE DIRECTE */
+  /* ZONE RECHERCHE DIRECTE */
   .search-results-zone { display: none; margin-bottom: 30px; }
   .search-results-zone h3 { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 15px; }
   .search-result-line { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--brass); border-radius: 8px; padding: 12px 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
@@ -426,7 +426,7 @@
                 let laboVisible = false;
                 if (profile.role === 'professeur') {
                     const mats = (profile.disciplines || []).map(m => m.toLowerCase());
-                    laboVisible = mats.some(m => m.includes('math') || m.includes('svt') || m.includes('physique') || m.includes('chimie') || m.includes('pc'));
+                    laboVisible = mats.some(m => m.includes('physique') || m.includes('chimie') || m.includes('pc') || m.includes('math') || m.includes('svt'));
                 } else if (profile.role === 'eleve') {
                     laboVisible = true;
                 }
@@ -1415,7 +1415,6 @@
             const isAdminUser = profile && isAdmin(profile.role);
 
             try {
-                // Récupération de tous les devoirs dans Firestore
                 const devoirsSnap = await getDocs(collectionGroup(db, 'devoirs'));
                 
                 devoirsSnap.forEach(devDoc => {
@@ -1425,27 +1424,22 @@
                     const levelId = dashIndex === -1 ? parentSlug : parentSlug.substring(0, dashIndex);
                     const matSlug = dashIndex === -1 ? '' : parentSlug.substring(dashIndex + 1);
                     
-                    // Trouver le nom de la matière à partir du slug
                     let matName = matSlug;
                     MATS_COL.forEach(mat => {
                         if (mat.toLowerCase().replace(/[^a-z0-9]/g, '') === matSlug) matName = mat;
                     });
 
-                    // Filtrage STRICT selon le profil
                     let allowed = false;
                     if (isAdminUser) {
                         allowed = true;
                     } else if (profile?.role === 'professeur') {
-                        // Prof : uniquement ses classes et SA matière
                         allowed = profClasses.includes(levelId) && profMats.includes(matName);
                     } else if (profile?.role === 'eleve') {
-                        // Élève : uniquement sa classe
                         allowed = niveau === levelId;
                     }
 
                     if (!allowed) return;
 
-                    // Si le titre correspond à la recherche
                     if (dv.titre && dv.titre.toLowerCase().includes(t)) {
                         const level = structure.find(l => l.id === levelId);
                         const nomClasse = level ? level.name : levelId;
@@ -1454,12 +1448,11 @@
                             classe: nomClasse, 
                             matiere: matName, 
                             date: dv.date?.toDate ? dv.date.toDate().toLocaleDateString('fr-FR') : '',
-                            url: dv.fichierUrl || dv.googleDocUrl || '', // Option A : Lien direct vers le fichier
+                            url: dv.fichierUrl || dv.googleDocUrl || '',
                         });
                     }
                 });
 
-                // Affichage
                 if (results.length > 0) {
                     resultsZone.style.display = 'block';
                     noResults.style.display = 'none';
