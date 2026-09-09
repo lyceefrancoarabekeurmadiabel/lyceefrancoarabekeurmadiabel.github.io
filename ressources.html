@@ -72,7 +72,7 @@
   .cycle-title { border-left: 5px solid var(--brass); padding-left: 15px; margin: 40px 0 20px; font-family: var(--serif); color: var(--ink); display: flex; align-items: center; justify-content: space-between; gap: 15px; }
   .cycle-title img { width: 42px; height: 42px; flex-shrink: 0; }
 
-  /* --- SYSTÈME D'ACCORDÉON PERSONNALISÉ (Pour éviter les bugs de details) --- */
+  /* --- SYSTÈME D'ACCORDÉON PERSONNALISÉ --- */
   .accordion-item { background: #fff; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
   .accordion-item > .accordion-header { cursor: pointer; padding: 20px; font-weight: 700; font-size: 18px; display: flex; justify-content: space-between; align-items: center; list-style: none; background: #fff; user-select: none; transition: background 0.2s; }
   .accordion-item > .accordion-header:hover { background: #fafafa; }
@@ -149,6 +149,9 @@
 
   .add-btn { display: none; margin-top: 8px; font-size: 11px; font-weight: 700; color: var(--ink); border: 1px dashed var(--brass); padding: 6px; border-radius: 4px; cursor: pointer; width: 100%; background: none; }
   .delete-btn { color: red; font-weight: bold; cursor: pointer; border: none; background: none; }
+
+  /* Titre et message recherche */
+  #search-header { display: none; margin: 20px 0; font-size: 18px; font-weight: 700; color: var(--ink); }
   #no-results { display: none; text-align: center; padding: 20px; color: var(--slate); font-size: 15px; }
 
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
@@ -264,9 +267,12 @@
   <div id="eleves-accordeon"></div>
 </div>
 
-<main class="wrap" id="content-area">
-  <div id="no-results">🔍 Aucun cours, devoir ou matière ne correspond à votre recherche.</div>
-</main>
+<div class="wrap">
+  <h2 id="search-header">🔍 Résultat de la recherche :</h2>
+  <div id="no-results">Aucun cours, devoir ou matière ne correspond à votre recherche.</div>
+</div>
+
+<main class="wrap" id="content-area"></main>
 
 <footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
 
@@ -312,7 +318,6 @@
         { area: "lycee-area", id: "tla2", name: "Terminale LA 2", mats: ["Mathématiques", "Philosophie", "Français", "Arabe", "Anglais", "Histoire-Géo", "EPS"] }
     ];
 
-    // Fonction pour gérer l'ouverture/fermeture des accordéons
     window.toggleAccordion = (element) => {
         element.parentElement.classList.toggle('open');
     };
@@ -1360,24 +1365,49 @@
         };
     }
 
-    // ---------- RECHERCHE GLOBALE (Matières, Fichiers, Devoirs) ----------
+    // ======================================================================
+    // RECHERCHE AVEC AFFICHAGE DU TITRE ET PERMISSIONS PAR RÔLE
+    // ======================================================================
     const searchBar = document.getElementById('search-bar');
+    const searchHeader = document.getElementById('search-header');
+    const noRes = document.getElementById('no-results');
+
     if (searchBar) {
         searchBar.oninput = (e) => {
             const t = e.target.value.toLowerCase().trim();
             let resultatsTrouves = false;
 
-            // 1. On parcourt toutes les matières et leur contenu
+            // Vérifier si l'utilisateur est Admin (aucune restriction)
+            const isAdminUser = profile && isAdmin(profile.role);
+
+            // 1. Parcourir les matières
             document.querySelectorAll('.subject-accordion').forEach(s => {
                 if (!s) return;
-                const roleAllowed = s.dataset.roleAllowed !== '0';
-                if (!roleAllowed) return;
 
-                // On cherche dans le titre de la matière, les fichiers et les devoirs
+                // Restrictions :
+                if (!isAdminUser) {
+                    // Un prof ne voit que ses classes et matières
+                    if (profile?.role === 'professeur') {
+                        const classesPermises = profile.assignedClasses || [];
+                        const classLevel = s.closest('.level')?.dataset.level;
+                        if (!classesPermises.includes(classLevel)) return;
+                        
+                        const profMats = profile.disciplines || [];
+                        const matName = s.dataset.mat;
+                        if (!profMats.includes(matName)) return;
+                    }
+                    
+                    // Un élève ne voit que sa classe
+                    if (profile?.role === 'eleve') {
+                        const classLevel = s.closest('.level')?.dataset.level;
+                        if (classLevel !== profile.niveau) return;
+                    }
+                }
+
+                // Recherche globale dans la matière, les fichiers et devoirs
                 const contenuComplet = s.innerText.toLowerCase();
                 const matiereMatches = contenuComplet.includes(t);
 
-                // Ouverture automatique si trouvé
                 if (t && matiereMatches) {
                     s.classList.add('open');
                     resultatsTrouves = true;
@@ -1388,7 +1418,7 @@
                 s.style.display = (!t || matiereMatches) ? '' : 'none';
             });
 
-            // 2. On vérifie les classes et on ouvre celles qui contiennent des résultats
+            // 2. Ouvrir les classes contenant des résultats
             document.querySelectorAll('.accordion-item.level').forEach(levelEl => {
                 if (!levelEl) return;
 
@@ -1396,7 +1426,7 @@
                 levelEl.querySelectorAll('.subject-accordion').forEach(subjectEl => {
                     if (subjectEl.style.display !== 'none') {
                         hasVisibleSubject = true;
-                        if (t) levelEl.classList.add('open'); // Ouvre les classes contenant des résultats
+                        if (t) levelEl.classList.add('open');
                     }
                 });
 
@@ -1408,7 +1438,7 @@
                 }
             });
 
-            // 3. On masque les titres vides
+            // 3. Masquer les titres vides
             document.querySelectorAll('.cycle-title').forEach(header => {
                 if (!header) return;
                 const area = header.dataset.area;
@@ -1421,11 +1451,16 @@
                 header.style.display = hasVisibleLevel ? '' : 'none';
             });
 
-            // 4. Affichage du message "Aucun résultat"
-            const noRes = document.getElementById('no-results');
-            if (t && !resultatsTrouves) {
-                noRes.style.display = 'block';
+            // 4. Afficher le titre "Résultat de la recherche" et le message "Aucun résultat"
+            if (t) {
+                searchHeader.style.display = 'block';
+                if (!resultatsTrouves) {
+                    noRes.style.display = 'block';
+                } else {
+                    noRes.style.display = 'none';
+                }
             } else {
+                searchHeader.style.display = 'none';
                 noRes.style.display = 'none';
             }
         };
