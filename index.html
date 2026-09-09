@@ -14,7 +14,7 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; }
 
-  /* ============ HEADER UNIFORME (CORRIGÉ) ============ */
+  /* ============ HEADER UNIFORME ET PROFESSIONNEL ============ */
   header { position:sticky; top:0; z-index:1000; background:var(--paper); border-bottom:1px solid var(--line); height: 84px; display: flex; align-items: center; }
   
   .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; max-width:1180px; margin:0 auto; padding:0 24px; }
@@ -25,19 +25,17 @@
     gap: 12px; 
     text-decoration: none; 
     color: var(--ink); 
-    min-width: 0; /* Correction importante */
+    width: 250px; /* LARGEUR FIXE : Le texte tiendra toujours sur 2 lignes */
+    flex-shrink: 0; /* Empêche le bloc de rétrécir */
   }
   
   .brand-mark { width:55px; height:45px; display:flex; align-items:center; justify-content:center; flex-shrink: 0; }
   .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
   
-  /* CORRECTIF MAJEUR : Limite stricte à 2 lignes */
   .brand-name { 
     font-family:var(--serif); font-weight:700; font-size:14px; color:var(--ink); line-height: 1.2; text-align: center;
-    display: -webkit-box;
-    -webkit-line-clamp: 2; 
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    display: block; 
+    overflow: visible; 
     white-space: normal;
   }
   
@@ -116,7 +114,7 @@
     nav ul { display: none; flex-direction: column; position: absolute; top: 84px; left: 0; width: 100%; background: #fff; padding: 20px; border-bottom: 2px solid var(--line); gap: 15px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
     nav ul.show { display: flex; }
     .admin-dropdown { position: static; box-shadow: none; border: none; }
-    .brand { min-width: 0; }
+    .brand { width: auto; } /* Sur mobile, on laisse le logo s'adapter */
   }
 
   /* ============ STYLE DE LA PAGE D'ACCUEIL ============ */
