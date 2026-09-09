@@ -150,11 +150,15 @@
   .add-btn { display: none; margin-top: 8px; font-size: 11px; font-weight: 700; color: var(--ink); border: 1px dashed var(--brass); padding: 6px; border-radius: 4px; cursor: pointer; width: 100%; background: none; }
   .delete-btn { color: red; font-weight: bold; cursor: pointer; border: none; background: none; }
 
+  /* ZONE DE RECHERCHE LISTE DIRECTE */
   .search-results-zone { display: none; margin-bottom: 30px; }
   .search-results-zone h3 { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 15px; }
-  .devoir-search-item { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
-  .devoir-search-item h4 { font-size: 15px; color: var(--ink); margin-bottom: 5px; }
-  .devoir-search-item p { font-size: 12px; color: var(--slate); margin-bottom: 8px; }
+  .search-result-line { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--brass); border-radius: 8px; padding: 12px 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .search-result-line .info { flex: 1; }
+  .search-result-line h4 { font-size: 15px; color: var(--ink); margin-bottom: 4px; }
+  .search-result-line p { font-size: 12px; color: var(--slate); }
+  .search-result-line .open-btn { background: var(--brass); color: #fff; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 700; white-space: nowrap; }
+  .search-result-line .open-btn:hover { background: #96743a; }
   #no-results-search { display: none; text-align: center; padding: 30px; color: var(--slate); background: #fff; border-radius: 10px; border: 1px dashed var(--line); font-size: 15px; }
 
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
@@ -272,11 +276,11 @@
 </div>
 
 <div class="wrap">
-  <!-- Zone de résultats de recherche dédiée aux devoirs -->
+  <!-- ZONE DE RECHERCHE DIRECTE DES DEVOIRS -->
   <div id="search-results-zone" class="search-results-zone">
     <h3>🔍 Résultat de la recherche :</h3>
     <div id="search-results-list"></div>
-    <div id="no-results-search">Aucun fichier ne correspond à votre recherche.</div>
+    <div id="no-results-search">Aucun devoir ne correspond à votre recherche.</div>
   </div>
 </div>
 
@@ -418,21 +422,14 @@
                     document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'block');
                 }
 
-                // 🔥 CORRECTION ICI : Détection intelligente des matières scientifiques
+                // Visibilité du laboratoire pour les profs de sciences et élèves
                 let laboVisible = false;
                 if (profile.role === 'professeur') {
                     const mats = (profile.disciplines || []).map(m => m.toLowerCase());
-                    laboVisible = mats.some(m => 
-                        m.includes('math') || 
-                        m.includes('svt') || 
-                        m.includes('physique') || 
-                        m.includes('chimie') || 
-                        m.includes('pc')
-                    );
+                    laboVisible = mats.some(m => m.includes('math') || m.includes('svt') || m.includes('physique') || m.includes('chimie') || m.includes('pc'));
                 } else if (profile.role === 'eleve') {
                     laboVisible = true;
                 }
-
                 if (laboVisible) {
                     document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'block');
                 }
@@ -1393,7 +1390,9 @@
         };
     }
 
-    // Recherche des devoirs uniquement
+    // ======================================================================
+    // RECHERCHE DIRECTE DES DEVOIRS (Liste des résultats)
+    // ======================================================================
     const searchBar = document.getElementById('search-bar');
     const resultsZone = document.getElementById('search-results-zone');
     const resultsList = document.getElementById('search-results-list');
@@ -1416,6 +1415,7 @@
             const isAdminUser = profile && isAdmin(profile.role);
 
             try {
+                // Récupération de tous les devoirs dans Firestore
                 const devoirsSnap = await getDocs(collectionGroup(db, 'devoirs'));
                 
                 devoirsSnap.forEach(devDoc => {
@@ -1425,22 +1425,27 @@
                     const levelId = dashIndex === -1 ? parentSlug : parentSlug.substring(0, dashIndex);
                     const matSlug = dashIndex === -1 ? '' : parentSlug.substring(dashIndex + 1);
                     
+                    // Trouver le nom de la matière à partir du slug
                     let matName = matSlug;
                     MATS_COL.forEach(mat => {
                         if (mat.toLowerCase().replace(/[^a-z0-9]/g, '') === matSlug) matName = mat;
                     });
 
+                    // Filtrage STRICT selon le profil
                     let allowed = false;
                     if (isAdminUser) {
                         allowed = true;
                     } else if (profile?.role === 'professeur') {
+                        // Prof : uniquement ses classes et SA matière
                         allowed = profClasses.includes(levelId) && profMats.includes(matName);
                     } else if (profile?.role === 'eleve') {
+                        // Élève : uniquement sa classe
                         allowed = niveau === levelId;
                     }
 
                     if (!allowed) return;
 
+                    // Si le titre correspond à la recherche
                     if (dv.titre && dv.titre.toLowerCase().includes(t)) {
                         const level = structure.find(l => l.id === levelId);
                         const nomClasse = level ? level.name : levelId;
@@ -1449,20 +1454,22 @@
                             classe: nomClasse, 
                             matiere: matName, 
                             date: dv.date?.toDate ? dv.date.toDate().toLocaleDateString('fr-FR') : '',
-                            url: dv.fichierUrl || '',
-                            type: dv.type || 'fichier'
+                            url: dv.fichierUrl || dv.googleDocUrl || '', // Option A : Lien direct vers le fichier
                         });
                     }
                 });
 
+                // Affichage
                 if (results.length > 0) {
                     resultsZone.style.display = 'block';
                     noResults.style.display = 'none';
                     resultsList.innerHTML = results.map(r => `
-                        <div class="devoir-search-item">
-                            <h4>📌 ${escapeHtml(r.titre)}</h4>
-                            <p>Classe : ${escapeHtml(r.classe)} • Matière : ${escapeHtml(r.matiere)} • Date : ${r.date}</p>
-                            ${r.url ? `<a href="${r.url}" target="_blank" style="color:var(--brass); font-weight:600;">📎 Voir le fichier</a>` : `<span style="color:var(--slate);">Devoir en ligne</span>`}
+                        <div class="search-result-line">
+                            <div class="info">
+                                <h4>📌 ${escapeHtml(r.titre)}</h4>
+                                <p>${escapeHtml(r.matiere)} - ${escapeHtml(r.classe)} • 📅 ${r.date}</p>
+                            </div>
+                            ${r.url ? `<a href="${r.url}" target="_blank" class="open-btn">📂 Ouvrir le devoir</a>` : `<span style="color:var(--slate); font-weight:600;">Devoir en ligne</span>`}
                         </div>`).join('');
                 } else {
                     resultsZone.style.display = 'block';
