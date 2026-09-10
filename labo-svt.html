@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laboratoire de SVT — LFAKM</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
+    --slate: #5B6472; --line: rgba(27,42,74,0.14); --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; }
+  header { position:sticky; top:0; z-index:1000; background:var(--paper); border-bottom:1px solid var(--line); height: 84px; display: flex; align-items: center; }
+  .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; max-width:1180px; margin:0 auto; padding:0 24px; }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); width: 220px; flex-shrink: 0; }
+  .brand-mark { width:55px; height:45px; display:flex; align-items:center; justify-content:center; flex-shrink: 0; }
+  .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
+  .brand-name { font-family:var(--serif); font-weight:700; font-size:14px; color:var(--ink); line-height: 1.3; text-align: center; width: 100%; white-space: normal; }
+  .brand-tag { font-size: 10px; color: var(--slate); text-align: center; margin-top: 2px; letter-spacing: 0.5px; white-space: nowrap; }
+  nav { flex: 1; display: flex; justify-content: flex-end; align-items: center; }
+  nav ul { display:flex; gap:18px; list-style:none; align-items: center; justify-content: flex-end; }
+  nav a { font-size:13px; font-weight:600; color:var(--ink); text-decoration:none; white-space: nowrap; display: flex; align-items: center; }
+  nav a:hover { color: var(--brass); }
+  .admin-item { display: none; position: relative; }
+  .admin-dropdown { display: none; position: absolute; top: 100%; right: 0; background: #fff; border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); min-width: 180px; z-index: 100; padding: 5px 0; }
+  .admin-dropdown a { display: block; padding: 8px 15px; color: var(--ink); font-size: 13px; text-decoration: none; }
+  .admin-dropdown a:hover { background: #f5f5f5; }
+  .admin-item:hover .admin-dropdown { display: block; }
+  .admin-trigger { background: var(--brass); color: #fff !important; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 12px; cursor: pointer; display: inline-block; line-height: 1.4; text-align: center; margin: 0; white-space: nowrap; }
+  .profile-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 13px; }
+  .profile-name { font-weight: 700; color: var(--brass); font-size: 14px; }
+  .profile-role { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; }
+  .contact-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 12px; }
+  .contact-label { font-weight: 600; color: var(--ink); }
+  .contact-phone { font-size: 12px; color: var(--brass); font-weight: 700; }
+  #user-profile { display: none; font-weight: 700; color: var(--brass); font-size: 14px; }
+  .nav-cta { background: var(--ink-deep); color:#fff !important; padding:10px 18px; font-size:12px; font-weight:600; border-radius:4px; text-decoration:none; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
+  .menu-toggle { display: none; font-size: 30px; cursor: pointer; }
+  .labo-item { display: none; }
+  .feedback-item { display: none; }
+  .feedback-link { background: var(--brass); color: #fff !important; padding: 4px 12px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
+  @media (max-width: 1024px) {
+    .menu-toggle { display: block; }
+    nav ul { display: none; flex-direction: column; position: absolute; top: 84px; left: 0; width: 100%; background: #fff; padding: 20px; border-bottom: 2px solid var(--line); gap: 15px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    nav ul.show { display: flex; }
+    .admin-dropdown { position: static; box-shadow: none; border: none; }
+    .brand { width: auto; }
+  }
+  .hero { background: var(--ink-deep); color:#EFE9DC; padding: 60px 20px; text-align: center; }
+  .hero h1 { font-family: var(--serif); font-size: 36px; margin-bottom: 10px; }
+  .hero p { font-size: 16px; opacity: 0.8; }
+  .wrap { max-width:1100px; margin:0 auto; padding: 20px; }
+  .domain-section { margin-bottom: 50px; }
+  .domain-title { font-family: var(--serif); font-size: 26px; color: var(--ink); border-left: 6px solid var(--brass); padding-left: 15px; margin-bottom: 20px; }
+  .domain-subtitle { font-size: 14px; color: var(--slate); margin-bottom: 20px; padding-left: 21px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+  .sim-card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; }
+  .sim-card:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+  .sim-card h4 { font-size: 16px; color: var(--ink); margin-bottom: 8px; }
+  .sim-card p { font-size: 13px; color: var(--slate); margin-bottom: 8px; flex-grow: 1; }
+  .badge { display: inline-block; background: var(--brass); color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-top: 5px; font-weight: 700; align-self: flex-start; }
+  .badge-priority { background: #d9534f; }
+  .tool-box { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; margin-top: 20px; }
+  .tool-box h3 { margin-bottom: 15px; color: var(--ink); }
+  .btn-action { background: var(--brass); color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; margin: 5px; font-size: 13px; }
+  .btn-action:hover { background: #96743a; }
+  .btn-secondary { background: #5B6472; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; margin: 5px; font-size: 13px; }
+  footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav-row">
+    <a href="index.html" class="brand">
+      <div class="brand-mark"><img src="logo-header.png" alt="LFAKM"></div>
+      <div>
+        <div class="brand-name">Lycée Franco<br>Arabe de Keur<br>Madiabel</div>
+        <div class="brand-tag">Excellence & Savoir</div>
+      </div>
+    </a>
+    <div class="menu-toggle" id="burger-btn">☰</div>
+    <nav>
+      <ul id="menu">
+        <li><a href="index.html">Accueil</a></li>
+        <li class="admin-item">
+          <span class="admin-trigger">⚙️ Admin</span>
+          <div class="admin-dropdown">
+            <a href="admin-ine.html">📥 Import INE</a>
+            <a href="admin-gestion.html">👥 Gestion</a>
+            <a href="admin-news.html">📰 Actualités</a>
+            <a href="feedback.html#tab-dashboard">📊 Retours</a>
+          </div>
+        </li>
+        <li><a href="historique.html">Historique</a></li>
+        <li><a href="actualites.html">Actualités</a></li>
+        <li class="labo-item"><a href="labo-svt.html" style="color: var(--brass); font-weight:700;">🧬 Labo SVT</a></li>
+        <li><a href="ressources.html">Ressources</a></li>
+        <li><a href="#" onclick="window.showContact(); return false;" class="contact-info" style="text-decoration: none;">
+          <span class="contact-label">📞 Contacter le Proviseur</span>
+          <span class="contact-phone" id="contact-phone-display">...</span>
+        </a></li>
+        <li id="user-profile" class="profile-info" onclick="window.openProfil()" style="cursor:pointer;" title="Voir mon profil"></li>
+        <li class="feedback-item"><a href="feedback.html" class="feedback-link">📋 Donner mon avis</a></li>
+        <li><a href="identification.html" class="nav-cta" id="auth-link">Se connecter</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>🧬 Laboratoire de SVT</h1>
+    <p>Simulations, schémas interactifs et outils pédagogiques conformes au programme officiel du Sénégal.</p>
+  </div>
+</section>
+
+<div class="wrap">
+
+  <!-- DOMAINE 1 : ENVIRONNEMENT & ÉCOLOGIE -->
+  <div class="domain-section">
+    <h2 class="domain-title">🌍 Environnement & Écologie</h2>
+    <p class="domain-subtitle">De l'étude des composantes de l'environnement (6ème) à l'écologie des écosystèmes (2nde).</p>
+    <div class="grid">
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/ecosystem/latest/ecosystem_fr.html" target="_blank">
+        <h4>Écosystème</h4>
+        <p>Chaînes alimentaires, équilibre écologique, biodiversité.</p>
+        <span class="badge">6ème → 5ème</span>
+      </a>
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/natural-selection/latest/natural-selection_fr.html" target="_blank">
+        <h4>Sélection Naturelle</h4>
+        <p>Évolution et adaptation des espèces, mutations.</p>
+        <span class="badge">3ème → Tle</span>
+      </a>
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/greenhouse-effect/latest/greenhouse-effect_fr.html" target="_blank">
+        <h4>Effet de Serre</h4>
+        <p>Réchauffement climatique, pollution atmosphérique.</p>
+        <span class="badge">5ème → Tle</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- DOMAINE 2 : BIOLOGIE CELLULAIRE & GÉNÉTIQUE -->
+  <div class="domain-section">
+    <h2 class="domain-title">🧬 Biologie Cellulaire & Génétique</h2>
+    <p class="domain-subtitle">De la cellule (4ème/1ère) à la génétique (1ère/Tle) et l'hérédité humaine.</p>
+    
+    <h3 style="margin-bottom: 10px;">🧬 Outil Interactif : Croisement Génétique</h3>
+    <p style="margin-bottom: 10px; color: var(--slate);">Simulez un croisement monohybride (Aa x Aa) et visualisez les proportions.</p>
+    <div class="tool-box">
+      <button class="btn-action" onclick="simulateGenetics()">Simuler un croisement</button>
+      <div id="genetics-result" style="margin-top: 15px; font-weight: 600;"></div>
+    </div>
+
+    <h3 style="margin-top: 30px; margin-bottom: 15px;">📚 Simulations</h3>
+    <div class="grid">
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/gene-expression-essentials/latest/gene-expression-essentials_fr.html" target="_blank">
+        <h4>Expression Génétique</h4>
+        <p>Synthèse des protéines, ADN, ARN, transcription.</p>
+        <span class="badge">1ère → Tle</span>
+      </a>
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/membrane-channels/latest/membrane-channels_fr.html" target="_blank">
+        <h4>Canaux Membranaires</h4>
+        <p>Diffusion, transport cellulaire, osmose.</p>
+        <span class="badge">Tle</span>
+      </a>
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/natural-selection/latest/natural-selection_fr.html" target="_blank">
+        <h4>Évolution et Génétique</h4>
+        <p>Mutations, sélection naturelle, dérive génétique.</p>
+        <span class="badge">Tle</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- DOMAINE 3 : PHYSIOLOGIE HUMAINE -->
+  <div class="domain-section">
+    <h2 class="domain-title">🫀 Physiologie Humaine</h2>
+    <p class="domain-subtitle">Digestion, circulation, respiration (4ème) et régulation (glycémie, immunité, reproduction) (1ère/Tle).</p>
+    <div class="grid">
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/neuron/latest/neuron_fr.html" target="_blank">
+        <h4>Système Nerveux</h4>
+        <p>Neurones, influx nerveux, synapse.</p>
+        <span class="badge">3ème → Tle</span>
+      </a>
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/gene-expression-essentials/latest/gene-expression-essentials_fr.html" target="_blank">
+        <h4>Immunologie (simulation)</h4>
+        <p>Anticorps, antigènes, réponse immunitaire.</p>
+        <span class="badge">3ème → Tle</span>
+      </a>
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/glucose-insulin/latest/glucose-insulin_fr.html" target="_blank">
+        <h4>Régulation de la Glycémie</h4>
+        <p>Insuline, glucagon, diabète.</p>
+        <span class="badge">Tle</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- DOMAINE 4 : BIOLOGIE VÉGÉTALE & ANIMALE -->
+  <div class="domain-section">
+    <h2 class="domain-title">🌱 Biologie Végétale & Animale</h2>
+    <p class="domain-subtitle">Reproduction des plantes (6ème/5ème) et gamétogenèse (1ère/Tle).</p>
+    <div class="grid">
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/gene-expression-essentials/latest/gene-expression-essentials_fr.html" target="_blank">
+        <h4>Reproduction des Plantes</h4>
+        <p>Pollinisation, fécondation, formation du fruit et de la graine.</p>
+        <span class="badge">6ème → Tle</span>
+      </a>
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/natural-selection/latest/natural-selection_fr.html" target="_blank">
+        <h4>Adaptation des Animaux</h4>
+        <p>Régimes alimentaires, milieux de vie, adaptation convergente.</p>
+        <span class="badge">6ème → 5ème</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- DOMAINE 5 : GÉOLOGIE & SCIENCES DE LA TERRE -->
+  <div class="domain-section">
+    <h2 class="domain-title">🪨 Géologie & Sciences de la Terre</h2>
+    <p class="domain-subtitle">Paysages, sols, roches, volcanisme, séismes, tectonique, ressources géologiques.</p>
+    <div class="grid">
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/plate-tectonics/latest/plate-tectonics_fr.html" target="_blank">
+        <h4>Tectonique des Plaques</h4>
+        <p>Subduction, collision, dorsales, séismes.</p>
+        <span class="badge badge-priority">3ème → Tle — PRIORITAIRE</span>
+      </a>
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/glaciers/latest/glaciers_fr.html" target="_blank">
+        <h4>Glaciers et Paysages</h4>
+        <p>Érosion, formation des paysages, sédimentation.</p>
+        <span class="badge">6ème → 5ème</span>
+      </a>
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/radioactive-dating-game/latest/radioactive-dating-game_fr.html" target="_blank">
+        <h4>Datation Radioactive</h4>
+        <p>Chronologie relative et absolue, isotopes.</p>
+        <span class="badge badge-priority">Tle — PRIORITAIRE</span>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+    authDomain: "lfakm-87dec.firebaseapp.com",
+    projectId: "lfakm-87dec",
+    storageBucket: "lfakm-87dec.firebasestorage.app",
+    messagingSenderId: "739517262614",
+    appId: "1:739517262614:web:14abd3538427960c527e37"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let profile = null;
+  const isAdmin = (role) => role === 'admin' || role === 'proviseur' || role === 'censeur';
+  const escapeHtml = (str) => { const div = document.createElement('div'); div.textContent = str ?? ''; return div.innerHTML; };
+
+  onAuthStateChanged(auth, async (user) => {
+    const link = document.getElementById('auth-link');
+    const profileSpan = document.getElementById('user-profile');
+    if (user) {
+      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+      profile = snap.exists() ? snap.data() : null;
+      if (!profile) return;
+      profileSpan.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
+      profileSpan.style.display = 'flex';
+      link.textContent = "Déconnexion";
+      link.onclick = () => signOut(auth).then(() => location.reload());
+      if (isAdmin(profile.role)) {
+        document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
+      }
+      const feedbackItems = document.querySelectorAll('.feedback-item');
+      feedbackItems.forEach(el => {
+        el.style.display = 'block';
+        const lnk = el.querySelector('a');
+        if (isAdmin(profile.role)) { lnk.href = 'feedback.html#tab-dashboard'; lnk.textContent = '📊 Voir les retours'; }
+        else if (profile.role === 'professeur') { lnk.href = 'feedback.html#tab-professeurs'; lnk.textContent = '📋 Donner mon avis (prof)'; }
+        else if (profile.role === 'eleve') { lnk.href = 'feedback.html#tab-eleves'; lnk.textContent = '📋 Donner mon avis (élève)'; }
+      });
+    } else {
+      profileSpan.style.display = 'none';
+      link.textContent = "Connexion";
+      link.href = "identification.html";
+    }
+  });
+
+  document.getElementById('burger-btn').onclick = () => document.getElementById('menu').classList.toggle('show');
+
+  window.showContact = async () => {
+    const snap = await getDoc(doc(db, 'config', 'contact'));
+    if (!snap.exists() || !snap.data().email) return;
+    const c = snap.data();
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
+    overlay.innerHTML = `
+      <div style="background:#fff;border-radius:12px;padding:25px;max-width:340px;width:100%;text-align:center;">
+        <h3 style="font-family:var(--serif);color:var(--ink);margin-bottom:6px;">${escapeHtml(c.nom) || 'Le Proviseur'}</h3>
+        <p style="font-size:12px;color:var(--slate);margin-bottom:18px;">Chef d'établissement — LFAKM</p>
+        ${c.telephone ? `<a href="tel:${c.telephone}" style="display:block;padding:10px;margin-bottom:8px;background:var(--ink-deep);color:#fff;border-radius:6px;text-decoration:none;">📞 ${c.telephone}</a>` : ''}
+        ${c.email ? `<a href="mailto:${c.email}" style="display:block;padding:10px;margin-bottom:14px;background:var(--brass);color:#fff;border-radius:6px;text-decoration:none;">✉️ ${c.email}</a>` : ''}
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="border:none;background:#eee;padding:8px 16px;border-radius:6px;cursor:pointer;">Fermer</button>
+      </div>`;
+    document.body.appendChild(overlay);
+  };
+
+  window.openProfil = () => {
+    if (profile && profile.role === 'eleve' && auth.currentUser) {
+      window.location.href = `profil-eleve.html?uid=${auth.currentUser.uid}`;
+    }
+  };
+
+  // GÉNÉTIQUE : SIMULATION DE CROISEMENT
+  window.simulateGenetics = () => {
+    const result = document.getElementById('genetics-result');
+    const parents = ['A', 'a'];
+    const gametes = [];
+    parents.forEach(p1 => parents.forEach(p2 => gametes.push(p1 + p2)));
+    const counts = { 'AA': 0, 'Aa': 0, 'aa': 0 };
+    gametes.forEach(g => {
+      if (g === 'AA') counts['AA']++;
+      else if (g === 'aa') counts['aa']++;
+      else counts['Aa']++;
+    });
+    result.innerHTML = `
+      <p>Croisement : <strong>Aa × Aa</strong></p>
+      <p>Génotypes possibles : AA (${counts['AA']}/4), Aa (${counts['Aa']}/4), aa (${counts['aa']}/4)</p>
+      <p>Phénotypes : <strong>3/4 Dominant, 1/4 Récessif</strong></p>
+    `;
+  };
+
+  console.log('✅ Labo SVT chargé');
+</script>
+</body>
+</html>
