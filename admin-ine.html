@@ -17,6 +17,7 @@
     --line: rgba(27,42,74,0.14);
     --serif: 'Source Serif 4', Georgia, serif;
     --sans: 'Inter', -apple-system, sans-serif;
+    --gov-purple: #6a4c93;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   body{ font-family:var(--sans); color:var(--text); background:var(--paper); line-height:1.55; }
@@ -43,9 +44,13 @@
   #status.success{ color:#2E7D4F; }
   .gate{ text-align:center; padding:60px 20px; }
   .gate a{ color:var(--ink); border-bottom:1px solid var(--brass); }
-  .top-nav { background: var(--ink); padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; max-width: 700px; margin-left: auto; margin-right: auto; }
+  .top-nav { background: var(--ink); padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; max-width: 700px; margin-left: auto; margin-right: auto; flex-wrap: wrap; gap: 10px; }
   .top-nav a { color: #fff; text-decoration: none; font-size: 13px; }
   .top-nav a:hover { text-decoration: underline; }
+
+  /* 🎓 GOUVERNEMENT SCOLAIRE */
+  .gov-link { display: none; color: var(--gov-purple) !important; font-weight: 700; }
+  .gov-link:hover { color: #9b59b6 !important; text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -53,10 +58,13 @@
     <!-- Barre de navigation Retour -->
     <div class="top-nav">
         <a href="admin-gestion.html">← Retour à la Gestion</a>
-        <div style="display: flex; gap: 15px;">
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
             <a href="index.html">🏠 Accueil</a>
             <a href="ressources.html">📚 Ressources</a>
             <a href="actualites.html">📰 Actualités</a>
+
+            <!-- 🎓 NOUVEAU : Lien Gouvernement scolaire (visible pour Président/Ministre/Admins) -->
+            <a href="publier-annonce.html" class="gov-link">🎓 Gouvernement</a>
         </div>
     </div>
 
@@ -84,7 +92,6 @@
   </div>
 </div>
 
-<!-- NE PAS COLLER LE SCRIPT ICI. IL EST DANS LA PARTIE 2 -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -113,6 +120,14 @@
     if (user) {
       const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
       const role = snap.data()?.role;
+      
+      // 🎓 Affichage du lien Gouvernement (Président, Ministre, Admins)
+      if (['admin', 'proviseur', 'censeur', 'president', 'ministre_communication'].includes(role)) {
+        document.querySelectorAll('.gov-link').forEach(el => el.style.display = 'inline');
+      } else {
+        document.querySelectorAll('.gov-link').forEach(el => el.style.display = 'none');
+      }
+
       if (role === 'admin' || role === 'proviseur' || role === 'censeur') {
         tool.style.display = 'block';
         gate.style.display = 'none';
@@ -124,6 +139,7 @@
     } else {
       tool.style.display = 'none';
       gate.style.display = 'block';
+      document.querySelectorAll('.gov-link').forEach(el => el.style.display = 'none');
     }
   });
 
