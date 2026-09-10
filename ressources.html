@@ -47,6 +47,7 @@
   .menu-toggle { display: none; font-size: 30px; cursor: pointer; }
   .labo-pc-item, .labo-maths-item, .labo-svt-item { display: none; }
   .feedback-item { display: none; }
+  .gov-item { display: none; }
   .feedback-link { background: var(--brass); color: #fff !important; padding: 4px 12px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
   @media (max-width: 1024px) {
     .menu-toggle { display: block; }
@@ -183,6 +184,9 @@
         <li class="labo-maths-item"><a href="labo-maths.html" style="color: var(--brass); font-weight:700;">📐 Labo Maths</a></li>
         <li class="labo-svt-item"><a href="labo-svt.html" style="color: var(--brass); font-weight:700;">🧬 Labo SVT</a></li>
         <li><a href="ressources.html">Ressources</a></li>
+        <li class="gov-item">
+          <a href="publier-annonce.html" style="color: #6a4c93; font-weight:700;">🎓 Gouvernement</a>
+        </li>
         <li><a href="#" onclick="window.showContact(); return false;" class="contact-info" style="text-decoration: none;">
           <span class="contact-label">📞 Contacter le Proviseur</span>
           <span class="contact-phone" id="contact-phone-display">...</span>
@@ -405,7 +409,12 @@
                         if (el) el.style.display = "block";
                     });
                 }
-
+                // 🎓 Affichage du lien Gouvernement
+                if (isAdmin(profile.role) || profile.role === 'president' || profile.role === 'ministre_communication') {
+                    document.querySelectorAll('.gov-item').forEach(el => {
+                        if (el) el.style.display = "block";
+                    });
+                }
                 // AFFICHAGE DES LABOS SELON LA DISCIPLINE
                 if (isAdmin(profile.role)) {
                     document.querySelectorAll('.labo-pc-item, .labo-maths-item, .labo-svt-item').forEach(el => el.style.display = 'block');
