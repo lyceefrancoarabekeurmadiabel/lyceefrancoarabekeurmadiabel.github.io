@@ -15,6 +15,7 @@
     --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
     --slate: #5B6472; --text: #1A1A1A; --line: rgba(27,42,74,0.14);
     --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --gov-purple: #6a4c93;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: var(--sans); color: var(--text); background: #f9f7f2; line-height:1.55; }
@@ -70,6 +71,11 @@
     vertical-align: middle;
     margin: 0;
   }
+
+  /* 🎓 GOUVERNEMENT SCOLAIRE */
+  .gov-item { display: none; }
+  .gov-item a { color: var(--gov-purple) !important; font-weight: 700; }
+  .gov-item a:hover { color: #9b59b6 !important; }
 
   /* PROFIL ET CONTACT SUR DEUX LIGNES */
   .profile-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 13px; }
@@ -171,6 +177,12 @@
         <li><a href="historique.html">Historique</a></li>
         <li><a href="actualites.html">Actualités</a></li>
         <li><a href="ressources.html">Ressources</a></li>
+
+        <!-- 🎓 NOUVEAU : Lien Gouvernement scolaire -->
+        <li class="gov-item">
+          <a href="publier-annonce.html">🎓 Gouvernement</a>
+        </li>
+
         <li><a href="#" onclick="window.showContact(); return false;" class="contact-info" style="text-decoration: none;">
           <span class="contact-label">📞 Contacter le Proviseur</span>
           <span class="contact-phone" id="contact-phone-display">...</span>
@@ -335,7 +347,7 @@
   // Gestion du menu mobile
   document.getElementById('menu-toggle-btn').onclick = () => document.getElementById('main-menu').classList.toggle('show');
 
-  // Protection anti-XSS : échappe tout texte saisi par un utilisateur avant de l'insérer dans le HTML
+  // Protection anti-XSS
   function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str ?? '';
@@ -350,7 +362,7 @@
     if (contactPhone && c.telephone) contactPhone.textContent = c.telephone;
   });
 
-  // Gestion de l'authentification (Connexion / Déconnexion / Admin)
+  // Gestion de l'authentification (Connexion / Déconnexion / Admin / Gouvernement)
   onAuthStateChanged(auth, async (user) => {
     const link = document.getElementById('auth-link');
     const profileSpan = document.getElementById('user-profile');
@@ -359,27 +371,30 @@
       const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
       const profile = snap.data();
       
-      // Affiche le nom et le rôle de l'utilisateur connecté
       profileSpan.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
       profileSpan.style.display = 'flex';
       
-      // Bouton Déconnexion
       link.textContent = "Déconnexion";
       link.onclick = () => signOut(auth).then(() => location.reload());
       
-      // Affiche le menu déroulant Admin uniquement pour les admins
-      if (profile.role === 'admin' || profile.role === 'proviseur' || profile.role === 'censeur') {
+      // Admin
+      if (['admin', 'proviseur', 'censeur'].includes(profile.role)) {
         document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
       }
+
+      // 🎓 Gouvernement scolaire
+      if (['admin', 'proviseur', 'censeur', 'president', 'ministre_communication'].includes(profile.role)) {
+        document.querySelectorAll('.gov-item').forEach(el => el.style.display = 'block');
+      }
     } else {
-      // Visiteur non connecté
       profileSpan.style.display = 'none';
       link.textContent = "Connexion";
       link.href = "identification.html";
+      document.querySelectorAll('.gov-item').forEach(el => el.style.display = 'none');
     }
   });
 
-  // Fonction pour afficher les coordonnées du Proviseur dans une fenêtre modale
+  // Fonction modale Contact Proviseur
   window.showContact = async () => {
     const snap = await getDoc(doc(db, 'config', 'contact'));
     if (!snap.exists() || !snap.data().email) {
@@ -400,7 +415,7 @@
     document.body.appendChild(overlay);
   };
 
-  // Logique d'affichage conditionnel des champs selon le rôle
+  // Affichage conditionnel des champs selon le rôle
   const eleveFields = document.getElementById('eleve-fields');
   const profFields = document.getElementById('prof-fields');
   const intendantFields = document.getElementById('intendant-fields');
@@ -490,12 +505,12 @@
       } else if (role === 'professeur') {
         userData.matricule = document.getElementById('matricule-prof').value.trim();
         userData.disciplines = Array.from(document.querySelectorAll('input[name="mats"]:checked')).map(i => i.value);
-        userData.classes = []; // Sera rempli par l'admin plus tard
+        userData.classes = [];
         userData.assignedClasses = [];
-        userData.statut = 'en_attente'; // Validation requise (Proviseur ou Censeur)
+        userData.statut = 'en_attente';
       } else if (role === 'intendant') {
         userData.matricule = document.getElementById('matricule-intendant').value.trim();
-        userData.statut = 'en_attente'; // Validation requise (Proviseur ou Censeur)
+        userData.statut = 'en_attente';
       }
 
       await setDoc(doc(db, 'utilisateurs', cred.user.uid), userData);
