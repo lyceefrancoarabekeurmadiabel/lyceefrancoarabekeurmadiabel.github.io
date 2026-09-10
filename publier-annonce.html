@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Publier une annonce — Gouvernement Scolaire LFAKM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
+    --slate: #5B6472; --text: #1A1A1A; --line: rgba(27,42,74,0.14);
+    --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --success: #2e7d32; --warning: #f39c12; --danger: #d9534f;
+    --gov-purple: #6a4c93; --gov-purple-light: #9b59b6;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: var(--sans); color: var(--text); background: #f9f7f2; line-height:1.55; }
+  .wrap { max-width:1100px; margin:0 auto; padding:0 24px; }
+
+  /* HEADER */
+  header { background: var(--paper); border-bottom: 1px solid var(--line); height: 84px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1000; }
+  .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; }
+  .brand { display:flex; align-items:center; gap:12px; text-decoration: none; min-width: 0; }
+  .brand-mark { width:45px; height:45px; flex-shrink: 0; display:flex; align-items:center; justify-content:center; }
+  .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
+  .brand-name { font-family:var(--serif); font-weight:700; font-size:14px; color:var(--ink); line-height: 1.2; text-align: center; white-space: normal; }
+  .brand-tag { font-size: 10px; color: var(--slate); text-align: center; margin-top: 2px; letter-spacing: 0.5px; }
+  nav ul { display:flex; gap:20px; list-style:none; align-items: center; }
+  nav a { font-size:14px; font-weight:600; color:var(--ink); text-decoration: none; }
+  nav a:hover, nav a.active { color: var(--brass); }
+  .admin-item { display: none; position: relative; }
+  .admin-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    min-width: 180px;
+    z-index: 100;
+    padding: 5px 0;
+  }
+  .admin-dropdown a {
+    display: block;
+    padding: 8px 15px;
+    color: var(--ink);
+    font-size: 13px;
+    text-decoration: none;
+  }
+  .admin-dropdown a:hover { background: #f5f5f5; }
+  .admin-item:hover .admin-dropdown { display: block; }
+  .admin-trigger {
+    background: var(--brass);
+    color: #fff !important;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    display: inline-block;
+    line-height: 1.4;
+    text-align: center;
+  }
+  .profile-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 13px; }
+  .profile-name { font-weight: 700; color: var(--brass); font-size: 14px; }
+  .profile-role { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; }
+  #user-profile { display: none; font-weight: 700; color: var(--brass); font-size: 14px; }
+  .nav-cta { background: var(--ink-deep); color:#fff; padding:10px 18px; border-radius:4px; font-size:13px; font-weight:600; text-decoration:none; border:none; cursor:pointer; }
+  .menu-toggle { display: none; font-size: 28px; background: none; border: none; color: var(--ink); cursor: pointer; padding: 4px 8px; }
+
+  @media (max-width: 900px) {
+    .menu-toggle { display: block; }
+    nav ul {
+      display: none; position: absolute; top: 84px; left: 0; width: 100%;
+      flex-direction: column; background: #fff; padding: 20px; gap: 15px;
+      text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-bottom: 2px solid var(--line);
+    }
+    nav ul.show { display: flex; }
+    .admin-dropdown { position: static; box-shadow: none; border: none; }
+  }
+
+  /* HERO GOUVERNEMENT */
+  .gov-hero {
+    background: linear-gradient(135deg, var(--gov-purple) 0%, var(--gov-purple-light) 100%);
+    color: #fff;
+    padding: 40px 20px;
+    text-align: center;
+  }
+  .gov-hero h1 { font-family: var(--serif); font-size: 32px; margin-bottom: 8px; }
+  .gov-hero p { font-size: 15px; opacity: 0.9; }
+  .gov-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+
+  /* LAYOUT PRINCIPAL */
+  .main-container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+
+  /* ONGLETS */
+  .tabs { display: flex; gap: 8px; margin-bottom: 25px; border-bottom: 2px solid var(--line); padding-bottom: 10px; flex-wrap: wrap; }
+  .tab-btn {
+    padding: 10px 18px;
+    border: none;
+    background: #eee;
+    border-radius: 6px 6px 0 0;
+    cursor: pointer;
+    font-weight: 600;
+    color: #444;
+    font-size: 13px;
+    font-family: var(--sans);
+    transition: background 0.2s, color 0.2s;
+    position: relative;
+  }
+  .tab-btn.active { background: var(--gov-purple); color: #fff; }
+  .tab-btn:hover:not(.active) { background: #ddd; }
+  .tab-section { display: none; }
+  .tab-section.active { display: block; }
+  .tab-count {
+    background: rgba(0,0,0,0.15);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 10px;
+    margin-left: 6px;
+  }
+
+  /* FORMULAIRE DE PUBLICATION */
+  .form-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  }
+  .form-card h2 {
+    font-family: var(--serif);
+    color: var(--ink);
+    margin-bottom: 8px;
+    font-size: 22px;
+  }
+  .form-card .form-intro {
+    font-size: 13px;
+    color: var(--slate);
+    margin-bottom: 25px;
+    padding: 12px;
+    background: #fdf8f0;
+    border-left: 4px solid var(--warning);
+    border-radius: 4px;
+  }
+
+  .field { margin-bottom: 20px; }
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .field .helper {
+    font-size: 11px;
+    color: var(--slate);
+    margin-top: 4px;
+  }
+  .field input[type="text"],
+  .field textarea,
+  .field select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-family: var(--sans);
+    font-size: 14px;
+    transition: border-color 0.2s;
+    background: #fff;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    outline: none;
+    border-color: var(--gov-purple);
+    box-shadow: 0 0 0 3px rgba(106,76,147,0.1);
+  }
+  .field textarea { resize: vertical; min-height: 180px; line-height: 1.6; }
+
+  /* IMAGE UPLOAD */
+  .image-upload {
+    border: 2px dashed var(--line);
+    border-radius: 8px;
+    padding: 25px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fafafa;
+  }
+  .image-upload:hover {
+    border-color: var(--gov-purple);
+    background: #f5f0fa;
+  }
+  .image-upload.has-image {
+    border-style: solid;
+    border-color: var(--success);
+    background: #f0f9f0;
+    padding: 10px;
+  }
+  .image-upload input[type="file"] { display: none; }
+  .image-upload .upload-icon { font-size: 40px; display: block; margin-bottom: 8px; }
+  .image-upload .upload-text { font-size: 13px; color: var(--slate); }
+  .image-upload .upload-text strong { color: var(--gov-purple); }
+  .image-preview {
+    max-width: 100%;
+    max-height: 250px;
+    border-radius: 6px;
+    display: block;
+    margin: 0 auto;
+  }
+  .image-info {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--slate);
+    text-align: center;
+  }
+  .btn-remove-image {
+    background: var(--danger);
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  /* BOUTON DE SOUMISSION */
+  .btn-submit {
+    width: 100%;
+    background: var(--gov-purple);
+    color: #fff;
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: background 0.2s;
+    margin-top: 10px;
+  }
+  .btn-submit:hover { background: #543a75; }
+  .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
+
+  #status-msg {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 6px;
+    display: none;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  #status-msg.success { display: block; background: #d4edda; color: var(--success); border: 1px solid var(--success); }
+  #status-msg.error { display: block; background: #f8d7da; color: var(--danger); border: 1px solid var(--danger); }
+  #status-msg.info { display: block; background: #d1ecf1; color: #0c5460; border: 1px solid #0c5460; }
+
+  /* LISTE DES PUBLICATIONS */
+  .pub-list { display: flex; flex-direction: column; gap: 15px; }
+  .pub-item {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    transition: box-shadow 0.2s;
+  }
+  .pub-item:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.06); }
+  .pub-item.status-attente { border-left: 4px solid var(--warning); }
+  .pub-item.status-approuvee { border-left: 4px solid var(--success); }
+  .pub-item.status-rejetee { border-left: 4px solid var(--danger); }
+  .pub-thumb {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+    background: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    color: #aaa;
+  }
+  .pub-body { flex: 1; min-width: 220px; }
+  .pub-body h4 {
+    font-family: var(--serif);
+    color: var(--ink);
+    margin-bottom: 6px;
+    font-size: 16px;
+  }
+  .pub-body .pub-meta {
+    font-size: 11px;
+    color: var(--slate);
+    margin-bottom: 10px;
+  }
+  .pub-body .pub-content {
+    font-size: 13px;
+    color: #333;
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+  .pub-status {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  .pub-status.attente { background: #fff3cd; color: #856404; }
+  .pub-status.approuvee { background: #d4edda; color: #155724; }
+  .pub-status.rejetee { background: #f8d7da; color: #721c24; }
+  .pub-reject-reason {
+    background: #fef5f5;
+    border-left: 3px solid var(--danger);
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #721c24;
+    margin-top: 8px;
+  }
+  .pub-actions { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .pub-actions .btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: var(--sans);
+  }
+  .btn-view { background: var(--ink); color: #fff; }
+  .btn-view:hover { background: var(--ink-deep); }
+  .btn-delete { background: var(--danger); color: #fff; }
+  .btn-delete:hover { background: #c9302c; }
+
+  /* MESSAGE VIDE */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--slate);
+  }
+  .empty-state .icon { font-size: 50px; display: block; margin-bottom: 12px; }
+
+  /* STATS GOUVERNEMENT */
+  .gov-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 25px;
+  }
+  .gov-stat {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--gov-purple);
+    border-radius: 8px;
+    padding: 15px;
+  }
+  .gov-stat .value { font-size: 24px; font-weight: 800; color: var(--ink); }
+  .gov-stat .label { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; }
+  .gov-stat.attente { border-left-color: var(--warning); }
+  .gov-stat.approuvee { border-left-color: var(--success); }
+  .gov-stat.rejetee { border-left-color: var(--danger); }
+
+  /* MODAL APERÇU */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: #fff;
+    border-radius: 10px;
+    padding: 30px;
+    max-width: 700px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  .modal-box h3 {
+    font-family: var(--serif);
+    color: var(--ink);
+    margin-bottom: 15px;
+    font-size: 20px;
+  }
+  .modal-box .modal-meta {
+    background: #f9f9f9;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 12px;
+    color: var(--slate);
+    margin-bottom: 15px;
+  }
+  .modal-box .modal-content {
+    font-size: 14px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    color: #333;
+  }
+  .modal-box .modal-image {
+    width: 100%;
+    border-radius: 8px;
+    margin: 15px 0;
+  }
+  .modal-box .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: flex-end;
+  }
+  .btn-close {
+    background: #eee;
+    color: #333;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .btn-close:hover { background: #ddd; }
+
+  /* BADGE ROLE UTILISATEUR */
+  .user-role-badge {
+    display: inline-block;
+    background: var(--gov-purple);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 8px;
+  }
+  .user-role-badge.ministre { background: var(--gov-purple-light); }
+
+  /* ACCÈS REFUSÉ */
+  .access-denied {
+    text-align: center;
+    padding: 80px 20px;
+  }
+  .access-denied h2 {
+    font-family: var(--serif);
+    color: var(--danger);
+    margin-bottom: 12px;
+  }
+  .access-denied p { color: var(--slate); margin-bottom: 20px; }
+  .access-denied a {
+    color: var(--ink);
+    border-bottom: 1px solid var(--brass);
+    text-decoration: none;
+    padding-bottom: 2px;
+  }
+
+  footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav-row">
+    <a href="index.html" class="brand">
+      <div class="brand-mark"><img src="logo-header.png" alt="LFAKM"></div>
+      <div>
+        <div class="brand-name">Lycée Franco Arabe<br>de Keur Madiabel</div>
+        <div class="brand-tag">Excellence & Savoir</div>
+      </div>
+    </a>
+    <nav>
+      <ul id="main-menu">
+        <li><a href="index.html">Accueil</a></li>
+        <li class="admin-item">
+          <span class="admin-trigger">⚙️ Admin</span>
+          <div class="admin-dropdown">
+            <a href="admin-ine.html">📥 Import INE</a>
+            <a href="admin-gestion.html">👥 Gestion</a>
+            <a href="admin-news.html">📰 Actualités</a>
+          </div>
+        </li>
+        <li><a href="historique.html">Historique</a></li>
+        <li><a href="actualites.html">Actualités</a></li>
+        <li><a href="ressources.html">Ressources</a></li>
+        <li><a href="publier-annonce.html" class="active">🎓 Gouvernement</a></li>
+        <li id="user-profile" class="profile-info"></li>
+        <li><a href="identification.html" id="auth-link" class="nav-cta">Connexion</a></li>
+      </ul>
+    </nav>
+    <button class="menu-toggle" id="menu-toggle-btn" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<!-- GATE : vérification d'accès -->
+<div id="gate" style="text-align:center; padding:80px 20px;">
+  <p style="color:var(--slate);">Vérification de votre accès...</p>
+</div>
+
+<!-- CONTENU PRINCIPAL (masqué par défaut) -->
+<div id="main-content" style="display:none;">
+
+  <!-- HERO -->
+  <section class="gov-hero">
+    <div class="wrap">
+      <div class="gov-badge">🎓 GOUVERNEMENT SCOLAIRE LFAKM</div>
+      <h1>Espace de publication</h1>
+      <p>Partagez les annonces et actualités de la vie scolaire avec toute la communauté.</p>
+      <p id="user-greeting" style="margin-top:12px; font-size:13px;"></p>
+    </div>
+  </section>
+
+  <div class="main-container">
+
+    <!-- ONGLETS -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="tab-new">✍️ Nouvelle annonce</button>
+      <button class="tab-btn" data-tab="tab-mine">📋 Mes publications <span class="tab-count" id="count-mine" style="display:none;">0</span></button>
+    </div>
+
+    <!-- ============ ONGLET 1 : NOUVELLE ANNONCE ============ -->
+    <div id="tab-new" class="tab-section active">
+      <div class="form-card">
+        <h2>✍️ Rédiger une annonce</h2>
+        <div class="form-intro">
+          ⚠️ <strong>Attention :</strong> Votre annonce sera d'abord soumise à l'administration (Proviseur / Censeur) pour validation avant d'être publiée sur le site.
+        </div>
+
+        <form id="annonce-form">
+          <div class="field">
+            <label for="titre">Titre de l'annonce *</label>
+            <input type="text" id="titre" placeholder="Ex: Élection du nouveau bureau du gouvernement scolaire" required maxlength="120">
+            <div class="helper">Maximum 120 caractères.</div>
+          </div>
+
+          <div class="field">
+            <label for="contenu">Contenu de l'annonce *</label>
+            <textarea id="contenu" placeholder="Rédigez ici votre annonce..." required maxlength="5000"></textarea>
+            <div class="helper"><span id="char-count">0</span> / 5000 caractères.</div>
+          </div>
+
+          <div class="field">
+            <label>Image d'illustration (optionnel)</label>
+            <div class="image-upload" id="image-upload-zone">
+              <input type="file" id="image-input" accept="image/*">
+              <div id="upload-initial">
+                <span class="upload-icon">📷</span>
+                <div class="upload-text">Cliquez pour <strong>choisir une image</strong><br><small>Formats acceptés : JPG, PNG — Max 15 Mo</small></div>
+              </div>
+              <div id="upload-preview" style="display:none;">
+                <img id="preview-img" class="image-preview" alt="">
+                <div class="image-info" id="image-info"></div>
+                <button type="button" class="btn-remove-image" id="remove-image">🗑 Retirer l'image</button>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit" id="submit-btn">📤 Soumettre pour validation</button>
+          <div id="status-msg"></div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ============ ONGLET 2 : MES PUBLICATIONS ============ -->
+    <div id="tab-mine" class="tab-section">
+      <div class="gov-stats" id="gov-stats">
+        <div class="gov-stat">
+          <div class="value" id="stat-total">0</div>
+          <div class="label">Total</div>
+        </div>
+        <div class="gov-stat attente">
+          <div class="value" id="stat-attente">0</div>
+          <div class="label">En attente</div>
+        </div>
+        <div class="gov-stat approuvee">
+          <div class="value" id="stat-approuvee">0</div>
+          <div class="label">Approuvées</div>
+        </div>
+        <div class="gov-stat rejetee">
+          <div class="value" id="stat-rejetee">0</div>
+          <div class="label">Rejetées</div>
+        </div>
+      </div>
+
+      <div class="pub-list" id="pub-list">
+        <div class="empty-state">
+          <span class="icon">⏳</span>
+          Chargement de vos publications...
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 Lycée Franco Arabe de Keur Madiabel — Gouvernement Scolaire</footer>
+
+<!-- MODAL APERÇU -->
+<div class="modal-overlay" id="preview-overlay">
+  <div class="modal-box">
+    <h3 id="preview-titre">Titre</h3>
+    <div class="modal-meta" id="preview-meta"></div>
+    <img id="preview-image" class="modal-image" style="display:none;" alt="">
+    <div class="modal-content" id="preview-contenu"></div>
+    <div class="modal-actions">
+      <button class="btn-close" onclick="document.getElementById('preview-overlay').classList.remove('show')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, addDoc, deleteDoc, collection, query, where, orderBy, onSnapshot, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+    authDomain: "lfakm-87dec.firebaseapp.com",
+    projectId: "lfakm-87dec",
+    storageBucket: "lfakm-87dec.firebasestorage.app",
+    messagingSenderId: "739517262614",
+    appId: "1:739517262614:web:14abd3538427960c527e37"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let currentUser = null;
+  let currentProfile = null;
+  let selectedImageBlob = null;
+  let selectedImageOriginalName = '';
+  let unsubscribeMyPubs = null;
+
+  // ============ UTILITAIRES ============
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str ?? '';
+    return div.innerHTML;
+  }
+
+  // ============ COMPRESSION D'IMAGE (réutilise la même logique que admin-gestion) ============
+  async function compressImage(file, maxWidth = 1200, quality = 0.8) {
+    return new Promise((resolve, reject) => {
+      if (!file || !file.type.startsWith('image/')) {
+        reject(new Error('Fichier non valide (image attendue).'));
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ratio = Math.min(maxWidth / img.width, maxWidth / img.height, 1);
+          canvas.width = Math.round(img.width * ratio);
+          canvas.height = Math.round(img.height * ratio);
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob((blob) => {
+            if (!blob) {
+              reject(new Error('Erreur lors de la compression.'));
+              return;
+            }
+            resolve({
+              blob: blob,
+              originalSize: file.size,
+              newSize: blob.size,
+              dataURL: canvas.toDataURL('image/jpeg', quality)
+            });
+          }, 'image/jpeg', quality);
+        };
+        img.onerror = () => reject(new Error('Impossible de lire l\'image.'));
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error('Erreur de lecture du fichier.'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // ============ MENU MOBILE ============
+  document.getElementById('menu-toggle-btn').onclick = () => 
+    document.getElementById('main-menu').classList.toggle('show');
+
+  // ============ AUTHENTIFICATION & CONTRÔLE D'ACCÈS ============
+  onAuthStateChanged(auth, async (user) => {
+    const gate = document.getElementById('gate');
+    const mainContent = document.getElementById('main-content');
+    const link = document.getElementById('auth-link');
+    const profileSpan = document.getElementById('user-profile');
+
+    if (!user) {
+      gate.innerHTML = `
+        <div class="access-denied">
+          <h2>🔒 Accès réservé</h2>
+          <p>Vous devez être connecté pour accéder à cet espace.</p>
+          <a href="identification.html">Se connecter</a>
+        </div>`;
+      return;
+    }
+
+    currentUser = user;
+    const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+    if (!snap.exists()) {
+      gate.innerHTML = `<div class="access-denied"><h2>⚠️ Profil introuvable</h2><p>Contactez l'administration.</p></div>`;
+      return;
+    }
+    currentProfile = snap.data();
+
+    // Vérification du rôle : président, ministre_communication, ou admin
+    const allowedRoles = ['president', 'ministre_communication', 'admin', 'proviseur', 'censeur'];
+    if (!allowedRoles.includes(currentProfile.role)) {
+      gate.innerHTML = `
+        <div class="access-denied">
+          <h2>⛔ Accès non autorisé</h2>
+          <p>Cet espace est réservé au <strong>Président du gouvernement scolaire</strong>,<br>à son <strong>Ministre de la Communication</strong>, et à l'<strong>administration</strong>.</p>
+          <p style="margin-top:20px;">Votre rôle actuel : <strong>${escapeHtml(currentProfile.role)}</strong></p>
+          <a href="index.html">🏠 Retour à l'accueil</a>
+        </div>`;
+      return;
+    }
+
+    // Afficher le contenu
+    gate.style.display = 'none';
+    mainContent.style.display = 'block';
+
+    // En-tête utilisateur
+    const roleLabels = {
+      president: '🎓 Président du gouvernement scolaire',
+      ministre_communication: '📢 Ministre de la Communication',
+      admin: '⚙️ Administrateur',
+      proviseur: '👔 Proviseur',
+      censeur: '📋 Censeur'
+    };
+    const roleLabel = roleLabels[currentProfile.role] || currentProfile.role;
+    const badgeClass = currentProfile.role === 'ministre_communication' ? 'ministre' : '';
+    document.getElementById('user-greeting').innerHTML = `
+      Bonjour <strong>${escapeHtml(currentProfile.prenom)} ${escapeHtml(currentProfile.nom)}</strong>
+      <span class="user-role-badge ${badgeClass}">${roleLabel}</span>`;
+
+    // Menu navigation
+    profileSpan.innerHTML = `<span class="profile-name">👤 ${currentProfile.prenom} ${currentProfile.nom}</span><span class="profile-role">${currentProfile.role}</span>`;
+    profileSpan.style.display = 'flex';
+    link.textContent = "Déconnexion";
+    link.onclick = () => signOut(auth).then(() => location.reload());
+
+    // Menu admin si admin    if (['admin', 'proviseur', 'censeur'].includes(currentProfile.role)) {
+      document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
+    }
+
+    // Démarrer l'écoute des publications de l'utilisateur
+    startListeningMyPubs();
+  });
+
+  // ============ ONGLETS ============
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ============ COMPTEUR DE CARACTÈRES ============
+  const contenuInput = document.getElementById('contenu');
+  contenuInput.addEventListener('input', () => {
+    document.getElementById('char-count').textContent = contenuInput.value.length;
+  });
+
+  // ============ GESTION DE L'IMAGE ============
+  const uploadZone = document.getElementById('image-upload-zone');
+  const imageInput = document.getElementById('image-input');
+
+  uploadZone.addEventListener('click', (e) => {
+    if (e.target.id === 'remove-image') return;
+    imageInput.click();
+  });
+
+  imageInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 15 * 1024 * 1024) {
+      alert('❌ Image trop volumineuse (maximum 15 Mo).');
+      return;
+    }
+    try {
+      const result = await compressImage(file, 1200, 0.8);
+      selectedImageBlob = result.blob;
+      selectedImageOriginalName = file.name.replace(/\.[^.]+$/, '.jpg');
+
+      const originalKo = (result.originalSize / 1024).toFixed(0);
+      const newKo = (result.newSize / 1024).toFixed(0);
+      const gain = ((1 - result.newSize / result.originalSize) * 100).toFixed(0);
+
+      document.getElementById('preview-img').src = result.dataURL;
+      document.getElementById('image-info').innerHTML = 
+        `📉 Compression : <strong>${originalKo} Ko → ${newKo} Ko</strong> (-${gain}%)`;
+      document.getElementById('upload-initial').style.display = 'none';
+      document.getElementById('upload-preview').style.display = 'block';
+      uploadZone.classList.add('has-image');
+    } catch (err) {
+      alert('❌ Erreur de compression : ' + err.message);
+    }
+  });
+
+  document.getElementById('remove-image').addEventListener('click', (e) => {
+    e.stopPropagation();
+    selectedImageBlob = null;
+    selectedImageOriginalName = '';
+    imageInput.value = '';
+    document.getElementById('upload-initial').style.display = 'block';
+    document.getElementById('upload-preview').style.display = 'none';
+    uploadZone.classList.remove('has-image');
+  });
+
+  // ============ SOUMISSION DU FORMULAIRE ============
+  document.getElementById('annonce-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    const status = document.getElementById('status-msg');
+    const titre = document.getElementById('titre').value.trim();
+    const contenu = document.getElementById('contenu').value.trim();
+
+    if (!titre || !contenu) {
+      status.className = 'error';
+      status.textContent = '⚠️ Le titre et le contenu sont obligatoires.';
+      return;
+    }
+
+    // Vérification du quota de stockage
+    if (selectedImageBlob) {
+      const usageSnap = await getDoc(doc(db, 'config', 'usage'));
+      const moUsed = usageSnap.data()?.totalMo || 0;
+      if (moUsed >= 20000) {
+        status.className = 'error';
+        status.textContent = "❌ Espace de stockage plein. Soumettez l'annonce sans image.";
+        return;
+      }
+    }
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Envoi en cours...';
+    status.className = 'info';
+    status.textContent = '📤 Upload de l\'image en cours...';
+
+    let imageUrl = '';
+
+    try {
+      // 1. Upload image (si présente)
+      if (selectedImageBlob) {
+        const fd = new FormData();
+        fd.append('file', selectedImageBlob, selectedImageOriginalName);
+        fd.append('upload_preset', 'lfakm_ressources');
+        const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { 
+          method: 'POST', 
+          body: fd 
+        });
+        const data = await res.json();
+        if (!data.secure_url) throw new Error('Échec de l\'upload de l\'image');
+        imageUrl = data.secure_url;
+
+        // Incrémenter le compteur de stockage
+        try {
+          await setDoc(doc(db, 'config', 'usage'), 
+            { totalMo: increment(selectedImageBlob.size / (1024 * 1024)) }, 
+            { merge: true }
+          );
+        } catch (err) { /* silencieux */ }
+      }
+
+      // 2. Enregistrer la publication (statut en_attente)
+      status.textContent = '💾 Enregistrement de la publication...';
+      await addDoc(collection(db, 'publications_gouvernement'), {
+        titre: titre,
+        contenu: contenu,
+        image: imageUrl,
+        auteurId: currentUser.uid,
+        auteurNom: `${currentProfile.prenom} ${currentProfile.nom}`,
+        auteurRole: currentProfile.role,
+        date: serverTimestamp(),
+        statut: 'en_attente'
+      });
+
+      // 3. Journal d'activité
+      try {
+        await addDoc(collection(db, 'journal_activite'), {
+          date: serverTimestamp(),
+          auteur: `${currentProfile.prenom} ${currentProfile.nom}`,
+          role: currentProfile.role,
+          action: 'soumission',
+          cible: `Annonce "${titre}" — en attente de validation`
+        });
+      } catch (err) { /* silencieux */ }
+
+      // 4. Succès
+      status.className = 'success';
+      status.textContent = '✅ Votre annonce a été soumise pour validation. Elle sera publiée après approbation par l\'administration.';
+      
+      // Reset
+      document.getElementById('annonce-form').reset();
+      document.getElementById('char-count').textContent = '0';
+      document.getElementById('remove-image').click();
+
+      // Basculer vers l'onglet "Mes publications"
+      setTimeout(() => {
+        document.querySelector('.tab-btn[data-tab="tab-mine"]').click();
+      }, 1500);
+
+    } catch (err) {
+      console.error(err);
+      status.className = 'error';
+      status.textContent = '❌ Erreur : ' + err.message;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '📤 Soumettre pour validation';
+    }
+  });
+
+  // ============ ÉCOUTE DES PUBLICATIONS DE L'UTILISATEUR ============
+  function startListeningMyPubs() {
+    if (!currentUser) return;
+
+    const q = query(
+      collection(db, 'publications_gouvernement'),
+      where('auteurId', '==', currentUser.uid),
+      orderBy('date', 'desc')
+    );
+
+    unsubscribeMyPubs = onSnapshot(q, (snap) => {
+      const list = document.getElementById('pub-list');
+      const stats = { total: 0, attente: 0, approuvee: 0, rejetee: 0 };
+
+      if (snap.empty) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <span class="icon">📝</span>
+            <p>Vous n'avez publié aucune annonce pour le moment.</p>
+            <p style="font-size:12px; margin-top:8px;">Rédigez votre première annonce depuis l'onglet "Nouvelle annonce".</p>
+          </div>`;
+      } else {
+        list.innerHTML = '';
+        snap.forEach(d => {
+          const pub = d.data();
+          stats.total++;
+          if (pub.statut === 'en_attente') stats.attente++;
+          else if (pub.statut === 'approuvee') stats.approuvee++;
+          else if (pub.statut === 'rejetee') stats.rejetee++;
+
+          list.appendChild(renderPubItem(d.id, pub));
+        });
+      }
+
+      // Mise à jour des stats
+      document.getElementById('stat-total').textContent = stats.total;
+      document.getElementById('stat-attente').textContent = stats.attente;
+      document.getElementById('stat-approuvee').textContent = stats.approuvee;
+      document.getElementById('stat-rejetee').textContent = stats.rejetee;
+
+      // Badge sur l'onglet
+      const badge = document.getElementById('count-mine');
+      if (stats.total > 0) {
+        badge.textContent = stats.total;
+        badge.style.display = 'inline';
+      } else {
+        badge.style.display = 'none';
+      }
+    }, (err) => {
+      console.warn('Erreur listening pubs:', err.message);
+      document.getElementById('pub-list').innerHTML = 
+        `<div class="empty-state"><span class="icon">⚠️</span><p>Erreur de chargement : ${err.message}</p></div>`;
+    });
+  }
+
+  // ============ RENDU D'UNE PUBLICATION ============
+  function renderPubItem(id, pub) {
+    const item = document.createElement('div');
+    item.className = `pub-item status-${pub.statut.replace('en_attente', 'attente').replace('approuvee', 'approuvee').replace('rejetee', 'rejetee')}`;
+
+    const date = pub.date?.toDate 
+      ? pub.date.toDate().toLocaleString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+      : 'Date inconnue';
+
+    let statusLabel = '';
+    if (pub.statut === 'en_attente') statusLabel = '<span class="pub-status attente">⏳ En attente</span>';
+    else if (pub.statut === 'approuvee') statusLabel = '<span class="pub-status approuvee">✅ Publiée</span>';
+    else if (pub.statut === 'rejetee') statusLabel = '<span class="pub-status rejetee">❌ Rejetée</span>';
+
+    const thumb = pub.image 
+      ? `<img class="pub-thumb" src="${pub.image}" alt="">` 
+      : `<div class="pub-thumb">📰</div>`;
+
+    const rejectInfo = pub.statut === 'rejetee' && pub.rejectReason
+      ? `<div class="pub-reject-reason">⚠️ <strong>Motif du rejet :</strong> ${escapeHtml(pub.rejectReason)}</div>`
+      : '';
+
+    item.innerHTML = `
+      ${thumb}
+      <div class="pub-body">
+        <h4>${escapeHtml(pub.titre)}</h4>
+        <div class="pub-meta">
+          📅 Soumise le ${date} ${statusLabel}
+        </div>
+        <div class="pub-content">${escapeHtml(pub.contenu || '').substring(0, 200)}${(pub.contenu || '').length > 200 ? '...' : ''}</div>
+        ${rejectInfo}
+        <div class="pub-actions">
+          <button class="btn btn-view" data-action="view" data-id="${id}">👁️ Voir en entier</button>
+          ${pub.statut === 'en_attente' ? `<button class="btn btn-delete" data-action="delete" data-id="${id}">🗑 Annuler</button>` : ''}
+        </div>
+      </div>
+    `;
+
+    // Attacher les événements
+    item.querySelectorAll('button[data-action]').forEach(btn => {
+      btn.onclick = () => {
+        if (btn.dataset.action === 'view') openPreview(id, pub);
+        else if (btn.dataset.action === 'delete') cancelPub(id, pub.titre);
+      };
+    });
+
+    return item;
+  }
+
+  // ============ APERÇU ============
+  function openPreview(id, pub) {
+    const date = pub.date?.toDate 
+      ? pub.date.toDate().toLocaleString('fr-FR')
+      : 'Date inconnue';
+    document.getElementById('preview-titre').textContent = pub.titre;
+    document.getElementById('preview-meta').innerHTML = `
+      <strong>Auteur :</strong> ${escapeHtml(pub.auteurNom || 'Vous')}<br>
+      <strong>Soumise le :</strong> ${date}<br>
+      <strong>Statut :</strong> ${pub.statut === 'en_attente' ? '⏳ En attente' : pub.statut === 'approuvee' ? '✅ Publiée' : '❌ Rejetée'}
+    `;
+    if (pub.image) {
+      document.getElementById('preview-image').src = pub.image;
+      document.getElementById('preview-image').style.display = 'block';
+    } else {
+      document.getElementById('preview-image').style.display = 'none';
+    }
+    document.getElementById('preview-contenu').textContent = pub.contenu || '';
+    document.getElementById('preview-overlay').classList.add('show');
+  }
+
+  document.getElementById('preview-overlay').addEventListener('click', (e) => {
+    if (e.target.id === 'preview-overlay') {
+      e.target.classList.remove('show');
+    }
+  });
+
+  // ============ ANNULATION D'UNE PUBLICATION ============
+  async function cancelPub(id, titre) {
+    if (!confirm(`Annuler la publication "${titre}" ?\n\nCette action est irréversible.`)) return;
+    try {
+      await deleteDoc(doc(db, 'publications_gouvernement', id));
+      // Journal
+      try {
+        await addDoc(collection(db, 'journal_activite'), {
+          date: serverTimestamp(),
+          auteur: `${currentProfile.prenom} ${currentProfile.nom}`,
+          role: currentProfile.role,
+          action: 'suppression',
+          cible: `Annulation de sa propre annonce "${titre}"`
+        });
+      } catch (err) { /* silencieux */ }
+      alert('✅ Publication annulée.');
+    } catch (err) {
+      alert('❌ Erreur : ' + err.message);
+    }
+  }
+
+  console.log('✅ Espace Gouvernement Scolaire LFAKM chargé');
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js').catch(err => console.warn('Service worker non enregistré :', err));
+    });
+  }
+</script>
+</body>
+</html>
