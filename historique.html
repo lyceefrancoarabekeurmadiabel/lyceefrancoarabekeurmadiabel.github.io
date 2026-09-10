@@ -7,110 +7,76 @@
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Historique — LFAKM</title>
+<title>Notre Histoire — LFAKM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
-    --slate: #5B6472; --text: #1A1A1A; --line: rgba(27,42,74,0.14);
-    --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --slate: #5B6472; --line: rgba(27,42,74,0.14); --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family: var(--sans); color: var(--text); background: #f9f7f2; line-height:1.6; }
-  .wrap { max-width:1100px; margin:0 auto; padding:0 24px; }
+  body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; }
 
-  /* HEADER */
-  header { background: var(--paper); border-bottom: 1px solid var(--line); height: 84px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1000; }
-  .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; }
-  .brand { display:flex; align-items:center; gap:12px; text-decoration: none; min-width: 0; }
-  .brand-mark { width:45px; height:45px; flex-shrink: 0; display:flex; align-items:center; justify-content:center; }
+  /* ============ HEADER UNIFORME ============ */
+  header { position:sticky; top:0; z-index:1000; background:var(--paper); border-bottom:1px solid var(--line); height: 84px; display: flex; align-items: center; }
+  .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; max-width:1180px; margin:0 auto; padding:0 24px; }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); width: 220px; flex-shrink: 0; }
+  .brand-mark { width:55px; height:45px; display:flex; align-items:center; justify-content:center; flex-shrink: 0; }
   .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
-  .brand-name { font-family:var(--serif); font-weight:700; font-size:14px; color:var(--ink); line-height: 1.2; text-align: center; white-space: normal; }
-  .brand-tag { font-size: 10px; color: var(--slate); text-align: center; margin-top: 2px; letter-spacing: 0.5px; }
-  nav ul { display:flex; gap:20px; list-style:none; align-items: center; }
-  nav a { font-size:14px; font-weight:600; color:var(--ink); text-decoration: none; }
-  nav a:hover, nav a.active { color: var(--brass); }
-
-  /* MENU DÉROULANT ADMIN */
+  .brand-name { font-family:var(--serif); font-weight:700; font-size:14px; color:var(--ink); line-height: 1.3; text-align: center; width: 100%; white-space: normal; }
+  .brand-tag { font-size: 10px; color: var(--slate); text-align: center; margin-top: 2px; letter-spacing: 0.5px; white-space: nowrap; }
+  nav { flex: 1; display: flex; justify-content: flex-end; align-items: center; }
+  nav ul { display:flex; gap:18px; list-style:none; align-items: center; justify-content: flex-end; }
+  nav a { font-size:13px; font-weight:600; color:var(--ink); text-decoration:none; white-space: nowrap; display: flex; align-items: center; }
+  nav a:hover { color: var(--brass); }
   .admin-item { display: none; position: relative; }
-  .admin-dropdown {
-    display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    min-width: 180px;
-    z-index: 100;
-    padding: 5px 0;
-  }
-  .admin-dropdown a {
-    display: block;
-    padding: 8px 15px;
-    color: var(--ink);
-    font-size: 13px;
-    text-decoration: none;
-  }
+  .admin-dropdown { display: none; position: absolute; top: 100%; right: 0; background: #fff; border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); min-width: 180px; z-index: 100; padding: 5px 0; }
+  .admin-dropdown a { display: block; padding: 8px 15px; color: var(--ink); font-size: 13px; text-decoration: none; }
   .admin-dropdown a:hover { background: #f5f5f5; }
   .admin-item:hover .admin-dropdown { display: block; }
-  .admin-trigger {
-    background: var(--brass);
-    color: #fff !important;
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-weight: 700;
-    font-size: 12px;
-    cursor: pointer;
-    display: inline-block;
-    line-height: 1.4;
-    text-align: center;
-    vertical-align: middle;
-    margin: 0;
-  }
-
-  /* PROFIL ET CONTACT SUR DEUX LIGNES */
+  .admin-trigger { background: var(--brass); color: #fff !important; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 12px; cursor: pointer; display: inline-block; line-height: 1.4; text-align: center; margin: 0; white-space: nowrap; }
   .profile-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 13px; }
   .profile-name { font-weight: 700; color: var(--brass); font-size: 14px; }
   .profile-role { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; }
   .contact-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 12px; }
   .contact-label { font-weight: 600; color: var(--ink); }
   .contact-phone { font-size: 12px; color: var(--brass); font-weight: 700; }
-
-  /* PROFIL UTILISATEUR */
   #user-profile { display: none; font-weight: 700; color: var(--brass); font-size: 14px; }
-  .nav-cta { background: var(--ink-deep); color:#fff; padding:10px 18px; border-radius:4px; font-size:13px; font-weight:600; text-decoration:none; border:none; cursor:pointer; }
-  .menu-toggle { display: none; font-size: 28px; background: none; border: none; color: var(--ink); cursor: pointer; padding: 4px 8px; flex-shrink: 0; }
-
-  @media (max-width: 900px) {
-    .brand-name { font-size: 15px; max-width: 46vw; }
+  .nav-cta { background: var(--ink-deep); color:#fff !important; padding:10px 18px; font-size:12px; font-weight:600; border-radius:4px; text-decoration:none; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
+  .menu-toggle { display: none; font-size: 30px; cursor: pointer; }
+  .labo-item { display: none; }
+  .feedback-item { display: none; }
+  .feedback-link { background: var(--brass); color: #fff !important; padding: 4px 12px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
+  .feedback-link:hover { background: #96743a; color: #fff !important; }
+  @media (max-width: 1024px) {
     .menu-toggle { display: block; }
-    nav ul {
-      display: none; position: absolute; top: 84px; left: 0; width: 100%;
-      flex-direction: column; background: #fff; padding: 20px; gap: 15px;
-      text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-bottom: 2px solid var(--line);
-    }
+    nav ul { display: none; flex-direction: column; position: absolute; top: 84px; left: 0; width: 100%; background: #fff; padding: 20px; border-bottom: 2px solid var(--line); gap: 15px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
     nav ul.show { display: flex; }
     .admin-dropdown { position: static; box-shadow: none; border: none; }
+    .brand { width: auto; }
   }
 
-  /* HERO */
-  .page-hero { background: var(--ink-deep); color: #fff; padding: 60px 0; text-align: center; }
-  .page-hero h1 { font-family: var(--serif); font-size: 32px; margin-bottom: 10px; }
-
-  /* CONTENT */
-  section { padding: 60px 0; }
-  .content-box { background: #fff; border: 1px solid var(--line); padding: 40px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-  .section-title { font-family: var(--serif); color: var(--ink); margin-bottom: 25px; border-bottom: 2px solid var(--brass); display: inline-block; padding-bottom: 5px; font-size: 24px;}
-  p { margin-bottom: 20px; color: var(--text); font-size: 16px; text-align: justify; }
+  /* ============ STYLE DE LA PAGE HISTORIQUE ============ */
+  .page-hero { background: var(--ink-deep); color:#EFE9DC; padding: 80px 0; text-align: center; }
+  .page-hero h1 { font-family: var(--serif); font-size: 42px; margin-bottom: 10px; }
+  .page-hero p { font-size: 16px; opacity: 0.8; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 20px; }
   
-  .timeline { border-left: 2px solid var(--brass); padding-left: 20px; margin-left: 10px; }
-  .milestone { margin-bottom: 30px; position: relative; }
-  .milestone::before { content: ""; width: 12px; height: 12px; background: var(--brass); position: absolute; left: -27px; top: 5px; border-radius: 50%; }
-  .milestone h4 { font-family: var(--serif); color: var(--ink); font-size: 18px; margin-bottom: 5px; }
-
+  .content-section { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 40px; margin: 40px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+  .content-section h2 { font-family: var(--serif); color: var(--ink); font-size: 28px; margin-bottom: 20px; border-left: 5px solid var(--brass); padding-left: 15px; }
+  .content-section p { font-size: 16px; color: #333; line-height: 1.7; margin-bottom: 15px; }
+  .content-section ul { list-style: none; padding-left: 0; }
+  .content-section ul li { font-size: 15px; color: #333; padding: 8px 0 8px 25px; position: relative; }
+  .content-section ul li::before { content: "✓"; color: var(--brass); font-weight: 700; position: absolute; left: 0; }
+  
+  .timeline { position: relative; padding-left: 30px; margin-top: 20px; }
+  .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--brass); }
+  .timeline-item { position: relative; margin-bottom: 25px; }
+  .timeline-item::before { content: ''; position: absolute; left: -30px; top: 5px; width: 18px; height: 18px; border-radius: 50%; background: var(--brass); border: 3px solid var(--paper); }
+  .timeline-item h4 { font-family: var(--serif); font-size: 18px; color: var(--ink); margin-bottom: 5px; }
+  .timeline-item p { font-size: 14px; color: var(--slate); margin-bottom: 0; }
+  
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
 </style>
 </head>
@@ -121,164 +87,223 @@
     <a href="index.html" class="brand">
       <div class="brand-mark"><img src="logo-header.png" alt="LFAKM"></div>
       <div>
-        <div class="brand-name">Lycée Franco Arabe<br>de Keur Madiabel</div>
+        <div class="brand-name">Lycée Franco<br>Arabe de Keur<br>Madiabel</div>
         <div class="brand-tag">Excellence & Savoir</div>
       </div>
     </a>
+    <div class="menu-toggle" id="burger-btn">☰</div>
     <nav>
-      <ul id="main-menu">
+      <ul id="menu">
         <li><a href="index.html">Accueil</a></li>
-        
-        <!-- MENU DÉROULANT ADMIN (visible uniquement pour les admins) -->
         <li class="admin-item">
-          <span class="admin-trigger" style="display: flex; align-items: center; gap: 5px; justify-content: center;">⚙️ Admin</span>
+          <span class="admin-trigger">⚙️ Admin</span>
           <div class="admin-dropdown">
             <a href="admin-ine.html">📥 Import INE</a>
             <a href="admin-gestion.html">👥 Gestion</a>
             <a href="admin-news.html">📰 Actualités</a>
+            <a href="feedback.html#tab-dashboard">📊 Retours</a>
           </div>
         </li>
-
-        <li><a href="historique.html" class="active">Historique</a></li>
+        <li><a href="historique.html">Historique</a></li>
         <li><a href="actualites.html">Actualités</a></li>
+        <li class="labo-item"><a href="labo-virtuel.html">🧪 Laboratoire</a></li>
         <li><a href="ressources.html">Ressources</a></li>
         <li><a href="#" onclick="window.showContact(); return false;" class="contact-info" style="text-decoration: none;">
           <span class="contact-label">📞 Contacter le Proviseur</span>
           <span class="contact-phone" id="contact-phone-display">...</span>
         </a></li>
-        <li id="user-profile" class="profile-info"></li>
-        <li><a href="identification.html" id="auth-link" class="nav-cta">Connexion</a></li>
+        <li id="user-profile" class="profile-info" onclick="window.openProfil()" style="cursor:pointer;" title="Voir mon profil"></li>
+        <li class="feedback-item">
+          <a href="feedback.html" class="feedback-link">📋 Donner mon avis</a>
+        </li>
+        <li><a href="identification.html" class="nav-cta" id="auth-link">Se connecter</a></li>
       </ul>
     </nav>
-    <button class="menu-toggle" id="menu-toggle-btn" aria-label="Menu">☰</button>
   </div>
 </header>
 
 <section class="page-hero">
   <div class="wrap">
     <h1>Notre Histoire</h1>
-    <p style="color: #C7CBD6;">Le récit d'une institution dévouée à l'excellence et aux valeurs.</p>
+    <p>Le récit d'une institution dévouée à l'excellence et aux valeurs.</p>
   </div>
 </section>
 
-<section class="wrap">
-  <div class="content-box">
-    <h2 class="section-title">Genèse du Lycée</h2>
+<div class="wrap">
+  <div class="content-section">
+    <h2>Genèse du Lycée</h2>
     <p>Le Lycée Franco Arabe de Keur Madiabel est né d'une vision : celle d'offrir aux jeunes de la région un enseignement d'excellence capable de concilier les exigences du programme national sénégalais avec un apprentissage approfondi de la langue arabe et des valeurs islamiques.</p>
-    
-    <h2 class="section-title">Grandes Étapes</h2>
+    <p>Fondé grâce à la mobilisation des autorités locales et de la communauté éducative, l'établissement a su s'imposer comme un pôle de référence dans la région de Kaolack.</p>
+  </div>
+  
+  <div class="content-section">
+    <h2>Grandes Étapes</h2>
     <div class="timeline">
-        <div class="milestone">
-            <h4>Création et Fondation</h4>
-            <p>L'établissement a ouvert ses portes pour répondre à une forte demande de la communauté locale souhaitant un cadre éducatif structuré et bilingue.</p>
-        </div>
-        <div class="milestone">
-            <h4>Expansion du Secondaire</h4>
-            <p>Avec le temps, le collège s'est agrandi pour devenir un lycée complet, proposant les séries S2A et LA, permettant ainsi aux élèves de poursuivre leurs études jusqu'au baccalauréat sur place.</p>
-        </div>
-        <div class="milestone">
-            <h4>L'ère du numérique</h4>
-            <p>Aujourd'hui, le LFAKM franchit une nouvelle étape en intégrant des outils numériques pour faciliter l'accès aux ressources pédagogiques pour tous ses élèves.</p>
-        </div>
+      <div class="timeline-item">
+        <h4>Ouverture de l'établissement</h4>
+        <p>Première rentrée scolaire avec les classes de 6ème et 5ème.</p>
+      </div>
+      <div class="timeline-item">
+        <h4>Extension du cycle</h4>
+        <p>Ouverture progressive des niveaux jusqu'à la Terminale.</p>
+      </div>
+      <div class="timeline-item">
+        <h4>Modernisation</h4>
+        <p>Mise en place des infrastructures numériques et du laboratoire de sciences.</p>
+      </div>
+      <div class="timeline-item">
+        <h4>Aujourd'hui</h4>
+        <p>Un lycée complet formant des centaines d'élèves de la 6ème à la Terminale.</p>
+      </div>
     </div>
   </div>
-</section>
+  
+  <div class="content-section">
+    <h2>Nos Valeurs</h2>
+    <ul>
+      <li><strong>Excellence académique</strong> : Un encadrement rigoureux pour garantir la réussite de chaque élève.</li>
+      <li><strong>Bilinguisme</strong> : Maîtrise du français et de l'arabe, ouverture sur le monde.</li>
+      <li><strong>Valeurs humaines</strong> : Respect, intégrité, solidarité et sens du partage.</li>
+      <li><strong>Innovation</strong> : Utilisation des nouvelles technologies pour moderniser l'apprentissage.</li>
+    </ul>
+  </div>
+</div>
 
-<footer>© 2026 Lycée Franco Arabe de Keur Madiabel<div id="public-contact" style="margin-top: 12px;"></div></footer>
+<footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
-    authDomain: "lfakm-87dec.firebaseapp.com",
-    projectId: "lfakm-87dec",
-    storageBucket: "lfakm-87dec.firebasestorage.app",
-    messagingSenderId: "739517262614",
-    appId: "1:739517262614:web:14abd3538427960c527e37"
-  };
+    const firebaseConfig = {
+        apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+        authDomain: "lfakm-87dec.firebaseapp.com",
+        projectId: "lfakm-87dec",
+        storageBucket: "lfakm-87dec.firebasestorage.app",
+        messagingSenderId: "739517262614",
+        appId: "1:739517262614:web:14abd3538427960c527e37"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  // Gestion du menu mobile
-  document.getElementById('menu-toggle-btn').onclick = () => document.getElementById('main-menu').classList.toggle('show');
+    let profile = null;
+    const isAdmin = (role) => role === 'admin' || role === 'proviseur' || role === 'censeur';
+    const escapeHtml = (str) => { const div = document.createElement('div'); div.textContent = str ?? ''; return div.innerHTML; };
 
-  // Protection anti-XSS : échappe tout texte saisi par un utilisateur avant de l'insérer dans le HTML
-  function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str ?? '';
-    return div.innerHTML;
-  }
-
-  // Affichage du téléphone du Proviseur dans le header
-  getDoc(doc(db, 'config', 'contact')).then(snap => {
-    if (!snap.exists()) return;
-    const c = snap.data();
-    const contactPhone = document.getElementById('contact-phone-display');
-    if (contactPhone && c.telephone) contactPhone.textContent = c.telephone;
-  });
-
-  // Gestion de l'authentification (Connexion / Déconnexion / Admin)
-  onAuthStateChanged(auth, async (user) => {
-    const link = document.getElementById('auth-link');
-    const profileSpan = document.getElementById('user-profile');
-    
-    if (user) {
-      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
-      const profile = snap.data();
-      
-      // Affiche le nom et le rôle de l'utilisateur connecté
-      profileSpan.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
-      profileSpan.style.display = 'flex';
-      
-      // Bouton Déconnexion
-      link.textContent = "Déconnexion";
-      link.onclick = () => signOut(auth).then(() => location.reload());
-      
-      // Affiche le menu déroulant Admin uniquement pour les admins
-      if (profile.role === 'admin' || profile.role === 'proviseur' || profile.role === 'censeur') {
-        document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
-      }
-    } else {
-      // Visiteur non connecté
-      profileSpan.style.display = 'none';
-      link.textContent = "Connexion";
-      link.href = "identification.html";
-    }
-  });
-
-  // Fonction pour afficher les coordonnées du Proviseur dans une fenêtre modale
-  window.showContact = async () => {
-    const snap = await getDoc(doc(db, 'config', 'contact'));
-    if (!snap.exists() || !snap.data().email) {
-      alert("Les coordonnées du Proviseur n'ont pas encore été renseignées.");
-      return;
-    }
-    const c = snap.data();
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
-    overlay.innerHTML = `
-      <div style="background:#fff;border-radius:12px;padding:25px;max-width:340px;width:100%;text-align:center;">
-        <h3 style="font-family:var(--serif);color:var(--ink);margin-bottom:6px;">${escapeHtml(c.nom) || 'Le Proviseur'}</h3>
-        <p style="font-size:12px;color:var(--slate);margin-bottom:18px;">Chef d'établissement — LFAKM</p>
-        ${c.telephone ? `<a href="tel:${c.telephone}" style="display:block;padding:10px;margin-bottom:8px;background:var(--ink-deep);color:#fff;border-radius:6px;text-decoration:none;">📞 ${c.telephone}</a>` : ''}
-        ${c.email ? `<a href="mailto:${c.email}" style="display:block;padding:10px;margin-bottom:14px;background:var(--brass);color:#fff;border-radius:6px;text-decoration:none;">✉️ ${c.email}</a>` : ''}
-        <button onclick="this.closest('div[style*=fixed]').remove()" style="border:none;background:#eee;padding:8px 16px;border-radius:6px;cursor:pointer;">Fermer</button>
-      </div>`;
-    document.body.appendChild(overlay);
-  };
-</script>
-
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('service-worker.js').catch(err => console.warn('Service worker non enregistré :', err));
+    // CONTACT
+    getDoc(doc(db, 'config', 'contact')).then(snap => {
+        if (!snap.exists()) return;
+        const c = snap.data();
+        const contactPhone = document.getElementById('contact-phone-display');
+        if (contactPhone && c.telephone) contactPhone.textContent = c.telephone;
     });
-  }
+
+    // AUTH + PERMISSIONS
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            try {
+                const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+                profile = snap.exists() ? snap.data() : null;
+                if (!profile) return;
+
+                const userProfile = document.getElementById('user-profile');
+                if (userProfile) {
+                    userProfile.style.display = "block";
+                    userProfile.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
+                }
+
+                if (isAdmin(profile.role)) {
+                    document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
+                }
+
+                // LABO
+                let laboVisible = false;
+                if (profile.role === 'professeur') {
+                    const mats = (profile.disciplines || []).map(m => m.toLowerCase());
+                    laboVisible = mats.some(m => m.includes('physique') || m.includes('chimie') || m.includes('pc') || m.includes('math') || m.includes('svt'));
+                } else if (profile.role === 'eleve') {
+                    laboVisible = true;
+                }
+                if (laboVisible || isAdmin(profile.role)) {
+                    document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'block');
+                }
+
+                const feedbackItems = document.querySelectorAll('.feedback-item');
+                if (feedbackItems.length > 0) {
+                    feedbackItems.forEach(el => {
+                        el.style.display = 'block';
+                        const link = el.querySelector('a');
+                        if (link) {
+                            if (isAdmin(profile.role)) {
+                                link.href = 'feedback.html#tab-dashboard';
+                                link.textContent = '📊 Voir les retours';
+                            } else if (profile.role === 'professeur') {
+                                link.href = 'feedback.html#tab-professeurs';
+                                link.textContent = '📋 Donner mon avis (prof)';
+                            } else if (profile.role === 'eleve') {
+                                link.href = 'feedback.html#tab-eleves';
+                                link.textContent = '📋 Donner mon avis (élève)';
+                            }
+                        }
+                    });
+                }
+
+                const authLink = document.getElementById('auth-link');
+                if (authLink) {
+                    authLink.textContent = "Déconnexion";
+                    authLink.onclick = () => signOut(auth).then(() => window.location.reload());
+                }
+
+            } catch (err) {
+                console.warn("Erreur lors du chargement du profil:", err);
+            }
+        } else {
+            const userProfile = document.getElementById('user-profile');
+            if (userProfile) userProfile.style.display = "none";
+            document.querySelectorAll('.feedback-item').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'none');
+        }
+    });
+
+    // BURGER MENU
+    const burgerBtn = document.getElementById('burger-btn');
+    if (burgerBtn) {
+        burgerBtn.onclick = () => {
+            const menu = document.getElementById('menu');
+            if (menu) menu.classList.toggle('show');
+        };
+    }
+
+    // CONTACT MODAL
+    window.showContact = async () => {
+        const snap = await getDoc(doc(db, 'config', 'contact'));
+        if (!snap.exists() || !snap.data().email) {
+            alert("Les coordonnées du Proviseur n'ont pas encore été renseignées.");
+            return;
+        }
+        const c = snap.data();
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
+        overlay.innerHTML = `
+            <div style="background:#fff;border-radius:12px;padding:25px;max-width:340px;width:100%;text-align:center;">
+                <h3 style="font-family:var(--serif);color:var(--ink);margin-bottom:6px;">${escapeHtml(c.nom) || 'Le Proviseur'}</h3>
+                <p style="font-size:12px;color:var(--slate);margin-bottom:18px;">Chef d'établissement — LFAKM</p>
+                ${c.telephone ? `<a href="tel:${c.telephone}" style="display:block;padding:10px;margin-bottom:8px;background:var(--ink-deep);color:#fff;border-radius:6px;text-decoration:none;">📞 ${c.telephone}</a>` : ''}
+                ${c.email ? `<a href="mailto:${c.email}" style="display:block;padding:10px;margin-bottom:14px;background:var(--brass);color:#fff;border-radius:6px;text-decoration:none;">✉️ ${c.email}</a>` : ''}
+                <button onclick="this.closest('div[style*=fixed]').remove()" style="border:none;background:#eee;padding:8px 16px;border-radius:6px;cursor:pointer;">Fermer</button>
+            </div>`;
+        document.body.appendChild(overlay);
+    };
+
+    window.openProfil = () => {
+        if (profile && profile.role === 'eleve' && auth.currentUser) {
+            window.location.href = `profil-eleve.html?uid=${auth.currentUser.uid}`;
+        }
+    };
 </script>
 </body>
 </html>
