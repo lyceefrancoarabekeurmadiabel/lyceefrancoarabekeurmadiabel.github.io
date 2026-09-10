@@ -19,8 +19,6 @@
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; }
-
-  /* HEADER */
   header { position:sticky; top:0; z-index:1000; background:var(--paper); border-bottom:1px solid var(--line); height: 84px; display: flex; align-items: center; }
   .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; max-width:1180px; margin:0 auto; padding:0 24px; }
   .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); width: 220px; flex-shrink: 0; }
@@ -47,10 +45,9 @@
   #user-profile { display: none; font-weight: 700; color: var(--brass); font-size: 14px; }
   .nav-cta { background: var(--ink-deep); color:#fff !important; padding:10px 18px; font-size:12px; font-weight:600; border-radius:4px; text-decoration:none; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
   .menu-toggle { display: none; font-size: 30px; cursor: pointer; }
-  .labo-item { display: none; }
+  .labo-pc-item, .labo-maths-item, .labo-svt-item { display: none; }
   .feedback-item { display: none; }
   .feedback-link { background: var(--brass); color: #fff !important; padding: 4px 12px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
-  .feedback-link:hover { background: #96743a; color: #fff !important; }
   @media (max-width: 1024px) {
     .menu-toggle { display: block; }
     nav ul { display: none; flex-direction: column; position: absolute; top: 84px; left: 0; width: 100%; background: #fff; padding: 20px; border-bottom: 2px solid var(--line); gap: 15px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
@@ -59,28 +56,32 @@
     .brand { width: auto; }
   }
 
-  /* RESTE DU STYLE */
   .page-hero { background: var(--ink-deep); color:#EFE9DC; padding: 60px 0; text-align: center; }
   .search-container { max-width: 600px; margin: -30px auto 40px; padding: 0 20px; }
   #search-bar { width: 100%; padding: 18px 25px; border-radius: 100px; border: 1px solid var(--line); box-shadow: 0 10px 25px rgba(0,0,0,0.1); outline: none; }
   .wrap { max-width:1100px; margin:0 auto; padding:0 20px; }
   .cycle-title { border-left: 5px solid var(--brass); padding-left: 15px; margin: 40px 0 20px; font-family: var(--serif); color: var(--ink); display: flex; align-items: center; justify-content: space-between; gap: 15px; }
   .cycle-title img { width: 42px; height: 42px; flex-shrink: 0; }
+
   .accordion-item { background: #fff; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
   .accordion-item > .accordion-header { cursor: pointer; padding: 20px; font-weight: 700; font-size: 18px; display: flex; justify-content: space-between; align-items: center; list-style: none; background: #fff; user-select: none; transition: background 0.2s; }
   .accordion-item > .accordion-header:hover { background: #fafafa; }
   .accordion-item.open > .accordion-header { border-bottom: 1px solid #eee; }
   .accordion-content { display: none; padding: 0 15px 20px; background: #fafafa; border-top: 1px solid #eee; }
   .accordion-item.open > .accordion-content { display: block; }
+
   .subject-accordion { background: #fff; border: 1px solid var(--line); margin-top: 8px; border-radius: 6px; overflow: hidden; }
   .subject-accordion > .subject-header { cursor: pointer; padding: 12px; font-weight: 600; display: flex; justify-content: space-between; font-size: 14px; list-style: none; user-select: none; }
   .subject-accordion > .subject-header:hover { background: #f9f9f9; }
   .subject-accordion.open > .subject-header { background: #fcfcfc; border-bottom: 1px solid #eee; }
   .subject-content { display: none; padding: 15px; }
   .subject-accordion.open > .subject-content { display: block; }
+
   .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
   @media (max-width: 768px) { .subject-grid { grid-template-columns: 1fr; } }
+
   .doc-col h5 { font-size: 11px; text-transform: uppercase; color: var(--brass); margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+
   .devoirs-section { padding: 15px; border-top: 1px solid #eee; }
   .devoirs-section h5 { font-size: 11px; text-transform: uppercase; color: var(--brass); margin-bottom: 10px; }
   .devoir-item { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 12px; margin-bottom: 10px; }
@@ -93,6 +94,7 @@
   .btn-suppr-devoir { background: #eee; color: #333; }
   .btn-profile { background: #2e7d32; color: #fff; }
   .btn-export { background: var(--brass); color: #fff; }
+
   #actus-strip { max-width: 1100px; margin: 20px auto 0; padding: 0 20px; }
   #actus-strip h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--brass); margin-bottom: 10px; }
   .actus-scroll { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding-bottom: 8px; }
@@ -101,11 +103,13 @@
   .actus-card-body { padding: 12px; }
   .actus-card-body h4 { font-size: 13px; color: var(--ink); margin-bottom: 4px; line-height: 1.3; }
   .actus-card-body span { font-size: 11px; color: var(--slate); }
+
   #devoirs-strip { max-width: 1100px; margin: 20px auto 0; padding: 0 20px; }
   #devoirs-strip h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--brass); margin-bottom: 10px; }
   .dv-notif-card { flex: 0 0 220px; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--brass); border-radius: 8px; padding: 12px; }
   .dv-notif-card h4 { font-size: 13px; color: var(--ink); margin-bottom: 4px; line-height: 1.3; }
   .dv-notif-card span { font-size: 11px; color: var(--slate); display: block; }
+
   .modal-overlay { display:none; position:fixed; inset:0; background:rgba(16,25,46,0.6); z-index:2000; align-items:flex-start; justify-content:center; padding:20px; overflow-y:auto; }
   .modal-overlay.show { display:flex; }
   .modal-box { background:#fff; border-radius:10px; padding:22px; width:100%; max-width:480px; margin-top:20px; }
@@ -119,6 +123,7 @@
   .qcm-remove-q { position:absolute; top:8px; right:8px; background:none; border:none; color:#d9534f; cursor:pointer; font-weight:bold; font-size:16px; }
   .doc-list { list-style: none; font-size: 13px; }
   .doc-list li { background: #fdfdfd; padding: 8px; border-radius: 4px; margin-bottom: 5px; display: flex; justify-content: space-between; border: 1px solid #eee; }
+
   .eleves-section { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; margin-bottom: 30px; }
   .eleves-section h2 { font-family: var(--serif); color: var(--ink); margin-bottom: 15px; }
   .classe-eleve { background: #f9f9f9; border: 1px solid #eee; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
@@ -131,8 +136,10 @@
   .eleve-ligne .eleve-nom { font-size: 14px; font-weight: 500; }
   .eleve-ligne .eleve-actions { display: flex; gap: 8px; }
   .eleve-ligne .eleve-actions button { font-size: 11px; padding: 4px 8px; border: none; border-radius: 4px; cursor: pointer; }
+
   .add-btn { display: none; margin-top: 8px; font-size: 11px; font-weight: 700; color: var(--ink); border: 1px dashed var(--brass); padding: 6px; border-radius: 4px; cursor: pointer; width: 100%; background: none; }
   .delete-btn { color: red; font-weight: bold; cursor: pointer; border: none; background: none; }
+
   .search-results-zone { display: none; margin-bottom: 30px; }
   .search-results-zone h3 { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 15px; }
   .search-result-line { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--brass); border-radius: 8px; padding: 12px 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
@@ -142,6 +149,7 @@
   .search-result-line .open-btn { background: var(--brass); color: #fff; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 700; white-space: nowrap; }
   .search-result-line .open-btn:hover { background: #96743a; }
   #no-results-search { display: none; text-align: center; padding: 30px; color: var(--slate); background: #fff; border-radius: 10px; border: 1px dashed var(--line); font-size: 15px; }
+
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
 </style>
 </head>
@@ -171,7 +179,9 @@
         </li>
         <li><a href="historique.html">Historique</a></li>
         <li><a href="actualites.html">Actualités</a></li>
-        <li class="labo-item"><a href="labo-virtuel.html">🧪 Laboratoire</a></li>
+        <li class="labo-pc-item"><a href="labo-pc.html" style="color: var(--brass); font-weight:700;">🔬 Labo PC</a></li>
+        <li class="labo-maths-item"><a href="labo-maths.html" style="color: var(--brass); font-weight:700;">📐 Labo Maths</a></li>
+        <li class="labo-svt-item"><a href="labo-svt.html" style="color: var(--brass); font-weight:700;">🧬 Labo SVT</a></li>
         <li><a href="ressources.html">Ressources</a></li>
         <li><a href="#" onclick="window.showContact(); return false;" class="contact-info" style="text-decoration: none;">
           <span class="contact-label">📞 Contacter le Proviseur</span>
@@ -187,7 +197,6 @@
   </div>
 </header>
 
-<!-- MODAL DE CRÉATION DE DEVOIR -->
 <div class="modal-overlay" id="devoir-modal">
   <div class="modal-box">
     <h3>Proposer un devoir</h3>
@@ -264,7 +273,6 @@
 <main class="wrap" id="content-area"></main>
 
 <footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
-
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -398,16 +406,22 @@
                     });
                 }
 
-                // ============ AFFICHAGE DU LABORATOIRE ============
-                let laboVisible = false;
-                if (profile.role === 'professeur') {
+                // AFFICHAGE DES LABOS SELON LA DISCIPLINE
+                if (isAdmin(profile.role)) {
+                    document.querySelectorAll('.labo-pc-item, .labo-maths-item, .labo-svt-item').forEach(el => el.style.display = 'block');
+                } else if (profile.role === 'professeur') {
                     const mats = (profile.disciplines || []).map(m => m.toLowerCase());
-                    laboVisible = mats.some(m => m.includes('physique') || m.includes('chimie') || m.includes('pc') || m.includes('math') || m.includes('svt'));
+                    if (mats.some(m => m.includes('physique') || m.includes('chimie') || m.includes('pc'))) {
+                        document.querySelectorAll('.labo-pc-item').forEach(el => el.style.display = 'block');
+                    }
+                    if (mats.some(m => m.includes('math'))) {
+                        document.querySelectorAll('.labo-maths-item').forEach(el => el.style.display = 'block');
+                    }
+                    if (mats.some(m => m.includes('svt'))) {
+                        document.querySelectorAll('.labo-svt-item').forEach(el => el.style.display = 'block');
+                    }
                 } else if (profile.role === 'eleve') {
-                    laboVisible = true;
-                }
-                if (laboVisible || isAdmin(profile.role)) {
-                    document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'block');
+                    document.querySelectorAll('.labo-pc-item, .labo-maths-item, .labo-svt-item').forEach(el => el.style.display = 'block');
                 }
                 
                 const authLink2 = document.getElementById('auth-link');
@@ -477,7 +491,7 @@
             document.querySelectorAll('.feedback-item').forEach(el => {
                 if (el) el.style.display = 'none';
             });
-            document.querySelectorAll('.labo-item').forEach(el => {
+            document.querySelectorAll('.labo-pc-item, .labo-maths-item, .labo-svt-item').forEach(el => {
                 if (el) el.style.display = 'none';
             });
         }
@@ -634,8 +648,7 @@
             console.warn('Erreur chargement actualités:', err.message);
         }
     }
-
-    function renderFicheFamille() {
+      function renderFicheFamille() {
         const f = profile.famille || {};
         const zone = document.getElementById('fiche-famille-zone');
         if (!zone) return;
@@ -952,8 +965,7 @@
             if (container) container.innerHTML = `<button class="add-btn" style="display:block;" onclick="window.rendreDevoir('${slug}','${devoirId}')">📤 Rendre le devoir</button>`;
         }
     }
-
-    function buildQcmForm(slug, devoirId, dv, container) {
+      function buildQcmForm(slug, devoirId, dv, container) {
         if (!container || !dv.questions || dv.questions.length === 0) {
             if (container) container.innerHTML = '<p style="color:gray;">Ce QCM n\'a pas encore de questions.</p>';
             return;
