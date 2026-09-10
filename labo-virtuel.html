@@ -16,7 +16,7 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; }
 
-  /* HEADER IDENTIQUE AU RESTE DU SITE */
+  /* HEADER */
   header { position:sticky; top:0; z-index:1000; background:var(--paper); border-bottom:1px solid var(--line); height: 84px; display: flex; align-items: center; }
   .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; max-width:1180px; margin:0 auto; padding:0 24px; }
   .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); width: 220px; flex-shrink: 0; }
@@ -67,7 +67,7 @@
   .tab-section { display: none; }
   .tab-section.active { display: block; }
 
-  /* GRILLE D'EXPÉRIENCES */
+  /* GRILLE */
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
   .sim-card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; }
   .sim-card:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
@@ -78,17 +78,23 @@
   /* OUTILS INTÉGRÉS */
   .tool-box { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; margin-top: 20px; }
   .tool-box h3 { margin-bottom: 15px; color: var(--ink); }
-  .btn-action { background: var(--brass); color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; margin: 5px; }
+  .btn-action { background: var(--brass); color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; margin: 5px; font-size: 13px; }
   .btn-action:hover { background: #96743a; }
+  .btn-secondary { background: #5B6472; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; margin: 5px; font-size: 13px; }
+  .btn-secondary:hover { background: #3a424e; }
+  
+  /* TABLEAU PÉRIODIQUE */
   #periodic-table { display: grid; grid-template-columns: repeat(18, 1fr); gap: 4px; margin: 20px 0; }
   .element { background: #eee; border-radius: 4px; padding: 5px 2px; text-align: center; cursor: pointer; font-size: 11px; transition: 0.2s; }
   .element:hover { background: var(--brass); color: #fff; }
   .element .symbol { font-weight: 800; font-size: 14px; }
   .element .num { font-size: 9px; color: #777; }
   .nonmetal { background: #d4efdf; } .metal { background: #fadbd8; } .noble { background: #d6eaf8; }
-  #chemdoodle-container { min-height: 300px; margin-top: 15px; }
-  #stats-chart { max-width: 100%; height: 300px; margin-top: 20px; }
-
+  
+  /* CHEMDOODLE */
+  #chemdoodle-container { min-height: 400px; margin-top: 15px; background: #fff; border-radius: 8px; border: 1px solid var(--line); }
+  #editor-container { min-height: 450px; margin-top: 15px; background: #fff; border-radius: 8px; border: 1px solid var(--line); }
+  
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
 
   /* ACCÈS REFUSÉ */
@@ -143,7 +149,7 @@
 </section>
 
 <div class="wrap">
-  <!-- ZONE DE MESSAGE D'ACCÈS -->
+  <!-- MESSAGE D'ACCÈS REFUSÉ -->
   <div id="access-denied-zone" class="access-denied" style="display:none;">
     <h2>🔒 Accès réservé</h2>
     <p style="margin-top: 10px;">Cet espace est réservé aux professeurs de sciences et aux élèves.</p>
@@ -166,6 +172,7 @@
     <div id="periodic-table"></div>
 
     <h3 style="margin-top: 30px; margin-bottom: 10px;">⚗️ Construction de Molécules (ChemDoodle 3D)</h3>
+    <p style="margin-bottom: 10px; color: var(--slate);">Cliquez sur une molécule pour la visualiser en 3D.</p>
     <div style="margin-bottom: 10px;">
       <button class="btn-action" onclick="loadMolecule('methane')">Méthane (CH₄)</button>
       <button class="btn-action" onclick="loadMolecule('ethane')">Éthane (C₂H₆)</button>
@@ -176,6 +183,15 @@
       <button class="btn-action" onclick="loadMolecule('acetic')">Acide éthanoïque</button>
     </div>
     <div id="chemdoodle-container"></div>
+
+    <h3 style="margin-top: 30px; margin-bottom: 10px;">🎨 Créer sa propre molécule</h3>
+    <p style="margin-bottom: 10px; color: var(--slate);">Dessinez librement votre molécule en cliquant sur le canevas ci-dessous (utilisez la palette d'outils).</p>
+    <div class="tool-box">
+      <p style="font-size: 13px; margin-bottom: 10px;">Outils disponibles : cliquez pour placer un atome, double-cliquez pour ajouter une liaison.</p>
+      <div id="editor-container"></div>
+      <button class="btn-secondary" onclick="clearEditor()">🗑️ Effacer</button>
+      <button class="btn-action" onclick="saveEditorAsImage()">💾 Télécharger en image</button>
+    </div>
 
     <h3 style="margin-top: 30px; margin-bottom: 15px;">📚 Expériences et Simulations</h3>
     <div class="grid">
@@ -195,7 +211,7 @@
         <span class="badge">3ème → Tle</span>
       </a>
       <a class="sim-card" href="https://phet.colorado.edu/sims/html/build-a-molecule/latest/build-a-molecule_fr.html" target="_blank">
-        <h4>Construire des molécules</h4>
+        <h4>Construire des molécules (PhET)</h4>
         <p>Chapitre C2 (4ème), C3 (2nde S), C1 à C5 (1ère S)</p>
         <span class="badge">4ème → Tle</span>
       </a>
@@ -212,7 +228,7 @@
     <p style="margin-bottom: 10px;">Visualisez des distributions statistiques et des ajustements linéaires.</p>
     <div class="tool-box">
       <button class="btn-action" onclick="drawStats()">Afficher un exemple de diagramme</button>
-      <canvas id="stats-chart"></canvas>
+      <canvas id="stats-chart" style="max-width: 100%; height: 300px;"></canvas>
     </div>
 
     <h3 style="margin-top: 30px; margin-bottom: 15px;">📚 Simulateurs et Outils</h3>
@@ -319,17 +335,14 @@
       link.textContent = "Déconnexion";
       link.onclick = () => signOut(auth).then(() => location.reload());
 
-      // Admin voir tout
       if (isAdmin(profile.role)) {
         document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
         document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'block');
         document.getElementById('tabs-container').style.display = 'flex';
-        // Afficher tous les onglets
         document.getElementById('btn-pc').style.display = 'inline-block';
         document.getElementById('btn-maths').style.display = 'inline-block';
         document.getElementById('btn-svt').style.display = 'inline-block';
       } else if (profile.role === 'professeur') {
-        // Visible uniquement pour les profs de sciences
         const mats = (profile.disciplines || []).map(m => m.toLowerCase());
         let hasScience = mats.some(m => m.includes('physique') || m.includes('chimie') || m.includes('pc') || m.includes('math') || m.includes('svt'));
         
@@ -337,7 +350,6 @@
           document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'block');
           document.getElementById('tabs-container').style.display = 'flex';
 
-          // Filtrage des onglets selon la discipline du professeur
           if (mats.some(m => m.includes('physique') || m.includes('chimie') || m.includes('pc'))) {
             document.getElementById('btn-pc').style.display = 'inline-block';
           } else {
@@ -354,7 +366,7 @@
             document.getElementById('btn-svt').style.display = 'none';
           }
 
-          // Activation automatique du premier onglet disponible
+          // Activation automatique du premier onglet
           const firstTab = document.querySelector('.tab-btn:not([style*="display: none"])');
           if (firstTab) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -366,7 +378,6 @@
           document.getElementById('access-denied-zone').style.display = 'block';
         }
       } else if (profile.role === 'eleve') {
-        // Les élèves voient tout
         document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'block');
         document.getElementById('tabs-container').style.display = 'flex';
         document.getElementById('btn-pc').style.display = 'inline-block';
@@ -376,7 +387,6 @@
         document.getElementById('access-denied-zone').style.display = 'block';
       }
 
-      // Feedback
       const feedbackItems = document.querySelectorAll('.feedback-item');
       if (feedbackItems.length > 0) {
         feedbackItems.forEach(el => {
@@ -438,7 +448,7 @@
   });
 
   // ================================
-  // TABLEAU PÉRIODIQUE (Physique-Chimie)
+  // TABLEAU PÉRIODIQUE
   // ================================
   const elements = [
     {num:1, sym:"H", cat:"nonmetal"}, {num:2, sym:"He", cat:"noble"},
@@ -458,36 +468,91 @@
   }
 
   // ================================
-  // CHEMDOODLE 3D
+  // CHEMDOODLE 3D - VISUALISATION
   // ================================
-  const chemicalData = {
-    methane: { name: "Méthane (CH₄)", mol: "C1" },
-    ethane: { name: "Éthane (C₂H₆)", mol: "CC" },
-    ethene: { name: "Éthylène (C₂H₄)", mol: "C=C" },
-    acetylene: { name: "Acétylène (C₂H₂)", mol: "C#C" },
-    benzene: { name: "Benzène (C₆H₆)", mol: "c1ccccc1" },
-    ethanol: { name: "Éthanol (C₂H₅OH)", mol: "CCO" },
-    acetic: { name: "Acide éthanoïque", mol: "CC(=O)O" }
-  };
-
-  let viewer;
+  let viewer = null;
+  
   window.loadMolecule = (key) => {
-    const data = chemicalData[key];
+    const molecules = {
+      methane: 'C',
+      ethane: 'CC',
+      ethene: 'C=C',
+      acetylene: 'C#C',
+      benzene: 'c1ccccc1',
+      ethanol: 'CCO',
+      acetic: 'CC(=O)O'
+    };
+    
+    const smiles = molecules[key];
+    if (!smiles) return;
+    
     const container = document.getElementById('chemdoodle-container');
     
+    // Nettoyer le conteneur avant de recharger
+    container.innerHTML = '';
+    
+    // Initialiser le viewer s'il n'existe pas
     if (!viewer) {
       viewer = new ChemDoodle.ViewerCanvas('chemdoodle-container', 900, 400);
       viewer.specs.backgroundColor = 'white';
       viewer.specs.atoms_displayLabels = true;
       viewer.specs.atoms_useVdw = false;
     }
+    
+    // Parser la molécule et la charger
+    try {
+      let mol = ChemDoodle.structures.parse(smiles);
+      if (mol) {
+        ChemDoodle.structures.clean(mol);
+        viewer.loadMolecule(mol);
+        container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    } catch(e) {
+      console.warn('Erreur chargement molécule:', e);
+      container.innerHTML = '<p style="padding: 20px; color: red;">Erreur de chargement de la molécule. Vérifiez votre connexion internet.</p>';
+    }
+  };
 
-    let mol = ChemDoodle.structures.parse(data.mol);
-    if (mol) {
-      ChemDoodle.structures.clean(mol);
-      viewer.loadMolecule(mol);
-      container.style.display = 'block';
-      container.scrollIntoView({ behavior: 'smooth' });
+  // ================================
+  // CHEMDOODLE - ÉDITEUR LIBRE
+  // ================================
+  let editor = null;
+  
+  // Initialiser l'éditeur dès le chargement
+  function initEditor() {
+    try {
+      if (!editor) {
+        editor = new ChemDoodle.SketcherCanvas('editor-container', 900, 400, {useServices: false});
+        editor.specs.atoms_font_size_2D = 10;
+        editor.specs.bonds_width_2D = 2;
+        editor.specs.backgroundColor = 'white';
+      }
+    } catch(e) {
+      console.warn('Erreur initialisation éditeur:', e);
+    }
+  }
+  
+  // Attendre un peu que le DOM soit prêt
+  setTimeout(initEditor, 1000);
+  
+  window.clearEditor = () => {
+    if (editor) {
+      editor.clear();
+    }
+  };
+  
+  window.saveEditorAsImage = () => {
+    if (editor) {
+      try {
+        // Générer une image PNG
+        const dataURL = editor.getImage();
+        const link = document.createElement('a');
+        link.href = dataURL;
+        link.download = 'ma-molecule.png';
+        link.click();
+      } catch(e) {
+        alert('Erreur lors de la sauvegarde. Vérifiez que vous avez dessiné une molécule.');
+      }
     }
   };
 
@@ -521,7 +586,6 @@
   // ================================
   window.simulateGenetics = () => {
     const result = document.getElementById('genetics-result');
-    // Simulation d'un croisement Aa x Aa (dominance simple)
     const parents = ['A', 'a'];
     const gametes = [];
     parents.forEach(p1 => parents.forEach(p2 => gametes.push(p1 + p2)));
