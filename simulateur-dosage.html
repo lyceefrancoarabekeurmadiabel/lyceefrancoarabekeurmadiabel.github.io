@@ -264,13 +264,12 @@
         <!-- Support universel -->
         <line x1="310" y1="60" x2="310" y2="470" stroke="#555" stroke-width="6"/>
         <line x1="30" y1="470" x2="350" y2="470" stroke="#555" stroke-width="6"/>
-        <!-- Pince de burette -->
         <rect x="250" y="150" width="60" height="10" fill="#555"/>
         <circle cx="310" cy="155" r="8" fill="#888" stroke="#333" stroke-width="1.5"/>
-        <!-- Burette graduée -->
+        <!-- Burette -->
         <rect x="130" y="40" width="30" height="200" fill="rgba(255,255,255,0.5)" stroke="#333" stroke-width="2" rx="2"/>
         <rect x="132" y="42" width="26" height="196" fill="rgba(46, 204, 113, 0.4)" id="burette-liquid"/>
-        <!-- Graduations burette -->
+        <!-- Graduations -->
         <line x1="130" y1="60" x2="140" y2="60" stroke="#333" stroke-width="1"/>
         <line x1="130" y1="80" x2="140" y2="80" stroke="#333" stroke-width="1"/>
         <line x1="130" y1="100" x2="140" y2="100" stroke="#333" stroke-width="1"/>
@@ -283,14 +282,13 @@
         <!-- Robinet -->
         <rect x="138" y="240" width="14" height="20" fill="#999" stroke="#333" stroke-width="1.5"/>
         <line x1="145" y1="260" x2="145" y2="275" stroke="#333" stroke-width="2"/>
-        <!-- Pointe -->
         <polygon points="140,275 150,275 145,290" fill="#999" stroke="#333" stroke-width="1"/>
         <!-- Goutte -->
         <ellipse cx="145" cy="295" rx="3" ry="5" fill="#2ecc71" id="drop" style="display:none;"/>
         <!-- Bécher -->
         <rect x="95" y="320" width="100" height="100" fill="rgba(255,255,255,0.6)" stroke="#333" stroke-width="2" rx="2"/>
-        <rect x="97" y="350" width="96" height="68" fill="rgba(46, 204, 113, 0.3)" id="beaker-liquid"/>
-        <!-- Électrode pH-mètre -->
+        <rect x="97" y="350" width="96" height="68" fill="rgba(241, 196, 15, 0.5)" id="beaker-liquid"/>
+        <!-- Électrode pH -->
         <rect x="140" y="290" width="10" height="60" fill="#e74c3c" stroke="#333" stroke-width="1"/>
         <line x1="145" y1="290" x2="145" y2="280" stroke="#e74c3c" stroke-width="2"/>
         <!-- Barreau aimanté -->
@@ -310,7 +308,6 @@
         <!-- Labels -->
         <text x="145" y="30" text-anchor="middle" font-size="10" font-weight="700" fill="#1B2A4A">Burette graduée</text>
         <text x="145" y="440" text-anchor="middle" font-size="10" font-weight="700" fill="#1B2A4A">Bécher + barreau aimanté</text>
-        <text x="315" y="380" text-anchor="start" font-size="10" fill="#666">Solution titrante</text>
         <text x="145" y="490" text-anchor="middle" font-size="10" fill="#666">Volume versé : <tspan id="svg-volume" font-weight="700">0.00</tspan> mL</text>
       </svg>
       <p style="font-size: 11px; color: var(--slate); margin-top: 5px;" id="dispositif-info">Solution titrante : NaOH</p>
@@ -446,6 +443,7 @@
 </div>
 
 <footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -481,7 +479,7 @@
   let tpActif = false;
   let tpVerite = null;
 
-  // AUTH
+  // ============ AUTH ============
   onAuthStateChanged(auth, async (user) => {
     const link = document.getElementById('auth-link');
     const profileSpan = document.getElementById('user-profile');
@@ -551,6 +549,24 @@
     return { mode: 'standard', nom: '📘 Standard' };
   }
 
+  // ============ COULEUR INITIALE SELON INDICATEUR ============
+  function couleurInitiale(indicateur) {
+    if (indicateur === 'aucun') return 'rgba(46, 204, 113, 0.3)';
+    if (indicateur === 'helianthine') return 'rgba(231, 76, 60, 0.5)';      // rouge (pH acide < 3,1)
+    if (indicateur === 'bbt') return 'rgba(241, 196, 15, 0.5)';              // jaune (pH acide < 6)
+    if (indicateur === 'phenolphtaleine') return 'rgba(236, 240, 241, 0.5)'; // incolore (pH acide < 8,2)
+    return 'rgba(46, 204, 113, 0.3)';
+  }
+
+  function appliquerCouleurInitiale() {
+    const ind = document.getElementById('indicateur').value;
+    document.getElementById('beaker-liquid').setAttribute('fill', couleurInitiale(ind));
+  }
+
+  // Écoute du changement d'indicateur → mettre à jour la couleur du bécher
+  document.getElementById('indicateur').addEventListener('change', appliquerCouleurInitiale);
+
+  // ============ MODE ============
   function activerMode(mode) {
     modeActuel = mode;
     document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
@@ -583,6 +599,7 @@
 
   document.querySelectorAll('.mode-btn').forEach(btn => btn.addEventListener('click', () => activerMode(btn.dataset.mode)));
 
+  // ============ TABLEAU ============
   document.querySelectorAll('.table-mode-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       tableMode = btn.dataset.tablemode;
@@ -632,6 +649,7 @@
     mesures.forEach(m => ajouterLigneTableau(m.v.toFixed(2), m.ph.toFixed(2)));
   }
 
+  // ============ CALCULS ============
   function lireParametres() {
     return {
       type: document.getElementById('type-dosage').value,
@@ -679,13 +697,36 @@
     return 7;
   }
 
+  function couleurIndicateur(ph, ind) {
+    if (ind === 'aucun') return 'rgba(46, 204, 113, 0.3)';
+    if (ind === 'helianthine') {
+      if (ph < 3.1) return 'rgba(231, 76, 60, 0.5)';
+      if (ph > 4.4) return 'rgba(241, 196, 15, 0.5)';
+      return 'rgba(230, 126, 34, 0.5)';
+    }
+    if (ind === 'bbt') {
+      if (ph < 6.0) return 'rgba(241, 196, 15, 0.5)';
+      if (ph > 7.6) return 'rgba(52, 152, 219, 0.5)';
+      return 'rgba(46, 204, 113, 0.5)';
+    }
+    if (ind === 'phenolphtaleine') {
+      if (ph < 8.2) return 'rgba(236, 240, 241, 0.5)';
+      if (ph > 10.0) return 'rgba(233, 30, 99, 0.5)';
+      return 'rgba(248, 187, 208, 0.5)';
+    }
+    return 'rgba(46, 204, 113, 0.3)';
+  }
+
+  // ============ SIMULATION ============
   document.getElementById('btn-demarrer').onclick = () => {
     started = true; mesures = [];
     if (chart) { chart.destroy(); chart = null; }
     document.getElementById('result-box').style.display = 'none';
     document.getElementById('explication').classList.remove('show');
     tangentesAffichees = false; zoneTamponAffichee = false;
-    renderTableau(); majDispositif();
+    renderTableau();
+    appliquerCouleurInitiale();
+    majDispositif();
     document.getElementById('auto-controls').style.display = tableMode === 'auto' ? 'block' : 'none';
     document.getElementById('add-row-zone').style.display = tableMode === 'manuel' ? 'block' : 'none';
   };
@@ -701,7 +742,7 @@
     tangentesAffichees = false; zoneTamponAffichee = false;
     document.getElementById('svg-ph').textContent = '1.00';
     document.getElementById('svg-volume').textContent = '0.00';
-    document.getElementById('beaker-liquid').setAttribute('fill', 'rgba(46, 204, 113, 0.3)');
+    appliquerCouleurInitiale();
   }
 
   function ajouterVol(vol) {
@@ -742,26 +783,7 @@
     document.getElementById('beaker-liquid').setAttribute('fill', couleurIndicateur(d.ph, p.indicateur));
   }
 
-  function couleurIndicateur(ph, ind) {
-    if (ind === 'aucun') return 'rgba(46, 204, 113, 0.3)';
-    if (ind === 'helianthine') {
-      if (ph < 3.1) return 'rgba(231, 76, 60, 0.5)';
-      if (ph > 4.4) return 'rgba(241, 196, 15, 0.5)';
-      return 'rgba(230, 126, 34, 0.5)';
-    }
-    if (ind === 'bbt') {
-      if (ph < 6.0) return 'rgba(241, 196, 15, 0.5)';
-      if (ph > 7.6) return 'rgba(52, 152, 219, 0.5)';
-      return 'rgba(46, 204, 113, 0.5)';
-    }
-    if (ind === 'phenolphtaleine') {
-      if (ph < 8.2) return 'rgba(236, 240, 241, 0.5)';
-      if (ph > 10.0) return 'rgba(233, 30, 99, 0.5)';
-      return 'rgba(248, 187, 208, 0.5)';
-    }
-    return 'rgba(46, 204, 113, 0.3)';
-  }
-
+  // ============ COURBE ============
   function renderChart() {
     const ctx = document.getElementById('chart');
     if (!ctx) return;
@@ -881,12 +903,13 @@
       <strong>📊 pH à l'équivalence :</strong> ${pheq.toFixed(2)}<br>
       ${p.type === 'fort-fort' ? 'pH = 7' : p.type === 'faible-fort' ? 'pH > 7 (base conjuguée basique)' : 'pH < 7 (acide conjugué acide)'}<br><br>
       <strong>🔵 Demi-équivalence :</strong> ${vdemi.toFixed(2)} mL<br>
-      ${p.type === 'faible-fort' ? `pH = pKa = ${p.pka} (mesuré : ${phdemi.toFixed(2)})` : 
+      ${p.type === 'faible-fort' ? `pH = pKa = ${p.pka} (mesuré : ${phdemi.toFixed(2)})` :
         p.type === 'fort-faible' ? `pH = ${phdemi.toFixed(2)}` : 'À la demi-équivalence, [AH] = [A⁻]'}
     `;
     div.classList.toggle('show');
   };
 
+  // ============ MODE TP ============
   const SUBSTANCES = [
     { nom: 'Acide éthanoïque', pka: 4.75, type: 'acide' },
     { nom: 'Acide méthanoïque', pka: 3.75, type: 'acide' },
@@ -949,6 +972,7 @@
     fb.innerHTML = html;
   };
 
+  // ============ COMPARAISON ============
   document.getElementById('btn-comparer').onclick = () => document.getElementById('comparison-panel').classList.toggle('show');
   document.getElementById('btn-fermer-comparaison').onclick = () => {
     document.getElementById('comparison-panel').classList.remove('show');
@@ -967,9 +991,11 @@
     for (let v = 0; v <= veq2 * 2; v += veq2 / 20) {
       mesures2.push({ v, ph: calculerPH(v, p2) });
     }
-    comparaisonActive = true; renderChart();
+    comparaisonActive = true;
+    renderChart();
   };
 
+  // ============ EXPORT ============
   document.getElementById('btn-export').onclick = () => {
     if (mesures.length === 0) { alert('Aucune mesure à exporter.'); return; }
     let csv = "V(mL);pH\n";
@@ -983,8 +1009,11 @@
 
   document.getElementById('btn-imprimer').onclick = () => window.print();
 
+  // ============ INITIALISATION ============
   document.getElementById('auto-controls').style.display = 'block';
   document.getElementById('add-row-zone').style.display = 'none';
+  appliquerCouleurInitiale();
+
 })();
 </script>
 </body>
