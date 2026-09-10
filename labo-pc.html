@@ -12,6 +12,7 @@
   :root {
     --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
     --slate: #5B6472; --line: rgba(27,42,74,0.14); --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --gov-purple: #6a4c93;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; }
@@ -46,6 +47,12 @@
   .labo-item { display: none; }
   .feedback-item { display: none; }
   .feedback-link { background: var(--brass); color: #fff !important; padding: 4px 12px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
+
+  /* 🎓 GOUVERNEMENT SCOLAIRE */
+  .gov-item { display: none; }
+  .gov-item a { color: var(--gov-purple) !important; font-weight: 700; }
+  .gov-item a:hover { color: #9b59b6 !important; }
+
   @media (max-width: 1024px) {
     .menu-toggle { display: block; }
     nav ul { display: none; flex-direction: column; position: absolute; top: 84px; left: 0; width: 100%; background: #fff; padding: 20px; border-bottom: 2px solid var(--line); gap: 15px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
@@ -133,6 +140,12 @@
         <li><a href="actualites.html">Actualités</a></li>
         <li class="labo-item"><a href="labo-pc.html" style="color: var(--brass); font-weight:700;">🔬 Labo PC</a></li>
         <li><a href="ressources.html">Ressources</a></li>
+
+        <!-- 🎓 NOUVEAU : Lien Gouvernement scolaire -->
+        <li class="gov-item">
+          <a href="publier-annonce.html">🎓 Gouvernement</a>
+        </li>
+
         <li><a href="#" onclick="window.showContact(); return false;" class="contact-info" style="text-decoration: none;">
           <span class="contact-label">📞 Contacter le Proviseur</span>
           <span class="contact-phone" id="contact-phone-display">...</span>
@@ -280,15 +293,11 @@
         <div id="tp-schema">
           <h4 style="text-align:center; color:var(--ink);">Schéma du montage</h4>
           <svg width="100%" height="220" viewBox="0 0 300 220">
-            <!-- Bécher -->
             <rect x="50" y="100" width="100" height="100" fill="#e8f4fc" stroke="#1B2A4A" stroke-width="2"/>
             <text x="100" y="215" text-anchor="middle" font-size="12" fill="#1B2A4A">Bécher (HCl)</text>
-            <!-- Burette -->
             <rect x="90" y="20" width="20" height="80" fill="#fff" stroke="#1B2A4A" stroke-width="2"/>
             <text x="100" y="15" text-anchor="middle" font-size="12" fill="#1B2A4A">Burette (NaOH)</text>
-            <!-- Goutte -->
             <circle cx="100" cy="110" r="3" fill="#4D6BFE"/>
-            <!-- pH-mètre -->
             <rect x="180" y="60" width="90" height="50" fill="#fff" stroke="#1B2A4A" stroke-width="2"/>
             <text x="225" y="90" text-anchor="middle" font-size="14" fill="#1B2A4A" id="ph-display">pH = 1.0</text>
             <line x1="130" y1="140" x2="180" y2="110" stroke="#1B2A4A" stroke-width="2"/>
@@ -348,7 +357,6 @@
 <footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
 
 <script type="module">
-  // FIREBASE
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -368,6 +376,7 @@
 
   let profile = null;
   const isAdmin = (role) => role === 'admin' || role === 'proviseur' || role === 'censeur';
+  const isGouvernement = (role) => role === 'president' || role === 'ministre_communication';
   const escapeHtml = (str) => { const div = document.createElement('div'); div.textContent = str ?? ''; return div.innerHTML; };
 
   // GESTION AUTH
@@ -382,21 +391,29 @@
       profileSpan.style.display = 'flex';
       link.textContent = "Déconnexion";
       link.onclick = () => signOut(auth).then(() => location.reload());
+      
       if (isAdmin(profile.role)) {
         document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
       }
+
+      // 🎓 Lien Gouvernement
+      if (isAdmin(profile.role) || isGouvernement(profile.role)) {
+        document.querySelectorAll('.gov-item').forEach(el => el.style.display = 'block');
+      }
+
       const feedbackItems = document.querySelectorAll('.feedback-item');
       feedbackItems.forEach(el => {
         el.style.display = 'block';
         const lnk = el.querySelector('a');
         if (isAdmin(profile.role)) { lnk.href = 'feedback.html#tab-dashboard'; lnk.textContent = '📊 Voir les retours'; }
         else if (profile.role === 'professeur') { lnk.href = 'feedback.html#tab-professeurs'; lnk.textContent = '📋 Donner mon avis (prof)'; }
-        else if (profile.role === 'eleve') { lnk.href = 'feedback.html#tab-eleves'; lnk.textContent = '📋 Donner mon avis (élève)'; }
+        else if (profile.role === 'eleve' || isGouvernement(profile.role)) { lnk.href = 'feedback.html#tab-eleves'; lnk.textContent = '📋 Donner mon avis (élève)'; }
       });
     } else {
       profileSpan.style.display = 'none';
       link.textContent = "Connexion";
       link.href = "identification.html";
+      document.querySelectorAll('.gov-item').forEach(el => el.style.display = 'none');
     }
   });
 
@@ -420,7 +437,7 @@
   };
 
   window.openProfil = () => {
-    if (profile && profile.role === 'eleve' && auth.currentUser) {
+    if (profile && (profile.role === 'eleve' || isGouvernement(profile.role)) && auth.currentUser) {
       window.location.href = `profil-eleve.html?uid=${auth.currentUser.uid}`;
     }
   };
@@ -517,7 +534,7 @@
   // TP ACIDE-BASE INTERACTIF
   let phChart = null;
   let volumeNaOH = 0;
-  const volumeHCl = 20; // 20 mL de HCl à 0.1 M
+  const volumeHCl = 20;
   const cHCl = 0.1;
   const cNaOH = 0.1;
   const phData = [];
@@ -548,26 +565,21 @@
           x: { title: { display: true, text: 'Volume de NaOH versé (mL)' } },
           y: { title: { display: true, text: 'pH' }, min: 0, max: 14 }
         },
-        plugins: {
-          legend: { display: false }
-        }
+        plugins: { legend: { display: false } }
       }
     });
   }
 
   function calculatePH(vNaOH) {
-    // Simplification : HCl fort + NaOH fort
-    const nH = volumeHCl * cHCl; // moles H+ initial
-    const nOH = vNaOH * cNaOH;   // moles OH- ajoutés
+    const nH = volumeHCl * cHCl;
+    const nOH = vNaOH * cNaOH;
     const totalVolume = volumeHCl + vNaOH;
     if (nOH < nH) {
-      // Excès d'acide
       const hConc = (nH - nOH) / totalVolume;
       return -Math.log10(hConc);
     } else if (Math.abs(nOH - nH) < 0.001) {
-      return 7.0; // Équivalence
+      return 7.0;
     } else {
-      // Excès de base
       const ohConc = (nOH - nH) / totalVolume;
       const pOH = -Math.log10(ohConc);
       return 14 - pOH;
