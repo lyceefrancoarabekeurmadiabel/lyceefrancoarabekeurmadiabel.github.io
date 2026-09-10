@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Laboratoire Virtuel — LFAKM</title>
 <script src="https://cdn.jsdelivr.net/npm/chemdoodle@8.2.0/chemdoodle-web-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -15,7 +16,7 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; }
 
-  /* Header */
+  /* HEADER IDENTIQUE AU RESTE DU SITE */
   header { position:sticky; top:0; z-index:1000; background:var(--paper); border-bottom:1px solid var(--line); height: 84px; display: flex; align-items: center; }
   .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; max-width:1180px; margin:0 auto; padding:0 24px; }
   .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); width: 220px; flex-shrink: 0; }
@@ -45,7 +46,6 @@
   .labo-item { display: none; }
   .feedback-item { display: none; }
   .feedback-link { background: var(--brass); color: #fff !important; padding: 4px 12px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
-
   @media (max-width: 1024px) {
     .menu-toggle { display: block; }
     nav ul { display: none; flex-direction: column; position: absolute; top: 84px; left: 0; width: 100%; background: #fff; padding: 20px; border-bottom: 2px solid var(--line); gap: 15px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
@@ -54,42 +54,45 @@
     .brand { width: auto; }
   }
 
-  /* Hero */
+  /* HERO */
   .hero { background: var(--ink-deep); color:#EFE9DC; padding: 60px 20px; text-align: center; }
   .hero h1 { font-family: var(--serif); font-size: 36px; margin-bottom: 10px; }
   .hero p { font-size: 16px; opacity: 0.8; }
   .wrap { max-width:1100px; margin:0 auto; padding: 20px; }
 
-  /* Système d'onglets par domaine */
-  .tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px; }
-  .tab-btn { padding: 10px 18px; border: none; background: #fff; border-radius: 30px; cursor: pointer; font-weight: 700; color: var(--slate); font-size: 14px; transition: all 0.2s; }
-  .tab-btn.active { background: var(--brass); color: #fff; }
+  /* ONGLETS */
+  .tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px; justify-content: center; }
+  .tab-btn { padding: 12px 22px; border: 1px solid var(--line); background: #fff; border-radius: 30px; cursor: pointer; font-weight: 700; color: var(--slate); font-size: 14px; transition: all 0.2s; }
+  .tab-btn.active { background: var(--brass); color: #fff; border-color: var(--brass); }
   .tab-section { display: none; }
   .tab-section.active { display: block; }
 
-  /* Grille d'expériences */
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  /* GRILLE D'EXPÉRIENCES */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
   .sim-card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; }
   .sim-card:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
   .sim-card h4 { font-size: 16px; color: var(--ink); margin-bottom: 8px; }
-  .sim-card p { font-size: 13px; color: var(--slate); }
-  .badge { display: inline-block; background: var(--brass); color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-top: 10px; font-weight: 700; }
-  .badge-blue { background: #3498db; }
+  .sim-card p { font-size: 13px; color: var(--slate); margin-bottom: 8px; }
+  .badge { display: inline-block; background: var(--brass); color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-top: 5px; font-weight: 700; }
 
-  /* Tableau périodique interactif */
-  .periodic-table { display: grid; grid-template-columns: repeat(18, 1fr); gap: 4px; margin: 20px 0; background: #fff; padding: 20px; border-radius: 10px; border: 1px solid var(--line); }
-  .element { background: #eee; border-radius: 4px; padding: 5px 2px; text-align: center; cursor: pointer; transition: 0.2s; font-size: 11px; }
+  /* OUTILS INTÉGRÉS */
+  .tool-box { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; margin-top: 20px; }
+  .tool-box h3 { margin-bottom: 15px; color: var(--ink); }
+  .btn-action { background: var(--brass); color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; margin: 5px; }
+  .btn-action:hover { background: #96743a; }
+  #periodic-table { display: grid; grid-template-columns: repeat(18, 1fr); gap: 4px; margin: 20px 0; }
+  .element { background: #eee; border-radius: 4px; padding: 5px 2px; text-align: center; cursor: pointer; font-size: 11px; transition: 0.2s; }
   .element:hover { background: var(--brass); color: #fff; }
   .element .symbol { font-weight: 800; font-size: 14px; }
   .element .num { font-size: 9px; color: #777; }
   .nonmetal { background: #d4efdf; } .metal { background: #fadbd8; } .noble { background: #d6eaf8; }
-  
+  #chemdoodle-container { min-height: 300px; margin-top: 15px; }
+  #stats-chart { max-width: 100%; height: 300px; margin-top: 20px; }
+
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
 
-  /* Interface Chimie 3D */
-  #chemdoodle-container { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 15px; min-height: 300px; margin-top: 20px; }
-  .btn-action { background: var(--brass); color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; margin: 5px; }
-  .btn-action:hover { background: #96743a; }
+  /* ACCÈS REFUSÉ */
+  .access-denied { text-align: center; padding: 60px 20px; background: #fff; border-radius: 10px; border: 1px dashed var(--line); }
 </style>
 </head>
 <body>
@@ -134,86 +137,35 @@
 
 <section class="hero">
   <div class="wrap">
-    <h1>🧪 Laboratoire Virtuel de Physique-Chimie</h1>
-    <p>Simulateurs, manipulations 3D et activités conformes au programme officiel du Sénégal.</p>
+    <h1>🧪 Laboratoire Virtuel</h1>
+    <p>Simulateurs, manipulations et activités interactives conformes aux programmes officiels du Sénégal.</p>
   </div>
 </section>
 
 <div class="wrap">
-  <div class="tabs">
-    <button class="tab-btn active" data-target="tab-electricite">⚡ Électricité & Électronique</button>
-    <button class="tab-btn" data-target="tab-mecanique">🔧 Mécanique & Énergie</button>
-    <button class="tab-btn" data-target="tab-optique">🔆 Optique & Ondes</button>
-    <button class="tab-btn" data-target="tab-chimie-organique">🧬 Chimie Organique & Structure</button>
-    <button class="tab-btn" data-target="tab-solutions">🧪 Solutions, Acides & Bases</button>
-    <button class="tab-btn" data-target="tab-electrochimie">🔋 Électrochimie & Oxydoréduction</button>
+  <!-- ZONE DE MESSAGE D'ACCÈS -->
+  <div id="access-denied-zone" class="access-denied" style="display:none;">
+    <h2>🔒 Accès réservé</h2>
+    <p style="margin-top: 10px;">Cet espace est réservé aux professeurs de sciences et aux élèves.</p>
   </div>
 
-  <!-- Domaine 1 : Électricité -->
-  <div id="tab-electricite" class="tab-section active">
-    <h2>⚡ Électricité (4ème → Terminale)</h2>
-    <div class="grid">
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_fr.html" target="_blank">
-        <h4>Circuits électriques (DC)</h4>
-        <p>Chapitre P5 (4ème), P2/P3/P4 (2nde S), P7 (1ère S)</p>
-        <span class="badge">4ème → Tle</span>
-      </a>
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/charges-and-fields/latest/charges-and-fields_fr.html" target="_blank">
-        <h4>Charges et champs électriques</h4>
-        <p>Chapitre P1 (2nde S), P5 et P6 (1ère S)</p>
-        <span class="badge">2nde → Tle</span>
-      </a>
-    </div>
+  <!-- ONGLETS -->
+  <div class="tabs" id="tabs-container" style="display:none;">
+    <button class="tab-btn active" data-target="tab-pc" id="btn-pc">⚡ Physique-Chimie</button>
+    <button class="tab-btn" data-target="tab-maths" id="btn-maths">📐 Mathématiques</button>
+    <button class="tab-btn" data-target="tab-svt" id="btn-svt">🧬 SVT</button>
   </div>
 
-  <!-- Domaine 2 : Mécanique -->
-  <div id="tab-mecanique" class="tab-section">
-    <h2>🔧 Mécanique & Énergie (4ème → Terminale)</h2>
-    <div class="grid">
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/projectile-motion/latest/projectile-motion_fr.html" target="_blank">
-        <h4>Mouvement d'un projectile</h4>
-        <p>Chapitre P3 (Tle S), P1 (1ère L2)</p>
-        <span class="badge">1ère → Tle</span>
-      </a>
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/pendulum-lab/latest/pendulum-lab_fr.html" target="_blank">
-        <h4>Pendule simple</h4>
-        <p>Chapitre P11 (Tle S) : Oscillations mécaniques</p>
-        <span class="badge">Tle S</span>
-      </a>
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/energy-skate-park/latest/energy-skate-park_fr.html" target="_blank">
-        <h4>Parc de l'énergie</h4>
-        <p>Chapitre P7 (3ème), P2, P3, P4 (1ère S)</p>
-        <span class="badge">3ème → Tle</span>
-      </a>
-    </div>
-  </div>
-
-  <!-- Domaine 3 : Optique -->
-  <div id="tab-optique" class="tab-section">
-    <h2>🔆 Optique & Ondes (4ème → Terminale)</h2>
-    <div class="grid">
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/geometric-optics/latest/geometric-optics_fr.html" target="_blank">
-        <h4>Optique géométrique (Lentilles)</h4>
-        <p>Chapitre P1 (3ème), P11 (1ère S), P5 (1ère L2)</p>
-        <span class="badge">3ème → Tle</span>
-      </a>
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/waves-intro/latest/waves-intro_fr.html" target="_blank">
-        <h4>Ondes progressives</h4>
-        <p>Chapitre P10 (1ère S), P3 et P4 (Tle L2)</p>
-        <span class="badge">1ère → Tle</span>
-      </a>
-    </div>
-  </div>
-
-  <!-- Domaine 4 : Chimie Organique & Structure (avec ChemDoodle) -->
-  <div id="tab-chimie-organique" class="tab-section">
-    <h2>🧬 Structure de la Matière & Chimie Organique (4ème → Terminale)</h2>
+  <!-- ============================================ -->
+  <!-- ONGLET 1 : PHYSIQUE-CHIMIE -->
+  <!-- ============================================ -->
+  <div id="tab-pc" class="tab-section active">
+    <h2 style="margin-bottom: 20px; color: var(--ink); font-family: var(--serif);">⚡ Physique-Chimie (4ème → Terminale)</h2>
     
     <h3 style="margin-bottom: 10px;">📊 Tableau Périodique Interactif</h3>
-    <div class="periodic-table" id="periodic-table"></div>
+    <div id="periodic-table"></div>
 
-    <h3 style="margin-top: 30px;">⚗️ Construction de Molécules (ChemDoodle 3D)</h3>
-    <p style="margin-bottom: 10px;">Sélectionnez une molécule du programme pour la visualiser et la manipuler en 3D.</p>
+    <h3 style="margin-top: 30px; margin-bottom: 10px;">⚗️ Construction de Molécules (ChemDoodle 3D)</h3>
     <div style="margin-bottom: 10px;">
       <button class="btn-action" onclick="loadMolecule('methane')">Méthane (CH₄)</button>
       <button class="btn-action" onclick="loadMolecule('ethane')">Éthane (C₂H₆)</button>
@@ -225,51 +177,104 @@
     </div>
     <div id="chemdoodle-container"></div>
 
-    <h3 style="margin-top: 30px;">📚 Expériences et Activités du programme</h3>
+    <h3 style="margin-top: 30px; margin-bottom: 15px;">📚 Expériences et Simulations</h3>
     <div class="grid">
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/build-a-molecule/latest/build-a-molecule_fr.html" target="_blank">
-        <h4>Construire des molécules</h4>
-        <p>Chapitre C2 (4ème), C3 (2nde S), C1 à C5 (1ère S) - Activités sur les alcanes, alcènes, composés oxygénés.</p>
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_fr.html" target="_blank">
+        <h4>Circuits électriques (DC)</h4>
+        <p>Chapitre P5 (4ème), P2/P3/P4 (2nde S), P7 (1ère S)</p>
         <span class="badge">4ème → Tle</span>
       </a>
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/atomic-interactions/latest/atomic-interactions_fr.html" target="_blank">
-        <h4>Interactions atomiques</h4>
-        <p>Chapitre C2 (2nde S), C3 (Liaisons covalentes)</p>
-        <span class="badge">2nde → 1ère</span>
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/projectile-motion/latest/projectile-motion_fr.html" target="_blank">
+        <h4>Mouvement d'un projectile</h4>
+        <p>Chapitre P3 (Tle S), P1 (1ère L2)</p>
+        <span class="badge">1ère → Tle</span>
       </a>
-    </div>
-  </div>
-
-  <!-- Domaine 5 : Solutions & pH -->
-  <div id="tab-solutions" class="tab-section">
-    <h2>🧪 Solutions, Acides & Bases (3ème → Terminale)</h2>
-    <div class="grid">
       <a class="sim-card" href="https://phet.colorado.edu/sims/html/acid-base-solutions/latest/acid-base-solutions_fr.html" target="_blank">
         <h4>Solutions acides et basiques</h4>
         <p>Chapitre C7, C8, C9 (2nde S), C5, C6, C7, C8 (Tle S)</p>
         <span class="badge">3ème → Tle</span>
       </a>
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/ph-scale/latest/ph-scale_fr.html" target="_blank">
-        <h4>Échelle de pH</h4>
-        <p>Chapitre C9 (2nde S), C5 (Tle S)</p>
-        <span class="badge">2nde → Tle</span>
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/build-a-molecule/latest/build-a-molecule_fr.html" target="_blank">
+        <h4>Construire des molécules</h4>
+        <p>Chapitre C2 (4ème), C3 (2nde S), C1 à C5 (1ère S)</p>
+        <span class="badge">4ème → Tle</span>
       </a>
     </div>
   </div>
 
-  <!-- Domaine 6 : Électrochimie -->
-  <div id="tab-electrochimie" class="tab-section">
-    <h2>🔋 Électrochimie & Oxydoréduction (1ère → Terminale)</h2>
+  <!-- ============================================ -->
+  <!-- ONGLET 2 : MATHÉMATIQUES -->
+  <!-- ============================================ -->
+  <div id="tab-maths" class="tab-section">
+    <h2 style="margin-bottom: 20px; color: var(--ink); font-family: var(--serif);">📐 Mathématiques (6ème → Terminale)</h2>
+    
+    <h3 style="margin-bottom: 15px;">📊 Statistiques & Graphiques Interactifs</h3>
+    <p style="margin-bottom: 10px;">Visualisez des distributions statistiques et des ajustements linéaires.</p>
+    <div class="tool-box">
+      <button class="btn-action" onclick="drawStats()">Afficher un exemple de diagramme</button>
+      <canvas id="stats-chart"></canvas>
+    </div>
+
+    <h3 style="margin-top: 30px; margin-bottom: 15px;">📚 Simulateurs et Outils</h3>
     <div class="grid">
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/redox/latest/redox_fr.html" target="_blank">
-        <h4>Réactions d'oxydoréduction</h4>
-        <p>Chapitre C6, C7, C8, C9 (1ère S) - Classification des couples.</p>
+      <a class="sim-card" href="https://www.geogebra.org/classic" target="_blank">
+        <h4>GeoGebra (Géométrie dynamique)</h4>
+        <p>Pour la géométrie plane, les fonctions, et les transformations.</p>
+        <span class="badge">6ème → Tle</span>
+      </a>
+      <a class="sim-card" href="https://www.geogebra.org/m/vehqvvcx" target="_blank">
+        <h4>Théorème de Pythagore</h4>
+        <p>Démonstration visuelle (3ème, 2nde).</p>
+        <span class="badge">4ème → 3ème</span>
+      </a>
+      <a class="sim-card" href="https://www.geogebra.org/m/mbbyvfmr" target="_blank">
+        <h4>Trigonométrie (Cercle trigonométrique)</h4>
+        <p>Angles orientés, sinus, cosinus (2nde, 1ère).</p>
+        <span class="badge">2nde → 1ère</span>
+      </a>
+      <a class="sim-card" href="https://www.geogebra.org/m/bvbmv3dg" target="_blank">
+        <h4>Fonctions et Dérivées</h4>
+        <p>Étude des variations d'une fonction (1ère, Tle).</p>
         <span class="badge">1ère → Tle</span>
       </a>
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/color-mixing/latest/color-mixing_fr.html" target="_blank">
-        <h4>Synthèse des couleurs</h4>
-        <p>Activité préparatoire Chapitre P2 (3ème) - Dispersion de la lumière</p>
-        <span class="badge">3ème</span>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- ONGLET 3 : SVT -->
+  <!-- ============================================ -->
+  <div id="tab-svt" class="tab-section">
+    <h2 style="margin-bottom: 20px; color: var(--ink); font-family: var(--serif);">🧬 Sciences de la Vie et de la Terre (6ème → Terminale)</h2>
+    
+    <h3 style="margin-bottom: 15px;">🧬 Outils Interactifs</h3>
+    <div class="tool-box">
+      <h3>Simulateur de Croisement Génétique</h3>
+      <p style="margin-bottom: 10px;">Utilisez cet outil pour visualiser les résultats d'un croisement monohybride ou dihybride.</p>
+      <button class="btn-action" onclick="simulateGenetics()">Simuler un croisement</button>
+      <div id="genetics-result" style="margin-top: 15px; font-weight: 600;"></div>
+    </div>
+
+    <h3 style="margin-top: 30px; margin-bottom: 15px;">📚 Simulations et Ressources</h3>
+    <div class="grid">
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/natural-selection/latest/natural-selection_fr.html" target="_blank">
+        <h4>Sélection Naturelle</h4>
+        <p>Évolution et adaptation des espèces (3ème, Tle).</p>
+        <span class="badge">3ème → Tle</span>
+      </a>
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/gene-expression-essentials/latest/gene-expression-essentials_fr.html" target="_blank">
+        <h4>Expression génétique</h4>
+        <p>Synthèse des protéines (1ère, Tle).</p>
+        <span class="badge">1ère → Tle</span>
+      </a>
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/membrane-channels/latest/membrane-channels_fr.html" target="_blank">
+        <h4>Canaux membranaires</h4>
+        <p>Diffusion et transport cellulaire (Tle).</p>
+        <span class="badge">Tle</span>
+      </a>
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/ecosystem/latest/ecosystem_fr.html" target="_blank">
+        <h4>Écosystème</h4>
+        <p>Chaînes alimentaires et équilibre écologique (6ème, 5ème).</p>
+        <span class="badge">6ème → 5ème</span>
       </a>
     </div>
   </div>
@@ -318,18 +323,58 @@
       if (isAdmin(profile.role)) {
         document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
         document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'block');
-      }
-      
-      // Professeurs de sciences et élèves concernés
-      let laboVisible = false;
-      if (profile.role === 'professeur') {
+        document.getElementById('tabs-container').style.display = 'flex';
+        // Afficher tous les onglets
+        document.getElementById('btn-pc').style.display = 'inline-block';
+        document.getElementById('btn-maths').style.display = 'inline-block';
+        document.getElementById('btn-svt').style.display = 'inline-block';
+      } else if (profile.role === 'professeur') {
+        // Visible uniquement pour les profs de sciences
         const mats = (profile.disciplines || []).map(m => m.toLowerCase());
-        laboVisible = mats.some(m => m.includes('physique') || m.includes('chimie') || m.includes('pc') || m.includes('math') || m.includes('svt'));
-      } else if (profile.role === 'eleve') {
-        laboVisible = true; // Le labo est visible pour tous les élèves
-      }
+        let hasScience = mats.some(m => m.includes('physique') || m.includes('chimie') || m.includes('pc') || m.includes('math') || m.includes('svt'));
+        
+        if (hasScience) {
+          document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'block');
+          document.getElementById('tabs-container').style.display = 'flex';
 
-      if (laboVisible) document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'block');
+          // Filtrage des onglets selon la discipline du professeur
+          if (mats.some(m => m.includes('physique') || m.includes('chimie') || m.includes('pc'))) {
+            document.getElementById('btn-pc').style.display = 'inline-block';
+          } else {
+            document.getElementById('btn-pc').style.display = 'none';
+          }
+          if (mats.some(m => m.includes('math'))) {
+            document.getElementById('btn-maths').style.display = 'inline-block';
+          } else {
+            document.getElementById('btn-maths').style.display = 'none';
+          }
+          if (mats.some(m => m.includes('svt'))) {
+            document.getElementById('btn-svt').style.display = 'inline-block';
+          } else {
+            document.getElementById('btn-svt').style.display = 'none';
+          }
+
+          // Activation automatique du premier onglet disponible
+          const firstTab = document.querySelector('.tab-btn:not([style*="display: none"])');
+          if (firstTab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+            firstTab.classList.add('active');
+            document.getElementById(firstTab.dataset.target).classList.add('active');
+          }
+        } else {
+          document.getElementById('access-denied-zone').style.display = 'block';
+        }
+      } else if (profile.role === 'eleve') {
+        // Les élèves voient tout
+        document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'block');
+        document.getElementById('tabs-container').style.display = 'flex';
+        document.getElementById('btn-pc').style.display = 'inline-block';
+        document.getElementById('btn-maths').style.display = 'inline-block';
+        document.getElementById('btn-svt').style.display = 'inline-block';
+      } else {
+        document.getElementById('access-denied-zone').style.display = 'block';
+      }
 
       // Feedback
       const feedbackItems = document.querySelectorAll('.feedback-item');
@@ -351,12 +396,13 @@
           }
         });
       }
-
     } else {
       profileSpan.style.display = 'none';
       link.textContent = "Connexion";
       link.href = "identification.html";
       document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'none');
+      document.getElementById('tabs-container').style.display = 'none';
+      document.getElementById('access-denied-zone').style.display = 'block';
     }
   });
 
@@ -381,7 +427,7 @@
     document.body.appendChild(overlay);
   };
 
-  // GESTION DES ONGLETS PAR DOMAINE
+  // GESTION DES ONGLETS
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -392,7 +438,7 @@
   });
 
   // ================================
-  // TABLEAU PÉRIODIQUE INTERACTIF (Version simplifiée conforme au programme 2nde S)
+  // TABLEAU PÉRIODIQUE (Physique-Chimie)
   // ================================
   const elements = [
     {num:1, sym:"H", cat:"nonmetal"}, {num:2, sym:"He", cat:"noble"},
@@ -400,27 +446,28 @@
     {num:11, sym:"Na", cat:"metal"}, {num:12, sym:"Mg", cat:"metal"}, {num:13, sym:"Al", cat:"metal"}, {num:14, sym:"Si", cat:"nonmetal"}, {num:15, sym:"P", cat:"nonmetal"}, {num:16, sym:"S", cat:"nonmetal"}, {num:17, sym:"Cl", cat:"nonmetal"}, {num:18, sym:"Ar", cat:"noble"},
     {num:19, sym:"K", cat:"metal"}, {num:20, sym:"Ca", cat:"metal"}, {num:26, sym:"Fe", cat:"metal"}, {num:29, sym:"Cu", cat:"metal"}, {num:30, sym:"Zn", cat:"metal"}, {num:47, sym:"Ag", cat:"metal"}, {num:50, sym:"Sn", cat:"metal"}, {num:82, sym:"Pb", cat:"metal"}, {num:80, sym:"Hg", cat:"metal"}
   ];
-
   const tableContainer = document.getElementById('periodic-table');
-  elements.forEach(el => {
-    const div = document.createElement('div');
-    div.className = `element ${el.cat}`;
-    div.innerHTML = `<div class="num">${el.num}</div><div class="symbol">${el.sym}</div>`;
-    div.title = `Élément ${el.sym}`;
-    tableContainer.appendChild(div);
-  });
+  if (tableContainer) {
+    elements.forEach(el => {
+      const div = document.createElement('div');
+      div.className = `element ${el.cat}`;
+      div.innerHTML = `<div class="num">${el.num}</div><div class="symbol">${el.sym}</div>`;
+      div.title = `Élément ${el.sym}`;
+      tableContainer.appendChild(div);
+    });
+  }
 
   // ================================
-  // CHEMDOODLE 3D - MOLÉCULES DU PROGRAMME (4ème à Tle)
+  // CHEMDOODLE 3D
   // ================================
   const chemicalData = {
-    methane: { name: "Méthane (CH₄)", mol: "methane" },
-    ethane: { name: "Éthane (C₂H₆)", mol: "ethane" },
-    ethene: { name: "Éthylène (C₂H₄)", mol: "ethene" },
-    acetylene: { name: "Acétylène (C₂H₂)", mol: "acetylene" },
-    benzene: { name: "Benzène (C₆H₆)", mol: "benzene" },
-    ethanol: { name: "Éthanol (C₂H₅OH)", mol: "ethanol" },
-    acetic: { name: "Acide éthanoïque (CH₃COOH)", mol: "aceticacid" }
+    methane: { name: "Méthane (CH₄)", mol: "C1" },
+    ethane: { name: "Éthane (C₂H₆)", mol: "CC" },
+    ethene: { name: "Éthylène (C₂H₄)", mol: "C=C" },
+    acetylene: { name: "Acétylène (C₂H₂)", mol: "C#C" },
+    benzene: { name: "Benzène (C₆H₆)", mol: "c1ccccc1" },
+    ethanol: { name: "Éthanol (C₂H₅OH)", mol: "CCO" },
+    acetic: { name: "Acide éthanoïque", mol: "CC(=O)O" }
   };
 
   let viewer;
@@ -435,22 +482,60 @@
       viewer.specs.atoms_useVdw = false;
     }
 
-    // Génération de la structure 3D basée sur les données ChemDoodle
-    let mol = null;
-    if (key === 'methane') mol = ChemDoodle.structures.parse('C1');
-    if (key === 'ethane') mol = ChemDoodle.structures.parse('CC');
-    if (key === 'ethene') mol = ChemDoodle.structures.parse('C=C');
-    if (key === 'acetylene') mol = ChemDoodle.structures.parse('C#C');
-    if (key === 'benzene') mol = ChemDoodle.structures.parse('c1ccccc1');
-    if (key === 'ethanol') mol = ChemDoodle.structures.parse('CCO');
-    if (key === 'acetic') mol = ChemDoodle.structures.parse('CC(=O)O');
-    
+    let mol = ChemDoodle.structures.parse(data.mol);
     if (mol) {
-      ChemDoodle.structures.clean(mol); // Calcul de la géométrie 3D
+      ChemDoodle.structures.clean(mol);
       viewer.loadMolecule(mol);
       container.style.display = 'block';
       container.scrollIntoView({ behavior: 'smooth' });
     }
+  };
+
+  // ================================
+  // STATISTIQUES (Mathématiques)
+  // ================================
+  let statsChart = null;
+  window.drawStats = () => {
+    const ctx = document.getElementById('stats-chart').getContext('2d');
+    if (statsChart) statsChart.destroy();
+    statsChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Maths', 'PC', 'SVT', 'Français', 'Anglais'],
+        datasets: [{
+          label: 'Moyenne de la classe',
+          data: [12.5, 11.8, 13.2, 10.5, 14.0],
+          backgroundColor: 'rgba(168, 133, 63, 0.7)',
+          borderColor: 'rgba(168, 133, 63, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: { y: { beginAtZero: true, max: 20 } }
+      }
+    });
+  };
+
+  // ================================
+  // GÉNÉTIQUE (SVT)
+  // ================================
+  window.simulateGenetics = () => {
+    const result = document.getElementById('genetics-result');
+    // Simulation d'un croisement Aa x Aa (dominance simple)
+    const parents = ['A', 'a'];
+    const gametes = [];
+    parents.forEach(p1 => parents.forEach(p2 => gametes.push(p1 + p2)));
+    const counts = { 'AA': 0, 'Aa': 0, 'aa': 0 };
+    gametes.forEach(g => {
+      if (g === 'AA') counts['AA']++;
+      else if (g === 'aa') counts['aa']++;
+      else counts['Aa']++;
+    });
+    result.innerHTML = `
+      <p>Croisement : <strong>Aa x Aa</strong></p>
+      <p>Génotypes possibles : AA (${counts['AA']}/4), Aa (${counts['Aa']}/4), aa (${counts['aa']}/4)</p>
+      <p>Phénotypes : 3/4 Dominant, 1/4 Récessif</p>
+    `;
   };
 </script>
 </body>
