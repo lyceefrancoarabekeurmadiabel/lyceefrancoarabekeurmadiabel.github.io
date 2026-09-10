@@ -9,108 +9,72 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Actualités — LFAKM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
-    --slate: #5B6472; --text: #1A1A1A; --line: rgba(27,42,74,0.14);
-    --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --slate: #5B6472; --line: rgba(27,42,74,0.14); --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family: var(--sans); color: var(--text); background: #f9f7f2; line-height:1.55; }
-  .wrap { max-width:1100px; margin:0 auto; padding:0 24px; }
+  body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; }
 
-  /* HEADER */
-  header { background: var(--paper); border-bottom: 1px solid var(--line); height: 84px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1000; }
-  .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; }
-  .brand { display:flex; align-items:center; gap:12px; text-decoration: none; min-width: 0; }
-  .brand-mark { width:45px; height:45px; flex-shrink: 0; display:flex; align-items:center; justify-content:center; }
+  /* ============ HEADER UNIFORME ============ */
+  header { position:sticky; top:0; z-index:1000; background:var(--paper); border-bottom:1px solid var(--line); height: 84px; display: flex; align-items: center; }
+  .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; max-width:1180px; margin:0 auto; padding:0 24px; }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); width: 220px; flex-shrink: 0; }
+  .brand-mark { width:55px; height:45px; display:flex; align-items:center; justify-content:center; flex-shrink: 0; }
   .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
-  .brand-name { font-family:var(--serif); font-weight:700; font-size:14px; color:var(--ink); line-height: 1.2; text-align: center; white-space: normal; }
-  .brand-tag { font-size: 10px; color: var(--slate); text-align: center; margin-top: 2px; letter-spacing: 0.5px; }
-  nav ul { display:flex; gap:20px; list-style:none; align-items: center; }
-  nav a { font-size:14px; font-weight:600; color:var(--ink); text-decoration: none; }
-  nav a:hover, nav a.active { color: var(--brass); }
-
-  /* MENU DÉROULANT ADMIN */
+  .brand-name { font-family:var(--serif); font-weight:700; font-size:14px; color:var(--ink); line-height: 1.3; text-align: center; width: 100%; white-space: normal; }
+  .brand-tag { font-size: 10px; color: var(--slate); text-align: center; margin-top: 2px; letter-spacing: 0.5px; white-space: nowrap; }
+  nav { flex: 1; display: flex; justify-content: flex-end; align-items: center; }
+  nav ul { display:flex; gap:18px; list-style:none; align-items: center; justify-content: flex-end; }
+  nav a { font-size:13px; font-weight:600; color:var(--ink); text-decoration:none; white-space: nowrap; display: flex; align-items: center; }
+  nav a:hover { color: var(--brass); }
   .admin-item { display: none; position: relative; }
-  .admin-dropdown {
-    display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    min-width: 180px;
-    z-index: 100;
-    padding: 5px 0;
-  }
-  .admin-dropdown a {
-    display: block;
-    padding: 8px 15px;
-    color: var(--ink);
-    font-size: 13px;
-    text-decoration: none;
-  }
+  .admin-dropdown { display: none; position: absolute; top: 100%; right: 0; background: #fff; border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); min-width: 180px; z-index: 100; padding: 5px 0; }
+  .admin-dropdown a { display: block; padding: 8px 15px; color: var(--ink); font-size: 13px; text-decoration: none; }
   .admin-dropdown a:hover { background: #f5f5f5; }
   .admin-item:hover .admin-dropdown { display: block; }
-  .admin-trigger {
-    background: var(--brass);
-    color: #fff !important;
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-weight: 700;
-    font-size: 12px;
-    cursor: pointer;
-    display: inline-block;
-    line-height: 1.4;
-    text-align: center;
-    vertical-align: middle;
-    margin: 0;
-  }
-
-  /* PROFIL ET CONTACT SUR DEUX LIGNES */
+  .admin-trigger { background: var(--brass); color: #fff !important; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 12px; cursor: pointer; display: inline-block; line-height: 1.4; text-align: center; margin: 0; white-space: nowrap; }
   .profile-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 13px; }
   .profile-name { font-weight: 700; color: var(--brass); font-size: 14px; }
   .profile-role { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; }
   .contact-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 12px; }
   .contact-label { font-weight: 600; color: var(--ink); }
   .contact-phone { font-size: 12px; color: var(--brass); font-weight: 700; }
-
-  /* PROFIL UTILISATEUR */
   #user-profile { display: none; font-weight: 700; color: var(--brass); font-size: 14px; }
-  .nav-cta { background: var(--ink-deep); color:#fff; padding:10px 18px; border-radius:4px; font-size:13px; font-weight:600; text-decoration:none; border:none; cursor:pointer; }
-  .menu-toggle { display: none; font-size: 28px; background: none; border: none; color: var(--ink); cursor: pointer; padding: 4px 8px; flex-shrink: 0; }
-
-  @media (max-width: 900px) {
-    .brand-name { font-size: 15px; max-width: 46vw; }
+  .nav-cta { background: var(--ink-deep); color:#fff !important; padding:10px 18px; font-size:12px; font-weight:600; border-radius:4px; text-decoration:none; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
+  .menu-toggle { display: none; font-size: 30px; cursor: pointer; }
+  .labo-item { display: none; }
+  .feedback-item { display: none; }
+  .feedback-link { background: var(--brass); color: #fff !important; padding: 4px 12px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
+  .feedback-link:hover { background: #96743a; color: #fff !important; }
+  @media (max-width: 1024px) {
     .menu-toggle { display: block; }
-    nav ul {
-      display: none; position: absolute; top: 84px; left: 0; width: 100%;
-      flex-direction: column; background: #fff; padding: 20px; gap: 15px;
-      text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-bottom: 2px solid var(--line);
-    }
+    nav ul { display: none; flex-direction: column; position: absolute; top: 84px; left: 0; width: 100%; background: #fff; padding: 20px; border-bottom: 2px solid var(--line); gap: 15px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
     nav ul.show { display: flex; }
     .admin-dropdown { position: static; box-shadow: none; border: none; }
+    .brand { width: auto; }
   }
 
-  /* HERO */
-  .page-hero { background: var(--ink-deep); color: #fff; padding: 60px 0; text-align: center; }
-  .page-hero h1 { font-family: var(--serif); font-size: 32px; margin-bottom: 10px; }
-
-  /* GRID */
-  section { padding: 60px 0; }
-  .news-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
-  .news-card { background: #fff; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; transition: 0.3s; }
-  .news-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-  .news-img { width: 100%; height: 200px; background: #eee; object-fit: cover; }
-  .news-body { padding: 25px; flex: 1; }
-  .news-date { font-size: 12px; color: var(--brass); font-weight: 700; text-transform: uppercase; margin-bottom: 10px; display: block; }
-  .news-card h3 { font-family: var(--serif); color: var(--ink); margin-bottom: 12px; font-size: 20px; }
-  .news-card p { color: var(--slate); font-size: 14px; line-height: 1.6; }
-
+  /* ============ STYLE DE LA PAGE ACTUALITÉS ============ */
+  .page-hero { background: var(--ink-deep); color:#EFE9DC; padding: 60px 0; text-align: center; }
+  .page-hero h1 { font-family: var(--serif); font-size: 36px; margin-bottom: 10px; }
+  .page-hero p { font-size: 16px; opacity: 0.8; }
+  .wrap { max-width:1100px; margin:0 auto; padding:0 20px; }
+  
+  .actus-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; margin: 40px 0; }
+  .actus-card { background: #fff; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; }
+  .actus-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+  .actus-card img { width: 100%; height: 180px; object-fit: cover; display: block; }
+  .actus-card-body { padding: 20px; }
+  .actus-card-body h3 { font-family: var(--serif); font-size: 18px; color: var(--ink); margin-bottom: 8px; line-height: 1.3; }
+  .actus-card-body p { font-size: 14px; color: var(--slate); line-height: 1.5; margin-bottom: 12px; }
+  .actus-card-body .date { font-size: 12px; color: var(--brass); font-weight: 700; }
+  
+  .empty-msg { text-align: center; padding: 60px 20px; color: var(--slate); font-size: 16px; }
+  .empty-msg .icon { font-size: 50px; display: block; margin-bottom: 15px; }
+  
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
 </style>
 </head>
@@ -121,217 +85,229 @@
     <a href="index.html" class="brand">
       <div class="brand-mark"><img src="logo-header.png" alt="LFAKM"></div>
       <div>
-        <div class="brand-name">Lycée Franco Arabe<br>de Keur Madiabel</div>
+        <div class="brand-name">Lycée Franco<br>Arabe de Keur<br>Madiabel</div>
         <div class="brand-tag">Excellence & Savoir</div>
       </div>
     </a>
+    <div class="menu-toggle" id="burger-btn">☰</div>
     <nav>
-      <ul id="main-menu">
+      <ul id="menu">
         <li><a href="index.html">Accueil</a></li>
-        
-        <!-- MENU DÉROULANT ADMIN (visible uniquement pour les admins) -->
         <li class="admin-item">
-          <span class="admin-trigger" style="display: flex; align-items: center; gap: 5px; justify-content: center;">⚙️ Admin</span>
+          <span class="admin-trigger">⚙️ Admin</span>
           <div class="admin-dropdown">
             <a href="admin-ine.html">📥 Import INE</a>
             <a href="admin-gestion.html">👥 Gestion</a>
             <a href="admin-news.html">📰 Actualités</a>
+            <a href="feedback.html#tab-dashboard">📊 Retours</a>
           </div>
         </li>
-
         <li><a href="historique.html">Historique</a></li>
-        <li><a href="actualites.html" class="active">Actualités</a></li>
+        <li><a href="actualites.html">Actualités</a></li>
+        <li class="labo-item"><a href="labo-virtuel.html">🧪 Laboratoire</a></li>
         <li><a href="ressources.html">Ressources</a></li>
         <li><a href="#" onclick="window.showContact(); return false;" class="contact-info" style="text-decoration: none;">
           <span class="contact-label">📞 Contacter le Proviseur</span>
           <span class="contact-phone" id="contact-phone-display">...</span>
         </a></li>
-        <li id="user-profile" class="profile-info"></li>
-        <li><a href="identification.html" id="auth-link" class="nav-cta">Connexion</a></li>
+        <li id="user-profile" class="profile-info" onclick="window.openProfil()" style="cursor:pointer;" title="Voir mon profil"></li>
+        <li class="feedback-item">
+          <a href="feedback.html" class="feedback-link">📋 Donner mon avis</a>
+        </li>
+        <li><a href="identification.html" class="nav-cta" id="auth-link">Se connecter</a></li>
       </ul>
     </nav>
-    <button class="menu-toggle" id="menu-toggle-btn" aria-label="Menu">☰</button>
   </div>
 </header>
 
 <section class="page-hero">
   <div class="wrap">
-    <h1>Vie de l'Établissement</h1>
-    <p style="color: #C7CBD6;">Suivez les événements et les actualités du Lycée Franco Arabe.</p>
+    <h1>📰 Actualités du Lycée</h1>
+    <p>Suivez toute l'actualité du Lycée Franco Arabe de Keur Madiabel.</p>
   </div>
 </section>
 
-<section class="wrap">
-  <div class="news-grid" id="news-container">
-    <!-- Message de chargement -->
-    <div style="text-align: center; color: var(--slate); width: 100%;">Chargement des actualités...</div>
-  </div>
-</section>
+<div class="wrap">
+  <div id="actus-container" class="actus-grid"></div>
+</div>
 
-<footer>© 2026 Lycée Franco Arabe de Keur Madiabel<div id="public-contact" style="margin-top: 12px;"></div></footer>
+<footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, doc, getDoc, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, onSnapshot, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
-    authDomain: "lfakm-87dec.firebaseapp.com",
-    projectId: "lfakm-87dec",
-    storageBucket: "lfakm-87dec.firebasestorage.app",
-    messagingSenderId: "739517262614",
-    appId: "1:739517262614:web:14abd3538427960c527e37"
-  };
+    const firebaseConfig = {
+        apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+        authDomain: "lfakm-87dec.firebaseapp.com",
+        projectId: "lfakm-87dec",
+        storageBucket: "lfakm-87dec.firebasestorage.app",
+        messagingSenderId: "739517262614",
+        appId: "1:739517262614:web:14abd3538427960c527e37"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  // Gestion du menu mobile
-  document.getElementById('menu-toggle-btn').onclick = () => document.getElementById('main-menu').classList.toggle('show');
+    let profile = null;
+    const isAdmin = (role) => role === 'admin' || role === 'proviseur' || role === 'censeur';
+    const escapeHtml = (str) => { const div = document.createElement('div'); div.textContent = str ?? ''; return div.innerHTML; };
 
-  // Protection anti-XSS : échappe tout texte saisi par un utilisateur avant de l'insérer dans le HTML
-  function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str ?? '';
-    return div.innerHTML;
-  }
-
-  // Affichage du téléphone du Proviseur dans le header
-  getDoc(doc(db, 'config', 'contact')).then(snap => {
-    if (!snap.exists()) return;
-    const c = snap.data();
-    const contactPhone = document.getElementById('contact-phone-display');
-    if (contactPhone && c.telephone) contactPhone.textContent = c.telephone;
-  });
-
-  // Gestion de l'authentification (Connexion / Déconnexion / Admin)
-  onAuthStateChanged(auth, async (user) => {
-    const link = document.getElementById('auth-link');
-    const profileSpan = document.getElementById('user-profile');
-    
-    if (user) {
-      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
-      const profile = snap.data();
-      
-      // Affiche le nom et le rôle de l'utilisateur connecté
-      profileSpan.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
-      profileSpan.style.display = 'flex';
-      
-      // Bouton Déconnexion
-      link.textContent = "Déconnexion";
-      link.onclick = () => signOut(auth).then(() => location.reload());
-      
-      // Affiche le menu déroulant Admin uniquement pour les admins
-      if (profile.role === 'admin' || profile.role === 'proviseur' || profile.role === 'censeur') {
-        document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
-      }
-    } else {
-      // Visiteur non connecté
-      profileSpan.style.display = 'none';
-      link.textContent = "Connexion";
-      link.href = "identification.html";
-    }
-  });
-
-  // Fonction pour afficher les coordonnées du Proviseur dans une fenêtre modale
-  window.showContact = async () => {
-    const snap = await getDoc(doc(db, 'config', 'contact'));
-    if (!snap.exists() || !snap.data().email) {
-      alert("Les coordonnées du Proviseur n'ont pas encore été renseignées.");
-      return;
-    }
-    const c = snap.data();
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
-    overlay.innerHTML = `
-      <div style="background:#fff;border-radius:12px;padding:25px;max-width:340px;width:100%;text-align:center;">
-        <h3 style="font-family:var(--serif);color:var(--ink);margin-bottom:6px;">${escapeHtml(c.nom) || 'Le Proviseur'}</h3>
-        <p style="font-size:12px;color:var(--slate);margin-bottom:18px;">Chef d'établissement — LFAKM</p>
-        ${c.telephone ? `<a href="tel:${c.telephone}" style="display:block;padding:10px;margin-bottom:8px;background:var(--ink-deep);color:#fff;border-radius:6px;text-decoration:none;">📞 ${c.telephone}</a>` : ''}
-        ${c.email ? `<a href="mailto:${c.email}" style="display:block;padding:10px;margin-bottom:14px;background:var(--brass);color:#fff;border-radius:6px;text-decoration:none;">✉️ ${c.email}</a>` : ''}
-        <button onclick="this.closest('div[style*=fixed]').remove()" style="border:none;background:#eee;padding:8px 16px;border-radius:6px;cursor:pointer;">Fermer</button>
-      </div>`;
-    document.body.appendChild(overlay);
-  };
-
-  // Chargement des actualités depuis Firestore (Collection : actualites), filtrées selon le rôle
-  const container = document.getElementById('news-container');
-  const q = query(collection(db, "actualites"), orderBy("date", "desc"));
-  let currentRole = null; // null = visiteur non connecté
-
-  function renderNews(snapshot) {
-    const visible = [];
-    snapshot.forEach((doc) => {
-      const news = doc.data();
-      const dest = news.destinataire || 'tous';
-      if (dest === 'tous' || dest === currentRole) visible.push(news);
+    // CONTACT
+    getDoc(doc(db, 'config', 'contact')).then(snap => {
+        if (!snap.exists()) return;
+        const c = snap.data();
+        const contactPhone = document.getElementById('contact-phone-display');
+        if (contactPhone && c.telephone) contactPhone.textContent = c.telephone;
     });
 
-    if (visible.length === 0) {
-        container.innerHTML = `<p style="text-align:center; grid-column: 1/-1;">Aucune actualité pour le moment.</p>`;
-        return;
-    }
-    container.innerHTML = '';
-    visible.forEach((news) => {
-      const date = news.date?.toDate ? news.date.toDate().toLocaleDateString('fr-FR', {day: 'numeric', month: 'long', year: 'numeric'}) : news.date;
+    // AUTH + PERMISSIONS
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            try {
+                const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+                profile = snap.exists() ? snap.data() : null;
+                if (!profile) return;
 
-      container.innerHTML += `
-        <article class="news-card">
-          ${news.image ? `<img src="${news.image}" class="news-img" alt="image">` : ''}
-          <div class="news-body">
-            <span class="news-date">${date}</span>
-            <h3>${escapeHtml(news.titre)}</h3>
-            <p>${escapeHtml(news.contenu)}</p>
-          </div>
-        </article>
-      `;
+                const userProfile = document.getElementById('user-profile');
+                if (userProfile) {
+                    userProfile.style.display = "block";
+                    userProfile.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
+                }
+
+                if (isAdmin(profile.role)) {
+                    document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
+                }
+
+                // LABO
+                let laboVisible = false;
+                if (profile.role === 'professeur') {
+                    const mats = (profile.disciplines || []).map(m => m.toLowerCase());
+                    laboVisible = mats.some(m => m.includes('physique') || m.includes('chimie') || m.includes('pc') || m.includes('math') || m.includes('svt'));
+                } else if (profile.role === 'eleve') {
+                    laboVisible = true;
+                }
+                if (laboVisible || isAdmin(profile.role)) {
+                    document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'block');
+                }
+
+                const feedbackItems = document.querySelectorAll('.feedback-item');
+                if (feedbackItems.length > 0) {
+                    feedbackItems.forEach(el => {
+                        el.style.display = 'block';
+                        const link = el.querySelector('a');
+                        if (link) {
+                            if (isAdmin(profile.role)) {
+                                link.href = 'feedback.html#tab-dashboard';
+                                link.textContent = '📊 Voir les retours';
+                            } else if (profile.role === 'professeur') {
+                                link.href = 'feedback.html#tab-professeurs';
+                                link.textContent = '📋 Donner mon avis (prof)';
+                            } else if (profile.role === 'eleve') {
+                                link.href = 'feedback.html#tab-eleves';
+                                link.textContent = '📋 Donner mon avis (élève)';
+                            }
+                        }
+                    });
+                }
+
+                const authLink = document.getElementById('auth-link');
+                if (authLink) {
+                    authLink.textContent = "Déconnexion";
+                    authLink.onclick = () => signOut(auth).then(() => window.location.reload());
+                }
+
+            } catch (err) {
+                console.warn("Erreur lors du chargement du profil:", err);
+            }
+        } else {
+            const userProfile = document.getElementById('user-profile');
+            if (userProfile) userProfile.style.display = "none";
+            document.querySelectorAll('.feedback-item').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'none');
+        }
     });
-  }
 
-  let latestSnapshot = null;
-  onSnapshot(q, (snapshot) => {
-    latestSnapshot = snapshot;
-    renderNews(snapshot);
-  });
+    // CHARGEMENT DES ACTUALITÉS
+    function loadActualites() {
+        const container = document.getElementById('actus-container');
+        if (!container) return;
 
-  onAuthStateChanged(auth, async (user) => {
-    const link = document.getElementById('auth-link');
-    const profileSpan = document.getElementById('user-profile');
-    
-    if (user) {
-      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
-      const profile = snap.data();
-      
-      profileSpan.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
-      profileSpan.style.display = 'flex';
-      
-      link.textContent = "Déconnexion";
-      link.onclick = () => signOut(auth).then(() => location.reload());
-      
-      if (profile.role === 'admin' || profile.role === 'proviseur' || profile.role === 'censeur') {
-        document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
-      }
+        try {
+            onSnapshot(query(collection(db, 'actualites'), orderBy('date', 'desc')), (snap) => {
+                const cards = [];
+                snap.forEach(d => {
+                    const n = d.data();
+                    const dest = n.destinataire || 'tous';
+                    // Filtrer selon le rôle
+                    if (dest !== 'tous' && dest !== profile?.role && !isAdmin(profile?.role)) return;
+                    const date = n.date?.toDate ? n.date.toDate().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+                    
+                    cards.push(`
+                        <div class="actus-card">
+                            ${n.image ? `<img src="${n.image}" alt="${escapeHtml(n.titre)}">` : ''}
+                            <div class="actus-card-body">
+                                <h3>${escapeHtml(n.titre)}</h3>
+                                <p>${escapeHtml(n.contenu || '').substring(0, 150)}${(n.contenu || '').length > 150 ? '...' : ''}</p>
+                                <span class="date">📅 ${date}</span>
+                            </div>
+                        </div>
+                    `);
+                });
 
-      currentRole = profile.role;
-    } else {
-      profileSpan.style.display = 'none';
-      link.textContent = "Connexion";
-      link.href = "identification.html";
-      currentRole = null;
+                if (cards.length === 0) {
+                    container.innerHTML = `<div class="empty-msg" style="grid-column: 1/-1;"><span class="icon">📰</span>Aucune actualité pour le moment.</div>`;
+                } else {
+                    container.innerHTML = cards.join('');
+                }
+            });
+        } catch (err) {
+            console.warn('Erreur chargement actualités:', err.message);
+            container.innerHTML = `<div class="empty-msg" style="grid-column: 1/-1;"><span class="icon">⚠️</span>Erreur de chargement des actualités.</div>`;
+        }
     }
-    
-    if (latestSnapshot) renderNews(latestSnapshot);
-  });
-</script>
 
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('service-worker.js').catch(err => console.warn('Service worker non enregistré :', err));
-    });
-  }
+    // Lancer après un court délai pour laisser le profil se charger
+    setTimeout(loadActualites, 500);
+
+    // BURGER MENU
+    const burgerBtn = document.getElementById('burger-btn');
+    if (burgerBtn) {
+        burgerBtn.onclick = () => {
+            const menu = document.getElementById('menu');
+            if (menu) menu.classList.toggle('show');
+        };
+    }
+
+    // CONTACT MODAL
+    window.showContact = async () => {
+        const snap = await getDoc(doc(db, 'config', 'contact'));
+        if (!snap.exists() || !snap.data().email) {
+            alert("Les coordonnées du Proviseur n'ont pas encore été renseignées.");
+            return;
+        }
+        const c = snap.data();
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
+        overlay.innerHTML = `
+            <div style="background:#fff;border-radius:12px;padding:25px;max-width:340px;width:100%;text-align:center;">
+                <h3 style="font-family:var(--serif);color:var(--ink);margin-bottom:6px;">${escapeHtml(c.nom) || 'Le Proviseur'}</h3>
+                <p style="font-size:12px;color:var(--slate);margin-bottom:18px;">Chef d'établissement — LFAKM</p>
+                ${c.telephone ? `<a href="tel:${c.telephone}" style="display:block;padding:10px;margin-bottom:8px;background:var(--ink-deep);color:#fff;border-radius:6px;text-decoration:none;">📞 ${c.telephone}</a>` : ''}
+                ${c.email ? `<a href="mailto:${c.email}" style="display:block;padding:10px;margin-bottom:14px;background:var(--brass);color:#fff;border-radius:6px;text-decoration:none;">✉️ ${c.email}</a>` : ''}
+                <button onclick="this.closest('div[style*=fixed]').remove()" style="border:none;background:#eee;padding:8px 16px;border-radius:6px;cursor:pointer;">Fermer</button>
+            </div>`;
+        document.body.appendChild(overlay);
+    };
+
+    window.openProfil = () => {
+        if (profile && profile.role === 'eleve' && auth.currentUser) {
+            window.location.href = `profil-eleve.html?uid=${auth.currentUser.uid}`;
+        }
+    };
 </script>
 </body>
 </html>
