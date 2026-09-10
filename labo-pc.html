@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Laboratoire de Physique-Chimie — LFAKM</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chemdoodle/8.2.0/chemdoodle-web-min.js"></script>
+<script src="https://3Dmol.org/build/3Dmol-min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -67,12 +67,12 @@
   .hero p { font-size: 16px; opacity: 0.8; }
   .wrap { max-width:1100px; margin:0 auto; padding: 20px; }
 
-  /* SECTIONS (Domaines) */
+  /* SECTIONS */
   .domain-section { margin-bottom: 50px; }
   .domain-title { font-family: var(--serif); font-size: 26px; color: var(--ink); border-left: 6px solid var(--brass); padding-left: 15px; margin-bottom: 20px; }
   .domain-subtitle { font-size: 14px; color: var(--slate); margin-bottom: 20px; padding-left: 21px; }
 
-  /* GRILLE D'EXPÉRIENCES */
+  /* GRILLE */
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
   .sim-card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; }
   .sim-card:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
@@ -81,7 +81,7 @@
   .badge { display: inline-block; background: var(--brass); color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-top: 5px; font-weight: 700; align-self: flex-start; }
   .badge-priority { background: #d9534f; }
   
-  /* OUTILS INTÉGRÉS */
+  /* OUTILS */
   .tool-box { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; margin-top: 20px; }
   .tool-box h3 { margin-bottom: 15px; color: var(--ink); }
   .btn-action { background: var(--brass); color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; margin: 5px; font-size: 13px; }
@@ -99,9 +99,8 @@
   .element .num { font-size: 9px; color: #777; }
   .nonmetal { background: #d4efdf; } .metal { background: #fadbd8; } .noble { background: #d6eaf8; }
 
-  /* CHEMDOODLE */
-  #viewer-2d, #viewer-3d { min-height: 350px; margin-top: 15px; background: #fff; border-radius: 8px; border: 1px solid var(--line); }
-  #editor-container { min-height: 400px; margin-top: 15px; background: #fff; border-radius: 8px; border: 1px solid var(--line); }
+  /* 3DMOL VIEWER */
+  #viewer-3d { width: 100%; height: 400px; margin-top: 15px; background: #fff; border-radius: 8px; border: 1px solid var(--line); position: relative; }
 
   /* TP ACIDE-BASE */
   #tp-acide-base-container { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 15px; }
@@ -141,7 +140,7 @@
         <li class="labo-item"><a href="labo-pc.html" style="color: var(--brass); font-weight:700;">🔬 Labo PC</a></li>
         <li><a href="ressources.html">Ressources</a></li>
 
-        <!-- 🎓 NOUVEAU : Lien Gouvernement scolaire -->
+        <!-- 🎓 Lien Gouvernement scolaire -->
         <li class="gov-item">
           <a href="publier-annonce.html">🎓 Gouvernement</a>
         </li>
@@ -246,38 +245,35 @@
     </div>
   </div>
 
-  <!-- DOMAINE 4 : STRUCTURE DE LA MATIÈRE -->
+  <!-- DOMAINE 4 : STRUCTURE DE LA MATIÈRE (CORRIGÉ AVEC 3DMOL) -->
   <div class="domain-section">
     <h2 class="domain-title">🧬 Structure de la Matière & Chimie Organique</h2>
-    <p class="domain-subtitle">Du tableau périodique à la construction de molécules en 2D et 3D.</p>
-    
+    <p class="domain-subtitle">Du tableau périodique à la construction de molécules en 3D.</p>
+
     <h3 style="margin-bottom: 10px;">📊 Tableau Périodique Interactif</h3>
     <div id="periodic-table"></div>
 
-    <h3 style="margin-top: 30px; margin-bottom: 10px;">⚗️ Visualisation de Molécules (2D et 3D)</h3>
-    <p style="margin-bottom: 10px; color: var(--slate);">Cliquez sur une molécule pour la voir en 2D (pour le cahier), puis basculez en 3D pour comprendre sa géométrie.</p>
+    <h3 style="margin-top: 30px; margin-bottom: 10px;">⚗️ Visualisation de Molécules (3D interactive)</h3>
+    <p style="margin-bottom: 10px; color: var(--slate);">Cliquez sur une molécule pour la voir en 3D. Vous pouvez faire pivoter, zoomer et déplacer la molécule avec la souris.</p>
     <div style="margin-bottom: 10px;">
-      <button class="btn-action" onclick="loadMolecule('methane')">Méthane (CH₄)</button>
-      <button class="btn-action" onclick="loadMolecule('ethane')">Éthane (C₂H₆)</button>
-      <button class="btn-action" onclick="loadMolecule('ethene')">Éthylène (C₂H₄)</button>
-      <button class="btn-action" onclick="loadMolecule('acetylene')">Acétylène (C₂H₂)</button>
-      <button class="btn-action" onclick="loadMolecule('benzene')">Benzène (C₆H₆)</button>
-      <button class="btn-action" onclick="loadMolecule('ethanol')">Éthanol (C₂H₅OH)</button>
-      <button class="btn-action" onclick="loadMolecule('acetic')">Acide éthanoïque</button>
+      <button class="btn-action" onclick="loadMolecule3D('methane')">Méthane (CH₄)</button>
+      <button class="btn-action" onclick="loadMolecule3D('ethane')">Éthane (C₂H₆)</button>
+      <button class="btn-action" onclick="loadMolecule3D('ethene')">Éthylène (C₂H₄)</button>
+      <button class="btn-action" onclick="loadMolecule3D('acetylene')">Acétylène (C₂H₂)</button>
+      <button class="btn-action" onclick="loadMolecule3D('benzene')">Benzène (C₆H₆)</button>
+      <button class="btn-action" onclick="loadMolecule3D('ethanol')">Éthanol (C₂H₅OH)</button>
+      <button class="btn-action" onclick="loadMolecule3D('acetic')">Acide éthanoïque</button>
     </div>
-    <div style="margin-bottom: 10px;">
-      <button class="btn-secondary" onclick="showViewer('2d')">Vue 2D (Cahier)</button>
-      <button class="btn-secondary" onclick="showViewer('3d')">Vue 3D (Géométrie)</button>
-    </div>
-    <div id="viewer-2d"></div>
-    <div id="viewer-3d" style="display:none;"></div>
+    <div id="viewer-3d"></div>
 
     <h3 style="margin-top: 30px; margin-bottom: 10px;">🎨 Créer sa propre molécule</h3>
-    <p style="margin-bottom: 10px; color: var(--slate);">Dessinez librement votre molécule (cliquez pour placer un atome, double-cliquez pour une liaison).</p>
+    <p style="margin-bottom: 10px; color: var(--slate);">Ouvrez l'éditeur externe pour dessiner votre molécule, copiez son code SMILES, puis collez-le ici pour la visualiser en 3D.</p>
     <div class="tool-box">
-      <div id="editor-container"></div>
-      <button class="btn-secondary" onclick="clearEditor()">🗑️ Effacer</button>
-      <button class="btn-action" onclick="saveEditorAsImage()">💾 Télécharger en image</button>
+      <label style="font-size: 13px; font-weight: 600; color: var(--ink); display: block; margin-bottom: 6px;">Code SMILES de votre molécule :</label>
+      <input type="text" id="smiles-input" placeholder="Ex: CC(=O)O" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid var(--line); border-radius: 6px; font-family: 'Courier New', monospace;">
+      <button class="btn-action" onclick="loadCustomSmiles()">🔍 Afficher en 3D</button>
+      <button class="btn-secondary" onclick="window.open('https://ketcher.epam.com/', '_blank')">🎨 Ouvrir l'éditeur externe (Ketcher)</button>
+      <p style="font-size: 12px; color: var(--slate); margin-top: 10px;">💡 L'éditeur Ketcher s'ouvre dans un nouvel onglet. Dessinez votre molécule, puis cliquez sur "Save" pour obtenir le code SMILES.</p>
     </div>
   </div>
 
@@ -442,7 +438,7 @@
     }
   };
 
-  // TABLEAU PÉRIODIQUE
+  // ============ TABLEAU PÉRIODIQUE ============
   const elements = [
     {num:1, sym:"H", cat:"nonmetal"}, {num:2, sym:"He", cat:"noble"},
     {num:3, sym:"Li", cat:"metal"}, {num:4, sym:"Be", cat:"metal"}, {num:5, sym:"B", cat:"nonmetal"}, {num:6, sym:"C", cat:"nonmetal"}, {num:7, sym:"N", cat:"nonmetal"}, {num:8, sym:"O", cat:"nonmetal"}, {num:9, sym:"F", cat:"nonmetal"}, {num:10, sym:"Ne", cat:"noble"},
@@ -450,19 +446,19 @@
     {num:19, sym:"K", cat:"metal"}, {num:20, sym:"Ca", cat:"metal"}, {num:26, sym:"Fe", cat:"metal"}, {num:29, sym:"Cu", cat:"metal"}, {num:30, sym:"Zn", cat:"metal"}, {num:47, sym:"Ag", cat:"metal"}, {num:50, sym:"Sn", cat:"metal"}, {num:82, sym:"Pb", cat:"metal"}, {num:80, sym:"Hg", cat:"metal"}
   ];
   const tableContainer = document.getElementById('periodic-table');
-  elements.forEach(el => {
-    const div = document.createElement('div');
-    div.className = `element ${el.cat}`;
-    div.innerHTML = `<div class="num">${el.num}</div><div class="symbol">${el.sym}</div>`;
-    tableContainer.appendChild(div);
-  });
+  if (tableContainer) {
+    elements.forEach(el => {
+      const div = document.createElement('div');
+      div.className = `element ${el.cat}`;
+      div.innerHTML = `<div class="num">${el.num}</div><div class="symbol">${el.sym}</div>`;
+      tableContainer.appendChild(div);
+    });
+  }
 
-  // CHEMDOODLE 2D + 3D
-  let viewer2D = null;
+  // ============ 3DMOL.JS : VISUALISATION 3D DES MOLÉCULES ============
   let viewer3D = null;
-  let currentSmiles = '';
 
-  const molecules = {
+  const molecules3D = {
     methane: { name: "Méthane", smiles: "C" },
     ethane: { name: "Éthane", smiles: "CC" },
     ethene: { name: "Éthylène", smiles: "C=C" },
@@ -472,66 +468,46 @@
     acetic: { name: "Acide éthanoïque", smiles: "CC(=O)O" }
   };
 
-  window.loadMolecule = (key) => {
-    currentSmiles = molecules[key].smiles;
-    // 2D
-    document.getElementById('viewer-2d').innerHTML = '';
-    if (viewer2D) viewer2D = null;
-    viewer2D = new ChemDoodle.ViewerCanvas('viewer-2d', 900, 350);
-    viewer2D.specs.backgroundColor = 'white';
-    viewer2D.specs.bonds_width_2D = 2;
-    viewer2D.specs.atoms_font_size_2D = 12;
-    let mol2D = ChemDoodle.structures.parse(currentSmiles);
-    ChemDoodle.structures.clean(mol2D);
-    viewer2D.loadMolecule(mol2D);
-
-    // 3D
-    document.getElementById('viewer-3d').innerHTML = '';
-    if (viewer3D) viewer3D = null;
-    viewer3D = new ChemDoodle.ViewerCanvas('viewer-3d', 900, 350);
-    viewer3D.specs.backgroundColor = 'white';
-    let mol3D = ChemDoodle.structures.parse(currentSmiles);
-    ChemDoodle.structures.clean(mol3D);
-    viewer3D.loadMolecule(mol3D);
-
-    showViewer('2d');
-  };
-
-  window.showViewer = (mode) => {
-    if (mode === '2d') {
-      document.getElementById('viewer-2d').style.display = 'block';
-      document.getElementById('viewer-3d').style.display = 'none';
-    } else {
-      document.getElementById('viewer-2d').style.display = 'none';
-      document.getElementById('viewer-3d').style.display = 'block';
-    }
-  };
-
-  // ÉDITEUR LIBRE
-  let editor = null;
-  setTimeout(() => {
+  window.loadMolecule3D = (key) => {
+    const mol = molecules3D[key];
+    if (!mol) return;
+    const container = document.getElementById('viewer-3d');
+    container.innerHTML = '';
     try {
-      editor = new ChemDoodle.SketcherCanvas('editor-container', 900, 400, {useServices: false});
-      editor.specs.atoms_font_size_2D = 10;
-      editor.specs.bonds_width_2D = 2;
-      editor.specs.backgroundColor = 'white';
-    } catch(e) { console.warn('Erreur éditeur:', e); }
-  }, 1500);
-
-  window.clearEditor = () => { if (editor) editor.clear(); };
-  window.saveEditorAsImage = () => {
-    if (editor) {
-      try {
-        const dataURL = editor.getImage();
-        const link = document.createElement('a');
-        link.href = dataURL;
-        link.download = 'ma-molecule.png';
-        link.click();
-      } catch(e) { alert('Erreur lors de la sauvegarde.'); }
+      viewer3D = $3Dmol.createViewer(container, { backgroundColor: 'white' });
+      viewer3D.addModel(mol.smiles, 'smi');
+      viewer3D.setStyle({}, { stick: { radius: 0.15 }, sphere: { scale: 0.25 } });
+      viewer3D.zoomTo();
+      viewer3D.render();
+    } catch (e) {
+      container.innerHTML = `<p style="padding:20px; color:#B3402A;">⚠️ Erreur de chargement 3D : ${e.message}</p>`;
     }
   };
 
-  // TP ACIDE-BASE INTERACTIF
+  window.loadCustomSmiles = () => {
+    const smiles = document.getElementById('smiles-input').value.trim();
+    if (!smiles) { alert('Veuillez saisir un code SMILES.'); return; }
+    const container = document.getElementById('viewer-3d');
+    container.innerHTML = '';
+    try {
+      viewer3D = $3Dmol.createViewer(container, { backgroundColor: 'white' });
+      viewer3D.addModel(smiles, 'smi');
+      viewer3D.setStyle({}, { stick: { radius: 0.15 }, sphere: { scale: 0.25 } });
+      viewer3D.zoomTo();
+      viewer3D.render();
+    } catch (e) {
+      container.innerHTML = `<p style="padding:20px; color:#B3402A;">⚠️ Code SMILES invalide : ${e.message}</p>`;
+    }
+  };
+
+  // Charge une molécule par défaut au démarrage
+  setTimeout(() => { 
+    if (document.getElementById('viewer-3d')) {
+      loadMolecule3D('methane'); 
+    }
+  }, 500);
+
+  // ============ TP ACIDE-BASE INTERACTIF ============
   let phChart = null;
   let volumeNaOH = 0;
   const volumeHCl = 20;
@@ -543,9 +519,10 @@
     volumeNaOH = 0;
     phData.length = 0;
     updateTP();
-    const ctx = document.getElementById('ph-chart').getContext('2d');
+    const ctx = document.getElementById('ph-chart');
+    if (!ctx) return;
     if (phChart) phChart.destroy();
-    phChart = new Chart(ctx, {
+    phChart = new Chart(ctx.getContext('2d'), {
       type: 'line',
       data: {
         labels: [],
@@ -588,9 +565,12 @@
 
   function updateTP() {
     const ph = calculatePH(volumeNaOH);
-    document.getElementById('ph-value').textContent = ph.toFixed(2);
-    document.getElementById('ph-display').textContent = `pH = ${ph.toFixed(2)}`;
-    document.getElementById('volume-naoh').textContent = volumeNaOH;
+    const phValue = document.getElementById('ph-value');
+    const phDisplay = document.getElementById('ph-display');
+    const volumeNaoh = document.getElementById('volume-naoh');
+    if (phValue) phValue.textContent = ph.toFixed(2);
+    if (phDisplay) phDisplay.textContent = `pH = ${ph.toFixed(2)}`;
+    if (volumeNaoh) volumeNaoh.textContent = volumeNaOH;
 
     if (phChart) {
       phChart.data.labels.push(volumeNaOH);
@@ -611,7 +591,7 @@
 
   initTP();
 
-  console.log('✅ Labo Physique-Chimie chargé');
+  console.log('✅ Labo Physique-Chimie chargé (avec 3Dmol.js)');
 </script>
 </body>
 </html>
