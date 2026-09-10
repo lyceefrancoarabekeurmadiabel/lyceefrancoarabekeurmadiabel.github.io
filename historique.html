@@ -45,7 +45,7 @@
   #user-profile { display: none; font-weight: 700; color: var(--brass); font-size: 14px; }
   .nav-cta { background: var(--ink-deep); color:#fff !important; padding:10px 18px; font-size:12px; font-weight:600; border-radius:4px; text-decoration:none; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
   .menu-toggle { display: none; font-size: 30px; cursor: pointer; }
-  .labo-item { display: none; }
+  .labo-pc-item, .labo-maths-item, .labo-svt-item { display: none; }
   .feedback-item { display: none; }
   .feedback-link { background: var(--brass); color: #fff !important; padding: 4px 12px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
   .feedback-link:hover { background: #96743a; color: #fff !important; }
@@ -106,7 +106,9 @@
         </li>
         <li><a href="historique.html">Historique</a></li>
         <li><a href="actualites.html">Actualités</a></li>
-        <li class="labo-item"><a href="labo-virtuel.html">🧪 Laboratoire</a></li>
+        <li class="labo-pc-item"><a href="labo-pc.html" style="color: var(--brass); font-weight:700;">🔬 Labo PC</a></li>
+        <li class="labo-maths-item"><a href="labo-maths.html" style="color: var(--brass); font-weight:700;">📐 Labo Maths</a></li>
+        <li class="labo-svt-item"><a href="labo-svt.html" style="color: var(--brass); font-weight:700;">🧬 Labo SVT</a></li>
         <li><a href="ressources.html">Ressources</a></li>
         <li><a href="#" onclick="window.showContact(); return false;" class="contact-info" style="text-decoration: none;">
           <span class="contact-label">📞 Contacter le Proviseur</span>
@@ -193,7 +195,6 @@
     const isAdmin = (role) => role === 'admin' || role === 'proviseur' || role === 'censeur';
     const escapeHtml = (str) => { const div = document.createElement('div'); div.textContent = str ?? ''; return div.innerHTML; };
 
-    // CONTACT
     getDoc(doc(db, 'config', 'contact')).then(snap => {
         if (!snap.exists()) return;
         const c = snap.data();
@@ -201,7 +202,6 @@
         if (contactPhone && c.telephone) contactPhone.textContent = c.telephone;
     });
 
-    // AUTH + PERMISSIONS
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             try {
@@ -219,16 +219,22 @@
                     document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
                 }
 
-                // LABO
-                let laboVisible = false;
-                if (profile.role === 'professeur') {
+                // AFFICHAGE DES LABOS SELON LA DISCIPLINE
+                if (isAdmin(profile.role)) {
+                    document.querySelectorAll('.labo-pc-item, .labo-maths-item, .labo-svt-item').forEach(el => el.style.display = 'block');
+                } else if (profile.role === 'professeur') {
                     const mats = (profile.disciplines || []).map(m => m.toLowerCase());
-                    laboVisible = mats.some(m => m.includes('physique') || m.includes('chimie') || m.includes('pc') || m.includes('math') || m.includes('svt'));
+                    if (mats.some(m => m.includes('physique') || m.includes('chimie') || m.includes('pc'))) {
+                        document.querySelectorAll('.labo-pc-item').forEach(el => el.style.display = 'block');
+                    }
+                    if (mats.some(m => m.includes('math'))) {
+                        document.querySelectorAll('.labo-maths-item').forEach(el => el.style.display = 'block');
+                    }
+                    if (mats.some(m => m.includes('svt'))) {
+                        document.querySelectorAll('.labo-svt-item').forEach(el => el.style.display = 'block');
+                    }
                 } else if (profile.role === 'eleve') {
-                    laboVisible = true;
-                }
-                if (laboVisible || isAdmin(profile.role)) {
-                    document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'block');
+                    document.querySelectorAll('.labo-pc-item, .labo-maths-item, .labo-svt-item').forEach(el => el.style.display = 'block');
                 }
 
                 const feedbackItems = document.querySelectorAll('.feedback-item');
@@ -265,11 +271,10 @@
             if (userProfile) userProfile.style.display = "none";
             document.querySelectorAll('.feedback-item').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'none');
-            document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.labo-pc-item, .labo-maths-item, .labo-svt-item').forEach(el => el.style.display = 'none');
         }
     });
 
-    // BURGER MENU
     const burgerBtn = document.getElementById('burger-btn');
     if (burgerBtn) {
         burgerBtn.onclick = () => {
@@ -278,7 +283,6 @@
         };
     }
 
-    // CONTACT MODAL
     window.showContact = async () => {
         const snap = await getDoc(doc(db, 'config', 'contact'));
         if (!snap.exists() || !snap.data().email) {
