@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  :root { --ink: #1B2A4A; --brass: #A8853F; --paper: #F7F5F0; --line: rgba(27,42,74,0.1); }
+  :root { --ink: #1B2A4A; --brass: #A8853F; --paper: #F7F5F0; --line: rgba(27,42,74,0.1); --gov-purple: #6a4c93; }
   body { font-family: 'Inter', sans-serif; background: var(--paper); padding: 20px; color: var(--ink); }
   .admin-box { background: white; max-width: 600px; margin: 40px auto; padding: 30px; border-radius: 12px; border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
   h1 { font-family: 'Source Serif 4', serif; margin-bottom: 20px; }
@@ -21,9 +21,13 @@
   .news-item h4 { font-size: 15px; margin-bottom: 4px; }
   .news-item p { font-size: 12px; color: #666; }
   .news-item .btn-suppr { background: #d9534f; color: #fff; border: none; padding: 8px 12px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; }
-  .top-nav { background: var(--ink); padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; max-width: 660px; margin-left: auto; margin-right: auto; }
+  .top-nav { background: var(--ink); padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; max-width: 660px; margin-left: auto; margin-right: auto; flex-wrap: wrap; gap: 10px; }
   .top-nav a { color: #fff; text-decoration: none; font-size: 13px; }
   .top-nav a:hover { text-decoration: underline; }
+
+  /* 🎓 GOUVERNEMENT SCOLAIRE */
+  .gov-link { display: none; color: #fff !important; font-weight: 700; }
+  .gov-link:hover { color: #d4b8ff !important; text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -31,10 +35,13 @@
     <!-- Barre de navigation Retour -->
     <div class="top-nav">
         <a href="admin-gestion.html">← Retour à la Gestion</a>
-        <div style="display: flex; gap: 15px;">
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
             <a href="index.html">🏠 Accueil</a>
             <a href="ressources.html">📚 Ressources</a>
             <a href="actualites.html">📰 Actualités</a>
+
+            <!-- 🎓 NOUVEAU : Lien Gouvernement scolaire (visible pour Président/Ministre/Admins) -->
+            <a href="publier-annonce.html" class="gov-link">🎓 Gouvernement</a>
         </div>
     </div>
 
@@ -70,7 +77,6 @@
     <p>Vérification des accès...</p>
 </div>
 
-<!-- NE PAS COLLER LE SCRIPT ICI. IL EST DANS LA PARTIE 2 -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -89,11 +95,54 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
+  // ============ COMPRESSION D'IMAGE (comme dans admin-gestion.html) ============
+  async function compressImage(file, maxWidth = 1200, quality = 0.8) {
+    return new Promise((resolve, reject) => {
+      if (!file || !file.type.startsWith('image/')) {
+        reject(new Error('Fichier non valide (image attendue).'));
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ratio = Math.min(maxWidth / img.width, maxWidth / img.height, 1);
+          canvas.width = Math.round(img.width * ratio);
+          canvas.height = Math.round(img.height * ratio);
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob((blob) => {
+            if (!blob) { reject(new Error('Erreur lors de la compression.')); return; }
+            resolve({
+              blob: blob,
+              originalSize: file.size,
+              newSize: blob.size,
+              dataURL: canvas.toDataURL('image/jpeg', quality)
+            });
+          }, 'image/jpeg', quality);
+        };
+        img.onerror = () => reject(new Error('Impossible de lire l\'image.'));
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error('Erreur de lecture du fichier.'));
+      reader.readAsDataURL(file);
+    });
+  }
+
   // VÉRIFICATION ACCÈS (Proviseur / Censeur / Admin uniquement)
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
       const role = snap.exists() ? snap.data().role : null;
+
+      // 🎓 Affichage du lien Gouvernement (Président, Ministre, Admins)
+      if (['admin', 'proviseur', 'censeur', 'president', 'ministre_communication'].includes(role)) {
+        document.querySelectorAll('.gov-link').forEach(el => el.style.display = 'inline');
+      } else {
+        document.querySelectorAll('.gov-link').forEach(el => el.style.display = 'none');
+      }
+
       if (['admin', 'proviseur', 'censeur'].includes(role)) {
         document.getElementById('admin-content').style.display = 'block';
         document.getElementById('gate').style.display = 'none';
@@ -106,7 +155,7 @@
     }
   });
 
-  // Protection anti-XSS : échappe tout texte saisi par un utilisateur avant de l'insérer dans le HTML
+  // Protection anti-XSS
   function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str ?? '';
@@ -123,7 +172,8 @@
         const item = document.createElement('div');
         item.className = 'news-item';
         const dest = n.destinataire === 'eleve' ? '🎓 Élèves' : n.destinataire === 'professeur' ? '👨‍🏫 Profs' : '🌍 Tous';
-        item.innerHTML = `<div><h4>${escapeHtml(n.titre)} <span style="font-size:11px;font-weight:normal;color:#888;">— ${dest}</span></h4><p>${date}</p></div>`;
+        const govBadge = n.sourceGouvernement ? ' <span style="font-size:10px;color:#6a4c93;font-weight:700;">🎓 GOUV.</span>' : '';
+        item.innerHTML = `<div><h4>${escapeHtml(n.titre)}${govBadge} <span style="font-size:11px;font-weight:normal;color:#888;">— ${dest}</span></h4><p>${date}</p></div>`;
         const delBtn = document.createElement('button');
         delBtn.className = 'btn-suppr';
         delBtn.textContent = '✕ Supprimer';
@@ -143,15 +193,15 @@
     
     const title = document.getElementById('news-title').value;
     const text = document.getElementById('news-text').value;
-    const file = document.getElementById('news-file').files[0];
+    const originalFile = document.getElementById('news-file').files[0];
 
-    if (file && file.size > 15 * 1024 * 1024) {
+    if (originalFile && originalFile.size > 15 * 1024 * 1024) {
       status.style.color = "red";
       status.textContent = "❌ Image trop volumineuse (max 15 Mo).";
       return;
     }
 
-    if (file) {
+    if (originalFile) {
       const usageSnap = await getDoc(doc(db, 'config', 'usage'));
       const moUsed = usageSnap.data()?.totalMo || 0;
       if (moUsed >= 20000) {
@@ -165,20 +215,40 @@
     status.textContent = "Publication en cours...";
 
     let imageUrl = "";
+    let fileToUpload = originalFile;
 
     try {
-      // 1. Upload image si présente
-      if (file) {
+      // 1. Compression automatique de l'image
+      if (originalFile) {
+        status.textContent = "🗜️ Compression de l'image...";
+        const compressed = await compressImage(originalFile, 1200, 0.8);
+        fileToUpload = new File(
+          [compressed.blob],
+          originalFile.name.replace(/\.[^.]+$/, '.jpg'),
+          { type: 'image/jpeg' }
+        );
+        const gain = ((1 - compressed.newSize / compressed.originalSize) * 100).toFixed(0);
+        status.textContent = `🗜️ Image compressée (-${gain}%). Upload en cours...`;
+      }
+
+      // 2. Upload image vers Cloudinary
+      if (fileToUpload) {
         const fd = new FormData();
-        fd.append('file', file);
+        fd.append('file', fileToUpload);
         fd.append('upload_preset', 'lfakm_ressources'); 
         const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
         const data = await res.json();
         imageUrl = data.secure_url;
-        try { await setDoc(doc(db, 'config', 'usage'), { totalMo: increment(file.size / (1024 * 1024)) }, { merge: true }); } catch (e) { /* silencieux */ }
+        try { 
+          await setDoc(doc(db, 'config', 'usage'), 
+            { totalMo: increment(fileToUpload.size / (1024 * 1024)) }, 
+            { merge: true }
+          ); 
+        } catch (e) { /* silencieux */ }
       }
 
-      // 2. Enregistrement dans Firestore
+      // 3. Enregistrement dans Firestore
+      status.textContent = "💾 Enregistrement...";
       await addDoc(collection(db, "actualites"), {
         titre: title,
         contenu: text,
