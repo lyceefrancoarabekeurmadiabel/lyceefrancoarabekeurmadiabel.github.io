@@ -84,7 +84,7 @@
     </a>
     <div class="menu-toggle" id="burger-btn">☰</div>
     <nav>
-      <ul id="menu">
+          <ul id="menu">
         <li><a href="index.html">Accueil</a></li>
         <li class="admin-item">
           <span class="admin-trigger">⚙️ Admin</span>
@@ -101,6 +101,14 @@
         <li class="labo-maths-item"><a href="labo-maths.html" style="color: var(--brass); font-weight:700;">📐 Labo Maths</a></li>
         <li class="labo-svt-item"><a href="labo-svt.html" style="color: var(--brass); font-weight:700;">🧬 Labo SVT</a></li>
         <li><a href="ressources.html">Ressources</a></li>
+                <li class="gov-item" style="display:none;">
+          <a href="publier-annonce.html" style="color: #6a4c93; font-weight:700;">🎓 Gouvernement</a>
+        </li>
+        <!-- 🎓 AJOUT ICI -->
+        <li class="gov-item" style="display:none;">
+          <a href="publier-annonce.html" style="color: #6a4c93; font-weight:700;">🎓 Gouvernement</a>
+        </li>
+        
         <li><a href="#" onclick="window.showContact(); return false;" class="contact-info" style="text-decoration: none;">
           <span class="contact-label">📞 Contacter le Proviseur</span>
           <span class="contact-phone" id="contact-phone-display">...</span>
@@ -110,7 +118,7 @@
           <a href="feedback.html" class="feedback-link">📋 Donner mon avis</a>
         </li>
         <li><a href="identification.html" class="nav-cta" id="auth-link">Se connecter</a></li>
-      </ul>
+      </ul>  
     </nav>
   </div>
 </header>
@@ -188,7 +196,11 @@
                 if (isAdmin(profile.role)) {
                     document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
                 }
-
+                // 🎓 Affichage du lien Gouvernement
+                const govRoles = ['president', 'ministre_communication', 'admin', 'proviseur', 'censeur'];
+                if (govRoles.includes(profile.role)) {
+                    document.querySelectorAll('.gov-item').forEach(el => el.style.display = 'block');
+                }
                 // ============ AFFICHAGE DES LABOS SELON LA DISCIPLINE ============
                 if (isAdmin(profile.role)) {
                     document.querySelectorAll('.labo-pc-item, .labo-maths-item, .labo-svt-item').forEach(el => el.style.display = 'block');
