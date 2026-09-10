@@ -555,3 +555,412 @@
   }
 
   document.querySelectorAll('.mode-btn').forEach(btn => btn.addEventListener('click', () => activerMode(btn.dataset.mode)));
+  document.querySelectorAll('.table-mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      tableMode = btn.dataset.tablemode;
+      document.querySelectorAll('.table-mode-btn').forEach(b => b.classList.toggle('active', b === btn));
+      document.getElementById('auto-controls').style.display = tableMode === 'auto' ? 'block' : 'none';
+      document.getElementById('add-row-zone').style.display = tableMode === 'manuel' ? 'block' : 'none';
+    });
+  });
+
+  document.getElementById('btn-add-row').onclick = () => ajouterLigneTableau('', '');
+  document.getElementById('btn-vider').onclick = () => {
+    if (!confirm('Vider tout le tableau ?')) return;
+    mesures = []; renderTableau();
+    if (chart) { chart.destroy(); chart = null; }
+    document.getElementById('result-box').style.display = 'none';
+    document.getElementById('explication').classList.remove('show');
+  };
+
+  function ajouterLigneTableau(v, ph) {
+    const tbody = document.getElementById('table-body');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="number" step="0.01" value="${v}" placeholder="0.0"></td>
+      <td><input type="number" step="0.01" value="${ph}" placeholder="7.0"></td>
+      <td><button class="btn-del-row">✕</button></td>`;
+    tbody.appendChild(tr);
+    tr.querySelectorAll('input').forEach(inp => inp.addEventListener('change', majMesure));
+    tr.querySelector('.btn-del-row').addEventListener('click', (e) => { e.target.closest('tr').remove(); majMesure(); });
+  }
+
+  function majMesure() {
+    mesures = [];
+    document.querySelectorAll('#table-body tr').forEach(row => {
+      const inputs = row.querySelectorAll('input');
+      const v = parseFloat(inputs[0].value);
+      const ph = parseFloat(inputs[1].value);
+      if (!isNaN(v) && !isNaN(ph)) mesures.push({ v, ph });
+    });
+    mesures.sort((a, b) => a.v - b.v);
+    renderChart();
+    analyserResultats();
+  }
+
+  function renderTableau() {
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '';
+    mesures.forEach(m => ajouterLigneTableau(m.v.toFixed(2), m.ph.toFixed(2)));
+  }
+
+  function lireParametres() {
+    return {
+      type: document.getElementById('type-dosage').value,
+      va: parseFloat(document.getElementById('va').value) || 20,
+      ca: parseFloat(document.getElementById('ca').value) || 0.1,
+      cb: parseFloat(document.getElementById('cb').value) || 0.1,
+      pka: parseFloat(document.getElementById('pka').value) || 4.75,
+      indicateur: document.getElementById('indicateur').value,
+      methode: document.getElementById('methode').value
+    };
+  }
+
+  function calculerPH(vBase, p) {
+    const nA = p.va * p.ca / 1000;
+    const nB = vBase * p.cb / 1000;
+    const vT = (p.va + vBase) / 1000;
+    const veq = (p.va * p.ca) / p.cb;
+    if (p.type === 'fort-fort') {
+      if (vBase < veq - 0.001) return -Math.log10(Math.max((nA - nB) / vT, 1e-14));
+      if (Math.abs(vBase - veq) < 0.05) return 7.0;
+      return 14 + Math.log10(Math.max((nB - nA) / vT, 1e-14));
+    }
+    if (p.type === 'faible-fort') {
+      const pka = p.pka;
+      if (vBase < veq - 0.001) {
+        const nAH = nA - nB;
+        if (nAH <= 0) return 7;
+        return pka + Math.log10(Math.max(nB, 1e-14) / nAH);
+      }
+      if (Math.abs(vBase - veq) < 0.05) {
+        const Kb = Math.pow(10, -14 + pka);
+        return 14 + Math.log10(Math.max(Math.sqrt(Kb * (nA / vT)), 1e-14));
+      }
+      return 14 + Math.log10(Math.max((nB - nA) / vT, 1e-14));
+    }
+    if (p.type === 'fort-faible') {
+      const pkb = 14 - p.pka;
+      if (vBase < veq - 0.001) return -Math.log10(Math.max((nA - nB) / vT, 1e-14));
+      if (Math.abs(vBase - veq) < 0.05) {
+        const Ka = Math.pow(10, -pkb);
+        return -Math.log10(Math.max(Math.sqrt(Ka * (nA / vT)), 1e-14));
+      }
+      return 14 - pkb - Math.log10(Math.max((nB - nA) / Math.max(nA, 1e-14), 1e-14));
+    }
+    return 7;
+  }
+
+  function couleurIndicateur(ph, ind) {
+    if (ind === 'aucun') return 'rgba(46, 204, 113, 0.3)';
+    if (ind === 'helianthine') {
+      if (ph < 3.1) return 'rgba(231, 76, 60, 0.5)';
+      if (ph > 4.4) return 'rgba(241, 196, 15, 0.5)';
+      return 'rgba(230, 126, 34, 0.5)';
+    }
+    if (ind === 'bbt') {
+      if (ph < 6.0) return 'rgba(241, 196, 15, 0.5)';
+      if (ph > 7.6) return 'rgba(52, 152, 219, 0.5)';
+      return 'rgba(46, 204, 113, 0.5)';
+    }
+    if (ind === 'phenolphtaleine') {
+      if (ph < 8.2) return 'rgba(236, 240, 241, 0.5)';
+      if (ph > 10.0) return 'rgba(233, 30, 99, 0.5)';
+      return 'rgba(248, 187, 208, 0.5)';
+    }
+    return 'rgba(46, 204, 113, 0.3)';
+  }
+
+  document.getElementById('btn-demarrer').onclick = () => {
+    started = true; mesures = [];
+    if (chart) { chart.destroy(); chart = null; }
+    document.getElementById('result-box').style.display = 'none';
+    document.getElementById('explication').classList.remove('show');
+    tangentesAffichees = false; zoneTamponAffichee = false;
+    renderTableau(); appliquerCouleurInitiale(); majDispositif();
+    document.getElementById('auto-controls').style.display = tableMode === 'auto' ? 'block' : 'none';
+    document.getElementById('add-row-zone').style.display = tableMode === 'manuel' ? 'block' : 'none';
+  };
+
+  document.getElementById('btn-reset').onclick = () => resetSimulation();
+
+  function resetSimulation() {
+    started = false; mesures = [];
+    if (chart) { chart.destroy(); chart = null; }
+    document.getElementById('result-box').style.display = 'none';
+    document.getElementById('explication').classList.remove('show');
+    document.getElementById('table-body').innerHTML = '';
+    tangentesAffichees = false; zoneTamponAffichee = false;
+    document.getElementById('svg-ph').textContent = '1.00';
+    document.getElementById('svg-volume').textContent = '0.00';
+    appliquerCouleurInitiale();
+  }
+
+  function ajouterVol(vol) {
+    if (!started) { alert('Cliquez d\'abord sur "Démarrer le dosage".'); return; }
+    const p = lireParametres();
+    const veq = (p.va * p.ca) / p.cb;
+    const dernierV = mesures.length > 0 ? mesures[mesures.length - 1].v : 0;
+    const nouveauV = dernierV + vol;
+    if (nouveauV > veq * 2.5) { alert(`Volume maximum atteint (${(veq * 2.5).toFixed(1)} mL).`); return; }
+    const drop = document.getElementById('drop');
+    drop.style.display = 'block';
+    drop.classList.remove('droplet');
+    void drop.offsetWidth;
+    drop.classList.add('droplet');
+    setTimeout(() => { drop.style.display = 'none'; }, 600);
+    const ph = calculerPH(nouveauV, p);
+    mesures.push({ v: nouveauV, ph });
+    mesures.sort((a, b) => a.v - b.v);
+    renderTableau(); renderChart(); majDispositif(); analyserResultats();
+  }
+
+  document.getElementById('btn-add-05').onclick = () => ajouterVol(0.5);
+  document.getElementById('btn-add-1').onclick = () => ajouterVol(1);
+  document.getElementById('btn-add-2').onclick = () => ajouterVol(2);
+  document.getElementById('btn-add-5').onclick = () => ajouterVol(5);
+  document.getElementById('btn-add-libre').onclick = () => {
+    const v = parseFloat(document.getElementById('volume-libre').value);
+    if (isNaN(v) || v <= 0) { alert('Entrez un volume valide.'); return; }
+    ajouterVol(v);
+  };
+
+  function majDispositif() {
+    if (mesures.length === 0) return;
+    const d = mesures[mesures.length - 1];
+    document.getElementById('svg-ph').textContent = d.ph.toFixed(2);
+    document.getElementById('svg-volume').textContent = d.v.toFixed(2);
+    const p = lireParametres();
+    document.getElementById('beaker-liquid').setAttribute('fill', couleurIndicateur(d.ph, p.indicateur));
+  }
+
+  function renderChart() {
+    const ctx = document.getElementById('chart');
+    if (!ctx) return;
+    if (chart) chart.destroy();
+    const p = lireParametres();
+    const veq = (p.va * p.ca) / p.cb;
+    const vdemi = veq / 2;
+    const points = mesures.map(m => ({ x: m.v, y: m.ph })).sort((a, b) => a.x - b.x);
+    let zoneVirage = null;
+    if (p.indicateur === 'helianthine') zoneVirage = [3.1, 4.4];
+    else if (p.indicateur === 'bbt') zoneVirage = [6.0, 7.6];
+    else if (p.indicateur === 'phenolphtaleine') zoneVirage = [8.2, 10.0];
+    const datasets = [{
+      label: 'pH', data: points, borderColor: '#A8853F',
+      backgroundColor: 'rgba(168, 133, 63, 0.1)', tension: 0.2, fill: true,
+      pointRadius: 4, pointBackgroundColor: '#A8853F'
+    }];
+    if (comparaisonActive && mesures2.length > 0) {
+      datasets.push({
+        label: 'Dosage 2',
+        data: mesures2.map(m => ({ x: m.v, y: m.ph })).sort((a, b) => a.x - b.x),
+        borderColor: '#3498db', backgroundColor: 'rgba(52, 152, 219, 0.1)',
+        tension: 0.2, fill: false, pointRadius: 3, pointBackgroundColor: '#3498db'
+      });
+    }
+    const annotations = {};
+    if (tangentesAffichees) {
+      annotations.veq = { type: 'line', xMin: veq, xMax: veq, borderColor: '#d9534f', borderWidth: 2, borderDash: [6, 6],
+        label: { display: true, content: `Veq = ${veq.toFixed(2)} mL`, position: 'start', backgroundColor: '#d9534f', color: '#fff', font: { size: 11 } } };
+      annotations.vdemi = { type: 'line', xMin: vdemi, xMax: vdemi, borderColor: '#3498db', borderWidth: 2, borderDash: [6, 6],
+        label: { display: true, content: `Vdemi = ${vdemi.toFixed(2)} mL`, position: 'end', backgroundColor: '#3498db', color: '#fff', font: { size: 11 } } };
+    }
+    if (zoneTamponAffichee && (p.type === 'faible-fort' || p.type === 'fort-faible')) {
+      const pkaRef = p.type === 'faible-fort' ? p.pka : (14 - p.pka);
+      annotations.zoneTampon = { type: 'box', xMin: vdemi * 0.3, xMax: vdemi * 1.7, yMin: pkaRef - 1, yMax: pkaRef + 1,
+        backgroundColor: 'rgba(46, 125, 50, 0.08)', borderColor: 'rgba(46, 125, 50, 0.4)', borderWidth: 1 };
+    }
+    if (zoneVirage && p.methode === 'colorimetrique') {
+      annotations.virage = { type: 'box', xMin: 0, xMax: Math.max(veq * 2, 20), yMin: zoneVirage[0], yMax: zoneVirage[1],
+        backgroundColor: 'rgba(241, 196, 15, 0.08)', borderColor: 'rgba(241, 196, 15, 0.4)', borderWidth: 1 };
+    }
+    chart = new Chart(ctx.getContext('2d'), {
+      type: 'line', data: { datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false, parsing: false,
+        scales: {
+          x: { type: 'linear', title: { display: true, text: 'Volume versé (mL)' }, min: 0,
+            max: Math.max(veq * 2, mesures.length > 0 ? mesures[mesures.length-1].v * 1.2 : 20) },
+          y: { title: { display: true, text: 'pH' }, min: 0, max: 14 }
+        },
+        plugins: { legend: { display: comparaisonActive }, annotation: { annotations } }
+      }
+    });
+  }
+
+  function analyserResultats() {
+    if (mesures.length < 2) return;
+    const p = lireParametres();
+    const veq = (p.va * p.ca) / p.cb;
+    const vdemi = veq / 2;
+    document.getElementById('result-box').style.display = 'block';
+    document.getElementById('result-veq').textContent = `${veq.toFixed(2)} mL`;
+    document.getElementById('result-vdemi').textContent = `${vdemi.toFixed(2)} mL`;
+    document.getElementById('result-pheq').textContent = `${calculerPH(veq, p).toFixed(2)}`;
+    document.getElementById('result-phdemi').textContent = `${calculerPH(vdemi, p).toFixed(2)}`;
+    if (tpActif) {
+      document.getElementById('tp-veq').textContent = veq.toFixed(2);
+      document.getElementById('tp-vdemi').textContent = vdemi.toFixed(2);
+      document.getElementById('tp-phdemi').textContent = calculerPH(vdemi, p).toFixed(2);
+    }
+  }
+
+  document.getElementById('btn-tangentes-auto').onclick = () => {
+    if (mesures.length < 2) { alert('Effectuez d\'abord le dosage.'); return; }
+    tangentesAffichees = !tangentesAffichees;
+    renderChart();
+  };
+
+  document.getElementById('btn-tangentes-manuel').onclick = () => {
+    document.getElementById('modal-tangentes').classList.add('show');
+  };
+
+  document.getElementById('btn-close-modal').onclick = () => {
+    document.getElementById('modal-tangentes').classList.remove('show');
+  };
+
+  document.getElementById('btn-modal-auto').onclick = () => {
+    if (mesures.length < 2) { alert('Effectuez d\'abord le dosage.'); return; }
+    tangentesAffichees = true;
+    renderChart();
+    document.getElementById('modal-tangentes').classList.remove('show');
+  };
+
+  document.getElementById('btn-zone-tampon').onclick = () => {
+    const p = lireParametres();
+    if (p.type === 'fort-fort') {
+      alert('💡 La zone tampon n\'existe que pour les acides faibles ou bases faibles.\n\nChangez le type de dosage en mode Expert.');
+      return;
+    }
+    zoneTamponAffichee = !zoneTamponAffichee;
+    renderChart();
+  };
+
+  document.getElementById('btn-explication').onclick = () => {
+    const div = document.getElementById('explication');
+    const p = lireParametres();
+    const veq = (p.va * p.ca) / p.cb;
+    const vdemi = veq / 2;
+    const pheq = calculerPH(veq, p);
+    const phdemi = calculerPH(vdemi, p);
+    let t = p.type === 'fort-fort' ? 'acide fort + base forte' : p.type === 'faible-fort' ? 'acide faible + base forte' : 'acide fort + base faible';
+    div.innerHTML = `
+      <strong>📖 Explication du dosage : ${t}</strong><br><br>
+      <strong>🎯 Volume équivalent :</strong> ${veq.toFixed(2)} mL<br>
+      À l'équivalence : <em>CA × VA = CB × Veq</em><br>
+      Donc : Veq = (${p.ca} × ${p.va}) / ${p.cb} = ${veq.toFixed(2)} mL<br><br>
+      <strong>📊 pH à l'équivalence :</strong> ${pheq.toFixed(2)}<br>
+      ${p.type === 'fort-fort' ? 'pH = 7' : p.type === 'faible-fort' ? 'pH > 7 (base conjuguée basique)' : 'pH < 7 (acide conjugué acide)'}<br><br>
+      <strong>🔵 Demi-équivalence :</strong> ${vdemi.toFixed(2)} mL<br>
+      ${p.type === 'faible-fort' ? `pH = pKa = ${p.pka} (mesuré : ${phdemi.toFixed(2)})` :
+        p.type === 'fort-faible' ? `pH = ${phdemi.toFixed(2)}` : 'À la demi-équivalence, [AH] = [A⁻]'}
+    `;
+    div.classList.toggle('show');
+  };
+
+  const SUBSTANCES = [
+    { nom: 'Acide éthanoïque', pka: 4.75, type: 'acide' },
+    { nom: 'Acide méthanoïque', pka: 3.75, type: 'acide' },
+    { nom: 'Ion ammonium', pka: 9.25, type: 'acide' },
+    { nom: 'Acide lactique', pka: 3.86, type: 'acide' },
+    { nom: 'Acide benzoïque', pka: 4.20, type: 'acide' },
+    { nom: 'Acide fluorhydrique', pka: 3.17, type: 'acide' },
+    { nom: 'Aspirine', pka: 3.50, type: 'acide' },
+    { nom: 'Acide carbonique', pka: 6.35, type: 'acide' },
+    { nom: 'Acide propanoïque', pka: 4.87, type: 'acide' },
+    { nom: 'Ammoniac', pka: 9.25, type: 'base' },
+    { nom: 'Méthylamine', pka: 10.62, type: 'base' },
+    { nom: 'Éthylamine', pka: 10.63, type: 'base' },
+    { nom: 'Aniline', pka: 4.60, type: 'base' },
+    { nom: 'Pyridine', pka: 5.23, type: 'base' },
+    { nom: 'Ion carbonate', pka: 10.33, type: 'base' },
+    { nom: 'Codéine', pka: 6.05, type: 'base' }
+  ];
+
+  function genererTP() {
+    const t = document.getElementById('tp-type').value;
+    const f = SUBSTANCES.filter(s => s.type === t);
+    tpVerite = f[Math.floor(Math.random() * f.length)];
+    document.getElementById('type-dosage').value = tpVerite.type === 'acide' ? 'faible-fort' : 'fort-faible';
+    document.getElementById('pka').value = tpVerite.pka;
+    document.getElementById('acide-nom').value = tpVerite.type === 'acide' ? 'Acide inconnu' : 'HCl (acide fort)';
+    document.getElementById('base-nom').value = tpVerite.type === 'acide' ? 'NaOH' : 'Base inconnue';
+    document.getElementById('tp-feedback').innerHTML = '';
+    document.getElementById('tp-rep-pka').value = '';
+    document.getElementById('tp-rep-pkb').value = '';
+  }
+
+  document.getElementById('tp-type').addEventListener('change', genererTP);
+  document.getElementById('btn-nouveau-tp').onclick = () => { resetSimulation(); genererTP(); };
+
+  document.getElementById('btn-verifier').onclick = () => {
+    if (!tpVerite) return;
+    const rpka = parseFloat(document.getElementById('tp-rep-pka').value);
+    const rpkb = parseFloat(document.getElementById('tp-rep-pkb').value);
+    const fb = document.getElementById('tp-feedback');
+    const vraiPka = tpVerite.pka;
+    const vraiPkb = 14 - tpVerite.pka;
+    let html = '';
+    if (!isNaN(rpka)) {
+      const e = Math.abs(rpka - vraiPka);
+      if (e <= 0.05) html += `<div class="feedback success">✅ Correct ! pKa = ${vraiPka.toFixed(2)}<br>Votre réponse : ${rpka}</div>`;
+      else if (e <= 0.2) html += `<div class="feedback warning">⚠️ Presque ! Votre : ${rpka} — Vraie : ${vraiPka.toFixed(2)}</div>`;
+      else html += `<div class="feedback error">❌ Incorrect. Votre : ${rpka} — Vraie : ${vraiPka.toFixed(2)}</div>`;
+    }
+    if (!isNaN(rpkb)) {
+      const e = Math.abs(rpkb - vraiPkb);
+      if (e <= 0.05) html += `<div class="feedback success">✅ Correct ! pKb = ${vraiPkb.toFixed(2)}</div>`;
+      else if (e <= 0.2) html += `<div class="feedback warning">⚠️ Presque ! Votre : ${rpkb} — Vraie : ${vraiPkb.toFixed(2)}</div>`;
+      else html += `<div class="feedback error">❌ Incorrect. Votre : ${rpkb} — Vraie : ${vraiPkb.toFixed(2)}</div>`;
+    }
+    html += `<div style="margin-top:12px;padding:12px;background:#f0f7ff;border-radius:6px;font-size:13px;">
+      <strong>📚 Relation :</strong> pKa + pKb = 14<br>
+      pKa = ${vraiPka.toFixed(2)} → pKb = ${vraiPkb.toFixed(2)}<br>
+      <strong>Substance :</strong> ${tpVerite.nom}</div>`;
+    fb.innerHTML = html;
+  };
+
+  document.getElementById('btn-comparer').onclick = () => document.getElementById('comparison-panel').classList.toggle('show');
+  document.getElementById('btn-fermer-comparaison').onclick = () => {
+    document.getElementById('comparison-panel').classList.remove('show');
+    comparaisonActive = false; mesures2 = []; renderChart();
+  };
+  document.getElementById('btn-afficher-comparaison').onclick = () => {
+    const p2 = {
+      type: document.getElementById('type-dosage-2').value,
+      va: parseFloat(document.getElementById('va-2').value) || 20,
+      ca: parseFloat(document.getElementById('ca-2').value) || 0.1,
+      cb: parseFloat(document.getElementById('cb-2').value) || 0.1,
+      pka: parseFloat(document.getElementById('pka-2').value) || 4.75
+    };
+    const veq2 = (p2.va * p2.ca) / p2.cb;
+    mesures2 = [];
+    for (let v = 0; v <= veq2 * 2; v += veq2 / 20) {
+      mesures2.push({ v, ph: calculerPH(v, p2) });
+    }
+    comparaisonActive = true;
+    renderChart();
+  };
+
+  document.getElementById('btn-export').onclick = () => {
+    if (mesures.length === 0) { alert('Aucune mesure à exporter.'); return; }
+    let csv = "V(mL);pH\n";
+    mesures.forEach(m => { csv += `${m.v.toFixed(2)};${m.ph.toFixed(2)}\n`; });
+    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `dosage_${new Date().toISOString().slice(0,10)}.csv`;
+    link.click();
+  };
+
+  document.getElementById('btn-imprimer').onclick = () => window.print();
+
+  document.getElementById('auto-controls').style.display = 'block';
+  document.getElementById('add-row-zone').style.display = 'none';
+  appliquerCouleurInitiale();
+
+})();
+</script>
+</body>
+</html>
