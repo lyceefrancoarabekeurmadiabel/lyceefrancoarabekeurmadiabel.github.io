@@ -24,6 +24,7 @@
             --success: #2e7d32;
             --error: #d9534f;
             --warning: #f39c12;
+            --gov-purple: #6a4c93;
         }
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family: var(--sans); color: var(--text); background: #f9f7f2; line-height:1.6; padding: 20px; }
@@ -53,6 +54,10 @@
             color: var(--slate);
         }
         .nav-return .user-info strong { color: var(--ink); }
+
+        /* 🎓 GOUVERNEMENT SCOLAIRE */
+        .gov-link { display: none; color: var(--gov-purple) !important; font-weight: 700; }
+        .gov-link:hover { color: #9b59b6 !important; text-decoration: underline; }
         
         .header {
             background: var(--ink-deep);
@@ -315,6 +320,11 @@
     <a href="index.html">🏠 Accueil</a>
     <span class="sep">|</span>
     <a href="ressources.html">📚 Ressources</a>
+
+    <!-- 🎓 NOUVEAU : Lien Gouvernement scolaire (visible pour Président/Ministre/Admins) -->
+    <span class="sep">|</span>
+    <a href="publier-annonce.html" class="gov-link">🎓 Gouvernement</a>
+
     <span id="nav-user-info" class="user-info"></span>
 </div>
 
@@ -724,6 +734,8 @@
     const db = getFirestore(app);
 
     let currentProfile = null;
+    const isAdmin = (role) => role === 'admin' || role === 'proviseur' || role === 'censeur';
+    const isGouvernement = (role) => role === 'president' || role === 'ministre_communication';
 
     // ============ AUTH ============
     onAuthStateChanged(auth, async (user) => {
@@ -742,7 +754,12 @@
                     <span style="color:var(--brass);">${currentProfile.role}</span>
                 `;
 
-                if (currentProfile.role === 'admin' || currentProfile.role === 'proviseur' || currentProfile.role === 'censeur') {
+                // 🎓 Affichage du lien Gouvernement dans la nav-return
+                if (isAdmin(currentProfile.role) || isGouvernement(currentProfile.role)) {
+                    document.querySelectorAll('.gov-link').forEach(el => el.style.display = 'inline');
+                }
+
+                if (isAdmin(currentProfile.role)) {
                     btnProfs.disabled = false;
                     btnEleves.disabled = false;
                     btnDash.disabled = false;
@@ -751,7 +768,7 @@
                     btnEleves.disabled = true;
                     btnDash.disabled = true;
                     switchTab('professeurs');
-                } else if (currentProfile.role === 'eleve') {
+                } else if (currentProfile.role === 'eleve' || isGouvernement(currentProfile.role)) {
                     btnProfs.disabled = true;
                     btnEleves.disabled = false;
                     btnDash.disabled = true;
@@ -763,6 +780,7 @@
             btnProfs.disabled = true;
             btnEleves.disabled = true;
             btnDash.disabled = true;
+            document.querySelectorAll('.gov-link').forEach(el => el.style.display = 'none');
         }
     });
 
@@ -985,7 +1003,7 @@
     };
 
     setTimeout(() => {
-        if (currentProfile && (currentProfile.role === 'admin' || currentProfile.role === 'proviseur' || currentProfile.role === 'censeur')) {
+        if (currentProfile && (isAdmin(currentProfile.role))) {
             rafraichirDashboard();
         }
     }, 1000);
