@@ -98,13 +98,13 @@
   .schema-container { background: linear-gradient(180deg, #fafafa 0%, #f0f0f0 100%); border-radius: 8px; padding: 15px; margin-bottom: 15px; position: relative; overflow: hidden; }
   .schema-svg { width: 100%; max-width: 100%; height: auto; display: block; }
 
-  .start-overlay { position: absolute; inset: 0; background: rgba(27,42,74,0.85); display: flex; align-items: center; justify-content: center; flex-direction: column; border-radius: 8px; z-index: 10; }
+  /* Calque "Démarrer" avec couleur dynamique */
+  .start-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; border-radius: 8px; z-index: 10; transition: background 0.4s; background: rgba(217, 83, 79, 0.75); }
   .start-overlay.hidden { display: none; }
-  .start-overlay button { background: var(--brass); color: #fff; border: none; padding: 18px 40px; border-radius: 50px; font-size: 18px; font-weight: 700; cursor: pointer; font-family: var(--sans); box-shadow: 0 8px 25px rgba(168,133,63,0.5); transition: all 0.3s; }
-  .start-overlay button:hover { transform: scale(1.05); background: #96743a; }
-  .start-overlay p { color: #fff; font-size: 13px; margin-top: 15px; opacity: 0.8; }
+  .start-overlay button { background: rgba(255,255,255,0.95); color: var(--ink); border: none; padding: 18px 40px; border-radius: 50px; font-size: 18px; font-weight: 700; cursor: pointer; font-family: var(--sans); box-shadow: 0 8px 25px rgba(0,0,0,0.3); transition: all 0.3s; }
+  .start-overlay button:hover { transform: scale(1.05); background: #fff; }
+  .start-overlay p { color: #fff; font-size: 13px; margin-top: 15px; opacity: 0.95; text-shadow: 0 2px 4px rgba(0,0,0,0.4); font-weight: 600; }
 
-  /* === CANVAS ÉCRAN OBSERVATION : HAUTEUR FIXE === */
   .screen-canvas-wrap { position: relative; height: 300px; background: #000; border: 3px solid #333; border-radius: 6px; overflow: hidden; cursor: crosshair; }
   .screen-canvas-wrap canvas { display: block; width: 100% !important; height: 300px !important; }
   .screen-axis { display: flex; justify-content: space-between; font-size: 11px; color: var(--slate); padding: 4px 8px; font-family: monospace; }
@@ -259,19 +259,15 @@
 
         <div class="explication">
           <h5>📚 Formules — Diffraction</h5>
-          <p><strong>Demi-angle de diffraction :</strong><br>
-          <code>θ = λ / a</code></p>
-          <p><strong>Largeur de la tache centrale :</strong><br>
-          <code>L = 2 · λ · D / a</code></p>
-          <p><strong>Position des minima :</strong><br>
-          <code>x_k = k · λ · D / a</code> (k entier non nul)</p>
-          <p><strong>Intensité :</strong><br>
-          <code>I(x) = I₀ · sinc²(π·a·x / (λ·D))</code></p>
+          <p><strong>Demi-angle de diffraction :</strong><br><code>θ = λ / a</code></p>
+          <p><strong>Largeur de la tache centrale :</strong><br><code>L = 2 · λ · D / a</code></p>
+          <p><strong>Position des minima :</strong><br><code>x_k = k · λ · D / a</code></p>
+          <p><strong>Intensité :</strong><br><code>I(x) = I₀ · sinc²(π·a·x / (λ·D))</code></p>
         </div>
       </div>
 
       <div class="visualization">
-        <h4>🔬 Dispositif expérimental</h4>
+        <h4>🔬 Dispositif expérimental (vue du dessus)</h4>
 
         <div class="schema-container" style="position: relative;">
           <div class="start-overlay" id="overlay-diff">
@@ -279,40 +275,55 @@
             <p>Cliquez pour lancer la simulation</p>
           </div>
 
-          <svg class="schema-svg" viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg">
+          <svg class="schema-svg" viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="laser-beam-diff" x1="0%" x2="100%">
-                <stop offset="0%" stop-color="#d9534f" stop-opacity="0.9"/>
-                <stop offset="100%" stop-color="#d9534f" stop-opacity="0.6"/>
+                <stop offset="0%" stop-color="#ff0000" stop-opacity="0.95"/>
+                <stop offset="100%" stop-color="#ff0000" stop-opacity="0.7"/>
               </linearGradient>
-              <radialGradient id="diffraction-cone" cx="0%" cy="50%" r="100%">
-                <stop offset="0%" stop-color="#d9534f" stop-opacity="0.7"/>
-                <stop offset="100%" stop-color="#d9534f" stop-opacity="0.1"/>
-              </radialGradient>
             </defs>
 
-            <line x1="20" y1="240" x2="880" y2="240" stroke="#333" stroke-width="3"/>
+            <!-- Support optique -->
+            <line x1="20" y1="270" x2="880" y2="270" stroke="#333" stroke-width="3"/>
 
-            <rect x="30" y="110" width="80" height="28" fill="#222" stroke="#000" stroke-width="1.5" rx="4"/>
-            <rect x="110" y="118" width="12" height="12" fill="#333" rx="2"/>
-            <circle cx="116" cy="124" r="3" fill="#ff4444"/>
-            <text x="70" y="105" text-anchor="middle" font-size="12" font-weight="700" fill="#1B2A4A">LASER</text>
-            <text x="70" y="160" text-anchor="middle" font-size="10" fill="#5B6472" id="schema-lambda-diff">632,8 nm</text>
+            <!-- Laser -->
+            <rect x="30" y="130" width="80" height="28" fill="#222" stroke="#000" stroke-width="1.5" rx="4"/>
+            <rect x="110" y="138" width="12" height="12" fill="#333" rx="2"/>
+            <circle cx="116" cy="144" r="3" fill="#ff0000"/>
+            <text x="70" y="125" text-anchor="middle" font-size="12" font-weight="700" fill="#1B2A4A">LASER</text>
+            <text x="70" y="180" text-anchor="middle" font-size="10" fill="#5B6472" id="schema-lambda-diff">632,8 nm</text>
 
-            <line x1="122" y1="124" x2="400" y2="124" stroke="url(#laser-beam-diff)" stroke-width="3" class="beam"/>
+            <!-- Faisceau laser -->
+            <line x1="122" y1="144" x2="420" y2="144" stroke="url(#laser-beam-diff)" stroke-width="3"/>
 
-            <rect x="400" y="40" width="14" height="70" fill="#333"/>
-            <rect x="400" y="138" width="14" height="70" fill="#333"/>
-            <text x="407" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="#1B2A4A">Fente simple</text>
-            <text x="440" y="120" text-anchor="start" font-size="11" fill="#5B6472">a = <tspan id="schema-a-diff">0,10</tspan> mm</text>
+            <!-- Fente simple -->
+            <rect x="420" y="40" width="12" height="90" fill="#333"/>
+            <rect x="420" y="158" width="12" height="90" fill="#333"/>
+            <text x="426" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="#1B2A4A">Fente simple</text>
+            <text x="426" y="135" text-anchor="middle" font-size="10" fill="#5B6472">a = <tspan id="schema-a-diff">0,10</tspan> mm</text>
 
-            <polygon points="414,124 870,60 870,188" fill="url(#diffraction-cone)" opacity="0.7" id="diff-cone" style="display:none;"/>
+            <!-- Arcs d'onde de diffraction -->
+            <g id="diff-arcs" style="display:none;">
+              <path d="M 432 144 Q 520 80 700 50" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
+              <path d="M 432 144 Q 540 90 720 70" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
+              <path d="M 432 144 Q 560 100 740 90" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
+              <path d="M 432 144 Q 580 115 760 115" stroke="#ff0000" stroke-opacity="0.6" stroke-width="2" fill="none"/>
+              <path d="M 432 144 Q 590 130 780 135" stroke="#ff0000" stroke-opacity="0.6" stroke-width="2" fill="none"/>
+              <path d="M 432 144 Q 600 144 800 144" stroke="#ff0000" stroke-opacity="0.8" stroke-width="2.5" fill="none"/>
+              <path d="M 432 144 Q 590 158 780 155" stroke="#ff0000" stroke-opacity="0.6" stroke-width="2" fill="none"/>
+              <path d="M 432 144 Q 580 173 760 175" stroke="#ff0000" stroke-opacity="0.6" stroke-width="2" fill="none"/>
+              <path d="M 432 144 Q 560 190 740 200" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
+              <path d="M 432 144 Q 540 200 720 220" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
+              <path d="M 432 144 Q 520 210 700 240" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
+            </g>
 
-            <rect x="868" y="30" width="8" height="180" fill="#111"/>
-            <text x="872" y="22" text-anchor="middle" font-size="12" font-weight="700" fill="#1B2A4A">Écran</text>
+            <!-- Écran -->
+            <rect x="868" y="40" width="8" height="200" fill="#111"/>
+            <text x="872" y="32" text-anchor="middle" font-size="12" font-weight="700" fill="#1B2A4A">Écran</text>
 
-            <line x1="414" y1="255" x2="870" y2="255" stroke="#5B6472" stroke-width="1" stroke-dasharray="4,3"/>
-            <text x="642" y="252" text-anchor="middle" font-size="11" font-weight="700" fill="#5B6472">D = <tspan id="schema-D-diff">2,00</tspan> m</text>
+            <!-- Distance D -->
+            <line x1="432" y1="285" x2="870" y2="285" stroke="#5B6472" stroke-width="1" stroke-dasharray="4,3"/>
+            <text x="650" y="282" text-anchor="middle" font-size="11" font-weight="700" fill="#5B6472">D = <tspan id="schema-D-diff">2,00</tspan> m</text>
           </svg>
         </div>
 
@@ -424,19 +435,15 @@
 
         <div class="explication">
           <h5>📚 Formules — Young</h5>
-          <p><strong>Différence de marche :</strong><br>
-          <code>δ = a·x / D</code></p>
-          <p><strong>Interfrange :</strong><br>
-          <code>i = λ·D / a</code></p>
-          <p><strong>Position des maxima :</strong><br>
-          <code>x_k = k·i</code></p>
-          <p><strong>Intensité :</strong><br>
-          <code>I(x) = I₀ · cos²(π·a·x / (λ·D))</code></p>
+          <p><strong>Différence de marche :</strong><br><code>δ = a·x / D</code></p>
+          <p><strong>Interfrange :</strong><br><code>i = λ·D / a</code></p>
+          <p><strong>Position des maxima :</strong><br><code>x_k = k·i</code></p>
+          <p><strong>Intensité :</strong><br><code>I(x) = I₀ · cos²(π·a·x / (λ·D))</code></p>
         </div>
       </div>
 
       <div class="visualization">
-        <h4>🔬 Dispositif expérimental</h4>
+        <h4>🔬 Dispositif expérimental (vue du dessus)</h4>
 
         <div class="schema-container" style="position: relative;">
           <div class="start-overlay" id="overlay-young">
@@ -444,49 +451,71 @@
             <p>Cliquez pour lancer la simulation</p>
           </div>
 
-          <svg class="schema-svg" viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg">
+          <svg class="schema-svg" viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="laser-beam-young" x1="0%" x2="100%">
-                <stop offset="0%" stop-color="#d9534f" stop-opacity="0.9"/>
-                <stop offset="100%" stop-color="#d9534f" stop-opacity="0.6"/>
-              </linearGradient>
-              <linearGradient id="wave-1-young" x1="0%" x2="100%">
-                <stop offset="0%" stop-color="#d9534f" stop-opacity="0.7"/>
-                <stop offset="100%" stop-color="#d9534f" stop-opacity="0.15"/>
-              </linearGradient>
-              <linearGradient id="wave-2-young" x1="0%" x2="100%">
-                <stop offset="0%" stop-color="#d9534f" stop-opacity="0.7"/>
-                <stop offset="100%" stop-color="#d9534f" stop-opacity="0.15"/>
+                <stop offset="0%" stop-color="#ff0000" stop-opacity="0.95"/>
+                <stop offset="100%" stop-color="#ff0000" stop-opacity="0.7"/>
               </linearGradient>
             </defs>
 
-            <line x1="20" y1="240" x2="880" y2="240" stroke="#333" stroke-width="3"/>
+            <line x1="20" y1="270" x2="880" y2="270" stroke="#333" stroke-width="3"/>
 
-            <rect x="30" y="110" width="80" height="28" fill="#222" stroke="#000" stroke-width="1.5" rx="4"/>
-            <rect x="110" y="118" width="12" height="12" fill="#333" rx="2"/>
-            <circle cx="116" cy="124" r="3" fill="#ff4444"/>
-            <text x="70" y="105" text-anchor="middle" font-size="12" font-weight="700" fill="#1B2A4A">LASER</text>
-            <text x="70" y="160" text-anchor="middle" font-size="10" fill="#5B6472" id="schema-lambda-young">632,8 nm</text>
+            <!-- Laser -->
+            <rect x="30" y="130" width="80" height="28" fill="#222" stroke="#000" stroke-width="1.5" rx="4"/>
+            <rect x="110" y="138" width="12" height="12" fill="#333" rx="2"/>
+            <circle cx="116" cy="144" r="3" fill="#ff0000"/>
+            <text x="70" y="125" text-anchor="middle" font-size="12" font-weight="700" fill="#1B2A4A">LASER</text>
+            <text x="70" y="180" text-anchor="middle" font-size="10" fill="#5B6472" id="schema-lambda-young">632,8 nm</text>
 
-            <line x1="122" y1="124" x2="430" y2="124" stroke="url(#laser-beam-young)" stroke-width="4" class="beam"/>
+            <line x1="122" y1="144" x2="450" y2="144" stroke="url(#laser-beam-young)" stroke-width="4"/>
 
-            <rect x="430" y="30" width="14" height="80" fill="#333"/>
-            <rect x="430" y="118" width="14" height="12" fill="#fff" stroke="#333" stroke-width="2"/>
-            <rect x="430" y="138" width="14" height="12" fill="#fff" stroke="#333" stroke-width="2"/>
-            <rect x="430" y="160" width="14" height="70" fill="#333"/>
-            <text x="437" y="22" text-anchor="middle" font-size="12" font-weight="700" fill="#1B2A4A">Fentes S₁ / S₂</text>
-            <text x="480" y="112" text-anchor="start" font-size="11" fill="#5B6472">a = <tspan id="schema-a-young">0,50</tspan> mm</text>
+            <!-- Plaque avec 2 fentes S1 et S2 -->
+            <rect x="450" y="30" width="12" height="100" fill="#333"/>
+            <rect x="450" y="138" width="12" height="10" fill="#fff" stroke="#333" stroke-width="1.5"/>
+            <rect x="450" y="155" width="12" height="10" fill="#fff" stroke="#333" stroke-width="1.5"/>
+            <rect x="450" y="172" width="12" height="100" fill="#333"/>
+            <text x="456" y="22" text-anchor="middle" font-size="12" font-weight="700" fill="#1B2A4A">Fentes S₁ / S₂</text>
+            <text x="485" y="134" text-anchor="start" font-size="10" fill="#5B6472">a = <tspan id="schema-a-young">0,50</tspan> mm</text>
 
-            <path d="M 444 124 Q 650 60 870 50" stroke="url(#wave-1-young)" stroke-width="2" fill="none" class="wave-1" style="display:none;"/>
-            <path d="M 444 124 Q 650 124 870 115" stroke="url(#wave-1-young)" stroke-width="2" fill="none" class="wave-1" style="display:none;"/>
-            <path d="M 444 144 Q 650 124 870 140" stroke="url(#wave-2-young)" stroke-width="2" fill="none" class="wave-2" style="display:none;"/>
-            <path d="M 444 144 Q 650 190 870 200" stroke="url(#wave-2-young)" stroke-width="2" fill="none" class="wave-2" style="display:none;"/>
+            <!-- Points S1 et S2 -->
+            <circle cx="456" cy="143" r="3" fill="#ff0000"/>
+            <circle cx="456" cy="160" r="3" fill="#ff0000"/>
+            <text x="440" y="146" text-anchor="end" font-size="11" font-weight="700" fill="#1B2A4A">S₁</text>
+            <text x="440" y="163" text-anchor="end" font-size="11" font-weight="700" fill="#1B2A4A">S₂</text>
 
-            <rect x="868" y="30" width="8" height="180" fill="#111"/>
-            <text x="872" y="22" text-anchor="middle" font-size="12" font-weight="700" fill="#1B2A4A">Écran</text>
+            <!-- Arcs d'onde depuis S1 -->
+            <g class="arcs-s1" style="display:none;">
+              <path d="M 456 143 Q 620 90 860 50" stroke="#ff0000" stroke-opacity="0.55" stroke-width="2" fill="none"/>
+              <path d="M 456 143 Q 640 105 870 80" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
+              <path d="M 456 143 Q 660 120 875 110" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
+              <path d="M 456 143 Q 680 135 875 135" stroke="#ff0000" stroke-opacity="0.55" stroke-width="2" fill="none"/>
+              <path d="M 456 143 Q 690 143 875 143" stroke="#ff0000" stroke-opacity="0.7" stroke-width="2.5" fill="none"/>
+              <path d="M 456 143 Q 680 150 875 150" stroke="#ff0000" stroke-opacity="0.55" stroke-width="2" fill="none"/>
+              <path d="M 456 143 Q 660 165 875 175" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
+              <path d="M 456 143 Q 640 180 870 200" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
+              <path d="M 456 143 Q 620 195 860 230" stroke="#ff0000" stroke-opacity="0.55" stroke-width="2" fill="none"/>
+            </g>
 
-            <line x1="444" y1="255" x2="870" y2="255" stroke="#5B6472" stroke-width="1" stroke-dasharray="4,3"/>
-            <text x="657" y="252" text-anchor="middle" font-size="11" font-weight="700" fill="#5B6472">D = <tspan id="schema-D-young">2,00</tspan> m</text>
+            <!-- Arcs d'onde depuis S2 -->
+            <g class="arcs-s2" style="display:none;">
+              <path d="M 456 160 Q 620 105 860 65" stroke="#ff0000" stroke-opacity="0.55" stroke-width="2" fill="none"/>
+              <path d="M 456 160 Q 640 120 870 95" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
+              <path d="M 456 160 Q 660 135 875 125" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
+              <path d="M 456 160 Q 680 150 875 150" stroke="#ff0000" stroke-opacity="0.55" stroke-width="2" fill="none"/>
+              <path d="M 456 160 Q 690 160 875 160" stroke="#ff0000" stroke-opacity="0.7" stroke-width="2.5" fill="none"/>
+              <path d="M 456 160 Q 680 170 875 170" stroke="#ff0000" stroke-opacity="0.55" stroke-width="2" fill="none"/>
+              <path d="M 456 160 Q 660 185 875 195" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
+              <path d="M 456 160 Q 640 200 870 220" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
+              <path d="M 456 160 Q 620 215 860 245" stroke="#ff0000" stroke-opacity="0.55" stroke-width="2" fill="none"/>
+            </g>
+
+            <!-- Écran -->
+            <rect x="868" y="40" width="8" height="200" fill="#111"/>
+            <text x="872" y="32" text-anchor="middle" font-size="12" font-weight="700" fill="#1B2A4A">Écran</text>
+
+            <line x1="462" y1="285" x2="870" y2="285" stroke="#5B6472" stroke-width="1" stroke-dasharray="4,3"/>
+            <text x="666" y="282" text-anchor="middle" font-size="11" font-weight="700" fill="#5B6472">D = <tspan id="schema-D-young">2,00</tspan> m</text>
           </svg>
         </div>
 
@@ -606,18 +635,15 @@
 
         <div class="explication">
           <h5>📚 Formules — Young avec fente source</h5>
-          <p><strong>Interfrange :</strong><br>
-          <code>i = λ·D / a</code></p>
-          <p><strong>Enveloppe de diffraction :</strong><br>
-          <code>L_env = 2·λ·D / b</code></p>
-          <p><strong>Intensité totale :</strong><br>
-          <code>I(x) = I₀ · cos²(π·a·x / (λ·D)) · sinc²(π·b·x / (λ·D))</code></p>
+          <p><strong>Interfrange :</strong><br><code>i = λ·D / a</code></p>
+          <p><strong>Enveloppe de diffraction :</strong><br><code>L_env = 2·λ·D / b</code></p>
+          <p><strong>Intensité totale :</strong><br><code>I(x) = I₀ · cos²(π·a·x / (λ·D)) · sinc²(π·b·x / (λ·D))</code></p>
           <p>→ Les franges d'interférence sont <strong>modulées</strong> par l'enveloppe de diffraction de la fente source. En s'éloignant du centre, les franges brillantes deviennent moins lumineuses.</p>
         </div>
       </div>
 
       <div class="visualization">
-        <h4>🔬 Dispositif expérimental</h4>
+        <h4>🔬 Dispositif expérimental (vue du dessus)</h4>
 
         <div class="schema-container" style="position: relative;">
           <div class="start-overlay" id="overlay-young-source">
@@ -625,62 +651,88 @@
             <p>Cliquez pour lancer la simulation</p>
           </div>
 
-          <svg class="schema-svg" viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg">
+          <svg class="schema-svg" viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="laser-beam-young-source" x1="0%" x2="100%">
-                <stop offset="0%" stop-color="#d9534f" stop-opacity="0.9"/>
-                <stop offset="100%" stop-color="#d9534f" stop-opacity="0.6"/>
-              </linearGradient>
-              <linearGradient id="wave-s-young-source" x1="0%" x2="100%">
-                <stop offset="0%" stop-color="#d9534f" stop-opacity="0.6"/>
-                <stop offset="100%" stop-color="#d9534f" stop-opacity="0.2"/>
-              </linearGradient>
-              <linearGradient id="wave-1-young-source" x1="0%" x2="100%">
-                <stop offset="0%" stop-color="#d9534f" stop-opacity="0.7"/>
-                <stop offset="100%" stop-color="#d9534f" stop-opacity="0.15"/>
-              </linearGradient>
-              <linearGradient id="wave-2-young-source" x1="0%" x2="100%">
-                <stop offset="0%" stop-color="#d9534f" stop-opacity="0.7"/>
-                <stop offset="100%" stop-color="#d9534f" stop-opacity="0.15"/>
+                <stop offset="0%" stop-color="#ff0000" stop-opacity="0.95"/>
+                <stop offset="100%" stop-color="#ff0000" stop-opacity="0.7"/>
               </linearGradient>
             </defs>
 
-            <line x1="20" y1="240" x2="880" y2="240" stroke="#333" stroke-width="3"/>
+            <line x1="20" y1="270" x2="880" y2="270" stroke="#333" stroke-width="3"/>
 
-            <rect x="20" y="110" width="70" height="28" fill="#222" stroke="#000" stroke-width="1.5" rx="4"/>
-            <rect x="90" y="118" width="12" height="12" fill="#333" rx="2"/>
-            <circle cx="96" cy="124" r="3" fill="#ff4444"/>
-            <text x="55" y="105" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">LASER</text>
-            <text x="55" y="160" text-anchor="middle" font-size="9" fill="#5B6472" id="schema-lambda-young-source">632,8 nm</text>
+            <!-- Laser -->
+            <rect x="20" y="130" width="70" height="28" fill="#222" stroke="#000" stroke-width="1.5" rx="4"/>
+            <rect x="90" y="138" width="12" height="12" fill="#333" rx="2"/>
+            <circle cx="96" cy="144" r="3" fill="#ff0000"/>
+            <text x="55" y="125" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">LASER</text>
+            <text x="55" y="180" text-anchor="middle" font-size="9" fill="#5B6472" id="schema-lambda-young-source">632,8 nm</text>
 
-            <line x1="102" y1="124" x2="300" y2="124" stroke="url(#laser-beam-young-source)" stroke-width="3" class="beam"/>
+            <line x1="102" y1="144" x2="290" y2="144" stroke="url(#laser-beam-young-source)" stroke-width="3"/>
 
-            <rect x="300" y="30" width="12" height="80" fill="#333"/>
-            <rect x="300" y="118" width="12" height="12" fill="#fff" stroke="#333" stroke-width="2"/>
-            <rect x="300" y="138" width="12" height="80" fill="#333"/>
-            <text x="306" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">Fente source S</text>
-            <text x="345" y="112" text-anchor="start" font-size="10" fill="#5B6472">b = <tspan id="schema-b-young-source">0,05</tspan> mm</text>
+            <!-- Fente source S -->
+            <rect x="290" y="30" width="12" height="100" fill="#333"/>
+            <rect x="290" y="138" width="12" height="12" fill="#fff" stroke="#333" stroke-width="1.5"/>
+            <rect x="290" y="158" width="12" height="100" fill="#333"/>
+            <text x="296" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">Fente source S</text>
+            <text x="325" y="136" text-anchor="start" font-size="10" fill="#5B6472">b = <tspan id="schema-b-young-source">0,05</tspan> mm</text>
 
-            <path d="M 312 124 Q 460 80 570 90" stroke="url(#wave-s-young-source)" stroke-width="1.5" fill="none" class="wave-s" style="display:none;"/>
-            <path d="M 312 124 Q 460 168 570 158" stroke="url(#wave-s-young-source)" stroke-width="1.5" fill="none" class="wave-s" style="display:none;"/>
+            <!-- Point S -->
+            <circle cx="296" cy="144" r="3" fill="#ff0000"/>
+            <text x="280" y="147" text-anchor="end" font-size="11" font-weight="700" fill="#1B2A4A">S</text>
 
-            <rect x="570" y="20" width="14" height="85" fill="#333"/>
-            <rect x="570" y="115" width="14" height="12" fill="#fff" stroke="#333" stroke-width="2"/>
-            <rect x="570" y="135" width="14" height="12" fill="#fff" stroke="#333" stroke-width="2"/>
-            <rect x="570" y="155" width="14" height="75" fill="#333"/>
-            <text x="577" y="14" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">Fentes S₁ / S₂</text>
-            <text x="620" y="110" text-anchor="start" font-size="10" fill="#5B6472">a = <tspan id="schema-a-young-source">0,50</tspan> mm</text>
+            <!-- Arcs depuis S (vers la plaque avec S1/S2) -->
+            <g class="arcs-s" style="display:none;">
+              <path d="M 296 144 Q 420 90 560 80" stroke="#ff0000" stroke-opacity="0.55" stroke-width="1.8" fill="none"/>
+              <path d="M 296 144 Q 430 105 565 105" stroke="#ff0000" stroke-opacity="0.5" stroke-width="1.8" fill="none"/>
+              <path d="M 296 144 Q 440 125 570 130" stroke="#ff0000" stroke-opacity="0.5" stroke-width="1.8" fill="none"/>
+              <path d="M 296 144 Q 445 144 570 144" stroke="#ff0000" stroke-opacity="0.65" stroke-width="2" fill="none"/>
+              <path d="M 296 144 Q 440 163 570 158" stroke="#ff0000" stroke-opacity="0.5" stroke-width="1.8" fill="none"/>
+              <path d="M 296 144 Q 430 185 565 183" stroke="#ff0000" stroke-opacity="0.5" stroke-width="1.8" fill="none"/>
+              <path d="M 296 144 Q 420 200 560 208" stroke="#ff0000" stroke-opacity="0.55" stroke-width="1.8" fill="none"/>
+            </g>
 
-            <path d="M 584 121 Q 720 70 870 60" stroke="url(#wave-1-young-source)" stroke-width="2" fill="none" class="wave-1" style="display:none;"/>
-            <path d="M 584 121 Q 720 130 870 120" stroke="url(#wave-1-young-source)" stroke-width="2" fill="none" class="wave-1" style="display:none;"/>
-            <path d="M 584 141 Q 720 130 870 150" stroke="url(#wave-2-young-source)" stroke-width="2" fill="none" class="wave-2" style="display:none;"/>
-            <path d="M 584 141 Q 720 200 870 210" stroke="url(#wave-2-young-source)" stroke-width="2" fill="none" class="wave-2" style="display:none;"/>
+            <!-- Plaque avec 2 fentes S1 et S2 -->
+            <rect x="570" y="20" width="12" height="105" fill="#333"/>
+            <rect x="570" y="135" width="12" height="10" fill="#fff" stroke="#333" stroke-width="1.5"/>
+            <rect x="570" y="155" width="12" height="10" fill="#fff" stroke="#333" stroke-width="1.5"/>
+            <rect x="570" y="175" width="12" height="95" fill="#333"/>
+            <text x="576" y="14" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">Fentes S₁ / S₂</text>
+            <text x="605" y="131" text-anchor="start" font-size="10" fill="#5B6472">a = <tspan id="schema-a-young-source">0,50</tspan> mm</text>
 
-            <rect x="868" y="30" width="8" height="180" fill="#111"/>
-            <text x="872" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">Écran</text>
+            <circle cx="576" cy="140" r="3" fill="#ff0000"/>
+            <circle cx="576" cy="160" r="3" fill="#ff0000"/>
+            <text x="560" y="143" text-anchor="end" font-size="11" font-weight="700" fill="#1B2A4A">b</text>
+            <text x="560" y="163" text-anchor="end" font-size="11" font-weight="700" fill="#1B2A4A">c</text>
 
-            <line x1="584" y1="255" x2="870" y2="255" stroke="#5B6472" stroke-width="1" stroke-dasharray="4,3"/>
-            <text x="727" y="252" text-anchor="middle" font-size="10" font-weight="700" fill="#5B6472">D = <tspan id="schema-D-young-source">2,00</tspan> m</text>
+            <!-- Arcs depuis S1 -->
+            <g class="arcs-y1" style="display:none;">
+              <path d="M 576 140 Q 700 90 860 70" stroke="#ff0000" stroke-opacity="0.55" stroke-width="1.8" fill="none"/>
+              <path d="M 576 140 Q 720 105 865 105" stroke="#ff0000" stroke-opacity="0.5" stroke-width="1.8" fill="none"/>
+              <path d="M 576 140 Q 740 125 870 135" stroke="#ff0000" stroke-opacity="0.55" stroke-width="1.8" fill="none"/>
+              <path d="M 576 140 Q 745 140 875 140" stroke="#ff0000" stroke-opacity="0.7" stroke-width="2.2" fill="none"/>
+              <path d="M 576 140 Q 740 155 870 165" stroke="#ff0000" stroke-opacity="0.55" stroke-width="1.8" fill="none"/>
+              <path d="M 576 140 Q 720 175 865 195" stroke="#ff0000" stroke-opacity="0.5" stroke-width="1.8" fill="none"/>
+              <path d="M 576 140 Q 700 195 860 225" stroke="#ff0000" stroke-opacity="0.55" stroke-width="1.8" fill="none"/>
+            </g>
+
+            <!-- Arcs depuis S2 -->
+            <g class="arcs-y2" style="display:none;">
+              <path d="M 576 160 Q 700 105 860 80" stroke="#ff0000" stroke-opacity="0.55" stroke-width="1.8" fill="none"/>
+              <path d="M 576 160 Q 720 120 865 115" stroke="#ff0000" stroke-opacity="0.5" stroke-width="1.8" fill="none"/>
+              <path d="M 576 160 Q 740 140 870 145" stroke="#ff0000" stroke-opacity="0.55" stroke-width="1.8" fill="none"/>
+              <path d="M 576 160 Q 745 155 875 160" stroke="#ff0000" stroke-opacity="0.7" stroke-width="2.2" fill="none"/>
+              <path d="M 576 160 Q 740 175 870 180" stroke="#ff0000" stroke-opacity="0.55" stroke-width="1.8" fill="none"/>
+              <path d="M 576 160 Q 720 195 865 205" stroke="#ff0000" stroke-opacity="0.5" stroke-width="1.8" fill="none"/>
+              <path d="M 576 160 Q 700 215 860 240" stroke="#ff0000" stroke-opacity="0.55" stroke-width="1.8" fill="none"/>
+            </g>
+
+            <!-- Écran -->
+            <rect x="868" y="40" width="8" height="200" fill="#111"/>
+            <text x="872" y="32" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">Écran</text>
+
+            <line x1="582" y1="285" x2="870" y2="285" stroke="#5B6472" stroke-width="1" stroke-dasharray="4,3"/>
+            <text x="726" y="282" text-anchor="middle" font-size="10" font-weight="700" fill="#5B6472">D = <tspan id="schema-D-young-source">2,00</tspan> m</text>
           </svg>
         </div>
 
@@ -722,15 +774,9 @@
 <footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
 
 <script type="module">
-  // ============================================================
-  // CONSTANTES PHYSIQUES
-  // ============================================================
   const C_LIGHT = 2.998e8;
   const H_PLANCK = 6.626e-34;
 
-  // ============================================================
-  // ÉTAT GLOBAL
-  // ============================================================
   const etat = {
     diffraction: { started: false, mesure: false, chart: null, rafId: null },
     young:       { started: false, mesure: false, chart: null, rafId: null },
@@ -764,6 +810,18 @@
     return Math.sin(x) / x;
   }
 
+  // Mettre à jour la couleur du calque "Démarrer" selon λ ou poly
+  function updateOverlayColor(overlayId, poly, lambda) {
+    const overlay = document.getElementById(overlayId);
+    if (!overlay) return;
+    if (poly) {
+      overlay.style.background = 'linear-gradient(90deg, rgba(220,20,60,0.75) 0%, rgba(255,140,0,0.75) 20%, rgba(255,215,0,0.75) 35%, rgba(50,205,50,0.75) 50%, rgba(0,150,255,0.75) 70%, rgba(138,43,226,0.75) 100%)';
+    } else {
+      const rgb = lambdaToRGB(lambda);
+      overlay.style.background = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.75)`;
+    }
+  }
+
   // ============================================================
   // ONGLETS
   // ============================================================
@@ -778,7 +836,7 @@
   });
 
   // ============================================================
-  // SETUP COMMUN POUR LES CONTRÔLES DE LONGUEUR D'ONDE
+  // SETUP COMMUN
   // ============================================================
   function setupLambdaControl(idSuffix, onUpdate) {
     const radioMono = document.getElementById(`radio-mono-${idSuffix}`);
@@ -819,9 +877,7 @@
   }
 
   // ============================================================
-  // ============================================================
   // EXPÉRIENCE 1 : DIFFRACTION
-  // ============================================================
   // ============================================================
   const diff = { lambda: 632.8, a: 0.1, D: 2.0, poly: false };
 
@@ -842,26 +898,21 @@
     const w = canvas.offsetWidth;
     const h = canvas.offsetHeight;
 
-    if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
+    if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
     }
 
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, w, h);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, w, h);
 
     if (!etat.diffraction.started) return;
 
     const screenWidthMm = 30;
-    const wInt = Math.round(w);
-    const hInt = Math.round(h);
-    const ligne = new Uint8ClampedArray(wInt * 4);
-
-    for (let i = 0; i < wInt; i++) {
-      const x_mm = (i / wInt - 0.5) * screenWidthMm;
+    const pixelCount = Math.floor(w);
+    for (let i = 0; i < pixelCount; i++) {
+      const x_mm = (i / pixelCount - 0.5) * screenWidthMm;
       let r, g, b;
       if (diff.poly) {
         let sumR = 0, sumG = 0, sumB = 0, count = 0;
@@ -883,28 +934,11 @@
         g = rgb.g * I;
         b = rgb.b * I;
       }
-      const idx = i * 4;
-      ligne[idx] = r;
-      ligne[idx + 1] = g;
-      ligne[idx + 2] = b;
-      ligne[idx + 3] = 255;
+      ctx.fillStyle = `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
+      ctx.fillRect(i, 0, 1, h);
     }
 
-    const imgData = ctx.createImageData(wInt, hInt);
-    const data = imgData.data;
-    for (let y = 0; y < hInt; y++) {
-      for (let x = 0; x < wInt; x++) {
-        const srcIdx = x * 4;
-        const dstIdx = (y * wInt + x) * 4;
-        data[dstIdx] = ligne[srcIdx];
-        data[dstIdx + 1] = ligne[srcIdx + 1];
-        data[dstIdx + 2] = ligne[srcIdx + 2];
-        data[dstIdx + 3] = 255;
-      }
-    }
-    ctx.putImageData(imgData, 0, 0);
-
-    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
     ctx.moveTo(w / 2, 0);
@@ -917,12 +951,10 @@
     const canvas = document.getElementById('chart-diff');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-
     if (etat.diffraction.chart) etat.diffraction.chart.destroy();
 
     const screenWidthMm = 30;
     const points = [];
-
     for (let x = -screenWidthMm / 2; x <= screenWidthMm / 2; x += 0.05) {
       if (diff.poly) {
         let I = 0;
@@ -935,22 +967,13 @@
 
     etat.diffraction.chart = new Chart(ctx, {
       type: 'line',
-      data: {
-        datasets: [{
-          label: 'Intensité relative',
-          data: points,
-          borderColor: diff.poly ? '#A8853F' : `rgb(${lambdaToRGB(diff.lambda).r},${lambdaToRGB(diff.lambda).g},${lambdaToRGB(diff.lambda).b})`,
-          backgroundColor: 'rgba(168,133,63,0.08)',
-          borderWidth: 2,
-          fill: true,
-          pointRadius: 0,
-          tension: 0.1
-        }]
-      },
+      data: { datasets: [{
+        label: 'Intensité relative', data: points,
+        borderColor: diff.poly ? '#A8853F' : `rgb(${lambdaToRGB(diff.lambda).r},${lambdaToRGB(diff.lambda).g},${lambdaToRGB(diff.lambda).b})`,
+        backgroundColor: 'rgba(168,133,63,0.08)', borderWidth: 2, fill: true, pointRadius: 0, tension: 0.1
+      }] },
       options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        parsing: false,
+        responsive: true, maintainAspectRatio: false, parsing: false,
         animation: { duration: 300 },
         scales: {
           x: { type: 'linear', title: { display: true, text: 'Position x (mm)' }, min: -screenWidthMm / 2, max: screenWidthMm / 2 },
@@ -978,41 +1001,30 @@
   function updateTableDiff() {
     const tbody = document.getElementById('table-body-diff');
     tbody.innerHTML = '';
-    const lambda = diff.lambda * 1e-9;
-    const a = diff.a * 1e-3;
-    const D = diff.D;
-    const i_mm = lambda * D / a * 1000;
-
-    let rows = `<tr class="maxima">
-      <td>k = 0</td>
-      <td>0,00 mm</td>
-      <td>Maximum central</td>
-    </tr>`;
+    const i_mm = diff.lambda * 1e-9 * diff.D / (diff.a * 1e-3) * 1000;
+    let rows = `<tr class="maxima"><td>k = 0</td><td>0,00 mm</td><td>Maximum central</td></tr>`;
     for (let k = -3; k <= 3; k++) {
       if (k === 0) continue;
       const xk = k * i_mm;
       if (Math.abs(xk) > 15) continue;
-      rows += `<tr class="minima">
-        <td>k = ${k}</td>
-        <td>${xk.toFixed(2)} mm</td>
-        <td>Minimum n°${Math.abs(k)}</td>
-      </tr>`;
+      rows += `<tr class="minima"><td>k = ${k}</td><td>${xk.toFixed(2)} mm</td><td>Minimum n°${Math.abs(k)}</td></tr>`;
     }
     tbody.innerHTML = rows;
   }
 
   function updateSchemaValuesDiff() {
-    const lambdaSpan = document.getElementById('schema-lambda-diff');
-    const aSpan = document.getElementById('schema-a-diff');
-    const DSpan = document.getElementById('schema-D-diff');
-    if (lambdaSpan) lambdaSpan.textContent = formatLambda(diff.lambda);
-    if (aSpan) aSpan.textContent = diff.a.toFixed(2).replace('.', ',');
-    if (DSpan) DSpan.textContent = diff.D.toFixed(2).replace('.', ',');
+    const l = document.getElementById('schema-lambda-diff');
+    const a = document.getElementById('schema-a-diff');
+    const D = document.getElementById('schema-D-diff');
+    if (l) l.textContent = formatLambda(diff.lambda);
+    if (a) a.textContent = diff.a.toFixed(2).replace('.', ',');
+    if (D) D.textContent = diff.D.toFixed(2).replace('.', ',');
   }
 
   function refreshDiff() {
     updateResultsDiff();
     updateSchemaValuesDiff();
+    updateOverlayColor('overlay-diff', diff.poly, diff.lambda);
     if (etat.diffraction.started) {
       drawScreenDiff();
       drawChartDiff();
@@ -1038,21 +1050,8 @@
     etat.diffraction.started = true;
     document.getElementById('overlay-diff').classList.add('hidden');
     document.getElementById('btn-mesure-diff').disabled = false;
-    document.getElementById('diff-cone').style.display = 'block';
-    animerOndesDiff();
+    document.getElementById('diff-arcs').style.display = 'block';
     refreshDiff();
-  }
-
-  function animerOndesDiff() {
-    const cone = document.getElementById('diff-cone');
-    let phase = 0;
-    function step() {
-      if (!etat.diffraction.started) return;
-      phase += 0.05;
-      cone.setAttribute('opacity', (0.5 + 0.3 * Math.sin(phase)).toFixed(2));
-      etat.diffraction.rafId = requestAnimationFrame(step);
-    }
-    step();
   }
 
   document.getElementById('btn-start-diff').onclick = demarrerDiff;
@@ -1061,10 +1060,9 @@
   document.getElementById('btn-reset-diff').onclick = () => {
     etat.diffraction.started = false;
     etat.diffraction.mesure = false;
-    if (etat.diffraction.rafId) cancelAnimationFrame(etat.diffraction.rafId);
     document.getElementById('overlay-diff').classList.remove('hidden');
     document.getElementById('btn-mesure-diff').disabled = true;
-    document.getElementById('diff-cone').style.display = 'none';
+    document.getElementById('diff-arcs').style.display = 'none';
     document.getElementById('mesure-zone-diff').classList.remove('active');
     const c = document.getElementById('screen-canvas-diff');
     const ctx = c.getContext('2d');
@@ -1083,8 +1081,7 @@
 
   document.getElementById('screen-canvas-diff').addEventListener('click', (e) => {
     if (!etat.diffraction.mesure) return;
-    const canvas = e.target;
-    const rect = canvas.getBoundingClientRect();
+    const rect = e.target.getBoundingClientRect();
     const x_pixel = e.clientX - rect.left;
     const x_mm = (x_pixel / rect.width - 0.5) * 30;
     const I = calculateIntensityDiff(x_mm, diff.lambda);
@@ -1096,9 +1093,7 @@
   });
 
   // ============================================================
-  // ============================================================
   // EXPÉRIENCE 2 : FENTES D'YOUNG
-  // ============================================================
   // ============================================================
   const young = { lambda: 632.8, a: 0.5, D: 2.0, poly: false };
 
@@ -1119,36 +1114,28 @@
     const w = canvas.offsetWidth;
     const h = canvas.offsetHeight;
 
-    if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
+    if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
     }
 
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, w, h);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, w, h);
 
     if (!etat.young.started) return;
 
     const screenWidthMm = 20;
-    const wInt = Math.round(w);
-    const hInt = Math.round(h);
-    const ligne = new Uint8ClampedArray(wInt * 4);
-
-    for (let i = 0; i < wInt; i++) {
-      const x_mm = (i / wInt - 0.5) * screenWidthMm;
+    const pixelCount = Math.floor(w);
+    for (let i = 0; i < pixelCount; i++) {
+      const x_mm = (i / pixelCount - 0.5) * screenWidthMm;
       let r, g, b;
       if (young.poly) {
         let sumR = 0, sumG = 0, sumB = 0, count = 0;
         for (let lam = 400; lam <= 700; lam += 10) {
           const I = calculateIntensityYoung(x_mm, lam);
           const rgb = lambdaToRGB(lam);
-          sumR += rgb.r * I;
-          sumG += rgb.g * I;
-          sumB += rgb.b * I;
-          count++;
+          sumR += rgb.r * I; sumG += rgb.g * I; sumB += rgb.b * I; count++;
         }
         r = Math.min(255, sumR / count * 2);
         g = Math.min(255, sumG / count * 2);
@@ -1156,32 +1143,13 @@
       } else {
         const I = calculateIntensityYoung(x_mm, young.lambda);
         const rgb = lambdaToRGB(young.lambda);
-        r = rgb.r * I;
-        g = rgb.g * I;
-        b = rgb.b * I;
+        r = rgb.r * I; g = rgb.g * I; b = rgb.b * I;
       }
-      const idx = i * 4;
-      ligne[idx] = r;
-      ligne[idx + 1] = g;
-      ligne[idx + 2] = b;
-      ligne[idx + 3] = 255;
+      ctx.fillStyle = `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
+      ctx.fillRect(i, 0, 1, h);
     }
 
-    const imgData = ctx.createImageData(wInt, hInt);
-    const data = imgData.data;
-    for (let y = 0; y < hInt; y++) {
-      for (let x = 0; x < wInt; x++) {
-        const srcIdx = x * 4;
-        const dstIdx = (y * wInt + x) * 4;
-        data[dstIdx] = ligne[srcIdx];
-        data[dstIdx + 1] = ligne[srcIdx + 1];
-        data[dstIdx + 2] = ligne[srcIdx + 2];
-        data[dstIdx + 3] = 255;
-      }
-    }
-    ctx.putImageData(imgData, 0, 0);
-
-    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
     ctx.moveTo(w / 2, 0);
@@ -1194,7 +1162,6 @@
     const canvas = document.getElementById('chart-young');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-
     if (etat.young.chart) etat.young.chart.destroy();
 
     const screenWidthMm = 20;
@@ -1229,8 +1196,7 @@
   function updateResultsYoung() {
     const lambda = young.lambda * 1e-9;
     const a = young.a * 1e-3;
-    const D = young.D;
-    const i_mm = lambda * D / a * 1000;
+    const i_mm = lambda * young.D / a * 1000;
     const nu = C_LIGHT / lambda;
     const E = H_PLANCK * nu;
     document.getElementById('info-interfrange-young').textContent = i_mm.toFixed(3) + ' mm';
@@ -1243,39 +1209,32 @@
     tbody.innerHTML = '';
     const lambda = young.lambda * 1e-9;
     const a = young.a * 1e-3;
-    const D = young.D;
-    const i_mm = lambda * D / a * 1000;
-
+    const i_mm = lambda * young.D / a * 1000;
     let rows = '';
     for (let k = -5; k <= 5; k++) {
       const xk = k * i_mm;
       if (Math.abs(xk) > 10) continue;
-      const delta = a * xk * 1e-3 / D * 1e9;
+      const delta = a * xk * 1e-3 / young.D * 1e9;
       const ratio = delta / young.lambda;
       const type = k === 0 ? 'Maximum central' : `Maximum ordre ${k}`;
-      rows += `<tr class="maxima">
-        <td>k = ${k}</td>
-        <td>${xk.toFixed(3)} mm</td>
-        <td>${delta.toFixed(0)} nm</td>
-        <td>${ratio.toFixed(2)}</td>
-        <td>${type}</td>
-      </tr>`;
+      rows += `<tr class="maxima"><td>k = ${k}</td><td>${xk.toFixed(3)} mm</td><td>${delta.toFixed(0)} nm</td><td>${ratio.toFixed(2)}</td><td>${type}</td></tr>`;
     }
     tbody.innerHTML = rows;
   }
 
   function updateSchemaValuesYoung() {
-    const lambdaSpan = document.getElementById('schema-lambda-young');
-    const aSpan = document.getElementById('schema-a-young');
-    const DSpan = document.getElementById('schema-D-young');
-    if (lambdaSpan) lambdaSpan.textContent = formatLambda(young.lambda);
-    if (aSpan) aSpan.textContent = young.a.toFixed(2).replace('.', ',');
-    if (DSpan) DSpan.textContent = young.D.toFixed(2).replace('.', ',');
+    const l = document.getElementById('schema-lambda-young');
+    const a = document.getElementById('schema-a-young');
+    const D = document.getElementById('schema-D-young');
+    if (l) l.textContent = formatLambda(young.lambda);
+    if (a) a.textContent = young.a.toFixed(2).replace('.', ',');
+    if (D) D.textContent = young.D.toFixed(2).replace('.', ',');
   }
 
   function refreshYoung() {
     updateResultsYoung();
     updateSchemaValuesYoung();
+    updateOverlayColor('overlay-young', young.poly, young.lambda);
     if (etat.young.started) {
       drawScreenYoung();
       drawChartYoung();
@@ -1301,22 +1260,8 @@
     etat.young.started = true;
     document.getElementById('overlay-young').classList.add('hidden');
     document.getElementById('btn-mesure-young').disabled = false;
-    document.querySelectorAll('.exp-panel[data-panel="young"] .wave-1, .exp-panel[data-panel="young"] .wave-2').forEach(el => el.style.display = 'block');
-    animerOndesYoung();
+    document.querySelectorAll('.exp-panel[data-panel="young"] .arcs-s1, .exp-panel[data-panel="young"] .arcs-s2').forEach(el => el.style.display = 'block');
     refreshYoung();
-  }
-
-  function animerOndesYoung() {
-    let phase = 0;
-    function step() {
-      if (!etat.young.started) return;
-      phase += 0.04;
-      document.querySelectorAll('.exp-panel[data-panel="young"] .wave-1, .exp-panel[data-panel="young"] .wave-2').forEach((w, i) => {
-        w.setAttribute('opacity', (0.4 + 0.4 * Math.abs(Math.sin(phase + i * 0.3))).toFixed(2));
-      });
-      etat.young.rafId = requestAnimationFrame(step);
-    }
-    step();
   }
 
   document.getElementById('btn-start-young').onclick = demarrerYoung;
@@ -1325,10 +1270,9 @@
   document.getElementById('btn-reset-young').onclick = () => {
     etat.young.started = false;
     etat.young.mesure = false;
-    if (etat.young.rafId) cancelAnimationFrame(etat.young.rafId);
     document.getElementById('overlay-young').classList.remove('hidden');
     document.getElementById('btn-mesure-young').disabled = true;
-    document.querySelectorAll('.exp-panel[data-panel="young"] .wave-1, .exp-panel[data-panel="young"] .wave-2').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.exp-panel[data-panel="young"] .arcs-s1, .exp-panel[data-panel="young"] .arcs-s2').forEach(el => el.style.display = 'none');
     document.getElementById('mesure-zone-young').classList.remove('active');
     const c = document.getElementById('screen-canvas-young');
     const ctx = c.getContext('2d');
@@ -1347,10 +1291,8 @@
 
   document.getElementById('screen-canvas-young').addEventListener('click', (e) => {
     if (!etat.young.mesure) return;
-    const canvas = e.target;
-    const rect = canvas.getBoundingClientRect();
-    const x_pixel = e.clientX - rect.left;
-    const x_mm = (x_pixel / rect.width - 0.5) * 20;
+    const rect = e.target.getBoundingClientRect();
+    const x_mm = ((e.clientX - rect.left) / rect.width - 0.5) * 20;
     const i_mm = young.lambda * 1e-9 * young.D / (young.a * 1e-3) * 1000;
     const k = Math.round(x_mm / i_mm);
     const lambdaDeduite = (x_mm / k) * (young.a * 1e-3) / young.D * 1e9;
@@ -1360,9 +1302,7 @@
   });
 
   // ============================================================
-  // ============================================================
   // EXPÉRIENCE 3 : YOUNG AVEC FENTE SOURCE
-  // ============================================================
   // ============================================================
   const youngSource = { lambda: 632.8, a: 0.5, b: 0.05, D: 2.0, poly: false };
 
@@ -1374,9 +1314,7 @@
     const D = youngSource.D;
     const phiInterf = Math.PI * a * x / (lambda * D);
     const uDiff = Math.PI * b * x / (lambda * D);
-    const I_interf = Math.cos(phiInterf) * Math.cos(phiInterf);
-    const I_diff = sinc(uDiff) * sinc(uDiff);
-    return I_interf * I_diff;
+    return Math.cos(phiInterf) ** 2 * sinc(uDiff) ** 2;
   }
 
   function drawScreenYoungSource() {
@@ -1387,36 +1325,28 @@
     const w = canvas.offsetWidth;
     const h = canvas.offsetHeight;
 
-    if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
+    if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
     }
 
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, w, h);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, w, h);
 
     if (!etat.youngSource.started) return;
 
     const screenWidthMm = 20;
-    const wInt = Math.round(w);
-    const hInt = Math.round(h);
-    const ligne = new Uint8ClampedArray(wInt * 4);
-
-    for (let i = 0; i < wInt; i++) {
-      const x_mm = (i / wInt - 0.5) * screenWidthMm;
+    const pixelCount = Math.floor(w);
+    for (let i = 0; i < pixelCount; i++) {
+      const x_mm = (i / pixelCount - 0.5) * screenWidthMm;
       let r, g, b;
       if (youngSource.poly) {
         let sumR = 0, sumG = 0, sumB = 0, count = 0;
         for (let lam = 400; lam <= 700; lam += 10) {
           const I = calculateIntensityYoungSource(x_mm, lam);
           const rgb = lambdaToRGB(lam);
-          sumR += rgb.r * I;
-          sumG += rgb.g * I;
-          sumB += rgb.b * I;
-          count++;
+          sumR += rgb.r * I; sumG += rgb.g * I; sumB += rgb.b * I; count++;
         }
         r = Math.min(255, sumR / count * 2.5);
         g = Math.min(255, sumG / count * 2.5);
@@ -1424,32 +1354,13 @@
       } else {
         const I = calculateIntensityYoungSource(x_mm, youngSource.lambda);
         const rgb = lambdaToRGB(youngSource.lambda);
-        r = rgb.r * I;
-        g = rgb.g * I;
-        b = rgb.b * I;
+        r = rgb.r * I; g = rgb.g * I; b = rgb.b * I;
       }
-      const idx = i * 4;
-      ligne[idx] = r;
-      ligne[idx + 1] = g;
-      ligne[idx + 2] = b;
-      ligne[idx + 3] = 255;
+      ctx.fillStyle = `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
+      ctx.fillRect(i, 0, 1, h);
     }
 
-    const imgData = ctx.createImageData(wInt, hInt);
-    const data = imgData.data;
-    for (let y = 0; y < hInt; y++) {
-      for (let x = 0; x < wInt; x++) {
-        const srcIdx = x * 4;
-        const dstIdx = (y * wInt + x) * 4;
-        data[dstIdx] = ligne[srcIdx];
-        data[dstIdx + 1] = ligne[srcIdx + 1];
-        data[dstIdx + 2] = ligne[srcIdx + 2];
-        data[dstIdx + 3] = 255;
-      }
-    }
-    ctx.putImageData(imgData, 0, 0);
-
-    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
     ctx.moveTo(w / 2, 0);
@@ -1462,7 +1373,6 @@
     const canvas = document.getElementById('chart-young-source');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-
     if (etat.youngSource.chart) etat.youngSource.chart.destroy();
 
     const screenWidthMm = 20;
@@ -1514,39 +1424,33 @@
     tbody.innerHTML = '';
     const lambda = youngSource.lambda * 1e-9;
     const a = youngSource.a * 1e-3;
-    const D = youngSource.D;
-    const i_mm = lambda * D / a * 1000;
-
+    const i_mm = lambda * youngSource.D / a * 1000;
     let rows = '';
     for (let k = -6; k <= 6; k++) {
       const xk = k * i_mm;
       if (Math.abs(xk) > 10) continue;
       const I = calculateIntensityYoungSource(xk, youngSource.lambda);
       const type = k === 0 ? 'Maximum central' : `Maximum ordre ${k}`;
-      rows += `<tr class="maxima">
-        <td>k = ${k}</td>
-        <td>${xk.toFixed(3)} mm</td>
-        <td>${(I * 100).toFixed(1)} %</td>
-        <td>${type}</td>
-      </tr>`;
+      rows += `<tr class="maxima"><td>k = ${k}</td><td>${xk.toFixed(3)} mm</td><td>${(I * 100).toFixed(1)} %</td><td>${type}</td></tr>`;
     }
     tbody.innerHTML = rows;
   }
 
   function updateSchemaValuesYoungSource() {
-    const lambdaSpan = document.getElementById('schema-lambda-young-source');
-    const aSpan = document.getElementById('schema-a-young-source');
-    const bSpan = document.getElementById('schema-b-young-source');
-    const DSpan = document.getElementById('schema-D-young-source');
-    if (lambdaSpan) lambdaSpan.textContent = formatLambda(youngSource.lambda);
-    if (aSpan) aSpan.textContent = youngSource.a.toFixed(2).replace('.', ',');
-    if (bSpan) bSpan.textContent = youngSource.b.toFixed(3).replace('.', ',');
-    if (DSpan) DSpan.textContent = youngSource.D.toFixed(2).replace('.', ',');
+    const l = document.getElementById('schema-lambda-young-source');
+    const a = document.getElementById('schema-a-young-source');
+    const b = document.getElementById('schema-b-young-source');
+    const D = document.getElementById('schema-D-young-source');
+    if (l) l.textContent = formatLambda(youngSource.lambda);
+    if (a) a.textContent = youngSource.a.toFixed(2).replace('.', ',');
+    if (b) b.textContent = youngSource.b.toFixed(3).replace('.', ',');
+    if (D) D.textContent = youngSource.D.toFixed(2).replace('.', ',');
   }
 
   function refreshYoungSource() {
     updateResultsYoungSource();
     updateSchemaValuesYoungSource();
+    updateOverlayColor('overlay-young-source', youngSource.poly, youngSource.lambda);
     if (etat.youngSource.started) {
       drawScreenYoungSource();
       drawChartYoungSource();
@@ -1578,22 +1482,8 @@
     etat.youngSource.started = true;
     document.getElementById('overlay-young-source').classList.add('hidden');
     document.getElementById('btn-mesure-young-source').disabled = false;
-    document.querySelectorAll('.exp-panel[data-panel="young-source"] .wave-s, .exp-panel[data-panel="young-source"] .wave-1, .exp-panel[data-panel="young-source"] .wave-2').forEach(el => el.style.display = 'block');
-    animerOndesYoungSource();
+    document.querySelectorAll('.exp-panel[data-panel="young-source"] .arcs-s, .exp-panel[data-panel="young-source"] .arcs-y1, .exp-panel[data-panel="young-source"] .arcs-y2').forEach(el => el.style.display = 'block');
     refreshYoungSource();
-  }
-
-  function animerOndesYoungSource() {
-    let phase = 0;
-    function step() {
-      if (!etat.youngSource.started) return;
-      phase += 0.04;
-      document.querySelectorAll('.exp-panel[data-panel="young-source"] .wave-s, .exp-panel[data-panel="young-source"] .wave-1, .exp-panel[data-panel="young-source"] .wave-2').forEach((w, i) => {
-        w.setAttribute('opacity', (0.4 + 0.4 * Math.abs(Math.sin(phase + i * 0.3))).toFixed(2));
-      });
-      etat.youngSource.rafId = requestAnimationFrame(step);
-    }
-    step();
   }
 
   document.getElementById('btn-start-young-source').onclick = demarrerYoungSource;
@@ -1602,10 +1492,9 @@
   document.getElementById('btn-reset-young-source').onclick = () => {
     etat.youngSource.started = false;
     etat.youngSource.mesure = false;
-    if (etat.youngSource.rafId) cancelAnimationFrame(etat.youngSource.rafId);
     document.getElementById('overlay-young-source').classList.remove('hidden');
     document.getElementById('btn-mesure-young-source').disabled = true;
-    document.querySelectorAll('.exp-panel[data-panel="young-source"] .wave-s, .exp-panel[data-panel="young-source"] .wave-1, .exp-panel[data-panel="young-source"] .wave-2').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.exp-panel[data-panel="young-source"] .arcs-s, .exp-panel[data-panel="young-source"] .arcs-y1, .exp-panel[data-panel="young-source"] .arcs-y2').forEach(el => el.style.display = 'none');
     document.getElementById('mesure-zone-young-source').classList.remove('active');
     const c = document.getElementById('screen-canvas-young-source');
     const ctx = c.getContext('2d');
@@ -1624,10 +1513,8 @@
 
   document.getElementById('screen-canvas-young-source').addEventListener('click', (e) => {
     if (!etat.youngSource.mesure) return;
-    const canvas = e.target;
-    const rect = canvas.getBoundingClientRect();
-    const x_pixel = e.clientX - rect.left;
-    const x_mm = (x_pixel / rect.width - 0.5) * 20;
+    const rect = e.target.getBoundingClientRect();
+    const x_mm = ((e.clientX - rect.left) / rect.width - 0.5) * 20;
     const i_mm = youngSource.lambda * 1e-9 * youngSource.D / (youngSource.a * 1e-3) * 1000;
     const k = Math.round(x_mm / i_mm);
     const lambdaDeduite = (x_mm / k) * (youngSource.a * 1e-3) / youngSource.D * 1e9;
@@ -1637,7 +1524,7 @@
   });
 
   // ============================================================
-  // REDIMENSIONNEMENT
+  // RESIZE
   // ============================================================
   window.addEventListener('resize', () => {
     if (etat.diffraction.started) drawScreenDiff();
@@ -1645,9 +1532,7 @@
     if (etat.youngSource.started) drawScreenYoungSource();
   });
 
-  // ============================================================
-  // INITIALISATION
-  // ============================================================
+  // INIT
   refreshDiff();
   refreshYoung();
   refreshYoungSource();
