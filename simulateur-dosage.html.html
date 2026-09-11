@@ -365,6 +365,7 @@
     <button class="btn-secondary" id="btn-export">📥 Exporter CSV</button>
     <button class="btn-secondary" id="btn-imprimer">🖨️ Imprimer</button>
     <button class="btn-success" id="btn-export-pdf-dosage" style="background: #d9534f;">📄 Exporter en PDF</button>
+    <button class="btn-success hidden" id="btn-sauvegarder-dosage" style="background: #2e7d32;">💾 Sauvegarder le dosage</button>
   </div>
 
   <div id="reference-banner-zone"></div>
@@ -702,6 +703,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
@@ -2830,6 +2832,140 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
     document.getElementById('modal-export-pdf').classList.add('show');
   }
 
+    // ============================================================
+  // ÉTAPE 5 — SAUVEGARDE FIRESTORE
+  // ============================================================
+  
+  function majBoutonSauvegarde() {
+    const btn = document.getElementById('btn-sauvegarder-dosage');
+    // Visible uniquement si l'élève est connecté ET a fait au moins 3 mesures
+    if (profile && profile.role === 'eleve' && mesures.length >= 3) {
+      btn.classList.remove('hidden');
+    } else {
+      btn.classList.add('hidden');
+    }
+  }
+  
+  document.getElementById('btn-sauvegarder-dosage').onclick = async () => {
+    if (!profile || profile.role !== 'eleve') {
+      alert('Seuls les élèves peuvent sauvegarder leur dosage.');
+      return;
+    }
+    if (mesures.length < 3) {
+      alert('Il faut au moins 3 mesures pour sauvegarder.');
+      return;
+    }
+    if (!auth.currentUser) {
+      alert('Vous devez être connecté.');
+      return;
+    }
+    
+    const p = lireParametres();
+    const points = mesures.map(m => ({ x: m.v, y: m.ph })).sort((a, b) => a.x - b.x);
+    let veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
+    if (points.length > 2) {
+      let maxDelta = 0, indexMax = 0;
+      for (let i = 1; i < points.length; i++) {
+        const delta = Math.abs(points[i].y - points[i-1].y);
+        if (delta > maxDelta) { maxDelta = delta; indexMax = i; }
+      }
+      if (maxDelta > 0.5) veq = (points[indexMax].x + points[indexMax-1].x) / 2;
+    }
+    const vdemi = veq / 2;
+    const pheq = calculerPH(veq, p);
+    const phdemi = calculerPH(vdemi, p);
+    
+    const nomDosage = prompt("Donnez un nom à ce dosage :", `Dosage ${p.substanceTitree.nom} / ${p.substanceTitrante.nom}`);
+    if (!nomDosage) return;
+    
+    const btn = document.getElementById('btn-sauvegarder-dosage');
+    btn.disabled = true;
+    btn.textContent = "💾 Sauvegarde...";
+    
+    try {
+      await addDoc(collection(db, 'utilisateurs', auth.currentUser.uid, 'dosages'), {
+        nom: nomDosage,
+        date: serverTimestamp(),
+        mode: modeActuel,
+        methode: p.methode,
+        substanceTitree: {
+          nom: p.substanceTitree.nom,
+          formule: p.substanceTitree.formule,
+          force: p.substanceTitree.force,
+          n: p.substanceTitree.n,
+          pka: p.substanceTitree.pka || null
+        },
+        substanceTitrante: {
+          nom: p.substanceTitrante.nom,
+          formule: p.substanceTitrante.formule,
+          force: p.substanceTitrante.force,
+          n: p.substanceTitrante.n
+        },
+        va: p.va,
+        ca: p.ca,
+        cb: p.cb,
+        indicateur: p.indicateur,
+        mesures: mesures.map(m => ({ v: m.v, ph: m.ph })),
+        veq: veq,
+        pheq: pheq,
+        phdemi: phdemi,
+        note: null,
+        commentaireProf: null
+      });
+      
+      btn.textContent = "✅ Sauvegardé !";
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.textContent = "💾 Sauvegarder le dosage";
+        majBoutonSauvegarde();
+      }, 2000);
+    } catch (err) {
+      console.error('Erreur sauvegarde:', err);
+      alert('Erreur lors de la sauvegarde : ' + err.message);
+      btn.disabled = false;
+      btn.textContent = "💾 Sauvegarder le dosage";
+    }
+  };
+  
+  // Sauvegarde automatique d'une évaluation à la fin
+  async function sauvegarderEvaluationFirestore() {
+    if (!profile || profile.role !== 'eleve') return;
+    if (!auth.currentUser) return;
+    if (examen.reponses.length === 0) return;
+    
+    const total = examen.questions.length;
+    const score = examen.score;
+    const noteSur20 = Math.round((score / total) * 20 * 10) / 10;
+    const pourcentage = Math.round((score / total) * 100);
+    
+    try {
+      await addDoc(collection(db, 'utilisateurs', auth.currentUser.uid, 'evaluations'), {
+        date: serverTimestamp(),
+        nom: examen.config?.nom || 'Évaluation',
+        type: examen.type,
+        duree: examen.duree,
+        difficulte: examen.config?.difficulte || 'moyen',
+        nbQuestions: total,
+        score: score,
+        note20: noteSur20,
+        pourcentage: pourcentage,
+        profNom: examen.type === 'evaluation' ? (localStorage.getItem('eval_profNom') || '—') : 'Auto-entraînement',
+        profEmail: examen.type === 'evaluation' ? (localStorage.getItem('eval_profEmail') || '—') : '—',
+        reponses: examen.reponses.map(r => ({
+          type: r.question.type,
+          enonce: r.question.enonce,
+          reponseDonnee: r.reponseDonnee,
+          bonneReponse: r.question.reponse,
+          correct: r.correct,
+          explication: r.question.explication
+        })),
+        note: null,
+        commentaireProf: null
+      });
+    } catch (err) {
+      console.warn('Erreur sauvegarde évaluation:', err);
+    }
+  }
   // Initialisation
   document.getElementById('auto-controls').style.display = 'block';
   document.getElementById('add-row-zone').style.display = 'none';
