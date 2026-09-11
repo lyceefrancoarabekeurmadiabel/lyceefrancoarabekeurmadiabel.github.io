@@ -102,7 +102,6 @@
   .droplet { animation: drop 0.6s ease-in forwards; transform-origin: center; }
   #beaker-liquid, #anim-liquid { transition: fill 0.5s ease-in-out; }
   
-  /* === NOUVELLES ANIMATIONS POUR LE BÉCHER === */
   @keyframes splash {
     0% { transform: scale(0.5); opacity: 0.9; }
     50% { transform: scale(1.3); opacity: 0.6; }
@@ -125,16 +124,11 @@
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  @keyframes wave {
-    0%, 100% { transform: translateX(0); }
-    50% { transform: translateX(2px); }
-  }
   .anim-drop-active { animation: dropFall 0.6s ease-in forwards; }
   .splash-effect { animation: splash 0.7s ease-out forwards; transform-origin: center; }
   .pulse-beaker { animation: pulse 0.5s ease-in-out; }
   .flash-effect { animation: flash 0.8s ease-out; }
   .message-fade { animation: fadeIn 0.4s ease-out; }
-  .wave-surface { animation: wave 0.8s ease-in-out infinite; transform-origin: center; }
   
   .table-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
   .table-mode { display: flex; gap: 4px; background: #f0f0f0; padding: 4px; border-radius: 6px; }
@@ -178,6 +172,21 @@
   .modal-box ol li { margin-bottom: 8px; }
   .comparison-panel { display: none; }
   .comparison-panel.show { display: block; }
+  
+  /* === MODAL INDICATEURS === */
+  .modal-indicateurs { max-width: 750px !important; max-height: 90vh; overflow-y: auto; }
+  .indic-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+  .indic-table th { background: var(--ink); color: #fff; padding: 10px; text-align: left; font-size: 12px; }
+  .indic-table td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  .indic-table tr:last-child td { border-bottom: none; }
+  .pastille-indic { display: inline-block; width: 26px; height: 26px; border-radius: 50%; border: 2px solid #333; vertical-align: middle; margin-right: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .slider-ph { width: 100%; margin: 15px 0 8px 0; cursor: pointer; }
+  .ph-affiche { font-size: 24px; font-weight: 700; color: var(--ink); text-align: center; margin-bottom: 5px; }
+  .ph-zone-info { text-align: center; font-size: 12px; color: var(--slate); font-style: italic; margin-bottom: 15px; }
+  .indic-couleur-live { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; }
+  .indic-couleur-live .label-couleur { font-weight: 600; color: var(--ink); }
+  .ouvrir-indicateur-btn { background: var(--brass); color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--sans); margin-top: 6px; }
+  .ouvrir-indicateur-btn:hover { background: #8e6f33; }
 </style>
 </head>
 <body>
@@ -282,9 +291,12 @@
         <select id="indicateur">
           <option value="aucun">Aucun</option>
           <option value="helianthine">Hélianthine (3,1-4,4)</option>
+          <option value="rmethyl">Rouge de méthyle (4,4-6,2)</option>
+          <option value="vbromocresol">Vert de bromocrésol (3,8-5,4)</option>
           <option value="bbt" selected>Bleu de bromothymol (6,0-7,6)</option>
           <option value="phenolphtaleine">Phénolphtaléine (8,2-10,0)</option>
         </select>
+        <button class="ouvrir-indicateur-btn" id="btn-ouvrir-indicateurs">🎨 Voir tous les indicateurs</button>
         <div id="indicateur-suggestion"></div>
       </div>
     </div>
@@ -407,11 +419,9 @@
               </radialGradient>
             </defs>
             
-            <!-- Support -->
             <line x1="250" y1="30" x2="250" y2="210" stroke="#555" stroke-width="5"/>
             <line x1="20" y1="210" x2="280" y2="210" stroke="#555" stroke-width="5"/>
             
-            <!-- Burette -->
             <rect x="130" y="20" width="22" height="130" fill="rgba(255,255,255,0.5)" stroke="#333" stroke-width="1.5" rx="2"/>
             <rect x="132" y="22" width="18" height="126" fill="rgba(52, 152, 219, 0.4)" id="anim-burette-liquid"/>
             <line x1="130" y1="40" x2="138" y2="40" stroke="#333" stroke-width="1"/>
@@ -421,27 +431,18 @@
             <rect x="136" y="150" width="10" height="15" fill="#999" stroke="#333"/>
             <line x1="141" y1="165" x2="141" y2="175" stroke="#333" stroke-width="2"/>
             
-            <!-- Goutte animée -->
             <ellipse cx="141" cy="185" rx="3" ry="5" fill="#3498db" id="anim-drop" style="display:none;"/>
-            
-            <!-- Halo de virage (flash) -->
             <circle cx="141" cy="200" r="60" fill="url(#haloVirage)" id="anim-halo" style="display:none;"/>
             
-            <!-- Bécher -->
             <rect x="85" y="180" width="112" height="35" fill="rgba(255,255,255,0.4)" stroke="#333" stroke-width="2" rx="2"/>
-            <!-- Liquide avec clip-path pour ne pas déborder -->
             <clipPath id="clipBeaker">
               <rect x="87" y="182" width="108" height="31"/>
             </clipPath>
             <rect x="87" y="195" width="108" height="18" fill="rgba(241, 196, 15, 0.6)" id="anim-liquid" clip-path="url(#clipBeaker)"/>
             
-            <!-- Surface ondulante du liquide -->
             <path d="M 87 195 Q 100 192 115 195 T 143 195 T 195 195" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none" id="anim-surface" opacity="0.7"/>
-            
-            <!-- Éclaboussure -->
             <circle cx="141" cy="195" r="5" fill="#fff" opacity="0" id="anim-splash"/>
             
-            <!-- Texte -->
             <text x="141" y="240" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">
               V = <tspan id="anim-volume">0.00</tspan> mL | pH = <tspan id="anim-ph">-</tspan>
             </text>
@@ -524,6 +525,53 @@
   </div>
 </div>
 
+<!-- === MODAL INDICATEURS === -->
+<div class="modal-overlay" id="modal-indicateurs">
+  <div class="modal-box modal-indicateurs">
+    <h3>🎨 Tableau de vérité des indicateurs colorés</h3>
+    <p style="font-size: 13px; color: var(--slate); margin-bottom: 12px;">
+      Un indicateur coloré change de couleur dans une zone de pH précise appelée "zone de virage". 
+      Choisissez l'indicateur adapté au pH à l'équivalence de votre dosage.
+    </p>
+    
+    <table class="indic-table">
+      <thead>
+        <tr>
+          <th>Indicateur</th>
+          <th>Couleur acide</th>
+          <th>Zone de virage</th>
+          <th>Couleur basique</th>
+          <th>Utilisation typique</th>
+        </tr>
+      </thead>
+      <tbody id="indic-table-body"></tbody>
+    </table>
+    
+    <div style="margin-top: 25px; padding-top: 15px; border-top: 2px solid var(--line);">
+      <h4 style="font-family: var(--serif); color: var(--ink); font-size: 15px; margin-bottom: 8px;">
+        🎚️ Curseur de pH interactif
+      </h4>
+      <div class="ph-affiche">pH = <span id="ph-valeur">7.00</span></div>
+      <div class="ph-zone-info" id="ph-zone-info">Zone neutre</div>
+      <input type="range" min="0" max="14" step="0.1" value="7" class="slider-ph" id="ph-slider">
+      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--slate); margin-bottom: 20px;">
+        <span>0 (acide fort)</span><span>7 (neutre)</span><span>14 (basique fort)</span>
+      </div>
+      
+      <div style="background: #fafafa; border-radius: 8px; padding: 15px;">
+        <strong style="font-size: 13px; color: var(--ink); display: block; margin-bottom: 10px;">
+          🎨 Couleur des indicateurs à ce pH :
+        </strong>
+        <div id="couleurs-live" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;"></div>
+      </div>
+    </div>
+    
+    <div style="margin-top: 20px; text-align: right;">
+      <button class="btn-secondary" id="btn-close-indicateurs">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
 
 <script type="module">
@@ -588,6 +636,72 @@
   ];
 
   const SUBSTANCES_INCONNUES = SUBSTANCES.filter(s => s.force === 'faible');
+
+  // ============================================================
+  // BASE DE DONNÉES DES INDICATEURS COLORÉS (5 indicateurs)
+  // ============================================================
+  const INDICATEURS = [
+    { 
+      id: 'helianthine', 
+      nom: 'Hélianthine', 
+      zoneMin: 3.1, zoneMax: 4.4,
+      couleurAcide: 'rgba(231, 76, 60, 1)',
+      couleurBasique: 'rgba(241, 196, 15, 1)',
+      couleurAcideNom: 'Rouge',
+      couleurBasiqueNom: 'Jaune',
+      couleurAcideEmoji: '🔴',
+      couleurBasiqueEmoji: '🟡',
+      utilisation: 'Acide fort / base faible'
+    },
+    { 
+      id: 'rmethyl', 
+      nom: 'Rouge de méthyle', 
+      zoneMin: 4.4, zoneMax: 6.2,
+      couleurAcide: 'rgba(231, 76, 60, 1)',
+      couleurBasique: 'rgba(241, 196, 15, 1)',
+      couleurAcideNom: 'Rouge',
+      couleurBasiqueNom: 'Jaune',
+      couleurAcideEmoji: '🔴',
+      couleurBasiqueEmoji: '🟡',
+      utilisation: 'Dosages variés'
+    },
+    { 
+      id: 'vbromocresol', 
+      nom: 'Vert de bromocrésol', 
+      zoneMin: 3.8, zoneMax: 5.4,
+      couleurAcide: 'rgba(241, 196, 15, 1)',
+      couleurBasique: 'rgba(52, 152, 219, 1)',
+      couleurAcideNom: 'Jaune',
+      couleurBasiqueNom: 'Bleu',
+      couleurAcideEmoji: '🟡',
+      couleurBasiqueEmoji: '🔵',
+      utilisation: 'Acides faibles'
+    },
+    { 
+      id: 'bbt', 
+      nom: 'Bleu de bromothymol', 
+      zoneMin: 6.0, zoneMax: 7.6,
+      couleurAcide: 'rgba(241, 196, 15, 1)',
+      couleurBasique: 'rgba(52, 152, 219, 1)',
+      couleurAcideNom: 'Jaune',
+      couleurBasiqueNom: 'Bleu',
+      couleurAcideEmoji: '🟡',
+      couleurBasiqueEmoji: '🔵',
+      utilisation: 'Acide fort / base forte'
+    },
+    { 
+      id: 'phenolphtaleine', 
+      nom: 'Phénolphtaléine', 
+      zoneMin: 8.2, zoneMax: 10.0,
+      couleurAcide: 'rgba(236, 240, 241, 1)',
+      couleurBasique: 'rgba(233, 30, 99, 1)',
+      couleurAcideNom: 'Incolore',
+      couleurBasiqueNom: 'Rose',
+      couleurAcideEmoji: '⚪',
+      couleurBasiqueEmoji: '🩷',
+      utilisation: 'Acide faible / base forte'
+    }
+  ];
 
   let modeActuel = 'standard';
   let tableMode = 'auto';
@@ -854,12 +968,15 @@
     else if (sT.force === 'fort' && sT.famille === 'base' && sTr.force === 'faible') { recommande = 'phenolphtaleine'; raison = 'Virage à pH > 7'; }
     
     const indActuel = document.getElementById('indicateur').value;
-    const noms = { 'helianthine': 'Hélianthine', 'bbt': 'Bleu de bromothymol', 'phenolphtaleine': 'Phénolphtaléine', 'aucun': 'Aucun' };
+    const indicObj = INDICATEURS.find(i => i.id === indActuel);
+    const nomActuel = indicObj ? indicObj.nom : 'Aucun';
+    const indicRecommandee = INDICATEURS.find(i => i.id === recommande);
+    const nomRecommande = indicRecommandee ? indicRecommandee.nom : '';
     
     if (recommande) {
-      if (indActuel === recommande) div.innerHTML = `<div class="indicateur-suggestion">💡 <strong>Recommandé :</strong> ${noms[recommande]} — ${raison}. ✅ Bon choix.</div>`;
-      else if (indActuel === 'aucun') div.innerHTML = `<div class="indicateur-suggestion">💡 <strong>Recommandé :</strong> ${noms[recommande]} — ${raison}</div>`;
-      else div.innerHTML = `<div class="indicateur-avertissement">⚠️ L'indicateur choisi (${noms[indActuel]}) n'est pas optimal. <strong>Suggestion :</strong> ${noms[recommande]} — ${raison}</div>`;
+      if (indActuel === recommande) div.innerHTML = `<div class="indicateur-suggestion">💡 <strong>Recommandé :</strong> ${nomRecommande} — ${raison}. ✅ Bon choix.</div>`;
+      else if (indActuel === 'aucun') div.innerHTML = `<div class="indicateur-suggestion">💡 <strong>Recommandé :</strong> ${nomRecommande} — ${raison}</div>`;
+      else div.innerHTML = `<div class="indicateur-avertissement">⚠️ L'indicateur choisi (${nomActuel}) n'est pas optimal. <strong>Suggestion :</strong> ${nomRecommande} — ${raison}</div>`;
     } else {
       div.innerHTML = '';
     }
@@ -876,6 +993,98 @@
       }
     });
   });
+
+  // ============================================================
+  // MODAL INDICATEURS
+  // ============================================================
+  document.getElementById('btn-ouvrir-indicateurs').onclick = () => {
+    construireTableauIndicateurs();
+    majCouleursLive(parseFloat(document.getElementById('ph-slider').value));
+    document.getElementById('modal-indicateurs').classList.add('show');
+  };
+  
+  document.getElementById('btn-close-indicateurs').onclick = () => {
+    document.getElementById('modal-indicateurs').classList.remove('show');
+  };
+  
+  document.getElementById('modal-indicateurs').addEventListener('click', (e) => {
+    if (e.target.id === 'modal-indicateurs') document.getElementById('modal-indicateurs').classList.remove('show');
+  });
+  
+  document.getElementById('ph-slider').addEventListener('input', (e) => {
+    const ph = parseFloat(e.target.value);
+    document.getElementById('ph-valeur').textContent = ph.toFixed(2);
+    let zoneInfo = '';
+    if (ph < 3) zoneInfo = 'Milieu très acide';
+    else if (ph < 5) zoneInfo = 'Milieu acide';
+    else if (ph < 6.5) zoneInfo = 'Milieu légèrement acide';
+    else if (ph < 7.5) zoneInfo = 'Milieu neutre';
+    else if (ph < 9) zoneInfo = 'Milieu légèrement basique';
+    else if (ph < 11) zoneInfo = 'Milieu basique';
+    else zoneInfo = 'Milieu très basique';
+    document.getElementById('ph-zone-info').textContent = zoneInfo;
+    majCouleursLive(ph);
+  });
+  
+  function construireTableauIndicateurs() {
+    const tbody = document.getElementById('indic-table-body');
+    tbody.innerHTML = '';
+    INDICATEURS.forEach(ind => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${ind.nom}</strong></td>
+        <td><span class="pastille-indic" style="background-color: ${ind.couleurAcide};"></span>${ind.couleurAcideEmoji} ${ind.couleurAcideNom}</td>
+        <td style="font-weight: 700; color: var(--ink);">${ind.zoneMin.toFixed(1)} – ${ind.zoneMax.toFixed(1)}</td>
+        <td><span class="pastille-indic" style="background-color: ${ind.couleurBasique};"></span>${ind.couleurBasiqueEmoji} ${ind.couleurBasiqueNom}</td>
+        <td style="font-size: 12px; color: var(--slate);">${ind.utilisation}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+  
+  function couleurIndicateurLive(ph, ind) {
+    if (ph < ind.zoneMin) return ind.couleurAcide;
+    if (ph > ind.zoneMax) return ind.couleurBasique;
+    // Zone de virage : interpolation
+    const t = (ph - ind.zoneMin) / (ind.zoneMax - ind.zoneMin);
+    return interpolerCouleur(ind.couleurAcide, ind.couleurBasique, t);
+  }
+  
+  function interpolerCouleur(c1, c2, t) {
+    // Parse les rgba
+    const parse = (str) => {
+      const m = str.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      return m ? [parseInt(m[1]), parseInt(m[2]), parseInt(m[3])] : [0, 0, 0];
+    };
+    const [r1, g1, b1] = parse(c1);
+    const [r2, g2, b2] = parse(c2);
+    const r = Math.round(r1 + (r2 - r1) * t);
+    const g = Math.round(g1 + (g2 - g1) * t);
+    const b = Math.round(b1 + (b2 - b1) * t);
+    return `rgba(${r}, ${g}, ${b}, 1)`;
+  }
+  
+  function majCouleursLive(ph) {
+    const cont = document.getElementById('couleurs-live');
+    cont.innerHTML = '';
+    INDICATEURS.forEach(ind => {
+      const couleur = couleurIndicateurLive(ph, ind);
+      const enVirage = ph >= ind.zoneMin && ph <= ind.zoneMax;
+      const div = document.createElement('div');
+      div.className = 'indic-couleur-live';
+      div.style.cssText = 'padding: 8px; background: #fff; border-radius: 6px; border: 1px solid var(--line);';
+      div.innerHTML = `
+        <span class="pastille-indic" style="background-color: ${couleur}; width: 32px; height: 32px;"></span>
+        <div style="display: flex; flex-direction: column;">
+          <span class="label-couleur">${ind.nom}</span>
+          <span style="font-size: 11px; color: var(--slate);">
+            ${enVirage ? '🔄 En zone de virage' : (ph < ind.zoneMin ? ind.couleurAcideEmoji + ' ' + ind.couleurAcideNom : ind.couleurBasiqueEmoji + ' ' + ind.couleurBasiqueNom)}
+          </span>
+        </div>
+      `;
+      cont.appendChild(div);
+    });
+  }
 
   function activerMode(mode) {
     modeActuel = mode;
@@ -1089,43 +1298,19 @@
   }
 
   function couleurInitiale(indicateur) {
-    if (indicateur === 'aucun') return 'rgba(46, 204, 113, 0.3)';
-    if (indicateur === 'helianthine') return 'rgba(231, 76, 60, 0.6)';
-    if (indicateur === 'bbt') return 'rgba(241, 196, 15, 0.6)';
-    if (indicateur === 'phenolphtaleine') return 'rgba(236, 240, 241, 0.6)';
-    return 'rgba(46, 204, 113, 0.3)';
+    const ind = INDICATEURS.find(i => i.id === indicateur);
+    if (!ind) return 'rgba(46, 204, 113, 0.3)';
+    return ind.couleurAcide.replace('1)', '0.6)');
   }
 
-  function couleurIndicateur(ph, ind) {
-    if (ind === 'aucun') return 'rgba(46, 204, 113, 0.6)';
-    if (ind === 'helianthine') {
-      if (ph < 3.1) return 'rgba(231, 76, 60, 0.85)';
-      if (ph > 4.4) return 'rgba(241, 196, 15, 0.85)';
-      const t = (ph - 3.1) / (4.4 - 3.1);
-      const r = Math.round(231 + (241 - 231) * t);
-      const g = Math.round(76 + (196 - 76) * t);
-      const b = Math.round(60 + (15 - 60) * t);
-      return `rgba(${r}, ${g}, ${b}, 0.85)`;
-    }
-    if (ind === 'bbt') {
-      if (ph < 6.0) return 'rgba(241, 196, 15, 0.85)';
-      if (ph > 7.6) return 'rgba(52, 152, 219, 0.85)';
-      const t = (ph - 6.0) / (7.6 - 6.0);
-      const r = Math.round(241 + (52 - 241) * t);
-      const g = Math.round(196 + (152 - 196) * t);
-      const b = Math.round(15 + (219 - 15) * t);
-      return `rgba(${r}, ${g}, ${b}, 0.85)`;
-    }
-    if (ind === 'phenolphtaleine') {
-      if (ph < 8.2) return 'rgba(236, 240, 241, 0.85)';
-      if (ph > 10.0) return 'rgba(233, 30, 99, 0.85)';
-      const t = (ph - 8.2) / (10.0 - 8.2);
-      const r = Math.round(236 + (233 - 236) * t);
-      const g = Math.round(240 + (30 - 240) * t);
-      const b = Math.round(241 + (99 - 241) * t);
-      return `rgba(${r}, ${g}, ${b}, 0.85)`;
-    }
-    return 'rgba(46, 204, 113, 0.6)';
+  function couleurIndicateur(ph, indId) {
+    const ind = INDICATEURS.find(i => i.id === indId);
+    if (!ind) return 'rgba(46, 204, 113, 0.6)';
+    if (ph < ind.zoneMin) return ind.couleurAcide.replace('1)', '0.85)');
+    if (ph > ind.zoneMax) return ind.couleurBasique.replace('1)', '0.85)');
+    const t = (ph - ind.zoneMin) / (ind.zoneMax - ind.zoneMin);
+    const c = interpolerCouleur(ind.couleurAcide, ind.couleurBasique, t);
+    return c.replace('1)', '0.85)');
   }
 
   function appliquerCouleurInitiale() {
@@ -1176,7 +1361,6 @@
     document.getElementById('anim-volume').textContent = '0.00';
     document.getElementById('anim-ph').textContent = '-';
     document.getElementById('anim-message').textContent = 'Ajoutez du titrant pour voir la couleur évoluer.';
-    // Reset de la hauteur du liquide et de la burette
     const animLiq = document.getElementById('anim-liquid');
     if (animLiq) {
       animLiq.setAttribute('y', '195');
@@ -1204,7 +1388,6 @@
     const nouveauV = dernierV + vol;
     if (nouveauV > veq * 2.5) { alert(`Volume maximum atteint (${(veq * 2.5).toFixed(1)} mL).`); return; }
     
-    // Animation de la goutte dans le dispositif principal
     const drop = document.getElementById('drop');
     drop.style.display = 'block';
     drop.classList.remove('droplet');
@@ -1212,7 +1395,6 @@
     drop.classList.add('droplet');
     setTimeout(() => { drop.style.display = 'none'; }, 600);
     
-    // === ANIMATION DU BÉCHER ===
     const animDrop = document.getElementById('anim-drop');
     if (animDrop) {
       animDrop.style.display = 'block';
@@ -1222,7 +1404,6 @@
       setTimeout(() => { animDrop.style.display = 'none'; }, 600);
     }
     
-    // Éclaboussure
     const splash = document.getElementById('anim-splash');
     if (splash) {
       splash.setAttribute('opacity', '0.7');
@@ -1267,39 +1448,29 @@
     const p = lireParametres();
     const couleur = couleurIndicateur(ph, p.indicateur);
     
-    // Niveau du liquide qui monte (proportionnel au volume)
-    // Le bécher va de y=182 (haut) à y=213 (bas). Hauteur max = 31.
-    // On plafonne à 80% du bécher pour ne pas déborder
     const volumeMaxAffiche = veq * 1.5;
     const pourcentage = Math.min(v / volumeMaxAffiche, 1);
-    const hauteurMax = 28; // hauteur max du liquide
-    const hauteur = 3 + pourcentage * hauteurMax; // au moins 3px pour voir
-    const y = 213 - hauteur; // le fond est à 213
+    const hauteurMax = 28;
+    const hauteur = 3 + pourcentage * hauteurMax;
+    const y = 213 - hauteur;
     
     const liq = document.getElementById('anim-liquid');
     liq.setAttribute('y', y.toFixed(1));
     liq.setAttribute('height', hauteur.toFixed(1));
     liq.setAttribute('fill', couleur);
     
-    // Mise à jour de la surface ondulante
     const surface = document.getElementById('anim-surface');
-    if (surface) {
-      surface.setAttribute('d', `M 87 ${y} Q 100 ${y-2} 115 ${y} T 143 ${y} T 195 ${y}`);
-    }
+    if (surface) surface.setAttribute('d', `M 87 ${y} Q 100 ${y-2} 115 ${y} T 143 ${y} T 195 ${y}`);
     
-    // Niveau de la burette qui descend
     const buretteLiq = document.getElementById('anim-burette-liquid');
     if (buretteLiq) {
       const pourcentageBurette = Math.min(v / volumeMaxAffiche, 1);
-      const hauteurBurette = 126 * (1 - pourcentageBurette * 0.7); // descend jusqu'à 30%
+      const hauteurBurette = 126 * (1 - pourcentageBurette * 0.7);
       buretteLiq.setAttribute('height', hauteurBurette.toFixed(1));
     }
     
-    // Détection du virage (proche de Veq)
-    const procheVirage = Math.abs(v - veq) < 1.5 && v > 0;
     const dejaPasseVirage = v >= veq - 0.5 && v <= veq + 0.5;
     
-    // Halo de virage
     const halo = document.getElementById('anim-halo');
     if (halo && dejaPasseVirage) {
       halo.style.display = 'block';
@@ -1309,7 +1480,6 @@
       setTimeout(() => { halo.style.display = 'none'; }, 800);
     }
     
-    // Pulse du bécher au moment du virage
     const beakerGroup = document.getElementById('svg-anim');
     if (beakerGroup && dejaPasseVirage) {
       beakerGroup.classList.remove('pulse-beaker');
@@ -1317,7 +1487,6 @@
       beakerGroup.classList.add('pulse-beaker');
     }
     
-    // Message avec fade
     const msgDiv = document.getElementById('anim-message');
     let msg = '';
     if (v < veq * 0.5) msg = '🟡 Avant l\'équivalence : couleur initiale.';
@@ -1357,10 +1526,9 @@
         }
     }
     
+    const indicObj = INDICATEURS.find(i => i.id === p.indicateur);
     let zoneVirage = null;
-    if (p.indicateur === 'helianthine') zoneVirage = [3.1, 4.4];
-    else if (p.indicateur === 'bbt') zoneVirage = [6.0, 7.6];
-    else if (p.indicateur === 'phenolphtaleine') zoneVirage = [8.2, 10.0];
+    if (indicObj) zoneVirage = [indicObj.zoneMin, indicObj.zoneMax];
     
     const datasets = [{
       label: 'pH', data: points, borderColor: '#A8853F',
