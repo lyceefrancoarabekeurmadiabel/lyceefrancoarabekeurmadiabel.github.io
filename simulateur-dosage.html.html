@@ -552,6 +552,15 @@
       genererTP();
     }
     resetSimulation();
+    
+    // Forcer l'affichage du bon mode de tableau
+    if (tableMode === 'auto') {
+      document.getElementById('auto-controls').style.display = 'block';
+      document.getElementById('add-row-zone').style.display = 'none';
+    } else {
+      document.getElementById('auto-controls').style.display = 'none';
+      document.getElementById('add-row-zone').style.display = 'block';
+    }
   }
 
   document.querySelectorAll('.mode-btn').forEach(btn => btn.addEventListener('click', () => activerMode(btn.dataset.mode)));
@@ -561,6 +570,9 @@
       document.querySelectorAll('.table-mode-btn').forEach(b => b.classList.toggle('active', b === btn));
       document.getElementById('auto-controls').style.display = tableMode === 'auto' ? 'block' : 'none';
       document.getElementById('add-row-zone').style.display = tableMode === 'manuel' ? 'block' : 'none';
+      if (tableMode === 'manuel' && started && document.querySelectorAll('#table-body tr').length === 0) {
+          ajouterLigneTableau('', '');
+      }
     });
   });
 
@@ -672,28 +684,55 @@
   }
 
   document.getElementById('btn-demarrer').onclick = () => {
-    started = true; mesures = [];
+    started = true; 
+    mesures = [];
     if (chart) { chart.destroy(); chart = null; }
     document.getElementById('result-box').style.display = 'none';
     document.getElementById('explication').classList.remove('show');
-    tangentesAffichees = false; zoneTamponAffichee = false;
-    renderTableau(); appliquerCouleurInitiale(); majDispositif();
-    document.getElementById('auto-controls').style.display = tableMode === 'auto' ? 'block' : 'none';
-    document.getElementById('add-row-zone').style.display = tableMode === 'manuel' ? 'block' : 'none';
+    tangentesAffichees = false; 
+    zoneTamponAffichee = false;
+    
+    renderTableau(); 
+    appliquerCouleurInitiale(); 
+    majDispositif();
+    
+    // Afficher les contrôles selon le mode choisi
+    if (tableMode === 'auto') {
+      document.getElementById('auto-controls').style.display = 'block';
+      document.getElementById('add-row-zone').style.display = 'none';
+    } else {
+      document.getElementById('auto-controls').style.display = 'none';
+      document.getElementById('add-row-zone').style.display = 'block';
+      // Ajouter une ligne vide automatiquement pour commencer la saisie manuelle
+      ajouterLigneTableau('', '');
+    }
+    
+    // Désactiver le bouton démarrer pour éviter les clics multiples
+    document.getElementById('btn-demarrer').disabled = true;
+    document.getElementById('btn-demarrer').style.opacity = '0.5';
   };
 
   document.getElementById('btn-reset').onclick = () => resetSimulation();
 
   function resetSimulation() {
-    started = false; mesures = [];
+    started = false; 
+    mesures = [];
     if (chart) { chart.destroy(); chart = null; }
     document.getElementById('result-box').style.display = 'none';
     document.getElementById('explication').classList.remove('show');
     document.getElementById('table-body').innerHTML = '';
-    tangentesAffichees = false; zoneTamponAffichee = false;
+    tangentesAffichees = false; 
+    zoneTamponAffichee = false;
     document.getElementById('svg-ph').textContent = '1.00';
     document.getElementById('svg-volume').textContent = '0.00';
     appliquerCouleurInitiale();
+    
+    // Réactiver le bouton démarrer
+    const btnDemarrer = document.getElementById('btn-demarrer');
+    if (btnDemarrer) {
+      btnDemarrer.disabled = false;
+      btnDemarrer.style.opacity = '1';
+    }
   }
 
   function ajouterVol(vol) {
@@ -956,11 +995,10 @@
 
   document.getElementById('btn-imprimer').onclick = () => window.print();
 
+  // Initialisation au chargement de la page
   document.getElementById('auto-controls').style.display = 'block';
   document.getElementById('add-row-zone').style.display = 'none';
   appliquerCouleurInitiale();
-
-})();
 </script>
 </body>
 </html>
