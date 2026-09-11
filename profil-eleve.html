@@ -136,9 +136,67 @@
   .summary-item .label { font-size: 10px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.3px; }
 
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
-
-  /* Ajustement pour les barres plus fines */
   .chart-box canvas { max-height: 260px; }
+
+  /* Onglets */
+  .onglet-btn {
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--slate);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -12px;
+    transition: all 0.2s;
+  }
+  .onglet-btn:hover { color: var(--ink); }
+  .onglet-btn.active {
+    color: var(--brass);
+    border-bottom-color: var(--brass);
+  }
+  .dosage-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--brass);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 12px;
+  }
+  .dosage-card h4 {
+    font-family: var(--serif);
+    color: var(--ink);
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  .dosage-card .meta {
+    font-size: 12px;
+    color: var(--slate);
+    margin-bottom: 8px;
+  }
+  .dosage-card .details {
+    font-size: 13px;
+    color: var(--ink);
+    background: #f7f5f0;
+    padding: 10px;
+    border-radius: 6px;
+    margin-top: 8px;
+  }
+  .dosage-card .note-prof {
+    display: inline-block;
+    background: var(--success);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-left: 8px;
+  }
+  .dosage-card .note-prof.attente {
+    background: var(--slate);
+  }
 </style>
 </head>
 <body>
@@ -179,107 +237,147 @@
 </header>
 
 <div class="wrap">
-  <div class="content-card">
-    <h1>📊 Profil de l'élève</h1>
+  <div style="margin-top: 30px; display: flex; gap: 10px; flex-wrap: wrap; border-bottom: 2px solid var(--line); padding-bottom: 10px;">
+    <button class="onglet-btn active" data-onglet="notes" onclick="window.changerOnglet('notes')">📊 Notes par matière</button>
+    <button class="onglet-btn" data-onglet="dosages" onclick="window.changerOnglet('dosages')">🧪 Dosages & Évaluations</button>
+  </div>
 
-    <div class="info-strip">
-      <div class="info-item">
-        <label>Nom & Prénom</label>
-        <span id="eleve-nom">Chargement...</span>
-      </div>
-      <div class="info-item">
-        <label>Classe</label>
-        <span id="eleve-classe">Chargement...</span>
-      </div>
-      <div class="info-item">
-        <label>Numéro INE</label>
-        <span id="eleve-ine">Chargement...</span>
-      </div>
-      <div class="info-item">
-        <label>Moyenne générale</label>
-        <span id="eleve-moyenne">Chargement...</span>
-      </div>
-    </div>
+  <!-- Onglet 1 : Notes -->
+  <div class="onglet-contenu" data-contenu="notes">
+    <div class="content-card">
+      <h1>📊 Profil de l'élève</h1>
 
-    <div class="note-summary" id="note-summary" style="display:none;">
-      <div class="summary-item">
-        <div class="value" id="nb-notes">0</div>
-        <div class="label">📝 Notes</div>
-      </div>
-      <div class="summary-item">
-        <div class="value" id="meilleure-note">-</div>
-        <div class="label">⭐ Meilleure</div>
-      </div>
-      <div class="summary-item">
-        <div class="value" id="plus-faible-note">-</div>
-        <div class="label">📉 Plus faible</div>
-      </div>
-      <div class="summary-item">
-        <div class="value" id="moyenne-classe">-</div>
-        <div class="label">📊 Moyenne</div>
-      </div>
-    </div>
-
-    <div class="filter-bar">
-      <label for="annee-filter">📅 Année scolaire :</label>
-      <select id="annee-filter" onchange="window.filtrerParAnnee()">
-        <option value="toutes">Toutes les années</option>
-      </select>
-    </div>
-
-    <div class="chart-row">
-      <div class="chart-box">
-        <h3>📊 Performance par matière <small>(barres horizontales)</small></h3>
-        <canvas id="bar-chart"></canvas>
-        <div id="bar-message" class="aucune-note" style="display:none;">Aucune donnée disponible</div>
-        <div class="legend-bar">
-          <span class="legend-item"><span class="legend-color" style="background:#2e7d32;"></span> Excellent (≥ 16/20)</span>
-          <span class="legend-item"><span class="legend-color" style="background:#f39c12;"></span> Moyen (10-16/20)</span>
-          <span class="legend-item"><span class="legend-color" style="background:#d9534f;"></span> À améliorer (&lt; 10/20)</span>
+      <div class="info-strip">
+        <div class="info-item">
+          <label>Nom & Prénom</label>
+          <span id="eleve-nom">Chargement...</span>
+        </div>
+        <div class="info-item">
+          <label>Classe</label>
+          <span id="eleve-classe">Chargement...</span>
+        </div>
+        <div class="info-item">
+          <label>Numéro INE</label>
+          <span id="eleve-ine">Chargement...</span>
+        </div>
+        <div class="info-item">
+          <label>Moyenne générale</label>
+          <span id="eleve-moyenne">Chargement...</span>
         </div>
       </div>
 
-      <div class="chart-box">
-        <h3>📈 Évolution des notes</h3>
-        <canvas id="line-chart"></canvas>
-        <div id="line-message" class="aucune-note" style="display:none;">Aucune donnée disponible</div>
+      <div class="note-summary" id="note-summary" style="display:none;">
+        <div class="summary-item">
+          <div class="value" id="nb-notes">0</div>
+          <div class="label">📝 Notes</div>
+        </div>
+        <div class="summary-item">
+          <div class="value" id="meilleure-note">-</div>
+          <div class="label">⭐ Meilleure</div>
+        </div>
+        <div class="summary-item">
+          <div class="value" id="plus-faible-note">-</div>
+          <div class="label">📉 Plus faible</div>
+        </div>
+        <div class="summary-item">
+          <div class="value" id="moyenne-classe">-</div>
+          <div class="label">📊 Moyenne</div>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <label for="annee-filter">📅 Année scolaire :</label>
+        <select id="annee-filter" onchange="window.filtrerParAnnee()">
+          <option value="toutes">Toutes les années</option>
+        </select>
+      </div>
+
+      <div class="chart-row">
+        <div class="chart-box">
+          <h3>📊 Performance par matière <small>(barres horizontales)</small></h3>
+          <canvas id="bar-chart"></canvas>
+          <div id="bar-message" class="aucune-note" style="display:none;">Aucune donnée disponible</div>
+          <div class="legend-bar">
+            <span class="legend-item"><span class="legend-color" style="background:#2e7d32;"></span> Excellent (≥ 16/20)</span>
+            <span class="legend-item"><span class="legend-color" style="background:#f39c12;"></span> Moyen (10-16/20)</span>
+            <span class="legend-item"><span class="legend-color" style="background:#d9534f;"></span> À améliorer (&lt; 10/20)</span>
+          </div>
+        </div>
+
+        <div class="chart-box">
+          <h3>📈 Évolution des notes</h3>
+          <canvas id="line-chart"></canvas>
+          <div id="line-message" class="aucune-note" style="display:none;">Aucune donnée disponible</div>
+        </div>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <h3 style="margin-bottom: 15px; color: var(--ink);">📋 Détail des notes par matière et par devoir</h3>
+        <table id="notes-table">
+          <thead>
+            <tr>
+              <th>Matière</th>
+              <th>Devoir</th>
+              <th>Date</th>
+              <th>Note</th>
+              <th>Barème</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody id="notes-body">
+            <tr><td colspan="6" class="loading-spinner">⏳ Chargement des notes...</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
+  </div>
 
-    <div style="overflow-x: auto;">
-      <h3 style="margin-bottom: 15px; color: var(--ink);">📋 Détail des notes par matière et par devoir</h3>
-      <table id="notes-table">
-        <thead>
-          <tr>
-            <th>Matière</th>
-            <th>Devoir</th>
-            <th>Date</th>
-            <th>Note</th>
-            <th>Barème</th>
-            <th>Statut</th>
-          </tr>
-        </thead>
-        <tbody id="notes-body">
-          <tr><td colspan="6" class="loading-spinner">⏳ Chargement des notes...</td></tr>
-        </tbody>
-      </table>
-    </div>
+  <!-- Onglet 2 : Dosages et Évaluations -->
+  <div class="onglet-contenu" data-contenu="dosages" style="display: none;">
+    <div class="content-card">
+      <h1>🧪 Dosages & Évaluations</h1>
 
-    <div id="admin-back-button" style="display:none;">
-      <a href="admin-gestion.html" class="btn-retour-admin">← Retour à la Gestion</a>
+      <div id="dosages-summary" class="note-summary" style="display: none;">
+        <div class="summary-item">
+          <div class="value" id="nb-dosages">0</div>
+          <div class="label">🧪 Dosages</div>
+        </div>
+        <div class="summary-item">
+          <div class="value" id="nb-evaluations">0</div>
+          <div class="label">📝 Évaluations</div>
+        </div>
+        <div class="summary-item">
+          <div class="value" id="moyenne-dosages">-</div>
+          <div class="label">📊 Moy. dosages</div>
+        </div>
+        <div class="summary-item">
+          <div class="value" id="moyenne-evaluations">-</div>
+          <div class="label">📊 Moy. évaluations</div>
+        </div>
+      </div>
+
+      <h3 style="font-family: var(--serif); color: var(--ink); margin-bottom: 15px;">🧪 Dosages sauvegardés</h3>
+      <div id="dosages-liste" class="loading-spinner">⏳ Chargement...</div>
+
+      <h3 style="font-family: var(--serif); color: var(--ink); margin: 30px 0 15px;">📝 Évaluations passées</h3>
+      <div id="evaluations-liste" class="loading-spinner">⏳ Chargement...</div>
     </div>
-    <div id="user-back-button" style="display:none;">
-      <a href="ressources.html" class="btn-retour-user">← Retour aux Ressources</a>
-    </div>
+  </div>
+
+  <div id="admin-back-button" style="display:none; margin-top: 20px;">
+    <a href="admin-gestion.html" class="btn-retour-admin">← Retour à la Gestion</a>
+  </div>
+  <div id="user-back-button" style="display:none; margin-top: 20px;">
+    <a href="ressources.html" class="btn-retour-user">← Retour aux Ressources</a>
   </div>
 </div>
 
 <footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, doc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, getDocs, collection, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
@@ -314,22 +412,22 @@
   onAuthStateChanged(auth, async (user) => {
     const link = document.getElementById('auth-link');
     const profileSpan = document.getElementById('user-profile');
-    
+
     if (user) {
       const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
       const profile = snap.data();
-      
+
       profileSpan.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
       profileSpan.style.display = 'flex';
-      
+
       link.textContent = "Déconnexion";
       link.onclick = () => signOut(auth).then(() => location.reload());
-      
+
       if (profile.role === 'admin' || profile.role === 'proviseur' || profile.role === 'censeur') {
         document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
       }
 
-      if (profile.role === 'admin' || profile.role === 'proviseur' || profile.role === 'censeur') {
+      if (profile.role === 'admin' || profile.role === 'proviseur' || profile.role === 'censeur' || profile.role === 'professeur') {
         document.getElementById('admin-back-button').style.display = 'block';
       } else {
         document.getElementById('user-back-button').style.display = 'block';
@@ -447,7 +545,7 @@
                     const mois = dateObj.getMonth();
                     const annee = dateObj.getFullYear();
                     const anneeScolaire = mois >= 8 ? `${annee}-${annee + 1}` : `${annee - 1}-${annee}`;
-                    
+
                     allNotesData.push({
                       matiere: matName || matiere,
                       titre: dv.titre || 'Devoir',
@@ -467,13 +565,13 @@
 
       const anneeFilter = document.getElementById('annee-filter');
       const annees = Array.from(new Set(allNotesData.map(n => n.anneeScolaire))).sort();
-      
+
       anneeFilter.innerHTML = '<option value="toutes">📅 Toutes les années</option>';
-      
+
       if (annees.length > 0) {
         const anneeExistante = annees.includes(anneeEnCours);
         const anneeParDefaut = anneeExistante ? anneeEnCours : annees[0];
-        
+
         annees.forEach(annee => {
           const option = document.createElement('option');
           option.value = annee;
@@ -520,10 +618,10 @@
       document.getElementById('bar-message').style.display = 'block';
       document.getElementById('line-chart').style.display = 'none';
       document.getElementById('line-message').style.display = 'block';
-      
+
       if (barChart) { barChart.destroy(); barChart = null; }
       if (lineChart) { lineChart.destroy(); lineChart = null; }
-      
+
       document.getElementById('notes-body').innerHTML = '<tr><td colspan="6" class="aucune-note">Aucune note pour cette année scolaire.</td></tr>';
       return;
     }
@@ -539,26 +637,24 @@
     let meilleure = 0;
     let plusFaible = 20;
     const moyennesParMatiere = {};
-    const toutesNotes = [];
-    
+
     notesFiltrees.forEach(n => {
       const noteSur20 = (n.note / n.bareme) * 20;
-      toutesNotes.push(noteSur20);
       sommeNotes += noteSur20;
       nbNotes++;
       meilleure = Math.max(meilleure, noteSur20);
       plusFaible = Math.min(plusFaible, noteSur20);
-      
+
       if (!moyennesParMatiere[n.matiere]) {
         moyennesParMatiere[n.matiere] = { sum: 0, count: 0 };
       }
       moyennesParMatiere[n.matiere].sum += noteSur20;
       moyennesParMatiere[n.matiere].count++;
     });
-    
+
     const moyenneGenerale = nbNotes > 0 ? sommeNotes / nbNotes : 0;
     document.getElementById('eleve-moyenne').textContent = moyenneGenerale.toFixed(1) + '/20';
-    
+
     document.getElementById('nb-notes').textContent = nbNotes;
     document.getElementById('meilleure-note').textContent = meilleure.toFixed(1) + '/20';
     document.getElementById('plus-faible-note').textContent = plusFaible.toFixed(1) + '/20';
@@ -569,11 +665,10 @@
     afficherTableauNotes(notesFiltrees);
   }
 
-  // 🔥 BARRES HORIZONTALES AVEC ÉPAISSEUR RÉDUITE (1/4)
   function genererBarChartHorizontal(moyennesParMatiere) {
     const canvas = document.getElementById('bar-chart');
     const ctx = canvas.getContext('2d');
-    
+
     if (barChart) { barChart.destroy(); barChart = null; }
 
     const sorted = Object.entries(moyennesParMatiere)
@@ -586,7 +681,6 @@
 
     const labels = sorted.map(d => d.matiere);
     const data = sorted.map(d => Math.round(d.moyenne * 10) / 10);
-    const counts = sorted.map(d => d.count);
 
     if (labels.length === 0) {
       document.getElementById('bar-chart').style.display = 'none';
@@ -610,7 +704,6 @@
           borderColor: colors.map(c => c),
           borderWidth: 1,
           borderRadius: 3,
-          // 🔥 ÉPAISSEUR RÉDUITE À 1/4 de la largeur normale
           barPercentage: 0.25,
           categoryPercentage: 0.6
         }]
@@ -632,18 +725,8 @@
           }
         },
         scales: {
-          x: {
-            min: 0,
-            max: 20,
-            ticks: { stepSize: 5 },
-            grid: { color: 'rgba(0,0,0,0.06)' }
-          },
-          y: {
-            grid: { display: false },
-            ticks: {
-              font: { size: 12, weight: '500' }
-            }
-          }
+          x: { min: 0, max: 20, ticks: { stepSize: 5 }, grid: { color: 'rgba(0,0,0,0.06)' } },
+          y: { grid: { display: false }, ticks: { font: { size: 12, weight: '500' } } }
         }
       }
     });
@@ -652,7 +735,7 @@
   function genererLineChart(notes) {
     const canvas = document.getElementById('line-chart');
     const ctx = canvas.getContext('2d');
-    
+
     if (lineChart) { lineChart.destroy(); lineChart = null; }
 
     if (notes.length === 0) {
@@ -662,7 +745,7 @@
     }
 
     const notesTriees = [...notes].sort((a, b) => a.dateObj - b.dateObj);
-    
+
     let notesAffichees = notesTriees;
     if (notesTriees.length > 20) {
       const step = Math.ceil(notesTriees.length / 20);
@@ -711,20 +794,8 @@
           }
         },
         scales: {
-          y: {
-            min: 0,
-            max: 20,
-            ticks: { stepSize: 5 }
-          },
-          x: {
-            ticks: {
-              maxRotation: 45,
-              minRotation: 0,
-              autoSkip: true,
-              maxTicksLimit: 15,
-              font: { size: 10 }
-            }
-          }
+          y: { min: 0, max: 20, ticks: { stepSize: 5 } },
+          x: { ticks: { maxRotation: 45, minRotation: 0, autoSkip: true, maxTicksLimit: 15, font: { size: 10 } } }
         }
       }
     });
@@ -757,6 +828,148 @@
         <td class="note-cell ${colorClass}">${statut}</td>
       </tr>`;
     });
+  }
+
+  // ============================================================
+  // ONGLETS
+  // ============================================================
+  window.changerOnglet = (nom) => {
+    document.querySelectorAll('.onglet-btn').forEach(b => b.classList.toggle('active', b.dataset.onglet === nom));
+    document.querySelectorAll('.onglet-contenu').forEach(c => {
+      c.style.display = c.dataset.contenu === nom ? 'block' : 'none';
+    });
+    if (nom === 'dosages' && eleveUid) chargerDosagesEtEvaluations(eleveUid);
+  };
+
+  // ============================================================
+  // DOSAGES ET ÉVALUATIONS
+  // ============================================================
+  async function chargerDosagesEtEvaluations(uid) {
+    await Promise.all([
+      chargerDosages(uid),
+      chargerEvaluations(uid)
+    ]);
+  }
+
+  async function chargerDosages(uid) {
+    const zone = document.getElementById('dosages-liste');
+    const summary = document.getElementById('dosages-summary');
+    zone.innerHTML = '⏳ Chargement des dosages...';
+
+    try {
+      const snap = await getDocs(query(
+        collection(db, 'utilisateurs', uid, 'dosages'),
+        orderBy('date', 'desc')
+      ));
+
+      if (snap.empty) {
+        zone.innerHTML = '<p style="color: var(--slate); text-align: center; padding: 20px;">Aucun dosage sauvegardé pour le moment.</p>';
+        document.getElementById('nb-dosages').textContent = '0';
+        document.getElementById('moyenne-dosages').textContent = '-';
+        summary.style.display = 'flex';
+        return;
+      }
+
+      let somme = 0;
+      let compte = 0;
+      let html = '';
+
+      snap.forEach(docSnap => {
+        const d = docSnap.data();
+        const dateStr = d.date?.toDate ? d.date.toDate().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+
+        let noteHtml = '';
+        if (d.note !== null && d.note !== undefined) {
+          noteHtml = `<span class="note-prof">📝 Note : ${d.note}/20</span>`;
+          somme += d.note;
+          compte++;
+        } else {
+          noteHtml = `<span class="note-prof attente">⏳ En attente de notation</span>`;
+        }
+
+        html += `
+          <div class="dosage-card">
+            <h4>${escapeHtml(d.nom || 'Dosage sans nom')} ${noteHtml}</h4>
+            <div class="meta">
+              📅 ${dateStr} — Mode : ${d.mode || '—'}
+            </div>
+            <div class="details">
+              <strong>${escapeHtml(d.substanceTitree?.nom || '—')}</strong> (${escapeHtml(d.substanceTitree?.formule || '—')}) 
+              titré par <strong>${escapeHtml(d.substanceTitrante?.nom || '—')}</strong><br>
+              CA = ${d.ca} mol/L, VA = ${d.va} mL — ${d.mesures?.length || 0} mesures<br>
+              Veq = ${d.veq?.toFixed(2) || '—'} mL — pH équivalence = ${d.pheq?.toFixed(2) || '—'}
+              ${d.commentaireProf ? `<br><br>💬 <em>Commentaire du prof :</em> "${escapeHtml(d.commentaireProf)}"` : ''}
+            </div>
+          </div>`;
+      });
+
+      zone.innerHTML = html;
+      document.getElementById('nb-dosages').textContent = snap.size;
+      document.getElementById('moyenne-dosages').textContent = compte > 0 ? (somme / compte).toFixed(1) + '/20' : '-';
+      summary.style.display = 'flex';
+
+    } catch (err) {
+      console.error(err);
+      zone.innerHTML = `<p style="color: var(--danger); text-align: center; padding: 20px;">Erreur de chargement : ${err.message}</p>`;
+    }
+  }
+
+  async function chargerEvaluations(uid) {
+    const zone = document.getElementById('evaluations-liste');
+    zone.innerHTML = '⏳ Chargement des évaluations...';
+
+    try {
+      const snap = await getDocs(query(
+        collection(db, 'utilisateurs', uid, 'evaluations'),
+        orderBy('date', 'desc')
+      ));
+
+      if (snap.empty) {
+        zone.innerHTML = '<p style="color: var(--slate); text-align: center; padding: 20px;">Aucune évaluation passée pour le moment.</p>';
+        document.getElementById('nb-evaluations').textContent = '0';
+        document.getElementById('moyenne-evaluations').textContent = '-';
+        return;
+      }
+
+      let somme = 0;
+      let compte = 0;
+      let html = '';
+
+      snap.forEach(docSnap => {
+        const d = docSnap.data();
+        const dateStr = d.date?.toDate ? d.date.toDate().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+
+        const couleurNote = d.note20 >= 16 ? 'var(--success)' : (d.note20 >= 10 ? 'var(--warning)' : 'var(--danger)');
+
+        html += `
+          <div class="dosage-card" style="border-left-color: ${couleurNote};">
+            <h4>
+              ${escapeHtml(d.nom || 'Évaluation')}
+              <span class="note-prof" style="background: ${couleurNote};">${d.note20}/20</span>
+            </h4>
+            <div class="meta">
+              📅 ${dateStr} — Type : ${d.type === 'evaluation' ? '📝 Évaluation' : '🎓 Entraînement'}
+              ${d.profNom && d.profNom !== 'Auto-entraînement' ? ' — Prof : ' + escapeHtml(d.profNom) : ''}
+            </div>
+            <div class="details">
+              Score : <strong>${d.score}/${d.nbQuestions}</strong> (${d.pourcentage}%)<br>
+              Difficulté : ${d.difficulte || 'moyen'} — Durée : ${d.duree} min
+              ${d.commentaireProf ? `<br><br>💬 <em>Commentaire du prof :</em> "${escapeHtml(d.commentaireProf)}"` : ''}
+            </div>
+          </div>`;
+
+        somme += d.note20;
+        compte++;
+      });
+
+      zone.innerHTML = html;
+      document.getElementById('nb-evaluations').textContent = snap.size;
+      document.getElementById('moyenne-evaluations').textContent = compte > 0 ? (somme / compte).toFixed(1) + '/20' : '-';
+
+    } catch (err) {
+      console.error(err);
+      zone.innerHTML = `<p style="color: var(--danger); text-align: center; padding: 20px;">Erreur de chargement : ${err.message}</p>`;
+    }
   }
 </script>
 </body>
