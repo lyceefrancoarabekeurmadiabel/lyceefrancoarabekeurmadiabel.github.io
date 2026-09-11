@@ -88,6 +88,7 @@
   .dispositif h4 { font-family: var(--serif); font-size: 14px; color: var(--ink); margin-bottom: 10px; }
   @keyframes drop { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(30px); opacity: 0; } }
   .droplet { animation: drop 0.6s ease-in forwards; transform-origin: center; }
+  #beaker-liquid { transition: fill 0.5s ease-in-out; }
   .table-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
   .table-mode { display: flex; gap: 4px; background: #f0f0f0; padding: 4px; border-radius: 6px; }
   .table-mode-btn { padding: 6px 12px; border: none; background: transparent; border-radius: 4px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--sans); color: var(--slate); }
@@ -98,6 +99,7 @@
   table input { width: 100%; padding: 6px 8px; border: 1px solid var(--line); border-radius: 4px; font-family: var(--sans); font-size: 13px; }
   table button { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 14px; padding: 2px 6px; }
   #chart-container { position: relative; height: 420px; margin-top: 10px; }
+  .animation-box { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; text-align: center; }
   .result-box { background: linear-gradient(135deg, #f0f7ff 0%, #e8f5e9 100%); border: 1px solid var(--line); border-left: 4px solid var(--success); border-radius: 8px; padding: 15px; margin-top: 15px; }
   .result-box h4 { font-family: var(--serif); font-size: 15px; color: var(--ink); margin-bottom: 8px; }
   .result-row { font-size: 14px; margin: 6px 0; }
@@ -107,6 +109,8 @@
   .info-panel .ligne:last-child { border-bottom: none; }
   .info-panel .ligne strong { color: var(--ink); }
   .info-panel .relation { text-align: center; font-style: italic; color: var(--slate); margin-top: 6px; font-size: 12px; }
+  .indicateur-suggestion { background: #fffbea; border-left: 4px solid var(--warning); padding: 8px 12px; border-radius: 6px; margin-top: 8px; font-size: 12px; color: #7a5500; }
+  .indicateur-avertissement { background: #fff3cd; border-left: 4px solid var(--danger); padding: 8px 12px; border-radius: 6px; margin-top: 8px; font-size: 12px; color: #856404; }
   .tp-panel { background: linear-gradient(135deg, #fff8e1 0%, #fff3cd 100%); border: 2px solid var(--warning); border-radius: 10px; padding: 20px; margin-top: 20px; }
   .tp-panel h3 { color: #7a5500; border-bottom-color: var(--warning); }
   .feedback { padding: 12px; border-radius: 6px; margin-top: 12px; font-weight: 600; font-size: 14px; }
@@ -118,8 +122,6 @@
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
   .hidden { display: none !important; }
   .badge-info { display: inline-block; background: var(--brass); color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-left: 6px; }
-  .badge-force { display: inline-block; background: var(--danger); color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-left: 6px; }
-  .badge-faible { display: inline-block; background: var(--success); color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-left: 6px; }
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
   .modal-overlay.show { display: flex; }
   .modal-box { background: #fff; border-radius: 10px; padding: 25px; max-width: 500px; width: 100%; }
@@ -234,15 +236,16 @@
           <option value="bbt" selected>Bleu de bromothymol (6,0-7,6)</option>
           <option value="phenolphtaleine">Phénolphtaléine (8,2-10,0)</option>
         </select>
+        <div id="indicateur-suggestion"></div>
       </div>
     </div>
     <div class="info-panel" id="info-panel">
       <div class="ligne"><span>Famille :</span> <strong id="info-famille">-</strong></div>
       <div class="ligne"><span>Force :</span> <strong id="info-force">-</strong></div>
-      <div class="ligne"><span>Basicíté :</span> <strong id="info-basicite">-</strong></div>
-      <div class="ligne"><span>pKa :</span> <strong id="info-pka">-</strong></div>
-      <div class="ligne"><span>pKb :</span> <strong id="info-pkb">-</strong></div>
-      <div class="relation">📚 Relation fondamentale : pKa + pKb = 14 (à 25°C)</div>
+      <div class="ligne"><span>Acidité :</span> <strong id="info-basicite">-</strong></div>
+      <div class="ligne" id="ligne-pka"><span>pKa :</span> <strong id="info-pka">-</strong></div>
+      <div class="ligne" id="ligne-pkb"><span>pKb :</span> <strong id="info-pkb">-</strong></div>
+      <div class="relation" id="info-relation">📚 Relation fondamentale : pKa + pKb = 14 (à 25°C)</div>
     </div>
     <button class="btn-primary" id="btn-demarrer">▶ Démarrer le dosage</button>
     <button class="btn-secondary" id="btn-reset">🔄 Réinitialiser</button>
@@ -331,9 +334,40 @@
   </div>
 
   <div class="card">
-    <h3>📊 Courbe pH = f(V)</h3>
+    <h3 id="titre-visualisation">📊 Courbe pH = f(V)</h3>
     <div id="chart-container"><canvas id="chart"></canvas></div>
-    <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+    <div id="animation-colorimetrique" class="animation-box hidden">
+      <div style="font-size: 15px; color: var(--ink); margin-bottom: 12px;">
+        🎨 <strong>Animation du dosage colorimétrique</strong>
+      </div>
+      <svg viewBox="0 0 300 260" style="max-width: 280px; height: auto;">
+        <!-- Support -->
+        <line x1="250" y1="30" x2="250" y2="230" stroke="#555" stroke-width="5"/>
+        <line x1="20" y1="230" x2="280" y2="230" stroke="#555" stroke-width="5"/>
+        <!-- Burette -->
+        <rect x="130" y="20" width="22" height="140" fill="rgba(255,255,255,0.5)" stroke="#333" stroke-width="1.5" rx="2"/>
+        <rect x="132" y="22" width="18" height="136" fill="rgba(52, 152, 219, 0.4)"/>
+        <line x1="130" y1="40" x2="138" y2="40" stroke="#333" stroke-width="1"/>
+        <line x1="130" y1="70" x2="138" y2="70" stroke="#333" stroke-width="1"/>
+        <line x1="130" y1="100" x2="138" y2="100" stroke="#333" stroke-width="1"/>
+        <line x1="130" y1="130" x2="138" y2="130" stroke="#333" stroke-width="1"/>
+        <rect x="136" y="160" width="10" height="15" fill="#999" stroke="#333"/>
+        <line x1="141" y1="175" x2="141" y2="185" stroke="#333" stroke-width="2"/>
+        <!-- Goutte -->
+        <ellipse cx="141" cy="200" rx="3" ry="5" fill="#2ecc71" id="anim-drop" style="display:none;"/>
+        <!-- Bécher -->
+        <rect x="85" y="195" width="112" height="35" fill="rgba(255,255,255,0.4)" stroke="#333" stroke-width="2" rx="2"/>
+        <rect x="87" y="200" width="108" height="28" fill="rgba(241, 196, 15, 0.6)" id="anim-liquid"/>
+        <!-- Texte V et pH -->
+        <text x="141" y="252" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">
+          V = <tspan id="anim-volume">0.00</tspan> mL  |  pH = <tspan id="anim-ph">-</tspan>
+        </text>
+      </svg>
+      <div id="anim-message" style="margin-top: 12px; font-size: 13px; color: var(--slate); font-style: italic;">
+        Ajoutez du titrant pour voir la couleur évoluer.
+      </div>
+    </div>
+    <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;" id="zone-boutons-courbe">
       <button class="btn-secondary" id="btn-tangentes-auto">🔍 Méthode des tangentes (auto)</button>
       <button class="btn-secondary" id="btn-tangentes-manuel">✏️ Construire manuellement</button>
       <button class="btn-secondary" id="btn-zone-tampon">🟩 Zone tampon</button>
@@ -341,9 +375,12 @@
     <div class="result-box" id="result-box" style="display: none;">
       <h4>📐 Résultats du dosage</h4>
       <div class="result-row">🎯 <strong>Volume équivalent :</strong> <span id="result-veq">-</span></div>
-      <div class="result-row">🔵 <strong>Demi-équivalence :</strong> <span id="result-vdemi">-</span></div>
-      <div class="result-row">📊 <strong>pH à l'équivalence :</strong> <span id="result-pheq">-</span></div>
-      <div class="result-row">💧 <strong>pH à la demi-équivalence :</strong> <span id="result-phdemi">-</span></div>
+      <div class="result-row" id="ligne-vdemi"><span>🔵</span> <strong>Demi-équivalence :</strong> <span id="result-vdemi">-</span></div>
+      <div class="result-row" id="ligne-pheq"><span>📊</span> <strong>pH à l'équivalence :</strong> <span id="result-pheq">-</span></div>
+      <div class="result-row" id="ligne-phdemi"><span>💧</span> <strong>pH à la demi-équivalence :</strong> <span id="result-phdemi">-</span></div>
+      <div class="result-row" id="ligne-relation-equivalence" style="display:none;">
+        <span>📚</span> <strong>Relation à l'équivalence :</strong> <span id="result-relation">n × CA × VA = m × CB × Veq</span>
+      </div>
     </div>
     <button class="btn-secondary" id="btn-explication" style="margin-top: 12px;">💡 Voir l'explication</button>
     <div class="explication" id="explication"></div>
@@ -427,7 +464,7 @@
   const escapeHtml = (s) => { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; };
 
   // ============================================================
-  // BASE DE DONNÉES DES SUBSTANCES (pKa uniquement, pKb calculé)
+  // BASE DE DONNÉES DES SUBSTANCES
   // ============================================================
   const SUBSTANCES = [
     // ===== MONOACIDES FORTS =====
@@ -444,10 +481,10 @@
     { id: 'ac_propanoique', nom: 'Acide propanoïque', formule: 'C₂H₅COOH', famille: 'acide', force: 'faible', n: 1, pka: 4.87 },
     { id: 'nh4', nom: 'Ion ammonium', formule: 'NH₄⁺', famille: 'acide', force: 'faible', n: 1, pka: 9.25 },
     
-    // ===== DIACIDES FORTS (pour usage futur) =====
+    // ===== DIACIDES FORTS =====
     { id: 'h2so4', nom: 'Acide sulfurique', formule: 'H₂SO₄', famille: 'acide', force: 'fort', n: 2 },
     
-    // ===== DIACIDES FAIBLES (pour usage futur) =====
+    // ===== DIACIDES FAIBLES (pour étape ultérieure) =====
     { id: 'ac_oxalique', nom: 'Acide oxalique', formule: 'H₂C₂O₄', famille: 'acide', force: 'faible', n: 2, pka1: 1.25, pka2: 4.28 },
     { id: 'ac_carbonique', nom: 'Acide carbonique', formule: 'H₂CO₃', famille: 'acide', force: 'faible', n: 2, pka1: 6.35, pka2: 10.33 },
     { id: 'ac_malonique', nom: 'Acide malonique', formule: 'HOOC-CH₂-COOH', famille: 'acide', force: 'faible', n: 2, pka1: 2.83, pka2: 5.69 },
@@ -457,10 +494,15 @@
     { id: 'koh', nom: 'Hydroxyde de potassium', formule: 'KOH', famille: 'base', force: 'fort', n: 1 },
     { id: 'lioh', nom: 'Hydroxyde de lithium', formule: 'LiOH', famille: 'base', force: 'fort', n: 1 },
     
+    // ===== DIBASES FORTES =====
+    { id: 'caoh2', nom: 'Hydroxyde de calcium', formule: 'Ca(OH)₂', famille: 'base', force: 'fort', n: 2 },
+    { id: 'baoh2', nom: 'Hydroxyde de baryum', formule: 'Ba(OH)₂', famille: 'base', force: 'fort', n: 2 },
+    { id: 'sroh2', nom: 'Hydroxyde de strontium', formule: 'Sr(OH)₂', famille: 'base', force: 'fort', n: 2 },
+    
     // ===== BASES FAIBLES : AMMONIAC =====
     { id: 'nh3', nom: 'Ammoniac', formule: 'NH₃', famille: 'base', force: 'faible', n: 1, pka: 9.25 },
     
-    // ===== BASES FAIBLES : AMINES PRIMAIRES (jusqu'à C4) =====
+    // ===== BASES FAIBLES : AMINES PRIMAIRES =====
     { id: 'methylamine', nom: 'Méthylamine', formule: 'CH₃NH₂', famille: 'base', force: 'faible', n: 1, pka: 10.62 },
     { id: 'ethylamine', nom: 'Éthylamine', formule: 'C₂H₅NH₂', famille: 'base', force: 'faible', n: 1, pka: 10.63 },
     { id: 'propylamine', nom: 'Propylamine', formule: 'C₃H₇NH₂', famille: 'base', force: 'faible', n: 1, pka: 10.55 },
@@ -479,7 +521,6 @@
     { id: 'aniline', nom: 'Aniline', formule: 'C₆H₅NH₂', famille: 'base', force: 'faible', n: 1, pka: 4.60 }
   ];
 
-  // Substances pouvant être tirées en mode "Inconnue" (uniquement faibles)
   const SUBSTANCES_INCONNUES = SUBSTANCES.filter(s => s.force === 'faible');
 
   let modeActuel = 'standard';
@@ -492,9 +533,10 @@
   let zoneTamponAffichee = false;
   let comparaisonActive = false;
   let tpActif = false;
-  let tpVerite = null;          // substance inconnue tirée
-  let substanceTitreeActuelle = null;  // substance sélectionnée (ou tirée)
+  let tpVerite = null;
+  let substanceTitreeActuelle = null;
   let substanceTitranteActuelle = null;
+  let animationInterval = null;
 
   onAuthStateChanged(auth, async (user) => {
     const link = document.getElementById('auth-link');
@@ -566,18 +608,31 @@
   }
 
   // ============================================================
-  // CONSTRUCTION DES MENUS DÉROULANTS DE SUBSTANCES
+  // FILTRAGE DES SUBSTANCES SELON LA MÉTHODE
   // ============================================================
+  function substancesAutorisees(methode) {
+    if (methode === 'phmetrique') {
+      // En pH-métrique : uniquement n=1 (pas de diacide/dibase forte)
+      return SUBSTANCES.filter(s => s.n === 1);
+    }
+    // En colorimétrique : toutes
+    return SUBSTANCES;
+  }
+
   function construireMenuTitree() {
     const sel = document.getElementById('substance-titree');
+    const methode = document.getElementById('methode').value;
+    const listeAutorisee = substancesAutorisees(methode);
+    
+    // Sauvegarder la sélection actuelle si possible
+    const valeurActuelle = sel.value;
     sel.innerHTML = '';
     
-    // Groupes par famille et force
     const groupes = {
-      'Acides forts': SUBSTANCES.filter(s => s.famille === 'acide' && s.force === 'fort'),
-      'Acides faibles': SUBSTANCES.filter(s => s.famille === 'acide' && s.force === 'faible'),
-      'Bases fortes': SUBSTANCES.filter(s => s.famille === 'base' && s.force === 'fort'),
-      'Bases faibles (amines incluses)': SUBSTANCES.filter(s => s.famille === 'base' && s.force === 'faible')
+      'Acides forts': listeAutorisee.filter(s => s.famille === 'acide' && s.force === 'fort'),
+      'Acides faibles': listeAutorisee.filter(s => s.famille === 'acide' && s.force === 'faible'),
+      'Bases fortes': listeAutorisee.filter(s => s.famille === 'base' && s.force === 'fort'),
+      'Bases faibles (amines incluses)': listeAutorisee.filter(s => s.famille === 'base' && s.force === 'faible')
     };
     
     Object.entries(groupes).forEach(([label, liste]) => {
@@ -593,7 +648,6 @@
       sel.appendChild(optgroup);
     });
     
-    // Option "Substance inconnue" uniquement en mode TP ou Expert
     if (modeActuel === 'tp' || modeActuel === 'expert') {
       const optInconnue = document.createElement('option');
       optInconnue.value = '__inconnue__';
@@ -603,17 +657,26 @@
       sel.appendChild(optInconnue);
     }
     
-    sel.value = 'hcl';
+    // Restaurer la sélection si possible, sinon HCl
+    if ([...sel.options].some(o => o.value === valeurActuelle)) {
+      sel.value = valeurActuelle;
+    } else {
+      sel.value = 'hcl';
+    }
     sel.onchange = onSubstanceTitreeChange;
   }
 
-  function construireMenuTitrante(familleTitree) {
+  function construireMenuTitrante(familleTitree, nTitree) {
     const sel = document.getElementById('substance-titrante');
     sel.innerHTML = '';
     
-    // Si titré = acide, le titrant doit être une base (et inversement)
     const familleTitrante = familleTitree === 'acide' ? 'base' : 'acide';
-    const liste = SUBSTANCES.filter(s => s.famille === familleTitrante);
+    let liste = SUBSTANCES.filter(s => s.famille === familleTitrante);
+    
+    // Contrainte : si titré diacide fort (n=2), pas de dibase forte (n=2) en titrant
+    if (nTitree === 2 && substanceTitreeActuelle && substanceTitreeActuelle.force === 'fort') {
+      liste = liste.filter(s => s.n === 1);
+    }
     
     const forts = liste.filter(s => s.force === 'fort');
     const faibles = liste.filter(s => s.force === 'faible');
@@ -642,7 +705,6 @@
       sel.appendChild(optgroup);
     }
     
-    // Sélection par défaut : NaOH si titrant base, HCl si titrant acide
     if (familleTitrante === 'base') sel.value = 'naoh';
     else sel.value = 'hcl';
     
@@ -653,7 +715,6 @@
     const val = document.getElementById('substance-titree').value;
     
     if (val === '__inconnue__') {
-      // Tirer une substance faible au hasard (acide OU base)
       const tiree = SUBSTANCES_INCONNUES[Math.floor(Math.random() * SUBSTANCES_INCONNUES.length)];
       substanceTitreeActuelle = { ...tiree, nom: 'Substance inconnue', formule: tiree.famille === 'acide' ? 'AH' : 'B' };
       tpVerite = tiree;
@@ -666,13 +727,11 @@
       document.getElementById('tp-panel').classList.add('hidden');
     }
     
-    // Reconstruire le menu titrant en fonction de la famille du titré
-    construireMenuTitrante(substanceTitreeActuelle.famille);
+    construireMenuTitrante(substanceTitreeActuelle.famille, substanceTitreeActuelle.n);
     onSubstanceTitranteChange();
-    
-    // Mettre à jour les infos et le pKa
     majInfoSubstance();
     majPkaDepuisSubstance();
+    majSuggestionIndicateur();
     resetSimulation();
   }
 
@@ -681,6 +740,7 @@
     substanceTitranteActuelle = SUBSTANCES.find(s => s.id === val);
     document.getElementById('dispositif-info').textContent = `Solution titrante : ${substanceTitranteActuelle.nom}`;
     document.getElementById('svg-beaker-label').textContent = substanceTitreeActuelle ? `Bécher : ${substanceTitreeActuelle.formule}` : 'Bécher';
+    majSuggestionIndicateur();
     resetSimulation();
   }
 
@@ -700,17 +760,35 @@
     else if (s.n === 3) basiciteLabel = s.famille === 'acide' ? 'Triacide' : 'Tribase';
     document.getElementById('info-basicite').textContent = basiciteLabel;
     
-    if (estInconnue) {
-      document.getElementById('info-pka').textContent = '❓ À déterminer';
-      document.getElementById('info-pkb').textContent = '❓ À déterminer';
-    } else if (s.force === 'fort') {
-      document.getElementById('info-pka').textContent = '— (fort)';
-      document.getElementById('info-pkb').textContent = '— (fort)';
+    const lignePka = document.getElementById('ligne-pka');
+    const lignePkb = document.getElementById('ligne-pkb');
+    const relation = document.getElementById('info-relation');
+    
+    // Cas : espèce forte (pas de pKa/pKb à afficher individuellement)
+    if (s.force === 'fort' || estInconnue) {
+      lignePka.style.display = 'none';
+      lignePkb.style.display = 'none';
     } else {
+      lignePka.style.display = 'flex';
+      lignePkb.style.display = 'flex';
       const pka = s.pka;
       const pkb = (14 - pka).toFixed(2);
-      document.getElementById('info-pka').textContent = pka.toFixed(2);
-      document.getElementById('info-pkb').textContent = pkb;
+      if (estInconnue) {
+        document.getElementById('info-pka').textContent = '❓ À déterminer';
+        document.getElementById('info-pkb').textContent = '❓ À déterminer';
+      } else {
+        document.getElementById('info-pka').textContent = pka.toFixed(2);
+        document.getElementById('info-pkb').textContent = pkb;
+      }
+    }
+    
+    // Relation adaptée
+    if (s.n === 2 && s.force === 'fort') {
+      relation.textContent = `📚 Relation à l'équivalence : n × CA × VA = m × CB × Veq`;
+    } else if (s.force === 'fort') {
+      relation.textContent = '📚 Espèce forte : dissociation totale';
+    } else {
+      relation.textContent = '📚 Relation fondamentale : pKa + pKb = 14 (à 25°C)';
     }
   }
 
@@ -722,6 +800,56 @@
       inputPka.value = s.pka;
     }
   }
+
+  // ============================================================
+  // SUGGESTION D'INDICATEUR COLORÉ (Option B)
+  // ============================================================
+  function majSuggestionIndicateur() {
+    const div = document.getElementById('indicateur-suggestion');
+    if (!substanceTitreeActuelle || !substanceTitranteActuelle) { div.innerHTML = ''; return; }
+    
+    const sT = substanceTitreeActuelle;
+    const sTr = substanceTitranteActuelle;
+    
+    // Déterminer l'indicateur recommandé selon le type de dosage
+    let recommande = null;
+    let raison = '';
+    
+    if (sT.force === 'fort' && sTr.force === 'fort') {
+      recommande = 'bbt';
+      raison = 'Virage à pH ≈ 7 (acide fort + base forte)';
+    } else if (sT.force === 'faible' && sT.famille === 'acide' && sTr.force === 'fort') {
+      recommande = 'phenolphtaleine';
+      raison = 'Virage à pH > 7 (acide faible + base forte)';
+    } else if (sT.force === 'fort' && sT.famille === 'acide' && sTr.force === 'faible') {
+      recommande = 'helianthine';
+      raison = 'Virage à pH < 7 (acide fort + base faible)';
+    } else if (sT.force === 'faible' && sT.famille === 'base' && sTr.force === 'fort') {
+      recommande = 'helianthine';
+      raison = 'Virage à pH < 7 (base faible + acide fort)';
+    } else if (sT.force === 'fort' && sT.famille === 'base' && sTr.force === 'faible') {
+      recommande = 'phenolphtaleine';
+      raison = 'Virage à pH > 7 (base forte + acide faible)';
+    }
+    
+    // Vérifier si l'indicateur actuel est adapté
+    const indActuel = document.getElementById('indicateur').value;
+    const noms = { 'helianthine': 'Hélianthine', 'bbt': 'Bleu de bromothymol', 'phenolphtaleine': 'Phénolphtaléine', 'aucun': 'Aucun' };
+    
+    if (recommande) {
+      if (indActuel === recommande) {
+        div.innerHTML = `<div class="indicateur-suggestion">💡 <strong>Indicateur recommandé :</strong> ${noms[recommande]} — ${raison}. ✅ Vous avez choisi le bon.</div>`;
+      } else if (indActuel === 'aucun') {
+        div.innerHTML = `<div class="indicateur-suggestion">💡 <strong>Indicateur recommandé :</strong> ${noms[recommande]} — ${raison}</div>`;
+      } else {
+        div.innerHTML = `<div class="indicateur-avertissement">⚠️ L'indicateur choisi (${noms[indActuel]}) n'est pas optimal. <strong>Suggestion :</strong> ${noms[recommande]} — ${raison}</div>`;
+      }
+    } else {
+      div.innerHTML = '';
+    }
+  }
+
+  document.getElementById('indicateur').addEventListener('change', majSuggestionIndicateur);
 
   // ============================================================
   // GESTION DES MODES
@@ -737,7 +865,6 @@
     tpActif = false;
     
     if (mode === 'initiation') {
-      // Restreint : acide fort + base forte uniquement
       document.getElementById('methode').value = 'colorimetrique';
       document.getElementById('indicateur').value = 'bbt';
     } else if (mode === 'standard') {
@@ -751,14 +878,13 @@
       document.getElementById('methode').value = 'phmetrique';
     }
     
-    // Reconstruire les menus en fonction du mode
     construireMenuTitree();
-    // Sélectionner la 1ère substance par défaut et déclencher l'événement
     const sel = document.getElementById('substance-titree');
     if (mode === 'tp') {
       sel.value = '__inconnue__';
     }
     onSubstanceTitreeChange();
+    majAffichageSelonMethode();
   }
 
   document.querySelectorAll('.mode-btn').forEach(btn => btn.addEventListener('click', () => activerMode(btn.dataset.mode)));
@@ -773,6 +899,33 @@
       }
     });
   });
+
+  // Changement de méthode de dosage
+  document.getElementById('methode').addEventListener('change', () => {
+    majAffichageSelonMethode();
+    construireMenuTitree();  // Re-filtrer les substances selon la méthode
+    onSubstanceTitreeChange();
+  });
+
+  function majAffichageSelonMethode() {
+    const methode = document.getElementById('methode').value;
+    const chartContainer = document.getElementById('chart-container');
+    const animationBox = document.getElementById('animation-colorimetrique');
+    const titreViz = document.getElementById('titre-visualisation');
+    const zoneBoutons = document.getElementById('zone-boutons-courbe');
+    
+    if (methode === 'colorimetrique') {
+      chartContainer.classList.add('hidden');
+      animationBox.classList.remove('hidden');
+      titreViz.textContent = '🎨 Animation du dosage colorimétrique';
+      zoneBoutons.classList.add('hidden');
+    } else {
+      chartContainer.classList.remove('hidden');
+      animationBox.classList.add('hidden');
+      titreViz.textContent = '📊 Courbe pH = f(V)';
+      zoneBoutons.classList.remove('hidden');
+    }
+  }
 
   document.getElementById('btn-add-row').onclick = () => ajouterLigneTableau('', '');
   document.getElementById('btn-vider').onclick = () => {
@@ -818,30 +971,51 @@
   // LECTURE DES PARAMÈTRES ET CALCUL DU pH
   // ============================================================
   function lireParametres() {
-    const sTitree = substanceTitreeActuelle;
-    const sTitrante = substanceTitranteActuelle;
-    
-    // On lit le pKa depuis l'input (permet la modification en mode Expert)
-    const pkaInput = parseFloat(document.getElementById('pka').value);
-    
     return {
-      substanceTitree: sTitree,
-      substanceTitrante: sTitrante,
+      substanceTitree: substanceTitreeActuelle,
+      substanceTitrante: substanceTitranteActuelle,
       va: parseFloat(document.getElementById('va').value) || 20,
       ca: parseFloat(document.getElementById('ca').value) || 0.1,
       cb: parseFloat(document.getElementById('cb').value) || 0.1,
-      pka: pkaInput,
+      pka: parseFloat(document.getElementById('pka').value),
       indicateur: document.getElementById('indicateur').value,
       methode: document.getElementById('methode').value
     };
   }
 
   function calculerPH(vBase, p) {
-    const sTitree = p.substanceTitree;
-    const sTitrante = p.substanceTitrante;
+    const sT = p.substanceTitree;
+    const sTr = p.substanceTitrante;
     
-    // Cas 1 : Acide fort titré par base forte (classique)
-    if (sTitree.famille === 'acide' && sTitree.force === 'fort' && sTitrante.famille === 'base' && sTitrante.force === 'fort') {
+    // Cas particulier : diacide fort titré par dibase forte (ou inversement)
+    // mais seulement si les deux sont forts ET n=2 → on traite comme une réaction globale
+    if (sT.force === 'fort' && sTr.force === 'fort') {
+      // Nombre d'équivalents acides et basiques
+      const nA = sT.n * p.va * p.ca / 1000;  // n × CA × VA
+      const nB = sTr.n * vBase * p.cb / 1000; // m × CB × V
+      const vT = (p.va + vBase) / 1000;
+      const veq = (sT.n * p.va * p.ca) / (sTr.n * p.cb);
+      const nEq = sT.n;
+      
+      if (vBase < veq - 0.001) {
+        // Excès d'acide (ou de base) selon la famille
+        if (sT.famille === 'acide') {
+          return -Math.log10(Math.max((nA - nB) / vT, 1e-14));
+        } else {
+          return 14 + Math.log10(Math.max((nA - nB) / vT, 1e-14));
+        }
+      }
+      if (Math.abs(vBase - veq) < 0.05) return 7.0;
+      // Après équivalence
+      if (sT.famille === 'acide') {
+        return 14 + Math.log10(Math.max((nB - nA) / vT, 1e-14));
+      } else {
+        return -Math.log10(Math.max((nB - nA) / vT, 1e-14));
+      }
+    }
+    
+    // Cas 1 : Acide fort (n=1) titré par base forte (n=1)
+    if (sT.famille === 'acide' && sT.force === 'fort' && sTr.famille === 'base' && sTr.force === 'fort') {
       const nA = p.va * p.ca / 1000;
       const nB = vBase * p.cb / 1000;
       const vT = (p.va + vBase) / 1000;
@@ -852,7 +1026,7 @@
     }
     
     // Cas 2 : Acide faible titré par base forte
-    if (sTitree.famille === 'acide' && sTitree.force === 'faible' && sTitrante.famille === 'base' && sTitrante.force === 'fort') {
+    if (sT.famille === 'acide' && sT.force === 'faible' && sTr.famille === 'base' && sTr.force === 'fort') {
       const nA = p.va * p.ca / 1000;
       const nB = vBase * p.cb / 1000;
       const vT = (p.va + vBase) / 1000;
@@ -870,13 +1044,13 @@
       return 14 + Math.log10(Math.max((nB - nA) / vT, 1e-14));
     }
     
-    // Cas 3 : Acide fort titré par base faible (rare, approximatif)
-    if (sTitree.famille === 'acide' && sTitree.force === 'fort' && sTitrante.famille === 'base' && sTitrante.force === 'faible') {
+    // Cas 3 : Acide fort titré par base faible
+    if (sT.famille === 'acide' && sT.force === 'fort' && sTr.famille === 'base' && sTr.force === 'faible') {
       const nA = p.va * p.ca / 1000;
       const nB = vBase * p.cb / 1000;
       const vT = (p.va + vBase) / 1000;
       const veq = (p.va * p.ca) / p.cb;
-      const pkaTitrante = sTitrante.pka; // pKa de l'acide conjugué de la base titrante
+      const pkaTitrante = sTr.pka;
       if (vBase < veq - 0.001) return -Math.log10(Math.max((nA - nB) / vT, 1e-14));
       if (Math.abs(vBase - veq) < 0.05) {
         const Ka = Math.pow(10, -pkaTitrante);
@@ -886,7 +1060,7 @@
     }
     
     // Cas 4 : Base forte titrée par acide fort
-    if (sTitree.famille === 'base' && sTitree.force === 'fort' && sTitrante.famille === 'acide' && sTitrante.force === 'fort') {
+    if (sT.famille === 'base' && sT.force === 'fort' && sTr.famille === 'acide' && sTr.force === 'fort') {
       const nB = p.va * p.ca / 1000;
       const nA = vBase * p.cb / 1000;
       const vT = (p.va + vBase) / 1000;
@@ -896,21 +1070,19 @@
       return -Math.log10(Math.max((nA - nB) / vT, 1e-14));
     }
     
-    // Cas 5 : Base faible titrée par acide fort (ex: NH₃ titré par HCl)
-    if (sTitree.famille === 'base' && sTitree.force === 'faible' && sTitrante.famille === 'acide' && sTitrante.force === 'fort') {
+    // Cas 5 : Base faible titrée par acide fort
+    if (sT.famille === 'base' && sT.force === 'faible' && sTr.famille === 'acide' && sTr.force === 'fort') {
       const nB = p.va * p.ca / 1000;
       const nA = vBase * p.cb / 1000;
       const vT = (p.va + vBase) / 1000;
       const veq = (p.va * p.ca) / p.cb;
-      const pka = p.pka; // pKa de l'acide conjugué BH⁺
+      const pka = p.pka;
       if (vBase < veq - 0.001) {
         const nBrest = nB - nA;
         if (nBrest <= 0) return 7;
-        // pH = pKa + log([B]/[BH⁺])
         return pka + Math.log10(Math.max(nBrest / nA, 1e-14));
       }
       if (Math.abs(vBase - veq) < 0.05) {
-        // À l'équivalence : BH⁺ est un acide faible
         const Ka = Math.pow(10, -pka);
         return -Math.log10(Math.max(Math.sqrt(Ka * (nB / vT)), 1e-14));
       }
@@ -931,9 +1103,13 @@
   function appliquerCouleurInitiale() {
     const ind = document.getElementById('indicateur').value;
     document.getElementById('beaker-liquid').setAttribute('fill', couleurInitiale(ind));
+    document.getElementById('anim-liquid').setAttribute('fill', couleurInitiale(ind));
   }
 
-  document.getElementById('indicateur').addEventListener('change', appliquerCouleurInitiale);
+  document.getElementById('indicateur').addEventListener('change', () => {
+    appliquerCouleurInitiale();
+    majSuggestionIndicateur();
+  });
 
   document.getElementById('btn-demarrer').onclick = () => {
     started = true; 
@@ -974,6 +1150,9 @@
     zoneTamponAffichee = false;
     document.getElementById('svg-ph').textContent = '1.00';
     document.getElementById('svg-volume').textContent = '0.00';
+    document.getElementById('anim-volume').textContent = '0.00';
+    document.getElementById('anim-ph').textContent = '-';
+    document.getElementById('anim-message').textContent = 'Ajoutez du titrant pour voir la couleur évoluer.';
     appliquerCouleurInitiale();
     
     const btnDemarrer = document.getElementById('btn-demarrer');
@@ -986,20 +1165,34 @@
   function ajouterVol(vol) {
     if (!started) { alert('Cliquez d\'abord sur "Démarrer le dosage".'); return; }
     const p = lireParametres();
-    const veq = (p.va * p.ca) / p.cb;
+    const veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
     const dernierV = mesures.length > 0 ? mesures[mesures.length - 1].v : 0;
     const nouveauV = dernierV + vol;
     if (nouveauV > veq * 2.5) { alert(`Volume maximum atteint (${(veq * 2.5).toFixed(1)} mL).`); return; }
+    
+    // Animation de la goutte
     const drop = document.getElementById('drop');
     drop.style.display = 'block';
     drop.classList.remove('droplet');
     void drop.offsetWidth;
     drop.classList.add('droplet');
     setTimeout(() => { drop.style.display = 'none'; }, 600);
+    
+    // Animation de la goutte dans le bécher animé
+    const animDrop = document.getElementById('anim-drop');
+    if (animDrop) {
+      animDrop.style.display = 'block';
+      setTimeout(() => { animDrop.style.display = 'none'; }, 500);
+    }
+    
     const ph = calculerPH(nouveauV, p);
     mesures.push({ v: nouveauV, ph });
     mesures.sort((a, b) => a.v - b.v);
-    renderTableau(); renderChart(); majDispositif(); analyserResultats();
+    renderTableau(); 
+    renderChart(); 
+    majDispositif(); 
+    majAnimationColorimetrique(nouveauV, ph);
+    analyserResultats();
   }
 
   document.getElementById('btn-add-05').onclick = () => ajouterVol(0.5);
@@ -1021,22 +1214,53 @@
     document.getElementById('beaker-liquid').setAttribute('fill', couleurIndicateur(d.ph, p.indicateur));
   }
 
+  function majAnimationColorimetrique(v, ph) {
+    document.getElementById('anim-volume').textContent = v.toFixed(2);
+    document.getElementById('anim-ph').textContent = ph.toFixed(2);
+    const p = lireParametres();
+    const couleur = couleurIndicateur(ph, p.indicateur);
+    document.getElementById('anim-liquid').setAttribute('fill', couleur);
+    
+    // Message contextuel
+    const veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
+    let msg = '';
+    if (v < veq * 0.5) msg = 'Avant l\'équivalence : la solution garde sa couleur initiale.';
+    else if (v < veq - 0.5) msg = 'Approche de l\'équivalence... La couleur commence à changer.';
+    else if (Math.abs(v - veq) < 1) msg = '🎯 À l\'équivalence : le virage de couleur se produit !';
+    else if (v < veq * 1.5) msg = 'Après l\'équivalence : la couleur finale de l\'indicateur apparaît.';
+    else msg = 'Loin après l\'équivalence : couleur stable de l\'indicateur en milieu basique (ou acide).';
+    document.getElementById('anim-message').textContent = msg;
+  }
+
   function couleurIndicateur(ph, ind) {
     if (ind === 'aucun') return 'rgba(46, 204, 113, 0.3)';
     if (ind === 'helianthine') {
-      if (ph < 3.1) return 'rgba(231, 76, 60, 0.5)';
-      if (ph > 4.4) return 'rgba(241, 196, 15, 0.5)';
-      return 'rgba(230, 126, 34, 0.5)';
+      if (ph < 3.1) return 'rgba(231, 76, 60, 0.6)';
+      if (ph > 4.4) return 'rgba(241, 196, 15, 0.6)';
+      // Zone de virage : interpolation
+      const t = (ph - 3.1) / (4.4 - 3.1);
+      const r = Math.round(231 + (241 - 231) * t);
+      const g = Math.round(76 + (196 - 76) * t);
+      const b = Math.round(60 + (15 - 60) * t);
+      return `rgba(${r}, ${g}, ${b}, 0.6)`;
     }
     if (ind === 'bbt') {
-      if (ph < 6.0) return 'rgba(241, 196, 15, 0.5)';
-      if (ph > 7.6) return 'rgba(52, 152, 219, 0.5)';
-      return 'rgba(46, 204, 113, 0.5)';
+      if (ph < 6.0) return 'rgba(241, 196, 15, 0.6)';
+      if (ph > 7.6) return 'rgba(52, 152, 219, 0.6)';
+      const t = (ph - 6.0) / (7.6 - 6.0);
+      const r = Math.round(241 + (52 - 241) * t);
+      const g = Math.round(196 + (152 - 196) * t);
+      const b = Math.round(15 + (219 - 15) * t);
+      return `rgba(${r}, ${g}, ${b}, 0.6)`;
     }
     if (ind === 'phenolphtaleine') {
-      if (ph < 8.2) return 'rgba(236, 240, 241, 0.5)';
-      if (ph > 10.0) return 'rgba(233, 30, 99, 0.5)';
-      return 'rgba(248, 187, 208, 0.5)';
+      if (ph < 8.2) return 'rgba(236, 240, 241, 0.6)';
+      if (ph > 10.0) return 'rgba(233, 30, 99, 0.6)';
+      const t = (ph - 8.2) / (10.0 - 8.2);
+      const r = Math.round(236 + (233 - 236) * t);
+      const g = Math.round(240 + (30 - 240) * t);
+      const b = Math.round(241 + (99 - 241) * t);
+      return `rgba(${r}, ${g}, ${b}, 0.6)`;
     }
     return 'rgba(46, 204, 113, 0.3)';
   }
@@ -1045,11 +1269,11 @@
     const ctx = document.getElementById('chart');
     if (!ctx) return;
     if (chart) chart.destroy();
+    
     const p = lireParametres();
     const points = mesures.map(m => ({ x: m.v, y: m.ph })).sort((a, b) => a.x - b.x);
     
-    // --- CALCUL EXPÉRIMENTAL DE Veq PAR LA MÉTHODE DES TANGENTES ---
-    let veq = (p.va * p.ca) / p.cb;
+    let veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
     let vdemi = veq / 2;
     
     if (points.length > 2) {
@@ -1069,11 +1293,13 @@
     if (p.indicateur === 'helianthine') zoneVirage = [3.1, 4.4];
     else if (p.indicateur === 'bbt') zoneVirage = [6.0, 7.6];
     else if (p.indicateur === 'phenolphtaleine') zoneVirage = [8.2, 10.0];
+    
     const datasets = [{
       label: 'pH', data: points, borderColor: '#A8853F',
       backgroundColor: 'rgba(168, 133, 63, 0.1)', tension: 0.2, fill: true,
       pointRadius: 4, pointBackgroundColor: '#A8853F'
     }];
+    
     if (comparaisonActive && mesures2.length > 0) {
       datasets.push({
         label: 'Dosage 2',
@@ -1082,6 +1308,7 @@
         tension: 0.2, fill: false, pointRadius: 3, pointBackgroundColor: '#3498db'
       });
     }
+    
     const annotations = {};
     if (tangentesAffichees) {
       annotations.veq = { type: 'line', xMin: veq, xMax: veq, borderColor: '#d9534f', borderWidth: 2, borderDash: [6, 6],
@@ -1089,7 +1316,7 @@
       annotations.vdemi = { type: 'line', xMin: vdemi, xMax: vdemi, borderColor: '#3498db', borderWidth: 2, borderDash: [6, 6],
         label: { display: true, content: `Vdemi = ${vdemi.toFixed(2)} mL`, position: 'end', backgroundColor: '#3498db', color: '#fff', font: { size: 11 } } };
     }
-    if (zoneTamponAffichee && (p.substanceTitree.force === 'faible')) {
+    if (zoneTamponAffichee && p.substanceTitree.force === 'faible') {
       const pkaRef = p.pka;
       annotations.zoneTampon = { type: 'box', xMin: vdemi * 0.3, xMax: vdemi * 1.7, yMin: pkaRef - 1, yMax: pkaRef + 1,
         backgroundColor: 'rgba(46, 125, 50, 0.08)', borderColor: 'rgba(46, 125, 50, 0.4)', borderWidth: 1 };
@@ -1117,7 +1344,7 @@
     const p = lireParametres();
     const points = mesures.map(m => ({ x: m.v, y: m.ph })).sort((a, b) => a.x - b.x);
     
-    let veq = (p.va * p.ca) / p.cb;
+    let veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
     let vdemi = veq / 2;
     
     if (points.length > 2) {
@@ -1133,11 +1360,24 @@
         }
     }
     
+    const estDiFort = p.substanceTitree.n === 2 && p.substanceTitree.force === 'fort';
+    const estDibaseFort = p.substanceTitrante.n === 2 && p.substanceTitrante.force === 'fort';
+    
     document.getElementById('result-box').style.display = 'block';
     document.getElementById('result-veq').textContent = `${veq.toFixed(2)} mL`;
     document.getElementById('result-vdemi').textContent = `${vdemi.toFixed(2)} mL`;
     document.getElementById('result-pheq').textContent = `${calculerPH(veq, p).toFixed(2)}`;
     document.getElementById('result-phdemi').textContent = `${calculerPH(vdemi, p).toFixed(2)}`;
+    
+    // Afficher la relation à l'équivalence si di-fort + di-fort (ou di + monobase/mono + dibase)
+    if (estDiFort || estDibaseFort) {
+      document.getElementById('ligne-relation-equivalence').style.display = 'flex';
+      document.getElementById('result-relation').textContent = 
+        `${p.substanceTitree.n} × ${p.ca} × ${p.va} = ${p.substanceTitrante.n} × ${p.cb} × Veq → Veq = ${veq.toFixed(2)} mL`;
+    } else {
+      document.getElementById('ligne-relation-equivalence').style.display = 'none';
+    }
+    
     if (tpActif) {
       document.getElementById('tp-veq').textContent = veq.toFixed(2);
       document.getElementById('tp-vdemi').textContent = vdemi.toFixed(2);
@@ -1179,39 +1419,48 @@
   document.getElementById('btn-explication').onclick = () => {
     const div = document.getElementById('explication');
     const p = lireParametres();
-    const veq = (p.va * p.ca) / p.cb;
+    const sT = p.substanceTitree;
+    const sTr = p.substanceTitrante;
+    const veq = (sT.n * p.va * p.ca) / (sTr.n * p.cb);
     const vdemi = veq / 2;
     const pheq = calculerPH(veq, p);
     const phdemi = calculerPH(vdemi, p);
-    const sTitree = p.substanceTitree;
-    const sTitrante = p.substanceTitrante;
     
-    let titre = `${sTitree.nom} (${sTitree.formule}) titré par ${sTitrante.nom}`;
-    let explicationForce = '';
-    if (sTitree.force === 'fort') {
-      explicationForce = 'L\'acide (ou la base) est fort(e), donc entièrement dissocié(e) en solution.';
+    let titre = `${sT.nom} (${sT.formule}) titré par ${sTr.nom} (${sTr.formule})`;
+    let explication = '';
+    
+    if (sT.force === 'fort' && sTr.force === 'fort' && (sT.n > 1 || sTr.n > 1)) {
+      explication = `
+        <strong>📖 Dosage entre espèces fortes</strong><br><br>
+        Les deux espèces sont totalement dissociées en solution. Il n'y a pas de notion de pKa/pKb.<br><br>
+        <strong>🎯 Relation à l'équivalence :</strong><br>
+        <em>n × CA × VA = m × CB × Veq</em><br>
+        où n = ${sT.n} (nombre de H⁺ de ${sT.formule}) et m = ${sTr.n} (nombre de OH⁻ de ${sTr.formule})<br>
+        Donc : Veq = (${sT.n} × ${p.ca} × ${p.va}) / (${sTr.n} × ${p.cb}) = <strong>${veq.toFixed(2)} mL</strong><br><br>
+        <strong>📊 pH à l'équivalence :</strong> ${pheq.toFixed(2)} (= 7)<br>
+        <strong>🎨 Virage coloré :</strong> se produit à l'équivalence, visible avec un indicateur adapté.
+      `;
     } else {
-      explicationForce = `La substance est faible (pKa = ${p.pka.toFixed(2)}, pKb = ${(14 - p.pka).toFixed(2)}).`;
+      explication = `
+        <strong>📖 Explication du dosage : ${titre}</strong><br><br>
+        <strong>🎯 Volume équivalent :</strong> ${veq.toFixed(2)} mL<br>
+        À l'équivalence : <em>n × CA × VA = m × CB × Veq</em><br><br>
+        <strong>📊 pH à l'équivalence :</strong> ${pheq.toFixed(2)}<br>
+        ${sT.force === 'fort' ? 'Espèce forte → dissociation totale.' : `Espèce faible (pKa = ${p.pka.toFixed(2)}, pKb = ${(14 - p.pka).toFixed(2)}).`}<br><br>
+        <strong>🔵 Demi-équivalence :</strong> ${vdemi.toFixed(2)} mL<br>
+        ${sT.force === 'faible' ? 
+          (sT.famille === 'acide' ? `pH = pKa = ${p.pka.toFixed(2)}` : `pH = pKa = ${p.pka.toFixed(2)} (pKa de l'acide conjugué)`) 
+          : 'À la demi-équivalence, [AH] = [A⁻]'}<br>
+        pH mesuré : ${phdemi.toFixed(2)}
+      `;
     }
     
-    div.innerHTML = `
-      <strong>📖 Explication du dosage : ${titre}</strong><br><br>
-      <strong>🎯 Volume équivalent :</strong> ${veq.toFixed(2)} mL<br>
-      À l'équivalence : <em>CA × VA = CB × Veq</em><br>
-      Donc : Veq = (${p.ca} × ${p.va}) / ${p.cb} = ${veq.toFixed(2)} mL<br><br>
-      <strong>📊 pH à l'équivalence :</strong> ${pheq.toFixed(2)}<br>
-      ${explicationForce}<br><br>
-      <strong>🔵 Demi-équivalence :</strong> ${vdemi.toFixed(2)} mL<br>
-      ${sTitree.force === 'faible' ? 
-        (sTitree.famille === 'acide' ? `pH = pKa = ${p.pka.toFixed(2)}` : `pH = pKa = ${p.pka.toFixed(2)} (pKa de l'acide conjugué)`) 
-        : 'À la demi-équivalence, [AH] = [A⁻]'}<br>
-      pH mesuré à la demi-équivalence : ${phdemi.toFixed(2)}
-    `;
+    div.innerHTML = explication;
     div.classList.toggle('show');
   };
 
   // ============================================================
-  // MODE TP - VÉRIFICATION DES RÉPONSES
+  // MODE TP
   // ============================================================
   document.getElementById('btn-verifier').onclick = () => {
     if (!tpVerite) return;
@@ -1223,7 +1472,7 @@
     let html = '';
     if (!isNaN(rpka)) {
       const e = Math.abs(rpka - vraiPka);
-      if (e <= 0.05) html += `<div class="feedback success">✅ Correct ! pKa = ${vraiPka.toFixed(2)}<br>Votre réponse : ${rpka}</div>`;
+      if (e <= 0.05) html += `<div class="feedback success">✅ Correct ! pKa = ${vraiPka.toFixed(2)}</div>`;
       else if (e <= 0.2) html += `<div class="feedback warning">⚠️ Presque ! Votre : ${rpka} — Vraie : ${vraiPka.toFixed(2)}</div>`;
       else html += `<div class="feedback error">❌ Incorrect. Votre : ${rpka} — Vraie : ${vraiPka.toFixed(2)}</div>`;
     }
@@ -1253,7 +1502,6 @@
     comparaisonActive = false; mesures2 = []; renderChart();
   };
   document.getElementById('btn-afficher-comparaison').onclick = () => {
-    // Simplifié : utilise les mêmes paramètres que le dosage principal mais change le type
     const p2 = { ...lireParametres(), type: document.getElementById('type-dosage-2').value };
     const veq2 = (p2.va * p2.ca) / p2.cb;
     mesures2 = [];
@@ -1281,10 +1529,9 @@
   document.getElementById('auto-controls').style.display = 'block';
   document.getElementById('add-row-zone').style.display = 'none';
   appliquerCouleurInitiale();
-  
-  // Construire le menu initial
   construireMenuTitree();
   onSubstanceTitreeChange();
+  majAffichageSelonMethode();
 </script>
 </body>
 </html>
