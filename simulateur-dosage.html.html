@@ -83,31 +83,13 @@
   .btn-info { background: var(--info); color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--sans); }
   .btn-info:hover { background: #2980b9; }
   
-  /* === GRILLE À 3 COLONNES avec empilement intelligent === */
-  .labo-grid { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr 1fr; 
-    gap: 20px; 
-    margin-bottom: 20px;
-    align-items: start;
-  }
-  
-  /* Ordre d'affichage : Dispositif | Tableau | Animation */
+  .labo-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; align-items: start; }
   .labo-dispositif { order: 1; }
   .labo-tableau { order: 2; }
   .labo-animation { order: 3; }
-  
-  /* Grand écran : 3 colonnes */
-  @media (min-width: 1101px) {
-    .labo-grid { grid-template-columns: 1fr 1fr 1.2fr; }
-  }
-  
-  /* Petit écran : empilement intelligent */
+  @media (min-width: 1101px) { .labo-grid { grid-template-columns: 1fr 1fr 1.2fr; } }
   @media (max-width: 1100px) {
-    .labo-grid { 
-      grid-template-columns: 1fr; 
-    }
-    /* Ordre sur mobile : Animation (1) | Tableau (2) | Dispositif (3) */
+    .labo-grid { grid-template-columns: 1fr; }
     .labo-animation { order: 1; }
     .labo-tableau { order: 2; }
     .labo-dispositif { order: 3; }
@@ -119,6 +101,41 @@
   @keyframes drop { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(30px); opacity: 0; } }
   .droplet { animation: drop 0.6s ease-in forwards; transform-origin: center; }
   #beaker-liquid, #anim-liquid { transition: fill 0.5s ease-in-out; }
+  
+  /* === NOUVELLES ANIMATIONS POUR LE BÉCHER === */
+  @keyframes splash {
+    0% { transform: scale(0.5); opacity: 0.9; }
+    50% { transform: scale(1.3); opacity: 0.6; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+  @keyframes dropFall {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(35px); opacity: 0.2; }
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+  }
+  @keyframes flash {
+    0% { opacity: 0; }
+    30% { opacity: 0.8; }
+    100% { opacity: 0; }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes wave {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(2px); }
+  }
+  .anim-drop-active { animation: dropFall 0.6s ease-in forwards; }
+  .splash-effect { animation: splash 0.7s ease-out forwards; transform-origin: center; }
+  .pulse-beaker { animation: pulse 0.5s ease-in-out; }
+  .flash-effect { animation: flash 0.8s ease-out; }
+  .message-fade { animation: fadeIn 0.4s ease-out; }
+  .wave-surface { animation: wave 0.8s ease-in-out infinite; transform-origin: center; }
+  
   .table-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
   .table-mode { display: flex; gap: 4px; background: #f0f0f0; padding: 4px; border-radius: 6px; }
   .table-mode-btn { padding: 6px 10px; border: none; background: transparent; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: var(--sans); color: var(--slate); }
@@ -286,10 +303,8 @@
     <button class="btn-secondary" id="btn-imprimer">🖨️ Imprimer</button>
   </div>
 
-  <!-- === GRILLE 3 COLONNES : Dispositif | Tableau | Animation === -->
   <div class="labo-grid">
     
-    <!-- COLONNE 1 : DISPOSITIF -->
     <div class="labo-dispositif">
       <div class="dispositif">
         <h4>🔬 Dispositif expérimental</h4>
@@ -336,7 +351,6 @@
       </div>
     </div>
 
-    <!-- COLONNE 2 : TABLEAU DE VALEURS (avec colonne Couleur) -->
     <div class="labo-tableau">
       <div class="card">
         <h3>📋 Tableau de valeurs</h3>
@@ -377,7 +391,6 @@
       </div>
     </div>
 
-    <!-- COLONNE 3 : ANIMATION / COURBE + RÉSULTATS -->
     <div class="labo-animation">
       <div class="card">
         <h3 id="titre-visualisation">📊 Courbe pH = f(V)</h3>
@@ -386,25 +399,54 @@
           <div style="font-size: 14px; color: var(--ink); margin-bottom: 8px;">
             🎨 <strong>Dosage colorimétrique</strong>
           </div>
-          <svg viewBox="0 0 300 240" style="max-width: 260px; height: auto;">
+          <svg viewBox="0 0 300 260" style="max-width: 280px; height: auto;" id="svg-anim">
+            <defs>
+              <radialGradient id="haloVirage" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ffff00" stop-opacity="0.8"/>
+                <stop offset="100%" stop-color="#ffff00" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            
+            <!-- Support -->
             <line x1="250" y1="30" x2="250" y2="210" stroke="#555" stroke-width="5"/>
             <line x1="20" y1="210" x2="280" y2="210" stroke="#555" stroke-width="5"/>
+            
+            <!-- Burette -->
             <rect x="130" y="20" width="22" height="130" fill="rgba(255,255,255,0.5)" stroke="#333" stroke-width="1.5" rx="2"/>
-            <rect x="132" y="22" width="18" height="126" fill="rgba(52, 152, 219, 0.4)"/>
+            <rect x="132" y="22" width="18" height="126" fill="rgba(52, 152, 219, 0.4)" id="anim-burette-liquid"/>
             <line x1="130" y1="40" x2="138" y2="40" stroke="#333" stroke-width="1"/>
             <line x1="130" y1="70" x2="138" y2="70" stroke="#333" stroke-width="1"/>
             <line x1="130" y1="100" x2="138" y2="100" stroke="#333" stroke-width="1"/>
             <line x1="130" y1="130" x2="138" y2="130" stroke="#333" stroke-width="1"/>
             <rect x="136" y="150" width="10" height="15" fill="#999" stroke="#333"/>
             <line x1="141" y1="165" x2="141" y2="175" stroke="#333" stroke-width="2"/>
-            <ellipse cx="141" cy="190" rx="3" ry="5" fill="#2ecc71" id="anim-drop" style="display:none;"/>
+            
+            <!-- Goutte animée -->
+            <ellipse cx="141" cy="185" rx="3" ry="5" fill="#3498db" id="anim-drop" style="display:none;"/>
+            
+            <!-- Halo de virage (flash) -->
+            <circle cx="141" cy="200" r="60" fill="url(#haloVirage)" id="anim-halo" style="display:none;"/>
+            
+            <!-- Bécher -->
             <rect x="85" y="180" width="112" height="35" fill="rgba(255,255,255,0.4)" stroke="#333" stroke-width="2" rx="2"/>
-            <rect x="87" y="185" width="108" height="28" fill="rgba(241, 196, 15, 0.6)" id="anim-liquid"/>
-            <text x="141" y="235" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">
+            <!-- Liquide avec clip-path pour ne pas déborder -->
+            <clipPath id="clipBeaker">
+              <rect x="87" y="182" width="108" height="31"/>
+            </clipPath>
+            <rect x="87" y="195" width="108" height="18" fill="rgba(241, 196, 15, 0.6)" id="anim-liquid" clip-path="url(#clipBeaker)"/>
+            
+            <!-- Surface ondulante du liquide -->
+            <path d="M 87 195 Q 100 192 115 195 T 143 195 T 195 195" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none" id="anim-surface" opacity="0.7"/>
+            
+            <!-- Éclaboussure -->
+            <circle cx="141" cy="195" r="5" fill="#fff" opacity="0" id="anim-splash"/>
+            
+            <!-- Texte -->
+            <text x="141" y="240" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">
               V = <tspan id="anim-volume">0.00</tspan> mL | pH = <tspan id="anim-ph">-</tspan>
             </text>
           </svg>
-          <div id="anim-message" style="margin-top: 10px; font-size: 12px; color: var(--slate); font-style: italic;">
+          <div id="anim-message" style="margin-top: 10px; font-size: 12px; color: var(--slate); font-style: italic; min-height: 18px;">
             Ajoutez du titrant pour voir la couleur évoluer.
           </div>
         </div>
@@ -631,16 +673,13 @@
   }
 
   function substancesAutorisees(methode) {
-    if (methode === 'phmetrique') {
-      return SUBSTANCES.filter(s => s.n === 1);
-    }
+    if (methode === 'phmetrique') return SUBSTANCES.filter(s => s.n === 1);
     return SUBSTANCES;
   }
 
   function construireMenuTitree(methode) {
     const sel = document.getElementById('substance-titree');
     if (!methode) methode = document.getElementById('methode').value;
-    
     const listeAutorisee = substancesAutorisees(methode);
     const valeurActuelle = sel.value;
     sel.innerHTML = '';
@@ -685,13 +724,10 @@
   function construireMenuTitrante(familleTitree, nTitree, forceTitree) {
     const sel = document.getElementById('substance-titrante');
     sel.innerHTML = '';
-    
     const familleTitrante = familleTitree === 'acide' ? 'base' : 'acide';
     let liste = SUBSTANCES.filter(s => s.famille === familleTitrante);
     
-    if (nTitree === 2 && forceTitree === 'fort') {
-      liste = liste.filter(s => s.n === 1);
-    }
+    if (nTitree === 2 && forceTitree === 'fort') liste = liste.filter(s => s.n === 1);
     
     const forts = liste.filter(s => s.force === 'fort');
     const faibles = liste.filter(s => s.force === 'faible');
@@ -800,9 +836,7 @@
     if (!substanceTitreeActuelle) return;
     const s = substanceTitreeActuelle;
     const inputPka = document.getElementById('pka');
-    if (s.pka !== undefined) {
-      inputPka.value = s.pka;
-    }
+    if (s.pka !== undefined) inputPka.value = s.pka;
   }
 
   function majSuggestionIndicateur() {
@@ -823,13 +857,9 @@
     const noms = { 'helianthine': 'Hélianthine', 'bbt': 'Bleu de bromothymol', 'phenolphtaleine': 'Phénolphtaléine', 'aucun': 'Aucun' };
     
     if (recommande) {
-      if (indActuel === recommande) {
-        div.innerHTML = `<div class="indicateur-suggestion">💡 <strong>Recommandé :</strong> ${noms[recommande]} — ${raison}. ✅ Bon choix.</div>`;
-      } else if (indActuel === 'aucun') {
-        div.innerHTML = `<div class="indicateur-suggestion">💡 <strong>Recommandé :</strong> ${noms[recommande]} — ${raison}</div>`;
-      } else {
-        div.innerHTML = `<div class="indicateur-avertissement">⚠️ L'indicateur choisi (${noms[indActuel]}) n'est pas optimal. <strong>Suggestion :</strong> ${noms[recommande]} — ${raison}</div>`;
-      }
+      if (indActuel === recommande) div.innerHTML = `<div class="indicateur-suggestion">💡 <strong>Recommandé :</strong> ${noms[recommande]} — ${raison}. ✅ Bon choix.</div>`;
+      else if (indActuel === 'aucun') div.innerHTML = `<div class="indicateur-suggestion">💡 <strong>Recommandé :</strong> ${noms[recommande]} — ${raison}</div>`;
+      else div.innerHTML = `<div class="indicateur-avertissement">⚠️ L'indicateur choisi (${noms[indActuel]}) n'est pas optimal. <strong>Suggestion :</strong> ${noms[recommande]} — ${raison}</div>`;
     } else {
       div.innerHTML = '';
     }
@@ -838,8 +868,7 @@
   document.getElementById('indicateur').addEventListener('change', () => {
     appliquerCouleurInitiale();
     majSuggestionIndicateur();
-    // Mise à jour des pastilles dans le tableau
-    document.querySelectorAll('#table-body tr').forEach((tr, i) => {
+    document.querySelectorAll('#table-body tr').forEach((tr) => {
       const ph = parseFloat(tr.querySelectorAll('input')[1]?.value);
       const pastille = tr.querySelector('.pastille-couleur');
       if (pastille && !isNaN(ph)) {
@@ -887,9 +916,7 @@
     construireMenuTitree(methodeForcee);
     
     const sel = document.getElementById('substance-titree');
-    if (mode === 'tp') {
-      sel.value = '__inconnue__';
-    }
+    if (mode === 'tp') sel.value = '__inconnue__';
     onSubstanceTitreeChange();
   }
 
@@ -900,9 +927,7 @@
       document.querySelectorAll('.table-mode-btn').forEach(b => b.classList.toggle('active', b === btn));
       document.getElementById('auto-controls').style.display = tableMode === 'auto' ? 'block' : 'none';
       document.getElementById('add-row-zone').style.display = tableMode === 'manuel' ? 'block' : 'none';
-      if (tableMode === 'manuel' && started && document.querySelectorAll('#table-body tr').length === 0) {
-          ajouterLigneTableau('', '');
-      }
+      if (tableMode === 'manuel' && started && document.querySelectorAll('#table-body tr').length === 0) ajouterLigneTableau('', '');
     });
   });
 
@@ -965,11 +990,8 @@
       const v = parseFloat(inputs[0].value);
       const ph = parseFloat(inputs[1].value);
       if (!isNaN(v) && !isNaN(ph)) mesures.push({ v, ph });
-      // Mise à jour de la pastille
       const pastille = row.querySelector('.pastille-couleur');
-      if (pastille && !isNaN(ph)) {
-        pastille.style.backgroundColor = couleurIndicateur(ph, document.getElementById('indicateur').value);
-      }
+      if (pastille && !isNaN(ph)) pastille.style.backgroundColor = couleurIndicateur(ph, document.getElementById('indicateur').value);
     });
     mesures.sort((a, b) => a.v - b.v);
     renderChart();
@@ -1154,6 +1176,17 @@
     document.getElementById('anim-volume').textContent = '0.00';
     document.getElementById('anim-ph').textContent = '-';
     document.getElementById('anim-message').textContent = 'Ajoutez du titrant pour voir la couleur évoluer.';
+    // Reset de la hauteur du liquide et de la burette
+    const animLiq = document.getElementById('anim-liquid');
+    if (animLiq) {
+      animLiq.setAttribute('y', '195');
+      animLiq.setAttribute('height', '18');
+    }
+    const animBurette = document.getElementById('anim-burette-liquid');
+    if (animBurette) {
+      animBurette.setAttribute('y', '22');
+      animBurette.setAttribute('height', '126');
+    }
     appliquerCouleurInitiale();
     
     const btnDemarrer = document.getElementById('btn-demarrer');
@@ -1171,6 +1204,7 @@
     const nouveauV = dernierV + vol;
     if (nouveauV > veq * 2.5) { alert(`Volume maximum atteint (${(veq * 2.5).toFixed(1)} mL).`); return; }
     
+    // Animation de la goutte dans le dispositif principal
     const drop = document.getElementById('drop');
     drop.style.display = 'block';
     drop.classList.remove('droplet');
@@ -1178,10 +1212,24 @@
     drop.classList.add('droplet');
     setTimeout(() => { drop.style.display = 'none'; }, 600);
     
+    // === ANIMATION DU BÉCHER ===
     const animDrop = document.getElementById('anim-drop');
     if (animDrop) {
       animDrop.style.display = 'block';
-      setTimeout(() => { animDrop.style.display = 'none'; }, 500);
+      animDrop.classList.remove('anim-drop-active');
+      void animDrop.offsetWidth;
+      animDrop.classList.add('anim-drop-active');
+      setTimeout(() => { animDrop.style.display = 'none'; }, 600);
+    }
+    
+    // Éclaboussure
+    const splash = document.getElementById('anim-splash');
+    if (splash) {
+      splash.setAttribute('opacity', '0.7');
+      splash.classList.remove('splash-effect');
+      void splash.offsetWidth;
+      splash.classList.add('splash-effect');
+      setTimeout(() => { splash.setAttribute('opacity', '0'); }, 700);
     }
     
     const ph = calculerPH(nouveauV, p);
@@ -1190,7 +1238,7 @@
     renderTableau(); 
     renderChart(); 
     majDispositif(); 
-    majAnimationColorimetrique(nouveauV, ph);
+    majAnimationColorimetrique(nouveauV, ph, veq);
     analyserResultats();
   }
 
@@ -1213,20 +1261,77 @@
     document.getElementById('beaker-liquid').setAttribute('fill', couleurIndicateur(d.ph, p.indicateur));
   }
 
-  function majAnimationColorimetrique(v, ph) {
+  function majAnimationColorimetrique(v, ph, veq) {
     document.getElementById('anim-volume').textContent = v.toFixed(2);
     document.getElementById('anim-ph').textContent = ph.toFixed(2);
     const p = lireParametres();
-    document.getElementById('anim-liquid').setAttribute('fill', couleurIndicateur(ph, p.indicateur));
+    const couleur = couleurIndicateur(ph, p.indicateur);
     
-    const veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
+    // Niveau du liquide qui monte (proportionnel au volume)
+    // Le bécher va de y=182 (haut) à y=213 (bas). Hauteur max = 31.
+    // On plafonne à 80% du bécher pour ne pas déborder
+    const volumeMaxAffiche = veq * 1.5;
+    const pourcentage = Math.min(v / volumeMaxAffiche, 1);
+    const hauteurMax = 28; // hauteur max du liquide
+    const hauteur = 3 + pourcentage * hauteurMax; // au moins 3px pour voir
+    const y = 213 - hauteur; // le fond est à 213
+    
+    const liq = document.getElementById('anim-liquid');
+    liq.setAttribute('y', y.toFixed(1));
+    liq.setAttribute('height', hauteur.toFixed(1));
+    liq.setAttribute('fill', couleur);
+    
+    // Mise à jour de la surface ondulante
+    const surface = document.getElementById('anim-surface');
+    if (surface) {
+      surface.setAttribute('d', `M 87 ${y} Q 100 ${y-2} 115 ${y} T 143 ${y} T 195 ${y}`);
+    }
+    
+    // Niveau de la burette qui descend
+    const buretteLiq = document.getElementById('anim-burette-liquid');
+    if (buretteLiq) {
+      const pourcentageBurette = Math.min(v / volumeMaxAffiche, 1);
+      const hauteurBurette = 126 * (1 - pourcentageBurette * 0.7); // descend jusqu'à 30%
+      buretteLiq.setAttribute('height', hauteurBurette.toFixed(1));
+    }
+    
+    // Détection du virage (proche de Veq)
+    const procheVirage = Math.abs(v - veq) < 1.5 && v > 0;
+    const dejaPasseVirage = v >= veq - 0.5 && v <= veq + 0.5;
+    
+    // Halo de virage
+    const halo = document.getElementById('anim-halo');
+    if (halo && dejaPasseVirage) {
+      halo.style.display = 'block';
+      halo.classList.remove('flash-effect');
+      void halo.offsetWidth;
+      halo.classList.add('flash-effect');
+      setTimeout(() => { halo.style.display = 'none'; }, 800);
+    }
+    
+    // Pulse du bécher au moment du virage
+    const beakerGroup = document.getElementById('svg-anim');
+    if (beakerGroup && dejaPasseVirage) {
+      beakerGroup.classList.remove('pulse-beaker');
+      void beakerGroup.offsetWidth;
+      beakerGroup.classList.add('pulse-beaker');
+    }
+    
+    // Message avec fade
+    const msgDiv = document.getElementById('anim-message');
     let msg = '';
-    if (v < veq * 0.5) msg = 'Avant l\'équivalence : couleur initiale.';
-    else if (v < veq - 0.5) msg = 'Approche de l\'équivalence...';
-    else if (Math.abs(v - veq) < 1) msg = '🎯 À l\'équivalence : virage !';
-    else if (v < veq * 1.5) msg = 'Après l\'équivalence : couleur finale.';
-    else msg = 'Couleur stable de l\'indicateur.';
-    document.getElementById('anim-message').textContent = msg;
+    if (v < veq * 0.5) msg = '🟡 Avant l\'équivalence : couleur initiale.';
+    else if (v < veq - 1) msg = '🟠 Approche de l\'équivalence...';
+    else if (Math.abs(v - veq) < 1) msg = '🎯 À l\'équivalence : le virage se produit !';
+    else if (v < veq * 1.5) msg = '🔵 Après l\'équivalence : couleur finale.';
+    else msg = '🔵 Couleur stable de l\'indicateur.';
+    
+    if (msgDiv.textContent !== msg) {
+      msgDiv.textContent = msg;
+      msgDiv.classList.remove('message-fade');
+      void msgDiv.offsetWidth;
+      msgDiv.classList.add('message-fade');
+    }
   }
 
   function renderChart() {
