@@ -2576,9 +2576,16 @@
       </div>`;
     }
     
-    html += `<div style="margin-top: 20px; text-align: center;">
-      <button class="btn-primary" id="btn-fermer-resultats">Fermer</button>
+       html += `<div style="margin-top: 20px; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+      <button class="btn-secondary" id="btn-fermer-resultats">Fermer</button>
+      <button class="btn-success" id="btn-exporter-examen-pdf" style="background: #d9534f;">📄 Exporter en PDF</button>
     </div>`;
+    
+    // Attacher l'événement après insertion
+    setTimeout(() => {
+      const btnExp = document.getElementById('btn-exporter-examen-pdf');
+      if (btnExp) btnExp.onclick = () => genererRapportExamenPDF();
+    }, 100);
     
     document.getElementById('resultats-contenu').innerHTML = html;
     document.getElementById('modal-resultats').classList.add('show');
@@ -2586,7 +2593,606 @@
       document.getElementById('modal-resultats').classList.remove('show');
     };
   }
+  // ============================================================
+  // ÉTAPE 4 — EXPORT PDF
+  // ============================================================
+  
+  let pdfExportData = null;  // Données du dernier PDF généré
+  
+  document.getElementById('btn-export-pdf-dosage').onclick = () => {
+    if (mesures.length < 2) { alert('Effectuez d\'abord un dosage complet (au moins 2 mesures).'); return; }
+    genererRapportDosagePDF();
+  };
+  
+  document.getElementById('btn-fermer-export-pdf').onclick = () => {
+    document.getElementById('modal-export-pdf').classList.remove('show');
+  };
+  
+  document.getElementById('modal-export-pdf').addEventListener('click', (e) => {
+    if (e.target.id === 'modal-export-pdf') document.getElementById('modal-export-pdf').classList.remove('show');
+  });
+  
+  document.getElementById('btn-envoyer-prof').onclick = () => {
+    // Envoi via mailto avec message pré-rempli
+    if (!pdfExportData) return;
+    const emailProf = "contact@lfakm.sn";  // ⚠️ À MODIFIER : email du prof ou config
+    const sujet = `Rapport de dosage - ${profile ? profile.prenom + ' ' + profile.nom : 'Élève'}`;
+    const corps = `Bonjour,
 
+Veuillez trouver ci-joint mon rapport de dosage acido-basique.
+
+Élève : ${profile ? profile.prenom + ' ' + profile.nom : '(non identifié)'}
+Date : ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}
+Type : ${pdfExportData.type}
+${pdfExportData.substanceTitree ? 'Substance titrée : ' + pdfExportData.substanceTitree.nom : ''}
+${pdfExportData.veq ? 'Volume équivalent : ' + pdfExportData.veq.toFixed(2) + ' mL' : ''}
+${pdfExportData.note ? 'Note obtenue : ' + pdfExportData.note + '/20' : ''}
+
+Le fichier PDF est joint à ce message.
+
+Cordialement,
+${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
+    
+    const mailtoLink = `mailto:${emailProf}?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`;
+    window.location.href = mailtoLink;
+  };
+  
+  async function genererRapportDosagePDF() {
+    const p = lireParametres();
+    const points = mesures.map(m => ({ x: m.v, y: m.ph })).sort((a, b) => a.x - b.x);
+    
+    // Recalcul du Veq expérimental
+    let veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
+    if (points.length > 2) {
+      let maxDelta = 0, indexMax = 0;
+      for (let i = 1; i < points.length; i++) {
+        const delta = Math.abs(points[i].y - points[i-1].y);
+        if (delta > maxDelta) { maxDelta = delta; indexMax = i; }
+      }
+      if (maxDelta > 0.5) veq = (points[indexMax].x + points[indexMax-1].x) / 2;
+    }
+    const vdemi = veq / 2;
+    const pheq = calculerPH(veq, p);
+    const phdemi = calculerPH(vdemi, p);
+    
+    // Capturer la courbe Chart.js en image
+    let courbeImage = null;
+    if (chart && chart.canvas) {
+      try {
+        courbeImage = chart.canvas.toDataURL('image/png', 1.0);
+      } catch (e) {
+        console.warn('Impossible de capturer la courbe:', e);
+      }
+    }
+    
+    // Créer le document PDF
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    
+    const pageW = 210;
+    const pageH = 297;
+    const marge = 15;
+    let y = marge;
+    
+    // === EN-TÊTE ===
+    // Bandeau bleu
+    doc.setFillColor(27, 42, 74);
+    doc.rect(0, 0, pageW, 30, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text('Lycée Franco Arabe de Keur Madiabel', pageW / 2, 12, { align: 'center' });
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Excellence & Savoir — Rapport de Dosage', pageW / 2, 20, { align: 'center' });
+    
+    // Filet doré
+    doc.setDrawColor(168, 133, 63);
+    doc.setLineWidth(1);
+    doc.line(0, 30, pageW, 30);
+    
+    y = 40;
+    doc.setTextColor(27, 42, 74);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.text('RAPPORT DE DOSAGE ACIDO-BASIQUE', pageW / 2, y, { align: 'center' });
+    y += 10;
+    
+    // === INFORMATIONS GÉNÉRALES ===
+    doc.setFillColor(247, 245, 240);
+    doc.rect(marge, y, pageW - 2 * marge, 22, 'F');
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.2);
+    doc.rect(marge, y, pageW - 2 * marge, 22);
+    
+    y += 7;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Élève :', marge + 3, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(profile ? `${profile.prenom} ${profile.nom}` : '(non identifié)', marge + 25, y);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Date :', marge + 110, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(new Date().toLocaleDateString('fr-FR'), marge + 125, y);
+    y += 6;
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Mode :', marge + 3, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(modeActuel.charAt(0).toUpperCase() + modeActuel.slice(1), marge + 25, y);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Méthode :', marge + 110, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(p.methode === 'phmetrique' ? 'pH-métrique' : 'Colorimétrique', marge + 132, y);
+    y += 12;
+    
+    // === PARAMÈTRES DU DOSAGE ===
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(27, 42, 74);
+    doc.text('PARAMÈTRES DU DOSAGE', marge, y);
+    y += 6;
+    doc.setDrawColor(168, 133, 63);
+    doc.setLineWidth(0.5);
+    doc.line(marge, y, marge + 60, y);
+    y += 6;
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    
+    const params = [
+      ['Substance titrée', `${p.substanceTitree.nom} (${p.substanceTitree.formule})`],
+      ['Force', p.substanceTitree.force === 'fort' ? 'Forte' : 'Faible'],
+      ['Basicité', p.substanceTitree.n === 1 ? (p.substanceTitree.famille === 'acide' ? 'Monoacide' : 'Monobase') : (p.substanceTitree.n === 2 ? (p.substanceTitree.famille === 'acide' ? 'Diacide' : 'Dibase') : '—')],
+      ['Solution titrante', `${p.substanceTitrante.nom} (${p.substanceTitrante.formule})`],
+      ['Volume VA', `${p.va.toFixed(1)} mL`],
+      ['Concentration CA', `${p.ca.toFixed(3)} mol/L`],
+      ['Concentration CB', `${p.cb.toFixed(3)} mol/L`],
+      ['Indicateur coloré', p.indicateur === 'aucun' ? 'Aucun' : (INDICATEURS.find(i => i.id === p.indicateur)?.nom || '—')]
+    ];
+    
+    if (p.substanceTitree.pka !== undefined) {
+      params.push(['pKa', p.substanceTitree.pka.toFixed(2)]);
+      params.push(['pKb (déduit)', (14 - p.substanceTitree.pka).toFixed(2)]);
+    }
+    
+    params.forEach(([label, val]) => {
+      doc.setFont('helvetica', 'bold');
+      doc.text(label + ' :', marge + 2, y);
+      doc.setFont('helvetica', 'normal');
+      doc.text(String(val), marge + 55, y);
+      y += 5.5;
+    });
+    
+    y += 5;
+    
+    // === TABLEAU DE VALEURS ===
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(27, 42, 74);
+    doc.text('TABLEAU DE VALEURS', marge, y);
+    y += 6;
+    doc.setDrawColor(168, 133, 63);
+    doc.setLineWidth(0.5);
+    doc.line(marge, y, marge + 55, y);
+    y += 5;
+    
+    // En-têtes du tableau
+    doc.setFillColor(27, 42, 74);
+    doc.rect(marge, y, pageW - 2 * marge, 7, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text('N°', marge + 3, y + 5);
+    doc.text('V (mL)', marge + 20, y + 5);
+    doc.text('pH', marge + 50, y + 5);
+    doc.text('Couleur observée', marge + 80, y + 5);
+    y += 7;
+    
+    // Lignes du tableau
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    
+    mesures.forEach((m, i) => {
+      // Nouvelle page si nécessaire
+      if (y > 250) {
+        doc.addPage();
+        y = marge;
+      }
+      
+      // Alternance de fond
+      if (i % 2 === 0) {
+        doc.setFillColor(250, 250, 250);
+        doc.rect(marge, y, pageW - 2 * marge, 6, 'F');
+      }
+      
+      const couleurObs = p.indicateur === 'aucun' 
+        ? '—' 
+        : (() => {
+            const ind = INDICATEURS.find(x => x.id === p.indicateur);
+            if (!ind) return '—';
+            if (m.ph < ind.zoneMin) return ind.couleurAcideNom;
+            if (m.ph > ind.zoneMax) return ind.couleurBasiqueNom;
+            return 'En virage';
+          })();
+      
+      doc.text(String(i + 1), marge + 3, y + 4);
+      doc.text(m.v.toFixed(2), marge + 20, y + 4);
+      doc.text(m.ph.toFixed(2), marge + 50, y + 4);
+      doc.text(couleurObs, marge + 80, y + 4);
+      y += 6;
+    });
+    
+    y += 8;
+    
+    // === COURBE ===
+    if (courbeImage) {
+      if (y > 180) { doc.addPage(); y = marge; }
+      
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(27, 42, 74);
+      doc.text('COURBE pH = f(V)', marge, y);
+      y += 6;
+      doc.setDrawColor(168, 133, 63);
+      doc.setLineWidth(0.5);
+      doc.line(marge, y, marge + 45, y);
+      y += 4;
+      
+      try {
+        doc.addImage(courbeImage, 'PNG', marge, y, pageW - 2 * marge, 90);
+        y += 95;
+      } catch (e) {
+        console.warn('Erreur insertion courbe:', e);
+        doc.setFont('helvetica', 'italic');
+        doc.text('(courbe non disponible)', marge, y);
+        y += 10;
+      }
+    }
+    
+    // === RÉSULTATS ===
+    if (y > 230) { doc.addPage(); y = marge; }
+    
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(27, 42, 74);
+    doc.text('RÉSULTATS DU DOSAGE', marge, y);
+    y += 6;
+    doc.setDrawColor(168, 133, 63);
+    doc.setLineWidth(0.5);
+    doc.line(marge, y, marge + 55, y);
+    y += 6;
+    
+    // Encadré vert
+    doc.setFillColor(232, 245, 233);
+    doc.rect(marge, y, pageW - 2 * marge, 32, 'F');
+    doc.setDrawColor(46, 125, 50);
+    doc.setLineWidth(0.5);
+    doc.rect(marge, y, pageW - 2 * marge, 32);
+    
+    y += 6;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Volume équivalent :', marge + 3, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${veq.toFixed(2)} mL`, marge + 55, y);
+    y += 6;
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Demi-équivalence :', marge + 3, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${vdemi.toFixed(2)} mL`, marge + 55, y);
+    y += 6;
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('pH à l\'équivalence :', marge + 3, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${pheq.toFixed(2)}`, marge + 55, y);
+    y += 6;
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('pH à la demi-équivalence :', marge + 3, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${phdemi.toFixed(2)}`, marge + 55, y);
+    y += 6;
+    
+    if (p.substanceTitree.force === 'faible' && p.substanceTitree.pka !== undefined) {
+      doc.setFont('helvetica', 'bold');
+      doc.text('pKa déterminé :', marge + 3, y);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`≈ ${phdemi.toFixed(2)} (à la demi-équivalence)`, marge + 55, y);
+      y += 6;
+    }
+    
+    y += 5;
+    
+    // === INTERPRÉTATION ===
+    if (y > 240) { doc.addPage(); y = marge; }
+    
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(27, 42, 74);
+    doc.text('INTERPRÉTATION', marge, y);
+    y += 6;
+    doc.setDrawColor(168, 133, 63);
+    doc.setLineWidth(0.5);
+    doc.line(marge, y, marge + 42, y);
+    y += 6;
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    
+    let interpretation = '';
+    if (p.substanceTitree.force === 'fort' && p.substanceTitrante.force === 'fort') {
+      interpretation = 'Dosage entre un acide fort et une base forte. Le pH à l\'équivalence est égal à 7. L\'indicateur adapté est le BBT (zone de virage 6,0-7,6).';
+    } else if (p.substanceTitree.force === 'faible' && p.substanceTitree.famille === 'acide') {
+      interpretation = `Dosage d'un acide faible (pKa = ${p.substanceTitree.pka.toFixed(2)}) par une base forte. Le pH à l'équivalence est basique (${pheq.toFixed(2)}). L'indicateur adapté est la phénolphtaléine (zone 8,2-10,0).`;
+    } else if (p.substanceTitree.force === 'faible' && p.substanceTitree.famille === 'base') {
+      interpretation = `Dosage d'une base faible par un acide fort. Le pH à l'équivalence est acide (${pheq.toFixed(2)}). L'indicateur adapté est l'hélianthine (zone 3,1-4,4).`;
+    } else {
+      interpretation = `Dosage réalisé avec un indicateur coloré. Le pH à l'équivalence est ${pheq.toFixed(2)}.`;
+    }
+    
+    const lignes = doc.splitTextToSize(interpretation, pageW - 2 * marge);
+    doc.text(lignes, marge, y);
+    y += lignes.length * 5 + 10;
+    
+    // === PIED DE PAGE ===
+    if (y > 250) { doc.addPage(); y = marge; }
+    
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.setFont('helvetica', 'italic');
+    doc.text('Signature du professeur : _______________________', marge, y);
+    
+    y += 15;
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Rapport généré par le Simulateur de Dosage LFAKM — ${new Date().toLocaleString('fr-FR')}`, pageW / 2, pageH - 10, { align: 'center' });
+    
+    // === SAUVEGARDE ===
+    const nomEleve = profile ? `${profile.nom}_${profile.prenom}` : 'Eleve';
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const nomFichier = `Rapport_Dosage_${nomEleve}_${dateStr}.pdf`;
+    
+    doc.save(nomFichier);
+    
+    // Préparer les données pour l'envoi email
+    pdfExportData = {
+      type: 'Dosage',
+      substanceTitree: p.substanceTitree,
+      substanceTitrante: p.substanceTitrante,
+      veq: veq,
+      pheq: pheq,
+      phdemi: phdemi,
+      nomFichier: nomFichier
+    };
+    
+    // Afficher le modal de confirmation
+    document.getElementById('export-pdf-titre').textContent = '✅ Rapport généré !';
+    document.getElementById('export-pdf-message').textContent = `Votre rapport "${nomFichier}" a été téléchargé.`;
+    document.getElementById('export-pdf-details').innerHTML = `
+      <div style="text-align: left; font-size: 13px; background: #f7f5f0; padding: 12px; border-radius: 6px; margin-top: 15px;">
+        <strong>📋 Résumé du rapport :</strong><br>
+        • Élève : ${profile ? profile.prenom + ' ' + profile.nom : 'Non identifié'}<br>
+        • Substance : ${p.substanceTitree.nom}<br>
+        • Veq : ${veq.toFixed(2)} mL<br>
+        • pH équivalence : ${pheq.toFixed(2)}<br>
+        • Nombre de mesures : ${mesures.length}
+      </div>
+    `;
+    document.getElementById('modal-export-pdf').classList.add('show');
+  }
+  
+  // ============================================================
+  // EXPORT PDF POUR L'EXAMEN
+  // ============================================================
+  async function genererRapportExamenPDF() {
+    if (examen.reponses.length === 0) {
+      alert('Aucune donnée d\'examen à exporter.');
+      return;
+    }
+    
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    
+    const pageW = 210;
+    const pageH = 297;
+    const marge = 15;
+    let y = marge;
+    
+    const total = examen.questions.length;
+    const score = examen.score;
+    const noteSur20 = Math.round((score / total) * 20 * 10) / 10;
+    const pourcentage = Math.round((score / total) * 100);
+    
+    // === EN-TÊTE ===
+    doc.setFillColor(27, 42, 74);
+    doc.rect(0, 0, pageW, 30, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text('Lycée Franco Arabe de Keur Madiabel', pageW / 2, 12, { align: 'center' });
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Excellence & Savoir — Rapport d\'Évaluation', pageW / 2, 20, { align: 'center' });
+    
+    doc.setDrawColor(168, 133, 63);
+    doc.setLineWidth(1);
+    doc.line(0, 30, pageW, 30);
+    
+    y = 40;
+    doc.setTextColor(27, 42, 74);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.text('RAPPORT D\'ÉVALUATION', pageW / 2, y, { align: 'center' });
+    y += 10;
+    
+    // === INFOS ÉLÈVE ===
+    doc.setFillColor(247, 245, 240);
+    doc.rect(marge, y, pageW - 2 * marge, 22, 'F');
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.2);
+    doc.rect(marge, y, pageW - 2 * marge, 22);
+    
+    y += 7;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 0, 0);
+    doc.text('Élève :', marge + 3, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(profile ? `${profile.prenom} ${profile.nom}` : '(non identifié)', marge + 25, y);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Date :', marge + 110, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(new Date().toLocaleDateString('fr-FR'), marge + 125, y);
+    y += 6;
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Type :', marge + 3, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(examen.type === 'evaluation' ? 'Évaluation' : 'Entraînement', marge + 25, y);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Durée :', marge + 110, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${examen.duree} min`, marge + 125, y);
+    y += 12;
+    
+    // === SCORE FINAL ===
+    doc.setFillColor(232, 245, 233);
+    doc.rect(marge, y, pageW - 2 * marge, 30, 'F');
+    doc.setDrawColor(46, 125, 50);
+    doc.setLineWidth(0.5);
+    doc.rect(marge, y, pageW - 2 * marge, 30);
+    
+    y += 8;
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(46, 125, 50);
+    doc.text(`${noteSur20}/20`, pageW / 2, y, { align: 'center' });
+    y += 8;
+    
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    doc.text(`${score} bonnes réponses sur ${total} (${pourcentage}%)`, pageW / 2, y, { align: 'center' });
+    y += 12;
+    
+    // === DÉTAIL DES QUESTIONS ===
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(27, 42, 74);
+    doc.text('DÉTAIL DES RÉPONSES', marge, y);
+    y += 6;
+    doc.setDrawColor(168, 133, 63);
+    doc.setLineWidth(0.5);
+    doc.line(marge, y, marge + 55, y);
+    y += 6;
+    
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    
+    examen.reponses.forEach((r, i) => {
+      if (y > 255) { doc.addPage(); y = marge; }
+      
+      const q = r.question;
+      const couleur = r.correct ? [46, 125, 50] : [217, 83, 79];
+      
+      // Barre de statut
+      doc.setFillColor(...couleur);
+      doc.rect(marge, y, 3, 4, 'F');
+      
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...couleur);
+      doc.text(`Question ${i+1} : ${r.correct ? '✅ Correcte' : '❌ Incorrecte'}`, marge + 5, y + 3);
+      doc.setTextColor(0, 0, 0);
+      doc.setFont('helvetica', 'normal');
+      y += 6;
+      
+      // Énoncé (tronqué)
+      const enonce = q.enonce.replace(/<[^>]*>/g, ' ');
+      const enonceCourt = enonce.length > 100 ? enonce.substring(0, 100) + '...' : enonce;
+      const lignesEnonce = doc.splitTextToSize(enonceCourt, pageW - 2 * marge - 5);
+      doc.text(lignesEnonce, marge + 5, y);
+      y += lignesEnonce.length * 4 + 1;
+      
+      // Réponses
+      const reponseAffichee = q.options 
+        ? (q.options.find(o => o.value === q.reponse)?.label || q.reponse)
+        : q.reponse + ' ' + (q.unite || '');
+      const reponseDonneeAffichee = q.options 
+        ? (q.options.find(o => o.value === r.reponseDonnee)?.label || r.reponseDonnee)
+        : r.reponseDonnee + ' ' + (q.unite || '');
+      
+      doc.setFont('helvetica', 'bold');
+      doc.text('Votre réponse : ', marge + 5, y);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(...couleur);
+      doc.text(reponseDonneeAffichee, marge + 35, y);
+      doc.setTextColor(0, 0, 0);
+      y += 4;
+      
+      doc.setFont('helvetica', 'bold');
+      doc.text('Bonne réponse : ', marge + 5, y);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(46, 125, 50);
+      doc.text(reponseAffichee, marge + 35, y);
+      doc.setTextColor(0, 0, 0);
+      y += 5;
+      
+      y += 4;
+    });
+    
+    // === PIED DE PAGE ===
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text(`Rapport généré par le Simulateur de Dosage LFAKM — ${new Date().toLocaleString('fr-FR')}`, pageW / 2, pageH - 10, { align: 'center' });
+    
+    const nomEleve = profile ? `${profile.nom}_${profile.prenom}` : 'Eleve';
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const nomFichier = `Rapport_Examen_${nomEleve}_${dateStr}.pdf`;
+    
+    doc.save(nomFichier);
+    
+    pdfExportData = {
+      type: 'Examen',
+      note: noteSur20,
+      nomFichier: nomFichier
+    };
+    
+    document.getElementById('export-pdf-titre').textContent = '✅ Rapport d\'examen généré !';
+    document.getElementById('export-pdf-message').textContent = `Votre rapport "${nomFichier}" a été téléchargé.`;
+    document.getElementById('export-pdf-details').innerHTML = `
+      <div style="text-align: left; font-size: 13px; background: #f7f5f0; padding: 12px; border-radius: 6px; margin-top: 15px;">
+        <strong>📋 Résumé :</strong><br>
+        • Élève : ${profile ? profile.prenom + ' ' + profile.nom : 'Non identifié'}<br>
+        • Type : ${examen.type === 'evaluation' ? 'Évaluation' : 'Entraînement'}<br>
+        • Note : ${noteSur20}/20 (${pourcentage}%)<br>
+        • Bonnes réponses : ${score}/${total}
+      </div>
+    `;
+    document.getElementById('modal-export-pdf').classList.add('show');
+  }
+  
+  // Bouton d'export depuis l'écran de résultats d'examen
+  window.exporterExamenPDF = () => {
+    genererRapportExamenPDF();
+  };
   // ============================================================
   // INITIALISATION
   // ============================================================
