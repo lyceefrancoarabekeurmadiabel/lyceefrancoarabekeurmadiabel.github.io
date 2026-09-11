@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulateur d'Interférences — Fentes d'Young</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
+    --slate: #5B6472; --line: rgba(27,42,74,0.14);
+    --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --success: #2e7d32; --warning: #f39c12; --danger: #d9534f; --info: #3498db;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; }
+
+  header { position:sticky; top:0; z-index:1000; background:var(--paper); border-bottom:1px solid var(--line); height: 84px; display: flex; align-items: center; }
+  .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; max-width:1180px; margin:0 auto; padding:0 24px; }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); width: 220px; flex-shrink: 0; }
+  .brand-mark { width:55px; height:45px; display:flex; align-items:center; justify-content:center; flex-shrink: 0; }
+  .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
+  .brand-name { font-family:var(--serif); font-weight:700; font-size:14px; color:var(--ink); line-height: 1.3; text-align: center; width: 100%; white-space: normal; }
+  .brand-tag { font-size: 10px; color: var(--slate); text-align: center; margin-top: 2px; letter-spacing: 0.5px; white-space: nowrap; }
+  nav { flex: 1; display: flex; justify-content: flex-end; align-items: center; }
+  nav ul { display:flex; gap:18px; list-style:none; align-items: center; justify-content: flex-end; }
+  nav a { font-size:13px; font-weight:600; color:var(--ink); text-decoration:none; white-space: nowrap; display: flex; align-items: center; }
+  nav a:hover { color: var(--brass); }
+  .admin-item { display: none; position: relative; }
+  .admin-dropdown { display: none; position: absolute; top: 100%; right: 0; background: #fff; border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); min-width: 180px; z-index: 100; padding: 5px 0; }
+  .admin-dropdown a { display: block; padding: 8px 15px; color: var(--ink); font-size: 13px; text-decoration: none; }
+  .admin-dropdown a:hover { background: #f5f5f5; }
+  .admin-item:hover .admin-dropdown { display: block; }
+  .admin-trigger { background: var(--brass); color: #fff !important; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 12px; cursor: pointer; display: inline-block; line-height: 1.4; text-align: center; margin: 0; white-space: nowrap; }
+  .profile-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 13px; }
+  .profile-name { font-weight: 700; color: var(--brass); font-size: 14px; }
+  .profile-role { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; }
+  .contact-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 12px; }
+  .contact-label { font-weight: 600; color: var(--ink); }
+  .contact-phone { font-size: 12px; color: var(--brass); font-weight: 700; }
+  #user-profile { display: none; font-weight: 700; color: var(--brass); font-size: 14px; }
+  .nav-cta { background: var(--ink-deep); color:#fff !important; padding:10px 18px; font-size:12px; font-weight:600; border-radius:4px; text-decoration:none; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
+  .menu-toggle { display: none; font-size: 30px; cursor: pointer; }
+  .labo-item { display: none; }
+  .feedback-item { display: none; }
+  .feedback-link { background: var(--brass); color: #fff !important; padding: 4px 12px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
+  @media (max-width: 1024px) {
+    .menu-toggle { display: block; }
+    nav ul { display: none; flex-direction: column; position: absolute; top: 84px; left: 0; width: 100%; background: #fff; padding: 20px; border-bottom: 2px solid var(--line); gap: 15px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    nav ul.show { display: flex; }
+    .admin-dropdown { position: static; box-shadow: none; border: none; }
+    .brand { width: auto; }
+  }
+
+  .hero { background: var(--ink-deep); color:#EFE9DC; padding: 40px 20px; text-align: center; }
+  .hero h1 { font-family: var(--serif); font-size: 32px; margin-bottom: 8px; }
+  .hero p { font-size: 15px; opacity: 0.8; }
+  .wrap { max-width:1200px; margin:0 auto; padding: 20px; }
+
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .card h3 { font-family: var(--serif); font-size: 18px; color: var(--ink); margin-bottom: 15px; border-bottom: 2px solid var(--brass); padding-bottom: 8px; display: inline-block; }
+
+  /* Grille principale */
+  .sim-grid { display: grid; grid-template-columns: 340px 1fr; gap: 20px; margin-bottom: 20px; align-items: start; }
+  @media (max-width: 900px) { .sim-grid { grid-template-columns: 1fr; } }
+
+  /* Panneau de contrôle */
+  .control-panel { background: #fafafa; border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
+  .control-panel h4 { font-family: var(--serif); font-size: 14px; color: var(--ink); margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+  
+  .field { margin-bottom: 15px; }
+  .field label { display: block; font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .field input[type="range"] { width: 100%; }
+  .field .value-display { font-family: monospace; font-size: 13px; color: var(--brass); font-weight: 700; float: right; }
+  .field select { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; font-family: var(--sans); font-size: 13px; background: #fff; }
+
+  .radio-group { display: flex; gap: 8px; margin-bottom: 15px; }
+  .radio-group label { flex: 1; padding: 8px 10px; border: 2px solid var(--line); border-radius: 6px; text-align: center; cursor: pointer; font-size: 12px; font-weight: 700; color: var(--slate); transition: all 0.2s; }
+  .radio-group input { display: none; }
+  .radio-group input:checked + label { border-color: var(--brass); background: #fff8e1; color: var(--brass); }
+
+  .btn-primary { background: var(--ink); color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--sans); transition: background 0.2s; margin-right: 6px; margin-bottom: 6px; }
+  .btn-primary:hover { background: var(--ink-deep); }
+  .btn-secondary { background: #eee; color: var(--ink); border: 1px solid var(--line); padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--sans); margin-right: 6px; margin-bottom: 6px; }
+  .btn-secondary:hover { background: #ddd; }
+  .btn-success { background: var(--success); color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--sans); }
+  .btn-success:hover { background: #1e5f22; }
+
+  /* Zone de visualisation */
+  .visualization { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; text-align: center; }
+  .visualization h4 { font-family: var(--serif); font-size: 14px; color: var(--ink); margin-bottom: 15px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+
+  /* Schéma */
+  #schema-svg { width: 100%; max-width: 900px; height: auto; }
+
+  /* Écran virtuel */
+  .screen-container { margin-top: 20px; position: relative; }
+  .screen-canvas-wrap { position: relative; height: 400px; background: #000; border: 3px solid #333; border-radius: 6px; overflow: hidden; }
+  #screen-canvas { display: block; width: 100%; height: 100%; }
+  .screen-axis { display: flex; justify-content: space-between; font-size: 11px; color: var(--slate); padding: 4px 8px; font-family: monospace; }
+
+  /* Profil d'intensité */
+  #intensity-chart { max-height: 260px; margin-top: 15px; }
+
+  /* Tableau résultats */
+  .results-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 15px; }
+  .results-table th { background: var(--paper); padding: 10px; text-align: left; color: var(--ink); font-weight: 700; border-bottom: 2px solid var(--line); font-size: 12px; }
+  .results-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); font-family: monospace; }
+  .results-table td:first-child { font-weight: 700; color: var(--ink); font-family: var(--sans); }
+
+  /* Info panel */
+  .info-panel { background: #eef4ff; border-left: 4px solid var(--info); padding: 12px 15px; border-radius: 6px; margin-top: 15px; font-size: 13px; }
+  .info-panel .ligne { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed rgba(0,0,0,0.05); }
+  .info-panel .ligne:last-child { border-bottom: none; }
+  .info-panel .ligne strong { color: var(--ink); }
+  .info-panel .ligne code { background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 3px; font-size: 12px; }
+
+  /* Mode mesure */
+  .mesure-zone { display: none; }
+  .mesure-zone.active { display: block; }
+  .mesure-info { background: #fff8e1; border-left: 4px solid var(--warning); padding: 12px 15px; border-radius: 6px; margin-top: 15px; font-size: 13px; }
+  .mesure-info strong { color: var(--ink); }
+  .mesure-info code { background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+
+  /* Explication */
+  .explication { background: #f0f7ff; border-left: 4px solid var(--info); padding: 15px; border-radius: 6px; margin-top: 15px; font-size: 13px; line-height: 1.6; }
+  .explication h5 { font-family: var(--serif); font-size: 14px; color: var(--ink); margin-bottom: 8px; }
+  .explication code { background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 12px; }
+
+  footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav-row">
+    <a href="index.html" class="brand">
+      <div class="brand-mark"><img src="logo-header.png" alt="LFAKM"></div>
+      <div>
+        <div class="brand-name">Lycée Franco<br>Arabe de Keur<br>Madiabel</div>
+        <div class="brand-tag">Excellence & Savoir</div>
+      </div>
+    </a>
+    <div class="menu-toggle" id="burger-btn">☰</div>
+    <nav>
+      <ul id="menu">
+        <li><a href="index.html">Accueil</a></li>
+        <li><a href="historique.html">Historique</a></li>
+        <li><a href="actualites.html">Actualités</a></li>
+        <li class="labo-item"><a href="labo-pc.html" style="color: var(--brass); font-weight:700;">🔬 Labo PC</a></li>
+        <li><a href="ressources.html">Ressources</a></li>
+        <li><a href="#" onclick="window.showContact(); return false;" class="contact-info" style="text-decoration: none;">
+          <span class="contact-label">📞 Contacter le Proviseur</span>
+          <span class="contact-phone" id="contact-phone-display">...</span>
+        </a></li>
+        <li id="user-profile" class="profile-info"></li>
+        <li class="feedback-item"><a href="feedback.html" class="feedback-link">📋 Donner mon avis</a></li>
+        <li><a href="identification.html" class="nav-cta" id="auth-link">Se connecter</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>🔬 Interférences lumineuses — Fentes d'Young</h1>
+    <p>Simulateur conforme au programme de Terminale S — Lycée Franco Arabe de Keur Madiabel</p>
+  </div>
+</section>
+
+<div class="wrap">
+
+  <div class="sim-grid">
+
+    <!-- Panneau de contrôle (colonne gauche) -->
+    <div class="control-panel">
+      <h4>⚙️ Paramètres</h4>
+
+      <div class="radio-group">
+        <input type="radio" name="type-lumiere" id="radio-mono" value="mono" checked>
+        <label for="radio-mono">🔴 Monochromatique</label>
+        <input type="radio" name="type-lumiere" id="radio-poly" value="poly">
+        <label for="radio-poly">🌈 Polychromatique</label>
+      </div>
+
+      <!-- Sélecteur presets (mono) -->
+      <div class="field" id="field-preset">
+        <label>Source lumineuse (preset)</label>
+        <select id="preset-source">
+          <option value="632.8">Laser He-Ne (632,8 nm) — Rouge</option>
+          <option value="650">Laser rouge (650 nm)</option>
+          <option value="543.5">Laser vert (543,5 nm)</option>
+          <option value="532">Laser vert Nd:YAG (532 nm)</option>
+          <option value="473">Laser bleu (473 nm)</option>
+          <option value="405">Laser violet (405 nm)</option>
+          <option value="custom">Personnalisé...</option>
+        </select>
+      </div>
+
+      <div class="field" id="field-lambda">
+        <label>Longueur d'onde λ <span class="value-display" id="lambda-value">632,8 nm</span></label>
+        <input type="range" id="lambda-slider" min="400" max="700" step="0.1" value="632.8">
+      </div>
+
+      <div class="field">
+        <label>Distance entre les fentes a <span class="value-display" id="a-value">0,50 mm</span></label>
+        <input type="range" id="a-slider" min="0.05" max="2" step="0.01" value="0.5">
+      </div>
+
+      <div class="field">
+        <label>Distance fentes → écran D <span class="value-display" id="D-value">2,00 m</span></label>
+        <input type="range" id="D-slider" min="0.5" max="5" step="0.1" value="2">
+      </div>
+
+      <h4 style="margin-top: 20px;">📐 Résultats calculés</h4>
+
+      <div class="info-panel" style="margin-top: 10px;">
+        <div class="ligne"><span>Interfrange i = λD/a</span> <strong id="info-interfrange">—</strong></div>
+        <div class="ligne"><span>Fréquence ν = c/λ</span> <strong id="info-frequence">—</strong></div>
+        <div class="ligne"><span>Énergie photon E = hν</span> <strong id="info-energie">—</strong></div>
+      </div>
+
+      <h4 style="margin-top: 20px;">🛠️ Actions</h4>
+
+      <button class="btn-primary" id="btn-mode-mesure">📏 Mode Mesure</button>
+      <button class="btn-secondary" id="btn-reset">🔄 Réinitialiser</button>
+
+      <div class="mesure-zone" id="mesure-zone">
+        <div class="mesure-info">
+          <strong>🎯 Mode Mesure activé</strong><br>
+          Cliquez sur l'écran pour mesurer la position <code>x</code> d'une frange brillante.<br>
+          Utilisez la formule <code>x_k = k · i</code> pour en déduire λ si vous ne la connaissez pas.
+          <div style="margin-top: 8px;">
+            <strong>Dernière mesure :</strong><br>
+            x = <code id="mesure-x">—</code> mm<br>
+            k ≈ <code id="mesure-k">—</code> (ordre estimé)<br>
+            λ déduite = <code id="mesure-lambda">—</code> nm
+          </div>
+        </div>
+      </div>
+
+      <div class="explication" style="margin-top: 20px;">
+        <h5>📚 Formules clés</h5>
+        <p><strong>Différence de marche :</strong><br>
+        <code>δ = a·x / D</code></p>
+        <p><strong>Interfrange :</strong><br>
+        <code>i = λ·D / a</code></p>
+        <p><strong>Position des maxima :</strong><br>
+        <code>x_k = k · i</code> (k entier relatif)</p>
+        <p><strong>Condition d'interférences constructives :</strong><br>
+        <code>δ = k·λ</code></p>
+        <p><strong>Condition d'interférences destructives :</strong><br>
+        <code>δ = (k + ½)·λ</code></p>
+      </div>
+
+    </div>
+
+    <!-- Zone de visualisation (colonne droite) -->
+    <div class="visualization">
+
+      <h4>🔬 Dispositif expérimental</h4>
+
+      <svg id="schema-svg" viewBox="0 0 900 220" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="laser-beam" x1="0%" x2="100%" y1="0%" y2="0%">
+            <stop offset="0%" stop-color="#d9534f" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#d9534f" stop-opacity="0.3"/>
+          </linearGradient>
+          <linearGradient id="beam-1" x1="0%" x2="100%" y1="0%" y2="0%">
+            <stop offset="0%" stop-color="#d9534f" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#d9534f" stop-opacity="0.15"/>
+          </linearGradient>
+          <linearGradient id="beam-2" x1="0%" x2="100%" y1="0%" y2="0%">
+            <stop offset="0%" stop-color="#d9534f" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#d9534f" stop-opacity="0.15"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Source laser -->
+        <rect x="20" y="100" width="60" height="20" fill="#333" stroke="#000" stroke-width="1.5" rx="3"/>
+        <text x="50" y="135" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">Laser</text>
+        <text x="50" y="148" text-anchor="middle" font-size="10" fill="#5B6472" id="svg-lambda">632,8 nm</text>
+
+        <!-- Faisceau laser -->
+        <line x1="80" y1="110" x2="250" y2="110" stroke="url(#laser-beam)" stroke-width="4"/>
+
+        <!-- Fente source S -->
+        <rect x="250" y="40" width="8" height="60" fill="#333"/>
+        <rect x="250" y="120" width="8" height="60" fill="#333"/>
+        <text x="254" y="30" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">Fente source S</text>
+
+        <!-- Ondes divergentes depuis S -->
+        <path d="M 258 110 Q 400 60 550 80" stroke="#d9534f" stroke-opacity="0.4" stroke-width="1.5" fill="none"/>
+        <path d="M 258 110 Q 400 140 550 120" stroke="#d9534f" stroke-opacity="0.4" stroke-width="1.5" fill="none"/>
+
+        <!-- Fentes d'Young S1 et S2 -->
+        <rect x="550" y="20" width="8" height="78" fill="#333"/>
+        <rect x="550" y="105" width="8" height="10" fill="#333"/>
+        <rect x="550" y="130" width="8" height="70" fill="#333"/>
+        <text x="554" y="15" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">Fentes S₁ / S₂</text>
+        <text x="540" y="103" text-anchor="end" font-size="10" fill="#5B6472">a</text>
+        <line x1="546" y1="98" x2="546" y2="130" stroke="#5B6472" stroke-width="1" stroke-dasharray="2,2"/>
+
+        <!-- Ondes depuis S1 et S2 -->
+        <path d="M 558 98 Q 700 70 870 60" stroke="url(#beam-1)" stroke-width="1.5" fill="none"/>
+        <path d="M 558 98 Q 700 110 870 105" stroke="url(#beam-1)" stroke-width="1.5" fill="none"/>
+        <path d="M 558 130 Q 700 110 870 115" stroke="url(#beam-2)" stroke-width="1.5" fill="none"/>
+        <path d="M 558 130 Q 700 150 870 160" stroke="url(#beam-2)" stroke-width="1.5" fill="none"/>
+
+        <!-- Écran -->
+        <line x1="870" y1="20" x2="870" y2="200" stroke="#333" stroke-width="4"/>
+        <text x="865" y="15" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">Écran</text>
+
+        <!-- Distance D -->
+        <line x1="554" y1="190" x2="870" y2="190" stroke="#5B6472" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="710" y="205" text-anchor="middle" font-size="11" font-weight="700" fill="#5B6472">D = <tspan id="svg-D">2,00</tspan> m</text>
+
+      </svg>
+
+      <!-- Écran virtuel -->
+      <div class="screen-container">
+        <h4>📺 Écran d'observation</h4>
+        <div class="screen-canvas-wrap">
+          <canvas id="screen-canvas"></canvas>
+        </div>
+        <div class="screen-axis">
+          <span>-10 mm</span>
+          <span>0</span>
+          <span>+10 mm</span>
+        </div>
+      </div>
+
+      <!-- Profil d'intensité -->
+      <h4 style="margin-top: 20px;">📊 Profil d'intensité lumineuse I(x)</h4>
+      <div style="position: relative; height: 260px;">
+        <canvas id="intensity-chart"></canvas>
+      </div>
+
+      <!-- Tableau des franges -->
+      <h4 style="margin-top: 20px;">📋 Positions des franges brillantes</h4>
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Ordre k</th>
+            <th>Position x_k (mm)</th>
+            <th>Différence de marche δ (nm)</th>
+            <th>δ / λ</th>
+            <th>Type</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <!-- Rempli en JS -->
+        </tbody>
+      </table>
+
+    </div>
+
+  </div>
+
+</div>
+
+<footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
