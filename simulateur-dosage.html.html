@@ -83,10 +83,35 @@
   .btn-info { background: var(--info); color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--sans); }
   .btn-info:hover { background: #2980b9; }
   
-  /* === NOUVELLE GRILLE : Tableau à gauche, Animation/Courbe à droite === */
-  .labo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-  @media (max-width: 1100px) { .labo-grid { grid-template-columns: 1fr; } }
-  .labo-col { display: flex; flex-direction: column; gap: 20px; }
+  /* === GRILLE À 3 COLONNES avec empilement intelligent === */
+  .labo-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr 1fr; 
+    gap: 20px; 
+    margin-bottom: 20px;
+    align-items: start;
+  }
+  
+  /* Ordre d'affichage : Dispositif | Tableau | Animation */
+  .labo-dispositif { order: 1; }
+  .labo-tableau { order: 2; }
+  .labo-animation { order: 3; }
+  
+  /* Grand écran : 3 colonnes */
+  @media (min-width: 1101px) {
+    .labo-grid { grid-template-columns: 1fr 1fr 1.2fr; }
+  }
+  
+  /* Petit écran : empilement intelligent */
+  @media (max-width: 1100px) {
+    .labo-grid { 
+      grid-template-columns: 1fr; 
+    }
+    /* Ordre sur mobile : Animation (1) | Tableau (2) | Dispositif (3) */
+    .labo-animation { order: 1; }
+    .labo-tableau { order: 2; }
+    .labo-dispositif { order: 3; }
+  }
   
   .dispositif { background: #fafafa; border: 1px solid var(--line); border-radius: 10px; padding: 15px; text-align: center; }
   .dispositif svg { width: 100%; max-width: 360px; height: auto; }
@@ -96,18 +121,19 @@
   #beaker-liquid, #anim-liquid { transition: fill 0.5s ease-in-out; }
   .table-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
   .table-mode { display: flex; gap: 4px; background: #f0f0f0; padding: 4px; border-radius: 6px; }
-  .table-mode-btn { padding: 6px 12px; border: none; background: transparent; border-radius: 4px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--sans); color: var(--slate); }
+  .table-mode-btn { padding: 6px 10px; border: none; background: transparent; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: var(--sans); color: var(--slate); }
   .table-mode-btn.active { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  table th { background: var(--paper); padding: 10px; text-align: left; color: var(--ink); font-weight: 700; border-bottom: 2px solid var(--line); }
-  table td { padding: 8px 10px; border-bottom: 1px solid var(--line); }
-  table input { width: 100%; padding: 6px 8px; border: 1px solid var(--line); border-radius: 4px; font-family: var(--sans); font-size: 13px; }
-  table button { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 14px; padding: 2px 6px; }
-  #chart-container { position: relative; height: 420px; margin-top: 10px; }
-  .animation-box { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; text-align: center; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table th { background: var(--paper); padding: 8px 6px; text-align: left; color: var(--ink); font-weight: 700; border-bottom: 2px solid var(--line); font-size: 11px; }
+  table td { padding: 6px; border-bottom: 1px solid var(--line); }
+  table input { width: 100%; padding: 5px 6px; border: 1px solid var(--line); border-radius: 4px; font-family: var(--sans); font-size: 12px; }
+  table button { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 13px; padding: 2px 4px; }
+  .pastille-couleur { display: inline-block; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #333; vertical-align: middle; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  #chart-container { position: relative; height: 380px; margin-top: 10px; }
+  .animation-box { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 15px; text-align: center; }
   .result-box { background: linear-gradient(135deg, #f0f7ff 0%, #e8f5e9 100%); border: 1px solid var(--line); border-left: 4px solid var(--success); border-radius: 8px; padding: 15px; margin-top: 15px; }
   .result-box h4 { font-family: var(--serif); font-size: 15px; color: var(--ink); margin-bottom: 8px; }
-  .result-row { font-size: 14px; margin: 6px 0; }
+  .result-row { font-size: 13px; margin: 5px 0; }
   .result-row strong { color: var(--ink); }
   .info-panel { background: #eef4ff; border-left: 4px solid var(--info); padding: 12px 15px; border-radius: 6px; margin-top: 10px; font-size: 13px; }
   .info-panel .ligne { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dashed rgba(0,0,0,0.05); }
@@ -260,11 +286,11 @@
     <button class="btn-secondary" id="btn-imprimer">🖨️ Imprimer</button>
   </div>
 
-  <!-- === NOUVELLE GRILLE : Gauche = Dispositif + Tableau | Droite = Animation/Courbe + Résultats === -->
+  <!-- === GRILLE 3 COLONNES : Dispositif | Tableau | Animation === -->
   <div class="labo-grid">
     
-    <!-- COLONNE GAUCHE -->
-    <div class="labo-col">
+    <!-- COLONNE 1 : DISPOSITIF -->
+    <div class="labo-dispositif">
       <div class="dispositif">
         <h4>🔬 Dispositif expérimental</h4>
         <svg viewBox="0 0 380 500" xmlns="http://www.w3.org/2000/svg">
@@ -308,7 +334,10 @@
         </svg>
         <p style="font-size: 11px; color: var(--slate); margin-top: 5px;" id="dispositif-info">Solution titrante : NaOH</p>
       </div>
+    </div>
 
+    <!-- COLONNE 2 : TABLEAU DE VALEURS (avec colonne Couleur) -->
+    <div class="labo-tableau">
       <div class="card">
         <h3>📋 Tableau de valeurs</h3>
         <div class="table-controls">
@@ -316,12 +345,17 @@
             <button class="table-mode-btn active" data-tablemode="auto">🔄 Auto</button>
             <button class="table-mode-btn" data-tablemode="manuel">✏️ Manuelle</button>
           </div>
-          <button class="btn-secondary" id="btn-vider" style="padding: 6px 12px; font-size: 12px;">🗑 Vider</button>
+          <button class="btn-secondary" id="btn-vider" style="padding: 5px 10px; font-size: 11px;">🗑 Vider</button>
         </div>
-        <div style="max-height: 250px; overflow-y: auto;">
+        <div style="max-height: 300px; overflow-y: auto;">
           <table id="table-mesures">
             <thead>
-              <tr><th style="width: 40%;">V (mL)</th><th style="width: 40%;">pH</th><th style="width: 20%;">Action</th></tr>
+              <tr>
+                <th style="width: 30%;">V (mL)</th>
+                <th style="width: 30%;">pH</th>
+                <th style="width: 30%;">Couleur</th>
+                <th style="width: 10%;">—</th>
+              </tr>
             </thead>
             <tbody id="table-body"></tbody>
           </table>
@@ -331,53 +365,53 @@
         </div>
         <div id="auto-controls" style="margin-top: 12px;">
           <label style="font-size: 12px; font-weight: 700; color: var(--ink); display: block; margin-bottom: 6px;">Ajouter du volume titrant :</label>
-          <button class="btn-primary" id="btn-add-05" style="padding: 8px 14px; font-size: 13px;">+ 0,5 mL</button>
-          <button class="btn-primary" id="btn-add-1" style="padding: 8px 14px; font-size: 13px;">+ 1 mL</button>
-          <button class="btn-primary" id="btn-add-2" style="padding: 8px 14px; font-size: 13px;">+ 2 mL</button>
-          <button class="btn-primary" id="btn-add-5" style="padding: 8px 14px; font-size: 13px;">+ 5 mL</button>
-          <div style="margin-top: 8px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-            <input type="number" id="volume-libre" value="0.5" min="0.01" max="50" step="0.01" style="width: 80px; padding: 6px; border: 1px solid var(--line); border-radius: 4px;">
-            <button class="btn-secondary" id="btn-add-libre" style="padding: 6px 12px; font-size: 12px;">Ajouter ce volume</button>
+          <button class="btn-primary" id="btn-add-05" style="padding: 7px 12px; font-size: 12px;">+ 0,5</button>
+          <button class="btn-primary" id="btn-add-1" style="padding: 7px 12px; font-size: 12px;">+ 1</button>
+          <button class="btn-primary" id="btn-add-2" style="padding: 7px 12px; font-size: 12px;">+ 2</button>
+          <button class="btn-primary" id="btn-add-5" style="padding: 7px 12px; font-size: 12px;">+ 5</button>
+          <div style="margin-top: 8px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+            <input type="number" id="volume-libre" value="0.5" min="0.01" max="50" step="0.01" style="width: 70px; padding: 5px; border: 1px solid var(--line); border-radius: 4px; font-size: 12px;">
+            <button class="btn-secondary" id="btn-add-libre" style="padding: 5px 10px; font-size: 11px;">Ajouter</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- COLONNE DROITE -->
-    <div class="labo-col">
+    <!-- COLONNE 3 : ANIMATION / COURBE + RÉSULTATS -->
+    <div class="labo-animation">
       <div class="card">
         <h3 id="titre-visualisation">📊 Courbe pH = f(V)</h3>
         <div id="chart-container" class="hidden"><canvas id="chart"></canvas></div>
         <div id="animation-colorimetrique" class="animation-box">
-          <div style="font-size: 15px; color: var(--ink); margin-bottom: 12px;">
-            🎨 <strong>Animation du dosage colorimétrique</strong>
+          <div style="font-size: 14px; color: var(--ink); margin-bottom: 8px;">
+            🎨 <strong>Dosage colorimétrique</strong>
           </div>
-          <svg viewBox="0 0 300 260" style="max-width: 280px; height: auto;">
-            <line x1="250" y1="30" x2="250" y2="230" stroke="#555" stroke-width="5"/>
-            <line x1="20" y1="230" x2="280" y2="230" stroke="#555" stroke-width="5"/>
-            <rect x="130" y="20" width="22" height="140" fill="rgba(255,255,255,0.5)" stroke="#333" stroke-width="1.5" rx="2"/>
-            <rect x="132" y="22" width="18" height="136" fill="rgba(52, 152, 219, 0.4)"/>
+          <svg viewBox="0 0 300 240" style="max-width: 260px; height: auto;">
+            <line x1="250" y1="30" x2="250" y2="210" stroke="#555" stroke-width="5"/>
+            <line x1="20" y1="210" x2="280" y2="210" stroke="#555" stroke-width="5"/>
+            <rect x="130" y="20" width="22" height="130" fill="rgba(255,255,255,0.5)" stroke="#333" stroke-width="1.5" rx="2"/>
+            <rect x="132" y="22" width="18" height="126" fill="rgba(52, 152, 219, 0.4)"/>
             <line x1="130" y1="40" x2="138" y2="40" stroke="#333" stroke-width="1"/>
             <line x1="130" y1="70" x2="138" y2="70" stroke="#333" stroke-width="1"/>
             <line x1="130" y1="100" x2="138" y2="100" stroke="#333" stroke-width="1"/>
             <line x1="130" y1="130" x2="138" y2="130" stroke="#333" stroke-width="1"/>
-            <rect x="136" y="160" width="10" height="15" fill="#999" stroke="#333"/>
-            <line x1="141" y1="175" x2="141" y2="185" stroke="#333" stroke-width="2"/>
-            <ellipse cx="141" cy="200" rx="3" ry="5" fill="#2ecc71" id="anim-drop" style="display:none;"/>
-            <rect x="85" y="195" width="112" height="35" fill="rgba(255,255,255,0.4)" stroke="#333" stroke-width="2" rx="2"/>
-            <rect x="87" y="200" width="108" height="28" fill="rgba(241, 196, 15, 0.6)" id="anim-liquid"/>
-            <text x="141" y="252" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">
-              V = <tspan id="anim-volume">0.00</tspan> mL  |  pH = <tspan id="anim-ph">-</tspan>
+            <rect x="136" y="150" width="10" height="15" fill="#999" stroke="#333"/>
+            <line x1="141" y1="165" x2="141" y2="175" stroke="#333" stroke-width="2"/>
+            <ellipse cx="141" cy="190" rx="3" ry="5" fill="#2ecc71" id="anim-drop" style="display:none;"/>
+            <rect x="85" y="180" width="112" height="35" fill="rgba(255,255,255,0.4)" stroke="#333" stroke-width="2" rx="2"/>
+            <rect x="87" y="185" width="108" height="28" fill="rgba(241, 196, 15, 0.6)" id="anim-liquid"/>
+            <text x="141" y="235" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">
+              V = <tspan id="anim-volume">0.00</tspan> mL | pH = <tspan id="anim-ph">-</tspan>
             </text>
           </svg>
-          <div id="anim-message" style="margin-top: 12px; font-size: 13px; color: var(--slate); font-style: italic;">
+          <div id="anim-message" style="margin-top: 10px; font-size: 12px; color: var(--slate); font-style: italic;">
             Ajoutez du titrant pour voir la couleur évoluer.
           </div>
         </div>
-        <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;" id="zone-boutons-courbe">
-          <button class="btn-secondary" id="btn-tangentes-auto">🔍 Tangentes (auto)</button>
-          <button class="btn-secondary" id="btn-tangentes-manuel">✏️ Construire</button>
-          <button class="btn-secondary" id="btn-zone-tampon">🟩 Zone tampon</button>
+        <div style="margin-top: 12px; display: flex; gap: 6px; flex-wrap: wrap;" id="zone-boutons-courbe">
+          <button class="btn-secondary" id="btn-tangentes-auto" style="padding: 6px 10px; font-size: 11px;">🔍 Tangentes</button>
+          <button class="btn-secondary" id="btn-tangentes-manuel" style="padding: 6px 10px; font-size: 11px;">✏️ Manuel</button>
+          <button class="btn-secondary" id="btn-zone-tampon" style="padding: 6px 10px; font-size: 11px;">🟩 Tampon</button>
         </div>
         <div class="result-box" id="result-box" style="display: none;">
           <h4>📐 Résultats du dosage</h4>
@@ -386,7 +420,7 @@
           <div class="result-row" id="ligne-pheq"><span>📊</span> <strong>pH à l'équivalence :</strong> <span id="result-pheq">-</span></div>
           <div class="result-row" id="ligne-phdemi"><span>💧</span> <strong>pH à la demi-équivalence :</strong> <span id="result-phdemi">-</span></div>
           <div class="result-row" id="ligne-relation-equivalence" style="display:none;">
-            <span>📚</span> <strong>Relation à l'équivalence :</strong> <span id="result-relation">n × CA × VA = m × CB × Veq</span>
+            <span>📚</span> <strong>Relation :</strong> <span id="result-relation">n × CA × VA = m × CB × Veq</span>
           </div>
         </div>
         <button class="btn-secondary" id="btn-explication" style="margin-top: 12px;">💡 Voir l'explication</button>
@@ -596,9 +630,6 @@
     return { mode: 'standard', nom: '📘 Standard' };
   }
 
-  // ============================================================
-  // FILTRAGE : méthode passée en paramètre EXPLICITE
-  // ============================================================
   function substancesAutorisees(methode) {
     if (methode === 'phmetrique') {
       return SUBSTANCES.filter(s => s.n === 1);
@@ -608,7 +639,6 @@
 
   function construireMenuTitree(methode) {
     const sel = document.getElementById('substance-titree');
-    // Si methode non passée, on la lit du DOM
     if (!methode) methode = document.getElementById('methode').value;
     
     const listeAutorisee = substancesAutorisees(methode);
@@ -735,9 +765,7 @@
     const estInconnue = (s.id === '__inconnue__') || (tpActif && tpVerite && s.nom === 'Substance inconnue');
     
     document.getElementById('info-famille').textContent = s.famille === 'acide' ? 'Acide' : 'Base';
-    
-    const forceLabel = s.force === 'fort' ? '🔴 Forte' : '🟢 Faible';
-    document.getElementById('info-force').innerHTML = forceLabel;
+    document.getElementById('info-force').innerHTML = s.force === 'fort' ? '🔴 Forte' : '🟢 Faible';
     
     let basiciteLabel = '';
     if (s.n === 1) basiciteLabel = s.famille === 'acide' ? 'Monoacide' : 'Monobase';
@@ -755,9 +783,8 @@
       lignePka.style.display = 'flex';
       lignePkb.style.display = 'flex';
       const pka = s.pka;
-      const pkb = (14 - pka).toFixed(2);
       document.getElementById('info-pka').textContent = pka.toFixed(2);
-      document.getElementById('info-pkb').textContent = pkb;
+      document.getElementById('info-pkb').textContent = (14 - pka).toFixed(2);
     }
     
     if (s.n === 2 && s.force === 'fort') {
@@ -784,35 +811,22 @@
     
     const sT = substanceTitreeActuelle;
     const sTr = substanceTitranteActuelle;
+    let recommande = null, raison = '';
     
-    let recommande = null;
-    let raison = '';
-    
-    if (sT.force === 'fort' && sTr.force === 'fort') {
-      recommande = 'bbt';
-      raison = 'Virage à pH ≈ 7';
-    } else if (sT.force === 'faible' && sT.famille === 'acide' && sTr.force === 'fort') {
-      recommande = 'phenolphtaleine';
-      raison = 'Virage à pH > 7';
-    } else if (sT.force === 'fort' && sT.famille === 'acide' && sTr.force === 'faible') {
-      recommande = 'helianthine';
-      raison = 'Virage à pH < 7';
-    } else if (sT.force === 'faible' && sT.famille === 'base' && sTr.force === 'fort') {
-      recommande = 'helianthine';
-      raison = 'Virage à pH < 7';
-    } else if (sT.force === 'fort' && sT.famille === 'base' && sTr.force === 'faible') {
-      recommande = 'phenolphtaleine';
-      raison = 'Virage à pH > 7';
-    }
+    if (sT.force === 'fort' && sTr.force === 'fort') { recommande = 'bbt'; raison = 'Virage à pH ≈ 7'; }
+    else if (sT.force === 'faible' && sT.famille === 'acide' && sTr.force === 'fort') { recommande = 'phenolphtaleine'; raison = 'Virage à pH > 7'; }
+    else if (sT.force === 'fort' && sT.famille === 'acide' && sTr.force === 'faible') { recommande = 'helianthine'; raison = 'Virage à pH < 7'; }
+    else if (sT.force === 'faible' && sT.famille === 'base' && sTr.force === 'fort') { recommande = 'helianthine'; raison = 'Virage à pH < 7'; }
+    else if (sT.force === 'fort' && sT.famille === 'base' && sTr.force === 'faible') { recommande = 'phenolphtaleine'; raison = 'Virage à pH > 7'; }
     
     const indActuel = document.getElementById('indicateur').value;
     const noms = { 'helianthine': 'Hélianthine', 'bbt': 'Bleu de bromothymol', 'phenolphtaleine': 'Phénolphtaléine', 'aucun': 'Aucun' };
     
     if (recommande) {
       if (indActuel === recommande) {
-        div.innerHTML = `<div class="indicateur-suggestion">💡 <strong>Indicateur recommandé :</strong> ${noms[recommande]} — ${raison}. ✅ Bon choix.</div>`;
+        div.innerHTML = `<div class="indicateur-suggestion">💡 <strong>Recommandé :</strong> ${noms[recommande]} — ${raison}. ✅ Bon choix.</div>`;
       } else if (indActuel === 'aucun') {
-        div.innerHTML = `<div class="indicateur-suggestion">💡 <strong>Indicateur recommandé :</strong> ${noms[recommande]} — ${raison}</div>`;
+        div.innerHTML = `<div class="indicateur-suggestion">💡 <strong>Recommandé :</strong> ${noms[recommande]} — ${raison}</div>`;
       } else {
         div.innerHTML = `<div class="indicateur-avertissement">⚠️ L'indicateur choisi (${noms[indActuel]}) n'est pas optimal. <strong>Suggestion :</strong> ${noms[recommande]} — ${raison}</div>`;
       }
@@ -824,6 +838,14 @@
   document.getElementById('indicateur').addEventListener('change', () => {
     appliquerCouleurInitiale();
     majSuggestionIndicateur();
+    // Mise à jour des pastilles dans le tableau
+    document.querySelectorAll('#table-body tr').forEach((tr, i) => {
+      const ph = parseFloat(tr.querySelectorAll('input')[1]?.value);
+      const pastille = tr.querySelector('.pastille-couleur');
+      if (pastille && !isNaN(ph)) {
+        pastille.style.backgroundColor = couleurIndicateur(ph, document.getElementById('indicateur').value);
+      }
+    });
   });
 
   function activerMode(mode) {
@@ -861,13 +883,9 @@
       helperMethode.style.color = 'var(--slate)';
     }
     
-    // 1. Mettre à jour l'affichage (bécher vs courbe)
     majAffichageSelonMethode();
-    
-    // 2. Reconstruire le menu titrée avec la méthode EXPLICITE
     construireMenuTitree(methodeForcee);
     
-    // 3. Sélectionner la bonne substance (inconnue en mode TP)
     const sel = document.getElementById('substance-titree');
     if (mode === 'tp') {
       sel.value = '__inconnue__';
@@ -927,9 +945,13 @@
   function ajouterLigneTableau(v, ph) {
     const tbody = document.getElementById('table-body');
     const tr = document.createElement('tr');
+    const ind = document.getElementById('indicateur').value;
+    const couleur = (!isNaN(parseFloat(ph))) ? couleurIndicateur(parseFloat(ph), ind) : 'transparent';
+    
     tr.innerHTML = `
       <td><input type="number" step="0.01" value="${v}" placeholder="0.0"></td>
       <td><input type="number" step="0.01" value="${ph}" placeholder="7.0"></td>
+      <td><span class="pastille-couleur" style="background-color: ${couleur};"></span></td>
       <td><button class="btn-del-row">✕</button></td>`;
     tbody.appendChild(tr);
     tr.querySelectorAll('input').forEach(inp => inp.addEventListener('change', majMesure));
@@ -943,6 +965,11 @@
       const v = parseFloat(inputs[0].value);
       const ph = parseFloat(inputs[1].value);
       if (!isNaN(v) && !isNaN(ph)) mesures.push({ v, ph });
+      // Mise à jour de la pastille
+      const pastille = row.querySelector('.pastille-couleur');
+      if (pastille && !isNaN(ph)) {
+        pastille.style.backgroundColor = couleurIndicateur(ph, document.getElementById('indicateur').value);
+      }
     });
     mesures.sort((a, b) => a.v - b.v);
     renderChart();
@@ -972,13 +999,11 @@
     const sT = p.substanceTitree;
     const sTr = p.substanceTitrante;
     
-    // Cas : les deux espèces sont fortes
     if (sT.force === 'fort' && sTr.force === 'fort') {
       const nA = sT.n * p.va * p.ca / 1000;
       const nB = sTr.n * vBase * p.cb / 1000;
       const vT = (p.va + vBase) / 1000;
       const veq = (sT.n * p.va * p.ca) / (sTr.n * p.cb);
-      
       if (vBase < veq - 0.001) {
         if (sT.famille === 'acide') return -Math.log10(Math.max((nA - nB) / vT, 1e-14));
         else return 14 + Math.log10(Math.max((nA - nB) / vT, 1e-14));
@@ -988,7 +1013,6 @@
       else return -Math.log10(Math.max((nB - nA) / vT, 1e-14));
     }
     
-    // Acide faible + base forte
     if (sT.famille === 'acide' && sT.force === 'faible' && sTr.famille === 'base' && sTr.force === 'fort') {
       const nA = p.va * p.ca / 1000;
       const nB = vBase * p.cb / 1000;
@@ -1007,7 +1031,6 @@
       return 14 + Math.log10(Math.max((nB - nA) / vT, 1e-14));
     }
     
-    // Acide fort + base faible
     if (sT.famille === 'acide' && sT.force === 'fort' && sTr.famille === 'base' && sTr.force === 'faible') {
       const nA = p.va * p.ca / 1000;
       const nB = vBase * p.cb / 1000;
@@ -1022,7 +1045,6 @@
       return 14 - pkaTitrante - Math.log10(Math.max((nB - nA) / Math.max(nA, 1e-14), 1e-14));
     }
     
-    // Base faible + acide fort
     if (sT.famille === 'base' && sT.force === 'faible' && sTr.famille === 'acide' && sTr.force === 'fort') {
       const nB = p.va * p.ca / 1000;
       const nA = vBase * p.cb / 1000;
@@ -1053,35 +1075,35 @@
   }
 
   function couleurIndicateur(ph, ind) {
-    if (ind === 'aucun') return 'rgba(46, 204, 113, 0.3)';
+    if (ind === 'aucun') return 'rgba(46, 204, 113, 0.6)';
     if (ind === 'helianthine') {
-      if (ph < 3.1) return 'rgba(231, 76, 60, 0.6)';
-      if (ph > 4.4) return 'rgba(241, 196, 15, 0.6)';
+      if (ph < 3.1) return 'rgba(231, 76, 60, 0.85)';
+      if (ph > 4.4) return 'rgba(241, 196, 15, 0.85)';
       const t = (ph - 3.1) / (4.4 - 3.1);
       const r = Math.round(231 + (241 - 231) * t);
       const g = Math.round(76 + (196 - 76) * t);
       const b = Math.round(60 + (15 - 60) * t);
-      return `rgba(${r}, ${g}, ${b}, 0.6)`;
+      return `rgba(${r}, ${g}, ${b}, 0.85)`;
     }
     if (ind === 'bbt') {
-      if (ph < 6.0) return 'rgba(241, 196, 15, 0.6)';
-      if (ph > 7.6) return 'rgba(52, 152, 219, 0.6)';
+      if (ph < 6.0) return 'rgba(241, 196, 15, 0.85)';
+      if (ph > 7.6) return 'rgba(52, 152, 219, 0.85)';
       const t = (ph - 6.0) / (7.6 - 6.0);
       const r = Math.round(241 + (52 - 241) * t);
       const g = Math.round(196 + (152 - 196) * t);
       const b = Math.round(15 + (219 - 15) * t);
-      return `rgba(${r}, ${g}, ${b}, 0.6)`;
+      return `rgba(${r}, ${g}, ${b}, 0.85)`;
     }
     if (ind === 'phenolphtaleine') {
-      if (ph < 8.2) return 'rgba(236, 240, 241, 0.6)';
-      if (ph > 10.0) return 'rgba(233, 30, 99, 0.6)';
+      if (ph < 8.2) return 'rgba(236, 240, 241, 0.85)';
+      if (ph > 10.0) return 'rgba(233, 30, 99, 0.85)';
       const t = (ph - 8.2) / (10.0 - 8.2);
       const r = Math.round(236 + (233 - 236) * t);
       const g = Math.round(240 + (30 - 240) * t);
       const b = Math.round(241 + (99 - 241) * t);
-      return `rgba(${r}, ${g}, ${b}, 0.6)`;
+      return `rgba(${r}, ${g}, ${b}, 0.85)`;
     }
-    return 'rgba(46, 204, 113, 0.3)';
+    return 'rgba(46, 204, 113, 0.6)';
   }
 
   function appliquerCouleurInitiale() {
@@ -1195,16 +1217,15 @@
     document.getElementById('anim-volume').textContent = v.toFixed(2);
     document.getElementById('anim-ph').textContent = ph.toFixed(2);
     const p = lireParametres();
-    const couleur = couleurIndicateur(ph, p.indicateur);
-    document.getElementById('anim-liquid').setAttribute('fill', couleur);
+    document.getElementById('anim-liquid').setAttribute('fill', couleurIndicateur(ph, p.indicateur));
     
     const veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
     let msg = '';
-    if (v < veq * 0.5) msg = 'Avant l\'équivalence : la solution garde sa couleur initiale.';
-    else if (v < veq - 0.5) msg = 'Approche de l\'équivalence... La couleur commence à changer.';
-    else if (Math.abs(v - veq) < 1) msg = '🎯 À l\'équivalence : le virage de couleur se produit !';
-    else if (v < veq * 1.5) msg = 'Après l\'équivalence : la couleur finale de l\'indicateur apparaît.';
-    else msg = 'Loin après l\'équivalence : couleur stable de l\'indicateur.';
+    if (v < veq * 0.5) msg = 'Avant l\'équivalence : couleur initiale.';
+    else if (v < veq - 0.5) msg = 'Approche de l\'équivalence...';
+    else if (Math.abs(v - veq) < 1) msg = '🎯 À l\'équivalence : virage !';
+    else if (v < veq * 1.5) msg = 'Après l\'équivalence : couleur finale.';
+    else msg = 'Couleur stable de l\'indicateur.';
     document.getElementById('anim-message').textContent = msg;
   }
 
@@ -1220,8 +1241,7 @@
     let vdemi = veq / 2;
     
     if (points.length > 2) {
-        let maxDelta = 0;
-        let indexMax = 0;
+        let maxDelta = 0, indexMax = 0;
         for (let i = 1; i < points.length; i++) {
             const delta = Math.abs(points[i].y - points[i-1].y);
             if (delta > maxDelta) { maxDelta = delta; indexMax = i; }
@@ -1291,8 +1311,7 @@
     let vdemi = veq / 2;
     
     if (points.length > 2) {
-        let maxDelta = 0;
-        let indexMax = 0;
+        let maxDelta = 0, indexMax = 0;
         for (let i = 1; i < points.length; i++) {
             const delta = Math.abs(points[i].y - points[i-1].y);
             if (delta > maxDelta) { maxDelta = delta; indexMax = i; }
@@ -1378,7 +1397,7 @@
         où n = ${sT.n} et m = ${sTr.n}<br>
         Veq = (${sT.n} × ${p.ca} × ${p.va}) / (${sTr.n} × ${p.cb}) = <strong>${veq.toFixed(2)} mL</strong><br><br>
         <strong>📊 pH à l'équivalence :</strong> ${pheq.toFixed(2)}<br>
-        <strong>🎨 Virage coloré :</strong> se produit à l'équivalence.
+        <strong>🎨 Virage coloré :</strong> à l'équivalence.
       `;
     } else {
       explication = `
