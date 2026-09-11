@@ -186,28 +186,52 @@
   .ouvrir-indicateur-btn { background: var(--brass); color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--sans); margin-top: 6px; }
   .ouvrir-indicateur-btn:hover { background: #8e6f33; }
   
-  /* === MODAL COMPARAISON === */
-  .modal-comparaison { max-width: 900px !important; max-height: 90vh; overflow-y: auto; }
-  .type-comparaison { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
-  .type-comparaison label { display: flex; align-items: center; gap: 8px; padding: 10px; background: #f7f5f0; border: 2px solid transparent; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all 0.2s; }
-  .type-comparaison label:hover { background: #ede9e0; }
-  .type-comparaison input[type="radio"] { margin: 0; }
-  .type-comparaison label.selected { border-color: var(--brass); background: #fff8e1; }
-  .partenaires-liste { max-height: 250px; overflow-y: auto; border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
-  .partenaire-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 4px; cursor: pointer; font-size: 13px; transition: background 0.15s; }
-  .partenaire-item:hover { background: #f7f5f0; }
-  .partenaire-item input[type="radio"] { margin: 0; }
-  .partenaire-item .partenaire-nom { font-weight: 700; color: var(--ink); }
-  .partenaire-item .partenaire-pka { color: var(--slate); font-size: 12px; }
-  .partenaire-item .partenaire-tag { background: var(--brass); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; margin-left: auto; }
-  .reference-banner { background: #e8f5e9; border-left: 4px solid var(--success); padding: 10px 15px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-  .reference-banner .ref-info { flex: 1; }
-  .reference-banner button { padding: 5px 10px; font-size: 11px; }
-  .comparatif-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-  .comparatif-table th { background: var(--ink); color: #fff; padding: 10px; text-align: left; font-size: 12px; }
+  /* === BANNIÈRE RÉFÉRENCE === */
+  .reference-banner {
+    background: linear-gradient(135deg, #e8f5e9 0%, #d4edda 100%);
+    border-left: 4px solid var(--success);
+    border-radius: 8px;
+    padding: 12px 18px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  .reference-banner .ref-icon { font-size: 20px; }
+  .reference-banner .ref-text { flex: 1; font-size: 13px; color: var(--ink); }
+  .reference-banner .ref-text strong { color: var(--success); }
+  .reference-banner button {
+    background: transparent;
+    border: 1px solid var(--success);
+    color: var(--success);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: all 0.2s;
+  }
+  .reference-banner button:hover { background: var(--success); color: #fff; }
+  
+  /* === TABLEAU COMPARATIF === */
+  .comparatif-box {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--info);
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+  }
+  .comparatif-box h4 { font-family: var(--serif); font-size: 15px; color: var(--ink); margin-bottom: 10px; }
+  .comparatif-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .comparatif-table th { background: var(--paper); padding: 10px; text-align: left; font-size: 12px; font-weight: 700; color: var(--ink); border-bottom: 2px solid var(--line); }
   .comparatif-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); }
-  .comparatif-table tr:nth-child(even) { background: #fafafa; }
   .comparatif-table tr:last-child td { border-bottom: none; }
+  .comparatif-table .ref-col { color: #d9534f; font-weight: 700; }
+  .comparatif-table .comp-col { color: #3498db; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -331,10 +355,13 @@
     </div>
     <button class="btn-primary" id="btn-demarrer">▶ Démarrer le dosage</button>
     <button class="btn-secondary" id="btn-reset">🔄 Réinitialiser</button>
-    <button class="btn-info" id="btn-comparer">📊 Comparer 2 dosages</button>
+    <button class="btn-success hidden" id="btn-garder-ref" style="background: var(--success);">💾 Garder ce dosage comme référence</button>
     <button class="btn-secondary" id="btn-export">📥 Exporter CSV</button>
     <button class="btn-secondary" id="btn-imprimer">🖨️ Imprimer</button>
   </div>
+
+  <!-- Bannière de référence sauvegardée -->
+  <div id="reference-banner-zone"></div>
 
   <div class="labo-grid">
     
@@ -487,6 +514,10 @@
             <span>📚</span> <strong>Relation :</strong> <span id="result-relation">n × CA × VA = m × CB × Veq</span>
           </div>
         </div>
+        
+        <!-- Zone du tableau comparatif -->
+        <div id="zone-tableau-comparatif"></div>
+        
         <button class="btn-secondary" id="btn-explication" style="margin-top: 12px;">💡 Voir l'explication</button>
         <div class="explication" id="explication"></div>
       </div>
@@ -571,114 +602,6 @@
     <div style="margin-top: 20px; text-align: right;">
       <button class="btn-secondary" id="btn-close-indicateurs">Fermer</button>
     </div>
-  </div>
-</div>
-
-<!-- === MODAL COMPARAISON === -->
-<div class="modal-overlay" id="modal-comparaison">
-  <div class="modal-box modal-comparaison">
-    <h3>📊 Comparer 2 dosages</h3>
-    
-    <div id="reference-banner-zone"></div>
-    
-    <div style="margin-bottom: 20px;">
-      <strong style="font-size: 14px; color: var(--ink); display: block; margin-bottom: 10px;">
-        🎯 Type de comparaison :
-      </strong>
-      <div class="type-comparaison" id="type-comparaison-zone">
-        <label data-type="pka">
-          <input type="radio" name="type-comp" value="pka" checked>
-          <div>
-            <strong>Effet du pKa</strong>
-            <div style="font-size: 12px; color: var(--slate);">Comparer 2 substances avec les mêmes VA, CA, CB</div>
-          </div>
-        </label>
-        <label data-type="concentration">
-          <input type="radio" name="type-comp" value="concentration">
-          <div>
-            <strong>Effet de la concentration</strong>
-            <div style="font-size: 12px; color: var(--slate);">Même substance, concentrations CA₁ et CA₂ différentes</div>
-          </div>
-        </label>
-        <label data-type="indicateur">
-          <input type="radio" name="type-comp" value="indicateur">
-          <div>
-            <strong>Effet de l'indicateur</strong>
-            <div style="font-size: 12px; color: var(--slate);">Même dosage, 2 indicateurs différents</div>
-          </div>
-        </label>
-      </div>
-    </div>
-    
-    <!-- Zone pour type PKA -->
-    <div id="zone-pka">
-      <div style="margin-bottom: 15px;">
-        <label style="font-size: 13px; font-weight: 700; color: var(--ink); display: block; margin-bottom: 6px;">
-          🎯 Substance de référence :
-        </label>
-        <select id="comparaison-ref-substance" style="width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; font-family: var(--sans); font-size: 14px;"></select>
-      </div>
-      
-      <div style="margin-bottom: 15px;">
-        <label style="font-size: 13px; font-weight: 700; color: var(--ink); display: block; margin-bottom: 6px;">
-          🧪 Partenaires suggérés :
-        </label>
-        <div class="partenaires-liste" id="partenaires-liste">
-          <!-- Rempli dynamiquement -->
-        </div>
-      </div>
-    </div>
-    
-    <!-- Zone pour type CONCENTRATION -->
-    <div id="zone-concentration" class="hidden">
-      <div class="param-grid">
-        <div class="field">
-          <label>CA₁ (mol/L) - référence</label>
-          <input type="number" id="comp-ca1" value="0.1" min="0.001" max="2" step="0.001">
-        </div>
-        <div class="field">
-          <label>CA₂ (mol/L) - comparaison</label>
-          <input type="number" id="comp-ca2" value="0.05" min="0.001" max="2" step="0.001">
-        </div>
-      </div>
-      <p style="font-size: 12px; color: var(--slate);">
-        💡 Les autres paramètres (VA, substance, titrant, CB) restent identiques à ceux du dosage actuel.
-      </p>
-    </div>
-    
-    <!-- Zone pour type INDICATEUR -->
-    <div id="zone-indicateur" class="hidden">
-      <div class="param-grid">
-        <div class="field">
-          <label>Indicateur 1 - référence</label>
-          <select id="comp-ind1"></select>
-        </div>
-        <div class="field">
-          <label>Indicateur 2 - comparaison</label>
-          <select id="comp-ind2"></select>
-        </div>
-      </div>
-      <p style="font-size: 12px; color: var(--slate);">
-        💡 Le dosage reste identique, seuls les indicateurs changent. On voit quelle couleur apparaît à l'équivalence.
-      </p>
-    </div>
-    
-    <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-      <button class="btn-secondary" id="btn-garder-reference" style="margin: 0;">💾 Garder le dosage actuel comme référence</button>
-      <div>
-        <button class="btn-primary" id="btn-lancer-comparaison" style="margin: 0;">▶ Afficher la comparaison</button>
-        <button class="btn-secondary" id="btn-fermer-comparaison" style="margin: 0;">Fermer</button>
-      </div>
-    </div>
-    
-    <!-- Zone de résultats -->
-    <div id="zone-resultats-comparaison" class="hidden" style="margin-top: 25px; border-top: 2px solid var(--line); padding-top: 20px;">
-      <h4 style="font-family: var(--serif); color: var(--ink); font-size: 16px; margin-bottom: 10px;">
-        📊 Résultats comparés
-      </h4>
-      <div id="tableau-comparatif-zone"></div>
-    </div>
-    
   </div>
 </div>
 
@@ -788,7 +711,6 @@
   let modeActuel = 'standard';
   let tableMode = 'auto';
   let mesures = [];
-  let mesures2 = [];
   let started = false;
   let chart = null;
   let tangentesAffichees = false;
@@ -798,8 +720,8 @@
   let substanceTitreeActuelle = null;
   let substanceTitranteActuelle = null;
   
-  // État de la comparaison
-  let referenceSauvegardee = null;  // { substance, va, ca, cb, titrant, indicateur, mesures, veq, pheq, phdemi }
+  // Référence sauvegardée pour comparaison
+  let referenceSauvegardee = null;
 
   onAuthStateChanged(auth, async (user) => {
     const link = document.getElementById('auth-link');
@@ -1160,56 +1082,19 @@
   }
 
   // ============================================================
-  // MODAL COMPARAISON
+  // GESTION DE LA RÉFÉRENCE SAUVEGARDÉE
   // ============================================================
   
-  function initComparaison() {
-    // Remplir le select des substances de référence
-    const selRef = document.getElementById('comparaison-ref-substance');
-    selRef.innerHTML = '';
-    SUBSTANCES.forEach(s => {
-      const opt = document.createElement('option');
-      opt.value = s.id;
-      opt.textContent = `${s.nom} (${s.formule})${s.pka ? ' - pKa=' + s.pka : ''}`;
-      selRef.appendChild(opt);
-    });
-    if (substanceTitreeActuelle) selRef.value = substanceTitreeActuelle.id;
-    selRef.onchange = majPartenairesSuggeres;
-    
-    // Remplir les selects d'indicateurs pour le type "indicateur"
-    ['comp-ind1', 'comp-ind2'].forEach((id, idx) => {
-      const sel = document.getElementById(id);
-      sel.innerHTML = '';
-      INDICATEURS.forEach(ind => {
-        const opt = document.createElement('option');
-        opt.value = ind.id;
-        opt.textContent = `${ind.nom} (${ind.zoneMin}-${ind.zoneMax})`;
-        sel.appendChild(opt);
-      });
-      sel.value = idx === 0 ? 'bbt' : 'phenolphtaleine';
-    });
-    
-    // Gestion du changement de type
-    document.querySelectorAll('input[name="type-comp"]').forEach(radio => {
-      radio.addEventListener('change', () => {
-        document.querySelectorAll('.type-comparaison label').forEach(l => l.classList.remove('selected'));
-        radio.closest('label').classList.add('selected');
-        
-        const type = radio.value;
-        document.getElementById('zone-pka').classList.toggle('hidden', type !== 'pka');
-        document.getElementById('zone-concentration').classList.toggle('hidden', type !== 'concentration');
-        document.getElementById('zone-indicateur').classList.toggle('hidden', type !== 'indicateur');
-        document.getElementById('zone-resultats-comparaison').classList.add('hidden');
-      });
-    });
-    // Sélectionner le 1er par défaut
-    document.querySelector('input[name="type-comp"][value="pka"]').closest('label').classList.add('selected');
-    
-    // Initialiser les partenaires
-    majPartenairesSuggeres();
-    
-    // Afficher la référence sauvegardée si elle existe
-    majBannerReference();
+  function majBoutonReference() {
+    const btn = document.getElementById('btn-garder-ref');
+    // Visible uniquement si un dosage est en cours ET a au moins 3 mesures
+    if (started && mesures.length >= 3 && !referenceSauvegardee) {
+      btn.classList.remove('hidden');
+    } else if (referenceSauvegardee) {
+      btn.classList.add('hidden');
+    } else {
+      btn.classList.add('hidden');
+    }
   }
   
   function majBannerReference() {
@@ -1221,12 +1106,13 @@
     const ref = referenceSauvegardee;
     zone.innerHTML = `
       <div class="reference-banner">
-        <div class="ref-info">
-          📌 <strong>Référence sauvegardée :</strong> ${ref.substance.nom} (${ref.substance.formule}) — 
-          CA = ${ref.ca} mol/L, VA = ${ref.va} mL
-          ${ref.substance.pka ? ` — pKa = ${ref.substance.pka}` : ''}
+        <span class="ref-icon">📌</span>
+        <div class="ref-text">
+          <strong>Référence sauvegardée :</strong> ${ref.substance.nom} (${ref.substance.formule}) — 
+          CA = ${ref.ca} mol/L, VA = ${ref.va} mL${ref.substance.pka ? `, pKa = ${ref.substance.pka}` : ''} — 
+          <strong>${ref.mesures.length} mesures</strong>
         </div>
-        <button class="btn-secondary" onclick="window.supprimerReference()">✕ Supprimer</button>
+        <button onclick="window.supprimerReference()">✕ Supprimer la référence</button>
       </div>
     `;
   }
@@ -1234,401 +1120,36 @@
   window.supprimerReference = () => {
     referenceSauvegardee = null;
     majBannerReference();
-  };
-  
-  function majPartenairesSuggeres() {
-    const selRef = document.getElementById('comparaison-ref-substance');
-    const refId = selRef.value;
-    const ref = SUBSTANCES.find(s => s.id === refId);
-    const cont = document.getElementById('partenaires-liste');
-    cont.innerHTML = '';
-    
-    if (!ref) return;
-    
-    // Filtrer les partenaires intéressants
-    let partenaires = [];
-    
-    if (ref.pka !== undefined) {
-      // Catégoriser les autres substances avec pKa
-      SUBSTANCES.forEach(s => {
-        if (s.id === ref.id) return;
-        if (s.pka === undefined) return;
-        if (s.famille !== ref.famille) return; // même famille
-        
-        const diff = s.pka - ref.pka;
-        let tag = '';
-        if (Math.abs(diff) < 0.3) tag = 'Très proche';
-        else if (diff < -1) tag = 'Beaucoup + fort';
-        else if (diff < 0) tag = 'Plus fort';
-        else if (diff > 1) tag = 'Beaucoup + faible';
-        else tag = 'Plus faible';
-        
-        partenaires.push({ ...s, tag, ordre: Math.abs(diff) });
-      });
-      
-      // Trier par pertinence pédagogique (très proche en premier, puis plus fort/faible)
-      partenaires.sort((a, b) => a.ordre - b.ordre);
-    }
-    
-    // Ajouter les cas spéciaux (diacides, si ref est un monoacide)
-    if (ref.n === 1 && ref.famille === 'acide') {
-      SUBSTANCES.filter(s => s.n === 2 && s.famille === 'acide').forEach(s => {
-        partenaires.push({ ...s, tag: 'Cas spécial (diacide)', ordre: 999 });
-      });
-    }
-    
-    if (partenaires.length === 0) {
-      cont.innerHTML = '<p style="padding: 15px; text-align: center; color: var(--slate); font-size: 13px;">Aucun partenaire suggéré pour cette substance.</p>';
-      return;
-    }
-    
-    partenaires.forEach((p, i) => {
-      const label = document.createElement('label');
-      label.className = 'partenaire-item';
-      label.innerHTML = `
-        <input type="radio" name="partenaire" value="${p.id}" ${i === 0 ? 'checked' : ''}>
-        <span class="partenaire-nom">${p.nom} (${p.formule})</span>
-        <span class="partenaire-pka">${p.pka !== undefined ? 'pKa=' + p.pka : (p.pka1 !== undefined ? 'pKa₁=' + p.pka1 : '')}</span>
-        <span class="partenaire-tag">${p.tag}</span>
-      `;
-      cont.appendChild(label);
-    });
-  }
-  
-  // Ouvrir le modal comparaison
-  document.getElementById('btn-comparer').onclick = () => {
-    initComparaison();
-    document.getElementById('modal-comparaison').classList.add('show');
-  };
-  
-  document.getElementById('btn-fermer-comparaison').onclick = () => {
-    document.getElementById('modal-comparaison').classList.remove('show');
-    // Nettoyer l'affichage de comparaison
-    mesures2 = [];
-    if (chart) { chart.destroy(); chart = null; }
+    majBoutonReference();
     renderChart();
+    majZoneTableauComparatif();
   };
   
-  document.getElementById('modal-comparaison').addEventListener('click', (e) => {
-    if (e.target.id === 'modal-comparaison') {
-      document.getElementById('modal-comparaison').classList.remove('show');
-      mesures2 = [];
-      if (chart) { chart.destroy(); chart = null; }
-      renderChart();
-    }
-  });
-  
-  // Garder le dosage actuel comme référence
-  document.getElementById('btn-garder-reference').onclick = () => {
+  document.getElementById('btn-garder-ref').onclick = () => {
     if (!substanceTitreeActuelle || !substanceTitranteActuelle) return;
-    if (mesures.length === 0) {
-      alert('Effectuez d\'abord un dosage pour le sauvegarder comme référence.');
+    if (mesures.length < 3) {
+      alert('Il faut au moins 3 mesures pour sauvegarder une référence.');
       return;
     }
     referenceSauvegardee = {
-      substance: substanceTitreeActuelle,
-      titrant: substanceTitranteActuelle,
+      substance: { ...substanceTitreeActuelle },
+      titrant: { ...substanceTitranteActuelle },
       va: parseFloat(document.getElementById('va').value),
       ca: parseFloat(document.getElementById('ca').value),
       cb: parseFloat(document.getElementById('cb').value),
       indicateur: document.getElementById('indicateur').value,
-      mesures: [...mesures],
+      mesures: JSON.parse(JSON.stringify(mesures)),
       pka: substanceTitreeActuelle.pka
     };
     majBannerReference();
-    alert('✅ Dosage sauvegardé comme référence. Modifiez les paramètres et lancez une nouvelle comparaison.');
+    majBoutonReference();
+    majZoneTableauComparatif();
+    renderChart();
   };
-  
-  // Lancer la comparaison
-  document.getElementById('btn-lancer-comparaison').onclick = () => {
-    const typeRadio = document.querySelector('input[name="type-comp"]:checked');
-    if (!typeRadio) return;
-    const type = typeRadio.value;
-    
-    // Déterminer la référence
-    let refDosage = referenceSauvegardee;
-    let compDosage = null;
-    
-    if (type === 'pka') {
-      // Référence = substance actuelle (ou la substance choisie dans le select)
-      const refId = document.getElementById('comparaison-ref-substance').value;
-      const refSubstance = SUBSTANCES.find(s => s.id === refId);
-      const partRadio = document.querySelector('input[name="partenaire"]:checked');
-      if (!partRadio) { alert('Sélectionnez un partenaire à comparer.'); return; }
-      const partId = partRadio.value;
-      const partSubstance = SUBSTANCES.find(s => s.id === partId);
-      
-      // Générer les deux dosages
-      refDosage = {
-        substance: refSubstance,
-        titrant: substanceTitranteActuelle,
-        va: parseFloat(document.getElementById('va').value),
-        ca: parseFloat(document.getElementById('ca').value),
-        cb: parseFloat(document.getElementById('cb').value),
-        indicateur: document.getElementById('indicateur').value
-      };
-      compDosage = {
-        substance: partSubstance,
-        titrant: substanceTitranteActuelle,
-        va: parseFloat(document.getElementById('va').value),
-        ca: parseFloat(document.getElementById('ca').value),
-        cb: parseFloat(document.getElementById('cb').value),
-        indicateur: document.getElementById('indicateur').value
-      };
-    } else if (type === 'concentration') {
-      const ca1 = parseFloat(document.getElementById('comp-ca1').value);
-      const ca2 = parseFloat(document.getElementById('comp-ca2').value);
-      const sub = substanceTitreeActuelle;
-      const titr = substanceTitranteActuelle;
-      const va = parseFloat(document.getElementById('va').value);
-      const cb = parseFloat(document.getElementById('cb').value);
-      const ind = document.getElementById('indicateur').value;
-      
-      refDosage = { substance: sub, titrant: titr, va, ca: ca1, cb, indicateur: ind };
-      compDosage = { substance: sub, titrant: titr, va, ca: ca2, cb, indicateur: ind };
-    } else if (type === 'indicateur') {
-      // Même dosage, 2 indicateurs différents - on affiche 2 zones de virage sur la même courbe
-      const ind1 = document.getElementById('comp-ind1').value;
-      const ind2 = document.getElementById('comp-ind2').value;
-      
-      // Pour ce type, on utilise le dosage actuel + on ajoute la 2ème zone de virage
-      if (mesures.length < 2) {
-        alert('Effectuez d\'abord un dosage pour comparer les indicateurs.');
-        return;
-      }
-      
-      // Afficher le tableau comparatif des indicateurs
-      afficherComparaisonIndicateurs(ind1, ind2);
-      return;
-    }
-    
-    // Générer les courbes pour les 2 dosages
-    afficherComparaison2Dosages(refDosage, compDosage, type);
-  };
-  
-  function genererPointsDosage(dosage) {
-    // Calculer Veq et générer les points de la courbe
-    const nTitree = dosage.substance.n || 1;
-    const nTitrante = dosage.titrant.n || 1;
-    const veq = (nTitree * dosage.va * dosage.ca) / (nTitrante * dosage.cb);
-    const points = [];
-    const nbPoints = 40;
-    for (let i = 0; i <= nbPoints; i++) {
-      const v = (veq * 2) * i / nbPoints;
-      points.push({ v, ph: calculerPHPourDosage(v, dosage) });
-    }
-    return { points, veq };
-  }
-  
-  function calculerPHPourDosage(vBase, dosage) {
-    const sT = dosage.substance;
-    const sTr = dosage.titrant;
-    const p = {
-      substanceTitree: sT,
-      substanceTitrante: sTr,
-      va: dosage.va,
-      ca: dosage.ca,
-      cb: dosage.cb,
-      pka: sT.pka
-    };
-    return calculerPH(vBase, p);
-  }
-  
-  function afficherComparaison2Dosages(refD, compD, type) {
-    // Nettoyer l'ancien graphique
-    if (chart) { chart.destroy(); chart = null; }
-    
-    const ref = genererPointsDosage(refD);
-    const comp = genererPointsDosage(compD);
-    
-    const ctx = document.getElementById('chart');
-    document.getElementById('chart-container').classList.remove('hidden');
-    document.getElementById('animation-colorimetrique').classList.add('hidden');
-    document.getElementById('titre-visualisation').textContent = '📊 Comparaison de 2 dosages';
-    document.getElementById('zone-boutons-courbe').classList.add('hidden');
-    
-    const datasets = [
-      {
-        label: `${refD.substance.nom} (Référence)`,
-        data: ref.points,
-        borderColor: '#A8853F',
-        backgroundColor: 'rgba(168, 133, 63, 0.1)',
-        tension: 0.2, fill: false,
-        pointRadius: 3, pointBackgroundColor: '#A8853F'
-      },
-      {
-        label: `${compD.substance.nom} (Comparaison)`,
-        data: comp.points,
-        borderColor: '#3498db',
-        backgroundColor: 'rgba(52, 152, 219, 0.1)',
-        tension: 0.2, fill: false,
-        pointRadius: 3, pointBackgroundColor: '#3498db'
-      }
-    ];
-    
-    // Annotations pour E1 et E2
-    const annotations = {
-      veq1: {
-        type: 'point',
-        xValue: ref.veq, yValue: calculerPHPourDosage(ref.veq, refD),
-        backgroundColor: '#d9534f', borderColor: '#fff', borderWidth: 2,
-        radius: 8,
-        label: { display: true, content: 'E₁', position: 'top', backgroundColor: '#d9534f', color: '#fff', font: { size: 12, weight: 'bold' } }
-      },
-      veq2: {
-        type: 'point',
-        xValue: comp.veq, yValue: calculerPHPourDosage(comp.veq, compD),
-        backgroundColor: '#3498db', borderColor: '#fff', borderWidth: 2,
-        radius: 8,
-        label: { display: true, content: 'E₂', position: 'top', backgroundColor: '#3498db', color: '#fff', font: { size: 12, weight: 'bold' } }
-      }
-    };
-    
-    // Lignes verticales pour les deux Veq
-    annotations.ligneVeq1 = {
-      type: 'line', xMin: ref.veq, xMax: ref.veq,
-      borderColor: 'rgba(217, 83, 79, 0.5)', borderWidth: 1.5, borderDash: [4, 4]
-    };
-    annotations.ligneVeq2 = {
-      type: 'line', xMin: comp.veq, xMax: comp.veq,
-      borderColor: 'rgba(52, 152, 219, 0.5)', borderWidth: 1.5, borderDash: [4, 4]
-    };
-    
-    chart = new Chart(ctx.getContext('2d'), {
-      type: 'line',
-      data: { datasets },
-      options: {
-        responsive: true, maintainAspectRatio: false, parsing: false,
-        scales: {
-          x: { type: 'linear', title: { display: true, text: 'Volume versé (mL)' }, min: 0 },
-          y: { title: { display: true, text: 'pH' }, min: 0, max: 14 }
-        },
-        plugins: {
-          legend: { display: true, position: 'top' },
-          annotation: { annotations }
-        }
-      }
-    });
-    
-    // Construire le tableau comparatif
-    afficherTableauComparatif(refD, compD, ref.veq, comp.veq, type);
-    
-    // Afficher la zone de résultats
-    document.getElementById('zone-resultats-comparaison').classList.remove('hidden');
-  }
-  
-  function afficherTableauComparatif(refD, compD, veq1, veq2, type) {
-    const zone = document.getElementById('tableau-comparatif-zone');
-    
-    const p1 = { substanceTitree: refD.substance, substanceTitrante: refD.titrant, va: refD.va, ca: refD.ca, cb: refD.cb, pka: refD.substance.pka };
-    const p2 = { substanceTitree: compD.substance, substanceTitrante: compD.titrant, va: compD.va, ca: compD.ca, cb: compD.cb, pka: compD.substance.pka };
-    
-    const pheq1 = calculerPH(veq1, p1);
-    const pheq2 = calculerPH(veq2, p2);
-    const phdemi1 = calculerPH(veq1/2, p1);
-    const phdemi2 = calculerPH(veq2/2, p2);
-    
-    let html = `
-      <table class="comparatif-table">
-        <thead>
-          <tr>
-            <th>Critère</th>
-            <th>🔵 Dosage 1 (Référence)</th>
-            <th>🟠 Dosage 2 (Comparaison)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td><strong>Substance</strong></td><td>${refD.substance.nom} (${refD.substance.formule})</td><td>${compD.substance.nom} (${compD.substance.formule})</td></tr>
-          <tr><td><strong>Force</strong></td><td>${refD.substance.force === 'fort' ? '🔴 Forte' : '🟢 Faible'}</td><td>${compD.substance.force === 'fort' ? '🔴 Forte' : '🟢 Faible'}</td></tr>
-    `;
-    
-    if (refD.substance.pka !== undefined) {
-      html += `<tr><td><strong>pKa</strong></td><td>${refD.substance.pka.toFixed(2)}</td><td>${compD.substance.pka !== undefined ? compD.substance.pka.toFixed(2) : '—'}</td></tr>`;
-    }
-    
-    html += `
-          <tr><td><strong>CA (mol/L)</strong></td><td>${refD.ca.toFixed(3)}</td><td>${compD.ca.toFixed(3)}</td></tr>
-          <tr><td><strong>Veq (mL)</strong></td><td>${veq1.toFixed(2)}</td><td>${veq2.toFixed(2)}</td></tr>
-          <tr><td><strong>pH à l'équivalence</strong></td><td><strong style="color: #d9534f;">${pheq1.toFixed(2)}</strong></td><td><strong style="color: #3498db;">${pheq2.toFixed(2)}</strong></td></tr>
-          <tr><td><strong>pH à la demi-équivalence</strong></td><td>${phdemi1.toFixed(2)}</td><td>${phdemi2.toFixed(2)}</td></tr>
-        </tbody>
-      </table>
-    `;
-    
-    if (type === 'pka') {
-      const diffPka = (compD.substance.pka !== undefined && refD.substance.pka !== undefined) 
-        ? (compD.substance.pka - refD.substance.pka).toFixed(2) : null;
-      if (diffPka !== null) {
-        html += `<p style="margin-top: 15px; font-size: 13px; color: var(--slate); background: #f7f5f0; padding: 10px; border-radius: 6px;">
-          💡 <strong>Interprétation :</strong> La différence de pKa entre les 2 substances est de <strong>${diffPka}</strong>. 
-          ${Math.abs(diffPka) < 0.3 ? 'Les deux acides ont des forces très proches, les courbes sont quasi superposables.' : 
-            parseFloat(diffPka) < 0 ? 'Le dosage 2 utilise un acide plus fort, la zone tampon est décalée vers le bas.' : 
-            'Le dosage 2 utilise un acide plus faible, la zone tampon est décalée vers le haut.'}
-        </p>`;
-      }
-    } else if (type === 'concentration') {
-      html += `<p style="margin-top: 15px; font-size: 13px; color: var(--slate); background: #f7f5f0; padding: 10px; border-radius: 6px;">
-        💡 <strong>Interprétation :</strong> La concentration change le volume équivalent (Veq = nCA·VA / mCB). 
-        Une concentration plus faible donne un Veq plus petit. Le pH à la demi-équivalence est identique (pH = pKa).
-      </p>`;
-    }
-    
-    zone.innerHTML = html;
-  }
-  
-  function afficherComparaisonIndicateurs(ind1Id, ind2Id) {
-    const ind1 = INDICATEURS.find(i => i.id === ind1Id);
-    const ind2 = INDICATEURS.find(i => i.id === ind2Id);
-    if (!ind1 || !ind2) return;
-    
-    // Calculer le pH à l'équivalence du dosage actuel
-    const p = lireParametres();
-    const veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
-    const pheq = calculerPH(veq, p);
-    
-    // Déterminer la couleur à l'équivalence pour chaque indicateur
-    const couleurEq1 = couleurIndicateurLive(pheq, ind1);
-    const couleurEq2 = couleurIndicateurLive(pheq, ind2);
-    
-    let html = `
-      <table class="comparatif-table">
-        <thead>
-          <tr>
-            <th>Critère</th>
-            <th>${ind1.nom}</th>
-            <th>${ind2.nom}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td><strong>Zone de virage</strong></td><td>${ind1.zoneMin.toFixed(1)} – ${ind1.zoneMax.toFixed(1)}</td><td>${ind2.zoneMin.toFixed(1)} – ${ind2.zoneMax.toFixed(1)}</td></tr>
-          <tr><td><strong>Couleur acide</strong></td><td>${ind1.couleurAcideEmoji} ${ind1.couleurAcideNom}</td><td>${ind2.couleurAcideEmoji} ${ind2.couleurAcideNom}</td></tr>
-          <tr><td><strong>Couleur basique</strong></td><td>${ind1.couleurBasiqueEmoji} ${ind1.couleurBasiqueNom}</td><td>${ind2.couleurBasiqueEmoji} ${ind2.couleurBasiqueNom}</td></tr>
-          <tr><td><strong>pH à l'équivalence</strong></td><td colspan="2" style="text-align: center; font-weight: 700; color: var(--ink);">${pheq.toFixed(2)}</td></tr>
-          <tr><td><strong>Couleur observée à l'équivalence</strong></td>
-            <td><span class="pastille-indic" style="background-color: ${couleurEq1};"></span> À l'équivalence</td>
-            <td><span class="pastille-indic" style="background-color: ${couleurEq2};"></span> À l'équivalence</td></tr>
-          <tr><td><strong>Adapté au dosage ?</strong></td>
-            <td>${(pheq >= ind1.zoneMin && pheq <= ind1.zoneMax) ? '✅ Virage à l\'équivalence' : (pheq < ind1.zoneMin ? '⚠️ Vire trop tard (pH basique)' : '⚠️ Vire trop tôt (pH acide)')}</td>
-            <td>${(pheq >= ind2.zoneMin && pheq <= ind2.zoneMax) ? '✅ Virage à l\'équivalence' : (pheq < ind2.zoneMin ? '⚠️ Vire trop tard (pH basique)' : '⚠️ Vire trop tôt (pH acide)')}</td></tr>
-        </tbody>
-      </table>
-    `;
-    
-    html += `<p style="margin-top: 15px; font-size: 13px; color: var(--slate); background: #f7f5f0; padding: 10px; border-radius: 6px;">
-      💡 <strong>Interprétation :</strong> Le pH à l'équivalence est de <strong>${pheq.toFixed(2)}</strong>. 
-      L'indicateur idéal doit avoir sa zone de virage qui contient ce pH. 
-      ${(pheq >= ind1.zoneMin && pheq <= ind1.zoneMax) ? `${ind1.nom} convient ✅` : `${ind1.nom} ne convient pas ⚠️`} 
-      ${(pheq >= ind2.zoneMin && pheq <= ind2.zoneMax) ? `${ind2.nom} convient ✅` : `${ind2.nom} ne convient pas ⚠️`}
-    </p>`;
-    
-    document.getElementById('tableau-comparatif-zone').innerHTML = html;
-    document.getElementById('zone-resultats-comparaison').classList.remove('hidden');
-  }
 
   // ============================================================
-  // SUITE DES FONCTIONS PRINCIPALES (inchangées)
+  // MODES
   // ============================================================
-
   function activerMode(mode) {
     modeActuel = mode;
     document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
@@ -1697,7 +1218,7 @@
     const titreViz = document.getElementById('titre-visualisation');
     const zoneBoutons = document.getElementById('zone-boutons-courbe');
     
-    if (methode === 'colorimetrique') {
+    if (methode === 'colorimetrique' && !referenceSauvegardee) {
       chartContainer.classList.add('hidden');
       animationBox.classList.remove('hidden');
       titreViz.textContent = '🎨 Animation du dosage colorimétrique';
@@ -1705,7 +1226,7 @@
     } else {
       chartContainer.classList.remove('hidden');
       animationBox.classList.add('hidden');
-      titreViz.textContent = '📊 Courbe pH = f(V)';
+      titreViz.textContent = referenceSauvegardee ? '📊 Comparaison de 2 dosages' : '📊 Courbe pH = f(V)';
       zoneBoutons.classList.remove('hidden');
     }
   }
@@ -1717,6 +1238,7 @@
     if (chart) { chart.destroy(); chart = null; }
     document.getElementById('result-box').style.display = 'none';
     document.getElementById('explication').classList.remove('show');
+    majBoutonReference();
   };
 
   function ajouterLigneTableau(v, ph) {
@@ -1748,6 +1270,7 @@
     mesures.sort((a, b) => a.v - b.v);
     renderChart();
     analyserResultats();
+    majBoutonReference();
   }
 
   function renderTableau() {
@@ -1886,6 +1409,8 @@
     
     document.getElementById('btn-demarrer').disabled = true;
     document.getElementById('btn-demarrer').style.opacity = '0.5';
+    majBoutonReference();
+    majAffichageSelonMethode();
   };
 
   document.getElementById('btn-reset').onclick = () => resetSimulation();
@@ -1921,6 +1446,8 @@
       btnDemarrer.disabled = false;
       btnDemarrer.style.opacity = '1';
     }
+    majBoutonReference();
+    majAffichageSelonMethode();
   }
 
   function ajouterVol(vol) {
@@ -1964,6 +1491,7 @@
     majDispositif(); 
     majAnimationColorimetrique(nouveauV, ph, veq);
     analyserResultats();
+    majBoutonReference();
   }
 
   document.getElementById('btn-add-05').onclick = () => ajouterVol(0.5);
@@ -2056,6 +1584,22 @@
     
     const points = mesures.map(m => ({ x: m.v, y: m.ph })).sort((a, b) => a.x - b.x);
     
+    // Graphique visible si pH-métrique OU si référence sauvegardée
+    const methode = document.getElementById('methode').value;
+    const doitAfficherCourbe = (methode === 'phmetrique') || referenceSauvegardee;
+    
+    const chartContainer = document.getElementById('chart-container');
+    const animationBox = document.getElementById('animation-colorimetrique');
+    
+    if (doitAfficherCourbe) {
+      chartContainer.classList.remove('hidden');
+      animationBox.classList.add('hidden');
+    } else {
+      chartContainer.classList.add('hidden');
+      animationBox.classList.remove('hidden');
+      return;
+    }
+    
     let veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
     let vdemi = veq / 2;
     
@@ -2075,37 +1619,130 @@
     let zoneVirage = null;
     if (indicObj) zoneVirage = [indicObj.zoneMin, indicObj.zoneMax];
     
-    const datasets = [{
-      label: 'pH', data: points, borderColor: '#A8853F',
-      backgroundColor: 'rgba(168, 133, 63, 0.1)', tension: 0.2, fill: true,
-      pointRadius: 4, pointBackgroundColor: '#A8853F'
-    }];
+    const datasets = [];
     
-    if (mesures2.length > 0) {
+    // === Courbe 1 : Référence (pointillés rouges) ===
+    if (referenceSauvegardee) {
+      const refPoints = referenceSauvegardee.mesures.map(m => ({ x: m.v, y: m.ph })).sort((a,b) => a.x - b.x);
       datasets.push({
-        label: 'Dosage 2',
-        data: mesures2.map(m => ({ x: m.v, y: m.ph })).sort((a, b) => a.x - b.x),
-        borderColor: '#3498db', backgroundColor: 'rgba(52, 152, 219, 0.1)',
-        tension: 0.2, fill: false, pointRadius: 3, pointBackgroundColor: '#3498db'
+        label: `📌 Référence : ${referenceSauvegardee.substance.nom}`,
+        data: refPoints,
+        borderColor: '#d9534f',
+        backgroundColor: 'rgba(217, 83, 79, 0.05)',
+        borderDash: [8, 5],
+        borderWidth: 2.5,
+        tension: 0.2,
+        fill: false,
+        pointRadius: 4,
+        pointBackgroundColor: '#d9534f',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 1
       });
     }
     
+    // === Courbe 2 : Dosage en cours ===
+    if (points.length > 0) {
+      datasets.push({
+        label: referenceSauvegardee ? `🧪 Dosage 2 : ${p.substanceTitree.nom}` : 'pH',
+        data: points,
+        borderColor: referenceSauvegardee ? '#3498db' : '#A8853F',
+        backgroundColor: referenceSauvegardee ? 'rgba(52, 152, 219, 0.1)' : 'rgba(168, 133, 63, 0.1)',
+        tension: 0.2,
+        fill: !referenceSauvegardee,
+        borderWidth: 2.5,
+        pointRadius: 4,
+        pointBackgroundColor: referenceSauvegardee ? '#3498db' : '#A8853F'
+      });
+    }
+    
+    // === Annotations ===
     const annotations = {};
-    if (tangentesAffichees) {
+    
+    // E₁ sur la référence
+    if (referenceSauvegardee) {
+      const refP = {
+        substanceTitree: referenceSauvegardee.substance,
+        substanceTitrante: referenceSauvegardee.titrant,
+        va: referenceSauvegardee.va,
+        ca: referenceSauvegardee.ca,
+        cb: referenceSauvegardee.cb,
+        pka: referenceSauvegardee.substance.pka
+      };
+      let refVeq = (refP.substanceTitree.n * refP.va * refP.ca) / (refP.substanceTitrante.n * refP.cb);
+      // Essayer de déterminer expérimentalement
+      const refPts = referenceSauvegardee.mesures;
+      if (refPts.length > 2) {
+        let maxD = 0, iMax = 0;
+        for (let i = 1; i < refPts.length; i++) {
+          const d = Math.abs(refPts[i].ph - refPts[i-1].ph);
+          if (d > maxD) { maxD = d; iMax = i; }
+        }
+        if (maxD > 0.5) refVeq = (refPts[iMax].v + refPts[iMax-1].v) / 2;
+      }
+      annotations.e1 = {
+        type: 'point',
+        xValue: refVeq,
+        yValue: calculerPH(refVeq, refP),
+        backgroundColor: '#d9534f',
+        borderColor: '#fff',
+        borderWidth: 2,
+        radius: 9,
+        label: {
+          display: true,
+          content: 'E₁',
+          position: 'top',
+          backgroundColor: '#d9534f',
+          color: '#fff',
+          font: { size: 12, weight: 'bold' }
+        }
+      };
+      annotations.ligneRef = {
+        type: 'line',
+        xMin: refVeq, xMax: refVeq,
+        borderColor: 'rgba(217, 83, 79, 0.4)',
+        borderWidth: 1.5,
+        borderDash: [4, 4]
+      };
+    }
+    
+    // E₂ sur le dosage en cours (si assez de points)
+    if (points.length > 2) {
+      annotations.e2 = {
+        type: 'point',
+        xValue: veq,
+        yValue: calculerPH(veq, p),
+        backgroundColor: '#3498db',
+        borderColor: '#fff',
+        borderWidth: 2,
+        radius: 9,
+        label: {
+          display: true,
+          content: referenceSauvegardee ? 'E₂' : 'E',
+          position: 'top',
+          backgroundColor: '#3498db',
+          color: '#fff',
+          font: { size: 12, weight: 'bold' }
+        }
+      };
+    }
+    
+    if (tangentesAffichees && !referenceSauvegardee) {
       annotations.veq = { type: 'line', xMin: veq, xMax: veq, borderColor: '#d9534f', borderWidth: 2, borderDash: [6, 6],
         label: { display: true, content: `Veq = ${veq.toFixed(2)} mL`, position: 'start', backgroundColor: '#d9534f', color: '#fff', font: { size: 11 } } };
       annotations.vdemi = { type: 'line', xMin: vdemi, xMax: vdemi, borderColor: '#3498db', borderWidth: 2, borderDash: [6, 6],
         label: { display: true, content: `Vdemi = ${vdemi.toFixed(2)} mL`, position: 'end', backgroundColor: '#3498db', color: '#fff', font: { size: 11 } } };
     }
+    
     if (zoneTamponAffichee && p.substanceTitree.force === 'faible') {
       const pkaRef = p.pka;
       annotations.zoneTampon = { type: 'box', xMin: vdemi * 0.3, xMax: vdemi * 1.7, yMin: pkaRef - 1, yMax: pkaRef + 1,
         backgroundColor: 'rgba(46, 125, 50, 0.08)', borderColor: 'rgba(46, 125, 50, 0.4)', borderWidth: 1 };
     }
-    if (zoneVirage) {
+    if (zoneVirage && !referenceSauvegardee) {
       annotations.virage = { type: 'box', xMin: 0, xMax: Math.max(veq * 2, 20), yMin: zoneVirage[0], yMax: zoneVirage[1],
         backgroundColor: 'rgba(241, 196, 15, 0.08)', borderColor: 'rgba(241, 196, 15, 0.4)', borderWidth: 1 };
     }
+    
     chart = new Chart(ctx.getContext('2d'), {
       type: 'line', data: { datasets },
       options: {
@@ -2115,9 +1752,17 @@
             max: Math.max(veq * 2, mesures.length > 0 ? mesures[mesures.length-1].v * 1.2 : 20) },
           y: { title: { display: true, text: 'pH' }, min: 0, max: 14 }
         },
-        plugins: { legend: { display: mesures2.length > 0 }, annotation: { annotations } }
+        plugins: {
+          legend: { display: !!referenceSauvegardee, position: 'top' },
+          annotation: { annotations }
+        }
       }
     });
+    
+    // Mettre à jour le titre
+    document.getElementById('titre-visualisation').textContent = referenceSauvegardee 
+      ? '📊 Comparaison des 2 dosages' 
+      : '📊 Courbe pH = f(V)';
   }
 
   function analyserResultats() {
@@ -2162,6 +1807,143 @@
       document.getElementById('tp-vdemi').textContent = vdemi.toFixed(2);
       document.getElementById('tp-phdemi').textContent = calculerPH(vdemi, p).toFixed(2);
     }
+    
+    // Mettre à jour le tableau comparatif
+    majZoneTableauComparatif();
+  }
+  
+  function majZoneTableauComparatif() {
+    const zone = document.getElementById('zone-tableau-comparatif');
+    if (!referenceSauvegardee) {
+      zone.innerHTML = '';
+      return;
+    }
+    
+    const ref = referenceSauvegardee;
+    const p1 = {
+      substanceTitree: ref.substance,
+      substanceTitrante: ref.titrant,
+      va: ref.va, ca: ref.ca, cb: ref.cb,
+      pka: ref.substance.pka
+    };
+    
+    // Calcul de Veq pour la référence
+    let refVeq = (ref.substance.n * ref.va * ref.ca) / (ref.titrant.n * ref.cb);
+    const refPts = ref.mesures;
+    if (refPts.length > 2) {
+      let maxD = 0, iMax = 0;
+      for (let i = 1; i < refPts.length; i++) {
+        const d = Math.abs(refPts[i].ph - refPts[i-1].ph);
+        if (d > maxD) { maxD = d; iMax = i; }
+      }
+      if (maxD > 0.5) refVeq = (refPts[iMax].v + refPts[iMax-1].v) / 2;
+    }
+    const refPheq = calculerPH(refVeq, p1);
+    const refPhdemi = calculerPH(refVeq/2, p1);
+    
+    // Comparaison avec le dosage en cours
+    const p2 = lireParametres();
+    const points = mesures.map(m => ({ x: m.v, y: m.ph })).sort((a, b) => a.x - b.x);
+    let compVeq = (p2.substanceTitree.n * p2.va * p2.ca) / (p2.substanceTitrante.n * p2.cb);
+    if (points.length > 2) {
+      let maxD = 0, iMax = 0;
+      for (let i = 1; i < points.length; i++) {
+        const d = Math.abs(points[i].y - points[i-1].y);
+        if (d > maxD) { maxD = d; iMax = i; }
+      }
+      if (maxD > 0.5) compVeq = (points[iMax].x + points[iMax-1].x) / 2;
+    }
+    const compPheq = calculerPH(compVeq, p2);
+    const compPhdemi = calculerPH(compVeq/2, p2);
+    
+    let html = `
+      <div class="comparatif-box">
+        <h4>📋 Tableau comparatif des 2 dosages</h4>
+        <table class="comparatif-table">
+          <thead>
+            <tr>
+              <th>Critère</th>
+              <th>📌 Dosage 1 (référence)</th>
+              <th>🧪 Dosage 2 (en cours)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Substance titrée</strong></td>
+              <td class="ref-col">${ref.substance.nom} (${ref.substance.formule})</td>
+              <td class="comp-col">${p2.substanceTitree.nom} (${p2.substanceTitree.formule})</td>
+            </tr>
+            <tr>
+              <td><strong>Force</strong></td>
+              <td>${ref.substance.force === 'fort' ? '🔴 Forte' : '🟢 Faible'}</td>
+              <td>${p2.substanceTitree.force === 'fort' ? '🔴 Forte' : '🟢 Faible'}</td>
+            </tr>
+    `;
+    
+    // pKa
+    if (ref.substance.pka !== undefined || p2.substanceTitree.pka !== undefined) {
+      html += `
+        <tr>
+          <td><strong>pKa</strong></td>
+          <td>${ref.substance.pka !== undefined ? ref.substance.pka.toFixed(2) : '—'}</td>
+          <td>${p2.substanceTitree.pka !== undefined ? p2.substanceTitree.pka.toFixed(2) : '—'}</td>
+        </tr>
+      `;
+    }
+    
+    html += `
+            <tr>
+              <td><strong>CA (mol/L)</strong></td>
+              <td>${ref.ca.toFixed(3)}</td>
+              <td>${p2.ca.toFixed(3)}</td>
+            </tr>
+            <tr>
+              <td><strong>Veq (mL)</strong></td>
+              <td class="ref-col">${refVeq.toFixed(2)}</td>
+              <td class="comp-col">${compVeq.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td><strong>pH à l'équivalence</strong></td>
+              <td class="ref-col">${refPheq.toFixed(2)}</td>
+              <td class="comp-col">${compPheq.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td><strong>pH à la demi-équivalence</strong></td>
+              <td>${refPhdemi.toFixed(2)}</td>
+              <td>${compPhdemi.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td><strong>Nombre de mesures</strong></td>
+              <td>${ref.mesures.length}</td>
+              <td>${mesures.length}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+    
+    // Interprétation automatique
+    let interpretation = '';
+    if (ref.substance.pka !== undefined && p2.substanceTitree.pka !== undefined) {
+      const diffPka = p2.substanceTitree.pka - ref.substance.pka;
+      if (Math.abs(diffPka) < 0.3) {
+        interpretation = `Les 2 substances ont des pKa très proches (écart de ${diffPka.toFixed(2)}), les courbes sont quasi superposables.`;
+      } else if (diffPka < 0) {
+        interpretation = `Le dosage 2 utilise un acide plus fort (pKa plus bas de ${Math.abs(diffPka).toFixed(2)}), la zone tampon est décalée vers le bas.`;
+      } else {
+        interpretation = `Le dosage 2 utilise un acide plus faible (pKa plus haut de ${diffPka.toFixed(2)}), la zone tampon est décalée vers le haut.`;
+      }
+    } else if (ref.ca !== p2.ca) {
+      interpretation = `Les concentrations sont différentes : CA₁ = ${ref.ca} mol/L, CA₂ = ${p2.ca} mol/L. Le Veq change proportionnellement à CA.`;
+    } else {
+      interpretation = 'Les deux dosages sont comparables.';
+    }
+    
+    html += `<div style="margin-top: 12px; padding: 10px; background: #f0f7ff; border-left: 3px solid var(--info); border-radius: 4px; font-size: 13px;">
+      💡 <strong>Interprétation :</strong> ${interpretation}
+    </div>`;
+    
+    zone.innerHTML = html;
   }
 
   document.getElementById('btn-tangentes-auto').onclick = () => {
