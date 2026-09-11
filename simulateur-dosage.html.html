@@ -778,9 +778,32 @@
     if (!ctx) return;
     if (chart) chart.destroy();
     const p = lireParametres();
-    const veq = (p.va * p.ca) / p.cb;
-    const vdemi = veq / 2;
     const points = mesures.map(m => ({ x: m.v, y: m.ph })).sort((a, b) => a.x - b.x);
+    
+    // --- CALCUL EXPÉRIMENTAL DU VE ET VDEMI (MÉTHODE DES TANGENTES) ---
+    let veq = (p.va * p.ca) / p.cb; // Valeur théorique par défaut
+    let vdemi = veq / 2;
+    
+    // Si on a assez de points, on cherche le saut de pH le plus fort
+    if (points.length > 2) {
+        let maxDelta = 0;
+        let indexMax = 0;
+        // On cherche le segment où le pH varie le plus
+        for (let i = 1; i < points.length; i++) {
+            const delta = Math.abs(points[i].y - points[i-1].y);
+            if (delta > maxDelta) {
+                maxDelta = delta;
+                indexMax = i;
+            }
+        }
+        // On prend le volume moyen entre les deux points du saut
+        if (maxDelta > 0.5) { // Un saut significatif
+            veq = (points[indexMax].x + points[indexMax-1].x) / 2;
+            vdemi = veq / 2;
+        }
+    }
+    // ------------------------------------------------------------------
+    
     let zoneVirage = null;
     if (p.indicateur === 'helianthine') zoneVirage = [3.1, 4.4];
     else if (p.indicateur === 'bbt') zoneVirage = [6.0, 7.6];
@@ -831,8 +854,25 @@
   function analyserResultats() {
     if (mesures.length < 2) return;
     const p = lireParametres();
-    const veq = (p.va * p.ca) / p.cb;
-    const vdemi = veq / 2;
+    
+    // On recalcule Veq de manière expérimentale pour l'affichage des résultats
+    const points = mesures.map(m => ({ x: m.v, y: m.ph })).sort((a, b) => a.x - b.x);
+    let veq = (p.va * p.ca) / p.cb; 
+    let vdemi = veq / 2;
+    
+    if (points.length > 2) {
+        let maxDelta = 0;
+        let indexMax = 0;
+        for (let i = 1; i < points.length; i++) {
+            const delta = Math.abs(points[i].y - points[i-1].y);
+            if (delta > maxDelta) { maxDelta = delta; indexMax = i; }
+        }
+        if (maxDelta > 0.5) {
+            veq = (points[indexMax].x + points[indexMax-1].x) / 2;
+            vdemi = veq / 2;
+        }
+    }
+    
     document.getElementById('result-box').style.display = 'block';
     document.getElementById('result-veq').textContent = `${veq.toFixed(2)} mL`;
     document.getElementById('result-vdemi').textContent = `${vdemi.toFixed(2)} mL`;
