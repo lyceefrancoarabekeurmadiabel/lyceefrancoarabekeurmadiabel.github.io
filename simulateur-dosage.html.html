@@ -10,40 +10,11 @@
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1"></script>
- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-/* === MODAL EXPORT PDF === */
-.export-pdf-box {
-  max-width: 480px !important;
-  text-align: center;
-}
-.export-pdf-box .icon-export {
-  font-size: 48px; margin-bottom: 15px;
-}
-.export-pdf-box h3 {
-  font-family: var(--serif); color: var(--ink);
-  font-size: 20px; margin-bottom: 10px;
-}
-.export-pdf-box p {
-  font-size: 14px; color: var(--slate);
-  margin-bottom: 20px; line-height: 1.6;
-}
-.export-pdf-actions {
-  display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
-  margin-top: 20px;
-}
-.export-pdf-actions button {
-  flex: 1; min-width: 140px;
-}
-.export-pdf-info {
-  background: #f0f7ff; border-left: 4px solid var(--info);
-  padding: 12px 15px; border-radius: 6px; margin-top: 15px;
-  font-size: 12px; color: var(--ink); text-align: left;
-}
-.export-pdf-info strong { display: block; margin-bottom: 5px; }
-  <style>
+<style>
   :root { --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F; --slate: #5B6472; --line: rgba(27,42,74,0.14); --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif; --gov-purple: #6a4c93; --success: #2e7d32; --warning: #f39c12; --danger: #d9534f; --info: #3498db; }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; }
@@ -113,7 +84,6 @@
   .btn-success:hover { background: #1e5f22; }
   .btn-info { background: var(--info); color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--sans); }
   .btn-info:hover { background: #2980b9; }
-  
   .labo-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; align-items: start; }
   .labo-dispositif { order: 1; }
   .labo-tableau { order: 2; }
@@ -125,42 +95,22 @@
     .labo-tableau { order: 2; }
     .labo-dispositif { order: 3; }
   }
-  
   .dispositif { background: #fafafa; border: 1px solid var(--line); border-radius: 10px; padding: 15px; text-align: center; }
   .dispositif svg { width: 100%; max-width: 360px; height: auto; }
   .dispositif h4 { font-family: var(--serif); font-size: 14px; color: var(--ink); margin-bottom: 10px; }
   @keyframes drop { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(30px); opacity: 0; } }
   .droplet { animation: drop 0.6s ease-in forwards; transform-origin: center; }
   #beaker-liquid, #anim-liquid { transition: fill 0.5s ease-in-out; }
-  
-  @keyframes splash {
-    0% { transform: scale(0.5); opacity: 0.9; }
-    50% { transform: scale(1.3); opacity: 0.6; }
-    100% { transform: scale(1.8); opacity: 0; }
-  }
-  @keyframes dropFall {
-    0% { transform: translateY(0); opacity: 1; }
-    100% { transform: translateY(35px); opacity: 0.2; }
-  }
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.06); }
-  }
-  @keyframes flash {
-    0% { opacity: 0; }
-    30% { opacity: 0.8; }
-    100% { opacity: 0; }
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes splash { 0% { transform: scale(0.5); opacity: 0.9; } 50% { transform: scale(1.3); opacity: 0.6; } 100% { transform: scale(1.8); opacity: 0; } }
+  @keyframes dropFall { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(35px); opacity: 0.2; } }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+  @keyframes flash { 0% { opacity: 0; } 30% { opacity: 0.8; } 100% { opacity: 0; } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
   .anim-drop-active { animation: dropFall 0.6s ease-in forwards; }
   .splash-effect { animation: splash 0.7s ease-out forwards; transform-origin: center; }
   .pulse-beaker { animation: pulse 0.5s ease-in-out; }
   .flash-effect { animation: flash 0.8s ease-out; }
   .message-fade { animation: fadeIn 0.4s ease-out; }
-  
   .table-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
   .table-mode { display: flex; gap: 4px; background: #f0f0f0; padding: 4px; border-radius: 6px; }
   .table-mode-btn { padding: 6px 10px; border: none; background: transparent; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: var(--sans); color: var(--slate); }
@@ -201,8 +151,6 @@
   .modal-box h3 { font-family: var(--serif); color: var(--ink); margin-bottom: 15px; }
   .modal-box ol { margin: 12px 0 12px 20px; font-size: 14px; }
   .modal-box ol li { margin-bottom: 8px; }
-  
-  /* === MODAL INDICATEURS === */
   .modal-indicateurs { max-width: 750px !important; max-height: 90vh; overflow-y: auto; }
   .indic-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
   .indic-table th { background: var(--ink); color: #fff; padding: 10px; text-align: left; font-size: 12px; }
@@ -216,35 +164,13 @@
   .indic-couleur-live .label-couleur { font-weight: 600; color: var(--ink); }
   .ouvrir-indicateur-btn { background: var(--brass); color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--sans); margin-top: 6px; }
   .ouvrir-indicateur-btn:hover { background: #8e6f33; }
-  
-  /* === BANNIÈRE RÉFÉRENCE === */
-  .reference-banner {
-    background: linear-gradient(135deg, #e8f5e9 0%, #d4edda 100%);
-    border-left: 4px solid var(--success);
-    border-radius: 8px;
-    padding: 12px 18px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    flex-wrap: wrap;
-  }
+  .reference-banner { background: linear-gradient(135deg, #e8f5e9 0%, #d4edda 100%); border-left: 4px solid var(--success); border-radius: 8px; padding: 12px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap; }
   .reference-banner .ref-icon { font-size: 20px; }
   .reference-banner .ref-text { flex: 1; font-size: 13px; color: var(--ink); }
   .reference-banner .ref-text strong { color: var(--success); }
-  .reference-banner button {
-    background: transparent; border: 1px solid var(--success); color: var(--success);
-    padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;
-    cursor: pointer; font-family: var(--sans); transition: all 0.2s;
-  }
+  .reference-banner button { background: transparent; border: 1px solid var(--success); color: var(--success); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--sans); transition: all 0.2s; }
   .reference-banner button:hover { background: var(--success); color: #fff; }
-  
-  /* === TABLEAU COMPARATIF === */
-  .comparatif-box {
-    background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--info);
-    border-radius: 8px; padding: 15px; margin-top: 15px;
-  }
+  .comparatif-box { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--info); border-radius: 8px; padding: 15px; margin-top: 15px; }
   .comparatif-box h4 { font-family: var(--serif); font-size: 15px; color: var(--ink); margin-bottom: 10px; }
   .comparatif-table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .comparatif-table th { background: var(--paper); padding: 10px; text-align: left; font-size: 12px; font-weight: 700; color: var(--ink); border-bottom: 2px solid var(--line); }
@@ -252,45 +178,24 @@
   .comparatif-table tr:last-child td { border-bottom: none; }
   .comparatif-table .ref-col { color: #d9534f; font-weight: 700; }
   .comparatif-table .comp-col { color: #3498db; font-weight: 700; }
-  
-  /* === MODAL EXAMEN / ENTRAÎNEMENT === */
   .modal-examen { max-width: 850px !important; max-height: 92vh; overflow-y: auto; }
-  .examen-header-bar {
-    display: flex; justify-content: space-between; align-items: center;
-    background: var(--ink); color: #fff;
-    padding: 12px 20px; border-radius: 8px; margin-bottom: 20px;
-    font-size: 14px; font-weight: 700; flex-wrap: wrap; gap: 10px;
-  }
+  .examen-header-bar { display: flex; justify-content: space-between; align-items: center; background: var(--ink); color: #fff; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; font-weight: 700; flex-wrap: wrap; gap: 10px; }
   .examen-header-bar .timer { font-size: 18px; color: #fff; font-weight: 800; letter-spacing: 1px; }
   .examen-header-bar .timer.warning { color: var(--warning); }
   .examen-header-bar .timer.danger { color: var(--danger); animation: pulse-timer 0.8s infinite; }
   @keyframes pulse-timer { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
-  .examen-question-box {
-    background: #f7f5f0; border-left: 4px solid var(--brass);
-    padding: 20px; border-radius: 8px; margin-bottom: 20px;
-    font-size: 15px; line-height: 1.7;
-  }
+  .examen-question-box { background: #f7f5f0; border-left: 4px solid var(--brass); padding: 20px; border-radius: 8px; margin-bottom: 20px; font-size: 15px; line-height: 1.7; }
   .examen-question-box .enonce { font-weight: 700; color: var(--ink); margin-bottom: 10px; }
   .examen-question-box .consigne { color: var(--slate); font-size: 14px; }
   .examen-reponse-zone { margin: 20px 0; padding: 20px; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
   .examen-reponse-zone label { display: block; font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
-  .examen-reponse-zone input, .examen-reponse-zone select {
-    width: 100%; padding: 12px 15px; border: 2px solid var(--line);
-    border-radius: 8px; font-size: 16px; font-family: var(--sans);
-  }
+  .examen-reponse-zone input, .examen-reponse-zone select { width: 100%; padding: 12px 15px; border: 2px solid var(--line); border-radius: 8px; font-size: 16px; font-family: var(--sans); }
   .examen-reponse-zone input:focus, .examen-reponse-zone select:focus { outline: none; border-color: var(--brass); }
   .examen-radio-group { display: flex; flex-direction: column; gap: 10px; }
-  .examen-radio-group label {
-    display: flex; align-items: center; gap: 10px; padding: 12px;
-    border: 2px solid var(--line); border-radius: 8px;
-    cursor: pointer; font-size: 14px; transition: all 0.2s;
-  }
+  .examen-radio-group label { display: flex; align-items: center; gap: 10px; padding: 12px; border: 2px solid var(--line); border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
   .examen-radio-group label:hover { border-color: var(--brass); background: #fffbea; }
   .examen-radio-group label.selected { border-color: var(--brass); background: #fff8e1; }
-  .examen-feedback {
-    padding: 15px; border-radius: 8px; margin-top: 15px;
-    font-size: 14px; line-height: 1.6;
-  }
+  .examen-feedback { padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 14px; line-height: 1.6; }
   .examen-feedback.correct { background: #d4edda; border-left: 4px solid var(--success); color: #155724; }
   .examen-feedback.incorrect { background: #f8d7da; border-left: 4px solid var(--danger); color: #721c24; }
   .examen-feedback strong { display: block; margin-bottom: 5px; }
@@ -298,46 +203,22 @@
   .progress-bar { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin: 15px 0; }
   .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--brass), var(--success)); transition: width 0.3s; }
   .examen-config-zone { padding: 10px 0; }
-  .examen-config-zone .section-title {
-    font-family: var(--serif); font-size: 15px; color: var(--ink);
-    margin: 18px 0 10px 0; padding-bottom: 5px; border-bottom: 1px solid var(--line);
-  }
-  .objectif-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px; background: #fafafa; border-radius: 6px;
-    margin-bottom: 8px; font-size: 13px; cursor: pointer;
-  }
+  .examen-config-zone .section-title { font-family: var(--serif); font-size: 15px; color: var(--ink); margin: 18px 0 10px 0; padding-bottom: 5px; border-bottom: 1px solid var(--line); }
+  .objectif-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #fafafa; border-radius: 6px; margin-bottom: 8px; font-size: 13px; cursor: pointer; }
   .objectif-item:hover { background: #f0f0f0; }
   .difficulte-radios { display: flex; gap: 10px; flex-wrap: wrap; }
-  .difficulte-radios label {
-    flex: 1; min-width: 120px; padding: 12px;
-    border: 2px solid var(--line); border-radius: 8px;
-    text-align: center; cursor: pointer; font-size: 13px; font-weight: 700;
-    transition: all 0.2s;
-  }
+  .difficulte-radios label { flex: 1; min-width: 120px; padding: 12px; border: 2px solid var(--line); border-radius: 8px; text-align: center; cursor: pointer; font-size: 13px; font-weight: 700; transition: all 0.2s; }
   .difficulte-radios label:hover { border-color: var(--brass); }
   .difficulte-radios label.selected { border-color: var(--brass); background: #fff8e1; color: var(--brass); }
   .examen-resultats-final { text-align: center; padding: 30px 20px; }
-  .examen-resultats-final .score-final {
-    font-size: 60px; font-weight: 800;
-    background: linear-gradient(135deg, var(--brass), var(--success));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+  .examen-resultats-final .score-final { font-size: 60px; font-weight: 800; background: linear-gradient(135deg, var(--brass), var(--success)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
   .examen-resultats-final .score-label { font-size: 18px; color: var(--slate); margin-bottom: 20px; }
-  .examen-resultats-final .appreciation {
-    display: inline-block; padding: 10px 25px; border-radius: 25px;
-    font-size: 16px; font-weight: 700; margin: 10px 0;
-  }
+  .examen-resultats-final .appreciation { display: inline-block; padding: 10px 25px; border-radius: 25px; font-size: 16px; font-weight: 700; margin: 10px 0; }
   .appreciation.excellent { background: #d4edda; color: var(--success); }
   .appreciation.bien { background: #cce5ff; color: var(--info); }
   .appreciation.passable { background: #fff3cd; color: #856404; }
   .appreciation.faible { background: #f8d7da; color: var(--danger); }
-  .recap-question {
-    background: #fafafa; border-left: 4px solid var(--line);
-    padding: 12px 15px; border-radius: 6px; margin-bottom: 10px;
-    font-size: 13px;
-  }
+  .recap-question { background: #fafafa; border-left: 4px solid var(--line); padding: 12px 15px; border-radius: 6px; margin-bottom: 10px; font-size: 13px; }
   .recap-question.correct { border-left-color: var(--success); }
   .recap-question.incorrect { border-left-color: var(--danger); }
   .recap-question .q-num { font-weight: 700; color: var(--ink); }
@@ -345,19 +226,21 @@
   .recap-question .q-rep { font-size: 13px; margin-top: 5px; }
   .recap-question .q-rep .votre { color: var(--danger); }
   .recap-question .q-rep .bonne { color: var(--success); font-weight: 700; }
-  .recap-question .q-explication {
-    background: #f0f7ff; padding: 8px 10px; border-radius: 4px;
-    margin-top: 8px; font-size: 12px; color: var(--ink);
-  }
-  .mini-graph-box {
-    background: #fff; border: 1px solid var(--line); border-radius: 8px;
-    padding: 10px; margin-top: 15px;
-  }
+  .recap-question .q-explication { background: #f0f7ff; padding: 8px 10px; border-radius: 4px; margin-top: 8px; font-size: 12px; color: var(--ink); }
+  .mini-graph-box { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 10px; margin-top: 15px; }
   .mini-graph-box .mini-chart-container { position: relative; height: 220px; }
+  .export-pdf-box { max-width: 480px !important; text-align: center; }
+  .export-pdf-box .icon-export { font-size: 48px; margin-bottom: 15px; }
+  .export-pdf-box h3 { font-family: var(--serif); color: var(--ink); font-size: 20px; margin-bottom: 10px; }
+  .export-pdf-box p { font-size: 14px; color: var(--slate); margin-bottom: 20px; line-height: 1.6; }
+  .export-pdf-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+  .export-pdf-actions button { flex: 1; min-width: 140px; }
+  .export-pdf-info { background: #f0f7ff; border-left: 4px solid var(--info); padding: 12px 15px; border-radius: 6px; margin-top: 15px; font-size: 12px; color: var(--ink); text-align: left; }
+  .export-pdf-info strong { display: block; margin-bottom: 5px; }
 </style>
 </head>
 <body>
-  <header>
+ <header>
   <div class="wrap nav-row">
     <a href="index.html" class="brand">
       <div class="brand-mark"><img src="logo-header.png" alt="LFAKM"></div>
@@ -672,7 +555,6 @@
   </div>
 </div>
 
-<!-- === MODAL INDICATEURS === -->
 <div class="modal-overlay" id="modal-indicateurs">
   <div class="modal-box modal-indicateurs">
     <h3>🎨 Tableau de vérité des indicateurs colorés</h3>
@@ -715,12 +597,11 @@
   </div>
 </div>
 
-<!-- === MODAL CONFIGURATION ÉVALUATION (PROF) === -->
 <div class="modal-overlay" id="modal-config-evaluation">
   <div class="modal-box modal-examen">
     <h3>📝 Configuration de l'évaluation</h3>
     <p style="font-size: 13px; color: var(--slate); margin-bottom: 15px;">
-      Configurez l'évaluation. L'élève ne verra ni les corrections ni son score avant la fin.
+      Configurez l'évaluation. L'élève ne verra ni les corrections ni son score avant la fin. Le rapport PDF sera envoyé à votre adresse email enregistrée.
     </p>
     <div class="examen-config-zone">
       <div class="section-title">📋 Informations</div>
@@ -774,7 +655,6 @@
   </div>
 </div>
 
-<!-- === MODAL EXAMEN (élève) === -->
 <div class="modal-overlay" id="modal-examen">
   <div class="modal-box modal-examen">
     <div class="examen-header-bar">
@@ -792,14 +672,12 @@
   </div>
 </div>
 
-<!-- === MODAL RÉSULTATS FINAUX === -->
 <div class="modal-overlay" id="modal-resultats">
   <div class="modal-box modal-examen">
     <div id="resultats-contenu"></div>
   </div>
 </div>
 
-<!-- === MODAL EXPORT PDF === -->
 <div class="modal-overlay" id="modal-export-pdf">
   <div class="modal-box export-pdf-box">
     <div class="icon-export">📄</div>
@@ -843,15 +721,11 @@
   const isGouvernement = (r) => r === 'president' || r === 'ministre_communication';
   const escapeHtml = (s) => { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; };
 
-  // ============================================================
-  // BASE DE DONNÉES DES SUBSTANCES
-  // ============================================================
   const SUBSTANCES = [
     { id: 'hcl', nom: 'Acide chlorhydrique', formule: 'HCl', famille: 'acide', force: 'fort', n: 1 },
     { id: 'hno3', nom: 'Acide nitrique', formule: 'HNO₃', famille: 'acide', force: 'fort', n: 1 },
     { id: 'hbr', nom: 'Acide bromhydrique', formule: 'HBr', famille: 'acide', force: 'fort', n: 1 },
     { id: 'h2so4', nom: 'Acide sulfurique', formule: 'H₂SO₄', famille: 'acide', force: 'fort', n: 2 },
-    
     { id: 'ac_ethanoique', nom: 'Acide éthanoïque', formule: 'CH₃COOH', famille: 'acide', force: 'faible', n: 1, pka: 4.75 },
     { id: 'ac_methanoique', nom: 'Acide méthanoïque', formule: 'HCOOH', famille: 'acide', force: 'faible', n: 1, pka: 3.75 },
     { id: 'ac_lactique', nom: 'Acide lactique', formule: 'C₃H₆O₃', famille: 'acide', force: 'faible', n: 1, pka: 3.86 },
@@ -859,18 +733,15 @@
     { id: 'ac_fluorhydrique', nom: 'Acide fluorhydrique', formule: 'HF', famille: 'acide', force: 'faible', n: 1, pka: 3.17 },
     { id: 'ac_propanoique', nom: 'Acide propanoïque', formule: 'C₂H₅COOH', famille: 'acide', force: 'faible', n: 1, pka: 4.87 },
     { id: 'nh4', nom: 'Ion ammonium', formule: 'NH₄⁺', famille: 'acide', force: 'faible', n: 1, pka: 9.25 },
-    
     { id: 'ac_oxalique', nom: 'Acide oxalique', formule: 'H₂C₂O₄', famille: 'acide', force: 'faible', n: 2, pka1: 1.25, pka2: 4.28 },
     { id: 'ac_carbonique', nom: 'Acide carbonique', formule: 'H₂CO₃', famille: 'acide', force: 'faible', n: 2, pka1: 6.35, pka2: 10.33 },
     { id: 'ac_malonique', nom: 'Acide malonique', formule: 'HOOC-CH₂-COOH', famille: 'acide', force: 'faible', n: 2, pka1: 2.83, pka2: 5.69 },
-    
     { id: 'naoh', nom: 'Hydroxyde de sodium', formule: 'NaOH', famille: 'base', force: 'fort', n: 1 },
     { id: 'koh', nom: 'Hydroxyde de potassium', formule: 'KOH', famille: 'base', force: 'fort', n: 1 },
     { id: 'lioh', nom: 'Hydroxyde de lithium', formule: 'LiOH', famille: 'base', force: 'fort', n: 1 },
     { id: 'caoh2', nom: 'Hydroxyde de calcium', formule: 'Ca(OH)₂', famille: 'base', force: 'fort', n: 2 },
     { id: 'baoh2', nom: 'Hydroxyde de baryum', formule: 'Ba(OH)₂', famille: 'base', force: 'fort', n: 2 },
     { id: 'sroh2', nom: 'Hydroxyde de strontium', formule: 'Sr(OH)₂', famille: 'base', force: 'fort', n: 2 },
-    
     { id: 'nh3', nom: 'Ammoniac', formule: 'NH₃', famille: 'base', force: 'faible', n: 1, pka: 9.25 },
     { id: 'methylamine', nom: 'Méthylamine', formule: 'CH₃NH₂', famille: 'base', force: 'faible', n: 1, pka: 10.62 },
     { id: 'ethylamine', nom: 'Éthylamine', formule: 'C₂H₅NH₂', famille: 'base', force: 'faible', n: 1, pka: 10.63 },
@@ -890,28 +761,23 @@
     { id: 'helianthine', nom: 'Hélianthine', zoneMin: 3.1, zoneMax: 4.4,
       couleurAcide: 'rgba(231, 76, 60, 1)', couleurBasique: 'rgba(241, 196, 15, 1)',
       couleurAcideNom: 'Rouge', couleurBasiqueNom: 'Jaune',
-      couleurAcideEmoji: '🔴', couleurBasiqueEmoji: '🟡',
-      utilisation: 'Acide fort / base faible' },
+      couleurAcideEmoji: '🔴', couleurBasiqueEmoji: '🟡', utilisation: 'Acide fort / base faible' },
     { id: 'rmethyl', nom: 'Rouge de méthyle', zoneMin: 4.4, zoneMax: 6.2,
       couleurAcide: 'rgba(231, 76, 60, 1)', couleurBasique: 'rgba(241, 196, 15, 1)',
       couleurAcideNom: 'Rouge', couleurBasiqueNom: 'Jaune',
-      couleurAcideEmoji: '🔴', couleurBasiqueEmoji: '🟡',
-      utilisation: 'Dosages variés' },
+      couleurAcideEmoji: '🔴', couleurBasiqueEmoji: '🟡', utilisation: 'Dosages variés' },
     { id: 'vbromocresol', nom: 'Vert de bromocrésol', zoneMin: 3.8, zoneMax: 5.4,
       couleurAcide: 'rgba(241, 196, 15, 1)', couleurBasique: 'rgba(52, 152, 219, 1)',
       couleurAcideNom: 'Jaune', couleurBasiqueNom: 'Bleu',
-      couleurAcideEmoji: '🟡', couleurBasiqueEmoji: '🔵',
-      utilisation: 'Acides faibles' },
+      couleurAcideEmoji: '🟡', couleurBasiqueEmoji: '🔵', utilisation: 'Acides faibles' },
     { id: 'bbt', nom: 'Bleu de bromothymol', zoneMin: 6.0, zoneMax: 7.6,
       couleurAcide: 'rgba(241, 196, 15, 1)', couleurBasique: 'rgba(52, 152, 219, 1)',
       couleurAcideNom: 'Jaune', couleurBasiqueNom: 'Bleu',
-      couleurAcideEmoji: '🟡', couleurBasiqueEmoji: '🔵',
-      utilisation: 'Acide fort / base forte' },
+      couleurAcideEmoji: '🟡', couleurBasiqueEmoji: '🔵', utilisation: 'Acide fort / base forte' },
     { id: 'phenolphtaleine', nom: 'Phénolphtaléine', zoneMin: 8.2, zoneMax: 10.0,
       couleurAcide: 'rgba(236, 240, 241, 1)', couleurBasique: 'rgba(233, 30, 99, 1)',
       couleurAcideNom: 'Incolore', couleurBasiqueNom: 'Rose',
-      couleurAcideEmoji: '⚪', couleurBasiqueEmoji: '🩷',
-      utilisation: 'Acide faible / base forte' }
+      couleurAcideEmoji: '⚪', couleurBasiqueEmoji: '🩷', utilisation: 'Acide faible / base forte' }
   ];
 
   let modeActuel = 'standard';
@@ -927,8 +793,8 @@
   let substanceTitreeActuelle = null;
   let substanceTitranteActuelle = null;
   let referenceSauvegardee = null;
+  let pdfExportData = null;
 
-  // État examen
   let examen = {
     actif: false,
     type: 'entrainement',
@@ -942,9 +808,6 @@
     config: null
   };
 
-  // ============================================================
-  // AUTHENTIFICATION
-  // ============================================================
   onAuthStateChanged(auth, async (user) => {
     const link = document.getElementById('auth-link');
     const profileSpan = document.getElementById('user-profile');
@@ -1025,9 +888,6 @@
     }
   }
 
-  // ============================================================
-  // MENUS DÉROULANTS
-  // ============================================================
   function substancesAutorisees(methode) {
     if (methode === 'phmetrique') return SUBSTANCES.filter(s => s.n === 1);
     return SUBSTANCES;
@@ -1039,14 +899,12 @@
     const listeAutorisee = substancesAutorisees(methode);
     const valeurActuelle = sel.value;
     sel.innerHTML = '';
-    
     const groupes = {
       'Acides forts': listeAutorisee.filter(s => s.famille === 'acide' && s.force === 'fort'),
       'Acides faibles': listeAutorisee.filter(s => s.famille === 'acide' && s.force === 'faible'),
       'Bases fortes': listeAutorisee.filter(s => s.famille === 'base' && s.force === 'fort'),
       'Bases faibles (amines incluses)': listeAutorisee.filter(s => s.famille === 'base' && s.force === 'faible')
     };
-    
     Object.entries(groupes).forEach(([label, liste]) => {
       if (liste.length === 0) return;
       const optgroup = document.createElement('optgroup');
@@ -1059,7 +917,6 @@
       });
       sel.appendChild(optgroup);
     });
-    
     if (modeActuel === 'tp' || modeActuel === 'expert') {
       const optInconnue = document.createElement('option');
       optInconnue.value = '__inconnue__';
@@ -1068,7 +925,6 @@
       optInconnue.style.color = '#6a4c93';
       sel.appendChild(optInconnue);
     }
-    
     if ([...sel.options].some(o => o.value === valeurActuelle)) sel.value = valeurActuelle;
     else sel.value = 'hcl';
     sel.onchange = onSubstanceTitreeChange;
@@ -1080,10 +936,8 @@
     const familleTitrante = familleTitree === 'acide' ? 'base' : 'acide';
     let liste = SUBSTANCES.filter(s => s.famille === familleTitrante);
     if (nTitree === 2 && forceTitree === 'fort') liste = liste.filter(s => s.n === 1);
-    
     const forts = liste.filter(s => s.force === 'fort');
     const faibles = liste.filter(s => s.force === 'faible');
-    
     if (forts.length > 0) {
       const optgroup = document.createElement('optgroup');
       optgroup.label = familleTitrante === 'base' ? 'Bases fortes' : 'Acides forts';
@@ -1106,7 +960,6 @@
       });
       sel.appendChild(optgroup);
     }
-    
     if (familleTitrante === 'base') sel.value = 'naoh';
     else sel.value = 'hcl';
     sel.onchange = onSubstanceTitranteChange;
@@ -1149,16 +1002,13 @@
     const estInconnue = (s.id === '__inconnue__') || (tpActif && tpVerite && s.nom === 'Substance inconnue');
     document.getElementById('info-famille').textContent = s.famille === 'acide' ? 'Acide' : 'Base';
     document.getElementById('info-force').innerHTML = s.force === 'fort' ? '🔴 Forte' : '🟢 Faible';
-    
     let basiciteLabel = '';
     if (s.n === 1) basiciteLabel = s.famille === 'acide' ? 'Monoacide' : 'Monobase';
     else if (s.n === 2) basiciteLabel = s.famille === 'acide' ? 'Diacide' : 'Dibase';
     document.getElementById('info-basicite').textContent = basiciteLabel;
-    
     const lignePka = document.getElementById('ligne-pka');
     const lignePkb = document.getElementById('ligne-pkb');
     const relation = document.getElementById('info-relation');
-    
     if (s.force === 'fort' || estInconnue) {
       lignePka.style.display = 'none';
       lignePkb.style.display = 'none';
@@ -1192,13 +1042,11 @@
     else if (sT.force === 'fort' && sT.famille === 'acide' && sTr.force === 'faible') { recommande = 'helianthine'; raison = 'Virage à pH < 7'; }
     else if (sT.force === 'faible' && sT.famille === 'base' && sTr.force === 'fort') { recommande = 'helianthine'; raison = 'Virage à pH < 7'; }
     else if (sT.force === 'fort' && sT.famille === 'base' && sTr.force === 'faible') { recommande = 'phenolphtaleine'; raison = 'Virage à pH > 7'; }
-    
     const indActuel = document.getElementById('indicateur').value;
     const indicObj = INDICATEURS.find(i => i.id === indActuel);
     const nomActuel = indicObj ? indicObj.nom : 'Aucun';
     const indicRecommandee = INDICATEURS.find(i => i.id === recommande);
     const nomRecommande = indicRecommandee ? indicRecommandee.nom : '';
-    
     if (recommande) {
       if (indActuel === recommande) div.innerHTML = `<div class="indicateur-suggestion">💡 <strong>Recommandé :</strong> ${nomRecommande} — ${raison}. ✅ Bon choix.</div>`;
       else if (indActuel === 'aucun') div.innerHTML = `<div class="indicateur-suggestion">💡 <strong>Recommandé :</strong> ${nomRecommande} — ${raison}</div>`;
@@ -1216,9 +1064,6 @@
     });
   });
 
-  // ============================================================
-  // MODAL INDICATEURS
-  // ============================================================
   document.getElementById('btn-ouvrir-indicateurs').onclick = () => {
     construireTableauIndicateurs();
     majCouleursLive(parseFloat(document.getElementById('ph-slider').value));
@@ -1255,8 +1100,7 @@
         <td><span class="pastille-indic" style="background-color: ${ind.couleurAcide};"></span>${ind.couleurAcideEmoji} ${ind.couleurAcideNom}</td>
         <td style="font-weight: 700; color: var(--ink);">${ind.zoneMin.toFixed(1)} – ${ind.zoneMax.toFixed(1)}</td>
         <td><span class="pastille-indic" style="background-color: ${ind.couleurBasique};"></span>${ind.couleurBasiqueEmoji} ${ind.couleurBasiqueNom}</td>
-        <td style="font-size: 12px; color: var(--slate);">${ind.utilisation}</td>
-      `;
+        <td style="font-size: 12px; color: var(--slate);">${ind.utilisation}</td>`;
       tbody.appendChild(tr);
     });
   }
@@ -1297,15 +1141,11 @@
           <span style="font-size: 11px; color: var(--slate);">
             ${enVirage ? '🔄 En zone de virage' : (ph < ind.zoneMin ? ind.couleurAcideEmoji + ' ' + ind.couleurAcideNom : ind.couleurBasiqueEmoji + ' ' + ind.couleurBasiqueNom)}
           </span>
-        </div>
-      `;
+        </div>`;
       cont.appendChild(div);
     });
   }
 
-  // ============================================================
-  // RÉFÉRENCE
-  // ============================================================
   function majBoutonReference() {
     const btn = document.getElementById('btn-garder-ref');
     if (started && mesures.length >= 3 && !referenceSauvegardee) btn.classList.remove('hidden');
@@ -1325,8 +1165,7 @@
           <strong>${ref.mesures.length} mesures</strong>
         </div>
         <button onclick="window.supprimerReference()">✕ Supprimer la référence</button>
-      </div>
-    `;
+      </div>`;
   }
 
   window.supprimerReference = () => {
@@ -1358,22 +1197,17 @@
     majAffichageSelonMethode();
   };
 
-  // ============================================================
-  // MODES
-  // ============================================================
   function activerMode(mode) {
-    if (mode === 'entrainement' || mode === 'evaluation') return; // géré séparément
+    if (mode === 'entrainement' || mode === 'evaluation') return;
     modeActuel = mode;
-    document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+    document.querySelectorAll('.mode-btn[data-mode]').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
     const fieldPka = document.getElementById('field-pka');
     const tpPanel = document.getElementById('tp-panel');
     const selMethode = document.getElementById('methode');
     const helperMethode = document.getElementById('methode-helper');
-    
     fieldPka.classList.add('hidden');
     tpPanel.classList.add('hidden');
     tpActif = false;
-    
     let methodeForcee = null;
     if (mode === 'initiation' || mode === 'standard') {
       methodeForcee = 'colorimetrique';
@@ -1404,7 +1238,6 @@
   }
 
   document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => btn.addEventListener('click', () => activerMode(btn.dataset.mode)));
-
   document.querySelectorAll('.table-mode-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       tableMode = btn.dataset.tablemode;
@@ -1428,9 +1261,7 @@
     const animationBox = document.getElementById('animation-colorimetrique');
     const titreViz = document.getElementById('titre-visualisation');
     const zoneBoutons = document.getElementById('zone-boutons-courbe');
-    
     const doitAfficherCourbe = (methode === 'phmetrique') || (referenceSauvegardee !== null);
-    
     if (doitAfficherCourbe) {
       chartContainer.classList.remove('hidden');
       animationBox.classList.add('hidden');
@@ -1444,9 +1275,6 @@
     }
   }
 
-  // ============================================================
-  // TABLEAU DE VALEURS
-  // ============================================================
   document.getElementById('btn-add-row').onclick = () => ajouterLigneTableau('', '');
   document.getElementById('btn-vider').onclick = () => {
     if (!confirm('Vider tout le tableau ?')) return;
@@ -1494,9 +1322,6 @@
     mesures.forEach(m => ajouterLigneTableau(m.v.toFixed(2), m.ph.toFixed(2)));
   }
 
-  // ============================================================
-  // CALCULS
-  // ============================================================
   function lireParametres() {
     return {
       substanceTitree: substanceTitreeActuelle,
@@ -1513,7 +1338,6 @@
   function calculerPH(vBase, p) {
     const sT = p.substanceTitree;
     const sTr = p.substanceTitrante;
-    
     if (sT.force === 'fort' && sTr.force === 'fort') {
       const nA = sT.n * p.va * p.ca / 1000;
       const nB = sTr.n * vBase * p.cb / 1000;
@@ -1527,7 +1351,6 @@
       if (sT.famille === 'acide') return 14 + Math.log10(Math.max((nB - nA) / vT, 1e-14));
       else return -Math.log10(Math.max((nB - nA) / vT, 1e-14));
     }
-    
     if (sT.famille === 'acide' && sT.force === 'faible' && sTr.famille === 'base' && sTr.force === 'fort') {
       const nA = p.va * p.ca / 1000;
       const nB = vBase * p.cb / 1000;
@@ -1545,7 +1368,6 @@
       }
       return 14 + Math.log10(Math.max((nB - nA) / vT, 1e-14));
     }
-    
     if (sT.famille === 'acide' && sT.force === 'fort' && sTr.famille === 'base' && sTr.force === 'faible') {
       const nA = p.va * p.ca / 1000;
       const nB = vBase * p.cb / 1000;
@@ -1559,7 +1381,6 @@
       }
       return 14 - pkaTitrante - Math.log10(Math.max((nB - nA) / Math.max(nA, 1e-14), 1e-14));
     }
-    
     if (sT.famille === 'base' && sT.force === 'faible' && sTr.famille === 'acide' && sTr.force === 'fort') {
       const nB = p.va * p.ca / 1000;
       const nA = vBase * p.cb / 1000;
@@ -1602,9 +1423,6 @@
     document.getElementById('anim-liquid').setAttribute('fill', couleurInitiale(ind));
   }
 
-  // ============================================================
-  // DÉMARRAGE / RESET
-  // ============================================================
   document.getElementById('btn-demarrer').onclick = () => {
     started = true; 
     mesures = [];
@@ -1658,9 +1476,6 @@
     if (referenceSauvegardee) renderChart();
   }
 
-  // ============================================================
-  // AJOUT DE VOLUME
-  // ============================================================
   function ajouterVol(vol) {
     if (!started) { alert('Cliquez d\'abord sur "Démarrer le dosage".'); return; }
     const p = lireParametres();
@@ -1668,14 +1483,12 @@
     const dernierV = mesures.length > 0 ? mesures[mesures.length - 1].v : 0;
     const nouveauV = dernierV + vol;
     if (nouveauV > veq * 2.5) { alert(`Volume maximum atteint.`); return; }
-    
     const drop = document.getElementById('drop');
     drop.style.display = 'block';
     drop.classList.remove('droplet');
     void drop.offsetWidth;
     drop.classList.add('droplet');
     setTimeout(() => { drop.style.display = 'none'; }, 600);
-    
     const animDrop = document.getElementById('anim-drop');
     if (animDrop) {
       animDrop.style.display = 'block';
@@ -1692,7 +1505,6 @@
       splash.classList.add('splash-effect');
       setTimeout(() => { splash.setAttribute('opacity', '0'); }, 700);
     }
-    
     const ph = calculerPH(nouveauV, p);
     mesures.push({ v: nouveauV, ph });
     mesures.sort((a, b) => a.v - b.v);
@@ -1765,7 +1577,7 @@
     else if (v < veq - 1) msg = '🟠 Approche de l\'équivalence...';
     else if (Math.abs(v - veq) < 1) msg = '🎯 À l\'équivalence : le virage se produit !';
     else if (v < veq * 1.5) msg = '🔵 Après l\'équivalence : couleur finale.';
-    else msg = '🔵 Couleur stable.';
+    else msg = '🔵 Couleur stable de l\'indicateur.';
     if (msgDiv.textContent !== msg) {
       msgDiv.textContent = msg;
       msgDiv.classList.remove('message-fade');
@@ -1774,20 +1586,15 @@
     }
   }
 
-  // ============================================================
-  // COURBE PRINCIPALE
-  // ============================================================
   function renderChart() {
     const ctx = document.getElementById('chart');
     if (!ctx) return;
     if (chart) { chart.destroy(); chart = null; }
     const p = lireParametres();
     if (!p.substanceTitree || !p.substanceTitrante) return;
-    
     const points = mesures.map(m => ({ x: m.v, y: m.ph })).sort((a, b) => a.x - b.x);
     const methode = document.getElementById('methode').value;
     const doitAfficherCourbe = (methode === 'phmetrique') || (referenceSauvegardee !== null);
-    
     const chartContainer = document.getElementById('chart-container');
     const animationBox = document.getElementById('animation-colorimetrique');
     if (!doitAfficherCourbe) {
@@ -1797,7 +1604,6 @@
     }
     chartContainer.classList.remove('hidden');
     animationBox.classList.add('hidden');
-    
     let veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
     let vdemi = veq / 2;
     if (points.length > 2) {
@@ -1811,14 +1617,10 @@
         vdemi = veq / 2;
       }
     }
-    
     const indicObj = INDICATEURS.find(i => i.id === p.indicateur);
     let zoneVirage = null;
     if (indicObj) zoneVirage = [indicObj.zoneMin, indicObj.zoneMax];
-    
     const datasets = [];
-    
-    // Référence : trait pointillé rouge SANS POINTS
     if (referenceSauvegardee) {
       const refPoints = referenceSauvegardee.mesures.map(m => ({ x: m.v, y: m.ph })).sort((a,b) => a.x - b.x);
       datasets.push({
@@ -1837,8 +1639,6 @@
         pointHoverBorderWidth: 2
       });
     }
-    
-    // Dosage en cours : trait plein SANS POINTS
     if (points.length > 0) {
       datasets.push({
         label: referenceSauvegardee ? `🧪 Dosage 2 : ${p.substanceTitree.nom}` : 'pH',
@@ -1855,9 +1655,7 @@
         pointHoverBorderWidth: 2
       });
     }
-    
     const annotations = {};
-    
     if (referenceSauvegardee) {
       const refP = {
         substanceTitree: referenceSauvegardee.substance,
@@ -1892,7 +1690,6 @@
         borderColor: 'rgba(217, 83, 79, 0.4)', borderWidth: 1.5, borderDash: [4, 4]
       };
     }
-    
     if (points.length > 2) {
       annotations.e2 = {
         type: 'point',
@@ -1905,7 +1702,6 @@
         label: { display: true, content: referenceSauvegardee ? 'E₂' : 'E', position: 'top', backgroundColor: '#3498db', color: '#fff', font: { size: 12, weight: 'bold' } }
       };
     }
-    
     if (tangentesAffichees && !referenceSauvegardee) {
       annotations.veq = { type: 'line', xMin: veq, xMax: veq, borderColor: '#d9534f', borderWidth: 2, borderDash: [6, 6],
         label: { display: true, content: `Veq = ${veq.toFixed(2)} mL`, position: 'start', backgroundColor: '#d9534f', color: '#fff', font: { size: 11 } } };
@@ -1921,7 +1717,6 @@
       annotations.virage = { type: 'box', xMin: 0, xMax: Math.max(veq * 2, 20), yMin: zoneVirage[0], yMax: zoneVirage[1],
         backgroundColor: 'rgba(241, 196, 15, 0.08)', borderColor: 'rgba(241, 196, 15, 0.4)', borderWidth: 1 };
     }
-    
     chart = new Chart(ctx.getContext('2d'), {
       type: 'line', data: { datasets },
       options: {
@@ -1936,9 +1731,6 @@
     });
   }
 
-  // ============================================================
-  // ANALYSE DES RÉSULTATS
-  // ============================================================
   function analyserResultats() {
     if (mesures.length < 2) return;
     const p = lireParametres();
@@ -2008,7 +1800,6 @@
     }
     const compPheq = calculerPH(compVeq, p2);
     const compPhdemi = calculerPH(compVeq/2, p2);
-    
     let html = `
       <div class="comparatif-box">
         <h4>📋 Tableau comparatif des 2 dosages</h4>
@@ -2018,8 +1809,7 @@
           </thead>
           <tbody>
             <tr><td><strong>Substance titrée</strong></td><td class="ref-col">${ref.substance.nom} (${ref.substance.formule})</td><td class="comp-col">${p2.substanceTitree.nom} (${p2.substanceTitree.formule})</td></tr>
-            <tr><td><strong>Force</strong></td><td>${ref.substance.force === 'fort' ? '🔴 Forte' : '🟢 Faible'}</td><td>${p2.substanceTitree.force === 'fort' ? '🔴 Forte' : '🟢 Faible'}</td></tr>
-    `;
+            <tr><td><strong>Force</strong></td><td>${ref.substance.force === 'fort' ? '🔴 Forte' : '🟢 Faible'}</td><td>${p2.substanceTitree.force === 'fort' ? '🔴 Forte' : '🟢 Faible'}</td></tr>`;
     if (ref.substance.pka !== undefined || p2.substanceTitree.pka !== undefined) {
       html += `<tr><td><strong>pKa</strong></td><td>${ref.substance.pka !== undefined ? ref.substance.pka.toFixed(2) : '—'}</td><td>${p2.substanceTitree.pka !== undefined ? p2.substanceTitree.pka.toFixed(2) : '—'}</td></tr>`;
     }
@@ -2031,8 +1821,7 @@
             <tr><td><strong>Nombre de mesures</strong></td><td>${ref.mesures.length}</td><td>${mesures.length}</td></tr>
           </tbody>
         </table>
-      </div>
-    `;
+      </div>`;
     let interpretation = '';
     if (ref.substance.pka !== undefined && p2.substanceTitree.pka !== undefined) {
       const diffPka = p2.substanceTitree.pka - ref.substance.pka;
@@ -2046,9 +1835,6 @@
     zone.innerHTML = html;
   }
 
-  // ============================================================
-  // BOUTONS COURBE
-  // ============================================================
   document.getElementById('btn-tangentes-auto').onclick = () => {
     if (mesures.length < 2) { alert('Effectuez d\'abord le dosage.'); return; }
     tangentesAffichees = !tangentesAffichees;
@@ -2088,9 +1874,6 @@
     div.classList.toggle('show');
   };
 
-  // ============================================================
-  // MODE TP
-  // ============================================================
   document.getElementById('btn-verifier').onclick = () => {
     if (!tpVerite) return;
     const rpka = parseFloat(document.getElementById('tp-rep-pka').value);
@@ -2121,9 +1904,6 @@
     onSubstanceTitreeChange();
   };
 
-  // ============================================================
-  // EXPORT CSV
-  // ============================================================
   document.getElementById('btn-export').onclick = () => {
     if (mesures.length === 0) { alert('Aucune mesure à exporter.'); return; }
     let csv = "V(mL);pH\n";
@@ -2136,16 +1916,12 @@
   };
   document.getElementById('btn-imprimer').onclick = () => window.print();
 
-  // ============================================================
-  // GÉNÉRATION DE QUESTIONS
-  // ============================================================
   function genererQuestion(type, difficulte) {
     const substances = SUBSTANCES.filter(s => s.pka !== undefined || s.force === 'fort');
     const sub = substances[Math.floor(Math.random() * substances.length)];
     const titrante = sub.famille === 'acide' 
       ? SUBSTANCES.filter(s => s.famille === 'base' && s.force === 'fort')[0]
       : SUBSTANCES.filter(s => s.famille === 'acide' && s.force === 'fort')[0];
-    
     let va, ca, cb;
     if (difficulte === 'facile') {
       va = [10, 20, 25][Math.floor(Math.random() * 3)];
@@ -2160,10 +1936,8 @@
       ca = Math.round((0.005 + Math.random() * 0.5) * 1000) / 1000;
       cb = Math.round((0.005 + Math.random() * 0.5) * 1000) / 1000;
     }
-    
     const p = { substanceTitree: sub, substanceTitrante: titrante, va, ca, cb, pka: sub.pka };
     const veqTheorique = (sub.n * va * ca) / (titrante.n * cb);
-    
     if (type === 'A') {
       const veq = Math.round(veqTheorique * 100) / 100;
       const vraieCA = (cb * veq * titrante.n) / (va * sub.n);
@@ -2265,11 +2039,7 @@
     return null;
   }
 
-  // ============================================================
-  // LANCEMENT D'EXAMEN
-  // ============================================================
   document.getElementById('btn-mode-entrainement').onclick = () => {
-    // Mode entraînement : 5 questions, pas de chrono, correction immédiate
     const types = modeActuel === 'initiation' ? ['A', 'B', 'C'] : ['A', 'B', 'C', 'D', 'E'];
     lancerExamen({
       type: 'entrainement',
@@ -2293,7 +2063,6 @@
     if (e.target.id === 'modal-config-evaluation') document.getElementById('modal-config-evaluation').classList.remove('show');
   });
 
-  // Radio difficulté
   document.querySelectorAll('#difficulte-radios label').forEach(label => {
     label.addEventListener('click', () => {
       document.querySelectorAll('#difficulte-radios label').forEach(l => l.classList.remove('selected'));
@@ -2308,24 +2077,38 @@
     if (document.getElementById('obj-C').checked) types.push('C');
     if (document.getElementById('obj-D').checked) types.push('D');
     if (document.getElementById('obj-E').checked) types.push('E');
-    
     const difficulte = document.querySelector('#difficulte-radios input:checked').value;
     const nbQuestions = parseInt(document.getElementById('eval-nb-questions').value);
     const duree = parseInt(document.getElementById('eval-duree').value);
     const verrouCorrection = document.getElementById('eval-verrou-correction').checked;
+    const nomEvaluation = document.getElementById('eval-nom').value.trim() || 'Évaluation dosage';
+    
+    // Récupération de l'email du prof connecté
+    const emailProf = profile?.email || '';
+    const nomProf = profile ? `${profile.prenom} ${profile.nom}` : '';
+    
+    if (!emailProf) {
+      alert('⚠️ Votre profil ne contient pas d\'email. Contactez l\'administration.');
+      return;
+    }
+    
+    // Stockage pour l'élève
+    localStorage.setItem('eval_profEmail', emailProf);
+    localStorage.setItem('eval_profNom', nomProf);
+    localStorage.setItem('eval_nom', nomEvaluation);
+    localStorage.setItem('eval_timestamp', Date.now().toString());
     
     document.getElementById('modal-config-evaluation').classList.remove('show');
     
     lancerExamen({
       type: 'evaluation',
-      nom: document.getElementById('eval-nom').value,
+      nom: nomEvaluation,
       nbQuestions, duree, difficulte, types, verrouCorrection
     });
   };
 
   function lancerExamen(config) {
     if (!config.types || config.types.length === 0) { alert('Veuillez sélectionner au moins un type de question.'); return; }
-    
     examen.questions = [];
     for (let i = 0; i < config.nbQuestions; i++) {
       const type = config.types[Math.floor(Math.random() * config.types.length)];
@@ -2333,7 +2116,6 @@
       if (q) examen.questions.push(q);
     }
     if (examen.questions.length === 0) { alert('Erreur lors de la génération des questions.'); return; }
-    
     examen.actif = true;
     examen.type = config.type;
     examen.indexCourant = 0;
@@ -2342,16 +2124,13 @@
     examen.tempsRestant = config.duree * 60;
     examen.duree = config.duree;
     examen.config = config;
-    
     document.getElementById('examen-total').textContent = examen.questions.length;
     document.getElementById('examen-score').textContent = '0';
-    
-    if (config.type === 'evaluation') {
+    if (config.type === 'evaluation' && config.duree < 900) {
       document.getElementById('examen-timer').parentElement.style.display = 'block';
     } else {
       document.getElementById('examen-timer').parentElement.style.display = 'none';
     }
-    
     document.getElementById('modal-examen').classList.add('show');
     if (config.type === 'evaluation' && config.duree < 900) demarrerTimer();
     afficherQuestion();
@@ -2382,13 +2161,11 @@
     const q = examen.questions[examen.indexCourant];
     document.getElementById('examen-num').textContent = examen.indexCourant + 1;
     document.getElementById('examen-progress').style.width = ((examen.indexCourant) / examen.questions.length * 100) + '%';
-    
     let html = `
       <div class="examen-question-box">
         <div class="enonce">📝 ${q.enonce}</div>
         <div class="consigne">💡 ${q.consigne}</div>
-      </div>
-    `;
+      </div>`;
     if (q.courbeData) {
       html += `<div class="mini-graph-box"><div class="mini-chart-container"><canvas id="mini-chart"></canvas></div></div>`;
     }
@@ -2403,10 +2180,8 @@
       html += `<label>Votre réponse :</label><input type="number" step="0.001" id="reponse-input" placeholder="Saisissez votre réponse..."><div style="font-size: 11px; color: var(--slate); margin-top: 5px;">${q.unite}</div>`;
     }
     html += `</div><div id="feedback-zone"></div>`;
-    
     document.getElementById('examen-contenu').innerHTML = html;
     document.getElementById('examen-actions').innerHTML = `<button class="btn-primary" id="btn-valider-reponse">✅ Valider la réponse</button>`;
-    
     document.querySelectorAll('#radio-group label').forEach(label => {
       label.addEventListener('click', () => {
         document.querySelectorAll('#radio-group label').forEach(l => l.classList.remove('selected'));
@@ -2414,7 +2189,6 @@
       });
     });
     document.getElementById('btn-valider-reponse').onclick = () => validerReponse();
-    
     if (q.courbeData) setTimeout(() => dessinerMiniCourbe(q.courbeData), 100);
   }
 
@@ -2456,7 +2230,6 @@
   function validerReponse() {
     const q = examen.questions[examen.indexCourant];
     let reponseDonnee = null;
-    
     if (q.options) {
       const selected = document.querySelector('#radio-group label.selected');
       if (!selected) { alert('Veuillez sélectionner une réponse.'); return; }
@@ -2466,7 +2239,6 @@
       reponseDonnee = input.value.trim();
       if (reponseDonnee === '') { alert('Veuillez saisir une réponse.'); return; }
     }
-    
     let correct = false;
     if (q.options) {
       correct = reponseDonnee === q.reponse;
@@ -2475,12 +2247,9 @@
       const vraie = parseFloat(q.reponse);
       correct = Math.abs(val - vraie) <= q.tolerance;
     }
-    
     if (correct) examen.score++;
     document.getElementById('examen-score').textContent = examen.score;
     examen.reponses.push({ question: q, reponseDonnee, correct });
-    
-    // Feedback immédiat (sauf en évaluation verrouillée)
     const verrouCorrection = examen.config.verrouCorrection && examen.type === 'evaluation';
     if (!verrouCorrection) {
       const feedbackZone = document.getElementById('feedback-zone');
@@ -2492,24 +2261,20 @@
       let reponseDonneeAffichee = q.options 
         ? (q.options.find(o => o.value === reponseDonnee)?.label || reponseDonnee)
         : reponseDonnee + ' ' + (q.unite || '');
-      
       feedbackZone.innerHTML = `
         <div class="examen-feedback ${classe}">
           <strong>${titre}</strong>
           Votre réponse : ${reponseDonneeAffichee}<br>
           Bonne réponse : <strong>${reponseAffichee}</strong>
           <div class="calcul">${q.explication}</div>
-        </div>
-      `;
+        </div>`;
       document.getElementById('examen-actions').innerHTML = `
-        <button class="btn-primary" id="btn-question-suivante">${examen.indexCourant < examen.questions.length - 1 ? '➡ Question suivante' : '🏁 Voir les résultats'}</button>
-      `;
+        <button class="btn-primary" id="btn-question-suivante">${examen.indexCourant < examen.questions.length - 1 ? '➡ Question suivante' : '🏁 Voir les résultats'}</button>`;
       document.getElementById('btn-question-suivante').onclick = () => {
         examen.indexCourant++;
         afficherQuestion();
       };
     } else {
-      // Sans feedback : avancer directement
       examen.indexCourant++;
       if (examen.indexCourant >= examen.questions.length) terminerExamen(false);
       else afficherQuestion();
@@ -2520,19 +2285,16 @@
     if (examen.timerInterval) clearInterval(examen.timerInterval);
     examen.actif = false;
     document.getElementById('modal-examen').classList.remove('show');
-    
     const total = examen.questions.length;
     const score = examen.score;
     const noteSur20 = Math.round((score / total) * 20 * 10) / 10;
     const pourcentage = Math.round((score / total) * 100);
-    
     let appreciation = '';
     let classeApp = '';
     if (pourcentage >= 90) { appreciation = '🏆 Excellent !'; classeApp = 'excellent'; }
     else if (pourcentage >= 70) { appreciation = '👍 Bien'; classeApp = 'bien'; }
     else if (pourcentage >= 50) { appreciation = '📖 Passable'; classeApp = 'passable'; }
     else { appreciation = '⚠️ À revoir'; classeApp = 'faible'; }
-    
     let html = `
       <div class="examen-resultats-final">
         <h3 style="font-family: var(--serif); color: var(--ink); font-size: 22px; margin-bottom: 10px;">
@@ -2541,10 +2303,7 @@
         <div class="score-final">${noteSur20}/20</div>
         <div class="score-label">${score} bonnes réponses sur ${total} (${pourcentage}%)</div>
         <div class="appreciation ${classeApp}">${appreciation}</div>
-      </div>
-    `;
-    
-    // Détail des réponses (visible prof ou en mode entraînement)
+      </div>`;
     if (examen.type === 'entrainement' || (profile && (isAdmin(profile.role) || profile.role === 'professeur'))) {
       html += `<div style="margin-top: 20px;"><h4 style="font-family: var(--serif); color: var(--ink); margin-bottom: 10px;">📋 Détail des réponses</h4>`;
       examen.reponses.forEach((r, i) => {
@@ -2556,7 +2315,6 @@
         const reponseDonneeAffichee = q.options 
           ? (q.options.find(o => o.value === r.reponseDonnee)?.label || r.reponseDonnee)
           : r.reponseDonnee + ' ' + (q.unite || '');
-        
         html += `
           <div class="recap-question ${classe}">
             <div class="q-num">Question ${i+1} ${r.correct ? '✅' : '❌'}</div>
@@ -2566,8 +2324,7 @@
               Bonne réponse : <span class="bonne">${reponseAffichee}</span>
             </div>
             <div class="q-explication">💡 ${q.explication}</div>
-          </div>
-        `;
+          </div>`;
       });
       html += `</div>`;
     } else {
@@ -2575,58 +2332,58 @@
         📝 Le détail des réponses sera consultable par votre professeur.
       </div>`;
     }
-    
-       html += `<div style="margin-top: 20px; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+    html += `<div style="margin-top: 20px; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
       <button class="btn-secondary" id="btn-fermer-resultats">Fermer</button>
       <button class="btn-success" id="btn-exporter-examen-pdf" style="background: #d9534f;">📄 Exporter en PDF</button>
     </div>`;
-    
-    // Attacher l'événement après insertion
-    setTimeout(() => {
-      const btnExp = document.getElementById('btn-exporter-examen-pdf');
-      if (btnExp) btnExp.onclick = () => genererRapportExamenPDF();
-    }, 100);
-    
     document.getElementById('resultats-contenu').innerHTML = html;
     document.getElementById('modal-resultats').classList.add('show');
     document.getElementById('btn-fermer-resultats').onclick = () => {
       document.getElementById('modal-resultats').classList.remove('show');
     };
+    setTimeout(() => {
+      const btnExp = document.getElementById('btn-exporter-examen-pdf');
+      if (btnExp) btnExp.onclick = () => genererRapportExamenPDF();
+    }, 100);
   }
-  // ============================================================
-  // ÉTAPE 4 — EXPORT PDF
-  // ============================================================
-  
-  let pdfExportData = null;  // Données du dernier PDF généré
-  
+
   document.getElementById('btn-export-pdf-dosage').onclick = () => {
     if (mesures.length < 2) { alert('Effectuez d\'abord un dosage complet (au moins 2 mesures).'); return; }
     genererRapportDosagePDF();
   };
-  
+
   document.getElementById('btn-fermer-export-pdf').onclick = () => {
     document.getElementById('modal-export-pdf').classList.remove('show');
   };
-  
   document.getElementById('modal-export-pdf').addEventListener('click', (e) => {
     if (e.target.id === 'modal-export-pdf') document.getElementById('modal-export-pdf').classList.remove('show');
   });
-  
-  document.getElementById('btn-envoyer-prof').onclick = () => {
-    // Envoi via mailto avec message pré-rempli
-    if (!pdfExportData) return;
-    const emailProf = "contact@lfakm.sn";  // ⚠️ À MODIFIER : email du prof ou config
-    const sujet = `Rapport de dosage - ${profile ? profile.prenom + ' ' + profile.nom : 'Élève'}`;
-    const corps = `Bonjour,
 
-Veuillez trouver ci-joint mon rapport de dosage acido-basique.
+  document.getElementById('btn-envoyer-prof').onclick = () => {
+    if (!pdfExportData) return;
+    
+    // Récupération de l'email du prof depuis localStorage (défini par le prof au lancement)
+    let emailProf = localStorage.getItem('eval_profEmail');
+    let nomProf = localStorage.getItem('eval_profNom') || 'votre professeur';
+    let nomEval = localStorage.getItem('eval_nom') || 'Évaluation';
+    
+    // Fallback si pas d'évaluation en cours
+    if (!emailProf) {
+      emailProf = prompt("Entrez l'email de votre professeur :");
+      if (!emailProf) return;
+      nomProf = "votre professeur";
+    }
+    
+    const sujet = `Rapport - ${nomEval} - ${profile ? profile.prenom + ' ' + profile.nom : 'Élève'}`;
+    const corps = `Bonjour ${nomProf},
+
+Veuillez trouver ci-joint mon rapport "${nomEval}".
 
 Élève : ${profile ? profile.prenom + ' ' + profile.nom : '(non identifié)'}
+Classe : ${profile ? (profile.niveau || '—') : '—'}
 Date : ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}
-Type : ${pdfExportData.type}
-${pdfExportData.substanceTitree ? 'Substance titrée : ' + pdfExportData.substanceTitree.nom : ''}
-${pdfExportData.veq ? 'Volume équivalent : ' + pdfExportData.veq.toFixed(2) + ' mL' : ''}
-${pdfExportData.note ? 'Note obtenue : ' + pdfExportData.note + '/20' : ''}
+${pdfExportData.type === 'Dosage' ? `Substance titrée : ${pdfExportData.substanceTitree.nom}\nVolume équivalent : ${pdfExportData.veq.toFixed(2)} mL` : ''}
+${pdfExportData.type === 'Examen' ? `Note obtenue : ${pdfExportData.note}/20` : ''}
 
 Le fichier PDF est joint à ce message.
 
@@ -2635,13 +2392,21 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
     
     const mailtoLink = `mailto:${emailProf}?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`;
     window.location.href = mailtoLink;
+    
+    // Nettoyage après envoi
+    setTimeout(() => {
+      if (confirm('Avez-vous bien envoyé le mail avec le PDF joint ?\n\nSi oui, cliquez OK pour nettoyer les données de l\'évaluation.')) {
+        localStorage.removeItem('eval_profEmail');
+        localStorage.removeItem('eval_profNom');
+        localStorage.removeItem('eval_nom');
+        localStorage.removeItem('eval_timestamp');
+      }
+    }, 2000);
   };
-  
+
   async function genererRapportDosagePDF() {
     const p = lireParametres();
     const points = mesures.map(m => ({ x: m.v, y: m.ph })).sort((a, b) => a.x - b.x);
-    
-    // Recalcul du Veq expérimental
     let veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
     if (points.length > 2) {
       let maxDelta = 0, indexMax = 0;
@@ -2654,31 +2419,18 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
     const vdemi = veq / 2;
     const pheq = calculerPH(veq, p);
     const phdemi = calculerPH(vdemi, p);
-    
-    // Capturer la courbe Chart.js en image
     let courbeImage = null;
     if (chart && chart.canvas) {
-      try {
-        courbeImage = chart.canvas.toDataURL('image/png', 1.0);
-      } catch (e) {
-        console.warn('Impossible de capturer la courbe:', e);
-      }
+      try { courbeImage = chart.canvas.toDataURL('image/png', 1.0); } catch (e) {}
     }
-    
-    // Créer le document PDF
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    
     const pageW = 210;
     const pageH = 297;
     const marge = 15;
     let y = marge;
-    
-    // === EN-TÊTE ===
-    // Bandeau bleu
     doc.setFillColor(27, 42, 74);
     doc.rect(0, 0, pageW, 30, 'F');
-    
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
@@ -2686,51 +2438,40 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text('Excellence & Savoir — Rapport de Dosage', pageW / 2, 20, { align: 'center' });
-    
-    // Filet doré
     doc.setDrawColor(168, 133, 63);
     doc.setLineWidth(1);
     doc.line(0, 30, pageW, 30);
-    
     y = 40;
     doc.setTextColor(27, 42, 74);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(14);
     doc.text('RAPPORT DE DOSAGE ACIDO-BASIQUE', pageW / 2, y, { align: 'center' });
     y += 10;
-    
-    // === INFORMATIONS GÉNÉRALES ===
     doc.setFillColor(247, 245, 240);
     doc.rect(marge, y, pageW - 2 * marge, 22, 'F');
     doc.setDrawColor(200, 200, 200);
     doc.setLineWidth(0.2);
     doc.rect(marge, y, pageW - 2 * marge, 22);
-    
     y += 7;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.text('Élève :', marge + 3, y);
     doc.setFont('helvetica', 'normal');
     doc.text(profile ? `${profile.prenom} ${profile.nom}` : '(non identifié)', marge + 25, y);
-    
     doc.setFont('helvetica', 'bold');
     doc.text('Date :', marge + 110, y);
     doc.setFont('helvetica', 'normal');
     doc.text(new Date().toLocaleDateString('fr-FR'), marge + 125, y);
     y += 6;
-    
     doc.setFont('helvetica', 'bold');
     doc.text('Mode :', marge + 3, y);
     doc.setFont('helvetica', 'normal');
     doc.text(modeActuel.charAt(0).toUpperCase() + modeActuel.slice(1), marge + 25, y);
-    
     doc.setFont('helvetica', 'bold');
     doc.text('Méthode :', marge + 110, y);
     doc.setFont('helvetica', 'normal');
     doc.text(p.methode === 'phmetrique' ? 'pH-métrique' : 'Colorimétrique', marge + 132, y);
     y += 12;
-    
-    // === PARAMÈTRES DU DOSAGE ===
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(27, 42, 74);
@@ -2740,27 +2481,22 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
     doc.setLineWidth(0.5);
     doc.line(marge, y, marge + 60, y);
     y += 6;
-    
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(0, 0, 0);
-    
     const params = [
       ['Substance titrée', `${p.substanceTitree.nom} (${p.substanceTitree.formule})`],
       ['Force', p.substanceTitree.force === 'fort' ? 'Forte' : 'Faible'],
-      ['Basicité', p.substanceTitree.n === 1 ? (p.substanceTitree.famille === 'acide' ? 'Monoacide' : 'Monobase') : (p.substanceTitree.n === 2 ? (p.substanceTitree.famille === 'acide' ? 'Diacide' : 'Dibase') : '—')],
       ['Solution titrante', `${p.substanceTitrante.nom} (${p.substanceTitrante.formule})`],
       ['Volume VA', `${p.va.toFixed(1)} mL`],
       ['Concentration CA', `${p.ca.toFixed(3)} mol/L`],
       ['Concentration CB', `${p.cb.toFixed(3)} mol/L`],
       ['Indicateur coloré', p.indicateur === 'aucun' ? 'Aucun' : (INDICATEURS.find(i => i.id === p.indicateur)?.nom || '—')]
     ];
-    
     if (p.substanceTitree.pka !== undefined) {
       params.push(['pKa', p.substanceTitree.pka.toFixed(2)]);
       params.push(['pKb (déduit)', (14 - p.substanceTitree.pka).toFixed(2)]);
     }
-    
     params.forEach(([label, val]) => {
       doc.setFont('helvetica', 'bold');
       doc.text(label + ' :', marge + 2, y);
@@ -2768,10 +2504,7 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
       doc.text(String(val), marge + 55, y);
       y += 5.5;
     });
-    
     y += 5;
-    
-    // === TABLEAU DE VALEURS ===
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(27, 42, 74);
@@ -2781,8 +2514,6 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
     doc.setLineWidth(0.5);
     doc.line(marge, y, marge + 55, y);
     y += 5;
-    
-    // En-têtes du tableau
     doc.setFillColor(27, 42, 74);
     doc.rect(marge, y, pageW - 2 * marge, 7, 'F');
     doc.setTextColor(255, 255, 255);
@@ -2793,25 +2524,15 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
     doc.text('pH', marge + 50, y + 5);
     doc.text('Couleur observée', marge + 80, y + 5);
     y += 7;
-    
-    // Lignes du tableau
     doc.setTextColor(0, 0, 0);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
-    
     mesures.forEach((m, i) => {
-      // Nouvelle page si nécessaire
-      if (y > 250) {
-        doc.addPage();
-        y = marge;
-      }
-      
-      // Alternance de fond
+      if (y > 250) { doc.addPage(); y = marge; }
       if (i % 2 === 0) {
         doc.setFillColor(250, 250, 250);
         doc.rect(marge, y, pageW - 2 * marge, 6, 'F');
       }
-      
       const couleurObs = p.indicateur === 'aucun' 
         ? '—' 
         : (() => {
@@ -2821,20 +2542,15 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
             if (m.ph > ind.zoneMax) return ind.couleurBasiqueNom;
             return 'En virage';
           })();
-      
       doc.text(String(i + 1), marge + 3, y + 4);
       doc.text(m.v.toFixed(2), marge + 20, y + 4);
       doc.text(m.ph.toFixed(2), marge + 50, y + 4);
       doc.text(couleurObs, marge + 80, y + 4);
       y += 6;
     });
-    
     y += 8;
-    
-    // === COURBE ===
     if (courbeImage) {
       if (y > 180) { doc.addPage(); y = marge; }
-      
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(27, 42, 74);
@@ -2844,21 +2560,16 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
       doc.setLineWidth(0.5);
       doc.line(marge, y, marge + 45, y);
       y += 4;
-      
       try {
         doc.addImage(courbeImage, 'PNG', marge, y, pageW - 2 * marge, 90);
         y += 95;
       } catch (e) {
-        console.warn('Erreur insertion courbe:', e);
         doc.setFont('helvetica', 'italic');
         doc.text('(courbe non disponible)', marge, y);
         y += 10;
       }
     }
-    
-    // === RÉSULTATS ===
     if (y > 230) { doc.addPage(); y = marge; }
-    
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(27, 42, 74);
@@ -2868,43 +2579,35 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
     doc.setLineWidth(0.5);
     doc.line(marge, y, marge + 55, y);
     y += 6;
-    
-    // Encadré vert
     doc.setFillColor(232, 245, 233);
     doc.rect(marge, y, pageW - 2 * marge, 32, 'F');
     doc.setDrawColor(46, 125, 50);
     doc.setLineWidth(0.5);
     doc.rect(marge, y, pageW - 2 * marge, 32);
-    
     y += 6;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(0, 0, 0);
-    
     doc.setFont('helvetica', 'bold');
     doc.text('Volume équivalent :', marge + 3, y);
     doc.setFont('helvetica', 'normal');
     doc.text(`${veq.toFixed(2)} mL`, marge + 55, y);
     y += 6;
-    
     doc.setFont('helvetica', 'bold');
     doc.text('Demi-équivalence :', marge + 3, y);
     doc.setFont('helvetica', 'normal');
     doc.text(`${vdemi.toFixed(2)} mL`, marge + 55, y);
     y += 6;
-    
     doc.setFont('helvetica', 'bold');
     doc.text('pH à l\'équivalence :', marge + 3, y);
     doc.setFont('helvetica', 'normal');
     doc.text(`${pheq.toFixed(2)}`, marge + 55, y);
     y += 6;
-    
     doc.setFont('helvetica', 'bold');
     doc.text('pH à la demi-équivalence :', marge + 3, y);
     doc.setFont('helvetica', 'normal');
     doc.text(`${phdemi.toFixed(2)}`, marge + 55, y);
     y += 6;
-    
     if (p.substanceTitree.force === 'faible' && p.substanceTitree.pka !== undefined) {
       doc.setFont('helvetica', 'bold');
       doc.text('pKa déterminé :', marge + 3, y);
@@ -2912,12 +2615,8 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
       doc.text(`≈ ${phdemi.toFixed(2)} (à la demi-équivalence)`, marge + 55, y);
       y += 6;
     }
-    
     y += 5;
-    
-    // === INTERPRÉTATION ===
     if (y > 240) { doc.addPage(); y = marge; }
-    
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(27, 42, 74);
@@ -2927,11 +2626,9 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
     doc.setLineWidth(0.5);
     doc.line(marge, y, marge + 42, y);
     y += 6;
-    
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
-    
     let interpretation = '';
     if (p.substanceTitree.force === 'fort' && p.substanceTitrante.force === 'fort') {
       interpretation = 'Dosage entre un acide fort et une base forte. Le pH à l\'équivalence est égal à 7. L\'indicateur adapté est le BBT (zone de virage 6,0-7,6).';
@@ -2942,33 +2639,23 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
     } else {
       interpretation = `Dosage réalisé avec un indicateur coloré. Le pH à l'équivalence est ${pheq.toFixed(2)}.`;
     }
-    
     const lignes = doc.splitTextToSize(interpretation, pageW - 2 * marge);
     doc.text(lignes, marge, y);
     y += lignes.length * 5 + 10;
-    
-    // === PIED DE PAGE ===
     if (y > 250) { doc.addPage(); y = marge; }
-    
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
     doc.setFont('helvetica', 'italic');
     doc.text('Signature du professeur : _______________________', marge, y);
-    
     y += 15;
     doc.setFontSize(8);
     doc.setTextColor(150, 150, 150);
     doc.setFont('helvetica', 'normal');
     doc.text(`Rapport généré par le Simulateur de Dosage LFAKM — ${new Date().toLocaleString('fr-FR')}`, pageW / 2, pageH - 10, { align: 'center' });
-    
-    // === SAUVEGARDE ===
     const nomEleve = profile ? `${profile.nom}_${profile.prenom}` : 'Eleve';
     const dateStr = new Date().toISOString().slice(0, 10);
     const nomFichier = `Rapport_Dosage_${nomEleve}_${dateStr}.pdf`;
-    
     doc.save(nomFichier);
-    
-    // Préparer les données pour l'envoi email
     pdfExportData = {
       type: 'Dosage',
       substanceTitree: p.substanceTitree,
@@ -2978,8 +2665,6 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
       phdemi: phdemi,
       nomFichier: nomFichier
     };
-    
-    // Afficher le modal de confirmation
     document.getElementById('export-pdf-titre').textContent = '✅ Rapport généré !';
     document.getElementById('export-pdf-message').textContent = `Votre rapport "${nomFichier}" a été téléchargé.`;
     document.getElementById('export-pdf-details').innerHTML = `
@@ -2990,37 +2675,27 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
         • Veq : ${veq.toFixed(2)} mL<br>
         • pH équivalence : ${pheq.toFixed(2)}<br>
         • Nombre de mesures : ${mesures.length}
-      </div>
-    `;
+      </div>`;
     document.getElementById('modal-export-pdf').classList.add('show');
   }
-  
-  // ============================================================
-  // EXPORT PDF POUR L'EXAMEN
-  // ============================================================
+
   async function genererRapportExamenPDF() {
     if (examen.reponses.length === 0) {
       alert('Aucune donnée d\'examen à exporter.');
       return;
     }
-    
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    
     const pageW = 210;
     const pageH = 297;
     const marge = 15;
     let y = marge;
-    
     const total = examen.questions.length;
     const score = examen.score;
     const noteSur20 = Math.round((score / total) * 20 * 10) / 10;
     const pourcentage = Math.round((score / total) * 100);
-    
-    // === EN-TÊTE ===
     doc.setFillColor(27, 42, 74);
     doc.rect(0, 0, pageW, 30, 'F');
-    
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
@@ -3028,25 +2703,20 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text('Excellence & Savoir — Rapport d\'Évaluation', pageW / 2, 20, { align: 'center' });
-    
     doc.setDrawColor(168, 133, 63);
     doc.setLineWidth(1);
     doc.line(0, 30, pageW, 30);
-    
     y = 40;
     doc.setTextColor(27, 42, 74);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(14);
     doc.text('RAPPORT D\'ÉVALUATION', pageW / 2, y, { align: 'center' });
     y += 10;
-    
-    // === INFOS ÉLÈVE ===
     doc.setFillColor(247, 245, 240);
     doc.rect(marge, y, pageW - 2 * marge, 22, 'F');
     doc.setDrawColor(200, 200, 200);
     doc.setLineWidth(0.2);
     doc.rect(marge, y, pageW - 2 * marge, 22);
-    
     y += 7;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
@@ -3054,45 +2724,36 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
     doc.text('Élève :', marge + 3, y);
     doc.setFont('helvetica', 'normal');
     doc.text(profile ? `${profile.prenom} ${profile.nom}` : '(non identifié)', marge + 25, y);
-    
     doc.setFont('helvetica', 'bold');
     doc.text('Date :', marge + 110, y);
     doc.setFont('helvetica', 'normal');
     doc.text(new Date().toLocaleDateString('fr-FR'), marge + 125, y);
     y += 6;
-    
     doc.setFont('helvetica', 'bold');
     doc.text('Type :', marge + 3, y);
     doc.setFont('helvetica', 'normal');
     doc.text(examen.type === 'evaluation' ? 'Évaluation' : 'Entraînement', marge + 25, y);
-    
     doc.setFont('helvetica', 'bold');
     doc.text('Durée :', marge + 110, y);
     doc.setFont('helvetica', 'normal');
     doc.text(`${examen.duree} min`, marge + 125, y);
     y += 12;
-    
-    // === SCORE FINAL ===
     doc.setFillColor(232, 245, 233);
     doc.rect(marge, y, pageW - 2 * marge, 30, 'F');
     doc.setDrawColor(46, 125, 50);
     doc.setLineWidth(0.5);
     doc.rect(marge, y, pageW - 2 * marge, 30);
-    
     y += 8;
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(46, 125, 50);
     doc.text(`${noteSur20}/20`, pageW / 2, y, { align: 'center' });
     y += 8;
-    
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(0, 0, 0);
     doc.text(`${score} bonnes réponses sur ${total} (${pourcentage}%)`, pageW / 2, y, { align: 'center' });
     y += 12;
-    
-    // === DÉTAIL DES QUESTIONS ===
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(27, 42, 74);
@@ -3102,43 +2763,32 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
     doc.setLineWidth(0.5);
     doc.line(marge, y, marge + 55, y);
     y += 6;
-    
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(0, 0, 0);
-    
     examen.reponses.forEach((r, i) => {
       if (y > 255) { doc.addPage(); y = marge; }
-      
       const q = r.question;
       const couleur = r.correct ? [46, 125, 50] : [217, 83, 79];
-      
-      // Barre de statut
       doc.setFillColor(...couleur);
       doc.rect(marge, y, 3, 4, 'F');
-      
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(...couleur);
       doc.text(`Question ${i+1} : ${r.correct ? '✅ Correcte' : '❌ Incorrecte'}`, marge + 5, y + 3);
       doc.setTextColor(0, 0, 0);
       doc.setFont('helvetica', 'normal');
       y += 6;
-      
-      // Énoncé (tronqué)
       const enonce = q.enonce.replace(/<[^>]*>/g, ' ');
       const enonceCourt = enonce.length > 100 ? enonce.substring(0, 100) + '...' : enonce;
       const lignesEnonce = doc.splitTextToSize(enonceCourt, pageW - 2 * marge - 5);
       doc.text(lignesEnonce, marge + 5, y);
       y += lignesEnonce.length * 4 + 1;
-      
-      // Réponses
       const reponseAffichee = q.options 
         ? (q.options.find(o => o.value === q.reponse)?.label || q.reponse)
         : q.reponse + ' ' + (q.unite || '');
       const reponseDonneeAffichee = q.options 
         ? (q.options.find(o => o.value === r.reponseDonnee)?.label || r.reponseDonnee)
         : r.reponseDonnee + ' ' + (q.unite || '');
-      
       doc.setFont('helvetica', 'bold');
       doc.text('Votre réponse : ', marge + 5, y);
       doc.setFont('helvetica', 'normal');
@@ -3146,7 +2796,6 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
       doc.text(reponseDonneeAffichee, marge + 35, y);
       doc.setTextColor(0, 0, 0);
       y += 4;
-      
       doc.setFont('helvetica', 'bold');
       doc.text('Bonne réponse : ', marge + 5, y);
       doc.setFont('helvetica', 'normal');
@@ -3154,27 +2803,20 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
       doc.text(reponseAffichee, marge + 35, y);
       doc.setTextColor(0, 0, 0);
       y += 5;
-      
       y += 4;
     });
-    
-    // === PIED DE PAGE ===
     doc.setFontSize(8);
     doc.setTextColor(150, 150, 150);
     doc.text(`Rapport généré par le Simulateur de Dosage LFAKM — ${new Date().toLocaleString('fr-FR')}`, pageW / 2, pageH - 10, { align: 'center' });
-    
     const nomEleve = profile ? `${profile.nom}_${profile.prenom}` : 'Eleve';
     const dateStr = new Date().toISOString().slice(0, 10);
     const nomFichier = `Rapport_Examen_${nomEleve}_${dateStr}.pdf`;
-    
     doc.save(nomFichier);
-    
     pdfExportData = {
       type: 'Examen',
       note: noteSur20,
       nomFichier: nomFichier
     };
-    
     document.getElementById('export-pdf-titre').textContent = '✅ Rapport d\'examen généré !';
     document.getElementById('export-pdf-message').textContent = `Votre rapport "${nomFichier}" a été téléchargé.`;
     document.getElementById('export-pdf-details').innerHTML = `
@@ -3184,18 +2826,11 @@ ${profile ? profile.prenom + ' ' + profile.nom : 'L\'élève'}`;
         • Type : ${examen.type === 'evaluation' ? 'Évaluation' : 'Entraînement'}<br>
         • Note : ${noteSur20}/20 (${pourcentage}%)<br>
         • Bonnes réponses : ${score}/${total}
-      </div>
-    `;
+      </div>`;
     document.getElementById('modal-export-pdf').classList.add('show');
   }
-  
-  // Bouton d'export depuis l'écran de résultats d'examen
-  window.exporterExamenPDF = () => {
-    genererRapportExamenPDF();
-  };
-  // ============================================================
-  // INITIALISATION
-  // ============================================================
+
+  // Initialisation
   document.getElementById('auto-controls').style.display = 'block';
   document.getElementById('add-row-zone').style.display = 'none';
   appliquerCouleurInitiale();
