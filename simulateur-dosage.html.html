@@ -1211,25 +1211,32 @@
     onSubstanceTitreeChange();
   });
 
-  function majAffichageSelonMethode() {
+ function majAffichageSelonMethode() {
     const methode = document.getElementById('methode').value;
     const chartContainer = document.getElementById('chart-container');
     const animationBox = document.getElementById('animation-colorimetrique');
     const titreViz = document.getElementById('titre-visualisation');
     const zoneBoutons = document.getElementById('zone-boutons-courbe');
     
-    if (methode === 'colorimetrique' && !referenceSauvegardee) {
+    // RÈGLE : On affiche la courbe si :
+    // - méthode = pH-métrique
+    // - OU une référence est sauvegardée
+    // Sinon on affiche l'animation colorimétrique
+    const doitAfficherCourbe = (methode === 'phmetrique') || (referenceSauvegardee !== null);
+    
+    if (doitAfficherCourbe) {
+      chartContainer.classList.remove('hidden');
+      animationBox.classList.add('hidden');
+      titreViz.textContent = referenceSauvegardee ? '📊 Comparaison de 2 dosages' : '📊 Courbe pH = f(V)';
+      // Les boutons tangentes/zone tampon ne s'affichent pas en comparaison
+      zoneBoutons.classList.toggle('hidden', !!referenceSauvegardee);
+    } else {
       chartContainer.classList.add('hidden');
       animationBox.classList.remove('hidden');
       titreViz.textContent = '🎨 Animation du dosage colorimétrique';
       zoneBoutons.classList.add('hidden');
-    } else {
-      chartContainer.classList.remove('hidden');
-      animationBox.classList.add('hidden');
-      titreViz.textContent = referenceSauvegardee ? '📊 Comparaison de 2 dosages' : '📊 Courbe pH = f(V)';
-      zoneBoutons.classList.remove('hidden');
     }
-  }
+}
 
   document.getElementById('btn-add-row').onclick = () => ajouterLigneTableau('', '');
   document.getElementById('btn-vider').onclick = () => {
@@ -1447,8 +1454,11 @@
       btnDemarrer.style.opacity = '1';
     }
     majBoutonReference();
+    // IMPORTANT : mettre à jour l'affichage selon méthode ET référence
     majAffichageSelonMethode();
-  }
+    // Re-tracer le graphique pour qu'on voie la référence seule si elle existe
+    if (referenceSauvegardee) renderChart();
+}
 
   function ajouterVol(vol) {
     if (!started) { alert('Cliquez d\'abord sur "Démarrer le dosage".'); return; }
@@ -1577,28 +1587,30 @@
   function renderChart() {
     const ctx = document.getElementById('chart');
     if (!ctx) return;
-    if (chart) chart.destroy();
+    if (chart) { chart.destroy(); chart = null; }
     
     const p = lireParametres();
     if (!p.substanceTitree || !p.substanceTitrante) return;
     
     const points = mesures.map(m => ({ x: m.v, y: m.ph })).sort((a, b) => a.x - b.x);
     
-    // Graphique visible si pH-métrique OU si référence sauvegardée
+    // Déterminer si on doit afficher la courbe
     const methode = document.getElementById('methode').value;
-    const doitAfficherCourbe = (methode === 'phmetrique') || referenceSauvegardee;
+    const doitAfficherCourbe = (methode === 'phmetrique') || (referenceSauvegardee !== null);
     
     const chartContainer = document.getElementById('chart-container');
     const animationBox = document.getElementById('animation-colorimetrique');
     
-    if (doitAfficherCourbe) {
-      chartContainer.classList.remove('hidden');
-      animationBox.classList.add('hidden');
-    } else {
+    if (!doitAfficherCourbe) {
       chartContainer.classList.add('hidden');
       animationBox.classList.remove('hidden');
       return;
     }
+    
+    chartContainer.classList.remove('hidden');
+    animationBox.classList.add('hidden');
+    
+    // ... le reste de la fonction reste identique
     
     let veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
     let vdemi = veq / 2;
