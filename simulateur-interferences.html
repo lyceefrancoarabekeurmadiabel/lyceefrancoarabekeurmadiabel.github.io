@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Optique — Young & Prisme</title>
+<title>Optique — Young & Prisme | LFAKM</title>
+<link rel="icon" type="image/png" href="favicon.png">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   
@@ -28,6 +29,49 @@
     padding: 30px;
     backdrop-filter: blur(10px);
     box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    position: relative;
+  }
+  
+  .top-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .btn-retour, .btn-mobile {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.85em;
+    font-weight: 700;
+    transition: all 0.2s;
+  }
+  
+  .btn-retour {
+    background: rgba(168, 133, 63, 0.2);
+    color: #ffd54f;
+    border: 1px solid rgba(255, 213, 79, 0.4);
+  }
+  
+  .btn-retour:hover {
+    background: rgba(168, 133, 63, 0.35);
+    transform: translateX(-2px);
+  }
+  
+  .btn-mobile {
+    background: rgba(79, 195, 247, 0.15);
+    color: #4fc3f7;
+    border: 1px solid rgba(79, 195, 247, 0.4);
+  }
+  
+  .btn-mobile:hover {
+    background: rgba(79, 195, 247, 0.3);
   }
   
   h1 {
@@ -44,7 +88,6 @@
     font-size: 0.95em;
   }
   
-  /* ===== ONGLETS ===== */
   .tabs {
     display: flex;
     gap: 8px;
@@ -69,24 +112,11 @@
     gap: 8px;
   }
   
-  .tab:hover {
-    color: #4fc3f7;
-    background: rgba(79, 195, 247, 0.05);
-  }
+  .tab:hover { color: #4fc3f7; background: rgba(79, 195, 247, 0.05); }
+  .tab.active { color: #4fc3f7; border-bottom-color: #4fc3f7; }
   
-  .tab.active {
-    color: #4fc3f7;
-    border-bottom-color: #4fc3f7;
-  }
-  
-  .tab-content {
-    display: none;
-  }
-  
-  .tab-content.active {
-    display: block;
-    animation: fadeIn 0.4s ease;
-  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
   
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
@@ -111,7 +141,6 @@
     border: 2px solid #4fc3f7;
   }
   
-  /* ===== BLOC REGROUPÉ ALIGNÉ ===== */
   .observation-block {
     background: #000;
     border-radius: 12px;
@@ -123,7 +152,6 @@
     gap: 0;
   }
   
-  /* Force l'alignement : même largeur, même padding interne */
   .observation-block canvas {
     display: block;
     width: 100%;
@@ -150,7 +178,6 @@
     font-family: monospace;
   }
   
-  /* Notice */
   .notice {
     margin-bottom: 20px;
     padding: 12px 16px;
@@ -177,7 +204,6 @@
     font-size: 0.9em;
   }
   
-  /* Sélecteur source */
   .source-picker {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -419,19 +445,35 @@
 </head>
 <body>
 
+<script>
+  // Redirection automatique vers la version mobile (une seule fois)
+  (function() {
+    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent)
+                     || window.innerWidth < 768;
+    const alreadyRedirected = sessionStorage.getItem('mobile_redirected');
+    if (isMobile && !alreadyRedirected) {
+      sessionStorage.setItem('mobile_redirected', '1');
+      window.location.replace('simulateur-interferences-mobile.html');
+    }
+  })();
+</script>
+
 <div class="container">
+  
+  <div class="top-actions">
+    <a href="labo-pc.html" class="btn-retour">← Retour au Labo PC</a>
+    <a href="simulateur-interferences-mobile.html" class="btn-mobile">📱 Version mobile</a>
+  </div>
+
   <h1>🔬 Expériences d'Optique</h1>
   <p class="subtitle">Interférences (Young, 1801) & Dispersion (Newton, 1666)</p>
 
-  <!-- ONGLETS -->
   <div class="tabs">
     <button class="tab active" data-tab="young">🎯 Fentes de Young</button>
     <button class="tab" data-tab="prisme">🔺 Prisme & Dispersion</button>
   </div>
 
-  <!-- ============================================================ -->
   <!-- =================== ONGLET 1 : YOUNG ======================= -->
-  <!-- ============================================================ -->
   <div class="tab-content active" id="tab-young">
 
     <details class="notice">
@@ -474,14 +516,11 @@
       <canvas id="setupCanvas" width="1000" height="280"></canvas>
     </div>
 
-    <!-- BLOC REGROUPÉ : ÉCRAN + PROFIL — même largeur stricte -->
     <div class="section-title">Observation sur l'écran & profil d'intensité</div>
     <div class="observation-block">
       <div class="observation-label">📍 Vue de l'écran</div>
       <canvas id="screenCanvas" width="1000" height="160"></canvas>
-      
       <div class="axis-hint">↓ position x (mm) — même axe horizontal ↓</div>
-      
       <div class="observation-label">📊 Profil d'intensité I(x)</div>
       <canvas id="curveCanvas" width="1000" height="220"></canvas>
     </div>
@@ -539,9 +578,7 @@
     </div>
   </div>
 
-  <!-- ============================================================ -->
   <!-- =================== ONGLET 2 : PRISME ====================== -->
-  <!-- ============================================================ -->
   <div class="tab-content" id="tab-prisme">
 
     <details class="notice">
@@ -626,9 +663,9 @@
       </div>
     </div>
 
-    <div class="summary-box visible" id="prismSummaryBox">
+    <div class="summary-box visible">
       <h3>🎓 Ce qu'il faut retenir — Prisme & Dispersion</h3>
-      <ul id="prismSummaryContent">
+      <ul>
         <li>Un <b>prisme</b> décompose la lumière blanche en ses <b>couleurs spectrales</b>.</li>
         <li>La <b>loi de Snell-Descartes</b> régit la réfraction : <span class="formula">n₁·sin(i₁) = n₂·sin(i₂)</span>.</li>
         <li>L'<b>indice de réfraction</b> n dépend de la longueur d'onde : <span class="formula">n = n(λ)</span>. C'est la <b>dispersion</b>.</li>
@@ -654,7 +691,7 @@ document.querySelectorAll('.tab').forEach(tab => {
 });
 
 // ============================================================
-//  ============ PARTIE 1 : FENTES DE YOUNG ===================
+//  PARTIE 1 : FENTES DE YOUNG
 // ============================================================
 const canvasSetup  = document.getElementById('setupCanvas');
 const ctxSetup     = canvasSetup.getContext('2d');
@@ -788,7 +825,6 @@ function getLambdaMoy(spectrum) {
   return spectrum.reduce((s, c) => s + c.wl * c.weight, 0) / spectrum.reduce((s, c) => s + c.weight, 0);
 }
 
-// ---------- DISPOSITIF YOUNG ----------
 function drawSetup(spectrum, a, b, D, progress) {
   const [r, g, bl] = getAverageColor(spectrum);
   const W = canvasSetup.width, H = canvasSetup.height;
@@ -1282,7 +1318,7 @@ Object.values(inputs).forEach(input => {
 });
 
 // ============================================================
-//  ============ PARTIE 2 : PRISME ============================
+//  PARTIE 2 : PRISME
 // ============================================================
 const canvasPrism = document.getElementById('prismCanvas');
 const ctxPrism = canvasPrism.getContext('2d');
@@ -1302,19 +1338,13 @@ let prismAnimation = {
   running: false, progress: 0, startTime: 0, duration: 2500, rafId: null
 };
 
-// Indice du verre en fonction de λ (formule de Cauchy simplifiée)
-// n(λ) = A + B/λ² interpolée entre nR (rouge ~650nm) et nV (violet ~400nm)
 function getGlassIndex(wl, nR, nV) {
-  // λ en nm
   const lR = 650, lV = 400;
-  // A + B/λ²  : résoudre avec n(650)=nR et n(400)=nV
   const A = (nR * lR * lR - nV * lV * lV) / (lR * lR - lV * lV);
   const B = (nR - nV) * lR * lR * lV * lV / (lV * lV - lR * lR);
   return A + B / (wl * wl);
 }
 
-// Calcul de la trajectoire dans un prisme (loi de Snell-Descartes)
-// Renvoie { deviation, i2, r1, r2, valid }
 function computePrismPath(incidence_deg, apexAngle_deg, n) {
   const i1 = incidence_deg * Math.PI / 180;
   const A = apexAngle_deg * Math.PI / 180;
@@ -1340,50 +1370,36 @@ function drawPrism(progress) {
   const nV = parseFloat(prismInputs.nV.value);
   const inc = parseFloat(prismInputs.inc.value);
 
-  // Position du prisme (centre)
   const cx = W / 2;
   const cy = H / 2 + 20;
   const size = 160;
   const A = A_deg * Math.PI / 180;
 
-  // Sommet haut, sommet gauche, sommet droit du triangle
-  // On oriente le prisme "pointe en haut" : apex en haut au centre
-  // Bissectrice verticale
   const apexX = cx;
   const apexY = cy - size * 0.75;
-  
-  // Les 2 autres sommets à la base
   const halfBase = size * Math.sin(A / 2) * 1.6;
   const baseY = cy + size * 0.75;
   const leftX = cx - halfBase;
   const rightX = cx + halfBase;
 
-  // ----- SOURCE DE LUMIÈRE -----
   const sourceX = 60;
   const sourceY = cy;
-  const beamLength = 120;
 
-  // Couleur de la source
   let srcColor = [255, 255, 255];
   if (currentPrismSource === 'red') srcColor = [255, 40, 40];
   else if (currentPrismSource === 'green') srcColor = [40, 255, 40];
   else if (currentPrismSource === 'blue') srcColor = [40, 100, 255];
 
-  // Rayon incident : depuis (sourceX, sourceY) vers le point d'entrée sur le prisme
-  // Point d'entrée : sur la face gauche (entre apex et leftX,leftY)
-  // On place le point d'incidence sur la face gauche du prisme, à 60% de la hauteur
   const tEntry = 0.55;
   const entryX = apexX + (leftX - apexX) * tEntry;
   const entryY = apexY + (baseY - apexY) * tEntry;
 
-  // ====== ÉTAPE 1 : Rayon incident ======
   const progInc = Math.min(1, progress / 0.35);
   const srcX = sourceX;
   const srcY = sourceY;
   const endX = srcX + (entryX - srcX) * progInc;
   const endY = srcY + (entryY - srcY) * progInc;
 
-  // Dessin du rayon incident
   const gradIn = ctxPrism.createLinearGradient(srcX, srcY, entryX, entryY);
   gradIn.addColorStop(0, `rgba(${srcColor[0]},${srcColor[1]},${srcColor[2]},0.3)`);
   gradIn.addColorStop(1, `rgba(${srcColor[0]},${srcColor[1]},${srcColor[2]},1)`);
@@ -1397,7 +1413,6 @@ function drawPrism(progress) {
   ctxPrism.stroke();
   ctxPrism.shadowBlur = 0;
 
-  // Boîtier source
   ctxPrism.fillStyle = '#2a2a3e';
   ctxPrism.strokeStyle = '#4fc3f7';
   ctxPrism.lineWidth = 2;
@@ -1405,8 +1420,6 @@ function drawPrism(progress) {
   ctxPrism.roundRect(srcX - 45, srcY - 22, 90, 44, 8);
   ctxPrism.fill();
   ctxPrism.stroke();
-  
-  // Voyant coloré
   ctxPrism.fillStyle = `rgb(${srcColor[0]},${srcColor[1]},${srcColor[2]})`;
   ctxPrism.beginPath();
   ctxPrism.arc(srcX + 30, srcY, 6, 0, Math.PI * 2);
@@ -1423,8 +1436,6 @@ function drawPrism(progress) {
                    currentPrismSource === 'green' ? '532 nm' : '450 nm';
   ctxPrism.fillText(srcLabel, srcX, srcY + 66);
 
-  // ====== ÉTAPE 2 : Prisme ======
-  // Dessin du prisme (verre bleuté translucide)
   ctxPrism.fillStyle = 'rgba(100,180,255,0.12)';
   ctxPrism.strokeStyle = '#4fc3f7';
   ctxPrism.lineWidth = 2.5;
@@ -1436,7 +1447,6 @@ function drawPrism(progress) {
   ctxPrism.fill();
   ctxPrism.stroke();
 
-  // Reflet intérieur
   ctxPrism.strokeStyle = 'rgba(255,255,255,0.15)';
   ctxPrism.lineWidth = 1;
   ctxPrism.beginPath();
@@ -1444,13 +1454,10 @@ function drawPrism(progress) {
   ctxPrism.lineTo(apexX, baseY);
   ctxPrism.stroke();
 
-  // Étiquette "PRISME"
   ctxPrism.fillStyle = '#4fc3f7';
   ctxPrism.font = 'bold 13px monospace';
-  ctxPrism.textAlign = 'center';
   ctxPrism.fillText('PRISME', cx, apexY - 15);
 
-  // Cote angle au sommet
   ctxPrism.strokeStyle = '#ffd54f';
   ctxPrism.lineWidth = 1.5;
   ctxPrism.beginPath();
@@ -1460,67 +1467,41 @@ function drawPrism(progress) {
   ctxPrism.font = 'bold 13px monospace';
   ctxPrism.fillText(`A = ${A_deg}°`, cx, apexY + 42);
 
-  // ====== ÉTAPE 3 : Traversée du prisme + dispersion ======
-  // Détermine les λ à tracer
   let wavelengths = [];
   if (currentPrismSource === 'white') {
     for (let wl = 400; wl <= 680; wl += 20) wavelengths.push(wl);
-  } else if (currentPrismSource === 'red') {
-    wavelengths = [650];
-  } else if (currentPrismSource === 'green') {
-    wavelengths = [532];
-  } else if (currentPrismSource === 'blue') {
-    wavelengths = [450];
-  }
+  } else if (currentPrismSource === 'red') wavelengths = [650];
+  else if (currentPrismSource === 'green') wavelengths = [532];
+  else if (currentPrismSource === 'blue') wavelengths = [450];
 
-  // Calcul de la trajectoire de chaque λ
   const rayons = wavelengths.map(wl => {
     const n = getGlassIndex(wl, nR, nV);
     const path = computePrismPath(inc, A_deg, n);
     return { wl, n, path };
   });
 
-  // ----- ÉTAPE 3a : rayon dans le prisme -----
-  // Facteur de progression 0.35 → 0.65
   const progIn = Math.max(0, Math.min(1, (progress - 0.35) / 0.30));
   const progOut = Math.max(0, Math.min(1, (progress - 0.65) / 0.35));
 
-  // Point d'incidence : on suppose que le rayon arrive sur la face gauche
-  // Normale à la face gauche (angle / verticale)
-  const faceLeftAngle = Math.atan2(baseY - apexY, leftX - apexX); // pente de la face gauche
-  const normalLeftAngle = faceLeftAngle - Math.PI / 2; // normale à la face gauche
-
-  // Le rayon incident est horizontal (venant de la gauche)
-  // On calcule l'angle d'incidence réel (par rapport à la normale)
-  const incidentAngle = 0; // horizontal
-  const i1 = incidentAngle - normalLeftAngle;
-
-  // Simplification : on utilise une approche "graphique" basée sur la déviation
-  // Pour chaque λ, on trace un rayon intérieur puis un rayon émergent avec la bonne déviation
+  const faceLeftAngle = Math.atan2(baseY - apexY, leftX - apexX);
 
   wavelengths.forEach((wl, idx) => {
-    const { n, path } = rayons[idx];
+    const { path } = rayons[idx];
     if (!path.valid) return;
-
     const [rr, gg, bb] = wavelengthToRGB(wl);
     const isWhite = currentPrismSource === 'white';
 
-    // ----- Rayon INTÉRIEUR -----
-    // Point d'entrée : léger décalage selon λ
     const entryOffset = isWhite ? (1 - (wl - 400) / 300) * 8 : 0;
     const eX = entryX + entryOffset * Math.cos(faceLeftAngle);
     const eY = entryY + entryOffset * Math.sin(faceLeftAngle);
 
-    // Point de sortie : sur la face droite
     const tExit = 0.55 + (isWhite ? ((650 - wl) / 500) * 0.1 : 0);
     const exitX = apexX + (rightX - apexX) * tExit;
     const exitY = apexY + (baseY - apexY) * tExit;
 
     if (progIn > 0) {
-      const tInt = progIn;
-      const midX = eX + (exitX - eX) * tInt;
-      const midY = eY + (exitY - eY) * tInt;
-
+      const midX = eX + (exitX - eX) * progIn;
+      const midY = eY + (exitY - eY) * progIn;
       ctxPrism.strokeStyle = `rgba(${rr},${gg},${bb},${isWhite ? 0.85 : 1})`;
       ctxPrism.lineWidth = isWhite ? 2 : 3;
       if (!isWhite) {
@@ -1534,19 +1515,14 @@ function drawPrism(progress) {
       if (!isWhite) ctxPrism.shadowBlur = 0;
     }
 
-    // ----- Rayon ÉMERGENT (dévié) -----
     if (progOut > 0) {
-      // Angle d'émergence : -deviation par rapport à l'horizontale
-      // (le rayon est dévié vers le bas)
       const devRad = path.deviation * Math.PI / 180;
       const finalLength = 380;
       const endOutX = exitX + finalLength * Math.cos(devRad);
       const endOutY = exitY + finalLength * Math.sin(devRad);
-
       const midOutX = exitX + (endOutX - exitX) * progOut;
       const midOutY = exitY + (endOutY - exitY) * progOut;
 
-      // Gradient
       ctxPrism.strokeStyle = `rgba(${rr},${gg},${bb},${isWhite ? 0.85 : 1})`;
       ctxPrism.lineWidth = isWhite ? 2.5 : 3.5;
       if (!isWhite) {
@@ -1561,8 +1537,6 @@ function drawPrism(progress) {
     }
   });
 
-  // ====== ÉTAPE 4 : Écran ======
-  // Écran vertical à droite
   const screenX = W - 60;
   ctxPrism.fillStyle = '#1a1a2e';
   ctxPrism.strokeStyle = '#4fc3f7';
@@ -1570,9 +1544,7 @@ function drawPrism(progress) {
   ctxPrism.fillRect(screenX, 20, 20, H - 40);
   ctxPrism.strokeRect(screenX, 20, 20, H - 40);
 
-  // Taches colorées sur l'écran (à la fin)
   if (progress >= 0.95 && currentPrismSource === 'white') {
-    // Calcul de la position de chaque λ sur l'écran
     wavelengths.forEach((wl, idx) => {
       const { path } = rayons[idx];
       if (!path.valid) return;
@@ -1583,11 +1555,9 @@ function drawPrism(progress) {
       const exitY = apexY + (baseY - apexY) * tExit;
       const finalLength = 380;
       const endOutX = exitX + finalLength * Math.cos(devRad);
-      // Position Y sur l'écran au niveau screenX
       const tToScreen = (screenX - exitX) / (endOutX - exitX);
       const yOnScreen = exitY + (finalLength * Math.sin(devRad)) * tToScreen;
-      
-      // Tache lumineuse
+
       const gradient = ctxPrism.createRadialGradient(screenX + 10, yOnScreen, 2, screenX + 10, yOnScreen, 15);
       gradient.addColorStop(0, `rgba(${rr},${gg},${bb},0.9)`);
       gradient.addColorStop(1, `rgba(${rr},${gg},${bb},0)`);
@@ -1603,9 +1573,8 @@ function drawPrism(progress) {
   ctxPrism.textAlign = 'center';
   ctxPrism.fillText('ÉCRAN', screenX + 10, 15);
 
-  // ====== ÉTAPE 5 : Normale et angle incident ======
   if (progress > 0.2) {
-    // Normale à la face gauche au point d'entrée
+    const normalLeftAngle = faceLeftAngle - Math.PI / 2;
     ctxPrism.strokeStyle = 'rgba(255,255,255,0.4)';
     ctxPrism.setLineDash([4, 4]);
     ctxPrism.lineWidth = 1;
@@ -1616,7 +1585,6 @@ function drawPrism(progress) {
     ctxPrism.setLineDash([]);
   }
 
-  // ====== ÉTAPE 6 : Légende rayons incidents ======
   ctxPrism.fillStyle = '#4fc3f7';
   ctxPrism.font = '11px monospace';
   ctxPrism.textAlign = 'left';
@@ -1719,9 +1687,7 @@ Object.values(prismInputs).forEach(input => {
   });
 });
 
-// ============================================================
-//  POLYFILL + INIT
-// ============================================================
+// Polyfill
 if (!CanvasRenderingContext2D.prototype.roundRect) {
   CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
     if (w < 2 * r) r = w / 2;
