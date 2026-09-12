@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Laboratoire de Physique-Chimie — LFAKM</title>
 <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -88,10 +87,6 @@
   #viewer-status.loading { color: var(--brass); font-weight: 600; }
   #viewer-status.error { color: #B3402A; font-weight: 600; }
   #viewer-status.success { color: #2E7D32; font-weight: 600; }
-  #tp-acide-base-container { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 15px; }
-  #tp-schema { flex: 1; min-width: 280px; background: #f9f9f9; border: 1px solid var(--line); border-radius: 8px; padding: 15px; }
-  #tp-graph { flex: 2; min-width: 400px; }
-  #tp-controls { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 15px; margin-top: 15px; }
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
 
   /* ===== BOUTONS SIMULATEURS ===== */
@@ -215,7 +210,7 @@
   </div>
 </section>
 
-<!-- 🧪 BOUTON SIMULATEUR DE DOSAGE -->
+<!-- 🧪 SIMULATEURS PRINCIPAUX -->
 <div style="max-width: 1100px; margin: 30px auto 20px; padding: 0 20px;">
   <a href="simulateur-dosage.html" class="sim-banner sim-banner-dosage">
     <div class="sim-banner-inner">
@@ -235,7 +230,6 @@
     </div>
   </a>
 
-  <!-- 🎯 NOUVEAU BOUTON SIMULATEUR D'OPTIQUE -->
   <a href="simulateur-interferences.html" class="sim-banner sim-banner-optique">
     <div class="sim-banner-inner">
       <div class="sim-icon">🎯</div>
@@ -387,37 +381,26 @@
     </div>
   </div>
 
-  <!-- DOMAINE 5 : SOLUTIONS & pH -->
+  <!-- DOMAINE 5 : SOLUTIONS & pH (redirige vers le simulateur complet) -->
   <div class="domain-section">
     <h2 class="domain-title">🧪 Solutions & pH (Acido-basicité)</h2>
-    <p class="domain-subtitle">Acides, bases, dosages et pH. Pour un simulateur complet de dosage, cliquez sur le bouton en haut de page.</p>
-    
-    <h3 style="margin-bottom: 10px;">🧪 TP Interactif : Dosage Acide-Base (simplifié)</h3>
-    <p style="margin-bottom: 10px; color: var(--slate);">Version simplifiée. Pour le simulateur complet, utilisez le <a href="simulateur-dosage.html" style="color:var(--gov-purple); font-weight:700;">Simulateur de Dosage →</a></p>
-    <div class="tool-box">
-      <div id="tp-acide-base-container">
-        <div id="tp-schema">
-          <h4 style="text-align:center; color:var(--ink);">Schéma du montage</h4>
-          <svg width="100%" height="220" viewBox="0 0 300 220">
-            <rect x="50" y="100" width="100" height="100" fill="#e8f4fc" stroke="#1B2A4A" stroke-width="2"/>
-            <text x="100" y="215" text-anchor="middle" font-size="12" fill="#1B2A4A">Bécher (HCl)</text>
-            <rect x="90" y="20" width="20" height="80" fill="#fff" stroke="#1B2A4A" stroke-width="2"/>
-            <text x="100" y="15" text-anchor="middle" font-size="12" fill="#1B2A4A">Burette (NaOH)</text>
-            <circle cx="100" cy="110" r="3" fill="#4D6BFE"/>
-            <rect x="180" y="60" width="90" height="50" fill="#fff" stroke="#1B2A4A" stroke-width="2"/>
-            <text x="225" y="90" text-anchor="middle" font-size="14" fill="#1B2A4A" id="ph-display">pH = 1.0</text>
-            <line x1="130" y1="140" x2="180" y2="110" stroke="#1B2A4A" stroke-width="2"/>
-          </svg>
-        </div>
-        <div id="tp-graph">
-          <canvas id="ph-chart"></canvas>
-        </div>
-      </div>
-      <div id="tp-controls">
-        <button class="btn-action" onclick="addNaOH()">💧 Ajouter 1 mL de NaOH</button>
-        <button class="btn-danger" onclick="resetTP()">🔄 Réinitialiser le TP</button>
-        <p style="margin-top: 10px; font-size: 13px; color: var(--slate);">Volume de NaOH versé : <strong id="volume-naoh">0</strong> mL — pH actuel : <strong id="ph-value">1.0</strong></p>
-      </div>
+    <p class="domain-subtitle">Acides, bases, dosages et pH. Toutes les manipulations acido-basiques se font via notre simulateur complet.</p>
+    <div class="grid">
+      <a class="sim-card" href="simulateur-dosage.html" style="border-left: 4px solid var(--gov-purple); background: linear-gradient(135deg, #fff 0%, #f8f4ff 100%);">
+        <h4>🧪 Simulateur de Dosage Acido-Basique</h4>
+        <p>Dosage colorimétrique et pH-métrique · Courbe interactive · Détermination de pKa/pKb · Modes Initiation / Standard / Expert / TP</p>
+        <span class="badge" style="background: var(--gov-purple);">▶ Ouvrir le simulateur complet</span>
+      </a>
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/acid-base-solutions/latest/acid-base-solutions_fr.html" target="_blank">
+        <h4>Solutions acides et basiques (PhET)</h4>
+        <p>Force des acides, pH, indicateurs colorés.</p>
+        <span class="badge">3ème → Tle</span>
+      </a>
+      <a class="sim-card" href="https://phet.colorado.edu/sims/html/ph-scale/latest/ph-scale_fr.html" target="_blank">
+        <h4>Échelle de pH (PhET)</h4>
+        <p>Mesure du pH, solutions courantes.</p>
+        <span class="badge">2nde → Tle</span>
+      </a>
     </div>
   </div>
 
@@ -620,47 +603,6 @@
   };
 
   setTimeout(() => { if (document.getElementById('viewer-3d')) loadMolecule3D('methane'); }, 500);
-
-  // TP ACIDE-BASE
-  let phChart = null;
-  let volumeNaOH = 0;
-  const volumeHCl = 20;
-  const cHCl = 0.1;
-  const cNaOH = 0.1;
-
-  function initTP() {
-    volumeNaOH = 0;
-    updateTP();
-    const ctx = document.getElementById('ph-chart');
-    if (!ctx) return;
-    if (phChart) phChart.destroy();
-    phChart = new Chart(ctx.getContext('2d'), {
-      type: 'line',
-      data: { labels: [], datasets: [{ label: 'pH', data: [], borderColor: '#A8853F', backgroundColor: 'rgba(168, 133, 63, 0.1)', tension: 0.3, fill: true, pointRadius: 3 }] },
-      options: { responsive: true, scales: { x: { title: { display: true, text: 'Volume de NaOH versé (mL)' } }, y: { title: { display: true, text: 'pH' }, min: 0, max: 14 } }, plugins: { legend: { display: false } } }
-    });
-  }
-
-  function calculatePH(vNaOH) {
-    const nH = volumeHCl * cHCl;
-    const nOH = vNaOH * cNaOH;
-    const totalVolume = volumeHCl + vNaOH;
-    if (nOH < nH) { const hConc = (nH - nOH) / totalVolume; return -Math.log10(hConc); }
-    else if (Math.abs(nOH - nH) < 0.001) { return 7.0; }
-    else { const ohConc = (nOH - nH) / totalVolume; const pOH = -Math.log10(ohConc); return 14 - pOH; }
-  }
-
-  function updateTP() {
-    const ph = calculatePH(volumeNaOH);
-    if (document.getElementById('ph-value')) document.getElementById('ph-value').textContent = ph.toFixed(2);
-    if (document.getElementById('ph-display')) document.getElementById('ph-display').textContent = `pH = ${ph.toFixed(2)}`;
-    if (document.getElementById('volume-naoh')) document.getElementById('volume-naoh').textContent = volumeNaOH;
-    if (phChart) { phChart.data.labels.push(volumeNaOH); phChart.data.datasets[0].data.push(ph); phChart.update(); }
-  }
-
-  window.addNaOH = () => { if (volumeNaOH >= 40) { alert('Volume maximum atteint (40 mL).'); return; } volumeNaOH += 1; updateTP(); };
-  window.resetTP = () => { initTP(); };
-  initTP();
 
   console.log('✅ Labo Physique-Chimie chargé');
 </script>
