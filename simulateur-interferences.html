@@ -7,441 +7,409 @@
 <link rel="icon" type="image/png" href="favicon.png">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+
   body {
     font-family: 'Segoe UI', Arial, sans-serif;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     color: #eee;
-    min-height: 100vh;
-    padding: 20px;
+    padding: 8px;
     visibility: hidden;
     opacity: 0;
     transition: opacity 0.3s;
   }
-  
+
   body.loaded { visibility: visible; opacity: 1; }
-  
-  .container {
-    max-width: 1200px;
+
+  /* ===== CONTENEUR PRINCIPAL : tout tient sur un écran ===== */
+  .app {
+    height: 100vh;
+    max-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+    max-width: 1400px;
     margin: 0 auto;
     background: rgba(255,255,255,0.05);
-    border-radius: 16px;
-    padding: 30px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    position: relative;
+    border-radius: 12px;
   }
-  
-  .top-actions {
+
+  /* ===== BARRE DU HAUT : titre + onglets + actions ===== */
+  .topbar {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
   }
-  
-  .btn-retour, .btn-mobile {
-    display: inline-flex;
-    align-items: center;
+
+  .topbar-title {
+    color: #4fc3f7;
+    font-size: 1.05em;
+    font-weight: bold;
+    white-space: nowrap;
+  }
+
+  .topbar-actions {
+    display: flex;
     gap: 6px;
-    padding: 8px 14px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 0.85em;
-    font-weight: 700;
-    transition: all 0.2s;
+    flex-shrink: 0;
   }
-  
-  .btn-retour {
+
+  .btn-mini {
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.72em;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-mini-retour {
     background: rgba(168, 133, 63, 0.2);
     color: #ffd54f;
     border: 1px solid rgba(255, 213, 79, 0.4);
   }
-  
-  .btn-retour:hover {
-    background: rgba(168, 133, 63, 0.35);
-    transform: translateX(-2px);
-  }
-  
-  .btn-mobile {
+
+  .btn-mini-mobile {
     background: rgba(79, 195, 247, 0.15);
     color: #4fc3f7;
     border: 1px solid rgba(79, 195, 247, 0.4);
   }
-  
-  .btn-mobile:hover {
-    background: rgba(79, 195, 247, 0.3);
-  }
-  
-  h1 {
-    text-align: center;
-    color: #4fc3f7;
-    margin-bottom: 10px;
-    font-size: 1.8em;
-  }
-  
-  .subtitle {
-    text-align: center;
-    color: #aaa;
-    margin-bottom: 25px;
-    font-size: 0.95em;
-  }
-  
+
+  /* ===== ONGLETS ===== */
   .tabs {
     display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
-    border-bottom: 2px solid rgba(79, 195, 247, 0.2);
-    padding-bottom: 0;
+    gap: 4px;
+    flex-shrink: 0;
   }
-  
+
   .tab {
-    padding: 12px 24px;
-    background: transparent;
-    border: none;
+    flex: 1;
+    padding: 6px 12px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid transparent;
+    border-radius: 8px;
     color: #888;
-    font-size: 1em;
+    font-size: 0.82em;
     font-weight: bold;
     cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: all 0.25s;
-    margin-bottom: -2px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    transition: all 0.2s;
+    font-family: inherit;
   }
-  
-  .tab:hover { color: #4fc3f7; background: rgba(79, 195, 247, 0.05); }
-  .tab.active { color: #4fc3f7; border-bottom-color: #4fc3f7; }
-  
-  .tab-content { display: none; }
-  .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  .section-title {
+
+  .tab:hover { color: #4fc3f7; }
+  .tab.active {
+    background: rgba(79, 195, 247, 0.15);
     color: #4fc3f7;
-    font-size: 1em;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin: 20px 0 10px;
-    padding-left: 10px;
-    border-left: 3px solid #4fc3f7;
+    border-color: #4fc3f7;
   }
-  
-  .canvas-wrapper {
-    background: #000;
-    border-radius: 12px;
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 2px solid #4fc3f7;
+
+  .tab-content {
+    display: none;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+    gap: 6px;
   }
-  
-  /* ===== BLOC CÔTE À CÔTE : ÉCRAN | PROFIL ===== */
-  .observation-side-by-side {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    background: #000;
-    border-radius: 12px;
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 2px solid #4fc3f7;
+
+  .tab-content.active {
+    display: flex;
   }
-  
-  .obs-col {
+
+  /* ===== ZONE CENTRALE : dispositif + écran/profil ===== */
+  .viz-zone {
     display: flex;
     flex-direction: column;
-    min-width: 0;
+    gap: 6px;
+    flex: 1;
+    min-height: 0;
   }
-  
-  .obs-col canvas {
+
+  /* Dispositif (haut, hauteur fixe compacte) */
+  .setup-zone {
+    flex: 0 0 auto;
+    background: #000;
+    border-radius: 8px;
+    border: 2px solid #4fc3f7;
+    padding: 4px;
+    position: relative;
+  }
+
+  .setup-zone canvas {
     display: block;
     width: 100%;
     height: auto;
-    background: #000;
+    max-height: 22vh;
+    object-fit: contain;
+    margin: 0 auto;
   }
-  
-  .observation-label {
+
+  .zone-label {
+    position: absolute;
+    top: 6px;
+    left: 10px;
     color: #4fc3f7;
-    font-size: 0.75em;
+    font-size: 0.62em;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    padding: 4px 4px 6px;
+    letter-spacing: 1.5px;
     font-weight: bold;
-    opacity: 0.9;
+    opacity: 0.85;
+    z-index: 2;
+    background: rgba(0,0,0,0.5);
+    padding: 2px 6px;
+    border-radius: 4px;
   }
-  
-  .notice {
-    margin-bottom: 20px;
-    padding: 12px 16px;
-    background: rgba(79, 195, 247, 0.08);
-    border-radius: 10px;
-    border-left: 3px solid #4fc3f7;
-  }
-  
-  .notice summary {
-    cursor: pointer;
-    color: #4fc3f7;
-    font-weight: bold;
-    font-size: 0.95em;
-    list-style: none;
-  }
-  
-  .notice summary::-webkit-details-marker { display: none; }
-  .notice summary::before { content: "📖 "; }
-  
-  .notice ol {
-    margin: 12px 0 4px 20px;
-    line-height: 1.9;
-    color: #ccc;
-    font-size: 0.9em;
-  }
-  
-  .source-picker {
+
+  /* Écran + Profil côte à côte */
+  .obs-zone {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    gap: 10px;
-    margin-bottom: 15px;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    flex: 1;
+    min-height: 0;
   }
-  
-  .source-btn {
-    padding: 12px 8px;
-    background: rgba(255,255,255,0.05);
-    border: 2px solid rgba(255,255,255,0.1);
-    border-radius: 10px;
-    color: #ddd;
-    cursor: pointer;
-    font-size: 0.85em;
-    font-weight: bold;
-    transition: all 0.25s;
-    text-align: center;
+
+  .obs-col {
+    background: #000;
+    border-radius: 8px;
+    border: 2px solid #4fc3f7;
+    padding: 4px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 6px;
+    min-width: 0;
+    min-height: 0;
+    position: relative;
   }
-  
-  .source-btn:hover {
-    background: rgba(79, 195, 247, 0.15);
-    border-color: rgba(79, 195, 247, 0.5);
-  }
-  
-  .source-btn.active {
-    background: rgba(79, 195, 247, 0.2);
-    border-color: #4fc3f7;
-    color: #4fc3f7;
-    box-shadow: 0 0 15px rgba(79, 195, 247, 0.3);
-  }
-  
-  .source-btn .dot {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    box-shadow: 0 0 8px currentColor;
-  }
-  
-  .controls {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 18px;
-    margin-bottom: 20px;
-  }
-  
-  .control-group {
-    background: rgba(255,255,255,0.05);
-    padding: 14px;
-    border-radius: 10px;
-    border-left: 3px solid #4fc3f7;
-    transition: opacity 0.3s;
-  }
-  
-  .control-group.disabled {
-    opacity: 0.35;
-    pointer-events: none;
-  }
-  
-  .control-group label {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 0.9em;
-    color: #ccc;
-  }
-  
-  .control-group .value {
-    color: #4fc3f7;
-    font-weight: bold;
-    font-family: monospace;
-  }
-  
-  input[type="range"] {
+
+  .obs-col canvas {
+    display: block;
     width: 100%;
-    accent-color: #4fc3f7;
-    cursor: pointer;
+    height: 100%;
+    object-fit: contain;
+    margin: 0 auto;
+    flex: 1;
+    min-height: 0;
   }
-  
-  input[type="range"]:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-  
-  .info-panel {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-    margin-top: 20px;
-    padding: 16px;
-    background: rgba(79, 195, 247, 0.08);
-    border-radius: 10px;
-    border: 1px solid rgba(79, 195, 247, 0.3);
-  }
-  
-  .info-item { text-align: center; }
-  
-  .info-item .label {
-    font-size: 0.8em;
-    color: #aaa;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  
-  .info-item .val {
-    font-size: 1.2em;
-    color: #4fc3f7;
-    font-weight: bold;
-    font-family: monospace;
-    margin-top: 4px;
-  }
-  
-  .button-bar {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin: 25px 0 10px;
-    flex-wrap: wrap;
-  }
-  
-  .btn {
-    padding: 14px 32px;
-    border: none;
-    border-radius: 10px;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 1em;
-    transition: all 0.25s;
-    letter-spacing: 0.5px;
+
+  /* ===== BARRE DE CONTRÔLE BASSE ===== */
+  .control-bar {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    padding: 6px 8px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 8px;
   }
-  
-  .btn-start {
+
+  .btn-play {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: inherit;
+    white-space: nowrap;
     background: linear-gradient(135deg, #4fc3f7, #29b6f6);
     color: #16213e;
-    box-shadow: 0 4px 15px rgba(79, 195, 247, 0.4);
+    box-shadow: 0 3px 10px rgba(79, 195, 247, 0.4);
   }
-  
-  .btn-start:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(79, 195, 247, 0.6);
-  }
-  
-  .btn-start:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
-  
-  .btn-reset {
+
+  .btn-play:hover:not(:disabled) { transform: translateY(-1px); }
+  .btn-play:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-reset-sm {
+    padding: 8px 14px;
+    border: 1px solid rgba(255,255,255,0.2);
     background: rgba(255,255,255,0.1);
     color: #eee;
-    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-family: inherit;
+    white-space: nowrap;
   }
-  
-  .btn-reset:hover {
-    background: rgba(255,255,255,0.2);
-    transform: translateY(-2px);
-  }
-  
-  .status {
+
+  .btn-reset-sm:hover { background: rgba(255,255,255,0.2); }
+
+  .status-inline {
+    flex: 1;
     text-align: center;
-    font-size: 0.9em;
+    font-size: 0.78em;
     color: #aaa;
-    margin-top: 10px;
-    min-height: 22px;
     font-style: italic;
-  }
-  
-  .status.active { color: #4fc3f7; }
-  
-  .summary-box {
-    margin-top: 20px;
-    padding: 0;
-    background: linear-gradient(135deg, rgba(79, 195, 247, 0.15), rgba(41, 182, 246, 0.08));
-    border-radius: 12px;
-    border: 1px solid rgba(79, 195, 247, 0.4);
-    opacity: 0;
-    max-height: 0;
+    min-width: 0;
     overflow: hidden;
-    transition: opacity 0.6s, max-height 0.6s, padding 0.6s;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
-  
-  .summary-box.visible {
-    opacity: 1;
-    max-height: 700px;
-    padding: 20px 24px;
+
+  .status-inline.active { color: #4fc3f7; }
+
+  /* ===== CURSEURS COMPACTS SUR UNE LIGNE ===== */
+  .sliders-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    flex-shrink: 0;
   }
-  
-  .summary-box h3 {
-    color: #4fc3f7;
-    margin-bottom: 12px;
-    font-size: 1.1em;
+
+  .slider-mini {
+    background: rgba(255,255,255,0.05);
+    padding: 5px 8px;
+    border-radius: 6px;
+    border-left: 3px solid #4fc3f7;
   }
-  
-  .summary-box ul {
-    list-style: none;
-    line-height: 1.9;
-    color: #ddd;
-    font-size: 0.92em;
+
+  .slider-mini.disabled { opacity: 0.35; pointer-events: none; }
+
+  .slider-mini label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7em;
+    color: #ccc;
+    margin-bottom: 2px;
   }
-  
-  .summary-box ul li::before {
-    content: "✓ ";
+
+  .slider-mini .value {
     color: #4fc3f7;
     font-weight: bold;
-    margin-right: 6px;
-  }
-  
-  .summary-box .formula {
-    display: inline-block;
-    padding: 4px 10px;
-    background: rgba(0,0,0,0.3);
-    border-radius: 6px;
     font-family: monospace;
-    color: #ffd54f;
-    margin: 4px 2px;
+    font-size: 0.95em;
   }
-  
-  @media (max-width: 768px) {
-    .container { padding: 15px; }
-    h1 { font-size: 1.3em; }
-    .subtitle { font-size: 0.85em; }
-    .tab { padding: 10px 14px; font-size: 0.85em; }
-    .source-picker { grid-template-columns: repeat(2, 1fr); }
-    .controls { grid-template-columns: 1fr; }
-    .button-bar { flex-direction: column; }
-    .btn { width: 100%; justify-content: center; }
-    .info-panel { grid-template-columns: 1fr; }
-    .summary-box { padding: 16px; }
-    .observation-side-by-side {
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
+
+  .slider-mini input[type="range"] {
+    width: 100%;
+    height: 14px;
+    accent-color: #4fc3f7;
+    cursor: pointer;
+  }
+
+  /* ===== INFO PANEL COMPACT ===== */
+  .info-strip {
+    display: flex;
+    gap: 12px;
+    justify-content: space-around;
+    flex-shrink: 0;
+    padding: 5px 8px;
+    background: rgba(79, 195, 247, 0.08);
+    border-radius: 6px;
+    border: 1px solid rgba(79, 195, 247, 0.25);
+  }
+
+  .info-mini {
+    text-align: center;
+    min-width: 0;
+  }
+
+  .info-mini .label {
+    font-size: 0.62em;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.1;
+  }
+
+  .info-mini .val {
+    font-size: 0.88em;
+    color: #4fc3f7;
+    font-weight: bold;
+    font-family: monospace;
+    line-height: 1.2;
+  }
+
+  /* ===== SOURCE PICKER COMPACT ===== */
+  .source-row {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .source-row::-webkit-scrollbar { height: 4px; }
+  .source-row::-webkit-scrollbar-thumb { background: rgba(79,195,247,0.3); border-radius: 2px; }
+
+  .src-btn {
+    flex: 1;
+    min-width: 85px;
+    padding: 6px 4px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    color: #ddd;
+    cursor: pointer;
+    font-size: 0.7em;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: 0.2s;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+
+  .src-btn.active {
+    background: rgba(79, 195, 247, 0.2);
+    border-color: #4fc3f7;
+    color: #4fc3f7;
+  }
+
+  .src-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 6px currentColor;
+  }
+
+  /* ===== PRISME : layout spécifique ===== */
+  .prism-canvas-zone {
+    flex: 1;
+    background: #000;
+    border-radius: 8px;
+    border: 2px solid #4fc3f7;
+    padding: 4px;
+    position: relative;
+    min-height: 0;
+  }
+
+  .prism-canvas-zone canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    margin: 0 auto;
+  }
+
+  /* ===== RESPONSIVE (fenêtre basse) ===== */
+  @media (max-height: 700px) {
+    .setup-zone canvas { max-height: 18vh; }
+    .slider-mini label { font-size: 0.65em; }
+    .info-mini .label { font-size: 0.58em; }
+  }
+
+  @media (max-width: 900px) {
+    html, body { overflow: auto; }
+    .app { height: auto; max-height: none; }
+    .viz-zone { min-height: 60vh; }
+    .sliders-bar { grid-template-columns: 1fr 1fr; }
   }
 </style>
 </head>
@@ -459,224 +427,181 @@
   })();
 </script>
 
-<div class="container">
-  
-  <div class="top-actions">
-    <a href="labo-pc.html" class="btn-retour">← Retour au Labo PC</a>
-    <a href="simulateur-interferences-mobile.html" class="btn-mobile">📱 Version mobile</a>
+<div class="app">
+
+  <!-- ===== TOP BAR ===== -->
+  <div class="topbar">
+    <div class="topbar-title">🔬 Optique — Young & Prisme</div>
+    <div class="topbar-actions">
+      <a href="labo-pc.html" class="btn-mini btn-mini-retour">← Labo PC</a>
+      <a href="simulateur-interferences-mobile.html" class="btn-mini btn-mini-mobile">📱 Mobile</a>
+    </div>
   </div>
 
-  <h1>🔬 Expériences d'Optique</h1>
-  <p class="subtitle">Interférences (Young, 1801) & Dispersion (Newton, 1666)</p>
-
+  <!-- ===== TABS ===== -->
   <div class="tabs">
     <button class="tab active" data-tab="young">🎯 Fentes de Young</button>
     <button class="tab" data-tab="prisme">🔺 Prisme & Dispersion</button>
   </div>
 
-  <!-- =================== ONGLET 1 : YOUNG ======================= -->
+  <!-- ============================================ -->
+  <!-- ONGLET 1 : YOUNG                             -->
+  <!-- ============================================ -->
   <div class="tab-content active" id="tab-young">
 
-    <details class="notice">
-      <summary>Comment utiliser cette simulation ?</summary>
-      <ol>
-        <li>Choisissez un <b>type de source</b> (mono, blanc, sodium, mercure, RGB)</li>
-        <li>Réglez les paramètres avec les <b>curseurs</b> (λ, a, b, D)</li>
-        <li>Cliquez sur <b>« Démarrer l'expérience »</b></li>
-        <li>Observez la <b>propagation de la lumière</b> puis la <b>figure d'interférence</b></li>
-        <li>Comparez avec d'<b>autres sources</b> pour voir la différence !</li>
-      </ol>
-    </details>
-
-    <div class="section-title">Type de source lumineuse</div>
-    <div class="source-picker" id="sourcePicker">
-      <button class="source-btn active" data-source="mono">
-        <span class="dot" style="background:#00ff00; color:#00ff00;"></span>
-        Monochromatique
+    <!-- Sources -->
+    <div class="source-row" id="sourcePicker">
+      <button class="src-btn active" data-source="mono">
+        <span class="src-dot" style="background:#00ff00; color:#00ff00;"></span> Mono
       </button>
-      <button class="source-btn" data-source="white">
-        <span class="dot" style="background:linear-gradient(90deg,#ff0000,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff); color:#fff;"></span>
-        Lumière blanche
+      <button class="src-btn" data-source="white">
+        <span class="src-dot" style="background:linear-gradient(90deg,#ff0000,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff); color:#fff;"></span> Blanc
       </button>
-      <button class="source-btn" data-source="sodium">
-        <span class="dot" style="background:#ffcc00; color:#ffcc00;"></span>
-        Sodium (jaune)
+      <button class="src-btn" data-source="sodium">
+        <span class="src-dot" style="background:#ffcc00; color:#ffcc00;"></span> Sodium
       </button>
-      <button class="source-btn" data-source="mercury">
-        <span class="dot" style="background:#a78bfa; color:#a78bfa;"></span>
-        Mercure (violet-vert)
+      <button class="src-btn" data-source="mercury">
+        <span class="src-dot" style="background:#a78bfa; color:#a78bfa;"></span> Mercure
       </button>
-      <button class="source-btn" data-source="rgb">
-        <span class="dot" style="background:linear-gradient(90deg,#ff0000,#00ff00,#0000ff); color:#fff;"></span>
-        Trichromatique RGB
+      <button class="src-btn" data-source="rgb">
+        <span class="src-dot" style="background:linear-gradient(90deg,#ff0000,#00ff00,#0000ff); color:#fff;"></span> RGB
       </button>
     </div>
 
-    <div class="section-title">Dispositif expérimental</div>
-    <div class="canvas-wrapper">
-      <canvas id="setupCanvas" width="1000" height="280"></canvas>
-    </div>
+    <!-- Zone de visualisation : dispositif + écran/profil -->
+    <div class="viz-zone">
 
-    <div class="section-title">Observation sur l'écran & profil d'intensité</div>
-    <div class="observation-side-by-side">
-      <div class="obs-col">
-        <div class="observation-label">📍 Vue de l'écran</div>
-        <canvas id="screenCanvas" width="500" height="400"></canvas>
+      <!-- Dispositif expérimental -->
+      <div class="setup-zone">
+        <div class="zone-label">🔬 Dispositif</div>
+        <canvas id="setupCanvas" width="1400" height="180"></canvas>
       </div>
-      <div class="obs-col">
-        <div class="observation-label">📊 Profil d'intensité I(x)</div>
-        <canvas id="curveCanvas" width="500" height="400"></canvas>
+
+      <!-- Écran + Profil côte à côte -->
+      <div class="obs-zone">
+        <div class="obs-col">
+          <div class="zone-label">📍 Écran</div>
+          <canvas id="screenCanvas" width="500" height="400"></canvas>
+        </div>
+        <div class="obs-col">
+          <div class="zone-label">📊 Intensité I(x)</div>
+          <canvas id="curveCanvas" width="500" height="400"></canvas>
+        </div>
       </div>
     </div>
 
-    <div class="button-bar">
-      <button class="btn btn-start" id="startBtn" onclick="startExperiment()">
-        ▶ Démarrer l'expérience
-      </button>
-      <button class="btn btn-reset" onclick="resetAll()">
-        🔄 Réinitialiser
-      </button>
+    <!-- Contrôles (boutons) -->
+    <div class="control-bar">
+      <button class="btn-play" id="startBtn" onclick="startExperiment()">▶ Démarrer</button>
+      <button class="btn-reset-sm" onclick="resetAll()">🔄 Reset</button>
+      <div class="status-inline" id="status">Prêt à démarrer l'expérience</div>
     </div>
-    <p class="status" id="status">Cliquez sur « Démarrer l'expérience » pour voir la propagation de la lumière.</p>
 
-    <div class="controls">
-      <div class="control-group" id="lambdaGroup">
-        <label>Longueur d'onde λ <span class="value" id="lamVal">500 nm</span></label>
+    <!-- Sliders sur une ligne -->
+    <div class="sliders-bar">
+      <div class="slider-mini" id="lambdaGroup">
+        <label>λ <span class="value" id="lamVal">500 nm</span></label>
         <input type="range" id="lambda" min="380" max="750" value="500" step="1">
       </div>
-
-      <div class="control-group">
-        <label>Distance entre fentes a <span class="value" id="aVal">0.50 mm</span></label>
+      <div class="slider-mini">
+        <label>Écart a <span class="value" id="aVal">0.50 mm</span></label>
         <input type="range" id="a" min="0.1" max="2" value="0.5" step="0.01">
       </div>
-
-      <div class="control-group">
-        <label>Largeur des fentes b <span class="value" id="bVal">0.10 mm</span></label>
+      <div class="slider-mini">
+        <label>Largeur b <span class="value" id="bVal">0.10 mm</span></label>
         <input type="range" id="b" min="0.02" max="0.5" value="0.1" step="0.01">
       </div>
-
-      <div class="control-group">
-        <label>Distance à l'écran D <span class="value" id="dVal">1.00 m</span></label>
+      <div class="slider-mini">
+        <label>Distance D <span class="value" id="dVal">1.00 m</span></label>
         <input type="range" id="D" min="0.3" max="3" value="1" step="0.05">
       </div>
     </div>
 
-    <div class="info-panel">
-      <div class="info-item">
-        <div class="label">Interfrange moyen</div>
+    <!-- Info compacte -->
+    <div class="info-strip">
+      <div class="info-mini">
+        <div class="label">Interfrange</div>
         <div class="val" id="interfrange">— mm</div>
       </div>
-      <div class="info-item">
-        <div class="label">Largeur tache centrale</div>
+      <div class="info-mini">
+        <div class="label">Tache centrale</div>
         <div class="val" id="centralWidth">— mm</div>
       </div>
-      <div class="info-item">
-        <div class="label">Nombre de franges visibles</div>
+      <div class="info-mini">
+        <div class="label">Franges visibles</div>
         <div class="val" id="nbFranges">—</div>
       </div>
     </div>
 
-    <div class="summary-box" id="summaryBox">
-      <h3>🎓 Ce qu'il faut retenir — Fentes de Young</h3>
-      <ul id="summaryContent"></ul>
-    </div>
   </div>
 
-  <!-- =================== ONGLET 2 : PRISME ====================== -->
+  <!-- ============================================ -->
+  <!-- ONGLET 2 : PRISME                            -->
+  <!-- ============================================ -->
   <div class="tab-content" id="tab-prisme">
 
-    <details class="notice">
-      <summary>Comment utiliser cette simulation ?</summary>
-      <ol>
-        <li>Réglez l'<b>angle du prisme</b> A et son <b>indice n</b></li>
-        <li>Choisissez la <b>source</b> : lumière blanche ou monochromatique</li>
-        <li>Cliquez sur <b>« Démarrer l'expérience »</b> pour voir la décomposition</li>
-        <li>Observez comment chaque couleur est <b>déviée différemment</b></li>
-      </ol>
-    </details>
-
-    <div class="section-title">Type de source lumineuse</div>
-    <div class="source-picker" id="prismSourcePicker">
-      <button class="source-btn active" data-psource="white">
-        <span class="dot" style="background:linear-gradient(90deg,#ff0000,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff); color:#fff;"></span>
-        Lumière blanche
+    <div class="source-row" id="prismSourcePicker">
+      <button class="src-btn active" data-psource="white">
+        <span class="src-dot" style="background:linear-gradient(90deg,#ff0000,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff); color:#fff;"></span> Blanc
       </button>
-      <button class="source-btn" data-psource="red">
-        <span class="dot" style="background:#ff0000; color:#ff0000;"></span>
-        Laser rouge (650 nm)
+      <button class="src-btn" data-psource="red">
+        <span class="src-dot" style="background:#ff0000; color:#ff0000;"></span> Rouge
       </button>
-      <button class="source-btn" data-psource="green">
-        <span class="dot" style="background:#00ff00; color:#00ff00;"></span>
-        Laser vert (532 nm)
+      <button class="src-btn" data-psource="green">
+        <span class="src-dot" style="background:#00ff00; color:#00ff00;"></span> Vert
       </button>
-      <button class="source-btn" data-psource="blue">
-        <span class="dot" style="background:#0080ff; color:#0080ff;"></span>
-        Laser bleu (450 nm)
+      <button class="src-btn" data-psource="blue">
+        <span class="src-dot" style="background:#0080ff; color:#0080ff;"></span> Bleu
       </button>
     </div>
 
-    <div class="section-title">Dispositif expérimental — Prisme</div>
-    <div class="canvas-wrapper">
-      <canvas id="prismCanvas" width="1000" height="420"></canvas>
+    <div class="viz-zone">
+      <div class="prism-canvas-zone">
+        <div class="zone-label">🔺 Prisme & Dispersion</div>
+        <canvas id="prismCanvas" width="1000" height="500"></canvas>
+      </div>
     </div>
 
-    <div class="button-bar">
-      <button class="btn btn-start" id="prismStartBtn" onclick="startPrismExperiment()">
-        ▶ Démarrer l'expérience
-      </button>
-      <button class="btn btn-reset" onclick="resetPrism()">
-        🔄 Réinitialiser
-      </button>
+    <div class="control-bar">
+      <button class="btn-play" id="prismStartBtn" onclick="startPrismExperiment()">▶ Démarrer</button>
+      <button class="btn-reset-sm" onclick="resetPrism()">🔄 Reset</button>
+      <div class="status-inline" id="prismStatus">Prêt à démarrer</div>
     </div>
-    <p class="status" id="prismStatus">Cliquez sur « Démarrer l'expérience » pour voir la décomposition de la lumière.</p>
 
-    <div class="controls">
-      <div class="control-group">
-        <label>Angle du prisme A <span class="value" id="angleVal">60°</span></label>
+    <div class="sliders-bar">
+      <div class="slider-mini">
+        <label>Angle A <span class="value" id="angleVal">60°</span></label>
         <input type="range" id="prismAngle" min="30" max="80" value="60" step="1">
       </div>
-
-      <div class="control-group">
-        <label>Indice du verre (rouge) n<sub>R</sub> <span class="value" id="nRVal">1.510</span></label>
+      <div class="slider-mini">
+        <label>n<sub>R</sub> <span class="value" id="nRVal">1.510</span></label>
         <input type="range" id="prismNR" min="1.4" max="1.8" value="1.51" step="0.005">
       </div>
-
-      <div class="control-group">
-        <label>Indice du verre (violet) n<sub>V</sub> <span class="value" id="nVVal">1.530</span></label>
+      <div class="slider-mini">
+        <label>n<sub>V</sub> <span class="value" id="nVVal">1.530</span></label>
         <input type="range" id="prismNV" min="1.4" max="1.8" value="1.53" step="0.005">
       </div>
-
-      <div class="control-group">
-        <label>Angle d'incidence i₁ <span class="value" id="incVal">45°</span></label>
+      <div class="slider-mini">
+        <label>i₁ <span class="value" id="incVal">45°</span></label>
         <input type="range" id="prismInc" min="20" max="70" value="45" step="1">
       </div>
     </div>
 
-    <div class="info-panel">
-      <div class="info-item">
-        <div class="label">Déviation rouge D<sub>R</sub></div>
+    <div class="info-strip">
+      <div class="info-mini">
+        <div class="label">Dév. rouge</div>
         <div class="val" id="devR">— °</div>
       </div>
-      <div class="info-item">
-        <div class="label">Déviation violette D<sub>V</sub></div>
+      <div class="info-mini">
+        <div class="label">Dév. violette</div>
         <div class="val" id="devV">— °</div>
       </div>
-      <div class="info-item">
+      <div class="info-mini">
         <div class="label">Dispersion ΔD</div>
         <div class="val" id="disp">— °</div>
       </div>
     </div>
 
-    <div class="summary-box visible">
-      <h3>🎓 Ce qu'il faut retenir — Prisme & Dispersion</h3>
-      <ul>
-        <li>Un <b>prisme</b> décompose la lumière blanche en ses <b>couleurs spectrales</b>.</li>
-        <li>La <b>loi de Snell-Descartes</b> régit la réfraction : <span class="formula">n₁·sin(i₁) = n₂·sin(i₂)</span>.</li>
-        <li>L'<b>indice de réfraction</b> n dépend de la longueur d'onde : <span class="formula">n = n(λ)</span>. C'est la <b>dispersion</b>.</li>
-        <li>Le <b>violet</b> est plus dévié que le <b>rouge</b> → arc-en-ciel.</li>
-        <li>C'est <b>Newton</b> (1666) qui montra que la lumière blanche est un mélange de couleurs.</li>
-      </ul>
-    </div>
   </div>
 
 </div>
@@ -691,6 +616,14 @@ document.querySelectorAll('.tab').forEach(tab => {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     tab.classList.add('active');
     document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    // Redessine les canvas après le changement d'onglet
+    setTimeout(() => {
+      if (tab.dataset.tab === 'young') {
+        render(animationState.progress || 1);
+      } else {
+        drawPrism(prismAnimation.progress || 1);
+      }
+    }, 50);
   });
 });
 
@@ -714,8 +647,6 @@ const inputs = {
 const statusEl    = document.getElementById('status');
 const startBtn    = document.getElementById('startBtn');
 const lambdaGroup = document.getElementById('lambdaGroup');
-const summaryBox  = document.getElementById('summaryBox');
-const summaryCont = document.getElementById('summaryContent');
 
 let currentSource = 'mono';
 let animationState = {
@@ -829,7 +760,7 @@ function getLambdaMoy(spectrum) {
   return spectrum.reduce((s, c) => s + c.wl * c.weight, 0) / spectrum.reduce((s, c) => s + c.weight, 0);
 }
 
-// ---------- DISPOSITIF YOUNG ----------
+// ---------- DISPOSITIF (canvas large et compact) ----------
 function drawSetup(spectrum, a, b, D, progress) {
   const [r, g, bl] = getAverageColor(spectrum);
   const W = canvasSetup.width, H = canvasSetup.height;
@@ -837,37 +768,37 @@ function drawSetup(spectrum, a, b, D, progress) {
   ctxSetup.fillStyle = '#0a0a1a';
   ctxSetup.fillRect(0, 0, W, H);
 
-  const laserX = 60, fenteX = 420, ecranX = 900, axisY = H / 2;
-  const scaleA = 220;
+  const laserX = 80, fenteX = 600, ecranX = 1300, axisY = H / 2;
+  const scaleA = 260;
   const aNorm = a / 1e-3, bNorm = b / 1e-3;
-  const sepPx = Math.max(30, aNorm * scaleA);
-  const widthPx = Math.max(4, bNorm * scaleA * 0.6);
-  const barWidth = 14;
+  const sepPx = Math.max(24, aNorm * scaleA);
+  const widthPx = Math.max(3, bNorm * scaleA * 0.6);
+  const barWidth = 12;
   const topBar = axisY - sepPx/2 - widthPx/2;
   const botBar = axisY + sepPx/2 + widthPx/2;
   const s1 = { x: fenteX + barWidth/2, y: axisY - sepPx/2 };
   const s2 = { x: fenteX + barWidth/2, y: axisY + sepPx/2 };
 
-  const distLaserFente = fenteX - 20 - (laserX + 45);
+  const distLaserFente = fenteX - 20 - (laserX + 55);
   const progLaser = Math.min(1, progress * 2);
-  const xFrontLaser = (laserX + 45) + distLaserFente * progLaser;
+  const xFrontLaser = (laserX + 55) + distLaserFente * progLaser;
 
   if (progLaser > 0) {
     ctxSetup.fillStyle = `rgba(${r},${g},${bl},0.25)`;
     ctxSetup.beginPath();
-    ctxSetup.moveTo(laserX + 45, axisY - 10);
-    ctxSetup.lineTo(xFrontLaser, axisY - 10);
-    ctxSetup.lineTo(xFrontLaser, axisY + 10);
-    ctxSetup.lineTo(laserX + 45, axisY + 10);
+    ctxSetup.moveTo(laserX + 55, axisY - 8);
+    ctxSetup.lineTo(xFrontLaser, axisY - 8);
+    ctxSetup.lineTo(xFrontLaser, axisY + 8);
+    ctxSetup.lineTo(laserX + 55, axisY + 8);
     ctxSetup.closePath();
     ctxSetup.fill();
     for (let i = 0; i < 5; i++) {
       const t = ((progress * 3) + i / 5) % 1;
-      const px = (laserX + 45) + distLaserFente * t;
+      const px = (laserX + 55) + distLaserFente * t;
       if (px < xFrontLaser) {
         ctxSetup.fillStyle = `rgba(${r},${g},${bl},0.9)`;
         ctxSetup.beginPath();
-        ctxSetup.arc(px, axisY, 3, 0, Math.PI * 2);
+        ctxSetup.arc(px, axisY, 2.5, 0, Math.PI * 2);
         ctxSetup.fill();
       }
     }
@@ -877,30 +808,27 @@ function drawSetup(spectrum, a, b, D, progress) {
   ctxSetup.strokeStyle = '#4fc3f7';
   ctxSetup.lineWidth = 2;
   ctxSetup.beginPath();
-  ctxSetup.roundRect(laserX - 45, axisY - 22, 90, 44, 8);
+  ctxSetup.roundRect(laserX - 55, axisY - 18, 110, 36, 6);
   ctxSetup.fill();
   ctxSetup.stroke();
   ctxSetup.fillStyle = `rgb(${r},${g},${bl})`;
   ctxSetup.beginPath();
-  ctxSetup.arc(laserX + 30, axisY, 6, 0, Math.PI * 2);
+  ctxSetup.arc(laserX + 35, axisY, 5, 0, Math.PI * 2);
   ctxSetup.fill();
 
   ctxSetup.fillStyle = '#4fc3f7';
-  ctxSetup.font = 'bold 13px monospace';
+  ctxSetup.font = 'bold 11px monospace';
   ctxSetup.textAlign = 'center';
-  ctxSetup.fillText('SOURCE', laserX, axisY + 50);
-  ctxSetup.fillStyle = '#aaa';
-  ctxSetup.font = '12px monospace';
-  ctxSetup.fillText('(laser λ)', laserX, axisY + 66);
+  ctxSetup.fillText('SOURCE', laserX, axisY + 34);
 
   ctxSetup.fillStyle = '#3a3a52';
   ctxSetup.strokeStyle = '#4fc3f7';
   ctxSetup.lineWidth = 1.5;
   ctxSetup.beginPath();
-  ctxSetup.rect(fenteX - barWidth/2, 20, barWidth, topBar - 20);
+  ctxSetup.rect(fenteX - barWidth/2, 10, barWidth, topBar - 10);
   ctxSetup.fill(); ctxSetup.stroke();
   ctxSetup.beginPath();
-  ctxSetup.rect(fenteX - barWidth/2, botBar, barWidth, H - 20 - botBar);
+  ctxSetup.rect(fenteX - barWidth/2, botBar, barWidth, H - 10 - botBar);
   ctxSetup.fill(); ctxSetup.stroke();
 
   ctxSetup.strokeStyle = `rgb(${r},${g},${bl})`;
@@ -909,10 +837,10 @@ function drawSetup(spectrum, a, b, D, progress) {
   ctxSetup.strokeRect(fenteX - barWidth/2, botBar - widthPx, barWidth, widthPx);
 
   ctxSetup.fillStyle = '#4fc3f7';
-  ctxSetup.font = 'bold 13px monospace';
-  ctxSetup.fillText('FENTES', fenteX, 30);
+  ctxSetup.font = 'bold 11px monospace';
+  ctxSetup.fillText('FENTES', fenteX, H - 4);
 
-  const spread = 160;
+  const spread = 65;
   const progScreen = Math.max(0, (progress - 0.5) * 2);
   const distFenteEcran = ecranX - s1.x;
   const xFrontScreen = s1.x + distFenteEcran * progScreen;
@@ -926,7 +854,7 @@ function drawSetup(spectrum, a, b, D, progress) {
     colorsToDraw.forEach(([cr, cg, cb]) => {
       const yTopH = s1.y + (axisY - spread - s1.y) * ratioH;
       const yBotH = s1.y + (axisY + spread - s1.y) * ratioH;
-      ctxSetup.fillStyle = `rgba(${cr},${cg},${cb},0.07)`;
+      ctxSetup.fillStyle = `rgba(${cr},${cg},${cb},0.08)`;
       ctxSetup.beginPath();
       ctxSetup.moveTo(s1.x, s1.y);
       ctxSetup.lineTo(xFrontScreen, yTopH);
@@ -964,93 +892,40 @@ function drawSetup(spectrum, a, b, D, progress) {
   ctxSetup.fillStyle = '#1a1a2e';
   ctxSetup.strokeStyle = '#4fc3f7';
   ctxSetup.lineWidth = 2;
-  ctxSetup.fillRect(ecranX, 20, 20, H - 40);
-  ctxSetup.strokeRect(ecranX, 20, 20, H - 40);
+  ctxSetup.fillRect(ecranX, 10, 18, H - 20);
+  ctxSetup.strokeRect(ecranX, 10, 18, H - 20);
   if (progress >= 1) {
     ctxSetup.fillStyle = `rgba(${r},${g},${bl},0.9)`;
-    ctxSetup.fillRect(ecranX, axisY - 25, 20, 50);
+    ctxSetup.fillRect(ecranX, axisY - 22, 18, 44);
   }
   ctxSetup.fillStyle = '#4fc3f7';
-  ctxSetup.font = 'bold 13px monospace';
-  ctxSetup.fillText('ÉCRAN', ecranX + 10, 15);
+  ctxSetup.font = 'bold 11px monospace';
+  ctxSetup.fillText('ÉCRAN', ecranX + 9, H - 4);
 
+  // Axe optique
   ctxSetup.strokeStyle = 'rgba(255,255,255,0.2)';
-  ctxSetup.setLineDash([6, 6]);
-  ctxSetup.lineWidth = 1;
+  ctxSetup.setLineDash([5, 5]);
   ctxSetup.beginPath();
   ctxSetup.moveTo(laserX, axisY);
   ctxSetup.lineTo(ecranX, axisY);
   ctxSetup.stroke();
   ctxSetup.setLineDash([]);
 
+  // Cote D
   ctxSetup.strokeStyle = '#ffd54f';
   ctxSetup.fillStyle = '#ffd54f';
-  ctxSetup.font = 'bold 13px monospace';
-  ctxSetup.lineWidth = 1.5;
-  ctxSetup.textAlign = 'center';
-
+  ctxSetup.font = 'bold 10px monospace';
   const yCote = H - 12;
   ctxSetup.beginPath();
-  ctxSetup.moveTo(fenteX, yCote - 5);
+  ctxSetup.moveTo(fenteX, yCote - 4);
   ctxSetup.lineTo(fenteX, yCote);
-  ctxSetup.lineTo(ecranX + 10, yCote);
-  ctxSetup.lineTo(ecranX + 10, yCote - 5);
+  ctxSetup.lineTo(ecranX + 9, yCote);
+  ctxSetup.lineTo(ecranX + 9, yCote - 4);
   ctxSetup.stroke();
-  drawArrow(ctxSetup, fenteX, yCote, fenteX + 12, yCote);
-  drawArrow(ctxSetup, ecranX + 10, yCote, ecranX - 2, yCote);
-  ctxSetup.fillText(`D = ${D.toFixed(2)} m`, (fenteX + ecranX) / 2, yCote - 6);
-
-  const xCoteA = fenteX - 60;
-  ctxSetup.beginPath();
-  ctxSetup.moveTo(xCoteA - 5, axisY - sepPx/2);
-  ctxSetup.lineTo(xCoteA, axisY - sepPx/2);
-  ctxSetup.lineTo(xCoteA, axisY + sepPx/2);
-  ctxSetup.lineTo(xCoteA - 5, axisY + sepPx/2);
-  ctxSetup.stroke();
-  drawArrow(ctxSetup, xCoteA, axisY - sepPx/2, xCoteA, axisY - sepPx/2 + 12);
-  drawArrow(ctxSetup, xCoteA, axisY + sepPx/2, xCoteA, axisY + sepPx/2 - 12);
-  ctxSetup.save();
-  ctxSetup.translate(xCoteA - 12, axisY);
-  ctxSetup.rotate(-Math.PI/2);
-  ctxSetup.fillText(`a = ${(a*1e3).toFixed(2)} mm`, 0, 0);
-  ctxSetup.restore();
-
-  const xCoteB = fenteX + 55;
-  ctxSetup.beginPath();
-  ctxSetup.moveTo(xCoteB, axisY - sepPx/2 - widthPx);
-  ctxSetup.lineTo(xCoteB + 5, axisY - sepPx/2 - widthPx);
-  ctxSetup.lineTo(xCoteB + 5, axisY - sepPx/2);
-  ctxSetup.lineTo(xCoteB, axisY - sepPx/2);
-  ctxSetup.stroke();
-  drawArrow(ctxSetup, xCoteB, axisY - sepPx/2 - widthPx, xCoteB, axisY - sepPx/2 - widthPx + 8);
-  drawArrow(ctxSetup, xCoteB, axisY - sepPx/2, xCoteB, axisY - sepPx/2 - 8);
-  ctxSetup.fillText(`b = ${(b*1e3).toFixed(2)} mm`, xCoteB + 55, axisY - sepPx/2 - widthPx/2 + 4);
-
-  ctxSetup.fillStyle = '#4fc3f7';
-  ctxSetup.font = 'bold 12px monospace';
-  let labelSrc = '';
-  switch (currentSource) {
-    case 'mono':    labelSrc = `λ = ${inputs.lambda.value} nm`; break;
-    case 'white':   labelSrc = 'λ : spectre blanc'; break;
-    case 'sodium':  labelSrc = 'λ ≈ 589 nm (Na)'; break;
-    case 'mercury': labelSrc = 'λ : raies Hg'; break;
-    case 'rgb':     labelSrc = 'λ : R-V-B'; break;
-  }
-  ctxSetup.fillText(labelSrc, laserX, axisY - 40);
+  ctxSetup.fillText(`D = ${D.toFixed(2)} m`, (fenteX + ecranX) / 2, yCote - 4);
 }
 
-function drawArrow(ctx, x1, y1, x2, y2) {
-  const headlen = 8;
-  const angle = Math.atan2(y2 - y1, x2 - x1);
-  ctx.beginPath();
-  ctx.moveTo(x2, y2);
-  ctx.lineTo(x2 - headlen * Math.cos(angle - Math.PI/6), y2 - headlen * Math.sin(angle - Math.PI/6));
-  ctx.moveTo(x2, y2);
-  ctx.lineTo(x2 - headlen * Math.cos(angle + Math.PI/6), y2 - headlen * Math.sin(angle + Math.PI/6));
-  ctx.stroke();
-}
-
-// ---------- ÉCRAN (vertical : x en ordonnée) ----------
+// ---------- ÉCRAN (vertical) ----------
 function drawScreen(spectrum, a, b, D, progress) {
   const lamMoy = getLambdaMoy(spectrum) * 1e-9;
   const screenHalfWidth = Math.max((lamMoy * D / a) * 15, 2e-3);
@@ -1063,18 +938,12 @@ function drawScreen(spectrum, a, b, D, progress) {
   if (progScreen <= 0) return;
 
   const imgData = ctxScreen.createImageData(W, H);
-
-  // Pour chaque ligne (axe vertical = position x sur l'écran)
   for (let py = 0; py < H; py++) {
-    const yNorm = (py - H/2) / (H/2);  // -1 → +1
+    const yNorm = (py - H/2) / (H/2);
     const distFromCenter = Math.abs(yNorm);
-
     if (distFromCenter > progScreen) continue;
-
     const x = yNorm * screenHalfWidth;
     const c = intensityAt(x, spectrum, a, b, D);
-
-    // Remplir toute la ligne horizontalement
     for (let px = 0; px < W; px++) {
       const idx = (py * W + px) * 4;
       imgData.data[idx]     = c.R;
@@ -1085,7 +954,7 @@ function drawScreen(spectrum, a, b, D, progress) {
   }
   ctxScreen.putImageData(imgData, 0, 0);
 
-  // Axe central (ligne pointillée)
+  // Axe central
   ctxScreen.strokeStyle = 'rgba(255,255,255,0.2)';
   ctxScreen.setLineDash([6, 6]);
   ctxScreen.lineWidth = 1;
@@ -1095,7 +964,7 @@ function drawScreen(spectrum, a, b, D, progress) {
   ctxScreen.stroke();
   ctxScreen.setLineDash([]);
 
-  // Graduations verticales à droite (en mm)
+  // Graduations mm
   ctxScreen.fillStyle = 'rgba(79,195,247,0.7)';
   ctxScreen.font = 'bold 10px monospace';
   ctxScreen.textAlign = 'left';
@@ -1110,7 +979,7 @@ function drawScreen(spectrum, a, b, D, progress) {
   }
 }
 
-// ---------- COURBE (verticale : x en ordonnée) ----------
+// ---------- COURBE (verticale) ----------
 function drawCurve(spectrum, a, b, D, progress) {
   const W = canvasCurve.width, H = canvasCurve.height;
   const lamMoy = getLambdaMoy(spectrum) * 1e-9;
@@ -1120,7 +989,6 @@ function drawCurve(spectrum, a, b, D, progress) {
   ctxCurve.fillStyle = '#0a0a1a';
   ctxCurve.fillRect(0, 0, W, H);
 
-  // Grille verticale (pour l'intensité)
   ctxCurve.strokeStyle = 'rgba(79,195,247,0.12)';
   ctxCurve.lineWidth = 1;
   for (let i = 0; i <= 10; i++) {
@@ -1131,7 +999,6 @@ function drawCurve(spectrum, a, b, D, progress) {
     ctxCurve.stroke();
   }
 
-  // Axe de base (à gauche)
   ctxCurve.strokeStyle = 'rgba(255,255,255,0.4)';
   ctxCurve.lineWidth = 1;
   ctxCurve.beginPath();
@@ -1145,12 +1012,9 @@ function drawCurve(spectrum, a, b, D, progress) {
   const pyMin = H/2 - progScreen * H/2;
   const pyMax = H/2 + progScreen * H/2;
 
-  // Composantes individuelles pour spectres polychromatiques
   if (spectrum.length > 3) {
     const samples = [];
-    for (let k = 0; k < 7; k++) {
-      samples.push(spectrum[Math.floor(k / 7 * spectrum.length)]);
-    }
+    for (let k = 0; k < 7; k++) samples.push(spectrum[Math.floor(k / 7 * spectrum.length)]);
     samples.forEach(({ wl }) => {
       const lam = wl * 1e-9;
       const [r, g, bl] = wavelengthToRGB(wl);
@@ -1178,7 +1042,6 @@ function drawCurve(spectrum, a, b, D, progress) {
     });
   }
 
-  // Courbe totale
   const [rAvg, gAvg, bAvg] = getAverageColor(spectrum);
   ctxCurve.strokeStyle = `rgb(${rAvg},${gAvg},${bAvg})`;
   ctxCurve.lineWidth = 2;
@@ -1199,7 +1062,6 @@ function drawCurve(spectrum, a, b, D, progress) {
   ctxCurve.stroke();
   ctxCurve.shadowBlur = 0;
 
-  // Axe central (ligne pointillée)
   ctxCurve.strokeStyle = 'rgba(255,255,255,0.2)';
   ctxCurve.setLineDash([6, 6]);
   ctxCurve.lineWidth = 1;
@@ -1208,56 +1070,6 @@ function drawCurve(spectrum, a, b, D, progress) {
   ctxCurve.lineTo(W, H/2);
   ctxCurve.stroke();
   ctxCurve.setLineDash([]);
-}
-
-function updateSummaryBox() {
-  const a = parseFloat(inputs.a.value);
-  const b = parseFloat(inputs.b.value);
-  const D = parseFloat(inputs.D.value);
-  let items = [];
-
-  switch (currentSource) {
-    case 'mono':
-      items = [
-        `Source <b>monochromatique</b> : λ = ${inputs.lambda.value} nm.`,
-        `Interfrange : <span class="formula">i = λD / a</span> = ${(parseFloat(inputs.lambda.value)*1e-9*D/(a*1e-3)*1e3).toFixed(3)} mm.`,
-        `Franges <b>régulières</b> alternativement claires et sombres.`,
-        `λ ↑ → interfrange ↑ ; a ↑ → interfrange ↓.`
-      ];
-      break;
-    case 'white':
-      items = [
-        `<b>Lumière blanche</b> = superposition de toutes les λ visibles.`,
-        `Centre : <b>frange blanche</b> (toutes les λ en phase).`,
-        `Côtés : franges <b>irisées</b> — décomposition chromatique.`,
-        `<span class="formula">i = λD / a</span> : chaque couleur a ses propres franges.`,
-        `Preuve historique de la nature ondulatoire (Young, 1801).`
-      ];
-      break;
-    case 'sodium':
-      items = [
-        `Lampe <b>sodium</b> : émission à 589 nm.`,
-        `Franges <b>jaunes</b> très contrastées.`,
-        `Source quasi-monochromatique, très cohérente.`
-      ];
-      break;
-    case 'mercury':
-      items = [
-        `Lampe <b>mercure</b> : plusieurs raies (violet, bleu, vert, jaune).`,
-        `Superposition de <b>plusieurs systèmes de franges</b>.`,
-        `Contraste réduit car les λ ne s'alignent pas.`
-      ];
-      break;
-    case 'rgb':
-      items = [
-        `Source <b>trichromatique</b> (R, V, B).`,
-        `Superposition de <b>3 systèmes de franges</b>.`,
-        `Centre blanc, bords colorés.`
-      ];
-      break;
-  }
-  items.push(`<i>Largeur b = ${b.toFixed(2)} mm module l'enveloppe de diffraction.</i>`);
-  summaryCont.innerHTML = items.map(i => `<li>${i}</li>`).join('');
 }
 
 function render(progress) {
@@ -1279,19 +1091,16 @@ function render(progress) {
   document.getElementById('interfrange').textContent = interfrange_mm.toFixed(3) + ' mm';
   document.getElementById('centralWidth').textContent = centralWidth_mm.toFixed(2) + ' mm';
   document.getElementById('nbFranges').textContent = isFinite(nbFranges) ? nbFranges : '∞';
-
-  updateSummaryBox();
 }
 
 function startExperiment() {
   if (animationState.running) return;
-  summaryBox.classList.remove('visible');
   animationState.running = true;
   animationState.progress = 0;
   animationState.startTime = performance.now();
   startBtn.disabled = true;
   setControlsEnabled(false);
-  statusEl.textContent = "💡 Propagation de la lumière en cours...";
+  statusEl.textContent = "💡 Propagation...";
   statusEl.classList.add('active');
 
   function animate(now) {
@@ -1299,16 +1108,15 @@ function startExperiment() {
     const p = Math.min(1, elapsed / animationState.duration);
     animationState.progress = p;
     render(p);
-    if (p < 0.5) statusEl.textContent = "💡 La lumière se propage du laser vers les fentes...";
-    else if (p < 1) statusEl.textContent = "🌊 La lumière traverse les fentes et se propage vers l'écran...";
-    else statusEl.textContent = "✅ Figure d'interférence formée !";
+    if (p < 0.5) statusEl.textContent = "💡 Lumière vers les fentes...";
+    else if (p < 1) statusEl.textContent = "🌊 Traversée et propagation...";
+    else statusEl.textContent = "✅ Interférences formées !";
     if (p < 1) animationState.rafId = requestAnimationFrame(animate);
     else {
       animationState.running = false;
       startBtn.disabled = false;
-      startBtn.innerHTML = '▶ Rejouer l\'expérience';
+      startBtn.innerHTML = '▶ Rejouer';
       setControlsEnabled(true);
-      summaryBox.classList.add('visible');
     }
   }
   animationState.rafId = requestAnimationFrame(animate);
@@ -1329,16 +1137,15 @@ function resetAll() {
   updateLabels();
   setControlsEnabled(true);
   startBtn.disabled = false;
-  startBtn.innerHTML = '▶ Démarrer l\'expérience';
-  statusEl.textContent = "Cliquez sur « Démarrer l'expérience » pour voir la propagation de la lumière.";
+  startBtn.innerHTML = '▶ Démarrer';
+  statusEl.textContent = "Prêt à démarrer l'expérience";
   statusEl.classList.remove('active');
-  summaryBox.classList.remove('visible');
   render(0);
 }
 
-document.querySelectorAll('#sourcePicker .source-btn').forEach(btn => {
+document.querySelectorAll('#sourcePicker .src-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('#sourcePicker .source-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#sourcePicker .src-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     currentSource = btn.dataset.source;
     if (currentSource === 'mono') {
@@ -1351,8 +1158,7 @@ document.querySelectorAll('#sourcePicker .source-btn').forEach(btn => {
     if (!animationState.running) {
       animationState.progress = 1;
       render(1);
-      startBtn.innerHTML = '▶ Rejouer l\'expérience';
-      summaryBox.classList.add('visible');
+      startBtn.innerHTML = '▶ Rejouer';
     }
   });
 });
@@ -1403,7 +1209,7 @@ function computePrismPath(incidence_deg, apexAngle_deg, n) {
   if (sin_i2 > 1 || sin_i2 < -1) return { valid: false };
   const i2 = Math.asin(sin_i2);
   const deviation = (i1 + i2 - A) * 180 / Math.PI;
-  return { valid: true, deviation, i1_deg: incidence_deg, i2_deg: i2 * 180/Math.PI, r1_deg: r1 * 180/Math.PI, r2_deg: r2 * 180/Math.PI };
+  return { valid: true, deviation };
 }
 
 function drawPrism(progress) {
@@ -1419,7 +1225,7 @@ function drawPrism(progress) {
 
   const cx = W / 2;
   const cy = H / 2 + 20;
-  const size = 160;
+  const size = 140;
   const A = A_deg * Math.PI / 180;
 
   const apexX = cx;
@@ -1476,12 +1282,6 @@ function drawPrism(progress) {
   ctxPrism.font = 'bold 13px monospace';
   ctxPrism.textAlign = 'center';
   ctxPrism.fillText('SOURCE', srcX, srcY + 50);
-  ctxPrism.fillStyle = '#aaa';
-  ctxPrism.font = '11px monospace';
-  const srcLabel = currentPrismSource === 'white' ? 'Lumière blanche' :
-                   currentPrismSource === 'red' ? '650 nm' :
-                   currentPrismSource === 'green' ? '532 nm' : '450 nm';
-  ctxPrism.fillText(srcLabel, srcX, srcY + 66);
 
   ctxPrism.fillStyle = 'rgba(100,180,255,0.12)';
   ctxPrism.strokeStyle = '#4fc3f7';
@@ -1494,13 +1294,6 @@ function drawPrism(progress) {
   ctxPrism.fill();
   ctxPrism.stroke();
 
-  ctxPrism.strokeStyle = 'rgba(255,255,255,0.15)';
-  ctxPrism.lineWidth = 1;
-  ctxPrism.beginPath();
-  ctxPrism.moveTo(apexX, apexY);
-  ctxPrism.lineTo(apexX, baseY);
-  ctxPrism.stroke();
-
   ctxPrism.fillStyle = '#4fc3f7';
   ctxPrism.font = 'bold 13px monospace';
   ctxPrism.fillText('PRISME', cx, apexY - 15);
@@ -1508,11 +1301,11 @@ function drawPrism(progress) {
   ctxPrism.strokeStyle = '#ffd54f';
   ctxPrism.lineWidth = 1.5;
   ctxPrism.beginPath();
-  ctxPrism.arc(apexX, apexY, 32, Math.PI/2 - A/2, Math.PI/2 + A/2);
+  ctxPrism.arc(apexX, apexY, 30, Math.PI/2 - A/2, Math.PI/2 + A/2);
   ctxPrism.stroke();
   ctxPrism.fillStyle = '#ffd54f';
-  ctxPrism.font = 'bold 13px monospace';
-  ctxPrism.fillText(`A = ${A_deg}°`, cx, apexY + 42);
+  ctxPrism.font = 'bold 12px monospace';
+  ctxPrism.fillText(`A = ${A_deg}°`, cx, apexY + 38);
 
   let wavelengths = [];
   if (currentPrismSource === 'white') {
@@ -1619,24 +1412,6 @@ function drawPrism(progress) {
   ctxPrism.font = 'bold 13px monospace';
   ctxPrism.textAlign = 'center';
   ctxPrism.fillText('ÉCRAN', screenX + 10, 15);
-
-  if (progress > 0.2) {
-    const normalLeftAngle = faceLeftAngle - Math.PI / 2;
-    ctxPrism.strokeStyle = 'rgba(255,255,255,0.4)';
-    ctxPrism.setLineDash([4, 4]);
-    ctxPrism.lineWidth = 1;
-    ctxPrism.beginPath();
-    ctxPrism.moveTo(entryX - 40 * Math.cos(normalLeftAngle), entryY - 40 * Math.sin(normalLeftAngle));
-    ctxPrism.lineTo(entryX + 40 * Math.cos(normalLeftAngle), entryY + 40 * Math.sin(normalLeftAngle));
-    ctxPrism.stroke();
-    ctxPrism.setLineDash([]);
-  }
-
-  ctxPrism.fillStyle = '#4fc3f7';
-  ctxPrism.font = '11px monospace';
-  ctxPrism.textAlign = 'left';
-  ctxPrism.fillText('Rayon incident', srcX - 40, srcY + 90);
-  ctxPrism.fillText('i₁ = ' + inc + '°', srcX - 40, srcY + 105);
 }
 
 function updatePrismInfo() {
@@ -1679,16 +1454,16 @@ function startPrismExperiment() {
     prismAnimation.progress = p;
     drawPrism(p);
 
-    if (p < 0.35) prismStatusEl.textContent = "💡 Le rayon lumineux se propage vers le prisme...";
-    else if (p < 0.65) prismStatusEl.textContent = "🔺 Le rayon pénètre dans le prisme et se réfracte...";
-    else if (p < 0.95) prismStatusEl.textContent = "🌈 La lumière émerge et se décompose !";
-    else prismStatusEl.textContent = "✅ Spectre obtenu sur l'écran !";
+    if (p < 0.35) prismStatusEl.textContent = "💡 Rayon vers le prisme...";
+    else if (p < 0.65) prismStatusEl.textContent = "🔺 Réfraction dans le prisme...";
+    else if (p < 0.95) prismStatusEl.textContent = "🌈 Décomposition !";
+    else prismStatusEl.textContent = "✅ Spectre sur l'écran !";
 
     if (p < 1) prismAnimation.rafId = requestAnimationFrame(animate);
     else {
       prismAnimation.running = false;
       prismStartBtn.disabled = false;
-      prismStartBtn.innerHTML = '▶ Rejouer l\'expérience';
+      prismStartBtn.innerHTML = '▶ Rejouer';
       Object.values(prismInputs).forEach(i => i.disabled = false);
     }
   }
@@ -1707,21 +1482,21 @@ function resetPrism() {
   updatePrismInfo();
   Object.values(prismInputs).forEach(i => i.disabled = false);
   prismStartBtn.disabled = false;
-  prismStartBtn.innerHTML = '▶ Démarrer l\'expérience';
-  prismStatusEl.textContent = "Cliquez sur « Démarrer l'expérience » pour voir la décomposition de la lumière.";
+  prismStartBtn.innerHTML = '▶ Démarrer';
+  prismStatusEl.textContent = "Prêt à démarrer";
   prismStatusEl.classList.remove('active');
   drawPrism(0);
 }
 
-document.querySelectorAll('#prismSourcePicker .source-btn').forEach(btn => {
+document.querySelectorAll('#prismSourcePicker .src-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('#prismSourcePicker .source-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#prismSourcePicker .src-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     currentPrismSource = btn.dataset.psource;
     if (!prismAnimation.running) {
       prismAnimation.progress = 1;
       drawPrism(1);
-      prismStartBtn.innerHTML = '▶ Rejouer l\'expérience';
+      prismStartBtn.innerHTML = '▶ Rejouer';
     }
   });
 });
