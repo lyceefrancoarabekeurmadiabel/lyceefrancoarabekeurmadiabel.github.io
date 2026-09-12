@@ -203,40 +203,39 @@
     touch-action: none;
   }
   
-  .observation-block {
+  /* ===== BLOC CÔTE À CÔTE : ÉCRAN | PROFIL ===== */
+  .observation-side-by-side {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
     background: #000;
     border-radius: 8px;
-    padding: 4px;
-    margin-bottom: 8px;
+    padding: 6px;
+    margin-bottom: 10px;
     border: 2px solid #4fc3f7;
-    display: flex;
-    flex-direction: column;
   }
   
-  .observation-block canvas {
+  .obs-col {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  
+  .obs-col canvas {
     display: block;
     width: 100%;
     height: auto;
-    padding: 0;
-    margin: 0;
+    background: #000;
   }
   
   .observation-label {
     color: #4fc3f7;
-    font-size: 0.65em;
+    font-size: 0.6em;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
-    padding: 3px 2px 1px;
+    letter-spacing: 1px;
+    padding: 2px 2px 4px;
     font-weight: bold;
-    opacity: 0.8;
-  }
-  
-  .axis-hint {
-    text-align: center;
-    color: #666;
-    font-size: 0.65em;
-    padding: 2px 0;
-    font-family: monospace;
+    opacity: 0.9;
   }
   
   .button-bar {
@@ -487,12 +486,15 @@
     </div>
 
     <div class="section-title">Écran & profil</div>
-    <div class="observation-block">
-      <div class="observation-label">📍 Écran</div>
-      <canvas id="screenCanvas" width="800" height="120"></canvas>
-      <div class="axis-hint">↓ position x — même axe ↓</div>
-      <div class="observation-label">📊 Intensité I(x)</div>
-      <canvas id="curveCanvas" width="800" height="180"></canvas>
+    <div class="observation-side-by-side">
+      <div class="obs-col">
+        <div class="observation-label">📍 Écran</div>
+        <canvas id="screenCanvas" width="400" height="400"></canvas>
+      </div>
+      <div class="obs-col">
+        <div class="observation-label">📊 Intensité I(x)</div>
+        <canvas id="curveCanvas" width="400" height="400"></canvas>
+      </div>
     </div>
 
     <div class="button-bar">
@@ -970,30 +972,30 @@ function drawSetup(spectrum, a, b, D, progress) {
   ctxSetup.fillText(labelSrc, laserX, axisY - 30);
 }
 
+// ---- ÉCRAN (vertical : x en ordonnée) ----
 function drawScreen(spectrum, a, b, D, progress) {
   const lamMoy = getLambdaMoy(spectrum) * 1e-9;
   const screenHalfWidth = Math.max((lamMoy * D / a) * 15, 2e-3);
-  const N = canvasScreen.width, H = canvasScreen.height;
+  const W = canvasScreen.width, H = canvasScreen.height;
 
   ctxScreen.fillStyle = '#000';
-  ctxScreen.fillRect(0, 0, N, H);
+  ctxScreen.fillRect(0, 0, W, H);
 
   const progScreen = Math.max(0, (progress - 0.5) * 2);
   if (progScreen <= 0) return;
 
-  const imgData = ctxScreen.createImageData(N, H);
-  const colorMap = new Array(N);
-  for (let px = 0; px < N; px++) {
-    const distFromCenter = Math.abs(px - N/2) / (N/2);
-    if (distFromCenter > progScreen) { colorMap[px] = null; continue; }
-    const x = (px - N/2) / (N/2) * screenHalfWidth;
-    colorMap[px] = intensityAt(x, spectrum, a, b, D);
-  }
-  for (let px = 0; px < N; px++) {
-    const c = colorMap[px];
-    if (!c) continue;
-    for (let py = 0; py < H; py++) {
-      const idx = (py * N + px) * 4;
+  const imgData = ctxScreen.createImageData(W, H);
+
+  for (let py = 0; py < H; py++) {
+    const yNorm = (py - H/2) / (H/2);
+    const distFromCenter = Math.abs(yNorm);
+    if (distFromCenter > progScreen) continue;
+
+    const x = yNorm * screenHalfWidth;
+    const c = intensityAt(x, spectrum, a, b, D);
+
+    for (let px = 0; px < W; px++) {
+      const idx = (py * W + px) * 4;
       imgData.data[idx]     = c.R;
       imgData.data[idx + 1] = c.G;
       imgData.data[idx + 2] = c.B;
@@ -1001,8 +1003,33 @@ function drawScreen(spectrum, a, b, D, progress) {
     }
   }
   ctxScreen.putImageData(imgData, 0, 0);
+
+  // Axe central
+  ctxScreen.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctxScreen.setLineDash([6, 6]);
+  ctxScreen.lineWidth = 1;
+  ctxScreen.beginPath();
+  ctxScreen.moveTo(0, H/2);
+  ctxScreen.lineTo(W, H/2);
+  ctxScreen.stroke();
+  ctxScreen.setLineDash([]);
+
+  // Graduations verticales (en mm)
+  ctxScreen.fillStyle = 'rgba(79,195,247,0.7)';
+  ctxScreen.font = 'bold 9px monospace';
+  ctxScreen.textAlign = 'left';
+  for (let k = -3; k <= 3; k++) {
+    if (k === 0) continue;
+    const xVal_mm = k * (lamMoy * D / a) * 1000;
+    const yNorm = (xVal_mm * 1e-3) / screenHalfWidth;
+    const py = H/2 + yNorm * H/2;
+    if (py > 15 && py < H - 15) {
+      ctxScreen.fillText(`${xVal_mm.toFixed(0)}`, W - 24, py + 3);
+    }
+  }
 }
 
+// ---- COURBE (verticale : x en ordonnée) ----
 function drawCurve(spectrum, a, b, D, progress) {
   const W = canvasCurve.width, H = canvasCurve.height;
   const lamMoy = getLambdaMoy(spectrum) * 1e-9;
@@ -1012,31 +1039,34 @@ function drawCurve(spectrum, a, b, D, progress) {
   ctxCurve.fillStyle = '#0a0a1a';
   ctxCurve.fillRect(0, 0, W, H);
 
-  ctxCurve.strokeStyle = 'rgba(79,195,247,0.15)';
+  // Grille verticale
+  ctxCurve.strokeStyle = 'rgba(79,195,247,0.12)';
   ctxCurve.lineWidth = 1;
   for (let i = 0; i <= 10; i++) {
-    const y = i * H / 10;
+    const x = i * W / 10;
     ctxCurve.beginPath();
-    ctxCurve.moveTo(0, y);
-    ctxCurve.lineTo(W, y);
+    ctxCurve.moveTo(x, 0);
+    ctxCurve.lineTo(x, H);
     ctxCurve.stroke();
   }
 
-  ctxCurve.strokeStyle = 'rgba(255,255,255,0.5)';
+  // Axe de base
+  ctxCurve.strokeStyle = 'rgba(255,255,255,0.4)';
+  ctxCurve.lineWidth = 1;
   ctxCurve.beginPath();
-  ctxCurve.moveTo(0, H - 8);
-  ctxCurve.lineTo(W, H - 8);
+  ctxCurve.moveTo(6, 0);
+  ctxCurve.lineTo(6, H);
   ctxCurve.stroke();
 
   const progScreen = Math.max(0, (progress - 0.5) * 2);
   if (progScreen <= 0) return;
 
-  const xMin = -progScreen * W/2;
-  const xMax =  progScreen * W/2;
+  const pyMin = H/2 - progScreen * H/2;
+  const pyMax = H/2 + progScreen * H/2;
 
   if (spectrum.length > 3) {
     const samples = [];
-    for (let k = 0; k < 5; k++) samples.push(spectrum[Math.floor(k / 5 * spectrum.length)]);
+    for (let k = 0; k < 7; k++) samples.push(spectrum[Math.floor(k / 7 * spectrum.length)]);
     samples.forEach(({ wl }) => {
       const lam = wl * 1e-9;
       const [r, g, bl] = wavelengthToRGB(wl);
@@ -1044,10 +1074,10 @@ function drawCurve(spectrum, a, b, D, progress) {
       ctxCurve.lineWidth = 1;
       ctxCurve.beginPath();
       let started = false;
-      for (let px = 0; px < W; px++) {
-        const pxC = px - W/2;
-        if (pxC < xMin || pxC > xMax) { started = false; continue; }
-        const x = pxC / (W/2) * screenHalfWidth;
+      for (let py = 0; py < H; py++) {
+        if (py < pyMin || py > pyMax) { started = false; continue; }
+        const yNorm = (py - H/2) / (H/2);
+        const x = yNorm * screenHalfWidth;
         const phase = Math.PI * a * x / (lam * D);
         const interference = Math.cos(phase) ** 2;
         let diffract = 1;
@@ -1056,33 +1086,43 @@ function drawCurve(spectrum, a, b, D, progress) {
           diffract = beta === 0 ? 1 : (Math.sin(beta) / beta) ** 2;
         }
         const I = interference * diffract;
-        const y = H - I * (H - 16) - 8;
-        if (!started) { ctxCurve.moveTo(px, y); started = true; }
-        else ctxCurve.lineTo(px, y);
+        const px = 6 + I * (W - 12);
+        if (!started) { ctxCurve.moveTo(px, py); started = true; }
+        else ctxCurve.lineTo(px, py);
       }
       ctxCurve.stroke();
     });
   }
 
   const [rAvg, gAvg, bAvg] = getAverageColor(spectrum);
-  ctxCurve.beginPath();
   ctxCurve.strokeStyle = `rgb(${rAvg},${gAvg},${bAvg})`;
   ctxCurve.lineWidth = 2;
   ctxCurve.shadowColor = `rgb(${rAvg},${gAvg},${bAvg})`;
   ctxCurve.shadowBlur = 6;
 
+  ctxCurve.beginPath();
   let started = false;
-  for (let px = 0; px < W; px++) {
-    const pxC = px - W/2;
-    if (pxC < xMin || pxC > xMax) { started = false; continue; }
-    const x = pxC / (W/2) * screenHalfWidth;
+  for (let py = 0; py < H; py++) {
+    if (py < pyMin || py > pyMax) { started = false; continue; }
+    const yNorm = (py - H/2) / (H/2);
+    const x = yNorm * screenHalfWidth;
     const I = scalarIntensityAt(x, spectrum, a, b, D);
-    const y = H - I * (H - 16) - 8;
-    if (!started) { ctxCurve.moveTo(px, y); started = true; }
-    else ctxCurve.lineTo(px, y);
+    const px = 6 + I * (W - 12);
+    if (!started) { ctxCurve.moveTo(px, py); started = true; }
+    else ctxCurve.lineTo(px, py);
   }
   ctxCurve.stroke();
   ctxCurve.shadowBlur = 0;
+
+  // Axe central
+  ctxCurve.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctxCurve.setLineDash([6, 6]);
+  ctxCurve.lineWidth = 1;
+  ctxCurve.beginPath();
+  ctxCurve.moveTo(0, H/2);
+  ctxCurve.lineTo(W, H/2);
+  ctxCurve.stroke();
+  ctxCurve.setLineDash([]);
 }
 
 function updateSummaryBox() {
