@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Optique — Mobile</title>
+<title>Optique — Mobile | LFAKM</title>
+<link rel="icon" type="image/png" href="favicon.png">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   
@@ -26,6 +27,38 @@
     backdrop-filter: blur(10px);
   }
   
+  .top-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 8px;
+  }
+  
+  .btn-retour, .btn-pc {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.75em;
+    font-weight: 700;
+    transition: all 0.2s;
+  }
+  
+  .btn-retour {
+    background: rgba(168, 133, 63, 0.2);
+    color: #ffd54f;
+    border: 1px solid rgba(255, 213, 79, 0.4);
+  }
+  
+  .btn-pc {
+    background: rgba(79, 195, 247, 0.15);
+    color: #4fc3f7;
+    border: 1px solid rgba(79, 195, 247, 0.4);
+  }
+  
   h1 {
     text-align: center;
     color: #4fc3f7;
@@ -41,7 +74,6 @@
     margin-bottom: 12px;
   }
   
-  /* ===== ONGLETS COMPACTS ===== */
   .tabs {
     display: flex;
     gap: 4px;
@@ -86,7 +118,6 @@
     font-weight: bold;
   }
   
-  /* ===== NOTICE COMPACTE ===== */
   .notice {
     margin-bottom: 10px;
     padding: 8px 10px;
@@ -113,7 +144,6 @@
     color: #ccc;
   }
   
-  /* ===== SÉLECTEUR SOURCE SCROLLABLE ===== */
   .source-picker {
     display: flex;
     gap: 6px;
@@ -157,7 +187,6 @@
     box-shadow: 0 0 6px currentColor;
   }
   
-  /* ===== CANVAS ===== */
   .canvas-wrapper {
     background: #000;
     border-radius: 8px;
@@ -174,7 +203,6 @@
     touch-action: none;
   }
   
-  /* ===== BLOC OBSERVATION ALIGNÉ ===== */
   .observation-block {
     background: #000;
     border-radius: 8px;
@@ -211,7 +239,6 @@
     font-family: monospace;
   }
   
-  /* ===== BOUTONS ===== */
   .button-bar {
     display: flex;
     gap: 6px;
@@ -264,7 +291,6 @@
   
   .status.active { color: #4fc3f7; }
   
-  /* ===== CONTRÔLES COMPACTS ===== */
   .controls {
     display: flex;
     flex-direction: column;
@@ -307,7 +333,6 @@
   
   input[type="range"]:disabled { opacity: 0.4; }
   
-  /* ===== INFO PANEL COMPACT ===== */
   .info-panel {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -337,7 +362,6 @@
     margin-top: 2px;
   }
   
-  /* ===== ENCADRÉ PÉDAGOGIQUE ===== */
   .summary-box {
     margin-top: 12px;
     padding: 0;
@@ -394,7 +418,6 @@
     font-size: 0.95em;
   }
   
-  /* ===== RESPONSIVE TRÈS PETIT ÉCRAN ===== */
   @media (max-width: 360px) {
     h1 { font-size: 1em; }
     .tab { font-size: 0.7em; padding: 8px 4px; }
@@ -407,16 +430,21 @@
 <body>
 
 <div class="container">
-  <h1>🔬 Expériences d'Optique</h1>
+  
+  <div class="top-actions">
+    <a href="labo-pc.html" class="btn-retour">← Labo PC</a>
+    <a href="simulateur-interferences.html" class="btn-pc">🖥️ Version PC</a>
+  </div>
+
+  <h1>🔬 Optique</h1>
   <p class="subtitle">Young (1801) & Prisme (Newton, 1666)</p>
 
-  <!-- ONGLETS -->
   <div class="tabs">
     <button class="tab active" data-tab="young">🎯 Young</button>
     <button class="tab" data-tab="prisme">🔺 Prisme</button>
   </div>
 
-  <!-- =============== ONGLET 1 : YOUNG =============== -->
+  <!-- ONGLET 1 : YOUNG -->
   <div class="tab-content active" id="tab-young">
 
     <details class="notice">
@@ -524,7 +552,7 @@
     </div>
   </div>
 
-  <!-- =============== ONGLET 2 : PRISME =============== -->
+  <!-- ONGLET 2 : PRISME -->
   <div class="tab-content" id="tab-prisme">
 
     <details class="notice">
@@ -627,9 +655,7 @@
 </div>
 
 <script>
-// ============================================================
-//  ONGLETS
-// ============================================================
+// ===== ONGLETS =====
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -639,9 +665,7 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
-// ============================================================
-//  PARTIE 1 : YOUNG
-// ============================================================
+// ===== PARTIE 1 : YOUNG =====
 const canvasSetup  = document.getElementById('setupCanvas');
 const ctxSetup     = canvasSetup.getContext('2d');
 const canvasScreen = document.getElementById('screenCanvas');
@@ -769,7 +793,6 @@ function getLambdaMoy(spectrum) {
   return spectrum.reduce((s, c) => s + c.wl * c.weight, 0) / spectrum.reduce((s, c) => s + c.weight, 0);
 }
 
-// ---- DISPOSITIF ----
 function drawSetup(spectrum, a, b, D, progress) {
   const [r, g, bl] = getAverageColor(spectrum);
   const W = canvasSetup.width, H = canvasSetup.height;
@@ -914,7 +937,6 @@ function drawSetup(spectrum, a, b, D, progress) {
   ctxSetup.font = 'bold 11px monospace';
   ctxSetup.fillText('ÉCRAN', ecranX + 8, 15);
 
-  // Axe optique
   ctxSetup.strokeStyle = 'rgba(255,255,255,0.2)';
   ctxSetup.setLineDash([5, 5]);
   ctxSetup.beginPath();
@@ -923,7 +945,6 @@ function drawSetup(spectrum, a, b, D, progress) {
   ctxSetup.stroke();
   ctxSetup.setLineDash([]);
 
-  // Cotes D
   ctxSetup.strokeStyle = '#ffd54f';
   ctxSetup.fillStyle = '#ffd54f';
   ctxSetup.font = 'bold 10px monospace';
@@ -936,7 +957,6 @@ function drawSetup(spectrum, a, b, D, progress) {
   ctxSetup.stroke();
   ctxSetup.fillText(`D = ${D.toFixed(2)} m`, (fenteX + ecranX) / 2, yCote - 4);
 
-  // Étiquette source
   ctxSetup.fillStyle = '#4fc3f7';
   ctxSetup.font = 'bold 10px monospace';
   let labelSrc = '';
@@ -950,7 +970,6 @@ function drawSetup(spectrum, a, b, D, progress) {
   ctxSetup.fillText(labelSrc, laserX, axisY - 30);
 }
 
-// ---- ÉCRAN ----
 function drawScreen(spectrum, a, b, D, progress) {
   const lamMoy = getLambdaMoy(spectrum) * 1e-9;
   const screenHalfWidth = Math.max((lamMoy * D / a) * 15, 2e-3);
@@ -984,7 +1003,6 @@ function drawScreen(spectrum, a, b, D, progress) {
   ctxScreen.putImageData(imgData, 0, 0);
 }
 
-// ---- COURBE ----
 function drawCurve(spectrum, a, b, D, progress) {
   const W = canvasCurve.width, H = canvasCurve.height;
   const lamMoy = getLambdaMoy(spectrum) * 1e-9;
@@ -1219,9 +1237,7 @@ Object.values(inputs).forEach(input => {
   });
 });
 
-// ============================================================
-//  PARTIE 2 : PRISME
-// ============================================================
+// ===== PARTIE 2 : PRISME =====
 const canvasPrism = document.getElementById('prismCanvas');
 const ctxPrism = canvasPrism.getContext('2d');
 
@@ -1294,7 +1310,6 @@ function drawPrism(progress) {
   const entryX = apexX + (leftX - apexX) * tEntry;
   const entryY = apexY + (baseY - apexY) * tEntry;
 
-  // Rayon incident
   const progInc = Math.min(1, progress / 0.35);
   const endX = sourceX + (entryX - sourceX) * progInc;
   const endY = sourceY + (entryY - sourceY) * progInc;
@@ -1312,7 +1327,6 @@ function drawPrism(progress) {
   ctxPrism.stroke();
   ctxPrism.shadowBlur = 0;
 
-  // Boîtier source
   ctxPrism.fillStyle = '#2a2a3e';
   ctxPrism.strokeStyle = '#4fc3f7';
   ctxPrism.lineWidth = 2;
@@ -1330,7 +1344,6 @@ function drawPrism(progress) {
   ctxPrism.textAlign = 'center';
   ctxPrism.fillText('SOURCE', sourceX, sourceY + 38);
 
-  // Prisme
   ctxPrism.fillStyle = 'rgba(100,180,255,0.12)';
   ctxPrism.strokeStyle = '#4fc3f7';
   ctxPrism.lineWidth = 2;
@@ -1346,7 +1359,6 @@ function drawPrism(progress) {
   ctxPrism.font = 'bold 11px monospace';
   ctxPrism.fillText('PRISME', cx, apexY - 12);
 
-  // Cote angle
   ctxPrism.strokeStyle = '#ffd54f';
   ctxPrism.lineWidth = 1.5;
   ctxPrism.beginPath();
@@ -1426,7 +1438,6 @@ function drawPrism(progress) {
     }
   });
 
-  // Écran
   const screenX = W - 40;
   ctxPrism.fillStyle = '#1a1a2e';
   ctxPrism.strokeStyle = '#4fc3f7';
