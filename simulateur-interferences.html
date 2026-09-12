@@ -467,4 +467,184 @@
           let yMin, yMax;
           if (signe > 0) {
             yMin = S_CY - 400;
-            yMax
+            yMax = S_CY - 5;
+          } else {
+            yMin = S_CY + 5;
+            yMax = S_CY + 400;
+          }
+
+          // On cherche y tel que la différence de marche vaille deltaCible
+          let bestY = null;
+          let bestErr = Infinity;
+          for (let y = yMin; y <= yMax; y += 4) {
+            const r1 = Math.hypot(x - S1.x, y - S1.y);
+            const r2 = Math.hypot(x - S2.x, y - S2.y);
+            const delta = Math.abs(r2 - r1);
+            const err = Math.abs(delta - deltaCible);
+            if (err < bestErr) {
+              bestErr = err;
+              bestY = y;
+            }
+          }
+          // Tolérance : on garde le point si l'écart est raisonnable
+          if (bestY !== null && bestErr < espacement * 0.5) {
+            points.push([x, bestY]);
+          }
+        }
+
+        if (points.length > 1) {
+          const d = 'M ' + points.map(p => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' L ');
+          const path = document.createElementNS(SVG_NS, 'path');
+          path.setAttribute('d', d);
+          path.setAttribute('fill', 'none');
+          path.setAttribute('stroke', hyperColor);
+          path.setAttribute('stroke-width', 1.6);
+          path.setAttribute('stroke-opacity', Math.max(0, (progress - 0.4) / 0.6) * 0.85);
+          path.setAttribute('stroke-dasharray', '4,3');
+          g.appendChild(path);
+        }
+      });
+    }
+  }
+
+  // ============================================================
+  // DESSIN DES FRANGES SUR L'ÉCRAN
+  // ============================================================
+  function drawScreen(progress) {
+    const g = document.getElementById('screen-franges');
+    g.innerHTML = '';
+    if (progress <= 0) return;
+
+    const rgb = lambdaToRGB(lambda);
+    const color = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+
+    // Interfrange en pixels sur le schéma (proportionnelle à λ et D, inversement à a)
+    // On normalise pour que λ=632.8, a=120 donne une interfrange lisible
+    const interfrange = (lambda / 632.8) * (120 / a_pixels) * (a_pixels * 0.85);
+
+    const nbFranges = 7; // de -3 à +3
+    const opacite = Math.min(1, progress);
+
+    for (let k = -nbFranges; k <= nbFranges; k++) {
+      const y = S_CY + k * interfrange;
+      if (y < 45 || y > 535) continue;
+
+      const frange = document.createElementNS(SVG_NS, 'rect');
+      frange.setAttribute('x', 900);
+      frange.setAttribute('y', y - 3);
+      frange.setAttribute('width', 15);
+      frange.setAttribute('height', 6);
+      frange.setAttribute('fill', color);
+      frange.setAttribute('opacity', opacite * (k === 0 ? 1 : 0.85));
+      g.appendChild(frange);
+    }
+
+    // Tache centrale plus marquée
+    const centre = document.createElementNS(SVG_NS, 'rect');
+    centre.setAttribute('x', 900);
+    centre.setAttribute('y', S_CY - 5);
+    centre.setAttribute('width', 15);
+    centre.setAttribute('height', 10);
+    centre.setAttribute('fill', color);
+    centre.setAttribute('opacity', opacite);
+    g.appendChild(centre);
+  }
+
+  // ============================================================
+  // MISE À JOUR GLOBALE
+  // ============================================================
+  function updateAll(progress = 1) {
+    updateS1S2();
+    drawArcs(progress);
+    drawHyperboles(progress);
+    drawScreen(progress);
+
+    document.getElementById('lambda-value').textContent =
+      lambda.toFixed(1).replace('.', ',') + ' nm';
+    document.getElementById('a-value').textContent = a_pixels + ' px';
+    document.getElementById('nb-value').textContent = nbArcs;
+    document.getElementById('schema-lambda').textContent =
+      lambda.toFixed(1).replace('.', ',') + ' nm';
+  }
+
+  // ============================================================
+  // ANIMATION
+  // ============================================================
+  function animate(timestamp) {
+    if (!startTime) startTime = timestamp;
+    const elapsed = timestamp - startTime;
+    let progress = Math.min(1, elapsed / DUREE_ANIM);
+
+    updateAll(progress);
+
+    if (progress < 1 && started) {
+      rafId = requestAnimationFrame(animate);
+    } else {
+      started = false;
+      document.getElementById('btn-start').disabled = false;
+      document.getElementById('btn-stop').disabled = true;
+    }
+  }
+
+  function startAnimation() {
+    if (started) return;
+    started = true;
+    startTime = null;
+    document.getElementById('btn-start').disabled = true;
+    document.getElementById('btn-stop').disabled = false;
+    rafId = requestAnimationFrame(animate);
+  }
+
+  function stopAnimation() {
+    started = false;
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+    document.getElementById('btn-start').disabled = false;
+    document.getElementById('btn-stop').disabled = true;
+  }
+
+  function resetAnimation() {
+    stopAnimation();
+    startTime = null;
+    updateAll(0);
+  }
+
+  // ============================================================
+  // ÉVÉNEMENTS
+  // ============================================================
+  document.getElementById('lambda-slider').addEventListener('input', (e) => {
+    lambda = parseFloat(e.target.value);
+    updateAll(started ? 1 : 1);
+  });
+
+  document.getElementById('a-slider').addEventListener('input', (e) => {
+    a_pixels = parseInt(e.target.value, 10);
+    updateAll(1);
+  });
+
+  document.getElementById('nb-slider').addEventListener('input', (e) => {
+    nbArcs = parseInt(e.target.value, 10);
+    updateAll(1);
+  });
+
+  document.getElementById('btn-start').addEventListener('click', startAnimation);
+  document.getElementById('btn-stop').addEventListener('click', stopAnimation);
+  document.getElementById('btn-reset').addEventListener('click', resetAnimation);
+
+  // Menu burger
+  const burger = document.getElementById('burger-btn');
+  if (burger) {
+    burger.addEventListener('click', () => {
+      document.getElementById('menu').classList.toggle('show');
+    });
+  }
+
+  // ============================================================
+  // INITIALISATION
+  // ============================================================
+  window.addEventListener('DOMContentLoaded', () => {
+    updateAll(1);
+  });
+</script>
+</body>
+</html>
