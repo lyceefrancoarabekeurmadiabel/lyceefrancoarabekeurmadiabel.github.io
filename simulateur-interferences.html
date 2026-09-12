@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fentes de Young — Simulation interactive</title>
+<title>Optique — Young & Prisme</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   
@@ -44,6 +44,55 @@
     font-size: 0.95em;
   }
   
+  /* ===== ONGLETS ===== */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid rgba(79, 195, 247, 0.2);
+    padding-bottom: 0;
+  }
+  
+  .tab {
+    padding: 12px 24px;
+    background: transparent;
+    border: none;
+    color: #888;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.25s;
+    margin-bottom: -2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .tab:hover {
+    color: #4fc3f7;
+    background: rgba(79, 195, 247, 0.05);
+  }
+  
+  .tab.active {
+    color: #4fc3f7;
+    border-bottom-color: #4fc3f7;
+  }
+  
+  .tab-content {
+    display: none;
+  }
+  
+  .tab-content.active {
+    display: block;
+    animation: fadeIn 0.4s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
   .section-title {
     color: #4fc3f7;
     font-size: 1em;
@@ -62,16 +111,25 @@
     border: 2px solid #4fc3f7;
   }
   
-  /* ==== Bloc regroupé écran + courbe ==== */
+  /* ===== BLOC REGROUPÉ ALIGNÉ ===== */
   .observation-block {
     background: #000;
     border-radius: 12px;
     padding: 10px;
     margin-bottom: 20px;
     border: 2px solid #4fc3f7;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    display: grid;
+    grid-template-rows: auto auto auto auto;
+    gap: 0;
+  }
+  
+  /* Force l'alignement : même largeur, même padding interne */
+  .observation-block canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    padding: 0;
   }
   
   .observation-label {
@@ -79,7 +137,7 @@
     font-size: 0.75em;
     text-transform: uppercase;
     letter-spacing: 2px;
-    padding: 4px 8px;
+    padding: 6px 4px 2px;
     font-weight: bold;
     opacity: 0.8;
   }
@@ -88,13 +146,11 @@
     text-align: center;
     color: #666;
     font-size: 0.75em;
-    padding: 2px 0 4px;
+    padding: 4px 0;
     font-family: monospace;
   }
   
-  canvas { display: block; width: 100%; height: auto; }
-  
-  /* ==== Notice ==== */
+  /* Notice */
   .notice {
     margin-bottom: 20px;
     padding: 12px 16px;
@@ -121,7 +177,7 @@
     font-size: 0.9em;
   }
   
-  /* ==== Sélecteur source ==== */
+  /* Sélecteur source */
   .source-picker {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -165,7 +221,6 @@
     box-shadow: 0 0 8px currentColor;
   }
   
-  /* ==== Contrôles ==== */
   .controls {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -211,7 +266,6 @@
     cursor: not-allowed;
   }
   
-  /* ==== Info panel ==== */
   .info-panel {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -240,7 +294,6 @@
     margin-top: 4px;
   }
   
-  /* ==== Boutons ==== */
   .button-bar {
     display: flex;
     justify-content: center;
@@ -302,10 +355,9 @@
   
   .status.active { color: #4fc3f7; }
   
-  /* ==== Encadré pédagogique ==== */
   .summary-box {
     margin-top: 20px;
-    padding: 20px 24px;
+    padding: 0;
     background: linear-gradient(135deg, rgba(79, 195, 247, 0.15), rgba(41, 182, 246, 0.08));
     border-radius: 12px;
     border: 1px solid rgba(79, 195, 247, 0.4);
@@ -317,7 +369,7 @@
   
   .summary-box.visible {
     opacity: 1;
-    max-height: 600px;
+    max-height: 700px;
     padding: 20px 24px;
   }
   
@@ -325,9 +377,6 @@
     color: #4fc3f7;
     margin-bottom: 12px;
     font-size: 1.1em;
-    display: flex;
-    align-items: center;
-    gap: 8px;
   }
   
   .summary-box ul {
@@ -354,11 +403,11 @@
     margin: 4px 2px;
   }
   
-  /* ==== Responsive ==== */
   @media (max-width: 768px) {
     .container { padding: 15px; }
     h1 { font-size: 1.3em; }
     .subtitle { font-size: 0.85em; }
+    .tab { padding: 10px 14px; font-size: 0.85em; }
     .source-picker { grid-template-columns: repeat(2, 1fr); }
     .controls { grid-template-columns: 1fr; }
     .button-bar { flex-direction: column; }
@@ -371,125 +420,242 @@
 <body>
 
 <div class="container">
-  <h1>🔬 Simulation des Fentes de Young</h1>
-  <p class="subtitle">Interférences lumineuses — Expérience de Thomas Young (1801)</p>
+  <h1>🔬 Expériences d'Optique</h1>
+  <p class="subtitle">Interférences (Young, 1801) & Dispersion (Newton, 1666)</p>
 
-  <!-- Notice -->
-  <details class="notice">
-    <summary>Comment utiliser cette simulation ?</summary>
-    <ol>
-      <li>Choisissez un <b>type de source</b> (mono, blanc, sodium, mercure, RGB)</li>
-      <li>Réglez les paramètres avec les <b>curseurs</b> (λ, a, b, D)</li>
-      <li>Cliquez sur <b>« Démarrer l'expérience »</b></li>
-      <li>Observez la <b>propagation de la lumière</b> puis la <b>figure d'interférence</b></li>
-      <li>Comparez avec d'<b>autres sources</b> pour voir la différence !</li>
-    </ol>
-  </details>
-
-  <!-- Source -->
-  <div class="section-title">Type de source lumineuse</div>
-  <div class="source-picker" id="sourcePicker">
-    <button class="source-btn active" data-source="mono">
-      <span class="dot" style="background:#00ff00; color:#00ff00;"></span>
-      Monochromatique
-    </button>
-    <button class="source-btn" data-source="white">
-      <span class="dot" style="background:linear-gradient(90deg,#ff0000,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff); color:#fff;"></span>
-      Lumière blanche
-    </button>
-    <button class="source-btn" data-source="sodium">
-      <span class="dot" style="background:#ffcc00; color:#ffcc00;"></span>
-      Sodium (jaune)
-    </button>
-    <button class="source-btn" data-source="mercury">
-      <span class="dot" style="background:#a78bfa; color:#a78bfa;"></span>
-      Mercure (violet-vert)
-    </button>
-    <button class="source-btn" data-source="rgb">
-      <span class="dot" style="background:linear-gradient(90deg,#ff0000,#00ff00,#0000ff); color:#fff;"></span>
-      Trichromatique RGB
-    </button>
+  <!-- ONGLETS -->
+  <div class="tabs">
+    <button class="tab active" data-tab="young">🎯 Fentes de Young</button>
+    <button class="tab" data-tab="prisme">🔺 Prisme & Dispersion</button>
   </div>
 
-  <!-- Dispositif -->
-  <div class="section-title">Dispositif expérimental</div>
-  <div class="canvas-wrapper">
-    <canvas id="setupCanvas" width="1000" height="280"></canvas>
+  <!-- ============================================================ -->
+  <!-- =================== ONGLET 1 : YOUNG ======================= -->
+  <!-- ============================================================ -->
+  <div class="tab-content active" id="tab-young">
+
+    <details class="notice">
+      <summary>Comment utiliser cette simulation ?</summary>
+      <ol>
+        <li>Choisissez un <b>type de source</b> (mono, blanc, sodium, mercure, RGB)</li>
+        <li>Réglez les paramètres avec les <b>curseurs</b> (λ, a, b, D)</li>
+        <li>Cliquez sur <b>« Démarrer l'expérience »</b></li>
+        <li>Observez la <b>propagation de la lumière</b> puis la <b>figure d'interférence</b></li>
+        <li>Comparez avec d'<b>autres sources</b> pour voir la différence !</li>
+      </ol>
+    </details>
+
+    <div class="section-title">Type de source lumineuse</div>
+    <div class="source-picker" id="sourcePicker">
+      <button class="source-btn active" data-source="mono">
+        <span class="dot" style="background:#00ff00; color:#00ff00;"></span>
+        Monochromatique
+      </button>
+      <button class="source-btn" data-source="white">
+        <span class="dot" style="background:linear-gradient(90deg,#ff0000,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff); color:#fff;"></span>
+        Lumière blanche
+      </button>
+      <button class="source-btn" data-source="sodium">
+        <span class="dot" style="background:#ffcc00; color:#ffcc00;"></span>
+        Sodium (jaune)
+      </button>
+      <button class="source-btn" data-source="mercury">
+        <span class="dot" style="background:#a78bfa; color:#a78bfa;"></span>
+        Mercure (violet-vert)
+      </button>
+      <button class="source-btn" data-source="rgb">
+        <span class="dot" style="background:linear-gradient(90deg,#ff0000,#00ff00,#0000ff); color:#fff;"></span>
+        Trichromatique RGB
+      </button>
+    </div>
+
+    <div class="section-title">Dispositif expérimental</div>
+    <div class="canvas-wrapper">
+      <canvas id="setupCanvas" width="1000" height="280"></canvas>
+    </div>
+
+    <!-- BLOC REGROUPÉ : ÉCRAN + PROFIL — même largeur stricte -->
+    <div class="section-title">Observation sur l'écran & profil d'intensité</div>
+    <div class="observation-block">
+      <div class="observation-label">📍 Vue de l'écran</div>
+      <canvas id="screenCanvas" width="1000" height="160"></canvas>
+      
+      <div class="axis-hint">↓ position x (mm) — même axe horizontal ↓</div>
+      
+      <div class="observation-label">📊 Profil d'intensité I(x)</div>
+      <canvas id="curveCanvas" width="1000" height="220"></canvas>
+    </div>
+
+    <div class="button-bar">
+      <button class="btn btn-start" id="startBtn" onclick="startExperiment()">
+        ▶ Démarrer l'expérience
+      </button>
+      <button class="btn btn-reset" onclick="resetAll()">
+        🔄 Réinitialiser
+      </button>
+    </div>
+    <p class="status" id="status">Cliquez sur « Démarrer l'expérience » pour voir la propagation de la lumière.</p>
+
+    <div class="controls">
+      <div class="control-group" id="lambdaGroup">
+        <label>Longueur d'onde λ <span class="value" id="lamVal">500 nm</span></label>
+        <input type="range" id="lambda" min="380" max="750" value="500" step="1">
+      </div>
+
+      <div class="control-group">
+        <label>Distance entre fentes a <span class="value" id="aVal">0.50 mm</span></label>
+        <input type="range" id="a" min="0.1" max="2" value="0.5" step="0.01">
+      </div>
+
+      <div class="control-group">
+        <label>Largeur des fentes b <span class="value" id="bVal">0.10 mm</span></label>
+        <input type="range" id="b" min="0.02" max="0.5" value="0.1" step="0.01">
+      </div>
+
+      <div class="control-group">
+        <label>Distance à l'écran D <span class="value" id="dVal">1.00 m</span></label>
+        <input type="range" id="D" min="0.3" max="3" value="1" step="0.05">
+      </div>
+    </div>
+
+    <div class="info-panel">
+      <div class="info-item">
+        <div class="label">Interfrange moyen</div>
+        <div class="val" id="interfrange">— mm</div>
+      </div>
+      <div class="info-item">
+        <div class="label">Largeur tache centrale</div>
+        <div class="val" id="centralWidth">— mm</div>
+      </div>
+      <div class="info-item">
+        <div class="label">Nombre de franges visibles</div>
+        <div class="val" id="nbFranges">—</div>
+      </div>
+    </div>
+
+    <div class="summary-box" id="summaryBox">
+      <h3>🎓 Ce qu'il faut retenir — Fentes de Young</h3>
+      <ul id="summaryContent"></ul>
+    </div>
   </div>
 
-  <!-- BLOC REGROUPÉ : ÉCRAN + PROFIL -->
-  <div class="section-title">Observation sur l'écran & profil d'intensité</div>
-  <div class="observation-block">
-    <div class="observation-label">📍 Vue de l'écran</div>
-    <canvas id="screenCanvas" width="1000" height="160"></canvas>
-    
-    <div class="axis-hint">↓ position x (mm) — axe aligné avec l'écran ci-dessus ↓</div>
-    
-    <div class="observation-label">📊 Profil d'intensité I(x)</div>
-    <canvas id="curveCanvas" width="1000" height="220"></canvas>
+  <!-- ============================================================ -->
+  <!-- =================== ONGLET 2 : PRISME ====================== -->
+  <!-- ============================================================ -->
+  <div class="tab-content" id="tab-prisme">
+
+    <details class="notice">
+      <summary>Comment utiliser cette simulation ?</summary>
+      <ol>
+        <li>Réglez l'<b>angle du prisme</b> A et son <b>indice n</b></li>
+        <li>Choisissez la <b>source</b> : lumière blanche ou monochromatique</li>
+        <li>Cliquez sur <b>« Démarrer l'expérience »</b> pour voir la décomposition</li>
+        <li>Observez comment chaque couleur est <b>déviée différemment</b></li>
+      </ol>
+    </details>
+
+    <div class="section-title">Type de source lumineuse</div>
+    <div class="source-picker" id="prismSourcePicker">
+      <button class="source-btn active" data-psource="white">
+        <span class="dot" style="background:linear-gradient(90deg,#ff0000,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff); color:#fff;"></span>
+        Lumière blanche
+      </button>
+      <button class="source-btn" data-psource="red">
+        <span class="dot" style="background:#ff0000; color:#ff0000;"></span>
+        Laser rouge (650 nm)
+      </button>
+      <button class="source-btn" data-psource="green">
+        <span class="dot" style="background:#00ff00; color:#00ff00;"></span>
+        Laser vert (532 nm)
+      </button>
+      <button class="source-btn" data-psource="blue">
+        <span class="dot" style="background:#0080ff; color:#0080ff;"></span>
+        Laser bleu (450 nm)
+      </button>
+    </div>
+
+    <div class="section-title">Dispositif expérimental — Prisme</div>
+    <div class="canvas-wrapper">
+      <canvas id="prismCanvas" width="1000" height="420"></canvas>
+    </div>
+
+    <div class="button-bar">
+      <button class="btn btn-start" id="prismStartBtn" onclick="startPrismExperiment()">
+        ▶ Démarrer l'expérience
+      </button>
+      <button class="btn btn-reset" onclick="resetPrism()">
+        🔄 Réinitialiser
+      </button>
+    </div>
+    <p class="status" id="prismStatus">Cliquez sur « Démarrer l'expérience » pour voir la décomposition de la lumière.</p>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>Angle du prisme A <span class="value" id="angleVal">60°</span></label>
+        <input type="range" id="prismAngle" min="30" max="80" value="60" step="1">
+      </div>
+
+      <div class="control-group">
+        <label>Indice du verre (rouge) n<sub>R</sub> <span class="value" id="nRVal">1.510</span></label>
+        <input type="range" id="prismNR" min="1.4" max="1.8" value="1.51" step="0.005">
+      </div>
+
+      <div class="control-group">
+        <label>Indice du verre (violet) n<sub>V</sub> <span class="value" id="nVVal">1.530</span></label>
+        <input type="range" id="prismNV" min="1.4" max="1.8" value="1.53" step="0.005">
+      </div>
+
+      <div class="control-group">
+        <label>Angle d'incidence i₁ <span class="value" id="incVal">45°</span></label>
+        <input type="range" id="prismInc" min="20" max="70" value="45" step="1">
+      </div>
+    </div>
+
+    <div class="info-panel">
+      <div class="info-item">
+        <div class="label">Déviation rouge D<sub>R</sub></div>
+        <div class="val" id="devR">— °</div>
+      </div>
+      <div class="info-item">
+        <div class="label">Déviation violette D<sub>V</sub></div>
+        <div class="val" id="devV">— °</div>
+      </div>
+      <div class="info-item">
+        <div class="label">Dispersion ΔD</div>
+        <div class="val" id="disp">— °</div>
+      </div>
+    </div>
+
+    <div class="summary-box visible" id="prismSummaryBox">
+      <h3>🎓 Ce qu'il faut retenir — Prisme & Dispersion</h3>
+      <ul id="prismSummaryContent">
+        <li>Un <b>prisme</b> décompose la lumière blanche en ses <b>couleurs spectrales</b>.</li>
+        <li>La <b>loi de Snell-Descartes</b> régit la réfraction : <span class="formula">n₁·sin(i₁) = n₂·sin(i₂)</span>.</li>
+        <li>L'<b>indice de réfraction</b> n dépend de la longueur d'onde : <span class="formula">n = n(λ)</span>. C'est la <b>dispersion</b>.</li>
+        <li>Le <b>violet</b> est plus dévié que le <b>rouge</b> → arc-en-ciel.</li>
+        <li>C'est <b>Newton</b> (1666) qui montra que la lumière blanche est un mélange de couleurs.</li>
+      </ul>
+    </div>
   </div>
 
-  <!-- Boutons -->
-  <div class="button-bar">
-    <button class="btn btn-start" id="startBtn" onclick="startExperiment()">
-      ▶ Démarrer l'expérience
-    </button>
-    <button class="btn btn-reset" onclick="resetAll()">
-      🔄 Réinitialiser
-    </button>
-  </div>
-  <p class="status" id="status">Cliquez sur « Démarrer l'expérience » pour voir la propagation de la lumière.</p>
-
-  <!-- Contrôles -->
-  <div class="controls">
-    <div class="control-group" id="lambdaGroup">
-      <label>Longueur d'onde λ <span class="value" id="lamVal">500 nm</span></label>
-      <input type="range" id="lambda" min="380" max="750" value="500" step="1">
-    </div>
-
-    <div class="control-group">
-      <label>Distance entre fentes a <span class="value" id="aVal">0.50 mm</span></label>
-      <input type="range" id="a" min="0.1" max="2" value="0.5" step="0.01">
-    </div>
-
-    <div class="control-group">
-      <label>Largeur des fentes b <span class="value" id="bVal">0.10 mm</span></label>
-      <input type="range" id="b" min="0.02" max="0.5" value="0.1" step="0.01">
-    </div>
-
-    <div class="control-group">
-      <label>Distance à l'écran D <span class="value" id="dVal">1.00 m</span></label>
-      <input type="range" id="D" min="0.3" max="3" value="1" step="0.05">
-    </div>
-  </div>
-
-  <!-- Infos -->
-  <div class="info-panel">
-    <div class="info-item">
-      <div class="label">Interfrange moyen</div>
-      <div class="val" id="interfrange">— mm</div>
-    </div>
-    <div class="info-item">
-      <div class="label">Largeur tache centrale</div>
-      <div class="val" id="centralWidth">— mm</div>
-    </div>
-    <div class="info-item">
-      <div class="label">Nombre de franges visibles</div>
-      <div class="val" id="nbFranges">—</div>
-    </div>
-  </div>
-
-  <!-- Encadré final pédagogique -->
-  <div class="summary-box" id="summaryBox">
-    <h3>🎓 Ce qu'il faut retenir</h3>
-    <ul id="summaryContent">
-      <!-- Rempli dynamiquement -->
-    </ul>
-  </div>
 </div>
 
 <script>
-// ===== Canvas =====
+// ============================================================
+//  GESTION DES ONGLETS
+// ============================================================
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ============================================================
+//  ============ PARTIE 1 : FENTES DE YOUNG ===================
+// ============================================================
 const canvasSetup  = document.getElementById('setupCanvas');
 const ctxSetup     = canvasSetup.getContext('2d');
 const canvasScreen = document.getElementById('screenCanvas');
@@ -512,34 +678,23 @@ const summaryCont = document.getElementById('summaryContent');
 
 let currentSource = 'mono';
 let animationState = {
-  running: false,
-  progress: 0,
-  startTime: 0,
-  duration: 3000,
-  rafId: null
+  running: false, progress: 0, startTime: 0, duration: 3000, rafId: null
 };
 
-// ============================================================
-//  SPECTRES
-// ============================================================
 function gaussian(x, mu, sigma) {
   return Math.exp(-((x - mu) ** 2) / (2 * sigma ** 2));
 }
 
 function getSpectrum(source, monoLambda) {
   switch (source) {
-    case 'mono':
-      return [{ wl: monoLambda, weight: 1 }];
-
+    case 'mono': return [{ wl: monoLambda, weight: 1 }];
     case 'white': {
       const s = [];
       for (let wl = 380; wl <= 750; wl += 5) {
-        const eye = gaussian(wl, 555, 90) * 0.7 + 0.3;
-        s.push({ wl, weight: eye });
+        s.push({ wl, weight: gaussian(wl, 555, 90) * 0.7 + 0.3 });
       }
       return s;
     }
-
     case 'sodium': {
       const s = [];
       for (let wl = 570; wl <= 610; wl += 1) {
@@ -548,14 +703,10 @@ function getSpectrum(source, monoLambda) {
       }
       return s;
     }
-
     case 'mercury': {
       const raies = [
-        { wl: 404.7, amp: 0.5 },
-        { wl: 435.8, amp: 0.8 },
-        { wl: 546.1, amp: 1.0 },
-        { wl: 577.0, amp: 0.6 },
-        { wl: 579.1, amp: 0.6 }
+        { wl: 404.7, amp: 0.5 }, { wl: 435.8, amp: 0.8 },
+        { wl: 546.1, amp: 1.0 }, { wl: 577.0, amp: 0.6 }, { wl: 579.1, amp: 0.6 }
       ];
       const s = [];
       for (let wl = 380; wl <= 650; wl += 1) {
@@ -565,18 +716,12 @@ function getSpectrum(source, monoLambda) {
       }
       return s;
     }
-
     case 'rgb':
-      return [
-        { wl: 610, weight: 1.0 },
-        { wl: 545, weight: 1.0 },
-        { wl: 465, weight: 1.0 }
-      ];
+      return [{ wl: 610, weight: 1 }, { wl: 545, weight: 1 }, { wl: 465, weight: 1 }];
   }
   return [{ wl: monoLambda, weight: 1 }];
 }
 
-// ===== λ → RGB =====
 function wavelengthToRGB(wl) {
   let R, G, B;
   if (wl >= 380 && wl < 440) { R = -(wl-440)/(440-380); G = 0; B = 1; }
@@ -586,16 +731,14 @@ function wavelengthToRGB(wl) {
   else if (wl < 645) { R = 1; G = -(wl-645)/(645-580); B = 0; }
   else if (wl <= 780) { R = 1; G = 0; B = 0; }
   else { R = G = B = 0; }
-
-  let factor;
-  if (wl >= 380 && wl < 420) factor = 0.3 + 0.7*(wl-380)/(420-380);
-  else if (wl < 701) factor = 1;
-  else factor = 0.3 + 0.7*(780-wl)/(780-700);
-
+  let f;
+  if (wl >= 380 && wl < 420) f = 0.3 + 0.7*(wl-380)/(420-380);
+  else if (wl < 701) f = 1;
+  else f = 0.3 + 0.7*(780-wl)/(780-700);
   return [
-    Math.round(255 * Math.pow(R * factor, 0.8)),
-    Math.round(255 * Math.pow(G * factor, 0.8)),
-    Math.round(255 * Math.pow(B * factor, 0.8))
+    Math.round(255 * Math.pow(R * f, 0.8)),
+    Math.round(255 * Math.pow(G * f, 0.8)),
+    Math.round(255 * Math.pow(B * f, 0.8))
   ];
 }
 
@@ -606,34 +749,22 @@ function updateLabels() {
   document.getElementById('dVal').textContent = parseFloat(inputs.D.value).toFixed(2) + ' m';
 }
 
-// ============================================================
-//  INTENSITÉ MULTI-λ
-// ============================================================
 function intensityAt(x, spectrum, a, b, D) {
-  let R = 0, G = 0, B = 0;
-  let wTotal = 0;
-
+  let R = 0, G = 0, B = 0, wTotal = 0;
   for (let i = 0; i < spectrum.length; i++) {
     const { wl, weight } = spectrum[i];
     const lam = wl * 1e-9;
-
     const phase = Math.PI * a * x / (lam * D);
     const interference = Math.cos(phase) ** 2;
-
     let diffract = 1;
     if (b > 0) {
       const beta = Math.PI * b * x / (lam * D);
       diffract = beta === 0 ? 1 : (Math.sin(beta) / beta) ** 2;
     }
-
     const I = interference * diffract * weight;
     const [r, g, bl] = wavelengthToRGB(wl);
-    R += r * I;
-    G += g * I;
-    B += bl * I;
-    wTotal += weight;
+    R += r * I; G += g * I; B += bl * I; wTotal += weight;
   }
-
   if (wTotal > 0) { R /= wTotal; G /= wTotal; B /= wTotal; }
   return { R, G, B };
 }
@@ -657,14 +788,10 @@ function getLambdaMoy(spectrum) {
   return spectrum.reduce((s, c) => s + c.wl * c.weight, 0) / spectrum.reduce((s, c) => s + c.weight, 0);
 }
 
-// ============================================================
-//  DISPOSITIF
-// ============================================================
+// ---------- DISPOSITIF YOUNG ----------
 function drawSetup(spectrum, a, b, D, progress) {
   const [r, g, bl] = getAverageColor(spectrum);
-
-  const W = canvasSetup.width;
-  const H = canvasSetup.height;
+  const W = canvasSetup.width, H = canvasSetup.height;
   ctxSetup.clearRect(0, 0, W, H);
   ctxSetup.fillStyle = '#0a0a1a';
   ctxSetup.fillRect(0, 0, W, H);
@@ -677,11 +804,9 @@ function drawSetup(spectrum, a, b, D, progress) {
   const barWidth = 14;
   const topBar = axisY - sepPx/2 - widthPx/2;
   const botBar = axisY + sepPx/2 + widthPx/2;
-
   const s1 = { x: fenteX + barWidth/2, y: axisY - sepPx/2 };
   const s2 = { x: fenteX + barWidth/2, y: axisY + sepPx/2 };
 
-  // Faisceau incident
   const distLaserFente = fenteX - 20 - (laserX + 45);
   const progLaser = Math.min(1, progress * 2);
   const xFrontLaser = (laserX + 45) + distLaserFente * progLaser;
@@ -695,7 +820,6 @@ function drawSetup(spectrum, a, b, D, progress) {
     ctxSetup.lineTo(laserX + 45, axisY + 10);
     ctxSetup.closePath();
     ctxSetup.fill();
-
     for (let i = 0; i < 5; i++) {
       const t = ((progress * 3) + i / 5) % 1;
       const px = (laserX + 45) + distLaserFente * t;
@@ -708,7 +832,6 @@ function drawSetup(spectrum, a, b, D, progress) {
     }
   }
 
-  // Laser
   ctxSetup.fillStyle = '#2a2a3e';
   ctxSetup.strokeStyle = '#4fc3f7';
   ctxSetup.lineWidth = 2;
@@ -716,7 +839,6 @@ function drawSetup(spectrum, a, b, D, progress) {
   ctxSetup.roundRect(laserX - 45, axisY - 22, 90, 44, 8);
   ctxSetup.fill();
   ctxSetup.stroke();
-
   ctxSetup.fillStyle = `rgb(${r},${g},${bl})`;
   ctxSetup.beginPath();
   ctxSetup.arc(laserX + 30, axisY, 6, 0, Math.PI * 2);
@@ -730,7 +852,6 @@ function drawSetup(spectrum, a, b, D, progress) {
   ctxSetup.font = '12px monospace';
   ctxSetup.fillText('(laser λ)', laserX, axisY + 66);
 
-  // Barre fentes
   ctxSetup.fillStyle = '#3a3a52';
   ctxSetup.strokeStyle = '#4fc3f7';
   ctxSetup.lineWidth = 1.5;
@@ -748,10 +869,8 @@ function drawSetup(spectrum, a, b, D, progress) {
 
   ctxSetup.fillStyle = '#4fc3f7';
   ctxSetup.font = 'bold 13px monospace';
-  ctxSetup.textAlign = 'center';
   ctxSetup.fillText('FENTES', fenteX, 30);
 
-  // Rayons divergents
   const spread = 160;
   const progScreen = Math.max(0, (progress - 0.5) * 2);
   const distFenteEcran = ecranX - s1.x;
@@ -763,7 +882,6 @@ function drawSetup(spectrum, a, b, D, progress) {
     const colorsToDraw = isPoly
       ? [wavelengthToRGB(450), wavelengthToRGB(550), wavelengthToRGB(650)]
       : [[r, g, bl]];
-
     colorsToDraw.forEach(([cr, cg, cb]) => {
       const yTopH = s1.y + (axisY - spread - s1.y) * ratioH;
       const yBotH = s1.y + (axisY + spread - s1.y) * ratioH;
@@ -774,7 +892,6 @@ function drawSetup(spectrum, a, b, D, progress) {
       ctxSetup.lineTo(xFrontScreen, yBotH);
       ctxSetup.closePath();
       ctxSetup.fill();
-
       const yTopB = s2.y + (axisY - spread - s2.y) * ratioH;
       const yBotB = s2.y + (axisY + spread - s2.y) * ratioH;
       ctxSetup.beginPath();
@@ -784,7 +901,6 @@ function drawSetup(spectrum, a, b, D, progress) {
       ctxSetup.closePath();
       ctxSetup.fill();
     });
-
     colorsToDraw.forEach(([cr, cg, cb]) => {
       ctxSetup.strokeStyle = `rgba(${cr},${cg},${cb},0.5)`;
       ctxSetup.lineWidth = 1;
@@ -804,24 +920,19 @@ function drawSetup(spectrum, a, b, D, progress) {
     });
   }
 
-  // Écran
   ctxSetup.fillStyle = '#1a1a2e';
   ctxSetup.strokeStyle = '#4fc3f7';
   ctxSetup.lineWidth = 2;
   ctxSetup.fillRect(ecranX, 20, 20, H - 40);
   ctxSetup.strokeRect(ecranX, 20, 20, H - 40);
-
   if (progress >= 1) {
     ctxSetup.fillStyle = `rgba(${r},${g},${bl},0.9)`;
     ctxSetup.fillRect(ecranX, axisY - 25, 20, 50);
   }
-
   ctxSetup.fillStyle = '#4fc3f7';
   ctxSetup.font = 'bold 13px monospace';
-  ctxSetup.textAlign = 'center';
   ctxSetup.fillText('ÉCRAN', ecranX + 10, 15);
 
-  // Axe optique
   ctxSetup.strokeStyle = 'rgba(255,255,255,0.2)';
   ctxSetup.setLineDash([6, 6]);
   ctxSetup.lineWidth = 1;
@@ -831,7 +942,6 @@ function drawSetup(spectrum, a, b, D, progress) {
   ctxSetup.stroke();
   ctxSetup.setLineDash([]);
 
-  // Cotes
   ctxSetup.strokeStyle = '#ffd54f';
   ctxSetup.fillStyle = '#ffd54f';
   ctxSetup.font = 'bold 13px monospace';
@@ -875,7 +985,6 @@ function drawSetup(spectrum, a, b, D, progress) {
   drawArrow(ctxSetup, xCoteB, axisY - sepPx/2, xCoteB, axisY - sepPx/2 - 8);
   ctxSetup.fillText(`b = ${(b*1e3).toFixed(2)} mm`, xCoteB + 55, axisY - sepPx/2 - widthPx/2 + 4);
 
-  // Étiquette λ
   ctxSetup.fillStyle = '#4fc3f7';
   ctxSetup.font = 'bold 12px monospace';
   let labelSrc = '';
@@ -900,15 +1009,10 @@ function drawArrow(ctx, x1, y1, x2, y2) {
   ctx.stroke();
 }
 
-// ============================================================
-//  ÉCRAN
-// ============================================================
 function drawScreen(spectrum, a, b, D, progress) {
   const lamMoy = getLambdaMoy(spectrum) * 1e-9;
   const screenHalfWidth = Math.max((lamMoy * D / a) * 15, 2e-3);
-
-  const N = canvasScreen.width;
-  const H = canvasScreen.height;
+  const N = canvasScreen.width, H = canvasScreen.height;
 
   ctxScreen.fillStyle = '#000';
   ctxScreen.fillRect(0, 0, N, H);
@@ -918,14 +1022,12 @@ function drawScreen(spectrum, a, b, D, progress) {
 
   const imgData = ctxScreen.createImageData(N, H);
   const colorMap = new Array(N);
-
   for (let px = 0; px < N; px++) {
     const distFromCenter = Math.abs(px - N/2) / (N/2);
     if (distFromCenter > progScreen) { colorMap[px] = null; continue; }
     const x = (px - N/2) / (N/2) * screenHalfWidth;
     colorMap[px] = intensityAt(x, spectrum, a, b, D);
   }
-
   for (let px = 0; px < N; px++) {
     const c = colorMap[px];
     if (!c) continue;
@@ -940,12 +1042,8 @@ function drawScreen(spectrum, a, b, D, progress) {
   ctxScreen.putImageData(imgData, 0, 0);
 }
 
-// ============================================================
-//  COURBE
-// ============================================================
 function drawCurve(spectrum, a, b, D, progress) {
-  const W = canvasCurve.width;
-  const H = canvasCurve.height;
+  const W = canvasCurve.width, H = canvasCurve.height;
   const lamMoy = getLambdaMoy(spectrum) * 1e-9;
   const screenHalfWidth = Math.max((lamMoy * D / a) * 15, 2e-3);
 
@@ -953,7 +1051,6 @@ function drawCurve(spectrum, a, b, D, progress) {
   ctxCurve.fillStyle = '#0a0a1a';
   ctxCurve.fillRect(0, 0, W, H);
 
-  // Grille
   ctxCurve.strokeStyle = 'rgba(79,195,247,0.15)';
   ctxCurve.lineWidth = 1;
   for (let i = 0; i <= 10; i++) {
@@ -964,7 +1061,6 @@ function drawCurve(spectrum, a, b, D, progress) {
     ctxCurve.stroke();
   }
 
-  // Axe
   ctxCurve.strokeStyle = 'rgba(255,255,255,0.5)';
   ctxCurve.lineWidth = 1;
   ctxCurve.beginPath();
@@ -978,12 +1074,10 @@ function drawCurve(spectrum, a, b, D, progress) {
   const xMin = -progScreen * W/2;
   const xMax =  progScreen * W/2;
 
-  // Composantes
   if (spectrum.length > 3) {
     const samples = [];
     for (let k = 0; k < 7; k++) {
-      const idx = Math.floor(k / 7 * spectrum.length);
-      samples.push(spectrum[idx]);
+      samples.push(spectrum[Math.floor(k / 7 * spectrum.length)]);
     }
     samples.forEach(({ wl }) => {
       const lam = wl * 1e-9;
@@ -1012,7 +1106,6 @@ function drawCurve(spectrum, a, b, D, progress) {
     });
   }
 
-  // Total
   const [rAvg, gAvg, bAvg] = getAverageColor(spectrum);
   ctxCurve.beginPath();
   ctxCurve.strokeStyle = `rgb(${rAvg},${gAvg},${bAvg})`;
@@ -1034,75 +1127,61 @@ function drawCurve(spectrum, a, b, D, progress) {
   ctxCurve.shadowBlur = 0;
 }
 
-// ============================================================
-//  ENCADRÉ PÉDAGOGIQUE
-// ============================================================
 function updateSummaryBox() {
   const a = parseFloat(inputs.a.value);
   const b = parseFloat(inputs.b.value);
   const D = parseFloat(inputs.D.value);
-
   let items = [];
 
   switch (currentSource) {
     case 'mono':
       items = [
-        `Source <b>monochromatique</b> : une seule longueur d'onde λ = ${inputs.lambda.value} nm.`,
+        `Source <b>monochromatique</b> : λ = ${inputs.lambda.value} nm.`,
         `Interfrange : <span class="formula">i = λD / a</span> = ${(parseFloat(inputs.lambda.value)*1e-9*D/(a*1e-3)*1e3).toFixed(3)} mm.`,
-        `La figure présente des franges <b>alternativement claires et sombres</b>, régulières.`,
-        `Quand λ <b>augmente</b>, l'interfrange <b>augmente</b> (franges plus espacées).`,
-        `Quand <b>a augmente</b>, l'interfrange <b>diminue</b> (franges plus serrées).`
+        `Franges <b>régulières</b> alternativement claires et sombres.`,
+        `λ ↑ → interfrange ↑ ; a ↑ → interfrange ↓.`
       ];
       break;
     case 'white':
       items = [
-        `<b>Lumière blanche</b> : superposition de toutes les longueurs d'onde du spectre visible.`,
-        `Au centre : <b>frange blanche</b> (toutes les λ sont en phase).`,
-        `Sur les côtés : franges <b>irisées</b> (décomposition chromatique).`,
-        `L'interfrange dépend de λ : <span class="formula">i = λD / a</span> — chaque couleur a ses propres franges.`,
-        `C'est la preuve historique de la <b>nature ondulatoire</b> de la lumière.`
+        `<b>Lumière blanche</b> = superposition de toutes les λ visibles.`,
+        `Centre : <b>frange blanche</b> (toutes les λ en phase).`,
+        `Côtés : franges <b>irisées</b> — décomposition chromatique.`,
+        `<span class="formula">i = λD / a</span> : chaque couleur a ses propres franges.`,
+        `Preuve historique de la nature ondulatoire (Young, 1801).`
       ];
       break;
     case 'sodium':
       items = [
-        `Lampe à vapeur de <b>sodium</b> : émission quasi-monochromatique à 589 nm.`,
-        `Franges <b>jaunes</b> très contrastées, régulières.`,
-        `Utilisée historiquement par Young car <b>très cohérente</b>.`,
-        `Interfrange : <span class="formula">i = λD / a</span>.`
+        `Lampe <b>sodium</b> : émission à 589 nm.`,
+        `Franges <b>jaunes</b> très contrastées.`,
+        `Source quasi-monochromatique, très cohérente.`
       ];
       break;
     case 'mercury':
       items = [
-        `Lampe à vapeur de <b>mercure</b> : émission de plusieurs raies (violet, bleu, vert, jaune).`,
-        `Chaque raie crée son <b>propre système de franges</b>.`,
-        `La superposition donne des franges <b>moins contrastées</b> que le sodium.`,
-        `On distingue parfois des <b>franges colorées</b> selon la raie dominante.`
+        `Lampe <b>mercure</b> : plusieurs raies (violet, bleu, vert, jaune).`,
+        `Superposition de <b>plusieurs systèmes de franges</b>.`,
+        `Contraste réduit car les λ ne s'alignent pas.`
       ];
       break;
     case 'rgb':
       items = [
-        `Source <b>trichromatique</b> : trois longueurs d'onde (R, V, B).`,
-        `Superposition de <b>trois systèmes de franges</b> distincts.`,
-        `Au centre : les trois couleurs se superposent → frange <b>blanche</b>.`,
-        `Sur les bords : apparition de <b>franges colorées</b> par décalage des systèmes.`
+        `Source <b>trichromatique</b> (R, V, B).`,
+        `Superposition de <b>3 systèmes de franges</b>.`,
+        `Centre blanc, bords colorés.`
       ];
       break;
   }
-
-  items.push(`<i>Largeur de fente b = ${b.toFixed(2)} mm : module l'enveloppe de diffraction (sinc²).</i>`);
-
+  items.push(`<i>Largeur b = ${b.toFixed(2)} mm module l'enveloppe de diffraction.</i>`);
   summaryCont.innerHTML = items.map(i => `<li>${i}</li>`).join('');
 }
 
-// ============================================================
-//  RENDER
-// ============================================================
 function render(progress) {
   const a = parseFloat(inputs.a.value) * 1e-3;
   const b = parseFloat(inputs.b.value) * 1e-3;
   const D = parseFloat(inputs.D.value);
   const monoLambda = parseFloat(inputs.lambda.value);
-
   const spectrum = getSpectrum(currentSource, monoLambda);
 
   drawSetup(spectrum, a, b, D, progress);
@@ -1119,31 +1198,14 @@ function render(progress) {
   document.getElementById('nbFranges').textContent = isFinite(nbFranges) ? nbFranges : '∞';
 
   updateSummaryBox();
-
-  // URL
-  const params = new URLSearchParams({
-    src: currentSource,
-    a: inputs.a.value,
-    b: inputs.b.value,
-    D: inputs.D.value,
-    lam: inputs.lambda.value
-  });
-  history.replaceState(null, '', '?' + params.toString());
 }
 
-// ============================================================
-//  ANIMATION
-// ============================================================
 function startExperiment() {
   if (animationState.running) return;
-
-  // Cache l'encadré au démarrage
   summaryBox.classList.remove('visible');
-
   animationState.running = true;
   animationState.progress = 0;
   animationState.startTime = performance.now();
-
   startBtn.disabled = true;
   setControlsEnabled(false);
   statusEl.textContent = "💡 Propagation de la lumière en cours...";
@@ -1153,29 +1215,19 @@ function startExperiment() {
     const elapsed = now - animationState.startTime;
     const p = Math.min(1, elapsed / animationState.duration);
     animationState.progress = p;
-
     render(p);
-
-    if (p < 0.5) {
-      statusEl.textContent = "💡 La lumière se propage du laser vers les fentes...";
-    } else if (p < 1) {
-      statusEl.textContent = "🌊 La lumière traverse les fentes et se propage vers l'écran...";
-    } else {
-      statusEl.textContent = "✅ Figure d'interférence formée !";
-    }
-
-    if (p < 1) {
-      animationState.rafId = requestAnimationFrame(animate);
-    } else {
+    if (p < 0.5) statusEl.textContent = "💡 La lumière se propage du laser vers les fentes...";
+    else if (p < 1) statusEl.textContent = "🌊 La lumière traverse les fentes et se propage vers l'écran...";
+    else statusEl.textContent = "✅ Figure d'interférence formée !";
+    if (p < 1) animationState.rafId = requestAnimationFrame(animate);
+    else {
       animationState.running = false;
       startBtn.disabled = false;
       startBtn.innerHTML = '▶ Rejouer l\'expérience';
       setControlsEnabled(true);
-      // Affiche l'encadré pédagogique
       summaryBox.classList.add('visible');
     }
   }
-
   animationState.rafId = requestAnimationFrame(animate);
 }
 
@@ -1187,33 +1239,25 @@ function resetAll() {
   if (animationState.rafId) cancelAnimationFrame(animationState.rafId);
   animationState.running = false;
   animationState.progress = 0;
-
   inputs.lambda.value = 500;
   inputs.a.value = 0.5;
   inputs.b.value = 0.1;
   inputs.D.value = 1;
   updateLabels();
-
   setControlsEnabled(true);
   startBtn.disabled = false;
   startBtn.innerHTML = '▶ Démarrer l\'expérience';
-
   statusEl.textContent = "Cliquez sur « Démarrer l'expérience » pour voir la propagation de la lumière.";
   statusEl.classList.remove('active');
   summaryBox.classList.remove('visible');
-
   render(0);
 }
 
-// ============================================================
-//  SOURCE
-// ============================================================
-document.querySelectorAll('.source-btn').forEach(btn => {
+document.querySelectorAll('#sourcePicker .source-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.source-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#sourcePicker .source-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     currentSource = btn.dataset.source;
-
     if (currentSource === 'mono') {
       lambdaGroup.classList.remove('disabled');
       inputs.lambda.disabled = false;
@@ -1221,7 +1265,6 @@ document.querySelectorAll('.source-btn').forEach(btn => {
       lambdaGroup.classList.add('disabled');
       inputs.lambda.disabled = true;
     }
-
     if (!animationState.running) {
       animationState.progress = 1;
       render(1);
@@ -1231,19 +1274,454 @@ document.querySelectorAll('.source-btn').forEach(btn => {
   });
 });
 
-// ============================================================
-//  ÉCOUTEURS
-// ============================================================
 Object.values(inputs).forEach(input => {
   input.addEventListener('input', () => {
     updateLabels();
-    if (!animationState.running) {
-      render(animationState.progress);
+    if (!animationState.running) render(animationState.progress);
+  });
+});
+
+// ============================================================
+//  ============ PARTIE 2 : PRISME ============================
+// ============================================================
+const canvasPrism = document.getElementById('prismCanvas');
+const ctxPrism = canvasPrism.getContext('2d');
+
+const prismInputs = {
+  angle: document.getElementById('prismAngle'),
+  nR: document.getElementById('prismNR'),
+  nV: document.getElementById('prismNV'),
+  inc: document.getElementById('prismInc')
+};
+
+const prismStatusEl = document.getElementById('prismStatus');
+const prismStartBtn = document.getElementById('prismStartBtn');
+
+let currentPrismSource = 'white';
+let prismAnimation = {
+  running: false, progress: 0, startTime: 0, duration: 2500, rafId: null
+};
+
+// Indice du verre en fonction de λ (formule de Cauchy simplifiée)
+// n(λ) = A + B/λ² interpolée entre nR (rouge ~650nm) et nV (violet ~400nm)
+function getGlassIndex(wl, nR, nV) {
+  // λ en nm
+  const lR = 650, lV = 400;
+  // A + B/λ²  : résoudre avec n(650)=nR et n(400)=nV
+  const A = (nR * lR * lR - nV * lV * lV) / (lR * lR - lV * lV);
+  const B = (nR - nV) * lR * lR * lV * lV / (lV * lV - lR * lR);
+  return A + B / (wl * wl);
+}
+
+// Calcul de la trajectoire dans un prisme (loi de Snell-Descartes)
+// Renvoie { deviation, i2, r1, r2, valid }
+function computePrismPath(incidence_deg, apexAngle_deg, n) {
+  const i1 = incidence_deg * Math.PI / 180;
+  const A = apexAngle_deg * Math.PI / 180;
+  const sin_r1 = Math.sin(i1) / n;
+  if (sin_r1 > 1 || sin_r1 < -1) return { valid: false };
+  const r1 = Math.asin(sin_r1);
+  const r2 = A - r1;
+  const sin_i2 = n * Math.sin(r2);
+  if (sin_i2 > 1 || sin_i2 < -1) return { valid: false };
+  const i2 = Math.asin(sin_i2);
+  const deviation = (i1 + i2 - A) * 180 / Math.PI;
+  return { valid: true, deviation, i1_deg: incidence_deg, i2_deg: i2 * 180/Math.PI, r1_deg: r1 * 180/Math.PI, r2_deg: r2 * 180/Math.PI };
+}
+
+function drawPrism(progress) {
+  const W = canvasPrism.width, H = canvasPrism.height;
+  ctxPrism.clearRect(0, 0, W, H);
+  ctxPrism.fillStyle = '#0a0a1a';
+  ctxPrism.fillRect(0, 0, W, H);
+
+  const A_deg = parseFloat(prismInputs.angle.value);
+  const nR = parseFloat(prismInputs.nR.value);
+  const nV = parseFloat(prismInputs.nV.value);
+  const inc = parseFloat(prismInputs.inc.value);
+
+  // Position du prisme (centre)
+  const cx = W / 2;
+  const cy = H / 2 + 20;
+  const size = 160;
+  const A = A_deg * Math.PI / 180;
+
+  // Sommet haut, sommet gauche, sommet droit du triangle
+  // On oriente le prisme "pointe en haut" : apex en haut au centre
+  // Bissectrice verticale
+  const apexX = cx;
+  const apexY = cy - size * 0.75;
+  
+  // Les 2 autres sommets à la base
+  const halfBase = size * Math.sin(A / 2) * 1.6;
+  const baseY = cy + size * 0.75;
+  const leftX = cx - halfBase;
+  const rightX = cx + halfBase;
+
+  // ----- SOURCE DE LUMIÈRE -----
+  const sourceX = 60;
+  const sourceY = cy;
+  const beamLength = 120;
+
+  // Couleur de la source
+  let srcColor = [255, 255, 255];
+  if (currentPrismSource === 'red') srcColor = [255, 40, 40];
+  else if (currentPrismSource === 'green') srcColor = [40, 255, 40];
+  else if (currentPrismSource === 'blue') srcColor = [40, 100, 255];
+
+  // Rayon incident : depuis (sourceX, sourceY) vers le point d'entrée sur le prisme
+  // Point d'entrée : sur la face gauche (entre apex et leftX,leftY)
+  // On place le point d'incidence sur la face gauche du prisme, à 60% de la hauteur
+  const tEntry = 0.55;
+  const entryX = apexX + (leftX - apexX) * tEntry;
+  const entryY = apexY + (baseY - apexY) * tEntry;
+
+  // ====== ÉTAPE 1 : Rayon incident ======
+  const progInc = Math.min(1, progress / 0.35);
+  const srcX = sourceX;
+  const srcY = sourceY;
+  const endX = srcX + (entryX - srcX) * progInc;
+  const endY = srcY + (entryY - srcY) * progInc;
+
+  // Dessin du rayon incident
+  const gradIn = ctxPrism.createLinearGradient(srcX, srcY, entryX, entryY);
+  gradIn.addColorStop(0, `rgba(${srcColor[0]},${srcColor[1]},${srcColor[2]},0.3)`);
+  gradIn.addColorStop(1, `rgba(${srcColor[0]},${srcColor[1]},${srcColor[2]},1)`);
+  ctxPrism.strokeStyle = gradIn;
+  ctxPrism.lineWidth = 3;
+  ctxPrism.shadowColor = `rgb(${srcColor[0]},${srcColor[1]},${srcColor[2]})`;
+  ctxPrism.shadowBlur = 10;
+  ctxPrism.beginPath();
+  ctxPrism.moveTo(srcX, srcY);
+  ctxPrism.lineTo(endX, endY);
+  ctxPrism.stroke();
+  ctxPrism.shadowBlur = 0;
+
+  // Boîtier source
+  ctxPrism.fillStyle = '#2a2a3e';
+  ctxPrism.strokeStyle = '#4fc3f7';
+  ctxPrism.lineWidth = 2;
+  ctxPrism.beginPath();
+  ctxPrism.roundRect(srcX - 45, srcY - 22, 90, 44, 8);
+  ctxPrism.fill();
+  ctxPrism.stroke();
+  
+  // Voyant coloré
+  ctxPrism.fillStyle = `rgb(${srcColor[0]},${srcColor[1]},${srcColor[2]})`;
+  ctxPrism.beginPath();
+  ctxPrism.arc(srcX + 30, srcY, 6, 0, Math.PI * 2);
+  ctxPrism.fill();
+
+  ctxPrism.fillStyle = '#4fc3f7';
+  ctxPrism.font = 'bold 13px monospace';
+  ctxPrism.textAlign = 'center';
+  ctxPrism.fillText('SOURCE', srcX, srcY + 50);
+  ctxPrism.fillStyle = '#aaa';
+  ctxPrism.font = '11px monospace';
+  const srcLabel = currentPrismSource === 'white' ? 'Lumière blanche' :
+                   currentPrismSource === 'red' ? '650 nm' :
+                   currentPrismSource === 'green' ? '532 nm' : '450 nm';
+  ctxPrism.fillText(srcLabel, srcX, srcY + 66);
+
+  // ====== ÉTAPE 2 : Prisme ======
+  // Dessin du prisme (verre bleuté translucide)
+  ctxPrism.fillStyle = 'rgba(100,180,255,0.12)';
+  ctxPrism.strokeStyle = '#4fc3f7';
+  ctxPrism.lineWidth = 2.5;
+  ctxPrism.beginPath();
+  ctxPrism.moveTo(apexX, apexY);
+  ctxPrism.lineTo(leftX, baseY);
+  ctxPrism.lineTo(rightX, baseY);
+  ctxPrism.closePath();
+  ctxPrism.fill();
+  ctxPrism.stroke();
+
+  // Reflet intérieur
+  ctxPrism.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctxPrism.lineWidth = 1;
+  ctxPrism.beginPath();
+  ctxPrism.moveTo(apexX, apexY);
+  ctxPrism.lineTo(apexX, baseY);
+  ctxPrism.stroke();
+
+  // Étiquette "PRISME"
+  ctxPrism.fillStyle = '#4fc3f7';
+  ctxPrism.font = 'bold 13px monospace';
+  ctxPrism.textAlign = 'center';
+  ctxPrism.fillText('PRISME', cx, apexY - 15);
+
+  // Cote angle au sommet
+  ctxPrism.strokeStyle = '#ffd54f';
+  ctxPrism.lineWidth = 1.5;
+  ctxPrism.beginPath();
+  ctxPrism.arc(apexX, apexY, 32, Math.PI/2 - A/2, Math.PI/2 + A/2);
+  ctxPrism.stroke();
+  ctxPrism.fillStyle = '#ffd54f';
+  ctxPrism.font = 'bold 13px monospace';
+  ctxPrism.fillText(`A = ${A_deg}°`, cx, apexY + 42);
+
+  // ====== ÉTAPE 3 : Traversée du prisme + dispersion ======
+  // Détermine les λ à tracer
+  let wavelengths = [];
+  if (currentPrismSource === 'white') {
+    for (let wl = 400; wl <= 680; wl += 20) wavelengths.push(wl);
+  } else if (currentPrismSource === 'red') {
+    wavelengths = [650];
+  } else if (currentPrismSource === 'green') {
+    wavelengths = [532];
+  } else if (currentPrismSource === 'blue') {
+    wavelengths = [450];
+  }
+
+  // Calcul de la trajectoire de chaque λ
+  const rayons = wavelengths.map(wl => {
+    const n = getGlassIndex(wl, nR, nV);
+    const path = computePrismPath(inc, A_deg, n);
+    return { wl, n, path };
+  });
+
+  // ----- ÉTAPE 3a : rayon dans le prisme -----
+  // Facteur de progression 0.35 → 0.65
+  const progIn = Math.max(0, Math.min(1, (progress - 0.35) / 0.30));
+  const progOut = Math.max(0, Math.min(1, (progress - 0.65) / 0.35));
+
+  // Point d'incidence : on suppose que le rayon arrive sur la face gauche
+  // Normale à la face gauche (angle / verticale)
+  const faceLeftAngle = Math.atan2(baseY - apexY, leftX - apexX); // pente de la face gauche
+  const normalLeftAngle = faceLeftAngle - Math.PI / 2; // normale à la face gauche
+
+  // Le rayon incident est horizontal (venant de la gauche)
+  // On calcule l'angle d'incidence réel (par rapport à la normale)
+  const incidentAngle = 0; // horizontal
+  const i1 = incidentAngle - normalLeftAngle;
+
+  // Simplification : on utilise une approche "graphique" basée sur la déviation
+  // Pour chaque λ, on trace un rayon intérieur puis un rayon émergent avec la bonne déviation
+
+  wavelengths.forEach((wl, idx) => {
+    const { n, path } = rayons[idx];
+    if (!path.valid) return;
+
+    const [rr, gg, bb] = wavelengthToRGB(wl);
+    const isWhite = currentPrismSource === 'white';
+
+    // ----- Rayon INTÉRIEUR -----
+    // Point d'entrée : léger décalage selon λ
+    const entryOffset = isWhite ? (1 - (wl - 400) / 300) * 8 : 0;
+    const eX = entryX + entryOffset * Math.cos(faceLeftAngle);
+    const eY = entryY + entryOffset * Math.sin(faceLeftAngle);
+
+    // Point de sortie : sur la face droite
+    const tExit = 0.55 + (isWhite ? ((650 - wl) / 500) * 0.1 : 0);
+    const exitX = apexX + (rightX - apexX) * tExit;
+    const exitY = apexY + (baseY - apexY) * tExit;
+
+    if (progIn > 0) {
+      const tInt = progIn;
+      const midX = eX + (exitX - eX) * tInt;
+      const midY = eY + (exitY - eY) * tInt;
+
+      ctxPrism.strokeStyle = `rgba(${rr},${gg},${bb},${isWhite ? 0.85 : 1})`;
+      ctxPrism.lineWidth = isWhite ? 2 : 3;
+      if (!isWhite) {
+        ctxPrism.shadowColor = `rgb(${rr},${gg},${bb})`;
+        ctxPrism.shadowBlur = 12;
+      }
+      ctxPrism.beginPath();
+      ctxPrism.moveTo(eX, eY);
+      ctxPrism.lineTo(midX, midY);
+      ctxPrism.stroke();
+      if (!isWhite) ctxPrism.shadowBlur = 0;
+    }
+
+    // ----- Rayon ÉMERGENT (dévié) -----
+    if (progOut > 0) {
+      // Angle d'émergence : -deviation par rapport à l'horizontale
+      // (le rayon est dévié vers le bas)
+      const devRad = path.deviation * Math.PI / 180;
+      const finalLength = 380;
+      const endOutX = exitX + finalLength * Math.cos(devRad);
+      const endOutY = exitY + finalLength * Math.sin(devRad);
+
+      const midOutX = exitX + (endOutX - exitX) * progOut;
+      const midOutY = exitY + (endOutY - exitY) * progOut;
+
+      // Gradient
+      ctxPrism.strokeStyle = `rgba(${rr},${gg},${bb},${isWhite ? 0.85 : 1})`;
+      ctxPrism.lineWidth = isWhite ? 2.5 : 3.5;
+      if (!isWhite) {
+        ctxPrism.shadowColor = `rgb(${rr},${gg},${bb})`;
+        ctxPrism.shadowBlur = 14;
+      }
+      ctxPrism.beginPath();
+      ctxPrism.moveTo(exitX, exitY);
+      ctxPrism.lineTo(midOutX, midOutY);
+      ctxPrism.stroke();
+      if (!isWhite) ctxPrism.shadowBlur = 0;
+    }
+  });
+
+  // ====== ÉTAPE 4 : Écran ======
+  // Écran vertical à droite
+  const screenX = W - 60;
+  ctxPrism.fillStyle = '#1a1a2e';
+  ctxPrism.strokeStyle = '#4fc3f7';
+  ctxPrism.lineWidth = 2;
+  ctxPrism.fillRect(screenX, 20, 20, H - 40);
+  ctxPrism.strokeRect(screenX, 20, 20, H - 40);
+
+  // Taches colorées sur l'écran (à la fin)
+  if (progress >= 0.95 && currentPrismSource === 'white') {
+    // Calcul de la position de chaque λ sur l'écran
+    wavelengths.forEach((wl, idx) => {
+      const { path } = rayons[idx];
+      if (!path.valid) return;
+      const [rr, gg, bb] = wavelengthToRGB(wl);
+      const devRad = path.deviation * Math.PI / 180;
+      const tExit = 0.55 + ((650 - wl) / 500) * 0.1;
+      const exitX = apexX + (rightX - apexX) * tExit;
+      const exitY = apexY + (baseY - apexY) * tExit;
+      const finalLength = 380;
+      const endOutX = exitX + finalLength * Math.cos(devRad);
+      // Position Y sur l'écran au niveau screenX
+      const tToScreen = (screenX - exitX) / (endOutX - exitX);
+      const yOnScreen = exitY + (finalLength * Math.sin(devRad)) * tToScreen;
+      
+      // Tache lumineuse
+      const gradient = ctxPrism.createRadialGradient(screenX + 10, yOnScreen, 2, screenX + 10, yOnScreen, 15);
+      gradient.addColorStop(0, `rgba(${rr},${gg},${bb},0.9)`);
+      gradient.addColorStop(1, `rgba(${rr},${gg},${bb},0)`);
+      ctxPrism.fillStyle = gradient;
+      ctxPrism.beginPath();
+      ctxPrism.arc(screenX + 10, yOnScreen, 15, 0, Math.PI * 2);
+      ctxPrism.fill();
+    });
+  }
+
+  ctxPrism.fillStyle = '#4fc3f7';
+  ctxPrism.font = 'bold 13px monospace';
+  ctxPrism.textAlign = 'center';
+  ctxPrism.fillText('ÉCRAN', screenX + 10, 15);
+
+  // ====== ÉTAPE 5 : Normale et angle incident ======
+  if (progress > 0.2) {
+    // Normale à la face gauche au point d'entrée
+    ctxPrism.strokeStyle = 'rgba(255,255,255,0.4)';
+    ctxPrism.setLineDash([4, 4]);
+    ctxPrism.lineWidth = 1;
+    ctxPrism.beginPath();
+    ctxPrism.moveTo(entryX - 40 * Math.cos(normalLeftAngle), entryY - 40 * Math.sin(normalLeftAngle));
+    ctxPrism.lineTo(entryX + 40 * Math.cos(normalLeftAngle), entryY + 40 * Math.sin(normalLeftAngle));
+    ctxPrism.stroke();
+    ctxPrism.setLineDash([]);
+  }
+
+  // ====== ÉTAPE 6 : Légende rayons incidents ======
+  ctxPrism.fillStyle = '#4fc3f7';
+  ctxPrism.font = '11px monospace';
+  ctxPrism.textAlign = 'left';
+  ctxPrism.fillText('Rayon incident', srcX - 40, srcY + 90);
+  ctxPrism.fillText('i₁ = ' + inc + '°', srcX - 40, srcY + 105);
+}
+
+function updatePrismInfo() {
+  const A_deg = parseFloat(prismInputs.angle.value);
+  const nR = parseFloat(prismInputs.nR.value);
+  const nV = parseFloat(prismInputs.nV.value);
+  const inc = parseFloat(prismInputs.inc.value);
+
+  const pathR = computePrismPath(inc, A_deg, nR);
+  const pathV = computePrismPath(inc, A_deg, nV);
+
+  document.getElementById('devR').textContent = pathR.valid ? pathR.deviation.toFixed(2) + '°' : '—';
+  document.getElementById('devV').textContent = pathV.valid ? pathV.deviation.toFixed(2) + '°' : '—';
+  if (pathR.valid && pathV.valid) {
+    document.getElementById('disp').textContent = (pathV.deviation - pathR.deviation).toFixed(2) + '°';
+  } else {
+    document.getElementById('disp').textContent = '—';
+  }
+}
+
+function updatePrismLabels() {
+  document.getElementById('angleVal').textContent = prismInputs.angle.value + '°';
+  document.getElementById('nRVal').textContent = parseFloat(prismInputs.nR.value).toFixed(3);
+  document.getElementById('nVVal').textContent = parseFloat(prismInputs.nV.value).toFixed(3);
+  document.getElementById('incVal').textContent = prismInputs.inc.value + '°';
+}
+
+function startPrismExperiment() {
+  if (prismAnimation.running) return;
+  prismAnimation.running = true;
+  prismAnimation.progress = 0;
+  prismAnimation.startTime = performance.now();
+  prismStartBtn.disabled = true;
+  Object.values(prismInputs).forEach(i => i.disabled = true);
+  prismStatusEl.classList.add('active');
+
+  function animate(now) {
+    const elapsed = now - prismAnimation.startTime;
+    const p = Math.min(1, elapsed / prismAnimation.duration);
+    prismAnimation.progress = p;
+    drawPrism(p);
+
+    if (p < 0.35) prismStatusEl.textContent = "💡 Le rayon lumineux se propage vers le prisme...";
+    else if (p < 0.65) prismStatusEl.textContent = "🔺 Le rayon pénètre dans le prisme et se réfracte...";
+    else if (p < 0.95) prismStatusEl.textContent = "🌈 La lumière émerge et se décompose !";
+    else prismStatusEl.textContent = "✅ Spectre obtenu sur l'écran !";
+
+    if (p < 1) prismAnimation.rafId = requestAnimationFrame(animate);
+    else {
+      prismAnimation.running = false;
+      prismStartBtn.disabled = false;
+      prismStartBtn.innerHTML = '▶ Rejouer l\'expérience';
+      Object.values(prismInputs).forEach(i => i.disabled = false);
+    }
+  }
+  prismAnimation.rafId = requestAnimationFrame(animate);
+}
+
+function resetPrism() {
+  if (prismAnimation.rafId) cancelAnimationFrame(prismAnimation.rafId);
+  prismAnimation.running = false;
+  prismAnimation.progress = 0;
+  prismInputs.angle.value = 60;
+  prismInputs.nR.value = 1.51;
+  prismInputs.nV.value = 1.53;
+  prismInputs.inc.value = 45;
+  updatePrismLabels();
+  updatePrismInfo();
+  Object.values(prismInputs).forEach(i => i.disabled = false);
+  prismStartBtn.disabled = false;
+  prismStartBtn.innerHTML = '▶ Démarrer l\'expérience';
+  prismStatusEl.textContent = "Cliquez sur « Démarrer l'expérience » pour voir la décomposition de la lumière.";
+  prismStatusEl.classList.remove('active');
+  drawPrism(0);
+}
+
+document.querySelectorAll('#prismSourcePicker .source-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#prismSourcePicker .source-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentPrismSource = btn.dataset.psource;
+    if (!prismAnimation.running) {
+      prismAnimation.progress = 1;
+      drawPrism(1);
+      prismStartBtn.innerHTML = '▶ Rejouer l\'expérience';
     }
   });
 });
 
-// Polyfill roundRect
+Object.values(prismInputs).forEach(input => {
+  input.addEventListener('input', () => {
+    updatePrismLabels();
+    updatePrismInfo();
+    if (!prismAnimation.running) drawPrism(prismAnimation.progress);
+  });
+});
+
+// ============================================================
+//  POLYFILL + INIT
+// ============================================================
 if (!CanvasRenderingContext2D.prototype.roundRect) {
   CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
     if (w < 2 * r) r = w / 2;
@@ -1259,37 +1737,13 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
   };
 }
 
-// ============================================================
-//  LECTURE URL + INIT
-// ============================================================
-function loadFromURL() {
-  const p = new URLSearchParams(location.search);
-  if (!p.has('src')) return;
+window.addEventListener('load', () => document.body.classList.add('loaded'));
 
-  const src = p.get('src');
-  if (['mono','white','sodium','mercury','rgb'].includes(src)) {
-    document.querySelectorAll('.source-btn').forEach(b => {
-      b.classList.toggle('active', b.dataset.source === src);
-    });
-    currentSource = src;
-    if (src !== 'mono') {
-      lambdaGroup.classList.add('disabled');
-      inputs.lambda.disabled = true;
-    }
-  }
-  if (p.has('a'))   inputs.a.value = p.get('a');
-  if (p.has('b'))   inputs.b.value = p.get('b');
-  if (p.has('D'))   inputs.D.value = p.get('D');
-  if (p.has('lam')) inputs.lambda.value = p.get('lam');
-  updateLabels();
-}
-
-window.addEventListener('load', () => {
-  document.body.classList.add('loaded');
-});
-
-loadFromURL();
+updateLabels();
+updatePrismLabels();
+updatePrismInfo();
 render(0);
+drawPrism(0);
 </script>
 
 </body>
