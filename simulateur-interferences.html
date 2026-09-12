@@ -66,7 +66,7 @@
   .exp-header h2 { font-family: var(--serif); font-size: 22px; color: var(--ink); margin-bottom: 6px; }
   .exp-header p { font-size: 14px; color: var(--slate); }
 
-  .sim-grid { display: grid; grid-template-columns: 360px 1fr; gap: 20px; align-items: start; }
+  .sim-grid { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
   @media (max-width: 1000px) { .sim-grid { grid-template-columns: 1fr; } }
 
   .control-panel { background: #fafafa; border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
@@ -95,44 +95,32 @@
   .visualization { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; }
   .visualization h4 { font-family: var(--serif); font-size: 14px; color: var(--ink); margin-bottom: 15px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
 
-  .schema-container { background: linear-gradient(180deg, #fafafa 0%, #f0f0f0 100%); border-radius: 8px; padding: 15px; margin-bottom: 15px; position: relative; overflow: hidden; }
-  .schema-svg { width: 100%; max-width: 100%; height: auto; display: block; }
+  .schema-wrap { background: #fafafa; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-bottom: 15px; }
+  #schema-svg { display: block; width: 100%; height: auto; }
 
-  /* Calque "Démarrer" avec couleur dynamique */
-  .start-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; border-radius: 8px; z-index: 10; transition: background 0.4s; background: rgba(217, 83, 79, 0.75); }
-  .start-overlay.hidden { display: none; }
-  .start-overlay button { background: rgba(255,255,255,0.95); color: var(--ink); border: none; padding: 18px 40px; border-radius: 50px; font-size: 18px; font-weight: 700; cursor: pointer; font-family: var(--sans); box-shadow: 0 8px 25px rgba(0,0,0,0.3); transition: all 0.3s; }
-  .start-overlay button:hover { transform: scale(1.05); background: #fff; }
-  .start-overlay p { color: #fff; font-size: 13px; margin-top: 15px; opacity: 0.95; text-shadow: 0 2px 4px rgba(0,0,0,0.4); font-weight: 600; }
-
-  .screen-canvas-wrap { position: relative; height: 300px; background: #000; border: 3px solid #333; border-radius: 6px; overflow: hidden; cursor: crosshair; }
-  .screen-canvas-wrap canvas { display: block; width: 100% !important; height: 300px !important; }
-  .screen-axis { display: flex; justify-content: space-between; font-size: 11px; color: var(--slate); padding: 4px 8px; font-family: monospace; }
+  .legend-inline { display: flex; gap: 15px; justify-content: center; margin-top: 8px; font-size: 11px; color: var(--slate); flex-wrap: wrap; }
+  .legend-inline-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .legend-line { width: 20px; height: 3px; }
 
   .chart-wrap { position: relative; height: 240px; margin-top: 15px; }
-
   .results-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 15px; }
   .results-table th { background: var(--paper); padding: 8px; text-align: left; color: var(--ink); font-weight: 700; border-bottom: 2px solid var(--line); font-size: 11px; }
   .results-table td { padding: 6px 8px; border-bottom: 1px solid var(--line); font-family: monospace; font-size: 12px; }
   .results-table td:first-child { font-weight: 700; color: var(--ink); font-family: var(--sans); }
-  .results-table tr.maxima { background: #fff8e1; }
-  .results-table tr.minima { background: #f0f7ff; }
 
   .info-panel { background: #eef4ff; border-left: 4px solid var(--info); padding: 12px 15px; border-radius: 6px; margin-top: 15px; font-size: 13px; }
   .info-panel .ligne { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed rgba(0,0,0,0.05); }
   .info-panel .ligne:last-child { border-bottom: none; }
   .info-panel .ligne strong { color: var(--ink); }
 
-  .mesure-zone { display: none; }
-  .mesure-zone.active { display: block; }
-  .mesure-info { background: #fff8e1; border-left: 4px solid var(--warning); padding: 12px 15px; border-radius: 6px; margin-top: 15px; font-size: 13px; }
-  .mesure-info strong { color: var(--ink); }
-  .mesure-info code { background: rgba(0,0,0,0.08); padding: 2px 6px; border-radius: 3px; font-family: monospace; }
-
   .explication { background: #f0f7ff; border-left: 4px solid var(--info); padding: 15px; border-radius: 6px; margin-top: 15px; font-size: 13px; line-height: 1.6; }
   .explication h5 { font-family: var(--serif); font-size: 14px; color: var(--ink); margin-bottom: 8px; }
   .explication code { background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 12px; }
   .explication p { margin-bottom: 8px; }
+
+  .note { font-size: 12px; color: var(--slate); text-align: center; margin-top: 10px; font-style: italic; }
+  .note strong { color: var(--danger); }
 
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
 </style>
@@ -170,601 +158,142 @@
 
 <section class="hero">
   <div class="wrap">
-    <h1>🔬 Interférences & Diffraction lumineuses</h1>
-    <p>Simulateur conforme au programme de Terminale S — Lycée Franco Arabe de Keur Madiabel</p>
+    <h1>🌈 Expérience des fentes d'Young</h1>
+    <p>Simulateur pédagogique conforme au programme de Terminale S — Lycée Franco Arabe de Keur Madiabel</p>
   </div>
 </section>
 
 <div class="wrap">
 
   <div class="exp-tabs">
-    <button class="exp-tab active" data-exp="diffraction">🌊 Diffraction par une fente</button>
-    <button class="exp-tab" data-exp="young">🌈 Fentes d'Young</button>
-    <button class="exp-tab" data-exp="young-source">🎯 Young avec fente source</button>
+    <button class="exp-tab active" data-exp="young">🌈 Schéma pédagogique</button>
   </div>
 
-  <!-- =====================================================
-       EXPÉRIENCE 1 : DIFFRACTION
-       ===================================================== -->
-  <div class="exp-panel active" data-panel="diffraction">
+  <div class="exp-panel active" data-panel="young">
     <div class="exp-header">
-      <h2>🌊 Diffraction par une fente simple</h2>
-      <p>Un faisceau laser traverse une fente fine de largeur <strong>a</strong>. Sur l'écran, on observe une tache centrale large et des taches latérales plus fines et moins lumineuses.</p>
+      <h2>🎯 Expérience des fentes d'Young</h2>
+      <p>Un faisceau laser éclaire une plaque opaque percée de deux fentes très fines S₁ et S₂. Les deux ondes issues de ces fentes se superposent dans la zone d'interférence et créent des franges brillantes et sombres régulières sur l'écran.</p>
     </div>
 
     <div class="sim-grid">
       <div class="control-panel">
         <h4>⚙️ Paramètres</h4>
 
-        <div class="radio-group">
-          <input type="radio" name="type-lumiere-diff" id="radio-mono-diff" value="mono" checked>
-          <label for="radio-mono-diff">🔴 Monochromatique</label>
-          <input type="radio" name="type-lumiere-diff" id="radio-poly-diff" value="poly">
-          <label for="radio-poly-diff">🌈 Polychromatique</label>
-        </div>
-
-        <div class="field" id="field-preset-diff">
-          <label>Source lumineuse</label>
-          <select id="preset-source-diff">
-            <option value="632.8">Laser He-Ne (632,8 nm) — Rouge</option>
-            <option value="650">Laser rouge (650 nm)</option>
-            <option value="543.5">Laser vert (543,5 nm)</option>
-            <option value="532">Laser vert Nd:YAG (532 nm)</option>
-            <option value="473">Laser bleu (473 nm)</option>
-            <option value="405">Laser violet (405 nm)</option>
-            <option value="custom">Personnalisé...</option>
-          </select>
-        </div>
-
-        <div class="field" id="field-lambda-diff">
-          <label>Longueur d'onde λ <span class="value-display" id="lambda-value-diff">632,8 nm</span></label>
-          <input type="range" id="lambda-slider-diff" min="400" max="700" step="0.1" value="632.8">
+        <div class="field">
+          <label>Longueur d'onde λ <span class="value-display" id="lambda-value">632,8 nm</span></label>
+          <input type="range" id="lambda-slider" min="400" max="700" step="0.1" value="632.8">
         </div>
 
         <div class="field">
-          <label>Largeur de la fente a <span class="value-display" id="a-value-diff">0,10 mm</span></label>
-          <input type="range" id="a-slider-diff" min="0.02" max="0.5" step="0.01" value="0.1">
+          <label>Séparation des fentes a (exagérée) <span class="value-display" id="a-value">120 px</span></label>
+          <input type="range" id="a-slider" min="60" max="180" step="1" value="120">
         </div>
 
         <div class="field">
-          <label>Distance fente → écran D <span class="value-display" id="D-value-diff">2,00 m</span></label>
-          <input type="range" id="D-slider-diff" min="0.5" max="5" step="0.1" value="2">
-        </div>
-
-        <h4 style="margin-top: 20px;">📐 Résultats calculés</h4>
-
-        <div class="info-panel">
-          <div class="ligne"><span>Largeur tache centrale</span> <strong id="info-largeur-diff">—</strong></div>
-          <div class="ligne"><span>Demi-angle θ = λ/a</span> <strong id="info-theta-diff">—</strong></div>
-          <div class="ligne"><span>Fréquence ν = c/λ</span> <strong id="info-frequence-diff">—</strong></div>
-          <div class="ligne"><span>Énergie photon</span> <strong id="info-energie-diff">—</strong></div>
+          <label>Nombre d'arcs <span class="value-display" id="nb-value">6</span></label>
+          <input type="range" id="nb-slider" min="3" max="8" step="1" value="6">
         </div>
 
         <h4 style="margin-top: 20px;">🛠️ Actions</h4>
+        <button class="btn-success" id="btn-start">▶ Démarrer</button>
+        <button class="btn-secondary" id="btn-stop" disabled>⏸ Arrêter</button>
+        <button class="btn-secondary" id="btn-reset">🔄 Réinitialiser</button>
 
-        <button class="btn-success" id="btn-start-diff">▶ Démarrer l'expérience</button>
-        <button class="btn-secondary" id="btn-mesure-diff" disabled>📏 Mode Mesure</button>
-        <button class="btn-secondary" id="btn-reset-diff">🔄 Réinitialiser</button>
-
-        <div class="mesure-zone" id="mesure-zone-diff">
-          <div class="mesure-info">
-            <strong>🎯 Mode Mesure activé</strong><br>
-            Cliquez sur l'écran pour lire la position <code>x</code>.
-            <div style="margin-top: 8px;">
-              x = <code id="mesure-x-diff">—</code> mm<br>
-              Type : <code id="mesure-type-diff">—</code>
-            </div>
-          </div>
-        </div>
-
+        <h4 style="margin-top: 20px;">📐 Formules</h4>
         <div class="explication">
-          <h5>📚 Formules — Diffraction</h5>
-          <p><strong>Demi-angle de diffraction :</strong><br><code>θ = λ / a</code></p>
-          <p><strong>Largeur de la tache centrale :</strong><br><code>L = 2 · λ · D / a</code></p>
-          <p><strong>Position des minima :</strong><br><code>x_k = k · λ · D / a</code></p>
-          <p><strong>Intensité :</strong><br><code>I(x) = I₀ · sinc²(π·a·x / (λ·D))</code></p>
+          <h5>📚 Formules des fentes d'Young</h5>
+          <p><strong>Interfrange :</strong><br><code>i = λ · D / a</code></p>
+          <p><strong>Position des maxima :</strong><br><code>x_k = k · i</code></p>
+          <p><strong>Différence de marche :</strong><br><code>δ = a · x / D</code></p>
+          <p><strong>Condition constructive :</strong><br><code>δ = k · λ</code></p>
         </div>
       </div>
 
       <div class="visualization">
-        <h4>🔬 Dispositif expérimental (vue du dessus)</h4>
+        <h4>🔬 Dispositif expérimental — Vue de dessus</h4>
 
-        <div class="schema-container" style="position: relative;">
-          <div class="start-overlay" id="overlay-diff">
-            <button id="btn-start-overlay-diff">▶ Démarrer l'expérience</button>
-            <p>Cliquez pour lancer la simulation</p>
-          </div>
-
-          <svg class="schema-svg" viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg">
+        <div class="schema-wrap">
+          <svg id="schema-svg" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <linearGradient id="laser-beam-diff" x1="0%" x2="100%">
+              <!-- Clip strict à droite de la plaque : les arcs ne peuvent PAS repiquer à gauche -->
+              <clipPath id="right-clip">
+                <rect x="460" y="0" width="820" height="600"/>
+              </clipPath>
+              <linearGradient id="laser-grad" x1="0%" x2="100%">
                 <stop offset="0%" stop-color="#ff0000" stop-opacity="0.95"/>
                 <stop offset="100%" stop-color="#ff0000" stop-opacity="0.7"/>
               </linearGradient>
             </defs>
+
+            <!-- Fond -->
+            <rect x="0" y="0" width="1000" height="600" fill="#fafafa"/>
 
             <!-- Support optique -->
-            <line x1="20" y1="270" x2="880" y2="270" stroke="#333" stroke-width="3"/>
+            <line x1="20" y1="560" x2="980" y2="560" stroke="#333" stroke-width="3"/>
 
-            <!-- Laser -->
-            <rect x="30" y="130" width="80" height="28" fill="#222" stroke="#000" stroke-width="1.5" rx="4"/>
-            <rect x="110" y="138" width="12" height="12" fill="#333" rx="2"/>
-            <circle cx="116" cy="144" r="3" fill="#ff0000"/>
-            <text x="70" y="125" text-anchor="middle" font-size="12" font-weight="700" fill="#1B2A4A">LASER</text>
-            <text x="70" y="180" text-anchor="middle" font-size="10" fill="#5B6472" id="schema-lambda-diff">632,8 nm</text>
+            <!-- ============ LASER ============ -->
+            <rect x="30" y="280" width="100" height="40" fill="#222" stroke="#000" stroke-width="2" rx="5"/>
+            <rect x="130" y="292" width="20" height="16" fill="#333" rx="3"/>
+            <circle cx="140" cy="300" r="5" id="laser-dot" fill="#555"/>
+            <text x="80" y="270" text-anchor="middle" font-size="14" font-weight="700" fill="#1B2A4A">LASER</text>
+            <text x="80" y="345" text-anchor="middle" font-size="11" fill="#5B6472" id="schema-lambda">632,8 nm</text>
 
             <!-- Faisceau laser -->
-            <line x1="122" y1="144" x2="420" y2="144" stroke="url(#laser-beam-diff)" stroke-width="3"/>
+            <line x1="150" y1="300" x2="150" y2="300" stroke="url(#laser-grad)" stroke-width="6" id="laser-beam"/>
 
-            <!-- Fente simple -->
-            <rect x="420" y="40" width="12" height="90" fill="#333"/>
-            <rect x="420" y="158" width="12" height="90" fill="#333"/>
-            <text x="426" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="#1B2A4A">Fente simple</text>
-            <text x="426" y="135" text-anchor="middle" font-size="10" fill="#5B6472">a = <tspan id="schema-a-diff">0,10</tspan> mm</text>
+            <!-- ============ PLAQUE AVEC FENTES ============ -->
+            <rect x="450" y="0" width="20" height="238" fill="#2c2c2c"/>
+            <rect x="450" y="360" width="20" height="200" fill="#2c2c2c"/>
+            <text x="460" y="20" text-anchor="middle" font-size="13" font-weight="700" fill="#1B2A4A">Plaque opaque</text>
 
-            <!-- Arcs d'onde de diffraction -->
-            <g id="diff-arcs" style="display:none;">
-              <path d="M 432 144 Q 520 80 700 50" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
-              <path d="M 432 144 Q 540 90 720 70" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
-              <path d="M 432 144 Q 560 100 740 90" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
-              <path d="M 432 144 Q 580 115 760 115" stroke="#ff0000" stroke-opacity="0.6" stroke-width="2" fill="none"/>
-              <path d="M 432 144 Q 590 130 780 135" stroke="#ff0000" stroke-opacity="0.6" stroke-width="2" fill="none"/>
-              <path d="M 432 144 Q 600 144 800 144" stroke="#ff0000" stroke-opacity="0.8" stroke-width="2.5" fill="none"/>
-              <path d="M 432 144 Q 590 158 780 155" stroke="#ff0000" stroke-opacity="0.6" stroke-width="2" fill="none"/>
-              <path d="M 432 144 Q 580 173 760 175" stroke="#ff0000" stroke-opacity="0.6" stroke-width="2" fill="none"/>
-              <path d="M 432 144 Q 560 190 740 200" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
-              <path d="M 432 144 Q 540 200 720 220" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
-              <path d="M 432 144 Q 520 210 700 240" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
-            </g>
+            <!-- Fentes -->
+            <rect x="450" y="238" width="20" height="16" fill="#fafafa" stroke="#333" stroke-width="1.5"/>
+            <rect x="450" y="344" width="20" height="16" fill="#fafafa" stroke="#333" stroke-width="1.5"/>
 
-            <!-- Écran -->
-            <rect x="868" y="40" width="8" height="200" fill="#111"/>
-            <text x="872" y="32" text-anchor="middle" font-size="12" font-weight="700" fill="#1B2A4A">Écran</text>
+            <circle cx="460" cy="246" r="6" fill="#ff0000"/>
+            <circle cx="460" cy="352" r="6" fill="#ff0000"/>
+
+            <text x="430" y="252" text-anchor="end" font-size="16" font-weight="700" fill="#1B2A4A">S₁</text>
+            <text x="430" y="358" text-anchor="end" font-size="16" font-weight="700" fill="#1B2A4A">S₂</text>
+
+            <!-- Cote "a" -->
+            <line x1="410" y1="246" x2="410" y2="352" stroke="#1B2A4A" stroke-width="1.5"/>
+            <line x1="405" y1="246" x2="415" y2="246" stroke="#1B2A4A" stroke-width="1.5"/>
+            <line x1="405" y1="352" x2="415" y2="352" stroke="#1B2A4A" stroke-width="1.5"/>
+            <text x="400" y="305" text-anchor="end" font-size="14" font-weight="700" fill="#1B2A4A">a</text>
+
+            <!-- ============ ARCS D'ONDE ============ -->
+            <g id="arcs-group" clip-path="url(#right-clip)"></g>
+
+            <!-- ============ HYPERBOLES ============ -->
+            <g id="hyperboles-group" clip-path="url(#right-clip)"></g>
+
+            <!-- ============ ÉCRAN ============ -->
+            <rect x="900" y="40" width="15" height="500" fill="#111"/>
+            <text x="907" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="#1B2A4A">Écran</text>
+
+            <g id="screen-franges"></g>
 
             <!-- Distance D -->
-            <line x1="432" y1="285" x2="870" y2="285" stroke="#5B6472" stroke-width="1" stroke-dasharray="4,3"/>
-            <text x="650" y="282" text-anchor="middle" font-size="11" font-weight="700" fill="#5B6472">D = <tspan id="schema-D-diff">2,00</tspan> m</text>
+            <line x1="470" y1="575" x2="900" y2="575" stroke="#5B6472" stroke-width="1.5" stroke-dasharray="6,4"/>
+            <text x="685" y="570" text-anchor="middle" font-size="14" font-weight="700" fill="#5B6472">D</text>
+
+            <!-- Distance laser → plaque -->
+            <line x1="150" y1="540" x2="450" y2="540" stroke="#5B6472" stroke-width="1.5" stroke-dasharray="6,4"/>
+            <text x="300" y="535" text-anchor="middle" font-size="12" font-weight="700" fill="#5B6472">faisceau laser</text>
           </svg>
         </div>
 
-        <h4 style="margin-top: 15px;">📺 Écran d'observation</h4>
-        <div class="screen-canvas-wrap">
-          <canvas id="screen-canvas-diff"></canvas>
-        </div>
-        <div class="screen-axis">
-          <span>-15 mm</span>
-          <span>0</span>
-          <span>+15 mm</span>
+        <div class="legend-inline">
+          <span class="legend-inline-item"><span class="legend-dot" style="background:#ff0000;"></span> Fente S₁</span>
+          <span class="legend-inline-item"><span class="legend-dot" style="background:#ff9900;"></span> Fente S₂</span>
+          <span class="legend-inline-item"><span class="legend-line" style="background:#ff0000;"></span> Arcs de S₁</span>
+          <span class="legend-inline-item"><span class="legend-line" style="background:#ff9900;"></span> Arcs de S₂</span>
+          <span class="legend-inline-item"><span class="legend-line" style="background:#8B0000;"></span> Franges brillantes</span>
         </div>
 
-        <h4 style="margin-top: 20px;">📊 Profil d'intensité I(x)</h4>
-        <div class="chart-wrap">
-          <canvas id="chart-diff"></canvas>
-        </div>
+        <p class="note">⚠️ <strong>La séparation a est exagérée</strong> sur ce schéma pour la lisibilité. En réalité, a ≈ 0,5 mm et D = 2 m (rapport D/a ≈ 4000)</p>
 
-        <h4 style="margin-top: 20px;">📋 Positions des minima de diffraction</h4>
-        <table class="results-table">
-          <thead>
-            <tr>
-              <th>Ordre k</th>
-              <th>Position x_k (mm)</th>
-              <th>Type</th>
-            </tr>
-          </thead>
-          <tbody id="table-body-diff">
-            <tr><td colspan="3" style="text-align:center; color:var(--slate); font-style:italic;">Cliquez sur "Démarrer l'expérience" pour voir les résultats</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- =====================================================
-       EXPÉRIENCE 2 : FENTES D'YOUNG
-       ===================================================== -->
-  <div class="exp-panel" data-panel="young">
-    <div class="exp-header">
-      <h2>🌈 Fentes d'Young — 2 fentes percées dans la même plaque</h2>
-      <p>Un faisceau laser traverse une plaque percée de deux fentes fines S₁ et S₂ séparées de <strong>a</strong>. Les deux ondes issues de S₁ et S₂ interfèrent sur l'écran, produisant des franges brillantes et sombres régulièrement espacées.</p>
-    </div>
-
-    <div class="sim-grid">
-      <div class="control-panel">
-        <h4>⚙️ Paramètres</h4>
-
-        <div class="radio-group">
-          <input type="radio" name="type-lumiere-young" id="radio-mono-young" value="mono" checked>
-          <label for="radio-mono-young">🔴 Monochromatique</label>
-          <input type="radio" name="type-lumiere-young" id="radio-poly-young" value="poly">
-          <label for="radio-poly-young">🌈 Polychromatique</label>
-        </div>
-
-        <div class="field" id="field-preset-young">
-          <label>Source lumineuse</label>
-          <select id="preset-source-young">
-            <option value="632.8">Laser He-Ne (632,8 nm) — Rouge</option>
-            <option value="650">Laser rouge (650 nm)</option>
-            <option value="543.5">Laser vert (543,5 nm)</option>
-            <option value="532">Laser vert Nd:YAG (532 nm)</option>
-            <option value="473">Laser bleu (473 nm)</option>
-            <option value="405">Laser violet (405 nm)</option>
-            <option value="custom">Personnalisé...</option>
-          </select>
-        </div>
-
-        <div class="field" id="field-lambda-young">
-          <label>Longueur d'onde λ <span class="value-display" id="lambda-value-young">632,8 nm</span></label>
-          <input type="range" id="lambda-slider-young" min="400" max="700" step="0.1" value="632.8">
-        </div>
-
-        <div class="field">
-          <label>Séparation des fentes a <span class="value-display" id="a-value-young">0,50 mm</span></label>
-          <input type="range" id="a-slider-young" min="0.1" max="2" step="0.01" value="0.5">
-        </div>
-
-        <div class="field">
-          <label>Distance fentes → écran D <span class="value-display" id="D-value-young">2,00 m</span></label>
-          <input type="range" id="D-slider-young" min="0.5" max="5" step="0.1" value="2">
-        </div>
-
-        <h4 style="margin-top: 20px;">📐 Résultats calculés</h4>
-
-        <div class="info-panel">
-          <div class="ligne"><span>Interfrange i = λD/a</span> <strong id="info-interfrange-young">—</strong></div>
-          <div class="ligne"><span>Fréquence ν = c/λ</span> <strong id="info-frequence-young">—</strong></div>
-          <div class="ligne"><span>Énergie photon</span> <strong id="info-energie-young">—</strong></div>
-        </div>
-
-        <h4 style="margin-top: 20px;">🛠️ Actions</h4>
-
-        <button class="btn-success" id="btn-start-young">▶ Démarrer l'expérience</button>
-        <button class="btn-secondary" id="btn-mesure-young" disabled>📏 Mode Mesure</button>
-        <button class="btn-secondary" id="btn-reset-young">🔄 Réinitialiser</button>
-
-        <div class="mesure-zone" id="mesure-zone-young">
-          <div class="mesure-info">
-            <strong>🎯 Mode Mesure activé</strong><br>
-            Cliquez sur une frange brillante pour lire sa position <code>x_k</code>.
-            <div style="margin-top: 8px;">
-              x = <code id="mesure-x-young">—</code> mm<br>
-              k estimé = <code id="mesure-k-young">—</code><br>
-              λ déduite = <code id="mesure-lambda-young">—</code> nm
-            </div>
-          </div>
-        </div>
-
-        <div class="explication">
-          <h5>📚 Formules — Young</h5>
-          <p><strong>Différence de marche :</strong><br><code>δ = a·x / D</code></p>
-          <p><strong>Interfrange :</strong><br><code>i = λ·D / a</code></p>
-          <p><strong>Position des maxima :</strong><br><code>x_k = k·i</code></p>
-          <p><strong>Intensité :</strong><br><code>I(x) = I₀ · cos²(π·a·x / (λ·D))</code></p>
-        </div>
-      </div>
-
-      <div class="visualization">
-        <h4>🔬 Dispositif expérimental (vue du dessus)</h4>
-
-        <div class="schema-container" style="position: relative;">
-          <div class="start-overlay" id="overlay-young">
-            <button id="btn-start-overlay-young">▶ Démarrer l'expérience</button>
-            <p>Cliquez pour lancer la simulation</p>
-          </div>
-
-          <svg class="schema-svg" viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="laser-beam-young" x1="0%" x2="100%">
-                <stop offset="0%" stop-color="#ff0000" stop-opacity="0.95"/>
-                <stop offset="100%" stop-color="#ff0000" stop-opacity="0.7"/>
-              </linearGradient>
-            </defs>
-
-            <line x1="20" y1="270" x2="880" y2="270" stroke="#333" stroke-width="3"/>
-
-            <!-- Laser -->
-            <rect x="30" y="130" width="80" height="28" fill="#222" stroke="#000" stroke-width="1.5" rx="4"/>
-            <rect x="110" y="138" width="12" height="12" fill="#333" rx="2"/>
-            <circle cx="116" cy="144" r="3" fill="#ff0000"/>
-            <text x="70" y="125" text-anchor="middle" font-size="12" font-weight="700" fill="#1B2A4A">LASER</text>
-            <text x="70" y="180" text-anchor="middle" font-size="10" fill="#5B6472" id="schema-lambda-young">632,8 nm</text>
-
-            <line x1="122" y1="144" x2="450" y2="144" stroke="url(#laser-beam-young)" stroke-width="4"/>
-
-            <!-- Plaque avec 2 fentes S1 et S2 -->
-            <rect x="450" y="30" width="12" height="100" fill="#333"/>
-            <rect x="450" y="138" width="12" height="10" fill="#fff" stroke="#333" stroke-width="1.5"/>
-            <rect x="450" y="155" width="12" height="10" fill="#fff" stroke="#333" stroke-width="1.5"/>
-            <rect x="450" y="172" width="12" height="100" fill="#333"/>
-            <text x="456" y="22" text-anchor="middle" font-size="12" font-weight="700" fill="#1B2A4A">Fentes S₁ / S₂</text>
-            <text x="485" y="134" text-anchor="start" font-size="10" fill="#5B6472">a = <tspan id="schema-a-young">0,50</tspan> mm</text>
-
-            <!-- Points S1 et S2 -->
-            <circle cx="456" cy="143" r="3" fill="#ff0000"/>
-            <circle cx="456" cy="160" r="3" fill="#ff0000"/>
-            <text x="440" y="146" text-anchor="end" font-size="11" font-weight="700" fill="#1B2A4A">S₁</text>
-            <text x="440" y="163" text-anchor="end" font-size="11" font-weight="700" fill="#1B2A4A">S₂</text>
-
-            <!-- Arcs d'onde depuis S1 -->
-            <g class="arcs-s1" style="display:none;">
-              <path d="M 456 143 Q 620 90 860 50" stroke="#ff0000" stroke-opacity="0.55" stroke-width="2" fill="none"/>
-              <path d="M 456 143 Q 640 105 870 80" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
-              <path d="M 456 143 Q 660 120 875 110" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
-              <path d="M 456 143 Q 680 135 875 135" stroke="#ff0000" stroke-opacity="0.55" stroke-width="2" fill="none"/>
-              <path d="M 456 143 Q 690 143 875 143" stroke="#ff0000" stroke-opacity="0.7" stroke-width="2.5" fill="none"/>
-              <path d="M 456 143 Q 680 150 875 150" stroke="#ff0000" stroke-opacity="0.55" stroke-width="2" fill="none"/>
-              <path d="M 456 143 Q 660 165 875 175" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
-              <path d="M 456 143 Q 640 180 870 200" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
-              <path d="M 456 143 Q 620 195 860 230" stroke="#ff0000" stroke-opacity="0.55" stroke-width="2" fill="none"/>
-            </g>
-
-            <!-- Arcs d'onde depuis S2 -->
-            <g class="arcs-s2" style="display:none;">
-              <path d="M 456 160 Q 620 105 860 65" stroke="#ff0000" stroke-opacity="0.55" stroke-width="2" fill="none"/>
-              <path d="M 456 160 Q 640 120 870 95" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
-              <path d="M 456 160 Q 660 135 875 125" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
-              <path d="M 456 160 Q 680 150 875 150" stroke="#ff0000" stroke-opacity="0.55" stroke-width="2" fill="none"/>
-              <path d="M 456 160 Q 690 160 875 160" stroke="#ff0000" stroke-opacity="0.7" stroke-width="2.5" fill="none"/>
-              <path d="M 456 160 Q 680 170 875 170" stroke="#ff0000" stroke-opacity="0.55" stroke-width="2" fill="none"/>
-              <path d="M 456 160 Q 660 185 875 195" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
-              <path d="M 456 160 Q 640 200 870 220" stroke="#ff0000" stroke-opacity="0.5" stroke-width="2" fill="none"/>
-              <path d="M 456 160 Q 620 215 860 245" stroke="#ff0000" stroke-opacity="0.55" stroke-width="2" fill="none"/>
-            </g>
-
-            <!-- Écran -->
-            <rect x="868" y="40" width="8" height="200" fill="#111"/>
-            <text x="872" y="32" text-anchor="middle" font-size="12" font-weight="700" fill="#1B2A4A">Écran</text>
-
-            <line x1="462" y1="285" x2="870" y2="285" stroke="#5B6472" stroke-width="1" stroke-dasharray="4,3"/>
-            <text x="666" y="282" text-anchor="middle" font-size="11" font-weight="700" fill="#5B6472">D = <tspan id="schema-D-young">2,00</tspan> m</text>
-          </svg>
-        </div>
-
-        <h4 style="margin-top: 15px;">📺 Écran d'observation</h4>
-        <div class="screen-canvas-wrap">
-          <canvas id="screen-canvas-young"></canvas>
-        </div>
-        <div class="screen-axis">
-          <span>-10 mm</span>
-          <span>0</span>
-          <span>+10 mm</span>
-        </div>
-
-        <h4 style="margin-top: 20px;">📊 Profil d'intensité I(x)</h4>
-        <div class="chart-wrap">
-          <canvas id="chart-young"></canvas>
-        </div>
-
-        <h4 style="margin-top: 20px;">📋 Positions des franges brillantes</h4>
-        <table class="results-table">
-          <thead>
-            <tr>
-              <th>Ordre k</th>
-              <th>Position x_k (mm)</th>
-              <th>Différence de marche δ (nm)</th>
-              <th>δ / λ</th>
-              <th>Type</th>
-            </tr>
-          </thead>
-          <tbody id="table-body-young">
-            <tr><td colspan="5" style="text-align:center; color:var(--slate); font-style:italic;">Cliquez sur "Démarrer l'expérience" pour voir les résultats</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- =====================================================
-       EXPÉRIENCE 3 : YOUNG AVEC FENTE SOURCE
-       ===================================================== -->
-  <div class="exp-panel" data-panel="young-source">
-    <div class="exp-header">
-      <h2>🎯 Young avec fente source — Montage réel</h2>
-      <p>Un faisceau laser traverse d'abord une <strong>fente source S</strong> qui élargit le faisceau, puis éclaire les <strong>deux fentes d'Young S₁ et S₂</strong>. On observe alors des franges d'interférence dont l'intensité est modulée par l'enveloppe de diffraction de la fente source.</p>
-    </div>
-
-    <div class="sim-grid">
-      <div class="control-panel">
-        <h4>⚙️ Paramètres</h4>
-
-        <div class="radio-group">
-          <input type="radio" name="type-lumiere-young-source" id="radio-mono-young-source" value="mono" checked>
-          <label for="radio-mono-young-source">🔴 Monochromatique</label>
-          <input type="radio" name="type-lumiere-young-source" id="radio-poly-young-source" value="poly">
-          <label for="radio-poly-young-source">🌈 Polychromatique</label>
-        </div>
-
-        <div class="field" id="field-preset-young-source">
-          <label>Source lumineuse</label>
-          <select id="preset-source-young-source">
-            <option value="632.8">Laser He-Ne (632,8 nm) — Rouge</option>
-            <option value="650">Laser rouge (650 nm)</option>
-            <option value="543.5">Laser vert (543,5 nm)</option>
-            <option value="532">Laser vert Nd:YAG (532 nm)</option>
-            <option value="473">Laser bleu (473 nm)</option>
-            <option value="405">Laser violet (405 nm)</option>
-            <option value="custom">Personnalisé...</option>
-          </select>
-        </div>
-
-        <div class="field" id="field-lambda-young-source">
-          <label>Longueur d'onde λ <span class="value-display" id="lambda-value-young-source">632,8 nm</span></label>
-          <input type="range" id="lambda-slider-young-source" min="400" max="700" step="0.1" value="632.8">
-        </div>
-
-        <div class="field">
-          <label>Largeur de la fente source b <span class="value-display" id="b-value-young-source">0,05 mm</span></label>
-          <input type="range" id="b-slider-young-source" min="0.01" max="0.3" step="0.005" value="0.05">
-        </div>
-
-        <div class="field">
-          <label>Séparation des fentes a <span class="value-display" id="a-value-young-source">0,50 mm</span></label>
-          <input type="range" id="a-slider-young-source" min="0.1" max="2" step="0.01" value="0.5">
-        </div>
-
-        <div class="field">
-          <label>Distance fentes → écran D <span class="value-display" id="D-value-young-source">2,00 m</span></label>
-          <input type="range" id="D-slider-young-source" min="0.5" max="5" step="0.1" value="2">
-        </div>
-
-        <h4 style="margin-top: 20px;">📐 Résultats calculés</h4>
-
-        <div class="info-panel">
-          <div class="ligne"><span>Interfrange i = λD/a</span> <strong id="info-interfrange-young-source">—</strong></div>
-          <div class="ligne"><span>1ère enveloppe diffraction</span> <strong id="info-enveloppe-young-source">—</strong></div>
-          <div class="ligne"><span>Fréquence ν = c/λ</span> <strong id="info-frequence-young-source">—</strong></div>
-          <div class="ligne"><span>Énergie photon</span> <strong id="info-energie-young-source">—</strong></div>
-        </div>
-
-        <h4 style="margin-top: 20px;">🛠️ Actions</h4>
-
-        <button class="btn-success" id="btn-start-young-source">▶ Démarrer l'expérience</button>
-        <button class="btn-secondary" id="btn-mesure-young-source" disabled>📏 Mode Mesure</button>
-        <button class="btn-secondary" id="btn-reset-young-source">🔄 Réinitialiser</button>
-
-        <div class="mesure-zone" id="mesure-zone-young-source">
-          <div class="mesure-info">
-            <strong>🎯 Mode Mesure activé</strong><br>
-            Cliquez sur une frange brillante pour lire sa position.
-            <div style="margin-top: 8px;">
-              x = <code id="mesure-x-young-source">—</code> mm<br>
-              k estimé = <code id="mesure-k-young-source">—</code><br>
-              λ déduite = <code id="mesure-lambda-young-source">—</code> nm
-            </div>
-          </div>
-        </div>
-
-        <div class="explication">
-          <h5>📚 Formules — Young avec fente source</h5>
-          <p><strong>Interfrange :</strong><br><code>i = λ·D / a</code></p>
-          <p><strong>Enveloppe de diffraction :</strong><br><code>L_env = 2·λ·D / b</code></p>
-          <p><strong>Intensité totale :</strong><br><code>I(x) = I₀ · cos²(π·a·x / (λ·D)) · sinc²(π·b·x / (λ·D))</code></p>
-          <p>→ Les franges d'interférence sont <strong>modulées</strong> par l'enveloppe de diffraction de la fente source. En s'éloignant du centre, les franges brillantes deviennent moins lumineuses.</p>
-        </div>
-      </div>
-
-      <div class="visualization">
-        <h4>🔬 Dispositif expérimental (vue du dessus)</h4>
-
-        <div class="schema-container" style="position: relative;">
-          <div class="start-overlay" id="overlay-young-source">
-            <button id="btn-start-overlay-young-source">▶ Démarrer l'expérience</button>
-            <p>Cliquez pour lancer la simulation</p>
-          </div>
-
-          <svg class="schema-svg" viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="laser-beam-young-source" x1="0%" x2="100%">
-                <stop offset="0%" stop-color="#ff0000" stop-opacity="0.95"/>
-                <stop offset="100%" stop-color="#ff0000" stop-opacity="0.7"/>
-              </linearGradient>
-            </defs>
-
-            <line x1="20" y1="270" x2="880" y2="270" stroke="#333" stroke-width="3"/>
-
-            <!-- Laser -->
-            <rect x="20" y="130" width="70" height="28" fill="#222" stroke="#000" stroke-width="1.5" rx="4"/>
-            <rect x="90" y="138" width="12" height="12" fill="#333" rx="2"/>
-            <circle cx="96" cy="144" r="3" fill="#ff0000"/>
-            <text x="55" y="125" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">LASER</text>
-            <text x="55" y="180" text-anchor="middle" font-size="9" fill="#5B6472" id="schema-lambda-young-source">632,8 nm</text>
-
-            <line x1="102" y1="144" x2="290" y2="144" stroke="url(#laser-beam-young-source)" stroke-width="3"/>
-
-            <!-- Fente source S -->
-            <rect x="290" y="30" width="12" height="100" fill="#333"/>
-            <rect x="290" y="138" width="12" height="12" fill="#fff" stroke="#333" stroke-width="1.5"/>
-            <rect x="290" y="158" width="12" height="100" fill="#333"/>
-            <text x="296" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">Fente source S</text>
-            <text x="325" y="136" text-anchor="start" font-size="10" fill="#5B6472">b = <tspan id="schema-b-young-source">0,05</tspan> mm</text>
-
-            <!-- Point S -->
-            <circle cx="296" cy="144" r="3" fill="#ff0000"/>
-            <text x="280" y="147" text-anchor="end" font-size="11" font-weight="700" fill="#1B2A4A">S</text>
-
-            <!-- Arcs depuis S (vers la plaque avec S1/S2) -->
-            <g class="arcs-s" style="display:none;">
-              <path d="M 296 144 Q 420 90 560 80" stroke="#ff0000" stroke-opacity="0.55" stroke-width="1.8" fill="none"/>
-              <path d="M 296 144 Q 430 105 565 105" stroke="#ff0000" stroke-opacity="0.5" stroke-width="1.8" fill="none"/>
-              <path d="M 296 144 Q 440 125 570 130" stroke="#ff0000" stroke-opacity="0.5" stroke-width="1.8" fill="none"/>
-              <path d="M 296 144 Q 445 144 570 144" stroke="#ff0000" stroke-opacity="0.65" stroke-width="2" fill="none"/>
-              <path d="M 296 144 Q 440 163 570 158" stroke="#ff0000" stroke-opacity="0.5" stroke-width="1.8" fill="none"/>
-              <path d="M 296 144 Q 430 185 565 183" stroke="#ff0000" stroke-opacity="0.5" stroke-width="1.8" fill="none"/>
-              <path d="M 296 144 Q 420 200 560 208" stroke="#ff0000" stroke-opacity="0.55" stroke-width="1.8" fill="none"/>
-            </g>
-
-            <!-- Plaque avec 2 fentes S1 et S2 -->
-            <rect x="570" y="20" width="12" height="105" fill="#333"/>
-            <rect x="570" y="135" width="12" height="10" fill="#fff" stroke="#333" stroke-width="1.5"/>
-            <rect x="570" y="155" width="12" height="10" fill="#fff" stroke="#333" stroke-width="1.5"/>
-            <rect x="570" y="175" width="12" height="95" fill="#333"/>
-            <text x="576" y="14" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">Fentes S₁ / S₂</text>
-            <text x="605" y="131" text-anchor="start" font-size="10" fill="#5B6472">a = <tspan id="schema-a-young-source">0,50</tspan> mm</text>
-
-            <circle cx="576" cy="140" r="3" fill="#ff0000"/>
-            <circle cx="576" cy="160" r="3" fill="#ff0000"/>
-            <text x="560" y="143" text-anchor="end" font-size="11" font-weight="700" fill="#1B2A4A">b</text>
-            <text x="560" y="163" text-anchor="end" font-size="11" font-weight="700" fill="#1B2A4A">c</text>
-
-            <!-- Arcs depuis S1 -->
-            <g class="arcs-y1" style="display:none;">
-              <path d="M 576 140 Q 700 90 860 70" stroke="#ff0000" stroke-opacity="0.55" stroke-width="1.8" fill="none"/>
-              <path d="M 576 140 Q 720 105 865 105" stroke="#ff0000" stroke-opacity="0.5" stroke-width="1.8" fill="none"/>
-              <path d="M 576 140 Q 740 125 870 135" stroke="#ff0000" stroke-opacity="0.55" stroke-width="1.8" fill="none"/>
-              <path d="M 576 140 Q 745 140 875 140" stroke="#ff0000" stroke-opacity="0.7" stroke-width="2.2" fill="none"/>
-              <path d="M 576 140 Q 740 155 870 165" stroke="#ff0000" stroke-opacity="0.55" stroke-width="1.8" fill="none"/>
-              <path d="M 576 140 Q 720 175 865 195" stroke="#ff0000" stroke-opacity="0.5" stroke-width="1.8" fill="none"/>
-              <path d="M 576 140 Q 700 195 860 225" stroke="#ff0000" stroke-opacity="0.55" stroke-width="1.8" fill="none"/>
-            </g>
-
-            <!-- Arcs depuis S2 -->
-            <g class="arcs-y2" style="display:none;">
-              <path d="M 576 160 Q 700 105 860 80" stroke="#ff0000" stroke-opacity="0.55" stroke-width="1.8" fill="none"/>
-              <path d="M 576 160 Q 720 120 865 115" stroke="#ff0000" stroke-opacity="0.5" stroke-width="1.8" fill="none"/>
-              <path d="M 576 160 Q 740 140 870 145" stroke="#ff0000" stroke-opacity="0.55" stroke-width="1.8" fill="none"/>
-              <path d="M 576 160 Q 745 155 875 160" stroke="#ff0000" stroke-opacity="0.7" stroke-width="2.2" fill="none"/>
-              <path d="M 576 160 Q 740 175 870 180" stroke="#ff0000" stroke-opacity="0.55" stroke-width="1.8" fill="none"/>
-              <path d="M 576 160 Q 720 195 865 205" stroke="#ff0000" stroke-opacity="0.5" stroke-width="1.8" fill="none"/>
-              <path d="M 576 160 Q 700 215 860 240" stroke="#ff0000" stroke-opacity="0.55" stroke-width="1.8" fill="none"/>
-            </g>
-
-            <!-- Écran -->
-            <rect x="868" y="40" width="8" height="200" fill="#111"/>
-            <text x="872" y="32" text-anchor="middle" font-size="11" font-weight="700" fill="#1B2A4A">Écran</text>
-
-            <line x1="582" y1="285" x2="870" y2="285" stroke="#5B6472" stroke-width="1" stroke-dasharray="4,3"/>
-            <text x="726" y="282" text-anchor="middle" font-size="10" font-weight="700" fill="#5B6472">D = <tspan id="schema-D-young-source">2,00</tspan> m</text>
-          </svg>
-        </div>
-
-        <h4 style="margin-top: 15px;">📺 Écran d'observation</h4>
-        <div class="screen-canvas-wrap">
-          <canvas id="screen-canvas-young-source"></canvas>
-        </div>
-        <div class="screen-axis">
-          <span>-10 mm</span>
-          <span>0</span>
-          <span>+10 mm</span>
-        </div>
-
-        <h4 style="margin-top: 20px;">📊 Profil d'intensité I(x) — avec modulation</h4>
-        <div class="chart-wrap">
-          <canvas id="chart-young-source"></canvas>
-        </div>
-
-        <h4 style="margin-top: 20px;">📋 Positions des franges brillantes</h4>
-        <table class="results-table">
-          <thead>
-            <tr>
-              <th>Ordre k</th>
-              <th>Position x_k (mm)</th>
-              <th>Intensité relative</th>
-              <th>Type</th>
-            </tr>
-          </thead>
-          <tbody id="table-body-young-source">
-            <tr><td colspan="4" style="text-align:center; color:var(--slate); font-style:italic;">Cliquez sur "Démarrer l'expérience" pour voir les résultats</td></tr>
-          </tbody>
-        </table>
       </div>
     </div>
   </div>
@@ -773,771 +302,169 @@
 
 <footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
 
-<script type="module">
-  const C_LIGHT = 2.998e8;
-  const H_PLANCK = 6.626e-34;
+<script>
+  // ============================================================
+  // ÉTAT
+  // ============================================================
+  let lambda = 632.8;
+  let a_pixels = 120;
+  let nbArcs = 6;
+  let started = false;
 
-  const etat = {
-    diffraction: { started: false, mesure: false, chart: null, rafId: null },
-    young:       { started: false, mesure: false, chart: null, rafId: null },
-    youngSource: { started: false, mesure: false, chart: null, rafId: null }
-  };
+  let rafId = null;
+  let startTime = null;
+  const DUREE_ANIM = 3000;
+
+  const S_X = 460;
+  const S_CY = 300;
+  const SCREEN_X = 900;
+  const D_SE = SCREEN_X - S_X;
+
+  let S1 = { x: S_X, y: 246 };
+  let S2 = { x: S_X, y: 352 };
+
+  const SVG_NS = 'http://www.w3.org/2000/svg';
 
   // ============================================================
   // UTILITAIRES
   // ============================================================
-  function lambdaToRGB(lambda) {
+  function lambdaToRGB(lam) {
     let R = 0, G = 0, B = 0;
-    if (lambda >= 380 && lambda < 440) { R = -(lambda - 440) / 60; B = 1; }
-    else if (lambda >= 440 && lambda < 490) { B = 1; G = (lambda - 440) / 50; }
-    else if (lambda >= 490 && lambda < 510) { G = 1; B = -(lambda - 510) / 20; }
-    else if (lambda >= 510 && lambda < 580) { G = 1; R = (lambda - 510) / 70; }
-    else if (lambda >= 580 && lambda < 645) { R = 1; G = -(lambda - 645) / 65; }
-    else if (lambda >= 645 && lambda <= 780) { R = 1; }
-    let factor = 1;
-    if (lambda >= 380 && lambda < 420) factor = 0.3 + 0.7 * (lambda - 380) / 40;
-    else if (lambda > 700 && lambda <= 780) factor = 0.3 + 0.7 * (780 - lambda) / 80;
-    R = Math.round(255 * Math.pow(R * factor, 0.8));
-    G = Math.round(255 * Math.pow(G * factor, 0.8));
-    B = Math.round(255 * Math.pow(B * factor, 0.8));
-    return { r: R, g: G, b: B };
+    if (lam >= 380 && lam < 440) { R = -(lam - 440) / 60; B = 1; }
+    else if (lam >= 440 && lam < 490) { B = 1; G = (lam - 440) / 50; }
+    else if (lam >= 490 && lam < 510) { G = 1; B = -(lam - 510) / 20; }
+    else if (lam >= 510 && lam < 580) { G = 1; R = (lam - 510) / 70; }
+    else if (lam >= 580 && lam < 645) { R = 1; G = -(lam - 645) / 65; }
+    else if (lam >= 645) { R = 1; }
+    return {
+      r: Math.round(255 * Math.pow(R, 0.8)),
+      g: Math.round(255 * Math.pow(G, 0.8)),
+      b: Math.round(255 * Math.pow(B, 0.8))
+    };
   }
 
-  function formatLambda(l) { return l.toFixed(1).replace('.', ',') + ' nm'; }
+  // ============================================================
+  // MISE À JOUR S1/S2
+  // ============================================================
+  function updateS1S2() {
+    S1.y = S_CY - a_pixels / 2;
+    S2.y = S_CY + a_pixels / 2;
 
-  function sinc(x) {
-    if (Math.abs(x) < 1e-9) return 1;
-    return Math.sin(x) / x;
+    const dots = document.querySelectorAll('#schema-svg circle[fill="#ff0000"]');
+    if (dots.length >= 2) {
+      dots[0].setAttribute('cy', S1.y);
+      dots[1].setAttribute('cy', S2.y);
+    }
+
+    const fentes = document.querySelectorAll('#schema-svg rect[fill="#fafafa"]');
+    if (fentes.length >= 2) {
+      fentes[0].setAttribute('y', S1.y - 8);
+      fentes[1].setAttribute('y', S2.y - 8);
+    }
+
+    const plaques = document.querySelectorAll('#schema-svg rect[fill="#2c2c2c"]');
+    if (plaques.length >= 2) {
+      plaques[0].setAttribute('height', S1.y - 8);
+      plaques[1].setAttribute('y', S2.y + 8);
+      plaques[1].setAttribute('height', 600 - S2.y - 8);
+    }
+
+    const labels = document.querySelectorAll('#schema-svg text');
+    const s1Label = Array.from(labels).find(t => t.textContent === 'S₁');
+    const s2Label = Array.from(labels).find(t => t.textContent === 'S₂');
+    if (s1Label) s1Label.setAttribute('y', S1.y + 6);
+    if (s2Label) s2Label.setAttribute('y', S2.y + 6);
+
+    const lines = document.querySelectorAll('#schema-svg line[stroke="#1B2A4A"]');
+    if (lines.length >= 3) {
+      lines[0].setAttribute('y1', S1.y);
+      lines[0].setAttribute('y2', S2.y);
+      lines[1].setAttribute('y1', S1.y);
+      lines[1].setAttribute('y2', S1.y);
+      lines[2].setAttribute('y1', S2.y);
+      lines[2].setAttribute('y2', S2.y);
+    }
+    const aLabel = Array.from(labels).find(t => t.textContent === 'a');
+    if (aLabel) aLabel.setAttribute('y', S_CY + 5);
   }
 
-  // Mettre à jour la couleur du calque "Démarrer" selon λ ou poly
-  function updateOverlayColor(overlayId, poly, lambda) {
-    const overlay = document.getElementById(overlayId);
-    if (!overlay) return;
-    if (poly) {
-      overlay.style.background = 'linear-gradient(90deg, rgba(220,20,60,0.75) 0%, rgba(255,140,0,0.75) 20%, rgba(255,215,0,0.75) 35%, rgba(50,205,50,0.75) 50%, rgba(0,150,255,0.75) 70%, rgba(138,43,226,0.75) 100%)';
-    } else {
-      const rgb = lambdaToRGB(lambda);
-      overlay.style.background = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.75)`;
+  // ============================================================
+  // DESSIN DES ARCS
+  // ============================================================
+  function drawArcs(progress) {
+    const g = document.getElementById('arcs-group');
+    g.innerHTML = '';
+    if (progress <= 0) return;
+
+    const rgb = lambdaToRGB(lambda);
+    const colorS1 = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+    const colorS2 = `rgb(${rgb.r}, ${Math.max(0, rgb.g - 40)}, ${Math.max(0, rgb.b - 100)})`;
+
+    const espacement = a_pixels * 0.85;
+
+    const nbVisibles = Math.floor(progress * nbArcs) + 1;
+
+    for (let n = 1; n <= Math.min(nbVisibles, nbArcs); n++) {
+      const r = n * espacement;
+
+      // Arc depuis S1 (demi-cercle vers la droite)
+      const path1 = document.createElementNS(SVG_NS, 'path');
+      path1.setAttribute('d', `M ${S1.x} ${S1.y - r} A ${r} ${r} 0 0 1 ${S1.x} ${S1.y + r}`);
+      path1.setAttribute('fill', 'none');
+      path1.setAttribute('stroke', colorS1);
+      path1.setAttribute('stroke-width', 1.8);
+      path1.setAttribute('stroke-opacity', Math.max(0.35, 0.75 - n * 0.06));
+      g.appendChild(path1);
+
+      // Arc depuis S2 (demi-cercle vers la droite)
+      const path2 = document.createElementNS(SVG_NS, 'path');
+      path2.setAttribute('d', `M ${S2.x} ${S2.y - r} A ${r} ${r} 0 0 1 ${S2.x} ${S2.y + r}`);
+      path2.setAttribute('fill', 'none');
+      path2.setAttribute('stroke', colorS2);
+      path2.setAttribute('stroke-width', 1.8);
+      path2.setAttribute('stroke-opacity', Math.max(0.35, 0.75 - n * 0.06));
+      g.appendChild(path2);
     }
   }
 
   // ============================================================
-  // ONGLETS
+  // DESSIN DES HYPERBOLES CONSTRUCTIVES
   // ============================================================
-  document.querySelectorAll('.exp-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.exp-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.exp-panel').forEach(p => p.classList.remove('active'));
-      tab.classList.add('active');
-      const panel = document.querySelector(`.exp-panel[data-panel="${tab.dataset.exp}"]`);
-      if (panel) panel.classList.add('active');
-    });
-  });
+  function drawHyperboles(progress) {
+    const g = document.getElementById('hyperboles-group');
+    g.innerHTML = '';
+    if (progress < 0.4) return;
 
-  // ============================================================
-  // SETUP COMMUN
-  // ============================================================
-  function setupLambdaControl(idSuffix, onUpdate) {
-    const radioMono = document.getElementById(`radio-mono-${idSuffix}`);
-    const radioPoly = document.getElementById(`radio-poly-${idSuffix}`);
-    const fieldPreset = document.getElementById(`field-preset-${idSuffix}`);
-    const fieldLambda = document.getElementById(`field-lambda-${idSuffix}`);
-    const presetSelect = document.getElementById(`preset-source-${idSuffix}`);
-    const lambdaSlider = document.getElementById(`lambda-slider-${idSuffix}`);
-    const lambdaValue = document.getElementById(`lambda-value-${idSuffix}`);
+    const rgb = lambdaToRGB(lambda);
+    const hyperColor = `rgb(${Math.round(rgb.r * 0.6)}, ${Math.round(rgb.g * 0.15)}, 0)`;
 
-    function isPoly() { return radioPoly && radioPoly.checked; }
+    const espacement = a_pixels * 0.85;
+    const maxOrdre = Math.min(nbArcs - 1, 5);
 
-    function updateUI() {
-      const poly = isPoly();
-      if (fieldPreset) fieldPreset.classList.toggle('hidden', poly);
-      if (fieldLambda) fieldLambda.classList.toggle('hidden', poly);
-      const l = parseFloat(lambdaSlider.value);
-      if (lambdaValue) lambdaValue.textContent = formatLambda(l);
-      onUpdate(poly, l);
-    }
-
-    [radioMono, radioPoly].forEach(r => { if (r) r.addEventListener('change', updateUI); });
-    if (presetSelect) {
-      presetSelect.addEventListener('change', () => {
-        if (presetSelect.value === 'custom') return;
-        lambdaSlider.value = presetSelect.value;
-        updateUI();
-      });
-    }
-    if (lambdaSlider) {
-      lambdaSlider.addEventListener('input', () => {
-        if (presetSelect) presetSelect.value = 'custom';
-        updateUI();
-      });
-    }
-    updateUI();
-    return { updateUI, isPoly };
-  }
-
-  // ============================================================
-  // EXPÉRIENCE 1 : DIFFRACTION
-  // ============================================================
-  const diff = { lambda: 632.8, a: 0.1, D: 2.0, poly: false };
-
-  function calculateIntensityDiff(x_mm, lambda_nm) {
-    const x = x_mm * 1e-3;
-    const lambda = lambda_nm * 1e-9;
-    const a = diff.a * 1e-3;
-    const D = diff.D;
-    const u = Math.PI * a * x / (lambda * D);
-    return sinc(u) * sinc(u);
-  }
-
-  function drawScreenDiff() {
-    const canvas = document.getElementById('screen-canvas-diff');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-    const w = canvas.offsetWidth;
-    const h = canvas.offsetHeight;
-
-    if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
-      canvas.width = Math.round(w * dpr);
-      canvas.height = Math.round(h * dpr);
-    }
-
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, w, h);
-
-    if (!etat.diffraction.started) return;
-
-    const screenWidthMm = 30;
-    const pixelCount = Math.floor(w);
-    for (let i = 0; i < pixelCount; i++) {
-      const x_mm = (i / pixelCount - 0.5) * screenWidthMm;
-      let r, g, b;
-      if (diff.poly) {
-        let sumR = 0, sumG = 0, sumB = 0, count = 0;
-        for (let lam = 400; lam <= 700; lam += 10) {
-          const I = calculateIntensityDiff(x_mm, lam);
-          const rgb = lambdaToRGB(lam);
-          sumR += rgb.r * I;
-          sumG += rgb.g * I;
-          sumB += rgb.b * I;
-          count++;
-        }
-        r = Math.min(255, sumR / count * 2);
-        g = Math.min(255, sumG / count * 2);
-        b = Math.min(255, sumB / count * 2);
-      } else {
-        const I = calculateIntensityDiff(x_mm, diff.lambda);
-        const rgb = lambdaToRGB(diff.lambda);
-        r = rgb.r * I;
-        g = rgb.g * I;
-        b = rgb.b * I;
+    for (let k = 0; k <= maxOrdre; k++) {
+      if (k === 0) {
+        // Ordre 0 : axe optique
+        const line = document.createElementNS(SVG_NS, 'line');
+        line.setAttribute('x1', S_X);
+        line.setAttribute('y1', S_CY);
+        line.setAttribute('x2', SCREEN_X);
+        line.setAttribute('y2', S_CY);
+        line.setAttribute('stroke', hyperColor);
+        line.setAttribute('stroke-width', 3);
+        line.setAttribute('stroke-opacity', progress);
+        line.setAttribute('stroke-dasharray', '8,4');
+        g.appendChild(line);
+        continue;
       }
-      ctx.fillStyle = `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
-      ctx.fillRect(i, 0, 1, h);
-    }
 
-    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath();
-    ctx.moveTo(w / 2, 0);
-    ctx.lineTo(w / 2, h);
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }
+      const deltaCible = k * espacement;
 
-  function drawChartDiff() {
-    const canvas = document.getElementById('chart-diff');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (etat.diffraction.chart) etat.diffraction.chart.destroy();
+      // 2 branches : au-dessus (signe +1) et en dessous (signe -1)
+      [1, -1].forEach(signe => {
+        const points = [];
+        for (let x = S_X + 10; x <= SCREEN_X; x += 5) {
 
-    const screenWidthMm = 30;
-    const points = [];
-    for (let x = -screenWidthMm / 2; x <= screenWidthMm / 2; x += 0.05) {
-      if (diff.poly) {
-        let I = 0;
-        for (let lam = 400; lam <= 700; lam += 20) I += calculateIntensityDiff(x, lam);
-        points.push({ x, y: I / 16 });
-      } else {
-        points.push({ x, y: calculateIntensityDiff(x, diff.lambda) });
-      }
-    }
-
-    etat.diffraction.chart = new Chart(ctx, {
-      type: 'line',
-      data: { datasets: [{
-        label: 'Intensité relative', data: points,
-        borderColor: diff.poly ? '#A8853F' : `rgb(${lambdaToRGB(diff.lambda).r},${lambdaToRGB(diff.lambda).g},${lambdaToRGB(diff.lambda).b})`,
-        backgroundColor: 'rgba(168,133,63,0.08)', borderWidth: 2, fill: true, pointRadius: 0, tension: 0.1
-      }] },
-      options: {
-        responsive: true, maintainAspectRatio: false, parsing: false,
-        animation: { duration: 300 },
-        scales: {
-          x: { type: 'linear', title: { display: true, text: 'Position x (mm)' }, min: -screenWidthMm / 2, max: screenWidthMm / 2 },
-          y: { title: { display: true, text: 'I / I₀' }, min: 0, max: 1.05 }
-        },
-        plugins: { legend: { display: false } }
-      }
-    });
-  }
-
-  function updateResultsDiff() {
-    const lambda = diff.lambda * 1e-9;
-    const a = diff.a * 1e-3;
-    const D = diff.D;
-    const largeur = 2 * lambda * D / a * 1000;
-    const theta = lambda / a;
-    const nu = C_LIGHT / lambda;
-    const E = H_PLANCK * nu;
-    document.getElementById('info-largeur-diff').textContent = largeur.toFixed(2) + ' mm';
-    document.getElementById('info-theta-diff').textContent = (theta * 1e3).toFixed(3) + ' mrad';
-    document.getElementById('info-frequence-diff').textContent = (nu / 1e12).toFixed(1) + ' THz';
-    document.getElementById('info-energie-diff').textContent = (E / 1.602e-19).toFixed(2) + ' eV';
-  }
-
-  function updateTableDiff() {
-    const tbody = document.getElementById('table-body-diff');
-    tbody.innerHTML = '';
-    const i_mm = diff.lambda * 1e-9 * diff.D / (diff.a * 1e-3) * 1000;
-    let rows = `<tr class="maxima"><td>k = 0</td><td>0,00 mm</td><td>Maximum central</td></tr>`;
-    for (let k = -3; k <= 3; k++) {
-      if (k === 0) continue;
-      const xk = k * i_mm;
-      if (Math.abs(xk) > 15) continue;
-      rows += `<tr class="minima"><td>k = ${k}</td><td>${xk.toFixed(2)} mm</td><td>Minimum n°${Math.abs(k)}</td></tr>`;
-    }
-    tbody.innerHTML = rows;
-  }
-
-  function updateSchemaValuesDiff() {
-    const l = document.getElementById('schema-lambda-diff');
-    const a = document.getElementById('schema-a-diff');
-    const D = document.getElementById('schema-D-diff');
-    if (l) l.textContent = formatLambda(diff.lambda);
-    if (a) a.textContent = diff.a.toFixed(2).replace('.', ',');
-    if (D) D.textContent = diff.D.toFixed(2).replace('.', ',');
-  }
-
-  function refreshDiff() {
-    updateResultsDiff();
-    updateSchemaValuesDiff();
-    updateOverlayColor('overlay-diff', diff.poly, diff.lambda);
-    if (etat.diffraction.started) {
-      drawScreenDiff();
-      drawChartDiff();
-      updateTableDiff();
-    }
-  }
-
-  setupLambdaControl('diff', (poly, l) => { diff.poly = poly; diff.lambda = l; refreshDiff(); });
-
-  document.getElementById('a-slider-diff').addEventListener('input', (e) => {
-    diff.a = parseFloat(e.target.value);
-    document.getElementById('a-value-diff').textContent = diff.a.toFixed(2).replace('.', ',') + ' mm';
-    refreshDiff();
-  });
-
-  document.getElementById('D-slider-diff').addEventListener('input', (e) => {
-    diff.D = parseFloat(e.target.value);
-    document.getElementById('D-value-diff').textContent = diff.D.toFixed(2).replace('.', ',') + ' m';
-    refreshDiff();
-  });
-
-  function demarrerDiff() {
-    etat.diffraction.started = true;
-    document.getElementById('overlay-diff').classList.add('hidden');
-    document.getElementById('btn-mesure-diff').disabled = false;
-    document.getElementById('diff-arcs').style.display = 'block';
-    refreshDiff();
-  }
-
-  document.getElementById('btn-start-diff').onclick = demarrerDiff;
-  document.getElementById('btn-start-overlay-diff').onclick = demarrerDiff;
-
-  document.getElementById('btn-reset-diff').onclick = () => {
-    etat.diffraction.started = false;
-    etat.diffraction.mesure = false;
-    document.getElementById('overlay-diff').classList.remove('hidden');
-    document.getElementById('btn-mesure-diff').disabled = true;
-    document.getElementById('diff-arcs').style.display = 'none';
-    document.getElementById('mesure-zone-diff').classList.remove('active');
-    const c = document.getElementById('screen-canvas-diff');
-    const ctx = c.getContext('2d');
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, c.width, c.height);
-    if (etat.diffraction.chart) { etat.diffraction.chart.destroy(); etat.diffraction.chart = null; }
-    document.getElementById('table-body-diff').innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--slate); font-style:italic;">Cliquez sur "Démarrer l\'expérience" pour voir les résultats</td></tr>';
-  };
-
-  document.getElementById('btn-mesure-diff').onclick = () => {
-    etat.diffraction.mesure = !etat.diffraction.mesure;
-    document.getElementById('mesure-zone-diff').classList.toggle('active', etat.diffraction.mesure);
-    document.getElementById('btn-mesure-diff').textContent = etat.diffraction.mesure ? '📏 Désactiver Mesure' : '📏 Mode Mesure';
-  };
-
-  document.getElementById('screen-canvas-diff').addEventListener('click', (e) => {
-    if (!etat.diffraction.mesure) return;
-    const rect = e.target.getBoundingClientRect();
-    const x_pixel = e.clientX - rect.left;
-    const x_mm = (x_pixel / rect.width - 0.5) * 30;
-    const I = calculateIntensityDiff(x_mm, diff.lambda);
-    let type = 'Zone sombre';
-    if (I > 0.8) type = 'Maximum central';
-    else if (I > 0.2) type = 'Zone éclairée';
-    document.getElementById('mesure-x-diff').textContent = x_mm.toFixed(2) + ' mm';
-    document.getElementById('mesure-type-diff').textContent = type;
-  });
-
-  // ============================================================
-  // EXPÉRIENCE 2 : FENTES D'YOUNG
-  // ============================================================
-  const young = { lambda: 632.8, a: 0.5, D: 2.0, poly: false };
-
-  function calculateIntensityYoung(x_mm, lambda_nm) {
-    const x = x_mm * 1e-3;
-    const lambda = lambda_nm * 1e-9;
-    const a = young.a * 1e-3;
-    const D = young.D;
-    const phi = Math.PI * a * x / (lambda * D);
-    return Math.cos(phi) * Math.cos(phi);
-  }
-
-  function drawScreenYoung() {
-    const canvas = document.getElementById('screen-canvas-young');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-    const w = canvas.offsetWidth;
-    const h = canvas.offsetHeight;
-
-    if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
-      canvas.width = Math.round(w * dpr);
-      canvas.height = Math.round(h * dpr);
-    }
-
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, w, h);
-
-    if (!etat.young.started) return;
-
-    const screenWidthMm = 20;
-    const pixelCount = Math.floor(w);
-    for (let i = 0; i < pixelCount; i++) {
-      const x_mm = (i / pixelCount - 0.5) * screenWidthMm;
-      let r, g, b;
-      if (young.poly) {
-        let sumR = 0, sumG = 0, sumB = 0, count = 0;
-        for (let lam = 400; lam <= 700; lam += 10) {
-          const I = calculateIntensityYoung(x_mm, lam);
-          const rgb = lambdaToRGB(lam);
-          sumR += rgb.r * I; sumG += rgb.g * I; sumB += rgb.b * I; count++;
-        }
-        r = Math.min(255, sumR / count * 2);
-        g = Math.min(255, sumG / count * 2);
-        b = Math.min(255, sumB / count * 2);
-      } else {
-        const I = calculateIntensityYoung(x_mm, young.lambda);
-        const rgb = lambdaToRGB(young.lambda);
-        r = rgb.r * I; g = rgb.g * I; b = rgb.b * I;
-      }
-      ctx.fillStyle = `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
-      ctx.fillRect(i, 0, 1, h);
-    }
-
-    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath();
-    ctx.moveTo(w / 2, 0);
-    ctx.lineTo(w / 2, h);
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }
-
-  function drawChartYoung() {
-    const canvas = document.getElementById('chart-young');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (etat.young.chart) etat.young.chart.destroy();
-
-    const screenWidthMm = 20;
-    const points = [];
-    for (let x = -screenWidthMm / 2; x <= screenWidthMm / 2; x += 0.05) {
-      if (young.poly) {
-        let I = 0;
-        for (let lam = 400; lam <= 700; lam += 20) I += calculateIntensityYoung(x, lam);
-        points.push({ x, y: I / 16 });
-      } else {
-        points.push({ x, y: calculateIntensityYoung(x, young.lambda) });
-      }
-    }
-
-    const color = young.poly ? '#A8853F' : `rgb(${lambdaToRGB(young.lambda).r},${lambdaToRGB(young.lambda).g},${lambdaToRGB(young.lambda).b})`;
-
-    etat.young.chart = new Chart(ctx, {
-      type: 'line',
-      data: { datasets: [{ label: 'Intensité', data: points, borderColor: color, backgroundColor: 'rgba(168,133,63,0.08)', borderWidth: 2, fill: true, pointRadius: 0, tension: 0.1 }] },
-      options: {
-        responsive: true, maintainAspectRatio: false, parsing: false,
-        animation: { duration: 300 },
-        scales: {
-          x: { type: 'linear', title: { display: true, text: 'Position x (mm)' }, min: -screenWidthMm / 2, max: screenWidthMm / 2 },
-          y: { title: { display: true, text: 'I / I₀' }, min: 0, max: 1.05 }
-        },
-        plugins: { legend: { display: false } }
-      }
-    });
-  }
-
-  function updateResultsYoung() {
-    const lambda = young.lambda * 1e-9;
-    const a = young.a * 1e-3;
-    const i_mm = lambda * young.D / a * 1000;
-    const nu = C_LIGHT / lambda;
-    const E = H_PLANCK * nu;
-    document.getElementById('info-interfrange-young').textContent = i_mm.toFixed(3) + ' mm';
-    document.getElementById('info-frequence-young').textContent = (nu / 1e12).toFixed(1) + ' THz';
-    document.getElementById('info-energie-young').textContent = (E / 1.602e-19).toFixed(2) + ' eV';
-  }
-
-  function updateTableYoung() {
-    const tbody = document.getElementById('table-body-young');
-    tbody.innerHTML = '';
-    const lambda = young.lambda * 1e-9;
-    const a = young.a * 1e-3;
-    const i_mm = lambda * young.D / a * 1000;
-    let rows = '';
-    for (let k = -5; k <= 5; k++) {
-      const xk = k * i_mm;
-      if (Math.abs(xk) > 10) continue;
-      const delta = a * xk * 1e-3 / young.D * 1e9;
-      const ratio = delta / young.lambda;
-      const type = k === 0 ? 'Maximum central' : `Maximum ordre ${k}`;
-      rows += `<tr class="maxima"><td>k = ${k}</td><td>${xk.toFixed(3)} mm</td><td>${delta.toFixed(0)} nm</td><td>${ratio.toFixed(2)}</td><td>${type}</td></tr>`;
-    }
-    tbody.innerHTML = rows;
-  }
-
-  function updateSchemaValuesYoung() {
-    const l = document.getElementById('schema-lambda-young');
-    const a = document.getElementById('schema-a-young');
-    const D = document.getElementById('schema-D-young');
-    if (l) l.textContent = formatLambda(young.lambda);
-    if (a) a.textContent = young.a.toFixed(2).replace('.', ',');
-    if (D) D.textContent = young.D.toFixed(2).replace('.', ',');
-  }
-
-  function refreshYoung() {
-    updateResultsYoung();
-    updateSchemaValuesYoung();
-    updateOverlayColor('overlay-young', young.poly, young.lambda);
-    if (etat.young.started) {
-      drawScreenYoung();
-      drawChartYoung();
-      updateTableYoung();
-    }
-  }
-
-  setupLambdaControl('young', (poly, l) => { young.poly = poly; young.lambda = l; refreshYoung(); });
-
-  document.getElementById('a-slider-young').addEventListener('input', (e) => {
-    young.a = parseFloat(e.target.value);
-    document.getElementById('a-value-young').textContent = young.a.toFixed(2).replace('.', ',') + ' mm';
-    refreshYoung();
-  });
-
-  document.getElementById('D-slider-young').addEventListener('input', (e) => {
-    young.D = parseFloat(e.target.value);
-    document.getElementById('D-value-young').textContent = young.D.toFixed(2).replace('.', ',') + ' m';
-    refreshYoung();
-  });
-
-  function demarrerYoung() {
-    etat.young.started = true;
-    document.getElementById('overlay-young').classList.add('hidden');
-    document.getElementById('btn-mesure-young').disabled = false;
-    document.querySelectorAll('.exp-panel[data-panel="young"] .arcs-s1, .exp-panel[data-panel="young"] .arcs-s2').forEach(el => el.style.display = 'block');
-    refreshYoung();
-  }
-
-  document.getElementById('btn-start-young').onclick = demarrerYoung;
-  document.getElementById('btn-start-overlay-young').onclick = demarrerYoung;
-
-  document.getElementById('btn-reset-young').onclick = () => {
-    etat.young.started = false;
-    etat.young.mesure = false;
-    document.getElementById('overlay-young').classList.remove('hidden');
-    document.getElementById('btn-mesure-young').disabled = true;
-    document.querySelectorAll('.exp-panel[data-panel="young"] .arcs-s1, .exp-panel[data-panel="young"] .arcs-s2').forEach(el => el.style.display = 'none');
-    document.getElementById('mesure-zone-young').classList.remove('active');
-    const c = document.getElementById('screen-canvas-young');
-    const ctx = c.getContext('2d');
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, c.width, c.height);
-    if (etat.young.chart) { etat.young.chart.destroy(); etat.young.chart = null; }
-    document.getElementById('table-body-young').innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--slate); font-style:italic;">Cliquez sur "Démarrer l\'expérience" pour voir les résultats</td></tr>';
-  };
-
-  document.getElementById('btn-mesure-young').onclick = () => {
-    etat.young.mesure = !etat.young.mesure;
-    document.getElementById('mesure-zone-young').classList.toggle('active', etat.young.mesure);
-    document.getElementById('btn-mesure-young').textContent = etat.young.mesure ? '📏 Désactiver Mesure' : '📏 Mode Mesure';
-  };
-
-  document.getElementById('screen-canvas-young').addEventListener('click', (e) => {
-    if (!etat.young.mesure) return;
-    const rect = e.target.getBoundingClientRect();
-    const x_mm = ((e.clientX - rect.left) / rect.width - 0.5) * 20;
-    const i_mm = young.lambda * 1e-9 * young.D / (young.a * 1e-3) * 1000;
-    const k = Math.round(x_mm / i_mm);
-    const lambdaDeduite = (x_mm / k) * (young.a * 1e-3) / young.D * 1e9;
-    document.getElementById('mesure-x-young').textContent = x_mm.toFixed(3) + ' mm';
-    document.getElementById('mesure-k-young').textContent = k;
-    document.getElementById('mesure-lambda-young').textContent = (isNaN(lambdaDeduite) || !isFinite(lambdaDeduite)) ? '—' : lambdaDeduite.toFixed(1);
-  });
-
-  // ============================================================
-  // EXPÉRIENCE 3 : YOUNG AVEC FENTE SOURCE
-  // ============================================================
-  const youngSource = { lambda: 632.8, a: 0.5, b: 0.05, D: 2.0, poly: false };
-
-  function calculateIntensityYoungSource(x_mm, lambda_nm) {
-    const x = x_mm * 1e-3;
-    const lambda = lambda_nm * 1e-9;
-    const a = youngSource.a * 1e-3;
-    const b = youngSource.b * 1e-3;
-    const D = youngSource.D;
-    const phiInterf = Math.PI * a * x / (lambda * D);
-    const uDiff = Math.PI * b * x / (lambda * D);
-    return Math.cos(phiInterf) ** 2 * sinc(uDiff) ** 2;
-  }
-
-  function drawScreenYoungSource() {
-    const canvas = document.getElementById('screen-canvas-young-source');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-    const w = canvas.offsetWidth;
-    const h = canvas.offsetHeight;
-
-    if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
-      canvas.width = Math.round(w * dpr);
-      canvas.height = Math.round(h * dpr);
-    }
-
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, w, h);
-
-    if (!etat.youngSource.started) return;
-
-    const screenWidthMm = 20;
-    const pixelCount = Math.floor(w);
-    for (let i = 0; i < pixelCount; i++) {
-      const x_mm = (i / pixelCount - 0.5) * screenWidthMm;
-      let r, g, b;
-      if (youngSource.poly) {
-        let sumR = 0, sumG = 0, sumB = 0, count = 0;
-        for (let lam = 400; lam <= 700; lam += 10) {
-          const I = calculateIntensityYoungSource(x_mm, lam);
-          const rgb = lambdaToRGB(lam);
-          sumR += rgb.r * I; sumG += rgb.g * I; sumB += rgb.b * I; count++;
-        }
-        r = Math.min(255, sumR / count * 2.5);
-        g = Math.min(255, sumG / count * 2.5);
-        b = Math.min(255, sumB / count * 2.5);
-      } else {
-        const I = calculateIntensityYoungSource(x_mm, youngSource.lambda);
-        const rgb = lambdaToRGB(youngSource.lambda);
-        r = rgb.r * I; g = rgb.g * I; b = rgb.b * I;
-      }
-      ctx.fillStyle = `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
-      ctx.fillRect(i, 0, 1, h);
-    }
-
-    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath();
-    ctx.moveTo(w / 2, 0);
-    ctx.lineTo(w / 2, h);
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }
-
-  function drawChartYoungSource() {
-    const canvas = document.getElementById('chart-young-source');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (etat.youngSource.chart) etat.youngSource.chart.destroy();
-
-    const screenWidthMm = 20;
-    const points = [];
-    for (let x = -screenWidthMm / 2; x <= screenWidthMm / 2; x += 0.05) {
-      if (youngSource.poly) {
-        let I = 0;
-        for (let lam = 400; lam <= 700; lam += 20) I += calculateIntensityYoungSource(x, lam);
-        points.push({ x, y: I / 16 });
-      } else {
-        points.push({ x, y: calculateIntensityYoungSource(x, youngSource.lambda) });
-      }
-    }
-
-    const color = youngSource.poly ? '#A8853F' : `rgb(${lambdaToRGB(youngSource.lambda).r},${lambdaToRGB(youngSource.lambda).g},${lambdaToRGB(youngSource.lambda).b})`;
-
-    etat.youngSource.chart = new Chart(ctx, {
-      type: 'line',
-      data: { datasets: [{ label: 'Intensité', data: points, borderColor: color, backgroundColor: 'rgba(168,133,63,0.08)', borderWidth: 2, fill: true, pointRadius: 0, tension: 0.1 }] },
-      options: {
-        responsive: true, maintainAspectRatio: false, parsing: false,
-        animation: { duration: 300 },
-        scales: {
-          x: { type: 'linear', title: { display: true, text: 'Position x (mm)' }, min: -screenWidthMm / 2, max: screenWidthMm / 2 },
-          y: { title: { display: true, text: 'I / I₀' }, min: 0, max: 1.05 }
-        },
-        plugins: { legend: { display: false } }
-      }
-    });
-  }
-
-  function updateResultsYoungSource() {
-    const lambda = youngSource.lambda * 1e-9;
-    const a = youngSource.a * 1e-3;
-    const b = youngSource.b * 1e-3;
-    const D = youngSource.D;
-    const i_mm = lambda * D / a * 1000;
-    const enveloppe_mm = 2 * lambda * D / b * 1000;
-    const nu = C_LIGHT / lambda;
-    const E = H_PLANCK * nu;
-    document.getElementById('info-interfrange-young-source').textContent = i_mm.toFixed(3) + ' mm';
-    document.getElementById('info-enveloppe-young-source').textContent = enveloppe_mm.toFixed(2) + ' mm';
-    document.getElementById('info-frequence-young-source').textContent = (nu / 1e12).toFixed(1) + ' THz';
-    document.getElementById('info-energie-young-source').textContent = (E / 1.602e-19).toFixed(2) + ' eV';
-  }
-
-  function updateTableYoungSource() {
-    const tbody = document.getElementById('table-body-young-source');
-    tbody.innerHTML = '';
-    const lambda = youngSource.lambda * 1e-9;
-    const a = youngSource.a * 1e-3;
-    const i_mm = lambda * youngSource.D / a * 1000;
-    let rows = '';
-    for (let k = -6; k <= 6; k++) {
-      const xk = k * i_mm;
-      if (Math.abs(xk) > 10) continue;
-      const I = calculateIntensityYoungSource(xk, youngSource.lambda);
-      const type = k === 0 ? 'Maximum central' : `Maximum ordre ${k}`;
-      rows += `<tr class="maxima"><td>k = ${k}</td><td>${xk.toFixed(3)} mm</td><td>${(I * 100).toFixed(1)} %</td><td>${type}</td></tr>`;
-    }
-    tbody.innerHTML = rows;
-  }
-
-  function updateSchemaValuesYoungSource() {
-    const l = document.getElementById('schema-lambda-young-source');
-    const a = document.getElementById('schema-a-young-source');
-    const b = document.getElementById('schema-b-young-source');
-    const D = document.getElementById('schema-D-young-source');
-    if (l) l.textContent = formatLambda(youngSource.lambda);
-    if (a) a.textContent = youngSource.a.toFixed(2).replace('.', ',');
-    if (b) b.textContent = youngSource.b.toFixed(3).replace('.', ',');
-    if (D) D.textContent = youngSource.D.toFixed(2).replace('.', ',');
-  }
-
-  function refreshYoungSource() {
-    updateResultsYoungSource();
-    updateSchemaValuesYoungSource();
-    updateOverlayColor('overlay-young-source', youngSource.poly, youngSource.lambda);
-    if (etat.youngSource.started) {
-      drawScreenYoungSource();
-      drawChartYoungSource();
-      updateTableYoungSource();
-    }
-  }
-
-  setupLambdaControl('young-source', (poly, l) => { youngSource.poly = poly; youngSource.lambda = l; refreshYoungSource(); });
-
-  document.getElementById('b-slider-young-source').addEventListener('input', (e) => {
-    youngSource.b = parseFloat(e.target.value);
-    document.getElementById('b-value-young-source').textContent = youngSource.b.toFixed(3).replace('.', ',') + ' mm';
-    refreshYoungSource();
-  });
-
-  document.getElementById('a-slider-young-source').addEventListener('input', (e) => {
-    youngSource.a = parseFloat(e.target.value);
-    document.getElementById('a-value-young-source').textContent = youngSource.a.toFixed(2).replace('.', ',') + ' mm';
-    refreshYoungSource();
-  });
-
-  document.getElementById('D-slider-young-source').addEventListener('input', (e) => {
-    youngSource.D = parseFloat(e.target.value);
-    document.getElementById('D-value-young-source').textContent = youngSource.D.toFixed(2).replace('.', ',') + ' m';
-    refreshYoungSource();
-  });
-
-  function demarrerYoungSource() {
-    etat.youngSource.started = true;
-    document.getElementById('overlay-young-source').classList.add('hidden');
-    document.getElementById('btn-mesure-young-source').disabled = false;
-    document.querySelectorAll('.exp-panel[data-panel="young-source"] .arcs-s, .exp-panel[data-panel="young-source"] .arcs-y1, .exp-panel[data-panel="young-source"] .arcs-y2').forEach(el => el.style.display = 'block');
-    refreshYoungSource();
-  }
-
-  document.getElementById('btn-start-young-source').onclick = demarrerYoungSource;
-  document.getElementById('btn-start-overlay-young-source').onclick = demarrerYoungSource;
-
-  document.getElementById('btn-reset-young-source').onclick = () => {
-    etat.youngSource.started = false;
-    etat.youngSource.mesure = false;
-    document.getElementById('overlay-young-source').classList.remove('hidden');
-    document.getElementById('btn-mesure-young-source').disabled = true;
-    document.querySelectorAll('.exp-panel[data-panel="young-source"] .arcs-s, .exp-panel[data-panel="young-source"] .arcs-y1, .exp-panel[data-panel="young-source"] .arcs-y2').forEach(el => el.style.display = 'none');
-    document.getElementById('mesure-zone-young-source').classList.remove('active');
-    const c = document.getElementById('screen-canvas-young-source');
-    const ctx = c.getContext('2d');
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, c.width, c.height);
-    if (etat.youngSource.chart) { etat.youngSource.chart.destroy(); etat.youngSource.chart = null; }
-    document.getElementById('table-body-young-source').innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--slate); font-style:italic;">Cliquez sur "Démarrer l\'expérience" pour voir les résultats</td></tr>';
-  };
-
-  document.getElementById('btn-mesure-young-source').onclick = () => {
-    etat.youngSource.mesure = !etat.youngSource.mesure;
-    document.getElementById('mesure-zone-young-source').classList.toggle('active', etat.youngSource.mesure);
-    document.getElementById('btn-mesure-young-source').textContent = etat.youngSource.mesure ? '📏 Désactiver Mesure' : '📏 Mode Mesure';
-  };
-
-  document.getElementById('screen-canvas-young-source').addEventListener('click', (e) => {
-    if (!etat.youngSource.mesure) return;
-    const rect = e.target.getBoundingClientRect();
-    const x_mm = ((e.clientX - rect.left) / rect.width - 0.5) * 20;
-    const i_mm = youngSource.lambda * 1e-9 * youngSource.D / (youngSource.a * 1e-3) * 1000;
-    const k = Math.round(x_mm / i_mm);
-    const lambdaDeduite = (x_mm / k) * (youngSource.a * 1e-3) / youngSource.D * 1e9;
-    document.getElementById('mesure-x-young-source').textContent = x_mm.toFixed(3) + ' mm';
-    document.getElementById('mesure-k-young-source').textContent = k;
-    document.getElementById('mesure-lambda-young-source').textContent = (isNaN(lambdaDeduite) || !isFinite(lambdaDeduite)) ? '—' : lambdaDeduite.toFixed(1);
-  });
-
-  // ============================================================
-  // RESIZE
-  // ============================================================
-  window.addEventListener('resize', () => {
-    if (etat.diffraction.started) drawScreenDiff();
-    if (etat.young.started) drawScreenYoung();
-    if (etat.youngSource.started) drawScreenYoungSource();
-  });
-
-  // INIT
-  refreshDiff();
-  refreshYoung();
-  refreshYoungSource();
-
-  console.log('✅ Simulateur d\'interférences chargé');
-</script>
-</body>
-</html>
+          let yMin, yMax;
+          if (signe > 0) {
+            yMin = S_CY - 400;
+            yMax
