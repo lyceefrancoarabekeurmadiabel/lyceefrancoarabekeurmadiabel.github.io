@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulation - Fentes de Young</title>
+<title>Fentes de Young — Simulation interactive</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   
@@ -13,7 +13,12 @@
     color: #eee;
     min-height: 100vh;
     padding: 20px;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s;
   }
+  
+  body.loaded { visibility: visible; opacity: 1; }
   
   .container {
     max-width: 1100px;
@@ -57,8 +62,110 @@
     border: 2px solid #4fc3f7;
   }
   
+  /* ==== Bloc regroupé écran + courbe ==== */
+  .observation-block {
+    background: #000;
+    border-radius: 12px;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 2px solid #4fc3f7;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .observation-label {
+    color: #4fc3f7;
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 4px 8px;
+    font-weight: bold;
+    opacity: 0.8;
+  }
+  
+  .axis-hint {
+    text-align: center;
+    color: #666;
+    font-size: 0.75em;
+    padding: 2px 0 4px;
+    font-family: monospace;
+  }
+  
   canvas { display: block; width: 100%; height: auto; }
   
+  /* ==== Notice ==== */
+  .notice {
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    background: rgba(79, 195, 247, 0.08);
+    border-radius: 10px;
+    border-left: 3px solid #4fc3f7;
+  }
+  
+  .notice summary {
+    cursor: pointer;
+    color: #4fc3f7;
+    font-weight: bold;
+    font-size: 0.95em;
+    list-style: none;
+  }
+  
+  .notice summary::-webkit-details-marker { display: none; }
+  .notice summary::before { content: "📖 "; }
+  
+  .notice ol {
+    margin: 12px 0 4px 20px;
+    line-height: 1.9;
+    color: #ccc;
+    font-size: 0.9em;
+  }
+  
+  /* ==== Sélecteur source ==== */
+  .source-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .source-btn {
+    padding: 12px 8px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: #ddd;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: bold;
+    transition: all 0.25s;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .source-btn:hover {
+    background: rgba(79, 195, 247, 0.15);
+    border-color: rgba(79, 195, 247, 0.5);
+  }
+  
+  .source-btn.active {
+    background: rgba(79, 195, 247, 0.2);
+    border-color: #4fc3f7;
+    color: #4fc3f7;
+    box-shadow: 0 0 15px rgba(79, 195, 247, 0.3);
+  }
+  
+  .source-btn .dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    box-shadow: 0 0 8px currentColor;
+  }
+  
+  /* ==== Contrôles ==== */
   .controls {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -71,6 +178,12 @@
     padding: 14px;
     border-radius: 10px;
     border-left: 3px solid #4fc3f7;
+    transition: opacity 0.3s;
+  }
+  
+  .control-group.disabled {
+    opacity: 0.35;
+    pointer-events: none;
   }
   
   .control-group label {
@@ -98,6 +211,7 @@
     cursor: not-allowed;
   }
   
+  /* ==== Info panel ==== */
   .info-panel {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -126,6 +240,7 @@
     margin-top: 4px;
   }
   
+  /* ==== Boutons ==== */
   .button-bar {
     display: flex;
     justify-content: center;
@@ -187,11 +302,69 @@
   
   .status.active { color: #4fc3f7; }
   
-  .legend {
-    text-align: center;
-    font-size: 0.85em;
-    color: #888;
-    margin-top: 12px;
+  /* ==== Encadré pédagogique ==== */
+  .summary-box {
+    margin-top: 20px;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, rgba(79, 195, 247, 0.15), rgba(41, 182, 246, 0.08));
+    border-radius: 12px;
+    border: 1px solid rgba(79, 195, 247, 0.4);
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.6s, max-height 0.6s, padding 0.6s;
+  }
+  
+  .summary-box.visible {
+    opacity: 1;
+    max-height: 600px;
+    padding: 20px 24px;
+  }
+  
+  .summary-box h3 {
+    color: #4fc3f7;
+    margin-bottom: 12px;
+    font-size: 1.1em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .summary-box ul {
+    list-style: none;
+    line-height: 1.9;
+    color: #ddd;
+    font-size: 0.92em;
+  }
+  
+  .summary-box ul li::before {
+    content: "✓ ";
+    color: #4fc3f7;
+    font-weight: bold;
+    margin-right: 6px;
+  }
+  
+  .summary-box .formula {
+    display: inline-block;
+    padding: 4px 10px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+    font-family: monospace;
+    color: #ffd54f;
+    margin: 4px 2px;
+  }
+  
+  /* ==== Responsive ==== */
+  @media (max-width: 768px) {
+    .container { padding: 15px; }
+    h1 { font-size: 1.3em; }
+    .subtitle { font-size: 0.85em; }
+    .source-picker { grid-template-columns: repeat(2, 1fr); }
+    .controls { grid-template-columns: 1fr; }
+    .button-bar { flex-direction: column; }
+    .btn { width: 100%; justify-content: center; }
+    .info-panel { grid-template-columns: 1fr; }
+    .summary-box { padding: 16px; }
   }
 </style>
 </head>
@@ -201,25 +374,62 @@
   <h1>🔬 Simulation des Fentes de Young</h1>
   <p class="subtitle">Interférences lumineuses — Expérience de Thomas Young (1801)</p>
 
-  <!-- ===== SCHÉMA DU DISPOSITIF ===== -->
+  <!-- Notice -->
+  <details class="notice">
+    <summary>Comment utiliser cette simulation ?</summary>
+    <ol>
+      <li>Choisissez un <b>type de source</b> (mono, blanc, sodium, mercure, RGB)</li>
+      <li>Réglez les paramètres avec les <b>curseurs</b> (λ, a, b, D)</li>
+      <li>Cliquez sur <b>« Démarrer l'expérience »</b></li>
+      <li>Observez la <b>propagation de la lumière</b> puis la <b>figure d'interférence</b></li>
+      <li>Comparez avec d'<b>autres sources</b> pour voir la différence !</li>
+    </ol>
+  </details>
+
+  <!-- Source -->
+  <div class="section-title">Type de source lumineuse</div>
+  <div class="source-picker" id="sourcePicker">
+    <button class="source-btn active" data-source="mono">
+      <span class="dot" style="background:#00ff00; color:#00ff00;"></span>
+      Monochromatique
+    </button>
+    <button class="source-btn" data-source="white">
+      <span class="dot" style="background:linear-gradient(90deg,#ff0000,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff); color:#fff;"></span>
+      Lumière blanche
+    </button>
+    <button class="source-btn" data-source="sodium">
+      <span class="dot" style="background:#ffcc00; color:#ffcc00;"></span>
+      Sodium (jaune)
+    </button>
+    <button class="source-btn" data-source="mercury">
+      <span class="dot" style="background:#a78bfa; color:#a78bfa;"></span>
+      Mercure (violet-vert)
+    </button>
+    <button class="source-btn" data-source="rgb">
+      <span class="dot" style="background:linear-gradient(90deg,#ff0000,#00ff00,#0000ff); color:#fff;"></span>
+      Trichromatique RGB
+    </button>
+  </div>
+
+  <!-- Dispositif -->
   <div class="section-title">Dispositif expérimental</div>
   <div class="canvas-wrapper">
     <canvas id="setupCanvas" width="1000" height="280"></canvas>
   </div>
 
-  <!-- ===== FRANGES ===== -->
-  <div class="section-title">Observation sur l'écran</div>
-  <div class="canvas-wrapper">
-    <canvas id="screenCanvas" width="1000" height="200"></canvas>
+  <!-- BLOC REGROUPÉ : ÉCRAN + PROFIL -->
+  <div class="section-title">Observation sur l'écran & profil d'intensité</div>
+  <div class="observation-block">
+    <div class="observation-label">📍 Vue de l'écran</div>
+    <canvas id="screenCanvas" width="1000" height="160"></canvas>
+    
+    <div class="axis-hint">↓ position x (mm) — axe aligné avec l'écran ci-dessus ↓</div>
+    
+    <div class="observation-label">📊 Profil d'intensité I(x)</div>
+    <canvas id="curveCanvas" width="1000" height="220"></canvas>
   </div>
 
-  <!-- ===== COURBE ===== -->
-  <div class="section-title">Profil d'intensité</div>
-  <div class="canvas-wrapper">
-    <canvas id="curveCanvas" width="1000" height="250"></canvas>
-  </div>
-
-  <!-- ===== BOUTONS ===== -->
+  <!-- Boutons -->
   <div class="button-bar">
     <button class="btn btn-start" id="startBtn" onclick="startExperiment()">
       ▶ Démarrer l'expérience
@@ -230,8 +440,9 @@
   </div>
   <p class="status" id="status">Cliquez sur « Démarrer l'expérience » pour voir la propagation de la lumière.</p>
 
+  <!-- Contrôles -->
   <div class="controls">
-    <div class="control-group">
+    <div class="control-group" id="lambdaGroup">
       <label>Longueur d'onde λ <span class="value" id="lamVal">500 nm</span></label>
       <input type="range" id="lambda" min="380" max="750" value="500" step="1">
     </div>
@@ -252,9 +463,10 @@
     </div>
   </div>
 
+  <!-- Infos -->
   <div class="info-panel">
     <div class="info-item">
-      <div class="label">Interfrange i</div>
+      <div class="label">Interfrange moyen</div>
       <div class="val" id="interfrange">— mm</div>
     </div>
     <div class="info-item">
@@ -265,6 +477,14 @@
       <div class="label">Nombre de franges visibles</div>
       <div class="val" id="nbFranges">—</div>
     </div>
+  </div>
+
+  <!-- Encadré final pédagogique -->
+  <div class="summary-box" id="summaryBox">
+    <h3>🎓 Ce qu'il faut retenir</h3>
+    <ul id="summaryContent">
+      <!-- Rempli dynamiquement -->
+    </ul>
   </div>
 </div>
 
@@ -284,19 +504,79 @@ const inputs = {
   D: document.getElementById('D')
 };
 
-const statusEl = document.getElementById('status');
-const startBtn = document.getElementById('startBtn');
+const statusEl    = document.getElementById('status');
+const startBtn    = document.getElementById('startBtn');
+const lambdaGroup = document.getElementById('lambdaGroup');
+const summaryBox  = document.getElementById('summaryBox');
+const summaryCont = document.getElementById('summaryContent');
 
-// ===== État de l'animation =====
+let currentSource = 'mono';
 let animationState = {
   running: false,
-  progress: 0,        // 0 → 1 (progression du front lumineux)
+  progress: 0,
   startTime: 0,
-  duration: 3000,     // durée de l'animation en ms
+  duration: 3000,
   rafId: null
 };
 
-// ===== Longueur d'onde → RGB =====
+// ============================================================
+//  SPECTRES
+// ============================================================
+function gaussian(x, mu, sigma) {
+  return Math.exp(-((x - mu) ** 2) / (2 * sigma ** 2));
+}
+
+function getSpectrum(source, monoLambda) {
+  switch (source) {
+    case 'mono':
+      return [{ wl: monoLambda, weight: 1 }];
+
+    case 'white': {
+      const s = [];
+      for (let wl = 380; wl <= 750; wl += 5) {
+        const eye = gaussian(wl, 555, 90) * 0.7 + 0.3;
+        s.push({ wl, weight: eye });
+      }
+      return s;
+    }
+
+    case 'sodium': {
+      const s = [];
+      for (let wl = 570; wl <= 610; wl += 1) {
+        const w = gaussian(wl, 589, 1.5) + gaussian(wl, 589.6, 1.5);
+        if (w > 0.01) s.push({ wl, weight: w });
+      }
+      return s;
+    }
+
+    case 'mercury': {
+      const raies = [
+        { wl: 404.7, amp: 0.5 },
+        { wl: 435.8, amp: 0.8 },
+        { wl: 546.1, amp: 1.0 },
+        { wl: 577.0, amp: 0.6 },
+        { wl: 579.1, amp: 0.6 }
+      ];
+      const s = [];
+      for (let wl = 380; wl <= 650; wl += 1) {
+        let w = 0;
+        raies.forEach(r => { w += r.amp * gaussian(wl, r.wl, 2); });
+        if (w > 0.01) s.push({ wl, weight: w });
+      }
+      return s;
+    }
+
+    case 'rgb':
+      return [
+        { wl: 610, weight: 1.0 },
+        { wl: 545, weight: 1.0 },
+        { wl: 465, weight: 1.0 }
+      ];
+  }
+  return [{ wl: monoLambda, weight: 1 }];
+}
+
+// ===== λ → RGB =====
 function wavelengthToRGB(wl) {
   let R, G, B;
   if (wl >= 380 && wl < 440) { R = -(wl-440)/(440-380); G = 0; B = 1; }
@@ -327,24 +607,72 @@ function updateLabels() {
 }
 
 // ============================================================
-//  DESSIN DU DISPOSITIF (avec progression optionnelle)
+//  INTENSITÉ MULTI-λ
 // ============================================================
-function drawSetup(lam, a, b, D, r, g, bl, progress) {
+function intensityAt(x, spectrum, a, b, D) {
+  let R = 0, G = 0, B = 0;
+  let wTotal = 0;
+
+  for (let i = 0; i < spectrum.length; i++) {
+    const { wl, weight } = spectrum[i];
+    const lam = wl * 1e-9;
+
+    const phase = Math.PI * a * x / (lam * D);
+    const interference = Math.cos(phase) ** 2;
+
+    let diffract = 1;
+    if (b > 0) {
+      const beta = Math.PI * b * x / (lam * D);
+      diffract = beta === 0 ? 1 : (Math.sin(beta) / beta) ** 2;
+    }
+
+    const I = interference * diffract * weight;
+    const [r, g, bl] = wavelengthToRGB(wl);
+    R += r * I;
+    G += g * I;
+    B += bl * I;
+    wTotal += weight;
+  }
+
+  if (wTotal > 0) { R /= wTotal; G /= wTotal; B /= wTotal; }
+  return { R, G, B };
+}
+
+function scalarIntensityAt(x, spectrum, a, b, D) {
+  const { R, G, B } = intensityAt(x, spectrum, a, b, D);
+  return (R + G + B) / 3 / 255;
+}
+
+function getAverageColor(spectrum) {
+  let R = 0, G = 0, B = 0, wT = 0;
+  spectrum.forEach(({ wl, weight }) => {
+    const [r, g, b] = wavelengthToRGB(wl);
+    R += r * weight; G += g * weight; B += b * weight; wT += weight;
+  });
+  if (wT > 0) { R /= wT; G /= wT; B /= wT; }
+  return [Math.round(R), Math.round(G), Math.round(B)];
+}
+
+function getLambdaMoy(spectrum) {
+  return spectrum.reduce((s, c) => s + c.wl * c.weight, 0) / spectrum.reduce((s, c) => s + c.weight, 0);
+}
+
+// ============================================================
+//  DISPOSITIF
+// ============================================================
+function drawSetup(spectrum, a, b, D, progress) {
+  const [r, g, bl] = getAverageColor(spectrum);
+
   const W = canvasSetup.width;
   const H = canvasSetup.height;
   ctxSetup.clearRect(0, 0, W, H);
   ctxSetup.fillStyle = '#0a0a1a';
   ctxSetup.fillRect(0, 0, W, H);
 
-  const laserX  = 60;
-  const fenteX  = 420;
-  const ecranX  = 900;
-  const axisY   = H / 2;
-
-  const scaleA  = 220;
-  const aNorm   = a / 1e-3;
-  const bNorm   = b / 1e-3;
-  const sepPx   = Math.max(30, aNorm * scaleA);
+  const laserX = 60, fenteX = 420, ecranX = 900, axisY = H / 2;
+  const scaleA = 220;
+  const aNorm = a / 1e-3, bNorm = b / 1e-3;
+  const sepPx = Math.max(30, aNorm * scaleA);
   const widthPx = Math.max(4, bNorm * scaleA * 0.6);
   const barWidth = 14;
   const topBar = axisY - sepPx/2 - widthPx/2;
@@ -353,12 +681,8 @@ function drawSetup(lam, a, b, D, r, g, bl, progress) {
   const s1 = { x: fenteX + barWidth/2, y: axisY - sepPx/2 };
   const s2 = { x: fenteX + barWidth/2, y: axisY + sepPx/2 };
 
-  // ============================================
-  //  1. FAISCEAU INCIDENT (laser → fentes)
-  // ============================================
-  // Longueur du trajet laser → fentes
+  // Faisceau incident
   const distLaserFente = fenteX - 20 - (laserX + 45);
-  // Front de lumière entre laser et fentes (0 → 1 dans la 1ère moitié)
   const progLaser = Math.min(1, progress * 2);
   const xFrontLaser = (laserX + 45) + distLaserFente * progLaser;
 
@@ -372,10 +696,8 @@ function drawSetup(lam, a, b, D, r, g, bl, progress) {
     ctxSetup.closePath();
     ctxSetup.fill();
 
-    // Petites particules (photons) en mouvement
-    const nPhotons = 5;
-    for (let i = 0; i < nPhotons; i++) {
-      const t = ((progress * 3) + i / nPhotons) % 1;
+    for (let i = 0; i < 5; i++) {
+      const t = ((progress * 3) + i / 5) % 1;
       const px = (laserX + 45) + distLaserFente * t;
       if (px < xFrontLaser) {
         ctxSetup.fillStyle = `rgba(${r},${g},${bl},0.9)`;
@@ -386,9 +708,7 @@ function drawSetup(lam, a, b, D, r, g, bl, progress) {
     }
   }
 
-  // ============================================
-  //  2. LASER
-  // ============================================
+  // Laser
   ctxSetup.fillStyle = '#2a2a3e';
   ctxSetup.strokeStyle = '#4fc3f7';
   ctxSetup.lineWidth = 2;
@@ -396,6 +716,11 @@ function drawSetup(lam, a, b, D, r, g, bl, progress) {
   ctxSetup.roundRect(laserX - 45, axisY - 22, 90, 44, 8);
   ctxSetup.fill();
   ctxSetup.stroke();
+
+  ctxSetup.fillStyle = `rgb(${r},${g},${bl})`;
+  ctxSetup.beginPath();
+  ctxSetup.arc(laserX + 30, axisY, 6, 0, Math.PI * 2);
+  ctxSetup.fill();
 
   ctxSetup.fillStyle = '#4fc3f7';
   ctxSetup.font = 'bold 13px monospace';
@@ -405,22 +730,16 @@ function drawSetup(lam, a, b, D, r, g, bl, progress) {
   ctxSetup.font = '12px monospace';
   ctxSetup.fillText('(laser λ)', laserX, axisY + 66);
 
-  // ============================================
-  //  3. BARRE À FENTES
-  // ============================================
+  // Barre fentes
   ctxSetup.fillStyle = '#3a3a52';
   ctxSetup.strokeStyle = '#4fc3f7';
   ctxSetup.lineWidth = 1.5;
-
   ctxSetup.beginPath();
   ctxSetup.rect(fenteX - barWidth/2, 20, barWidth, topBar - 20);
-  ctxSetup.fill();
-  ctxSetup.stroke();
-
+  ctxSetup.fill(); ctxSetup.stroke();
   ctxSetup.beginPath();
   ctxSetup.rect(fenteX - barWidth/2, botBar, barWidth, H - 20 - botBar);
-  ctxSetup.fill();
-  ctxSetup.stroke();
+  ctxSetup.fill(); ctxSetup.stroke();
 
   ctxSetup.strokeStyle = `rgb(${r},${g},${bl})`;
   ctxSetup.lineWidth = 2;
@@ -432,68 +751,66 @@ function drawSetup(lam, a, b, D, r, g, bl, progress) {
   ctxSetup.textAlign = 'center';
   ctxSetup.fillText('FENTES', fenteX, 30);
 
-  // ============================================
-  //  4. RAYONS DIVERGENTS (fentes → écran)
-  // ============================================
+  // Rayons divergents
   const spread = 160;
-  // Progression dans la 2ème moitié : 0 → 1
   const progScreen = Math.max(0, (progress - 0.5) * 2);
   const distFenteEcran = ecranX - s1.x;
   const xFrontScreen = s1.x + distFenteEcran * progScreen;
 
   if (progScreen > 0) {
-    // Cône depuis fente haute (tronqué à la position du front)
     const ratioH = progScreen;
-    const yTopH    = s1.y + (axisY - spread - s1.y) * ratioH;
-    const yBotH    = s1.y + (axisY + spread - s1.y) * ratioH;
-    ctxSetup.fillStyle = `rgba(${r},${g},${bl},0.10)`;
-    ctxSetup.beginPath();
-    ctxSetup.moveTo(s1.x, s1.y);
-    ctxSetup.lineTo(xFrontScreen, yTopH);
-    ctxSetup.lineTo(xFrontScreen, yBotH);
-    ctxSetup.closePath();
-    ctxSetup.fill();
+    const isPoly = spectrum.length > 3;
+    const colorsToDraw = isPoly
+      ? [wavelengthToRGB(450), wavelengthToRGB(550), wavelengthToRGB(650)]
+      : [[r, g, bl]];
 
-    // Cône depuis fente basse
-    const yTopB = s2.y + (axisY - spread - s2.y) * ratioH;
-    const yBotB = s2.y + (axisY + spread - s2.y) * ratioH;
-    ctxSetup.beginPath();
-    ctxSetup.moveTo(s2.x, s2.y);
-    ctxSetup.lineTo(xFrontScreen, yTopB);
-    ctxSetup.lineTo(xFrontScreen, yBotB);
-    ctxSetup.closePath();
-    ctxSetup.fill();
-
-    // Rayons fins tronqués
-    ctxSetup.strokeStyle = `rgba(${r},${g},${bl},0.55)`;
-    ctxSetup.lineWidth = 1;
-    for (let k = -3; k <= 3; k++) {
-      const yEnd = axisY + k * (spread / 3.5);
-      // Fente haute
-      const yH = s1.y + (yEnd - s1.y) * ratioH;
+    colorsToDraw.forEach(([cr, cg, cb]) => {
+      const yTopH = s1.y + (axisY - spread - s1.y) * ratioH;
+      const yBotH = s1.y + (axisY + spread - s1.y) * ratioH;
+      ctxSetup.fillStyle = `rgba(${cr},${cg},${cb},0.07)`;
       ctxSetup.beginPath();
       ctxSetup.moveTo(s1.x, s1.y);
-      ctxSetup.lineTo(xFrontScreen, yH);
-      ctxSetup.stroke();
-      // Fente basse
-      const yB = s2.y + (yEnd - s2.y) * ratioH;
+      ctxSetup.lineTo(xFrontScreen, yTopH);
+      ctxSetup.lineTo(xFrontScreen, yBotH);
+      ctxSetup.closePath();
+      ctxSetup.fill();
+
+      const yTopB = s2.y + (axisY - spread - s2.y) * ratioH;
+      const yBotB = s2.y + (axisY + spread - s2.y) * ratioH;
       ctxSetup.beginPath();
       ctxSetup.moveTo(s2.x, s2.y);
-      ctxSetup.lineTo(xFrontScreen, yB);
-      ctxSetup.stroke();
-    }
+      ctxSetup.lineTo(xFrontScreen, yTopB);
+      ctxSetup.lineTo(xFrontScreen, yBotB);
+      ctxSetup.closePath();
+      ctxSetup.fill();
+    });
+
+    colorsToDraw.forEach(([cr, cg, cb]) => {
+      ctxSetup.strokeStyle = `rgba(${cr},${cg},${cb},0.5)`;
+      ctxSetup.lineWidth = 1;
+      for (let k = -3; k <= 3; k++) {
+        const yEnd = axisY + k * (spread / 3.5);
+        const yH = s1.y + (yEnd - s1.y) * ratioH;
+        ctxSetup.beginPath();
+        ctxSetup.moveTo(s1.x, s1.y);
+        ctxSetup.lineTo(xFrontScreen, yH);
+        ctxSetup.stroke();
+        const yB = s2.y + (yEnd - s2.y) * ratioH;
+        ctxSetup.beginPath();
+        ctxSetup.moveTo(s2.x, s2.y);
+        ctxSetup.lineTo(xFrontScreen, yB);
+        ctxSetup.stroke();
+      }
+    });
   }
 
-  // ============================================
-  //  5. ÉCRAN
-  // ============================================
+  // Écran
   ctxSetup.fillStyle = '#1a1a2e';
   ctxSetup.strokeStyle = '#4fc3f7';
   ctxSetup.lineWidth = 2;
   ctxSetup.fillRect(ecranX, 20, 20, H - 40);
   ctxSetup.strokeRect(ecranX, 20, 20, H - 40);
 
-  // Tache centrale (apparaît seulement quand la lumière atteint l'écran)
   if (progress >= 1) {
     ctxSetup.fillStyle = `rgba(${r},${g},${bl},0.9)`;
     ctxSetup.fillRect(ecranX, axisY - 25, 20, 50);
@@ -504,9 +821,7 @@ function drawSetup(lam, a, b, D, r, g, bl, progress) {
   ctxSetup.textAlign = 'center';
   ctxSetup.fillText('ÉCRAN', ecranX + 10, 15);
 
-  // ============================================
-  //  6. AXE OPTIQUE
-  // ============================================
+  // Axe optique
   ctxSetup.strokeStyle = 'rgba(255,255,255,0.2)';
   ctxSetup.setLineDash([6, 6]);
   ctxSetup.lineWidth = 1;
@@ -516,9 +831,7 @@ function drawSetup(lam, a, b, D, r, g, bl, progress) {
   ctxSetup.stroke();
   ctxSetup.setLineDash([]);
 
-  // ============================================
-  //  7. COTES
-  // ============================================
+  // Cotes
   ctxSetup.strokeStyle = '#ffd54f';
   ctxSetup.fillStyle = '#ffd54f';
   ctxSetup.font = 'bold 13px monospace';
@@ -562,9 +875,18 @@ function drawSetup(lam, a, b, D, r, g, bl, progress) {
   drawArrow(ctxSetup, xCoteB, axisY - sepPx/2, xCoteB, axisY - sepPx/2 - 8);
   ctxSetup.fillText(`b = ${(b*1e3).toFixed(2)} mm`, xCoteB + 55, axisY - sepPx/2 - widthPx/2 + 4);
 
+  // Étiquette λ
   ctxSetup.fillStyle = '#4fc3f7';
   ctxSetup.font = 'bold 12px monospace';
-  ctxSetup.fillText(`λ = ${inputs.lambda.value} nm`, laserX, axisY - 40);
+  let labelSrc = '';
+  switch (currentSource) {
+    case 'mono':    labelSrc = `λ = ${inputs.lambda.value} nm`; break;
+    case 'white':   labelSrc = 'λ : spectre blanc'; break;
+    case 'sodium':  labelSrc = 'λ ≈ 589 nm (Na)'; break;
+    case 'mercury': labelSrc = 'λ : raies Hg'; break;
+    case 'rgb':     labelSrc = 'λ : R-V-B'; break;
+  }
+  ctxSetup.fillText(labelSrc, laserX, axisY - 40);
 }
 
 function drawArrow(ctx, x1, y1, x2, y2) {
@@ -579,50 +901,39 @@ function drawArrow(ctx, x1, y1, x2, y2) {
 }
 
 // ============================================================
-//  FRANGES AVEC PROGRESSION
+//  ÉCRAN
 // ============================================================
-function drawScreen(lam, a, b, D, r, g, bl, progress) {
-  const screenHalfWidth = Math.max((lam * D / a) * 15, 2e-3);
+function drawScreen(spectrum, a, b, D, progress) {
+  const lamMoy = getLambdaMoy(spectrum) * 1e-9;
+  const screenHalfWidth = Math.max((lamMoy * D / a) * 15, 2e-3);
+
   const N = canvasScreen.width;
   const H = canvasScreen.height;
 
-  // Fond noir
   ctxScreen.fillStyle = '#000';
   ctxScreen.fillRect(0, 0, N, H);
 
-  // La lumière arrive sur l'écran uniquement quand progress >= 0.5
-  // Largeur du front (de gauche à droite)
   const progScreen = Math.max(0, (progress - 0.5) * 2);
   if (progScreen <= 0) return;
 
   const imgData = ctxScreen.createImageData(N, H);
+  const colorMap = new Array(N);
 
-  // Le front progresse du centre vers les bords (comme une onde circulaire)
   for (let px = 0; px < N; px++) {
-    // Distance au centre (normalisée 0 → 1)
     const distFromCenter = Math.abs(px - N/2) / (N/2);
-    // Visible si distFromCenter <= progScreen
-    const visible = distFromCenter <= progScreen ? 1 : 0;
-
-    if (visible === 0) continue;
-
+    if (distFromCenter > progScreen) { colorMap[px] = null; continue; }
     const x = (px - N/2) / (N/2) * screenHalfWidth;
-    const phase = Math.PI * a * x / (lam * D);
-    const interference = Math.cos(phase) ** 2;
+    colorMap[px] = intensityAt(x, spectrum, a, b, D);
+  }
 
-    let diffract = 1;
-    if (b > 0) {
-      const beta = Math.PI * b * x / (lam * D);
-      diffract = beta === 0 ? 1 : (Math.sin(beta) / beta) ** 2;
-    }
-
-    const I = interference * diffract;
-
+  for (let px = 0; px < N; px++) {
+    const c = colorMap[px];
+    if (!c) continue;
     for (let py = 0; py < H; py++) {
       const idx = (py * N + px) * 4;
-      imgData.data[idx]     = r * I;
-      imgData.data[idx + 1] = g * I;
-      imgData.data[idx + 2] = bl * I;
+      imgData.data[idx]     = c.R;
+      imgData.data[idx + 1] = c.G;
+      imgData.data[idx + 2] = c.B;
       imgData.data[idx + 3] = 255;
     }
   }
@@ -630,12 +941,13 @@ function drawScreen(lam, a, b, D, r, g, bl, progress) {
 }
 
 // ============================================================
-//  COURBE AVEC PROGRESSION
+//  COURBE
 // ============================================================
-function drawCurve(lam, a, b, D, r, g, bl, progress) {
+function drawCurve(spectrum, a, b, D, progress) {
   const W = canvasCurve.width;
   const H = canvasCurve.height;
-  const screenHalfWidth = Math.max((lam * D / a) * 15, 2e-3);
+  const lamMoy = getLambdaMoy(spectrum) * 1e-9;
+  const screenHalfWidth = Math.max((lamMoy * D / a) * 15, 2e-3);
 
   ctxCurve.clearRect(0, 0, W, H);
   ctxCurve.fillStyle = '#0a0a1a';
@@ -660,75 +972,163 @@ function drawCurve(lam, a, b, D, r, g, bl, progress) {
   ctxCurve.lineTo(W, H - 10);
   ctxCurve.stroke();
 
-  // Courbe uniquement si la lumière est arrivée
   const progScreen = Math.max(0, (progress - 0.5) * 2);
   if (progScreen <= 0) return;
 
-  ctxCurve.beginPath();
-  ctxCurve.strokeStyle = `rgb(${r},${g},${bl})`;
-  ctxCurve.lineWidth = 2;
-  ctxCurve.shadowColor = `rgb(${r},${g},${bl})`;
-  ctxCurve.shadowBlur = 8;
-
-  // On dessine du centre vers l'extérieur
   const xMin = -progScreen * W/2;
   const xMax =  progScreen * W/2;
 
+  // Composantes
+  if (spectrum.length > 3) {
+    const samples = [];
+    for (let k = 0; k < 7; k++) {
+      const idx = Math.floor(k / 7 * spectrum.length);
+      samples.push(spectrum[idx]);
+    }
+    samples.forEach(({ wl }) => {
+      const lam = wl * 1e-9;
+      const [r, g, bl] = wavelengthToRGB(wl);
+      ctxCurve.strokeStyle = `rgba(${r},${g},${bl},0.35)`;
+      ctxCurve.lineWidth = 1;
+      ctxCurve.beginPath();
+      let started = false;
+      for (let px = 0; px < W; px++) {
+        const pxC = px - W/2;
+        if (pxC < xMin || pxC > xMax) { started = false; continue; }
+        const x = pxC / (W/2) * screenHalfWidth;
+        const phase = Math.PI * a * x / (lam * D);
+        const interference = Math.cos(phase) ** 2;
+        let diffract = 1;
+        if (b > 0) {
+          const beta = Math.PI * b * x / (lam * D);
+          diffract = beta === 0 ? 1 : (Math.sin(beta) / beta) ** 2;
+        }
+        const I = interference * diffract;
+        const y = H - I * (H - 20) - 10;
+        if (!started) { ctxCurve.moveTo(px, y); started = true; }
+        else ctxCurve.lineTo(px, y);
+      }
+      ctxCurve.stroke();
+    });
+  }
+
+  // Total
+  const [rAvg, gAvg, bAvg] = getAverageColor(spectrum);
+  ctxCurve.beginPath();
+  ctxCurve.strokeStyle = `rgb(${rAvg},${gAvg},${bAvg})`;
+  ctxCurve.lineWidth = 2.5;
+  ctxCurve.shadowColor = `rgb(${rAvg},${gAvg},${bAvg})`;
+  ctxCurve.shadowBlur = 8;
+
   let started = false;
   for (let px = 0; px < W; px++) {
-    const pxCentered = px - W/2;
-    if (pxCentered < xMin || pxCentered > xMax) {
-      started = false;
-      continue;
-    }
-
-    const x = (pxCentered) / (W/2) * screenHalfWidth;
-    const phase = Math.PI * a * x / (lam * D);
-    const interference = Math.cos(phase) ** 2;
-
-    let diffract = 1;
-    if (b > 0) {
-      const beta = Math.PI * b * x / (lam * D);
-      diffract = beta === 0 ? 1 : (Math.sin(beta) / beta) ** 2;
-    }
-
-    const I = interference * diffract;
+    const pxC = px - W/2;
+    if (pxC < xMin || pxC > xMax) { started = false; continue; }
+    const x = pxC / (W/2) * screenHalfWidth;
+    const I = scalarIntensityAt(x, spectrum, a, b, D);
     const y = H - I * (H - 20) - 10;
-
-    if (!started) {
-      ctxCurve.moveTo(px, y);
-      started = true;
-    } else {
-      ctxCurve.lineTo(px, y);
-    }
+    if (!started) { ctxCurve.moveTo(px, y); started = true; }
+    else ctxCurve.lineTo(px, y);
   }
   ctxCurve.stroke();
   ctxCurve.shadowBlur = 0;
 }
 
 // ============================================================
-//  DESSIN COMPLET (state-aware)
+//  ENCADRÉ PÉDAGOGIQUE
+// ============================================================
+function updateSummaryBox() {
+  const a = parseFloat(inputs.a.value);
+  const b = parseFloat(inputs.b.value);
+  const D = parseFloat(inputs.D.value);
+
+  let items = [];
+
+  switch (currentSource) {
+    case 'mono':
+      items = [
+        `Source <b>monochromatique</b> : une seule longueur d'onde λ = ${inputs.lambda.value} nm.`,
+        `Interfrange : <span class="formula">i = λD / a</span> = ${(parseFloat(inputs.lambda.value)*1e-9*D/(a*1e-3)*1e3).toFixed(3)} mm.`,
+        `La figure présente des franges <b>alternativement claires et sombres</b>, régulières.`,
+        `Quand λ <b>augmente</b>, l'interfrange <b>augmente</b> (franges plus espacées).`,
+        `Quand <b>a augmente</b>, l'interfrange <b>diminue</b> (franges plus serrées).`
+      ];
+      break;
+    case 'white':
+      items = [
+        `<b>Lumière blanche</b> : superposition de toutes les longueurs d'onde du spectre visible.`,
+        `Au centre : <b>frange blanche</b> (toutes les λ sont en phase).`,
+        `Sur les côtés : franges <b>irisées</b> (décomposition chromatique).`,
+        `L'interfrange dépend de λ : <span class="formula">i = λD / a</span> — chaque couleur a ses propres franges.`,
+        `C'est la preuve historique de la <b>nature ondulatoire</b> de la lumière.`
+      ];
+      break;
+    case 'sodium':
+      items = [
+        `Lampe à vapeur de <b>sodium</b> : émission quasi-monochromatique à 589 nm.`,
+        `Franges <b>jaunes</b> très contrastées, régulières.`,
+        `Utilisée historiquement par Young car <b>très cohérente</b>.`,
+        `Interfrange : <span class="formula">i = λD / a</span>.`
+      ];
+      break;
+    case 'mercury':
+      items = [
+        `Lampe à vapeur de <b>mercure</b> : émission de plusieurs raies (violet, bleu, vert, jaune).`,
+        `Chaque raie crée son <b>propre système de franges</b>.`,
+        `La superposition donne des franges <b>moins contrastées</b> que le sodium.`,
+        `On distingue parfois des <b>franges colorées</b> selon la raie dominante.`
+      ];
+      break;
+    case 'rgb':
+      items = [
+        `Source <b>trichromatique</b> : trois longueurs d'onde (R, V, B).`,
+        `Superposition de <b>trois systèmes de franges</b> distincts.`,
+        `Au centre : les trois couleurs se superposent → frange <b>blanche</b>.`,
+        `Sur les bords : apparition de <b>franges colorées</b> par décalage des systèmes.`
+      ];
+      break;
+  }
+
+  items.push(`<i>Largeur de fente b = ${b.toFixed(2)} mm : module l'enveloppe de diffraction (sinc²).</i>`);
+
+  summaryCont.innerHTML = items.map(i => `<li>${i}</li>`).join('');
+}
+
+// ============================================================
+//  RENDER
 // ============================================================
 function render(progress) {
-  const lam = parseFloat(inputs.lambda.value) * 1e-9;
-  const a   = parseFloat(inputs.a.value) * 1e-3;
-  const b   = parseFloat(inputs.b.value) * 1e-3;
-  const D   = parseFloat(inputs.D.value);
-  const [r, g, bl] = wavelengthToRGB(parseFloat(inputs.lambda.value));
+  const a = parseFloat(inputs.a.value) * 1e-3;
+  const b = parseFloat(inputs.b.value) * 1e-3;
+  const D = parseFloat(inputs.D.value);
+  const monoLambda = parseFloat(inputs.lambda.value);
 
-  drawSetup(lam, a, b, D, r, g, bl, progress);
-  drawScreen(lam, a, b, D, r, g, bl, progress);
-  drawCurve(lam, a, b, D, r, g, bl, progress);
+  const spectrum = getSpectrum(currentSource, monoLambda);
 
-  // Infos (toujours visibles)
-  const interfrange = lam * D / a;
-  const interfrange_mm = interfrange * 1e3;
-  const centralWidth_mm = (2 * lam * D / b) * 1e3;
-  const nbFranges = Math.floor(2 * lam * D / (b * interfrange)) * 2 + 1;
+  drawSetup(spectrum, a, b, D, progress);
+  drawScreen(spectrum, a, b, D, progress);
+  drawCurve(spectrum, a, b, D, progress);
+
+  const lamMoy = getLambdaMoy(spectrum) * 1e-9;
+  const interfrange_mm = (lamMoy * D / a) * 1e3;
+  const centralWidth_mm = (2 * lamMoy * D / b) * 1e3;
+  const nbFranges = Math.floor(2 * lamMoy * D / (b * (lamMoy * D / a))) * 2 + 1;
 
   document.getElementById('interfrange').textContent = interfrange_mm.toFixed(3) + ' mm';
   document.getElementById('centralWidth').textContent = centralWidth_mm.toFixed(2) + ' mm';
   document.getElementById('nbFranges').textContent = isFinite(nbFranges) ? nbFranges : '∞';
+
+  updateSummaryBox();
+
+  // URL
+  const params = new URLSearchParams({
+    src: currentSource,
+    a: inputs.a.value,
+    b: inputs.b.value,
+    D: inputs.D.value,
+    lam: inputs.lambda.value
+  });
+  history.replaceState(null, '', '?' + params.toString());
 }
 
 // ============================================================
@@ -736,6 +1136,9 @@ function render(progress) {
 // ============================================================
 function startExperiment() {
   if (animationState.running) return;
+
+  // Cache l'encadré au démarrage
+  summaryBox.classList.remove('visible');
 
   animationState.running = true;
   animationState.progress = 0;
@@ -753,7 +1156,6 @@ function startExperiment() {
 
     render(p);
 
-    // Messages selon l'étape
     if (p < 0.5) {
       statusEl.textContent = "💡 La lumière se propage du laser vers les fentes...";
     } else if (p < 1) {
@@ -769,6 +1171,8 @@ function startExperiment() {
       startBtn.disabled = false;
       startBtn.innerHTML = '▶ Rejouer l\'expérience';
       setControlsEnabled(true);
+      // Affiche l'encadré pédagogique
+      summaryBox.classList.add('visible');
     }
   }
 
@@ -780,31 +1184,52 @@ function setControlsEnabled(enabled) {
 }
 
 function resetAll() {
-  // Stoppe l'animation en cours
-  if (animationState.rafId) {
-    cancelAnimationFrame(animationState.rafId);
-  }
+  if (animationState.rafId) cancelAnimationFrame(animationState.rafId);
   animationState.running = false;
   animationState.progress = 0;
 
-  // Valeurs par défaut
   inputs.lambda.value = 500;
   inputs.a.value = 0.5;
   inputs.b.value = 0.1;
   inputs.D.value = 1;
   updateLabels();
 
-  // Réactive les contrôles
   setControlsEnabled(true);
   startBtn.disabled = false;
   startBtn.innerHTML = '▶ Démarrer l\'expérience';
 
   statusEl.textContent = "Cliquez sur « Démarrer l'expérience » pour voir la propagation de la lumière.";
   statusEl.classList.remove('active');
+  summaryBox.classList.remove('visible');
 
-  // Affichage à zéro (juste le schéma et axes)
   render(0);
 }
+
+// ============================================================
+//  SOURCE
+// ============================================================
+document.querySelectorAll('.source-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.source-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentSource = btn.dataset.source;
+
+    if (currentSource === 'mono') {
+      lambdaGroup.classList.remove('disabled');
+      inputs.lambda.disabled = false;
+    } else {
+      lambdaGroup.classList.add('disabled');
+      inputs.lambda.disabled = true;
+    }
+
+    if (!animationState.running) {
+      animationState.progress = 1;
+      render(1);
+      startBtn.innerHTML = '▶ Rejouer l\'expérience';
+      summaryBox.classList.add('visible');
+    }
+  });
+});
 
 // ============================================================
 //  ÉCOUTEURS
@@ -812,7 +1237,6 @@ function resetAll() {
 Object.values(inputs).forEach(input => {
   input.addEventListener('input', () => {
     updateLabels();
-    // Si l'animation est terminée, on redessine en entier
     if (!animationState.running) {
       render(animationState.progress);
     }
@@ -836,9 +1260,35 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
 }
 
 // ============================================================
-//  INITIALISATION
+//  LECTURE URL + INIT
 // ============================================================
-updateLabels();
+function loadFromURL() {
+  const p = new URLSearchParams(location.search);
+  if (!p.has('src')) return;
+
+  const src = p.get('src');
+  if (['mono','white','sodium','mercury','rgb'].includes(src)) {
+    document.querySelectorAll('.source-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.source === src);
+    });
+    currentSource = src;
+    if (src !== 'mono') {
+      lambdaGroup.classList.add('disabled');
+      inputs.lambda.disabled = true;
+    }
+  }
+  if (p.has('a'))   inputs.a.value = p.get('a');
+  if (p.has('b'))   inputs.b.value = p.get('b');
+  if (p.has('D'))   inputs.D.value = p.get('D');
+  if (p.has('lam')) inputs.lambda.value = p.get('lam');
+  updateLabels();
+}
+
+window.addEventListener('load', () => {
+  document.body.classList.add('loaded');
+});
+
+loadFromURL();
 render(0);
 </script>
 
