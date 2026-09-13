@@ -32,6 +32,49 @@
   .admin-dropdown a:hover { background: #f5f5f5; }
   .admin-item:hover .admin-dropdown { display: block; }
   .admin-trigger { background: var(--brass); color: #fff !important; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 12px; cursor: pointer; display: inline-block; line-height: 1.4; text-align: center; margin: 0; white-space: nowrap; }
+  /* ===== MENU DÉROULANT OPTIQUE ===== */
+.optique-item { position: relative; }
+.optique-trigger {
+  color: #4fc3f7;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  transition: background 0.2s;
+}
+.optique-trigger:hover {
+  background: rgba(79, 195, 247, 0.15);
+}
+.optique-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  min-width: 220px;
+  z-index: 100;
+  padding: 5px 0;
+}
+.optique-dropdown a {
+  display: block;
+  padding: 10px 15px;
+  color: var(--ink);
+  font-size: 13px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.optique-dropdown a:hover {
+  background: #f0f9ff;
+  color: #4fc3f7;
+}
+.optique-item:hover .optique-dropdown {
+  display: block;
+}
   .profile-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 13px; }
   .profile-name { font-weight: 700; color: var(--brass); font-size: 14px; }
   .profile-role { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -54,6 +97,12 @@
     .admin-dropdown { position: static; box-shadow: none; border: none; }
     .brand { width: auto; }
   }
+  @media (max-width: 1024px) {
+  /* ... existant ... */
+  .admin-dropdown { position: static; box-shadow: none; border: none; }
+  .optique-dropdown { position: static; box-shadow: none; border: none; }
+  /* ... existant ... */
+}
   .hero { background: var(--ink-deep); color:#EFE9DC; padding: 60px 20px; text-align: center; }
   .hero h1 { font-family: var(--serif); font-size: 36px; margin-bottom: 10px; }
   .hero p { font-size: 16px; opacity: 0.8; }
@@ -186,8 +235,13 @@
         <li><a href="historique.html">Historique</a></li>
         <li><a href="actualites.html">Actualités</a></li>
         <li class="labo-item"><a href="labo-pc.html" style="color: var(--brass); font-weight:700;">🔬 Labo PC</a></li>
-        <li><a href="simulateur-interferences.html" style="color: #4fc3f7; font-weight: 700;">🎯 Sim Optique</a></li>
-        <li><a href="simulateur-lentilles.html" style="color: #4fc3f7; font-weight: 700;">🔭 Sim Lentilles</a></li>
+        <li class="optique-item">
+  <span class="optique-trigger">🎯 Optique</span>
+  <div class="optique-dropdown">
+    <a href="simulateur-interferences.html">🎯 Fentes de Young & Prisme</a>
+    <a href="simulateur-lentilles.html">🔭 Lentilles minces</a>
+  </div>
+</li>
         <li><a href="ressources.html">Ressources</a></li>
         <li class="gov-item">
           <a href="publier-annonce.html">🎓 Gouvernement</a>
