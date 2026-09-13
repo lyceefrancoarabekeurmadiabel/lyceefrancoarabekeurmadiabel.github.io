@@ -1156,20 +1156,21 @@ canvas.addEventListener('click', (e) => {
 
   // Étape 1 OU 2 : connecter les bornes
   if (etat.step === 1 || etat.step === 2) {
-    // Chercher la borne LA PLUS PROCHE
+    // Chercher la borne la PLUS PROCHE (méthode qui marche)
     let borneCliquee = null;
-    let minDist = 50;
+    let minDist = 60;
     etat.bornes.forEach(b => {
       if ((b.id === 'res-A' || b.id === 'res-B') && etat.resistance === 0) return;
-      const dist = Math.hypot(b.x - x, b.y - y);
-      if (dist < minDist) {
-        minDist = dist;
+      const d = Math.hypot(b.x - x, b.y - y);
+      if (d < minDist) {
+        minDist = d;
         borneCliquee = b;
       }
     });
     if (!borneCliquee) return;
+    console.log('Borne cliquée:', borneCliquee.id);
 
-    // Interdire les connexions sur le même composant
+    // Anti court-circuit : pas 2 bornes du même composant
     if (etat.borneSelectionnee) {
       const typeA = etat.borneSelectionnee.split('-')[0];
       const typeB = borneCliquee.id.split('-')[0];
@@ -1191,6 +1192,7 @@ canvas.addEventListener('click', (e) => {
       );
       if (!exists) {
         etat.fils.push({ a: etat.borneSelectionnee, b: borneCliquee.id });
+        console.log('✅ Fil créé:', etat.borneSelectionnee, '→', borneCliquee.id);
       }
       etat.borneSelectionnee = null;
     }
