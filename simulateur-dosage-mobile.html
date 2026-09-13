@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Dosage Acido-Basique — Mobile | LFAKM</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #eee;
+    min-height: 100vh;
+    padding: 8px;
+    font-size: 14px;
+    overflow-x: hidden;
+  }
+  .container {
+    max-width: 100%;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 12px;
+  }
+
+  /* TOP BAR */
+  .top-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 8px;
+  }
+  .btn-retour, .btn-pc {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.75em;
+    font-weight: 700;
+  }
+  .btn-retour { background: rgba(168, 133, 63, 0.2); color: #ffd54f; border: 1px solid rgba(255, 213, 79, 0.4); }
+  .btn-pc { background: rgba(79, 195, 247, 0.15); color: #4fc3f7; border: 1px solid rgba(79, 195, 247, 0.4); }
+
+  h1 { text-align: center; color: #4fc3f7; font-size: 1.15em; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #aaa; font-size: 0.72em; margin-bottom: 12px; }
+
+  /* MODE SELECTOR */
+  .mode-selector {
+    background: linear-gradient(135deg, #6a4c93 0%, #9b59b6 100%);
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+  .mode-selector h3 {
+    font-size: 0.85em;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .mode-buttons {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .mode-btn {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    border: 2px solid rgba(255,255,255,0.3);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.7em;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    flex: 1;
+    min-width: 70px;
+  }
+  .mode-btn.active {
+    background: #fff;
+    color: #6a4c93;
+    border-color: #fff;
+  }
+  .mode-btn.hidden { display: none; }
+
+  /* SECTIONS */
+  .section-title {
+    color: #4fc3f7;
+    font-size: 0.72em;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: 12px 0 8px;
+    padding-left: 8px;
+    border-left: 3px solid #4fc3f7;
+    font-weight: bold;
+  }
+
+  /* CARTES */
+  .card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(79,195,247,0.2);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .card h3 {
+    font-size: 0.85em;
+    color: #4fc3f7;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+
+  /* CHAMPS */
+  .field { margin-bottom: 10px; }
+  .field label {
+    display: block;
+    font-size: 0.75em;
+    font-weight: 700;
+    color: #ccc;
+    margin-bottom: 5px;
+  }
+  .field input, .field select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid rgba(79,195,247,0.3);
+    border-radius: 6px;
+    background: rgba(0,0,0,0.3);
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.9em;
+  }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: #4fc3f7;
+    background: rgba(79,195,247,0.1);
+  }
+  .field .helper { font-size: 0.65em; color: #888; margin-top: 3px; }
+
+  .param-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .param-grid .field.full { grid-column: span 2; }
+
+  /* BOUTONS */
+  .btn {
+    padding: 10px 14px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.78em;
+    transition: all 0.2s;
+    margin-right: 5px;
+    margin-bottom: 5px;
+  }
+  .btn-primary { background: linear-gradient(135deg, #4fc3f7, #29b6f6); color: #16213e; }
+  .btn-primary:disabled { opacity: 0.5; }
+  .btn-secondary { background: rgba(255,255,255,0.1); color: #eee; border: 1px solid rgba(255,255,255,0.2); }
+  .btn-success { background: linear-gradient(135deg, #4caf50, #66bb6a); color: #fff; }
+  .btn-info { background: linear-gradient(135deg, #3498db, #2980b9); color: #fff; }
+  .btn-warning { background: linear-gradient(135deg, #f39c12, #e67e22); color: #fff; }
+  .btn-danger { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; }
+
+  .button-bar { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+
+  /* INFO PANEL */
+  .info-panel {
+    background: rgba(79,195,247,0.08);
+    border-left: 4px solid #4fc3f7;
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    font-size: 0.75em;
+  }
+  .info-panel .ligne {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    border-bottom: 1px dashed rgba(255,255,255,0.08);
+  }
+  .info-panel .ligne:last-child { border-bottom: none; }
+  .info-panel .ligne strong { color: #4fc3f7; }
+
+  /* TABLEAU */
+  .table-wrapper {
+    max-height: 260px;
+    overflow-y: auto;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78em;
+  }
+  th {
+    background: rgba(79,195,247,0.15);
+    color: #4fc3f7;
+    padding: 8px 6px;
+    text-align: left;
+    font-weight: 700;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  td {
+    padding: 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  td input {
+    width: 100%;
+    padding: 5px 6px;
+    border: 1px solid rgba(79,195,247,0.2);
+    border-radius: 4px;
+    background: rgba(0,0,0,0.3);
+    color: #fff;
+    font-size: 0.95em;
+    font-family: monospace;
+  }
+  .pastille-couleur {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #333;
+    vertical-align: middle;
+  }
+  .btn-del-row {
+    background: none;
+    border: none;
+    color: #f44336;
+    cursor: pointer;
+    font-size: 1em;
+    padding: 2px 6px;
+  }
+
+  /* CONTROLS VOLUME */
+  .vol-controls {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    margin-bottom: 8px;
+  }
+  .vol-btn {
+    padding: 10px 4px;
+    background: rgba(79,195,247,0.15);
+    border: 1px solid rgba(79,195,247,0.4);
+    color: #4fc3f7;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.85em;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .vol-btn:active { background: rgba(79,195,247,0.3); }
+  .vol-libre {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 8px;
+  }
+  .vol-libre input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid rgba(79,195,247,0.3);
+    border-radius: 6px;
+    background: rgba(0,0,0,0.3);
+    color: #fff;
+    font-size: 0.9em;
+  }
+
+  /* COURBE */
+  .chart-wrapper {
+    background: #0a0a1a;
+    border-radius: 8px;
+    padding: 6px;
+    border: 1px solid rgba(79,195,247,0.3);
+    margin-bottom: 10px;
+    height: 260px;
+    position: relative;
+  }
+
+  /* ANIMATION COLORIMÉTRIQUE */
+  .anim-box {
+    background: #0a0a1a;
+    border-radius: 8px;
+    padding: 10px;
+    border: 1px solid rgba(79,195,247,0.3);
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  .anim-box svg { max-width: 100%; height: auto; max-height: 220px; }
+
+  /* RESULT BOX */
+  .result-box {
+    background: linear-gradient(135deg, rgba(76,175,80,0.15), rgba(46,125,50,0.08));
+    border-left: 4px solid #4caf50;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 10px;
+  }
+  .result-box h4 {
+    color: #81c784;
+    font-size: 0.85em;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .result-row {
+    font-size: 0.78em;
+    margin: 4px 0;
+    display: flex;
+    justify-content: space-between;
+  }
+  .result-row strong { color: #4fc3f7; }
+
+  /* INFO PANEL */
+  .info-hint {
+    background: linear-gradient(90deg, rgba(255,193,7,0.15), rgba(255,193,7,0.05));
+    border-left: 4px solid #ffc107;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 0.72em;
+    color: #fff;
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+
+  /* INDICATEUR */
+  .indic-select-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .indic-select-row select { flex: 1; }
+  .indic-pastille {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    flex-shrink: 0;
+    box-shadow: 0 0 12px rgba(79,195,247,0.5);
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 3000;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: #1a1a2e;
+    border: 1px solid rgba(79,195,247,0.4);
+    border-radius: 12px;
+    padding: 16px;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    width: 100%;
+    max-width: 500px;
+  }
+  .modal-box h3 {
+    color: #4fc3f7;
+    font-size: 1em;
+    margin-bottom: 12px;
+  }
+
+  /* EXAMEN */
+  .examen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(79,195,247,0.15);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.78em;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .examen-header .timer {
+    font-size: 1.1em;
+    font-weight: 800;
+    color: #4fc3f7;
+    font-family: monospace;
+  }
+  .examen-header .timer.warning { color: #ffb74d; }
+  .examen-header .timer.danger { color: #ff5252; animation: pulse 0.8s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+  .progress-bar {
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 10px 0;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4fc3f7, #4caf50);
+    width: 0%;
+    transition: width 0.3s;
+  }
+
+  .examen-question {
+    background: rgba(79,195,247,0.08);
+    border-left: 4px solid #4fc3f7;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 0.82em;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .examen-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .examen-radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all 0.2s;
+  }
+  .examen-radio-group label.selected {
+    background: rgba(79,195,247,0.2);
+    border-color: #4fc3f7;
+  }
+  .examen-reponse-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid rgba(79,195,247,0.3);
+    border-radius: 8px;
+    background: rgba(0,0,0,0.3);
+    color: #fff;
+    font-size: 1em;
+    font-family: monospace;
+  }
+
+  .examen-feedback {
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-size: 0.8em;
+    line-height: 1.5;
+  }
+  .examen-feedback.correct { background: rgba(76,175,80,0.2); border-left: 4px solid #4caf50; color: #a5d6a7; }
+  .examen-feedback.incorrect { background: rgba(244,67,54,0.2); border-left: 4px solid #f44336; color: #ef9a9a; }
+
+  .examen-resultat-final {
+    text-align: center;
+    padding: 20px 10px;
+  }
+  .examen-resultat-final .score {
+    font-size: 3em;
+    font-weight: 800;
+    background: linear-gradient(135deg, #4fc3f7, #4caf50);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .examen-resultat-final .label {
+    font-size: 0.9em;
+    color: #aaa;
+    margin-bottom: 15px;
+  }
+  .appreciation {
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.85em;
+    margin: 10px 0;
+  }
+  .app-excellent { background: rgba(76,175,80,0.3); color: #81c784; }
+  .app-bien { background: rgba(79,195,247,0.3); color: #4fc3f7; }
+  .app-passable { background: rgba(255,193,7,0.3); color: #ffd54f; }
+  .app-faible { background: rgba(244,67,54,0.3); color: #ef9a9a; }
+
+  @media (max-width: 360px) {
+    h1 { font-size: 1em; }
+    .param-grid { grid-template-columns: 1fr; }
+    .param-grid .field.full { grid-column: span 1; }
+    .vol-controls { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="top-actions">
+    <a href="labo-pc.html" class="btn-retour">← Labo PC</a>
+    <a href="simulateur-dosage.html" class="btn-pc">🖥️ PC</a>
+  </div>
+
+  <h1>🧪 Dosage Acido-Basique</h1>
+  <p class="subtitle">Simulateur conforme au programme sénégalais — 3ème à Tle</p>
+
+  <!-- MODE SELECTOR -->
+  <div class="mode-selector">
+    <h3>🎓 Mode d'utilisation</h3>
+    <div class="mode-buttons">
+      <button class="mode-btn" data-mode="initiation">🌱 Initiation</button>
+      <button class="mode-btn active" data-mode="standard">📘 Standard</button>
+      <button class="mode-btn" data-mode="expert">🔬 Expert</button>
+      <button class="mode-btn" data-mode="tp">🧪 TP</button>
+      <button class="mode-btn" id="btnModeEntrainement" style="background: rgba(52,152,219,0.4);">🎓 S'entraîner</button>
+      <button class="mode-btn hidden" id="btnModeEvaluation" style="background: rgba(217,83,79,0.4);">📝 Évaluation</button>
+    </div>
+  </div>
+
+  <!-- PARAMÈTRES -->
+  <div class="card">
+    <h3>⚙️ Paramètres</h3>
+    <div class="param-grid">
+      <div class="field full">
+        <label>Méthode</label>
+        <select id="methode">
+          <option value="colorimetrique">🔬 Colorimétrique</option>
+          <option value="phmetrique">📊 pH-métrique</option>
+        </select>
+      </div>
+      <div class="field full">
+        <label>Substance titrée (bécher)</label>
+        <select id="substance-titree"></select>
+      </div>
+      <div class="field">
+        <label>Volume VA (mL)</label>
+        <input type="number" id="va" value="20" min="1" max="100" step="0.5">
+      </div>
+      <div class="field">
+        <label>Conc. CA (mol/L)</label>
+        <input type="number" id="ca" value="0.1" min="0.001" max="2" step="0.001">
+      </div>
+      <div class="field full">
+        <label>Solution titrante (burette)</label>
+        <select id="substance-titrante"></select>
+      </div>
+      <div class="field">
+        <label>Conc. CB (mol/L)</label>
+        <input type="number" id="cb" value="0.1" min="0.001" max="2" step="0.001">
+      </div>
+      <div class="field" id="fieldPka" style="display:none;">
+        <label>pKa</label>
+        <input type="number" id="pka" value="4.75" min="0" max="14" step="0.01">
+      </div>
+      <div class="field full">
+        <label>Indicateur coloré</label>
+        <div class="indic-select-row">
+          <select id="indicateur">
+            <option value="aucun">Aucun</option>
+            <option value="helianthine">Hélianthine (3,1-4,4)</option>
+            <option value="rmethyl">Rouge de méthyle (4,4-6,2)</option>
+            <option value="vbromocresol">Vert de bromocrésol (3,8-5,4)</option>
+            <option value="bbt" selected>Bleu de bromothymol (6,0-7,6)</option>
+            <option value="phenolphtaleine">Phénolphtaléine (8,2-10,0)</option>
+          </select>
+          <div class="indic-pastille" id="indicPastille" style="background: #f1c40f;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="info-panel" id="infoPanel">
+      <div class="ligne"><span>Famille :</span> <strong id="infoFamille">-</strong></div>
+      <div class="ligne"><span>Force :</span> <strong id="infoForce">-</strong></div>
+      <div class="ligne"><span>Acidité :</span> <strong id="infoBasicite">-</strong></div>
+      <div class="ligne" id="lignePka"><span>pKa :</span> <strong id="infoPka">-</strong></div>
+      <div class="ligne" id="lignePkb"><span>pKb :</span> <strong id="infoPkb">-</strong></div>
+    </div>
+  </div>
+
+  <!-- BOUTONS PRINCIPAUX -->
+  <div class="button-bar">
+    <button class="btn btn-primary" id="btnDemarrer">▶ Démarrer</button>
+    <button class="btn btn-secondary" id="btnReset">🔄 Reset</button>
+    <button class="btn btn-warning" id="btnExportPdf" style="display:none;">📄 PDF</button>
+    <button class="btn btn-success" id="btnSauvegarder" style="display:none;">💾 Sauvegarder</button>
+  </div>
+
+  <!-- AJOUTER DU VOLUME -->
+  <div class="card" id="cardVolume">
+    <h3>💧 Ajouter du titrant</h3>
+    <div class="vol-controls">
+      <button class="vol-btn" data-vol="0.5">+0,5</button>
+      <button class="vol-btn" data-vol="1">+1</button>
+      <button class="vol-btn" data-vol="2">+2</button>
+      <button class="vol-btn" data-vol="5">+5</button>
+    </div>
+    <div class="vol-libre">
+      <input type="number" id="volLibre" value="0.5" min="0.01" max="50" step="0.01">
+      <button class="btn btn-secondary" id="btnAjouterLibre" style="margin:0;">Ajouter</button>
+    </div>
+  </div>
+
+  <!-- TABLEAU -->
+  <div class="section-title">📋 Tableau de valeurs</div>
+  <div class="table-wrapper">
+    <table id="tableMesures">
+      <thead>
+        <tr>
+          <th style="width:28%;">V (mL)</th>
+          <th style="width:28%;">pH</th>
+          <th style="width:34%;">Couleur</th>
+          <th style="width:10%;">—</th>
+        </tr>
+      </thead>
+      <tbody id="tbodyMesures">
+        <tr><td colspan="4" style="text-align:center; padding:20px; color:#888;">Démarre le dosage pour commencer</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- VISUALISATION -->
+  <div class="section-title" id="titreViz">📊 Visualisation</div>
+
+  <div class="chart-wrapper" id="chartWrapper" style="display:none;">
+    <canvas id="chartCourbe"></canvas>
+  </div>
+
+  <div class="anim-box" id="animBox">
+    <svg viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg">
+      <line x1="250" y1="30" x2="250" y2="200" stroke="#555" stroke-width="5"/>
+      <line x1="20" y1="200" x2="280" y2="200" stroke="#555" stroke-width="5"/>
+      <rect x="130" y="20" width="22" height="120" fill="rgba(255,255,255,0.5)" stroke="#333" stroke-width="1.5" rx="2"/>
+      <rect x="132" y="22" width="18" height="116" fill="rgba(52, 152, 219, 0.5)" id="svgBurette"/>
+      <line x1="130" y1="40" x2="138" y2="40" stroke="#333" stroke-width="1"/>
+      <line x1="130" y1="70" x2="138" y2="70" stroke="#333" stroke-width="1"/>
+      <line x1="130" y1="100" x2="138" y2="100" stroke="#333" stroke-width="1"/>
+      <rect x="136" y="140" width="10" height="15" fill="#999" stroke="#333"/>
+      <line x1="141" y1="155" x2="141" y2="165" stroke="#333" stroke-width="2"/>
+      <rect x="85" y="170" width="112" height="30" fill="rgba(255,255,255,0.3)" stroke="#333" stroke-width="2" rx="2"/>
+      <rect x="87" y="180" width="108" height="18" fill="rgba(241, 196, 15, 0.7)" id="svgLiquid"/>
+      <text x="141" y="230" text-anchor="middle" font-size="11" font-weight="700" fill="#4fc3f7">
+        V = <tspan id="svgVolume">0.00</tspan> mL | pH = <tspan id="svgPh">-</tspan>
+      </text>
+    </svg>
+    <div id="animMessage" style="font-size:0.72em; color:#aaa; margin-top:6px; font-style:italic;">
+      Ajoute du titrant pour voir la couleur évoluer.
+    </div>
+  </div>
+
+  <!-- RÉSULTATS -->
+  <div class="result-box" id="resultBox" style="display:none;">
+    <h4>📐 Résultats</h4>
+    <div class="result-row"><span>🎯 Volume équivalent :</span> <strong id="resVeq">-</strong></div>
+    <div class="result-row"><span>🔵 Demi-équivalence :</span> <strong id="resVdemi">-</strong></div>
+    <div class="result-row"><span>📊 pH à l'équivalence :</span> <strong id="resPheq">-</strong></div>
+    <div class="result-row"><span>💧 pH à la demi-éq :</span> <strong id="resPhdemi">-</strong></div>
+  </div>
+
+  <!-- INFO -->
+  <div class="info-hint" id="infoHint">
+    👆 Choisis tes substances, puis clique sur <strong>Démarrer</strong> pour lancer le dosage.
+  </div>
+
+</div>
+
+<!-- MODAL CONFIGURATION ÉVALUATION -->
+<div class="modal-overlay" id="modalConfigEval">
+  <div class="modal-box">
+    <h3>📝 Configuration de l'évaluation</h3>
+    <div class="field">
+      <label>Nom</label>
+      <input type="text" id="evalNom" value="Évaluation dosage" placeholder="Ex: Contrôle n°2">
+    </div>
+    <div class="field">
+      <label>Durée (min)</label>
+      <select id="evalDuree">
+        <option value="5">5 min (rapide)</option>
+        <option value="10" selected>10 min</option>
+        <option value="15">15 min</option>
+        <option value="20">20 min</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Nombre de questions</label>
+      <select id="evalNbQuestions">
+        <option value="3">3 questions</option>
+        <option value="5" selected>5 questions</option>
+        <option value="8">8 questions</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Difficulté</label>
+      <select id="evalDifficulte">
+        <option value="facile">🌱 Facile</option>
+        <option value="moyen" selected>📘 Moyen</option>
+        <option value="difficile">🔬 Difficile</option>
+      </select>
+    </div>
+    <div class="button-bar" style="margin-top:12px;">
+      <button class="btn btn-secondary" id="btnAnnulerEval">Annuler</button>
+      <button class="btn btn-primary" id="btnLancerEval">▶ Lancer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ÉVALUATION EN COURS -->
+<div class="modal-overlay" id="modalExamen">
+  <div class="modal-box">
+    <div class="examen-header">
+      <div>⏱️ <span class="timer" id="examenTimer">10:00</span></div>
+      <div>📝 <span id="examenNum">1</span>/<span id="examenTotal">5</span></div>
+      <div>🎯 <span id="examenScore">0</span></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="examenProgress"></div></div>
+    <div id="examenContenu"></div>
+  </div>
+</div>
+
+<!-- MODAL RÉSULTATS EXAMEN -->
+<div class="modal-overlay" id="modalResultatsExamen">
+  <div class="modal-box">
+    <div id="resultatsContenu"></div>
+  </div>
+</div>
+
+<!-- MODAL EXPORT PDF -->
+<div class="modal-overlay" id="modalExportPdf">
+  <div class="modal-box" style="text-align:center;">
+    <h3>📄 Rapport PDF</h3>
+    <p style="font-size:0.85em; color:#aaa; margin: 10px 0;">Le fichier a été téléchargé.</p>
+    <div style="background:rgba(79,195,247,0.1); border-radius:6px; padding:10px; margin:12px 0; font-size:0.78em; text-align:left;">
+      <strong>💡 Pour l'envoyer au prof :</strong><br>
+      1. Le PDF est dans tes "Téléchargements"<br>
+      2. Ouvre WhatsApp / Email<br>
+      3. Joins le PDF et envoie
+    </div>
+    <button class="btn btn-primary" id="btnFermerExportPdf" style="width:100%;">Compris</button>
+  </div>
+</div>
+
+<script>
+    // ============================================================
+//  DONNÉES : SUBSTANCES & INDICATEURS
+// ============================================================
+const SUBSTANCES = [
+  { id:'hcl', nom:'Acide chlorhydrique', formule:'HCl', famille:'acide', force:'fort', n:1 },
+  { id:'hno3', nom:'Acide nitrique', formule:'HNO₃', famille:'acide', force:'fort', n:1 },
+  { id:'h2so4', nom:'Acide sulfurique', formule:'H₂SO₄', famille:'acide', force:'fort', n:2 },
+  { id:'ac_ethanoique', nom:'Acide éthanoïque', formule:'CH₃COOH', famille:'acide', force:'faible', n:1, pka:4.75 },
+  { id:'ac_methanoique', nom:'Acide méthanoïque', formule:'HCOOH', famille:'acide', force:'faible', n:1, pka:3.75 },
+  { id:'ac_lactique', nom:'Acide lactique', formule:'C₃H₆O₃', famille:'acide', force:'faible', n:1, pka:3.86 },
+  { id:'ac_benzoique', nom:'Acide benzoïque', formule:'C₆H₅COOH', famille:'acide', force:'faible', n:1, pka:4.20 },
+  { id:'nh4', nom:'Ion ammonium', formule:'NH₄⁺', famille:'acide', force:'faible', n:1, pka:9.25 },
+  { id:'naoh', nom:'Hydroxyde de sodium', formule:'NaOH', famille:'base', force:'fort', n:1 },
+  { id:'koh', nom:'Hydroxyde de potassium', formule:'KOH', famille:'base', force:'fort', n:1 },
+  { id:'caoh2', nom:'Hydroxyde de calcium', formule:'Ca(OH)₂', famille:'base', force:'fort', n:2 },
+  { id:'nh3', nom:'Ammoniac', formule:'NH₃', famille:'base', force:'faible', n:1, pka:9.25 },
+  { id:'methylamine', nom:'Méthylamine', formule:'CH₃NH₂', famille:'base', force:'faible', n:1, pka:10.62 },
+  { id:'triethylamine', nom:'Triéthylamine', formule:'(C₂H₅)₃N', famille:'base', force:'faible', n:1, pka:10.72 }
+];
+
+const INDICATEURS = [
+  { id:'helianthine', nom:'Hélianthine', zoneMin:3.1, zoneMax:4.4,
+    couleurAcide:'rgba(231,76,60,1)', couleurBasique:'rgba(241,196,15,1)' },
+  { id:'rmethyl', nom:'Rouge de méthyle', zoneMin:4.4, zoneMax:6.2,
+    couleurAcide:'rgba(231,76,60,1)', couleurBasique:'rgba(241,196,15,1)' },
+  { id:'vbromocresol', nom:'Vert de bromocrésol', zoneMin:3.8, zoneMax:5.4,
+    couleurAcide:'rgba(241,196,15,1)', couleurBasique:'rgba(52,152,219,1)' },
+  { id:'bbt', nom:'Bleu de bromothymol', zoneMin:6.0, zoneMax:7.6,
+    couleurAcide:'rgba(241,196,15,1)', couleurBasique:'rgba(52,152,219,1)' },
+  { id:'phenolphtaleine', nom:'Phénolphtaléine', zoneMin:8.2, zoneMax:10.0,
+    couleurAcide:'rgba(236,240,241,1)', couleurBasique:'rgba(233,30,99,1)' }
+];
+
+// ============================================================
+//  ÉTAT GLOBAL
+// ============================================================
+let modeActuel = 'standard';
+let substanceTitree = null;
+let substanceTitrante = null;
+let mesures = [];
+let started = false;
+let chart = null;
+let profile = null;
+let examen = { actif:false, questions:[], index:0, score:0, reponses:[], timer:null, tempsRestant:0, config:null };
+let pdfData = null;
+
+// ============================================================
+//  UTILITAIRES
+// ============================================================
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s ?? '';
+  return d.innerHTML;
+}
+
+function couleurIndicateur(ph, indId) {
+  const ind = INDICATEURS.find(i => i.id === indId);
+  if (!ind) return 'rgba(46,204,113,0.6)';
+  if (ph < ind.zoneMin) return ind.couleurAcide;
+  if (ph > ind.zoneMax) return ind.couleurBasique;
+  const t = (ph - ind.zoneMin) / (ind.zoneMax - ind.zoneMin);
+  return interpolerCouleur(ind.couleurAcide, ind.couleurBasique, t);
+}
+
+function interpolerCouleur(c1, c2, t) {
+  const p = (s) => {
+    const m = s.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    return m ? [parseInt(m[1]), parseInt(m[2]), parseInt(m[3])] : [0,0,0];
+  };
+  const [r1,g1,b1] = p(c1), [r2,g2,b2] = p(c2);
+  return `rgba(${Math.round(r1+(r2-r1)*t)}, ${Math.round(g1+(g2-g1)*t)}, ${Math.round(b1+(b2-b1)*t)}, 1)`;
+}
+
+// ============================================================
+//  CALCUL DU pH
+// ============================================================
+function calculerPH(vBase, p) {
+  const sT = p.substanceTitree;
+  const sTr = p.substanceTitrante;
+  const va = p.va, ca = p.ca, cb = p.cb;
+
+  // Acide fort + Base forte
+  if (sT.force === 'fort' && sTr.force === 'fort') {
+    const nA = sT.n * va * ca / 1000;
+    const nB = sTr.n * vBase * cb / 1000;
+    const vT = (va + vBase) / 1000;
+    const veq = (sT.n * va * ca) / (sTr.n * cb);
+    if (vBase < veq - 0.001) {
+      if (sT.famille === 'acide') return -Math.log10(Math.max((nA - nB) / vT, 1e-14));
+      else return 14 + Math.log10(Math.max((nA - nB) / vT, 1e-14));
+    }
+    if (Math.abs(vBase - veq) < 0.05) return 7.0;
+    if (sT.famille === 'acide') return 14 + Math.log10(Math.max((nB - nA) / vT, 1e-14));
+    else return -Math.log10(Math.max((nB - nA) / vT, 1e-14));
+  }
+
+  // Acide faible + Base forte
+  if (sT.famille === 'acide' && sT.force === 'faible' && sTr.famille === 'base' && sTr.force === 'fort') {
+    const nA = va * ca / 1000;
+    const nB = vBase * cb / 1000;
+    const vT = (va + vBase) / 1000;
+    const veq = (va * ca) / cb;
+    const pka = p.pka;
+    if (vBase < veq - 0.001) {
+      const nAH = nA - nB;
+      if (nAH <= 0) return 7;
+      return pka + Math.log10(Math.max(nB, 1e-14) / nAH);
+    }
+    if (Math.abs(vBase - veq) < 0.05) {
+      const Kb = Math.pow(10, -14 + pka);
+      return 14 + Math.log10(Math.max(Math.sqrt(Kb * (nA / vT)), 1e-14));
+    }
+    return 14 + Math.log10(Math.max((nB - nA) / vT, 1e-14));
+  }
+
+  // Acide fort + Base faible
+  if (sT.famille === 'acide' && sT.force === 'fort' && sTr.famille === 'base' && sTr.force === 'faible') {
+    const nA = va * ca / 1000;
+    const nB = vBase * cb / 1000;
+    const vT = (va + vBase) / 1000;
+    const veq = (va * ca) / cb;
+    const pkaT = sTr.pka;
+    if (vBase < veq - 0.001) return -Math.log10(Math.max((nA - nB) / vT, 1e-14));
+    if (Math.abs(vBase - veq) < 0.05) {
+      const Ka = Math.pow(10, -pkaT);
+      return -Math.log10(Math.max(Math.sqrt(Ka * (nA / vT)), 1e-14));
+    }
+    return 14 - pkaT - Math.log10(Math.max((nB - nA) / Math.max(nA, 1e-14), 1e-14));
+  }
+
+  // Base faible + Acide fort
+  if (sT.famille === 'base' && sT.force === 'faible' && sTr.famille === 'acide' && sTr.force === 'fort') {
+    const nB = va * ca / 1000;
+    const nA = vBase * cb / 1000;
+    const vT = (va + vBase) / 1000;
+    const veq = (va * ca) / cb;
+    const pka = p.pka;
+    if (vBase < veq - 0.001) {
+      const nBrest = nB - nA;
+      if (nBrest <= 0) return 7;
+      return pka + Math.log10(Math.max(nBrest / Math.max(nA, 1e-14), 1e-14));
+    }
+    if (Math.abs(vBase - veq) < 0.05) {
+      const Ka = Math.pow(10, -pka);
+      return -Math.log10(Math.max(Math.sqrt(Ka * (nB / vT)), 1e-14));
+    }
+    return -Math.log10(Math.max((nA - nB) / vT, 1e-14));
+  }
+
+  return 7;
+}
+
+// ============================================================
+//  MENUS SUBSTANCES
+// ============================================================
+function construireMenuTitree() {
+  const sel = document.getElementById('substance-titree');
+  sel.innerHTML = '';
+  const groupes = {
+    'Acides forts': SUBSTANCES.filter(s => s.famille === 'acide' && s.force === 'fort'),
+    'Acides faibles': SUBSTANCES.filter(s => s.famille === 'acide' && s.force === 'faible'),
+    'Bases fortes': SUBSTANCES.filter(s => s.famille === 'base' && s.force === 'fort'),
+    'Bases faibles': SUBSTANCES.filter(s => s.famille === 'base' && s.force === 'faible')
+  };
+  Object.entries(groupes).forEach(([label, liste]) => {
+    const grp = document.createElement('optgroup');
+    grp.label = label;
+    liste.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.id;
+      opt.textContent = `${s.nom} (${s.formule})`;
+      grp.appendChild(opt);
+    });
+    sel.appendChild(grp);
+  });
+  sel.value = 'hcl';
+  sel.onchange = onSubstanceTitreeChange;
+}
+
+function construireMenuTitrante(familleTitree) {
+  const sel = document.getElementById('substance-titrante');
+  sel.innerHTML = '';
+  const familleTitrante = familleTitree === 'acide' ? 'base' : 'acide';
+  const liste = SUBSTANCES.filter(s => s.famille === familleTitrante);
+  const forts = liste.filter(s => s.force === 'fort');
+  const faibles = liste.filter(s => s.force === 'faible');
+  if (forts.length) {
+    const grp = document.createElement('optgroup');
+    grp.label = familleTitrante === 'base' ? 'Bases fortes' : 'Acides forts';
+    forts.forEach(s => {
+      const o = document.createElement('option');
+      o.value = s.id; o.textContent = `${s.nom} (${s.formule})`;
+      grp.appendChild(o);
+    });
+    sel.appendChild(grp);
+  }
+  if (faibles.length) {
+    const grp = document.createElement('optgroup');
+    grp.label = familleTitrante === 'base' ? 'Bases faibles' : 'Acides faibles';
+    faibles.forEach(s => {
+      const o = document.createElement('option');
+      o.value = s.id; o.textContent = `${s.nom} (${s.formule})`;
+      grp.appendChild(o);
+    });
+    sel.appendChild(grp);
+  }
+  sel.value = familleTitrante === 'base' ? 'naoh' : 'hcl';
+  sel.onchange = onSubstanceTitranteChange;
+}
+
+function onSubstanceTitreeChange() {
+  const val = document.getElementById('substance-titree').value;
+  substanceTitree = SUBSTANCES.find(s => s.id === val);
+  construireMenuTitrante(substanceTitree.famille);
+  onSubstanceTitranteChange();
+  majInfoPanel();
+  if (substanceTitree.pka !== undefined) {
+    document.getElementById('pka').value = substanceTitree.pka;
+  }
+  resetSimulation();
+}
+
+function onSubstanceTitranteChange() {
+  const val = document.getElementById('substance-titrante').value;
+  substanceTitrante = SUBSTANCES.find(s => s.id === val);
+  resetSimulation();
+}
+
+function majInfoPanel() {
+  if (!substanceTitree) return;
+  const s = substanceTitree;
+  document.getElementById('infoFamille').textContent = s.famille === 'acide' ? 'Acide' : 'Base';
+  document.getElementById('infoForce').textContent = s.force === 'fort' ? '🔴 Forte' : '🟢 Faible';
+  let basicite = '';
+  if (s.n === 1) basicite = s.famille === 'acide' ? 'Monoacide' : 'Monobase';
+  else if (s.n === 2) basicite = s.famille === 'acide' ? 'Diacide' : 'Dibase';
+  document.getElementById('infoBasicite').textContent = basicite;
+  if (s.force === 'faible' && s.pka !== undefined) {
+    document.getElementById('lignePka').style.display = 'flex';
+    document.getElementById('lignePkb').style.display = 'flex';
+    document.getElementById('infoPka').textContent = s.pka.toFixed(2);
+    document.getElementById('infoPkb').textContent = (14 - s.pka).toFixed(2);
+  } else {
+    document.getElementById('lignePka').style.display = 'none';
+    document.getElementById('lignePkb').style.display = 'none';
+  }
+}
+
+// ============================================================
+//  SIMULATION
+// ============================================================
+function lireParametres() {
+  return {
+    substanceTitree,
+    substanceTitrante,
+    va: parseFloat(document.getElementById('va').value) || 20,
+    ca: parseFloat(document.getElementById('ca').value) || 0.1,
+    cb: parseFloat(document.getElementById('cb').value) || 0.1,
+    pka: parseFloat(document.getElementById('pka').value),
+    indicateur: document.getElementById('indicateur').value,
+    methode: document.getElementById('methode').value
+  };
+}
+
+function resetSimulation() {
+  started = false;
+  mesures = [];
+  if (chart) { chart.destroy(); chart = null; }
+  document.getElementById('tbodyMesures').innerHTML =
+    '<tr><td colspan="4" style="text-align:center; padding:20px; color:#888;">Démarre le dosage pour commencer</td></tr>';
+  document.getElementById('resultBox').style.display = 'none';
+  document.getElementById('chartWrapper').style.display = 'none';
+  document.getElementById('btnDemarrer').disabled = false;
+  document.getElementById('btnDemarrer').textContent = '▶ Démarrer';
+  document.getElementById('btnExportPdf').style.display = 'none';
+  document.getElementById('svgVolume').textContent = '0.00';
+  document.getElementById('svgPh').textContent = '-';
+  document.getElementById('animMessage').textContent = 'Ajoute du titrant pour voir la couleur évoluer.';
+  majCouleurInitiale();
+  document.getElementById('infoHint').innerHTML = '👆 Clique sur <strong>Démarrer</strong> pour lancer le dosage.';
+}
+
+function majCouleurInitiale() {
+  const ind = document.getElementById('indicateur').value;
+  const indObj = INDICATEURS.find(i => i.id === ind);
+  const couleur = indObj ? indObj.couleurAcide : 'rgba(241,196,15,0.7)';
+  document.getElementById('svgLiquid').setAttribute('fill', couleur.replace('1)', '0.7)'));
+  document.getElementById('indicPastille').style.background = couleur;
+}
+
+document.getElementById('btnDemarrer').addEventListener('click', () => {
+  started = true;
+  mesures = [];
+  document.getElementById('btnDemarrer').disabled = true;
+  document.getElementById('btnDemarrer').textContent = '✅ En cours';
+  document.getElementById('tbodyMesures').innerHTML = '';
+  document.getElementById('chartWrapper').style.display = 'block';
+  document.getElementById('infoHint').innerHTML = '💧 Ajoute du titrant avec les boutons ci-dessus.';
+  renderMesures();
+});
+
+document.getElementById('btnReset').addEventListener('click', resetSimulation);
+
+document.querySelectorAll('.vol-btn').forEach(btn => {
+  btn.addEventListener('click', () => ajouterVolume(parseFloat(btn.dataset.vol)));
+});
+
+document.getElementById('btnAjouterLibre').addEventListener('click', () => {
+  const v = parseFloat(document.getElementById('volLibre').value);
+  if (!isNaN(v) && v > 0) ajouterVolume(v);
+});
+
+function ajouterVolume(vol) {
+  if (!started) {
+    alert('Clique d\'abord sur "▶ Démarrer".');
+    return;
+  }
+  const p = lireParametres();
+  const veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
+  const dernierV = mesures.length > 0 ? mesures[mesures.length - 1].v : 0;
+  const nouveauV = dernierV + vol;
+  if (nouveauV > veq * 2.5) {
+    alert('Volume maximum atteint.');
+    return;
+  }
+  const ph = calculerPH(nouveauV, p);
+  mesures.push({ v: nouveauV, ph });
+  mesures.sort((a, b) => a.v - b.v);
+  renderMesures();
+  renderChart();
+  majAffichage(nouveauV, ph);
+  analyserResultats();
+}
+
+function renderMesures() {
+  const tbody = document.getElementById('tbodyMesures');
+  if (mesures.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:#888;">En attente...</td></tr>';
+    return;
+  }
+  tbody.innerHTML = '';
+  const ind = document.getElementById('indicateur').value;
+  mesures.forEach((m, idx) => {
+    const tr = document.createElement('tr');
+    const couleur = couleurIndicateur(m.ph, ind);
+    tr.innerHTML = `
+      <td>${m.v.toFixed(2)}</td>
+      <td>${m.ph.toFixed(2)}</td>
+      <td><span class="pastille-couleur" style="background:${couleur};"></span></td>
+      <td><button class="btn-del-row" data-idx="${idx}">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('.btn-del-row').forEach(b => {
+    b.addEventListener('click', () => {
+      mesures.splice(parseInt(b.dataset.idx), 1);
+      renderMesures();
+      renderChart();
+      analyserResultats();
+    });
+  });
+}
+
+function majAffichage(v, ph) {
+  document.getElementById('svgVolume').textContent = v.toFixed(2);
+  document.getElementById('svgPh').textContent = ph.toFixed(2);
+  const ind = document.getElementById('indicateur').value;
+  const couleur = couleurIndicateur(ph, ind);
+  document.getElementById('svgLiquid').setAttribute('fill', couleur.replace('1)', '0.7)'));
+  const p = lireParametres();
+  const veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
+  let msg = '';
+  if (v < veq * 0.5) msg = '🟡 Avant l\'équivalence : couleur initiale.';
+  else if (v < veq - 1) msg = '🟠 Approche de l\'équivalence...';
+  else if (Math.abs(v - veq) < 1) msg = '🎯 À l\'équivalence : virage !';
+  else msg = '🔵 Après l\'équivalence : couleur finale.';
+  document.getElementById('animMessage').textContent = msg;
+}
+
+document.getElementById('indicateur').addEventListener('change', () => {
+  majCouleurInitiale();
+  renderMesures();
+  if (mesures.length > 0) {
+    const derniere = mesures[mesures.length - 1];
+    majAffichage(derniere.v, derniere.ph);
+  }
+});
+
+document.getElementById('methode').addEventListener('change', () => {
+  const m = document.getElementById('methode').value;
+  if (m === 'phmetrique') {
+    document.getElementById('chartWrapper').style.display = 'block';
+    document.getElementById('animBox').style.display = 'none';
+  } else {
+    document.getElementById('animBox').style.display = 'block';
+    if (mesures.length < 2) document.getElementById('chartWrapper').style.display = 'none';
+  }
+});
+
+// ============================================================
+//  COURBE
+// ============================================================
+function renderChart() {
+  const canvas = document.getElementById('chartCourbe');
+  if (!canvas) return;
+  if (mesures.length < 2) {
+    if (chart) { chart.destroy(); chart = null; }
+    return;
+  }
+  document.getElementById('chartWrapper').style.display = 'block';
+  document.getElementById('animBox').style.display = 'none';
+
+  const points = mesures.map(m => ({ x: m.v, y: m.ph })).sort((a, b) => a.x - b.x);
+  const p = lireParametres();
+  const veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
+
+  if (chart) chart.destroy();
+  chart = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: {
+      datasets: [{
+        label: 'pH',
+        data: points,
+        borderColor: '#A8853F',
+        backgroundColor: 'rgba(168,133,63,0.15)',
+        tension: 0.2,
+        fill: true,
+        borderWidth: 2,
+        pointRadius: 4,
+        pointBackgroundColor: '#4fc3f7',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 1.5
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      parsing: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `V = ${ctx.parsed.x.toFixed(2)} mL, pH = ${ctx.parsed.y.toFixed(2)}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          min: 0,
+          max: Math.max(veq * 2, mesures[mesures.length - 1].v * 1.1),
+          title: { display: true, text: 'V (mL)', color: '#aaa' },
+          ticks: { color: '#aaa' },
+          grid: { color: 'rgba(255,255,255,0.05)' }
+        },
+        y: {
+          min: 0, max: 14,
+          title: { display: true, text: 'pH', color: '#aaa' },
+          ticks: { color: '#aaa' },
+          grid: { color: 'rgba(255,255,255,0.05)' }
+        }
+      }
+    }
+  });
+}
+
+// ============================================================
+//  RÉSULTATS
+// ============================================================
+function analyserResultats() {
+  if (mesures.length < 2) return;
+  const p = lireParametres();
+  const points = mesures.map(m => ({ x: m.v, y: m.ph })).sort((a, b) => a.x - b.x);
+  let veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
+  let vdemi = veq / 2;
+
+  let maxDelta = 0, indexMax = 0;
+  for (let i = 1; i < points.length; i++) {
+    const delta = Math.abs(points[i].y - points[i-1].y);
+    if (delta > maxDelta) { maxDelta = delta; indexMax = i; }
+  }
+  if (maxDelta > 0.5) {
+    veq = (points[indexMax].x + points[indexMax-1].x) / 2;
+    vdemi = veq / 2;
+  }
+
+  const pheq = calculerPH(veq, p);
+  const phdemi = calculerPH(vdemi, p);
+
+  document.getElementById('resVeq').textContent = veq.toFixed(2) + ' mL';
+  document.getElementById('resVdemi').textContent = vdemi.toFixed(2) + ' mL';
+  document.getElementById('resPheq').textContent = pheq.toFixed(2);
+  document.getElementById('resPhdemi').textContent = phdemi.toFixed(2);
+  document.getElementById('resultBox').style.display = 'block';
+  document.getElementById('btnExportPdf').style.display = 'inline-block';
+  document.getElementById('infoHint').innerHTML = '✅ Dosage terminé ! Tu peux exporter en PDF ou continuer à ajouter du volume.';
+}
+
+// ============================================================
+//  EXPORT PDF
+// ============================================================
+document.getElementById('btnExportPdf').addEventListener('click', () => {
+  if (mesures.length < 2) { alert('Fais d\'abord un dosage.'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const p = lireParametres();
+
+  doc.setFontSize(18);
+  doc.setTextColor(27,42,74);
+  doc.text('Rapport de Dosage — LFAKM', 105, 20, { align: 'center' });
+
+  doc.setFontSize(11);
+  doc.setTextColor(100);
+  doc.text(`Élève : ${profile ? profile.prenom + ' ' + profile.nom : 'Anonyme'}`, 20, 35);
+  doc.text(`Date : ${new Date().toLocaleDateString('fr-FR')}`, 150, 35);
+
+  doc.setFontSize(13);
+  doc.setTextColor(27,42,74);
+  doc.text('Paramètres', 20, 50);
+  doc.setFontSize(10);
+  doc.setTextColor(0);
+  doc.text(`Substance titrée : ${p.substanceTitree.nom} (${p.substanceTitree.formule})`, 20, 58);
+  doc.text(`Solution titrante : ${p.substanceTitrante.nom} (${p.substanceTitrante.formule})`, 20, 64);
+  doc.text(`VA = ${p.va} mL, CA = ${p.ca} mol/L, CB = ${p.cb} mol/L`, 20, 70);
+  doc.text(`Indicateur : ${p.indicateur}`, 20, 76);
+
+  doc.setFontSize(13);
+  doc.setTextColor(27,42,74);
+  doc.text('Tableau de mesures', 20, 90);
+  doc.setFontSize(9);
+  doc.setTextColor(0);
+  let y = 98;
+  mesures.forEach((m, i) => {
+    if (y > 280) { doc.addPage(); y = 20; }
+    doc.text(`${i+1}. V = ${m.v.toFixed(2)} mL  |  pH = ${m.ph.toFixed(2)}`, 20, y);
+    y += 5;
+  });
+
+  y += 10;
+  doc.setFontSize(13);
+  doc.setTextColor(27,42,74);
+  doc.text('Résultats', 20, y);
+  y += 8;
+  doc.setFontSize(10);
+  doc.setTextColor(0);
+  doc.text(`Volume équivalent : ${document.getElementById('resVeq').textContent}`, 20, y); y += 6;
+  doc.text(`Demi-équivalence : ${document.getElementById('resVdemi').textContent}`, 20, y); y += 6;
+  doc.text(`pH à l'équivalence : ${document.getElementById('resPheq').textContent}`, 20, y); y += 6;
+  doc.text(`pH à la demi-équivalence : ${document.getElementById('resPhdemi').textContent}`, 20, y);
+
+  const nomFichier = `Rapport_Dosage_${new Date().toISOString().slice(0,10)}.pdf`;
+  doc.save(nomFichier);
+
+  pdfData = { type:'Dosage', nomFichier };
+  document.getElementById('modalExportPdf').classList.add('show');
+});
+
+document.getElementById('btnFermerExportPdf').addEventListener('click', () => {
+  document.getElementById('modalExportPdf').classList.remove('show');
+});
+
+// ============================================================
+//  MODES
+// ============================================================
+document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const mode = btn.dataset.mode;
+    activerMode(mode);
+  });
+});
+
+function activerMode(mode) {
+  modeActuel = mode;
+  document.querySelectorAll('.mode-btn[data-mode]').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  const fieldPka = document.getElementById('fieldPka');
+  const methodeSelect = document.getElementById('methode');
+
+  if (mode === 'initiation' || mode === 'standard') {
+    methodeSelect.value = 'colorimetrique';
+    methodeSelect.disabled = true;
+    fieldPka.style.display = 'none';
+  } else if (mode === 'expert') {
+    methodeSelect.disabled = false;
+    fieldPka.style.display = 'block';
+  } else if (mode === 'tp') {
+    methodeSelect.value = 'phmetrique';
+    methodeSelect.disabled = false;
+    fieldPka.style.display = 'none';
+  }
+  resetSimulation();
+}
+
+// ============================================================
+//  ÉVALUATION
+// ============================================================
+document.getElementById('btnModeEntrainement').addEventListener('click', () => {
+  lancerExamen({
+    type: 'entrainement',
+    nom: 'Entraînement',
+    nbQuestions: 5,
+    duree: 999,
+    difficulte: 'moyen'
+  });
+});
+
+document.getElementById('btnModeEvaluation').addEventListener('click', () => {
+  document.getElementById('modalConfigEval').classList.add('show');
+});
+
+document.getElementById('btnAnnulerEval').addEventListener('click', () => {
+  document.getElementById('modalConfigEval').classList.remove('show');
+});
+
+document.getElementById('btnLancerEval').addEventListener('click', () => {
+  const nom = document.getElementById('evalNom').value.trim() || 'Évaluation';
+  const duree = parseInt(document.getElementById('evalDuree').value);
+  const nbQ = parseInt(document.getElementById('evalNbQuestions').value);
+  const diff = document.getElementById('evalDifficulte').value;
+
+  document.getElementById('modalConfigEval').classList.remove('show');
+  lancerExamen({ type: 'evaluation', nom, nbQuestions: nbQ, duree, difficulte: diff });
+});
+
+function genererQuestion(difficulte) {
+  const sub = SUBSTANCES[Math.floor(Math.random() * SUBSTANCES.length)];
+  const titrante = sub.famille === 'acide'
+    ? SUBSTANCES.filter(s => s.famille === 'base' && s.force === 'fort')[0]
+    : SUBSTANCES.filter(s => s.famille === 'acide' && s.force === 'fort')[0];
+
+  let va, ca, cb;
+  if (difficulte === 'facile') {
+    va = [10, 20, 25][Math.floor(Math.random() * 3)];
+    ca = [0.1, 0.05][Math.floor(Math.random() * 2)];
+    cb = [0.1, 0.05][Math.floor(Math.random() * 2)];
+  } else if (difficulte === 'moyen') {
+    va = Math.round((10 + Math.random() * 20) * 10) / 10;
+    ca = Math.round((0.02 + Math.random() * 0.18) * 1000) / 1000;
+    cb = Math.round((0.02 + Math.random() * 0.18) * 1000) / 1000;
+  } else {
+    va = Math.round((5 + Math.random() * 45) * 10) / 10;
+    ca = Math.round((0.005 + Math.random() * 0.5) * 1000) / 1000;
+    cb = Math.round((0.005 + Math.random() * 0.5) * 1000) / 1000;
+  }
+  const p = { substanceTitree: sub, substanceTitrante: titrante, va, ca, cb, pka: sub.pka };
+  const veqTheo = (sub.n * va * ca) / (titrante.n * cb);
+
+  const types = ['A', 'B', 'C'];
+  const type = types[Math.floor(Math.random() * types.length)];
+
+  if (type === 'A') {
+    const veq = Math.round(veqTheo * 100) / 100;
+    const vraieCA = (cb * veq * titrante.n) / (va * sub.n);
+    return {
+      enonce: `On dose ${va.toFixed(1)} mL d'une solution de ${sub.nom} (${sub.formule}) par une solution de ${titrante.nom} à ${cb.toFixed(3)} mol/L. L'équivalence est obtenue pour Veq = ${veq.toFixed(2)} mL.<br><br>Calculer la concentration CA.`,
+      consigne: 'Réponse en mol/L (3 décimales)',
+      reponse: vraieCA.toFixed(3),
+      unite: 'mol/L',
+      tolerance: 0.005,
+      explication: `À l'équivalence : n × CA × VA = m × CB × Veq<br>CA = (${titrante.n} × ${cb.toFixed(3)} × ${veq.toFixed(2)}) / (${sub.n} × ${va.toFixed(1)}) = ${vraieCA.toFixed(3)} mol/L`
+    };
+  } else if (type === 'B') {
+    const vraieVeq = veqTheo;
+    return {
+      enonce: `On dose ${va.toFixed(1)} mL d'une solution de ${sub.nom} (${sub.formule}) de concentration CA = ${ca.toFixed(3)} mol/L par une solution de ${titrante.nom} à ${cb.toFixed(3)} mol/L.<br><br>Calculer le volume équivalent Veq.`,
+      consigne: 'Réponse en mL (2 décimales)',
+      reponse: vraieVeq.toFixed(2),
+      unite: 'mL',
+      tolerance: 0.1,
+      explication: `Veq = (${sub.n} × ${ca.toFixed(3)} × ${va.toFixed(1)}) / (${titrante.n} × ${cb.toFixed(3)}) = ${vraieVeq.toFixed(2)} mL`
+    };
+  } else {
+    const veq = veqTheo;
+    const pheq = calculerPH(veq, p);
+    let bonInd;
+    if (pheq < 4.4) bonInd = 'helianthine';
+    else if (pheq < 7.6) bonInd = 'bbt';
+    else bonInd = 'phenolphtaleine';
+    const indObj = INDICATEURS.find(i => i.id === bonInd);
+    return {
+      enonce: `Dosage entre ${sub.nom} et ${titrante.nom}. Le pH à l'équivalence est de ${pheq.toFixed(2)}.<br><br>Quel indicateur est le plus adapté ?`,
+      consigne: 'Choisis un indicateur',
+      options: INDICATEURS.map(i => ({ value: i.id, label: `${i.nom} (zone ${i.zoneMin}-${i.zoneMax})` })),
+      reponse: bonInd,
+      tolerance: 0,
+      explication: `Le pH à l'équivalence est ${pheq.toFixed(2)}. L'indicateur adapté est ${indObj.nom} (zone ${indObj.zoneMin}-${indObj.zoneMax}).`
+    };
+  }
+}
+
+function lancerExamen(config) {
+  examen.questions = [];
+  for (let i = 0; i < config.nbQuestions; i++) {
+    examen.questions.push(genererQuestion(config.difficulte));
+  }
+  examen.actif = true;
+  examen.index = 0;
+  examen.score = 0;
+  examen.reponses = [];
+  examen.tempsRestant = config.duree * 60;
+  examen.config = config;
+
+  document.getElementById('examenTotal').textContent = examen.questions.length;
+  document.getElementById('examenScore').textContent = '0';
+
+  if (config.type === 'evaluation' && config.duree < 900) {
+    document.getElementById('examenTimer').parentElement.parentElement.style.display = 'block';
+    demarrerTimer();
+  } else {
+    document.getElementById('examenTimer').parentElement.parentElement.style.display = 'none';
+  }
+
+  document.getElementById('modalExamen').classList.add('show');
+  afficherQuestion();
+}
+
+function demarrerTimer() {
+  if (examen.timer) clearInterval(examen.timer);
+  examen.timer = setInterval(() => {
+    examen.tempsRestant--;
+    majTimer();
+    if (examen.tempsRestant <= 0) {
+      clearInterval(examen.timer);
+      terminerExamen(true);
+    }
+  }, 1000);
+  majTimer();
+}
+
+function majTimer() {
+  const t = document.getElementById('examenTimer');
+  const min = Math.floor(examen.tempsRestant / 60);
+  const sec = examen.tempsRestant % 60;
+  t.textContent = `${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  t.classList.remove('warning', 'danger');
+  if (examen.tempsRestant <= 60) t.classList.add('danger');
+  else if (examen.tempsRestant <= 120) t.classList.add('warning');
+}
+
+function afficherQuestion() {
+  if (examen.index >= examen.questions.length) {
+    terminerExamen(false);
+    return;
+  }
+  const q = examen.questions[examen.index];
+  document.getElementById('examenNum').textContent = examen.index + 1;
+  document.getElementById('examenProgress').style.width = ((examen.index) / examen.questions.length * 100) + '%';
+
+  let html = `<div class="examen-question"><strong>📝</strong> ${q.enonce}<br><br><em style="color:#4fc3f7;">💡 ${q.consigne}</em></div>`;
+
+  if (q.options) {
+    html += `<div class="examen-radio-group" id="radioGroup">`;
+    q.options.forEach(o => {
+      html += `<label data-value="${o.value}"><input type="radio" name="rep" value="${o.value}"> ${o.label}</label>`;
+    });
+    html += `</div>`;
+  } else {
+    html += `<input type="number" class="examen-reponse-input" id="reponseInput" step="0.001" placeholder="Ta réponse...">
+             <div style="font-size:0.75em; color:#aaa; margin-top:4px;">${q.unite}</div>`;
+  }
+  html += `<div id="feedbackZone"></div>`;
+  html += `<div class="button-bar" style="margin-top:12px;">
+             <button class="btn btn-primary" id="btnValiderRep" style="width:100%;">✅ Valider</button>
+           </div>`;
+
+  document.getElementById('examenContenu').innerHTML = html;
+
+  document.querySelectorAll('#radioGroup label').forEach(l => {
+    l.addEventListener('click', () => {
+      document.querySelectorAll('#radioGroup label').forEach(x => x.classList.remove('selected'));
+      l.classList.add('selected');
+    });
+  });
+
+  document.getElementById('btnValiderRep').addEventListener('click', validerReponse);
+}
+
+function validerReponse() {
+  const q = examen.questions[examen.index];
+  let repDonnee = null;
+  let correct = false;
+
+  if (q.options) {
+    const sel = document.querySelector('#radioGroup label.selected');
+    if (!sel) { alert('Choisis une réponse.'); return; }
+    repDonnee = sel.dataset.value;
+    correct = repDonnee === q.reponse;
+  } else {
+    const input = document.getElementById('reponseInput');
+    repDonnee = input.value.trim();
+    if (!repDonnee) { alert('Saisis une réponse.'); return; }
+    const val = parseFloat(repDonnee);
+    const vraie = parseFloat(q.reponse);
+    correct = Math.abs(val - vraie) <= q.tolerance;
+  }
+
+  if (correct) examen.score++;
+  document.getElementById('examenScore').textContent = examen.score;
+  examen.reponses.push({ question: q, repDonnee, correct });
+
+  const fb = document.getElementById('feedbackZone');
+  const cls = correct ? 'correct' : 'incorrect';
+  const titre = correct ? '✅ Bonne réponse !' : '❌ Réponse incorrecte';
+  let repAffichee = q.options ? (q.options.find(o => o.value === q.reponse)?.label || q.reponse) : q.reponse + ' ' + (q.unite || '');
+  let repDonneeAffichee = q.options ? (q.options.find(o => o.value === repDonnee)?.label || repDonnee) : repDonnee + ' ' + (q.unite || '');
+
+  fb.innerHTML = `<div class="examen-feedback ${cls}">
+    <strong>${titre}</strong><br>
+    Ta réponse : ${repDonneeAffichee}<br>
+    Bonne réponse : <strong>${repAffichee}</strong><br><br>
+    <em>${q.explication}</em>
+  </div>`;
+
+  const btnNext = document.getElementById('btnValiderRep');
+  btnNext.textContent = examen.index < examen.questions.length - 1 ? '➡ Suivant' : '🏁 Voir résultats';
+  btnNext.onclick = () => {
+    examen.index++;
+    afficherQuestion();
+  };
+}
+
+function terminerExamen(parTemps) {
+  if (examen.timer) clearInterval(examen.timer);
+  examen.actif = false;
+  document.getElementById('modalExamen').classList.remove('show');
+
+  const total = examen.questions.length;
+  const score = examen.score;
+  const noteSur20 = Math.round((score / total) * 20 * 10) / 10;
+  const pct = Math.round((score / total) * 100);
+
+  let appreciation = '', classeApp = '';
+  if (pct >= 90) { appreciation = '🏆 Excellent !'; classeApp = 'app-excellent'; }
+  else if (pct >= 70) { appreciation = '👍 Bien'; classeApp = 'app-bien'; }
+  else if (pct >= 50) { appreciation = '📖 Passable'; classeApp = 'app-passable'; }
+  else { appreciation = '⚠️ À revoir'; classeApp = 'app-faible'; }
+
+  let html = `
+    <div class="examen-resultat-final">
+      <div style="font-size:1.1em; color:#4fc3f7; margin-bottom:10px;">
+        ${parTemps ? '⏱ Temps écoulé' : '🎉 Terminé'}
+      </div>
+      <div class="score">${noteSur20}/20</div>
+      <div class="label">${score}/${total} bonnes réponses (${pct}%)</div>
+      <div class="appreciation ${classeApp}">${appreciation}</div>
+    </div>
+  `;
+
+  html += `<div style="max-height:200px; overflow-y:auto; background:rgba(255,255,255,0.05); border-radius:8px; padding:10px; margin-top:12px; font-size:0.78em;">`;
+  examen.reponses.forEach((r, i) => {
+    const icone = r.correct ? '✅' : '❌';
+    html += `<div style="padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+      <strong>${icone} Q${i+1}</strong> — ${r.correct ? 'Correct' : 'Incorrect'}
+    </div>`;
+  });
+  html += `</div>`;
+
+  html += `<div class="button-bar" style="margin-top:12px;">
+             <button class="btn btn-secondary" id="btnFermerResultats" style="width:100%;">Fermer</button>
+           </div>`;
+
+  document.getElementById('resultatsContenu').innerHTML = html;
+  document.getElementById('modalResultatsExamen').classList.add('show');
+  document.getElementById('btnFermerResultats').addEventListener('click', () => {
+    document.getElementById('modalResultatsExamen').classList.remove('show');
+  });
+}
+
+// ============================================================
+//  AUTH (Firebase) — chargement différé
+// ============================================================
+async function initAuth() {
+  try {
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+    const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+    const { getFirestore, doc, getDoc, setDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+      authDomain: "lfakm-87dec.firebaseapp.com",
+      projectId: "lfakm-87dec",
+      storageBucket: "lfakm-87dec.firebasestorage.app",
+      messagingSenderId: "739517262614",
+      appId: "1:739517262614:web:14abd3538427960c527e37"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+        if (snap.exists()) {
+          profile = snap.data();
+          const isAdmin = ['admin','proviseur','censeur'].includes(profile.role);
+          const isProf = profile.role === 'professeur';
+          if (isAdmin || isProf) {
+            document.getElementById('btnModeEvaluation').classList.remove('hidden');
+          }
+          if (profile.role === 'eleve') {
+            document.getElementById('btnSauvegarder').style.display = 'inline-block';
+            document.getElementById('btnSauvegarder').onclick = async () => {
+              if (mesures.length < 3) { alert('Fais au moins 3 mesures.'); return; }
+              const nom = prompt('Nom du dosage :', `Dosage ${substanceTitree.nom}`);
+              if (!nom) return;
+              try {
+                await setDoc(doc(db, 'utilisateurs', user.uid, 'dosages', Date.now().toString()), {
+                  nom,
+                  date: new Date().toISOString(),
+                  substanceTitree: { nom: substanceTitree.nom, formule: substanceTitree.formule },
+                  substanceTitrante: { nom: substanceTitrante.nom, formule: substanceTitrante.formule },
+                  va: parseFloat(document.getElementById('va').value),
+                  ca: parseFloat(document.getElementById('ca').value),
+                  cb: parseFloat(document.getElementById('cb').value),
+                  mesures,
+                  veq: document.getElementById('resVeq').textContent,
+                  pheq: document.getElementById('resPheq').textContent,
+                  note: null
+                });
+                alert('✅ Dosage sauvegardé !');
+              } catch (e) { alert('❌ Erreur : ' + e.message); }
+            };
+          }
+        }
+      }
+    });
+  } catch (err) {
+    console.warn('Firebase non chargé :', err.message);
+  }
+}
+
+// ============================================================
+//  INITIALISATION
+// ============================================================
+construireMenuTitree();
+activerMode('standard');
+majCouleurInitiale();
+initAuth();
+
+// Service worker pour mode hors-réseau
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log('✅ Service worker OK — site disponible hors-réseau'))
+      .catch(err => console.warn('Service worker non enregistré :', err));
+  });
+}
+</script>
+
+</body>
+</html>
