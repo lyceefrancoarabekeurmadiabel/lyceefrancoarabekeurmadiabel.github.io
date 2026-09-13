@@ -2,1233 +2,823 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Circuits électriques — Mobile | LFAKM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>Simulateur de Dosage — LFAKM</title>
 <link rel="icon" type="image/png" href="favicon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body { overflow-x: hidden; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    color: #eee;
-    min-height: 100vh;
-    padding: 6px;
-    font-size: 14px;
+  :root { --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F; --slate: #5B6472; --line: rgba(27,42,74,0.14); --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif; --gov-purple: #6a4c93; --success: #2e7d32; --warning: #f39c12; --danger: #d9534f; --info: #3498db; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+  header { position:sticky; top:0; z-index:1000; background:var(--paper); border-bottom:1px solid var(--line); height: 84px; display: flex; align-items: center; }
+  .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; max-width:1180px; margin:0 auto; padding:0 16px; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); flex-shrink: 0; }
+  .brand-mark { width:45px; height:45px; display:flex; align-items:center; justify-content:center; flex-shrink: 0; }
+  .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
+  .brand-name { font-family:var(--serif); font-weight:700; font-size:13px; color:var(--ink); line-height: 1.2; }
+  .brand-tag { font-size: 9px; color: var(--slate); letter-spacing: 0.5px; }
+  nav { flex: 1; display: flex; justify-content: flex-end; align-items: center; }
+  nav ul { display:flex; gap:14px; list-style:none; align-items: center; justify-content: flex-end; }
+  nav a { font-size:12px; font-weight:600; color:var(--ink); text-decoration:none; white-space: nowrap; }
+  nav a:hover { color: var(--brass); }
+  .nav-cta { background: var(--ink-deep); color:#fff !important; padding:8px 14px; font-size:12px; font-weight:600; border-radius:4px; text-decoration:none; }
+  .menu-toggle { display: none; font-size: 28px; cursor: pointer; background: none; border: none; color: var(--ink); padding: 4px 8px; }
+  #user-profile { display: none; font-weight: 700; color: var(--brass); font-size: 13px; }
+  .contact-info { display: flex; flex-direction: column; align-items: center; font-size: 11px; }
+  .contact-label { font-weight: 600; color: var(--ink); }
+  .contact-phone { color: var(--brass); font-weight: 700; }
+  .feedback-item { display: none; }
+  .feedback-link { background: var(--brass); color: #fff !important; padding: 4px 10px; border-radius: 4px; font-size: 11px; }
+  .admin-item { display: none; position: relative; }
+  .admin-trigger { background: var(--brass); color: #fff !important; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 12px; cursor: pointer; }
+  .admin-dropdown { display: none; position: absolute; top: 100%; right: 0; background: #fff; border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); min-width: 180px; z-index: 100; padding: 5px 0; }
+  .admin-dropdown a { display: block; padding: 8px 15px; color: var(--ink); font-size: 13px; text-decoration: none; }
+  .admin-item:hover .admin-dropdown { display: block; }
+  .gov-item { display: none; }
+  .gov-item a { color: var(--gov-purple) !important; font-weight: 700; }
+
+  @media (max-width: 900px) {
+    .menu-toggle { display: block; }
+    nav ul { display: none; flex-direction: column; position: absolute; top: 84px; left: 0; width: 100%; background: #fff; padding: 20px; border-bottom: 2px solid var(--line); gap: 15px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    nav ul.show { display: flex; }
+    .admin-dropdown { position: static; box-shadow: none; border: none; }
   }
 
-  .container {
-    max-width: 100%;
-    margin: 0 auto;
-    background: rgba(255,255,255,0.05);
-    border-radius: 12px;
-    padding: 10px;
-  }
+  .hero { background: var(--ink-deep); color:#EFE9DC; padding: 24px 16px; text-align: center; }
+  .hero h1 { font-family: var(--serif); font-size: 22px; margin-bottom: 6px; }
+  .hero p { font-size: 13px; opacity: 0.85; }
+  .wrap { max-width:900px; margin:0 auto; padding: 14px; }
 
-  .top-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-    gap: 8px;
-  }
-  .btn-retour, .btn-pc {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 6px 10px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 0.72em;
-    font-weight: 700;
-  }
-  .btn-retour { background: rgba(168, 133, 63, 0.2); color: #ffd54f; border: 1px solid rgba(255, 213, 79, 0.4); }
-  .btn-pc { background: rgba(79, 195, 247, 0.15); color: #4fc3f7; border: 1px solid rgba(79, 195, 247, 0.4); }
+  .mode-selector { background: linear-gradient(135deg, #6a4c93 0%, #9b59b6 100%); color: #fff; padding: 16px; border-radius: 12px; margin-bottom: 16px; }
+  .mode-selector h3 { font-family: var(--serif); font-size: 15px; margin-bottom: 8px; }
+  .mode-selector .suggested { font-size: 12px; opacity: 0.9; margin-bottom: 10px; }
+  .mode-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
+  .mode-btn { background: rgba(255,255,255,0.2); color: #fff; border: 2px solid rgba(255,255,255,0.3); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--sans); flex: 1 1 auto; min-width: 80px; }
+  .mode-btn.active { background: #fff; color: #6a4c93; border-color: #fff; }
 
-  h1 { text-align: center; color: #4fc3f7; font-size: 1.1em; margin-bottom: 4px; }
-  .subtitle { text-align: center; color: #aaa; font-size: 0.7em; margin-bottom: 10px; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .card h3 { font-family: var(--serif); font-size: 16px; color: var(--ink); margin-bottom: 12px; border-bottom: 2px solid var(--brass); padding-bottom: 6px; display: inline-block; }
 
-  /* STEPPER */
-  .stepper {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 8px;
-  }
-  .step {
-    flex: 1;
-    padding: 6px 6px;
-    background: rgba(255,255,255,0.05);
-    border: 2px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
-    font-size: 0.62em;
-    font-weight: bold;
-    color: #888;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    text-align: center;
-    line-height: 1.2;
-  }
-  .step.active {
-    background: rgba(79, 195, 247, 0.2);
-    border-color: #4fc3f7;
-    color: #4fc3f7;
-  }
-  .step.done {
-    background: rgba(76, 175, 80, 0.15);
-    border-color: #4caf50;
-    color: #81c784;
-  }
-  .step-num {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.85em;
-    flex-shrink: 0;
-  }
-  .step.active .step-num { background: #4fc3f7; color: #16213e; }
-  .step.done .step-num { background: #4caf50; color: #fff; }
+  .param-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 12px; }
+  @media (min-width: 600px) { .param-grid { grid-template-columns: 1fr 1fr; } }
+  .field { margin-bottom: 10px; }
+  .field label { display: block; font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .field input, .field select { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 8px; font-family: var(--sans); font-size: 15px; background: #fff; -webkit-appearance: none; appearance: none; }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--brass); }
+  .field .helper { font-size: 11px; color: var(--slate); margin-top: 3px; }
 
-  /* SECTION ONGLETS DE MATÉRIEL */
-  .section-title {
-    color: #4fc3f7;
-    font-size: 0.68em;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin: 8px 0 5px;
-    padding-left: 6px;
-    border-left: 3px solid #4fc3f7;
-    font-weight: bold;
+  .btn-primary, .btn-secondary, .btn-info, .btn-success, .btn-danger {
+    border: none; padding: 12px 18px; border-radius: 8px; font-size: 14px; font-weight: 700;
+    cursor: pointer; font-family: var(--sans); margin: 4px 4px 4px 0; width: 100%; display: block;
   }
+  @media (min-width: 600px) {
+    .btn-primary, .btn-secondary, .btn-info, .btn-success, .btn-danger { display: inline-block; width: auto; }
+  }
+  .btn-primary { background: var(--ink); color: #fff; }
+  .btn-secondary { background: #eee; color: var(--ink); border: 1px solid var(--line); }
+  .btn-info { background: var(--info); color: #fff; }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-danger { background: var(--danger); color: #fff; }
 
-  /* DÉFILEMENT HORIZONTAL DU MATÉRIEL */
-  .material-row {
-    display: flex;
-    gap: 5px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    margin-bottom: 6px;
-    scrollbar-width: none;
-  }
-  .material-row::-webkit-scrollbar { display: none; }
+  .dispositif { background: #fafafa; border: 1px solid var(--line); border-radius: 10px; padding: 12px; text-align: center; margin-bottom: 16px; }
+  .dispositif svg { width: 100%; max-width: 320px; height: auto; }
+  .dispositif h4 { font-family: var(--serif); font-size: 14px; color: var(--ink); margin-bottom: 8px; }
 
-  .tool-option {
-    flex: 0 0 auto;
-    min-width: 70px;
-    padding: 8px 6px;
-    background: rgba(255,255,255,0.05);
-    border: 2px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
-    color: #ddd;
-    cursor: pointer;
-    font-size: 0.65em;
-    font-weight: bold;
-    font-family: inherit;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    transition: all 0.15s;
-  }
-  .tool-option.active {
-    background: rgba(79, 195, 247, 0.25);
-    border-color: #4fc3f7;
-    color: #4fc3f7;
-  }
-  .tool-option .icon { font-size: 1.5em; }
+  @keyframes drop { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(30px); opacity: 0; } }
+  .droplet { animation: drop 0.6s ease-in forwards; }
 
-  /* CANVAS */
-  .canvas-wrapper {
-    background: #000;
-    border-radius: 8px;
-    padding: 4px;
-    margin-bottom: 8px;
-    border: 2px solid #4fc3f7;
-    overflow: hidden;
-    position: relative;
-  }
-  .canvas-wrapper canvas {
-    display: block;
-    width: 100%;
-    height: auto;
-    touch-action: manipulation;
-  }
-  .hint-box {
-    position: absolute;
-    bottom: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.85);
-    color: #4fc3f7;
-    font-size: 0.68em;
-    font-weight: bold;
-    padding: 6px 12px;
-    border-radius: 20px;
-    border: 1px solid rgba(79, 195, 247, 0.4);
-    pointer-events: none;
-    white-space: nowrap;
-    max-width: 90%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+  .table-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
+  .table-mode { display: flex; gap: 4px; background: #f0f0f0; padding: 4px; border-radius: 6px; }
+  .table-mode-btn { padding: 6px 10px; border: none; background: transparent; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer; color: var(--slate); }
+  .table-mode-btn.active { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-  /* MESURES */
-  .info-panel {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5px;
-    margin-bottom: 8px;
-    padding: 8px;
-    background: rgba(79, 195, 247, 0.08);
-    border-radius: 8px;
-    border: 1px solid rgba(79, 195, 247, 0.3);
-  }
-  .info-item { text-align: center; }
-  .info-item .label {
-    font-size: 0.58em;
-    color: #aaa;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    line-height: 1.2;
-  }
-  .info-item .val {
-    font-size: 0.9em;
-    color: #4fc3f7;
-    font-weight: bold;
-    font-family: monospace;
-    margin-top: 2px;
-  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table th { background: var(--paper); padding: 8px 6px; text-align: left; color: var(--ink); font-weight: 700; border-bottom: 2px solid var(--line); font-size: 12px; }
+  table td { padding: 6px; border-bottom: 1px solid var(--line); }
+  table input { width: 100%; padding: 8px; border: 1px solid var(--line); border-radius: 4px; font-size: 14px; }
+  table button { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 18px; padding: 2px 8px; }
 
-  /* ÉTAT DU CIRCUIT */
-  .state-box {
-    padding: 8px 10px;
-    border-radius: 6px;
-    font-size: 0.72em;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 8px;
-    border-left: 4px solid #4fc3f7;
-    background: rgba(79, 195, 247, 0.1);
-    line-height: 1.4;
-  }
-  .state-box.ok { border-color: #4caf50; background: rgba(76, 175, 80, 0.15); color: #81c784; }
-  .state-box.warn { border-color: #ff9800; background: rgba(255, 152, 0, 0.15); color: #ffb74d; }
-  .state-box.danger { border-color: #f44336; background: rgba(244, 67, 54, 0.2); color: #ff8a80; animation: pulse 0.8s infinite; }
-  .state-box.info { border-color: #4fc3f7; background: rgba(79, 195, 247, 0.1); color: #4fc3f7; }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  #chart-container { position: relative; height: 280px; margin-top: 10px; }
+  @media (min-width: 600px) { #chart-container { height: 380px; } }
 
-  /* BOUTONS */
-  .button-bar { display: flex; gap: 5px; margin-bottom: 8px; flex-wrap: wrap; }
-  .btn {
-    flex: 1;
-    min-width: 100px;
-    padding: 10px 8px;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 0.75em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    font-family: inherit;
-    white-space: nowrap;
-  }
-  .btn-play {
-    background: linear-gradient(135deg, #4fc3f7, #29b6f6);
-    color: #16213e;
-    box-shadow: 0 3px 10px rgba(79, 195, 247, 0.4);
-  }
-  .btn-validate {
-    background: linear-gradient(135deg, #4caf50, #66bb6a);
-    color: #fff;
-  }
-  .btn-reset {
-    background: rgba(255,255,255,0.1);
-    color: #eee;
-    border: 1px solid rgba(255,255,255,0.2);
-  }
+  .result-box { background: linear-gradient(135deg, #f0f7ff 0%, #e8f5e9 100%); border-left: 4px solid var(--success); border-radius: 8px; padding: 12px; margin-top: 12px; }
+  .result-box h4 { font-family: var(--serif); font-size: 14px; color: var(--ink); margin-bottom: 6px; }
+  .result-row { font-size: 13px; margin: 5px 0; }
 
-  /* CURSEURS */
-  .controls {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 8px;
-  }
-  .control-group {
-    background: rgba(255,255,255,0.05);
-    padding: 8px 10px;
-    border-radius: 8px;
-    border-left: 3px solid #4fc3f7;
-    transition: opacity 0.3s;
-  }
-  .control-group.disabled { opacity: 0.35; pointer-events: none; }
-  .control-group label {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 5px;
-    font-size: 0.72em;
-    color: #ccc;
-    gap: 6px;
-  }
-  .input-value {
-    background: transparent;
-    border: 1px solid #4fc3f7;
-    color: #4fc3f7;
-    border-radius: 4px;
-    padding: 2px 6px;
-    font-family: monospace;
-    font-size: 0.95em;
-    font-weight: bold;
-    width: 55px;
-    text-align: center;
-  }
-  .input-value:focus {
-    outline: none;
-    background: rgba(79, 195, 247, 0.1);
-  }
-  input[type="range"] {
-    width: 100%;
-    height: 28px;
-    accent-color: #4fc3f7;
-    cursor: pointer;
-  }
+  .tp-panel { background: linear-gradient(135deg, #fff8e1 0%, #fff3cd 100%); border: 2px solid var(--warning); border-radius: 10px; padding: 16px; margin-top: 16px; }
+  .tp-panel h3 { color: #7a5500; border-bottom-color: var(--warning); }
 
-  /* EXPLICATION */
-  .observ-strip {
-    margin-top: 8px;
-    padding: 8px 10px;
-    background: linear-gradient(90deg, rgba(255,193,7,0.15), rgba(255,193,7,0.05));
-    border-left: 4px solid #ffc107;
-    border-radius: 6px;
-    font-size: 0.7em;
-    color: #fff;
-    line-height: 1.4;
-  }
+  .feedback { padding: 10px; border-radius: 6px; margin-top: 10px; font-weight: 600; font-size: 13px; }
+  .feedback.success { background: #d4edda; color: var(--success); border: 1px solid var(--success); }
+  .feedback.error { background: #f8d7da; color: var(--danger); border: 1px solid var(--danger); }
+  .feedback.warning { background: #fff3cd; color: #856404; border: 1px solid var(--warning); }
 
-  @media (max-width: 400px) {
-    .tool-option { min-width: 60px; padding: 6px 4px; }
-    .tool-option .icon { font-size: 1.3em; }
-    .step { padding: 5px 4px; font-size: 0.58em; }
-  }
+  .explication { display: none; background: #f0f7ff; border-left: 4px solid var(--info); padding: 12px; border-radius: 6px; margin-top: 10px; font-size: 13px; line-height: 1.6; }
+  .explication.show { display: block; }
+
+  footer { background: var(--ink-deep); color: #B7BCC9; padding: 24px; text-align: center; font-size: 12px; margin-top: 30px; }
+  .hidden { display: none !important; }
+  .badge-info { display: inline-block; background: var(--brass); color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; margin-left: 4px; }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; align-items: center; justify-content: center; padding: 16px; }
+  .modal-overlay.show { display: flex; }
+  .modal-box { background: #fff; border-radius: 10px; padding: 20px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; }
+  .modal-box h3 { font-family: var(--serif); color: var(--ink); margin-bottom: 12px; font-size: 17px; }
+  .modal-box ol { margin: 10px 0 10px 18px; font-size: 13px; }
+  .modal-box ol li { margin-bottom: 6px; }
+  .comparison-panel { display: none; }
+  .comparison-panel.show { display: block; }
+
+  .btn-add-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 8px; }
+  .btn-add-group button { width: 100%; }
 </style>
 </head>
 <body>
 
-<div class="container">
-
-  <div class="top-actions">
-    <a href="labo-pc.html" class="btn-retour">← Labo PC</a>
-    <a href="simulateur-circuits.html" class="btn-pc">🖥️ PC</a>
+<header>
+  <div class="nav-row">
+    <a href="index.html" class="brand">
+      <div class="brand-mark"><img src="logo-header.png" alt="LFAKM"></div>
+      <div>
+        <div class="brand-name">Lycée Franco Arabe<br>de Keur Madiabel</div>
+        <div class="brand-tag">Excellence & Savoir</div>
+      </div>
+    </a>
+    <button class="menu-toggle" id="burger-btn">☰</button>
+    <nav>
+      <ul id="menu">
+        <li><a href="index.html">Accueil</a></li>
+        <li class="admin-item">
+          <span class="admin-trigger">⚙️ Admin</span>
+          <div class="admin-dropdown">
+            <a href="admin-ine.html">📥 Import INE</a>
+            <a href="admin-gestion.html">👥 Gestion</a>
+            <a href="admin-news.html">📰 Actualités</a>
+            <a href="feedback.html#tab-dashboard">📊 Retours</a>
+          </div>
+        </li>
+        <li><a href="historique.html">Historique</a></li>
+        <li><a href="actualites.html">Actualités</a></li>
+        <li><a href="labo-pc.html" style="color: var(--brass); font-weight:700;">🔬 Labo PC</a></li>
+        <li><a href="ressources.html">Ressources</a></li>
+        <li class="gov-item"><a href="publier-annonce.html">🎓 Gouvernement</a></li>
+        <li><a href="#" onclick="window.showContact(); return false;" class="contact-info">
+          <span class="contact-label">📞 Proviseur</span>
+          <span class="contact-phone" id="contact-phone-display">...</span>
+        </a></li>
+        <li id="user-profile" onclick="window.openProfil()" style="cursor:pointer;"></li>
+        <li class="feedback-item"><a href="feedback.html" class="feedback-link">📋 Avis</a></li>
+        <li><a href="identification.html" class="nav-cta" id="auth-link">Connexion</a></li>
+      </ul>
+    </nav>
   </div>
+</header>
 
-  <h1>⚡ Circuits électriques</h1>
-  <p class="subtitle">Atelier de montage — Programme 3ème</p>
+<section class="hero">
+  <h1>🧪 Simulateur de Dosage</h1>
+  <p>Acido-basique · Programme sénégalais (3ème → Terminale)</p>
+</section>
 
-  <!-- STEPPER -->
-  <div class="stepper">
-    <div class="step active" id="step1">
-      <div class="step-num">1</div>
-      <div>Choisis tes composants</div>
-    </div>
-    <div class="step" id="step2">
-      <div class="step-num">2</div>
-      <div>Connecte les fils</div>
-    </div>
-    <div class="step" id="step3">
-      <div class="step-num">3</div>
-      <div>Ferme l'interrupteur</div>
-    </div>
-  </div>
+<div class="wrap">
 
-  <!-- MATÉRIEL : GÉNÉRATEUR -->
-  <div class="section-title">🔋 Générateur</div>
-  <div class="material-row" id="opt-generateur">
-    <button class="tool-option" data-value="1.5">
-      <span class="icon">🔋</span>
-      <span class="label">1.5 V</span>
-    </button>
-    <button class="tool-option active" data-value="4.5">
-      <span class="icon">🔋</span>
-      <span class="label">4.5 V</span>
-    </button>
-    <button class="tool-option" data-value="9">
-      <span class="icon">🔋</span>
-      <span class="label">9 V</span>
-    </button>
-    <button class="tool-option" data-value="12">
-      <span class="icon">🔋</span>
-      <span class="label">12 V</span>
-    </button>
-  </div>
-
-  <!-- MATÉRIEL : RÉCEPTEUR -->
-  <div class="section-title">💡 Récepteur</div>
-  <div class="material-row" id="opt-recepteur">
-    <button class="tool-option active" data-value="ampoule">
-      <span class="icon">💡</span>
-      <span class="label">Ampoule</span>
-    </button>
-    <button class="tool-option" data-value="moteur">
-      <span class="icon">⚙️</span>
-      <span class="label">Moteur</span>
-    </button>
-    <button class="tool-option" data-value="electrolyseur">
-      <span class="icon">🧪</span>
-      <span class="label">Électro.</span>
-    </button>
-    <button class="tool-option" data-value="resistance">
-      <span class="icon">📐</span>
-      <span class="label">Résist.</span>
-    </button>
-  </div>
-
-  <!-- MATÉRIEL : RÉSISTANCE -->
-  <div class="section-title">🎛 Résistance</div>
-  <div class="material-row" id="opt-resistance">
-    <button class="tool-option active" data-value="0">
-      <span class="icon">⭕</span>
-      <span class="label">Aucune</span>
-    </button>
-    <button class="tool-option" data-value="100">
-      <span class="icon">📏</span>
-      <span class="label">100 Ω</span>
-    </button>
-    <button class="tool-option" data-value="220">
-      <span class="icon">📏</span>
-      <span class="label">220 Ω</span>
-    </button>
-    <button class="tool-option" data-value="470">
-      <span class="icon">📏</span>
-      <span class="label">470 Ω</span>
-    </button>
-  </div>
-
-  <!-- CANVAS -->
-  <div class="canvas-wrapper">
-    <canvas id="canvasMontage" width="700" height="650"></canvas>
-    <div class="hint-box" id="hintBox">👈 Choisis tes composants</div>
-  </div>
-
-  <!-- MESURES -->
-  <div class="info-panel">
-    <div class="info-item">
-      <div class="label">Tension U</div>
-      <div class="val" id="m-tension">0 V</div>
-    </div>
-    <div class="info-item">
-      <div class="label">Intensité I</div>
-      <div class="val" id="m-intensite">0 mA</div>
-    </div>
-    <div class="info-item">
-      <div class="label">Puissance P</div>
-      <div class="val" id="m-puissance">0 W</div>
-    </div>
-    <div class="info-item">
-      <div class="label">R équivalente</div>
-      <div class="val" id="m-resistance">— Ω</div>
+  <div class="mode-selector">
+    <h3>🎓 Mode</h3>
+    <p class="suggested" id="suggested-mode">Détection en cours...</p>
+    <div class="mode-buttons">
+      <button class="mode-btn" data-mode="initiation">🌱 Initiation</button>
+      <button class="mode-btn" data-mode="standard">📘 Standard</button>
+      <button class="mode-btn" data-mode="expert">🔬 Expert</button>
+      <button class="mode-btn" data-mode="tp">🧪 TP</button>
     </div>
   </div>
 
-  <!-- ÉTAT -->
-  <div class="state-box info" id="state-box">Choisis tes composants</div>
-
-  <!-- BOUTONS -->
-  <div class="button-bar">
-    <button class="btn btn-play btn-validate" id="btnNext">➡️ Passer au montage</button>
-    <button class="btn btn-play btn-validate" id="btnValidate" style="display: none;">✅ Vérifier</button>
-    <button class="btn btn-play" id="btnSwitch" style="display: none;">🔘 Fermer</button>
-    <button class="btn btn-reset" id="btnReset">🔄 Reset</button>
+  <div class="card">
+    <h3>⚙️ Paramètres</h3>
+    <div class="param-grid">
+      <div class="field">
+        <label>Méthode</label>
+        <select id="methode">
+          <option value="colorimetrique">🔬 Colorimétrique</option>
+          <option value="phmetrique" selected>📊 pH-métrique</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Type de dosage</label>
+        <select id="type-dosage">
+          <option value="fort-fort">Acide fort + Base forte</option>
+          <option value="faible-fort">Acide faible + Base forte</option>
+          <option value="fort-faible">Acide fort + Base faible</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Solution à titrer</label>
+        <input type="text" id="acide-nom" value="Acide chlorhydrique (HCl)">
+      </div>
+      <div class="field">
+        <label>Volume VA (mL)</label>
+        <input type="number" id="va" value="20" min="1" max="100" step="0.5">
+      </div>
+      <div class="field">
+        <label>Concentration CA (mol/L)</label>
+        <input type="number" id="ca" value="0.1" min="0.001" max="2" step="0.001">
+      </div>
+      <div class="field">
+        <label>Solution titrante</label>
+        <input type="text" id="base-nom" value="Hydroxyde de sodium (NaOH)">
+      </div>
+      <div class="field">
+        <label>Concentration CB (mol/L)</label>
+        <input type="number" id="cb" value="0.1" min="0.001" max="2" step="0.001">
+        <div class="helper">💡 Veq = (CA × VA) / CB</div>
+      </div>
+      <div class="field" id="field-pka">
+        <label>pKa <span class="badge-info">Expert</span></label>
+        <input type="number" id="pka" value="4.75" min="0" max="14" step="0.01">
+      </div>
+      <div class="field">
+        <label>Indicateur</label>
+        <select id="indicateur">
+          <option value="aucun">Aucun</option>
+          <option value="helianthine">Hélianthine (3,1-4,4)</option>
+          <option value="bbt" selected>Bleu de bromothymol (6,0-7,6)</option>
+          <option value="phenolphtaleine">Phénolphtaléine (8,2-10,0)</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-primary" id="btn-demarrer">▶ Démarrer</button>
+    <button class="btn-secondary" id="btn-reset">🔄 Réinitialiser</button>
+    <button class="btn-secondary" id="btn-export">📥 CSV</button>
+    <button class="btn-secondary" id="btn-imprimer">🖨️ Imprimer</button>
   </div>
 
-  <!-- CURSEURS -->
-  <div class="controls">
-    <div class="control-group" id="slider-T">
-      <label>
-        Tension E
-        <input type="number" class="input-value" id="input-E" value="4.5" min="1.5" max="12" step="0.1"> V
-      </label>
-      <input type="range" id="slider-E" min="1.5" max="12" value="4.5" step="0.5">
+  <div class="dispositif">
+    <h4>🔬 Dispositif</h4>
+    <svg viewBox="0 0 380 500" xmlns="http://www.w3.org/2000/svg">
+      <line x1="310" y1="60" x2="310" y2="470" stroke="#555" stroke-width="6"/>
+      <line x1="30" y1="470" x2="350" y2="470" stroke="#555" stroke-width="6"/>
+      <rect x="250" y="150" width="60" height="10" fill="#555"/>
+      <circle cx="310" cy="155" r="8" fill="#888" stroke="#333" stroke-width="1.5"/>
+      <rect x="130" y="40" width="30" height="200" fill="rgba(255,255,255,0.5)" stroke="#333" stroke-width="2" rx="2"/>
+      <rect x="132" y="42" width="26" height="196" fill="rgba(52, 152, 219, 0.4)" id="burette-liquid"/>
+      <line x1="130" y1="60" x2="140" y2="60" stroke="#333" stroke-width="1"/>
+      <line x1="130" y1="100" x2="140" y2="100" stroke="#333" stroke-width="1"/>
+      <line x1="130" y1="140" x2="140" y2="140" stroke="#333" stroke-width="1"/>
+      <line x1="130" y1="180" x2="140" y2="180" stroke="#333" stroke-width="1"/>
+      <line x1="130" y1="220" x2="140" y2="220" stroke="#333" stroke-width="1"/>
+      <rect x="138" y="240" width="14" height="20" fill="#999" stroke="#333" stroke-width="1.5"/>
+      <line x1="145" y1="260" x2="145" y2="275" stroke="#333" stroke-width="2"/>
+      <polygon points="140,275 150,275 145,290" fill="#999" stroke="#333" stroke-width="1"/>
+      <ellipse cx="145" cy="295" rx="3" ry="5" fill="#2ecc71" id="drop" style="display:none;"/>
+      <rect x="95" y="320" width="100" height="100" fill="rgba(255,255,255,0.6)" stroke="#333" stroke-width="2" rx="2"/>
+      <rect x="97" y="350" width="96" height="68" fill="rgba(241, 196, 15, 0.5)" id="beaker-liquid"/>
+      <rect x="140" y="290" width="10" height="60" fill="#e74c3c" stroke="#333" stroke-width="1"/>
+      <line x1="145" y1="290" x2="145" y2="280" stroke="#e74c3c" stroke-width="2"/>
+      <ellipse cx="145" cy="415" rx="15" ry="4" fill="#fff" stroke="#333" stroke-width="1"/>
+      <rect x="80" y="425" width="130" height="30" fill="#f4d03f" stroke="#333" stroke-width="2" rx="3"/>
+      <circle cx="105" cy="440" r="6" fill="#e74c3c"/>
+      <circle cx="165" cy="440" r="6" fill="#3498db"/>
+      <rect x="230" y="300" width="80" height="60" fill="#fff" stroke="#333" stroke-width="2" rx="4"/>
+      <rect x="240" y="310" width="60" height="30" fill="#d6eaf8" stroke="#333" stroke-width="1"/>
+      <text x="270" y="332" text-anchor="middle" font-size="16" font-weight="700" fill="#1B2A4A" id="svg-ph">1.00</text>
+      <text x="270" y="352" text-anchor="middle" font-size="9" fill="#666">pH-mètre</text>
+      <line x1="230" y1="340" x2="150" y2="300" stroke="#e74c3c" stroke-width="2"/>
+      <text x="145" y="30" text-anchor="middle" font-size="10" font-weight="700" fill="#1B2A4A">Burette</text>
+      <text x="145" y="490" text-anchor="middle" font-size="10" fill="#666">Volume : <tspan id="svg-volume" font-weight="700">0.00</tspan> mL</text>
+    </svg>
+  </div>
+
+  <div class="card">
+    <h3>📋 Tableau de valeurs</h3>
+    <div class="table-controls">
+      <div class="table-mode">
+        <button class="table-mode-btn active" data-tablemode="auto">🔄 Auto</button>
+        <button class="table-mode-btn" data-tablemode="manuel">✏️ Manuel</button>
+      </div>
+      <button class="btn-secondary" id="btn-vider" style="padding: 6px 10px; font-size: 11px; width: auto;">🗑 Vider</button>
     </div>
-    <div class="control-group" id="slider-R">
-      <label>
-        Résistance R
-        <input type="number" class="input-value" id="input-R" value="0" min="0" max="500" step="10"> Ω
-      </label>
-      <input type="range" id="slider-R" min="0" max="500" value="0" step="10">
+    <div style="max-height: 250px; overflow-y: auto;">
+      <table id="table-mesures">
+        <thead><tr><th style="width:45%;">V (mL)</th><th style="width:45%;">pH</th><th style="width:10%;">✕</th></tr></thead>
+        <tbody id="table-body"></tbody>
+      </table>
     </div>
-    <div class="control-group" id="slider-P">
-      <label>
-        Potentiomètre
-        <input type="number" class="input-value" id="input-pot" value="100" min="0" max="100" step="5"> %
-      </label>
-      <input type="range" id="slider-pot" min="0" max="100" value="100" step="5">
+    <div id="add-row-zone" style="margin-top: 10px; display: none;">
+      <button class="btn-secondary" id="btn-add-row" style="padding: 6px 12px; font-size: 12px;">+ Ajouter une ligne</button>
+    </div>
+    <div id="auto-controls" style="margin-top: 10px;">
+      <label style="font-size: 12px; font-weight: 700; color: var(--ink); display: block; margin-bottom: 6px;">Ajouter du volume :</label>
+      <div class="btn-add-group">
+        <button class="btn-primary" id="btn-add-05">+ 0,5 mL</button>
+        <button class="btn-primary" id="btn-add-1">+ 1 mL</button>
+        <button class="btn-primary" id="btn-add-2">+ 2 mL</button>
+        <button class="btn-primary" id="btn-add-5">+ 5 mL</button>
+      </div>
+      <div style="margin-top: 8px; display: flex; gap: 8px; align-items: center;">
+        <input type="number" id="volume-libre" value="0.5" min="0.01" max="50" step="0.01" style="width: 80px; padding: 8px; border: 1px solid var(--line); border-radius: 6px;">
+        <button class="btn-secondary" id="btn-add-libre" style="padding: 8px 12px; font-size: 12px; width: auto; flex: 1;">Ajouter</button>
+      </div>
     </div>
   </div>
 
-  <div class="observ-strip" id="observTxt">
-    <strong>Étape 1 :</strong> Choisis la pile et le récepteur, puis passe au montage.
+  <div class="card">
+    <h3>📊 Courbe pH = f(V)</h3>
+    <div id="chart-container"><canvas id="chart"></canvas></div>
+    <div style="margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap;">
+      <button class="btn-secondary" id="btn-tangentes-auto" style="width: 100%;">🔍 Tangentes auto</button>
+      <button class="btn-secondary" id="btn-tangentes-manuel" style="width: 100%;">✏️ Manuel</button>
+      <button class="btn-secondary" id="btn-zone-tampon" style="width: 100%;">🟩 Zone tampon</button>
+    </div>
+    <div class="result-box" id="result-box" style="display: none;">
+      <h4>📐 Résultats</h4>
+      <div class="result-row">🎯 <strong>Veq :</strong> <span id="result-veq">-</span></div>
+      <div class="result-row">🔵 <strong>Vdemi-éq :</strong> <span id="result-vdemi">-</span></div>
+      <div class="result-row">📊 <strong>pH éq :</strong> <span id="result-pheq">-</span></div>
+      <div class="result-row">💧 <strong>pH demi-éq :</strong> <span id="result-phdemi">-</span></div>
+    </div>
+    <button class="btn-secondary" id="btn-explication" style="margin-top: 10px;">💡 Explication</button>
+    <div class="explication" id="explication"></div>
+  </div>
+
+  <div class="tp-panel hidden" id="tp-panel">
+    <h3>🧪 Mode TP</h3>
+    <p style="font-size: 13px; margin-bottom: 12px; color: #7a5500;">Déterminez le pKa/pKb de la substance inconnue.</p>
+    <div class="field">
+      <label>Type de substance</label>
+      <select id="tp-type">
+        <option value="acide">Acide faible → pKa</option>
+        <option value="base">Base faible → pKb</option>
+      </select>
+    </div>
+    <div class="result-box">
+      <h4>🎁 Valeurs données</h4>
+      <div class="result-row">🎯 <strong>Veq :</strong> <span id="tp-veq">-</span> mL</div>
+      <div class="result-row">🔵 <strong>Vdemi-éq :</strong> <span id="tp-vdemi">-</span> mL</div>
+      <div class="result-row">💧 <strong>pH(Vdemi-éq) :</strong> <span id="tp-phdemi">-</span></div>
+    </div>
+    <div class="param-grid" style="margin-top: 12px;">
+      <div class="field"><label>Votre pKa</label><input type="number" id="tp-rep-pka" step="0.01" placeholder="Ex: 4.75"></div>
+      <div class="field"><label>Votre pKb</label><input type="number" id="tp-rep-pkb" step="0.01" placeholder="Ex: 4.75"></div>
+    </div>
+    <button class="btn-success" id="btn-verifier">✅ Vérifier</button>
+    <button class="btn-secondary" id="btn-nouveau-tp">🔄 Nouveau TP</button>
+    <div id="tp-feedback"></div>
   </div>
 
 </div>
 
+<div class="modal-overlay" id="modal-tangentes">
+  <div class="modal-box">
+    <h3>✏️ Construire les tangentes</h3>
+    <ol>
+      <li>Tracez deux droites parallèles à la courbe, avant et après le saut de pH.</li>
+      <li>Tracez la médiane à égale distance des deux.</li>
+      <li>Le point d'intersection avec la courbe donne Veq.</li>
+    </ol>
+    <button class="btn-secondary" id="btn-close-modal" style="width: 100%; margin-top: 10px;">Fermer</button>
+  </div>
+</div>
+
+<footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
+
 <script>
-// ============================================================
-//  ÉTAT GLOBAL
-// ============================================================
-let etat = {
-  E: 4.5,
-  recepteur: 'ampoule',
-  resistance: 0,
-  pot: 100,
-  switchFerme: false,
-  step: 1,
-  bornes: [],
-  fils: [],
-  borneSelectionnee: null,
-  electrons: [],
-  animationActive: false
-};
+(function() {
+  var measures = [];
+  var started = false;
+  var chart = null;
+  var tangentes = false;
+  var zoneTampon = false;
+  var tpActif = false;
+  var tpVerite = null;
 
-const positions = {
-  pile:        { x: 350, y: 90,  w: 130, h: 65 },
-  interrupteur:{ x: 350, y: 570, w: 110, h: 55 },
-  recepteur:   { x: 100, y: 320, w: 110, h: 110 },
-  resistance:  { x: 600, y: 320, w: 110, h: 90 }
-};
-
-const canvas = document.getElementById('canvasMontage');
-const ctx = canvas.getContext('2d');
-const W = canvas.width;
-const H = canvas.height;
-
-// ============================================================
-//  BORNES
-// ============================================================
-function initBornes() {
-  etat.bornes = [
-    { id: 'pile-A', x: positions.pile.x - positions.pile.w/2, y: positions.pile.y + 18, type: 'pile', nom: 'Pile +' },
-    { id: 'pile-B', x: positions.pile.x + positions.pile.w/2, y: positions.pile.y + 18, type: 'pile', nom: 'Pile −' },
-    { id: 'int-A', x: positions.interrupteur.x - positions.interrupteur.w/2, y: positions.interrupteur.y, type: 'interrupteur', nom: 'Int. gauche' },
-    { id: 'int-B', x: positions.interrupteur.x + positions.interrupteur.w/2, y: positions.interrupteur.y, type: 'interrupteur', nom: 'Int. droite' },
-    { id: 'rec-A', x: positions.recepteur.x, y: positions.recepteur.y - positions.recepteur.h/2 - 12, type: 'recepteur', nom: 'Réc. haut' },
-    { id: 'rec-B', x: positions.recepteur.x, y: positions.recepteur.y + positions.recepteur.h/2 + 12, type: 'recepteur', nom: 'Réc. bas' },
-    { id: 'res-A', x: positions.resistance.x, y: positions.resistance.y - positions.resistance.h/2 - 12, type: 'resistance', nom: 'Rés. haut' },
-    { id: 'res-B', x: positions.resistance.x, y: positions.resistance.y + positions.resistance.h/2 + 12, type: 'resistance', nom: 'Rés. bas' }
+  var SUBSTANCES = [
+    { nom: 'Acide éthanoïque', pka: 4.75, type: 'acide' },
+    { nom: 'Acide méthanoïque', pka: 3.75, type: 'acide' },
+    { nom: 'Ion ammonium', pka: 9.25, type: 'acide' },
+    { nom: 'Acide lactique', pka: 3.86, type: 'acide' },
+    { nom: 'Acide benzoïque', pka: 4.20, type: 'acide' },
+    { nom: 'Aspirine', pka: 3.50, type: 'acide' },
+    { nom: 'Acide carbonique', pka: 6.35, type: 'acide' },
+    { nom: 'Ammoniac', pka: 9.25, type: 'base' },
+    { nom: 'Méthylamine', pka: 10.62, type: 'base' },
+    { nom: 'Éthylamine', pka: 10.63, type: 'base' },
+    { nom: 'Aniline', pka: 4.60, type: 'base' },
+    { nom: 'Pyridine', pka: 5.23, type: 'base' },
+    { nom: 'Codéine', pka: 6.05, type: 'base' }
   ];
-}
 
-function getBorneById(id) {
-  return etat.bornes.find(b => b.id === id);
-}
+  function $(id) { return document.getElementById(id); }
+  function escapeHtml(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
 
-// ============================================================
-//  DESSIN
-// ============================================================
-function drawMontage() {
-  ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = '#0a0a1a';
-  ctx.fillRect(0, 0, W, H);
-
-  ctx.strokeStyle = 'rgba(79,195,247,0.04)';
-  ctx.lineWidth = 1;
-  for (let x = 0; x < W; x += 40) {
-    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
-  }
-  for (let y = 0; y < H; y += 40) {
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  function lireParametres() {
+    return {
+      type: $('type-dosage').value,
+      va: parseFloat($('va').value) || 20,
+      ca: parseFloat($('ca').value) || 0.1,
+      cb: parseFloat($('cb').value) || 0.1,
+      pka: parseFloat($('pka').value) || 4.75,
+      indicateur: $('indicateur').value,
+      methode: $('methode').value
+    };
   }
 
-  // Fils
-  etat.fils.forEach(fil => {
-    const bA = getBorneById(fil.a);
-    const bB = getBorneById(fil.b);
-    if (!bA || !bB) return;
-
-    ctx.strokeStyle = '#4fc3f7';
-    ctx.lineWidth = 5;
-    ctx.lineCap = 'round';
-    ctx.shadowColor = '#4fc3f7';
-    ctx.shadowBlur = 8;
-
-    const midY = (bA.y + bB.y) / 2;
-    ctx.beginPath();
-    ctx.moveTo(bA.x, bA.y);
-    ctx.lineTo(bA.x, midY);
-    ctx.lineTo(bB.x, midY);
-    ctx.lineTo(bB.x, bB.y);
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-  });
-
-  drawPile(positions.pile.x, positions.pile.y, positions.pile.w, positions.pile.h);
-  drawInterrupteur(positions.interrupteur.x, positions.interrupteur.y, positions.interrupteur.w, positions.interrupteur.h);
-  drawRecepteur(positions.recepteur.x, positions.recepteur.y, positions.recepteur.w, positions.recepteur.h);
-
-  if (etat.resistance > 0) {
-    drawResistanceAdditionnelle(positions.resistance.x, positions.resistance.y, positions.resistance.w, positions.resistance.h);
-  }
-
-  etat.bornes.forEach(borne => {
-    if ((borne.id === 'res-A' || borne.id === 'res-B') && etat.resistance === 0) return;
-    drawBorne(borne);
-  });
-
-  if (etat.animationActive && etat.switchFerme) {
-    drawElectrons();
-  }
-}
-
-function drawBorne(borne) {
-  const isSelected = etat.borneSelectionnee === borne.id;
-  const isConnected = etat.fils.some(f => f.a === borne.id || f.b === borne.id);
-
-  if (!isConnected && !isSelected && (etat.step === 1 || etat.step === 2)) {
-    const pulse = (Math.sin(Date.now() / 500) + 1) / 2;
-    const grad = ctx.createRadialGradient(borne.x, borne.y, 5, borne.x, borne.y, 22 + pulse * 10);
-    grad.addColorStop(0, `rgba(79, 195, 247, ${0.35 + pulse * 0.35})`);
-    grad.addColorStop(1, 'rgba(79, 195, 247, 0)');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(borne.x, borne.y, 22 + pulse * 10, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  if (isSelected) {
-    const grad = ctx.createRadialGradient(borne.x, borne.y, 5, borne.x, borne.y, 30);
-    grad.addColorStop(0, 'rgba(255, 213, 79, 0.8)');
-    grad.addColorStop(1, 'rgba(255, 213, 79, 0)');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(borne.x, borne.y, 30, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  ctx.fillStyle = isSelected ? '#ffd54f' : (isConnected ? '#4caf50' : '#fff');
-  ctx.strokeStyle = isSelected ? '#fff' : '#000';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(borne.x, borne.y, 15, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.fillStyle = '#000';
-  ctx.beginPath();
-  ctx.arc(borne.x, borne.y, 3, 0, Math.PI * 2);
-  ctx.fill();
-}
-
-function drawPile(cx, cy, w, h) {
-  ctx.fillStyle = '#1a1a2e';
-  ctx.strokeStyle = '#4fc3f7';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.roundRect(cx - w/2, cy - h/2, w, h, 10);
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.fillStyle = '#4caf50';
-  ctx.font = 'bold 20px Arial';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('+', cx - 32, cy);
-
-  ctx.fillStyle = '#f44336';
-  ctx.fillText('−', cx + 32, cy);
-
-  ctx.fillStyle = '#fff';
-  ctx.font = 'bold 15px monospace';
-  ctx.fillText(`${etat.E} V`, cx, cy + 2);
-
-  ctx.fillStyle = '#4fc3f7';
-  ctx.font = 'bold 10px monospace';
-  ctx.textBaseline = 'alphabetic';
-  ctx.fillText('PILE', cx, cy - h/2 - 8);
-}
-
-function drawInterrupteur(cx, cy, w, h) {
-  ctx.fillStyle = '#1a1a2e';
-  ctx.strokeStyle = etat.switchFerme ? '#4caf50' : '#666';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.roundRect(cx - w/2 - 8, cy - h/2, w + 16, h, 10);
-  ctx.fill();
-  ctx.stroke();
-
-  const bx1 = cx - w/2, bx2 = cx + w/2;
-
-  ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  ctx.arc(bx1, cy, 6, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(bx2, cy, 6, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.strokeStyle = etat.switchFerme ? '#4caf50' : '#f44336';
-  ctx.lineWidth = 5;
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  if (etat.switchFerme) {
-    ctx.moveTo(bx1, cy);
-    ctx.lineTo(bx2, cy);
-  } else {
-    ctx.moveTo(bx1, cy);
-    ctx.lineTo(bx2, cy - 30);
-  }
-  ctx.stroke();
-
-  ctx.fillStyle = etat.switchFerme ? '#4caf50' : '#f44336';
-  ctx.font = 'bold 10px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText(etat.switchFerme ? '✓ FERMÉ' : '○ OUVERT', cx, cy + 30);
-  ctx.fillStyle = '#4fc3f7';
-  ctx.fillText('INTERRUPTEUR', cx, cy - h/2 - 8);
-}
-
-function drawRecepteur(cx, cy, w, h) {
-  ctx.fillStyle = '#1a1a2e';
-  ctx.strokeStyle = '#4fc3f7';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.roundRect(cx - w/2, cy - h/2, w, h, 12);
-  ctx.fill();
-  ctx.stroke();
-
-  const calc = calculs();
-  const I_norm = Math.min(calc.I / 0.1, 1);
-
-  ctx.save();
-  ctx.translate(cx, cy);
-
-  if (etat.recepteur === 'ampoule') {
-    const brillance = (etat.animationActive && etat.switchFerme) ? Math.min(1, I_norm * 2 + 0.3) : 0;
-    if (brillance > 0) {
-      const g = ctx.createRadialGradient(0, 0, 5, 0, 0, 50);
-      g.addColorStop(0, `rgba(255, 235, 59, ${brillance * 0.9})`);
-      g.addColorStop(1, 'rgba(255, 235, 59, 0)');
-      ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(0, 0, 50, 0, Math.PI * 2); ctx.fill();
+  function calculerPH(vBase, p) {
+    var nA = p.va * p.ca / 1000;
+    var nB = vBase * p.cb / 1000;
+    var vT = (p.va + vBase) / 1000;
+    var veq = (p.va * p.ca) / p.cb;
+    if (p.type === 'fort-fort') {
+      if (vBase < veq - 0.001) return -Math.log10(Math.max((nA - nB) / vT, 1e-14));
+      if (Math.abs(vBase - veq) < 0.05) return 7.0;
+      return 14 + Math.log10(Math.max((nB - nA) / vT, 1e-14));
     }
-    ctx.fillStyle = brillance > 0 ? '#ffeb3b' : '#555';
-    ctx.beginPath();
-    ctx.arc(0, 0, 25, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#ff9800';
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
-    ctx.strokeStyle = brillance > 0 ? '#ff9800' : '#444';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(-12, -8); ctx.lineTo(12, 8);
-    ctx.moveTo(-12, 8); ctx.lineTo(12, -8);
-    ctx.stroke();
-  } else if (etat.recepteur === 'moteur') {
-    ctx.fillStyle = '#555';
-    ctx.beginPath();
-    ctx.arc(0, 0, 25, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#4caf50';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.fillStyle = (etat.animationActive && etat.switchFerme) ? '#fff' : '#888';
-    ctx.font = 'bold 22px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('M', 0, 0);
-    ctx.textBaseline = 'alphabetic';
-    if (etat.animationActive && etat.switchFerme) {
-      const angle = (Date.now() / 200) % (Math.PI * 2);
-      ctx.strokeStyle = '#4caf50';
-      ctx.lineWidth = 2;
-      for (let i = 0; i < 8; i++) {
-        const a = angle + i * Math.PI / 4;
-        ctx.beginPath();
-        ctx.moveTo(Math.cos(a) * 30, Math.sin(a) * 30);
-        ctx.lineTo(Math.cos(a) * 38, Math.sin(a) * 38);
-        ctx.stroke();
+    if (p.type === 'faible-fort') {
+      if (vBase < veq - 0.001) {
+        var nAH = nA - nB;
+        if (nAH <= 0) return 7;
+        return p.pka + Math.log10(Math.max(nB, 1e-14) / nAH);
       }
-    }
-  } else if (etat.recepteur === 'electrolyseur') {
-    ctx.strokeStyle = '#4fc3f7';
-    ctx.lineWidth = 2;
-    ctx.fillStyle = 'rgba(79, 195, 247, 0.2)';
-    ctx.beginPath();
-    ctx.roundRect(-35, -25, 70, 50, 6);
-    ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle = '#999';
-    ctx.fillRect(-22, -35, 7, 35);
-    ctx.fillRect(15, -35, 7, 35);
-    if (etat.animationActive && etat.switchFerme && I_norm > 0.1) {
-      const t = Date.now() / 500;
-      for (let i = 0; i < 5; i++) {
-        const bx = -16 + i * 8;
-        const by = 18 - ((t + i) % 2) * 22;
-        ctx.fillStyle = `rgba(255, 255, 255, ${0.7 - ((t + i) % 2) * 0.3})`;
-        ctx.beginPath();
-        ctx.arc(bx, by, 2.5 + i * 0.3, 0, Math.PI * 2);
-        ctx.fill();
+      if (Math.abs(vBase - veq) < 0.05) {
+        var Kb = Math.pow(10, -14 + p.pka);
+        return 14 + Math.log10(Math.max(Math.sqrt(Kb * (nA / vT)), 1e-14));
       }
+      return 14 + Math.log10(Math.max((nB - nA) / vT, 1e-14));
     }
-  } else if (etat.recepteur === 'resistance') {
-    ctx.fillStyle = '#1a1a2e';
-    ctx.strokeStyle = '#4fc3f7';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.rect(-45, -22, 90, 44);
-    ctx.fill();
-    ctx.stroke();
-    ctx.strokeStyle = '#4fc3f7';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(-45, 0);
-    for (let i = 0; i < 10; i++) {
-      ctx.lineTo(-40 + i * 9, i % 2 === 0 ? -10 : 10);
+    if (p.type === 'fort-faible') {
+      var pkb = 14 - p.pka;
+      if (vBase < veq - 0.001) return -Math.log10(Math.max((nA - nB) / vT, 1e-14));
+      if (Math.abs(vBase - veq) < 0.05) {
+        var Ka = Math.pow(10, -pkb);
+        return -Math.log10(Math.max(Math.sqrt(Ka * (nA / vT)), 1e-14));
+      }
+      return 14 - pkb - Math.log10(Math.max((nB - nA) / Math.max(nA, 1e-14), 1e-14));
     }
-    ctx.lineTo(45, 0);
-    ctx.stroke();
+    return 7;
   }
 
-  ctx.restore();
-
-  const labels = { ampoule: 'AMPOULE', moteur: 'MOTEUR', electrolyseur: 'ÉLECTROLYSEUR', resistance: 'RÉSISTANCE' };
-  ctx.fillStyle = '#4fc3f7';
-  ctx.font = 'bold 10px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText(labels[etat.recepteur] || 'RÉCEPTEUR', cx, cy + h/2 + 16);
-}
-
-function drawResistanceAdditionnelle(cx, cy, w, h) {
-  ctx.fillStyle = '#1a1a2e';
-  ctx.strokeStyle = '#ffd54f';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.roundRect(cx - w/2, cy - h/2, w, h, 8);
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.strokeStyle = '#ffd54f';
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  ctx.moveTo(cx - w/2 + 10, cy);
-  for (let i = 0; i < 8; i++) {
-    ctx.lineTo(cx - w/2 + 20 + i * 10, i % 2 === 0 ? cy - 10 : cy + 10);
-  }
-  ctx.lineTo(cx + w/2 - 10, cy);
-  ctx.stroke();
-
-  ctx.fillStyle = '#ffd54f';
-  ctx.font = 'bold 12px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText(`${etat.resistance} Ω`, cx, cy - h/2 - 8);
-  ctx.fillText('RÉSISTANCE', cx, cy + h/2 + 15);
-}
-
-// ============================================================
-//  ÉLECTRONS
-// ============================================================
-function initElectrons() {
-  etat.electrons = [];
-  const chemin = getCheminCircuit();
-  if (chemin.length < 3) return;
-  for (let i = 0; i < 18; i++) {
-    etat.electrons.push({ t: i / 18 });
-  }
-}
-
-function getCheminCircuit() {
-  const chemin = [];
-  const pileA = getBorneById('pile-A');
-  const pileB = getBorneById('pile-B');
-  const recA = getBorneById('rec-A');
-  const recB = getBorneById('rec-B');
-  const intA = getBorneById('int-A');
-  const intB = getBorneById('int-B');
-
-  if (pileA) chemin.push({ x: pileA.x, y: pileA.y });
-  if (recA) chemin.push({ x: recA.x, y: recA.y });
-  if (recB) chemin.push({ x: recB.x, y: recB.y });
-  if (intA) chemin.push({ x: intA.x, y: intA.y });
-  if (intB) chemin.push({ x: intB.x, y: intB.y });
-  if (pileB) chemin.push({ x: pileB.x, y: pileB.y });
-  return chemin;
-}
-
-function drawElectrons() {
-  const calc = calculs();
-  if (!calc.circuitFerme) return;
-
-  const chemin = getCheminCircuit();
-  if (chemin.length < 2) return;
-
-  let totalLen = 0;
-  const segments = [];
-  for (let i = 0; i < chemin.length; i++) {
-    const p1 = chemin[i];
-    const p2 = chemin[(i + 1) % chemin.length];
-    const len = Math.hypot(p2.x - p1.x, p2.y - p1.y);
-    segments.push({ p1, p2, len, start: totalLen });
-    totalLen += len;
+  function couleurInitiale(ind) {
+    if (ind === 'aucun') return 'rgba(46, 204, 113, 0.3)';
+    if (ind === 'helianthine') return 'rgba(231, 76, 60, 0.5)';
+    if (ind === 'bbt') return 'rgba(241, 196, 15, 0.5)';
+    if (ind === 'phenolphtaleine') return 'rgba(236, 240, 241, 0.5)';
+    return 'rgba(46, 204, 113, 0.3)';
   }
 
-  const speed = calc.isCourtCircuit ? 0.02 : (0.001 + Math.min(calc.I * 0.3, 0.012));
-  const couleur = calc.isCourtCircuit ? '#ff5722' : '#4fc3f7';
-
-  etat.electrons.forEach(e => {
-    e.t = (e.t + speed) % 1;
-    const dist = e.t * totalLen;
-
-    let seg = segments[0];
-    for (let s of segments) {
-      if (dist >= s.start && dist < s.start + s.len) { seg = s; break; }
+  function couleurIndicateur(ph, ind) {
+    if (ind === 'aucun') return 'rgba(46, 204, 113, 0.3)';
+    if (ind === 'helianthine') {
+      if (ph < 3.1) return 'rgba(231, 76, 60, 0.5)';
+      if (ph > 4.4) return 'rgba(241, 196, 15, 0.5)';
+      return 'rgba(230, 126, 34, 0.5)';
     }
-
-    const tSeg = (dist - seg.start) / seg.len;
-    const px = seg.p1.x + (seg.p2.x - seg.p1.x) * tSeg;
-    const py = seg.p1.y + (seg.p2.y - seg.p1.y) * tSeg;
-
-    const grad = ctx.createRadialGradient(px, py, 1, px, py, 11);
-    grad.addColorStop(0, couleur);
-    grad.addColorStop(1, 'rgba(79, 195, 247, 0)');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(px, py, 11, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = couleur;
-    ctx.beginPath();
-    ctx.arc(px, py, calc.isCourtCircuit ? 4.5 : 3.2, 0, Math.PI * 2);
-    ctx.fill();
-  });
-}
-
-// ============================================================
-//  CALCULS
-// ============================================================
-function calculs() {
-  const nbFilsMin = etat.resistance > 0 ? 4 : 3;
-  const circuitFerme = etat.fils.length >= nbFilsMin;
-
-  const R_interne = 5;
-  const R_totale = R_interne + etat.resistance + (1 - etat.pot / 100) * 1000;
-
-  const isCourtCircuit = circuitFerme && etat.switchFerme && R_totale < 15;
-
-  const R_final = isCourtCircuit ? R_interne : Math.max(R_totale, 1);
-  const I = (circuitFerme && etat.switchFerme) ? etat.E / R_final : 0;
-  const U = (circuitFerme && etat.switchFerme) ? etat.E - R_interne * I : 0;
-  const P = circuitFerme && etat.switchFerme ? U * I : 0;
-
-  return { circuitFerme, R_totale, R_final, I, U, P, isCourtCircuit, nbFilsMin };
-}
-
-// ============================================================
-//  UI
-// ============================================================
-function updateUI() {
-  const calc = calculs();
-
-  document.getElementById('m-tension').textContent = calc.U.toFixed(1) + ' V';
-  document.getElementById('m-intensite').textContent = (calc.I * 1000).toFixed(0) + ' mA';
-  document.getElementById('m-puissance').textContent = calc.P.toFixed(2) + ' W';
-  document.getElementById('m-resistance').textContent = calc.R_final.toFixed(0) + ' Ω';
-
-  const stateBox = document.getElementById('state-box');
-  const observTxt = document.getElementById('observTxt');
-  const hint = document.getElementById('hintBox');
-
-  document.getElementById('step1').classList.toggle('done', etat.step > 1);
-  document.getElementById('step1').classList.toggle('active', etat.step === 1);
-  document.getElementById('step2').classList.toggle('done', etat.step > 2);
-  document.getElementById('step2').classList.toggle('active', etat.step === 2);
-  document.getElementById('step3').classList.toggle('active', etat.step === 3);
-
-  if (etat.step === 1) {
-    stateBox.className = 'state-box info';
-    stateBox.textContent = '🛠️ Choisis tes composants';
-    observTxt.innerHTML = '<strong>Étape 1 :</strong> Choisis la pile et le récepteur, puis clique sur "➡️ Passer au montage".';
-    hint.textContent = '👈 Choisis tes composants en haut';
-  } else if (etat.step === 2) {
-    stateBox.className = 'state-box warn';
-    stateBox.textContent = `🔗 Connecte les fils (${etat.fils.length} / ${calc.nbFilsMin})`;
-    observTxt.innerHTML = `<strong>Étape 2 :</strong> Touche une borne (point blanc), puis une autre. Crée <strong>${calc.nbFilsMin} fils</strong>.`;
-    hint.textContent = etat.borneSelectionnee ? '👆 Touche la 2ᵉ borne' : '👆 Touche une borne';
-  } else {
-    if (calc.isCourtCircuit) {
-      stateBox.className = 'state-box danger';
-      stateBox.textContent = '⚠️ COURT-CIRCUIT !';
-      observTxt.innerHTML = '<strong>⚠️ Danger :</strong> R trop faible, courant énorme !';
-      hint.textContent = '⚠️ COURT-CIRCUIT !';
-    } else if (etat.switchFerme) {
-      stateBox.className = 'state-box ok';
-      stateBox.textContent = '✅ Circuit fermé — I circule';
-      observTxt.innerHTML = `<strong>Étape 3 :</strong> I = ${(calc.I*1000).toFixed(0)} mA. Modifie les paramètres en bas.`;
-      hint.textContent = '💡 Modifie les curseurs en bas';
-    } else {
-      stateBox.className = 'state-box warn';
-      stateBox.textContent = '🔘 Ferme l\'interrupteur';
-      observTxt.innerHTML = '<strong>Étape 3 :</strong> Touche l\'interrupteur pour fermer le circuit.';
-      hint.textContent = '👆 Touche l\'interrupteur';
+    if (ind === 'bbt') {
+      if (ph < 6.0) return 'rgba(241, 196, 15, 0.5)';
+      if (ph > 7.6) return 'rgba(52, 152, 219, 0.5)';
+      return 'rgba(46, 204, 113, 0.5)';
     }
+    if (ind === 'phenolphtaleine') {
+      if (ph < 8.2) return 'rgba(236, 240, 241, 0.5)';
+      if (ph > 10.0) return 'rgba(233, 30, 99, 0.5)';
+      return 'rgba(248, 187, 208, 0.5)';
+    }
+    return 'rgba(46, 204, 113, 0.3)';
   }
 
-  const slidersDisabled = etat.step < 3;
-  document.getElementById('slider-T').classList.toggle('disabled', slidersDisabled);
-  document.getElementById('slider-R').classList.toggle('disabled', slidersDisabled);
-  document.getElementById('slider-P').classList.toggle('disabled', slidersDisabled);
-}
-
-// ============================================================
-//  TAP CANVAS (touch + click)
-// ============================================================
-function handleCanvasTap(e) {
-  e.preventDefault();
-
-  let clientX, clientY;
-  if (e.touches && e.touches.length > 0) {
-    clientX = e.touches[0].clientX;
-    clientY = e.touches[0].clientY;
-  } else if (e.changedTouches && e.changedTouches.length > 0) {
-    clientX = e.changedTouches[0].clientX;
-    clientY = e.changedTouches[0].clientY;
-  } else {
-    clientX = e.clientX;
-    clientY = e.clientY;
+  function appliquerCouleurInitiale() {
+    var ind = $('indicateur').value;
+    $('beaker-liquid').setAttribute('fill', couleurInitiale(ind));
   }
 
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
-  const x = (clientX - rect.left) * scaleX;
-  const y = (clientY - rect.top) * scaleY;
+  function renderTableau() {
+    var tbody = $('table-body');
+    tbody.innerHTML = '';
+    measures.forEach(function(m) {
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td><input type="number" step="0.01" value="' + m.v.toFixed(2) + '" onchange="window.__maj()"></td>' +
+                     '<td><input type="number" step="0.01" value="' + m.ph.toFixed(2) + '" onchange="window.__maj()"></td>' +
+                     '<td><button onclick="window.__del(this)">✕</button></td>';
+      tbody.appendChild(tr);
+    });
+  }
 
-  if (etat.step === 1 || etat.step === 2) {
-    let borneCliquee = null;
-    let minDist = 70; // zone élargie pour le doigt
-    etat.bornes.forEach(b => {
-      if ((b.id === 'res-A' || b.id === 'res-B') && etat.resistance === 0) return;
-      const d = Math.hypot(b.x - x, b.y - y);
-      if (d < minDist) {
-        minDist = d;
-        borneCliquee = b;
+  window.__maj = function() {
+    measures = [];
+    document.querySelectorAll('#table-body tr').forEach(function(row) {
+      var inputs = row.querySelectorAll('input');
+      var v = parseFloat(inputs[0].value);
+      var ph = parseFloat(inputs[1].value);
+      if (!isNaN(v) && !isNaN(ph)) measures.push({ v: v, ph: ph });
+    });
+    measures.sort(function(a, b) { return a.v - b.v; });
+    renderChart();
+    analyserResultats();
+  };
+
+  window.__del = function(btn) {
+    btn.closest('tr').remove();
+    window.__maj();
+  };
+
+  function renderChart() {
+    var ctx = $('chart');
+    if (!ctx) return;
+    if (chart) chart.destroy();
+    var p = lireParametres();
+    var veq = (p.va * p.ca) / p.cb;
+    var vdemi = veq / 2;
+    var points = measures.map(function(m) { return { x: m.v, y: m.ph }; });
+    var datasets = [{
+      label: 'pH', data: points, borderColor: '#A8853F',
+      backgroundColor: 'rgba(168, 133, 63, 0.1)', tension: 0.2, fill: true,
+      pointRadius: 3, pointBackgroundColor: '#A8853F'
+    }];
+    var annotations = {};
+    if (tangentes) {
+      annotations.veq = { type: 'line', xMin: veq, xMax: veq, borderColor: '#d9534f', borderWidth: 2, borderDash: [6, 6] };
+      annotations.vdemi = { type: 'line', xMin: vdemi, xMax: vdemi, borderColor: '#3498db', borderWidth: 2, borderDash: [6, 6] };
+    }
+    if (zoneTampon && (p.type === 'faible-fort' || p.type === 'fort-faible')) {
+      var pkaRef = p.type === 'faible-fort' ? p.pka : (14 - p.pka);
+      annotations.zoneTampon = { type: 'box', xMin: vdemi * 0.3, xMax: vdemi * 1.7, yMin: pkaRef - 1, yMax: pkaRef + 1,
+        backgroundColor: 'rgba(46, 125, 50, 0.08)', borderColor: 'rgba(46, 125, 50, 0.4)', borderWidth: 1 };
+    }
+    chart = new Chart(ctx.getContext('2d'), {
+      type: 'line',
+      data: { datasets: datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        parsing: false,
+        scales: {
+          x: { type: 'linear', title: { display: true, text: 'Volume (mL)' }, min: 0,
+            max: Math.max(veq * 2, measures.length > 0 ? measures[measures.length-1].v * 1.2 : 20) },
+          y: { title: { display: true, text: 'pH' }, min: 0, max: 14 }
+        },
+        plugins: { legend: { display: false }, annotation: { annotations: annotations } }
       }
     });
-    if (!borneCliquee) return;
+  }
 
-    if (etat.borneSelectionnee) {
-      const typeA = etat.borneSelectionnee.split('-')[0];
-      const typeB = borneCliquee.id.split('-')[0];
-      if (typeA === typeB) {
-        alert('⚠️ Impossible de relier 2 bornes du même composant !');
-        etat.borneSelectionnee = null;
-        return;
-      }
-    }
-
-    if (!etat.borneSelectionnee) {
-      etat.borneSelectionnee = borneCliquee.id;
-    } else if (etat.borneSelectionnee === borneCliquee.id) {
-      etat.borneSelectionnee = null;
-    } else {
-      const exists = etat.fils.some(f =>
-        (f.a === etat.borneSelectionnee && f.b === borneCliquee.id) ||
-        (f.b === etat.borneSelectionnee && f.a === borneCliquee.id)
-      );
-      if (!exists) {
-        etat.fils.push({ a: etat.borneSelectionnee, b: borneCliquee.id });
-      }
-      etat.borneSelectionnee = null;
+  function analyserResultats() {
+    if (measures.length < 2) return;
+    var p = lireParametres();
+    var veq = (p.va * p.ca) / p.cb;
+    var vdemi = veq / 2;
+    $('result-box').style.display = 'block';
+    $('result-veq').textContent = veq.toFixed(2) + ' mL';
+    $('result-vdemi').textContent = vdemi.toFixed(2) + ' mL';
+    $('result-pheq').textContent = calculerPH(veq, p).toFixed(2);
+    $('result-phdemi').textContent = calculerPH(vdemi, p).toFixed(2);
+    if (tpActif) {
+      $('tp-veq').textContent = veq.toFixed(2);
+      $('tp-vdemi').textContent = vdemi.toFixed(2);
+      $('tp-phdemi').textContent = calculerPH(vdemi, p).toFixed(2);
     }
   }
 
-  if (etat.step === 3) {
-    const { x: ix, y: iy, w: iw, h: ih } = positions.interrupteur;
-    if (x >= ix - iw/2 - 10 && x <= ix + iw/2 + 10 &&
-        y >= iy - ih/2 - 10 && y <= iy + ih/2 + 10) {
-      toggleSwitch();
+  function ajouterVol(vol) {
+    if (!started) { alert('Cliquez d\'abord sur "Démarrer".'); return; }
+    var p = lireParametres();
+    var veq = (p.va * p.ca) / p.cb;
+    var dernierV = measures.length > 0 ? measures[measures.length - 1].v : 0;
+    var nouveauV = dernierV + vol;
+    if (nouveauV > veq * 2.5) { alert('Volume maximum atteint.'); return; }
+    var drop = $('drop');
+    drop.style.display = 'block';
+    drop.classList.remove('droplet');
+    void drop.offsetWidth;
+    drop.classList.add('droplet');
+    setTimeout(function() { drop.style.display = 'none'; }, 600);
+    var ph = calculerPH(nouveauV, p);
+    measures.push({ v: nouveauV, ph: ph });
+    measures.sort(function(a, b) { return a.v - b.v; });
+    renderTableau();
+    renderChart();
+    majDispositif();
+    analyserResultats();
+  }
+
+  function majDispositif() {
+    if (measures.length === 0) return;
+    var d = measures[measures.length - 1];
+    $('svg-ph').textContent = d.ph.toFixed(2);
+    $('svg-volume').textContent = d.v.toFixed(2);
+    var p = lireParametres();
+    $('beaker-liquid').setAttribute('fill', couleurIndicateur(d.ph, p.indicateur));
+  }
+
+  function resetSimulation() {
+    started = false;
+    measures = [];
+    if (chart) { chart.destroy(); chart = null; }
+    $('result-box').style.display = 'none';
+    $('explication').classList.remove('show');
+    $('table-body').innerHTML = '';
+    tangentes = false;
+    zoneTampon = false;
+    $('svg-ph').textContent = '1.00';
+    $('svg-volume').textContent = '0.00';
+    appliquerCouleurInitiale();
+  }
+
+  function genererTP() {
+    var t = $('tp-type').value;
+    var filtres = SUBSTANCES.filter(function(s) { return s.type === t; });
+    tpVerite = filtres[Math.floor(Math.random() * filtres.length)];
+    $('type-dosage').value = tpVerite.type === 'acide' ? 'faible-fort' : 'fort-faible';
+    $('pka').value = tpVerite.pka;
+    $('acide-nom').value = tpVerite.type === 'acide' ? 'Acide inconnu' : 'HCl (acide fort)';
+    $('base-nom').value = tpVerite.type === 'acide' ? 'NaOH' : 'Base inconnue';
+    $('tp-feedback').innerHTML = '';
+    $('tp-rep-pka').value = '';
+    $('tp-rep-pkb').value = '';
+  }
+
+  function activerMode(mode) {
+    document.querySelectorAll('.mode-btn').forEach(function(b) {
+      b.classList.toggle('active', b.dataset.mode === mode);
+    });
+    var fieldPka = $('field-pka');
+    var tpPanel = $('tp-panel');
+    var typeDosage = $('type-dosage');
+    fieldPka.classList.add('hidden');
+    tpPanel.classList.add('hidden');
+    tpActif = false;
+    if (mode === 'initiation') {
+      typeDosage.value = 'fort-fort'; typeDosage.disabled = true;
+      $('methode').value = 'colorimetrique';
+      $('indicateur').value = 'bbt';
+    } else if (mode === 'standard') {
+      typeDosage.value = 'fort-fort'; typeDosage.disabled = true;
+      $('methode').value = 'phmetrique';
+    } else if (mode === 'expert') {
+      typeDosage.disabled = false;
+      fieldPka.classList.remove('hidden');
+      $('methode').value = 'phmetrique';
+    } else if (mode === 'tp') {
+      typeDosage.disabled = false;
+      tpPanel.classList.remove('hidden');
+      tpActif = true;
+      $('methode').value = 'phmetrique';
+      genererTP();
     }
+    resetSimulation();
   }
-}
 
-canvas.addEventListener('click', handleCanvasTap);
-canvas.addEventListener('touchstart', handleCanvasTap, { passive: false });
+  // EVENTS
+  $('burger-btn').onclick = function() { $('menu').classList.toggle('show'); };
 
-// ============================================================
-//  ACTIONS
-// ============================================================
-document.querySelectorAll('#opt-generateur .tool-option').forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (etat.step > 1) return;
-    document.querySelectorAll('#opt-generateur .tool-option').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    etat.E = parseFloat(btn.dataset.value);
-    document.getElementById('input-E').value = etat.E;
-    document.getElementById('slider-E').value = etat.E;
+  document.querySelectorAll('.mode-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() { activerMode(btn.dataset.mode); });
   });
-});
 
-document.querySelectorAll('#opt-recepteur .tool-option').forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (etat.step > 1) return;
-    document.querySelectorAll('#opt-recepteur .tool-option').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    etat.recepteur = btn.dataset.value;
+  document.querySelectorAll('.table-mode-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.table-mode-btn').forEach(function(b) { b.classList.toggle('active', b === btn); });
+      var mode = btn.dataset.tablemode;
+      $('auto-controls').style.display = mode === 'auto' ? 'block' : 'none';
+      $('add-row-zone').style.display = mode === 'manuel' ? 'block' : 'none';
+    });
   });
-});
 
-document.querySelectorAll('#opt-resistance .tool-option').forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (etat.step > 1) return;
-    document.querySelectorAll('#opt-resistance .tool-option').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    etat.resistance = parseInt(btn.dataset.value);
-    document.getElementById('input-R').value = etat.resistance;
-    document.getElementById('slider-R').value = etat.resistance;
-  });
-});
-
-document.getElementById('slider-E').addEventListener('input', (e) => {
-  etat.E = parseFloat(e.target.value);
-  document.getElementById('input-E').value = etat.E;
-});
-document.getElementById('input-E').addEventListener('change', (e) => {
-  etat.E = Math.max(1.5, Math.min(12, parseFloat(e.target.value) || 4.5));
-  document.getElementById('slider-E').value = etat.E;
-  document.getElementById('input-E').value = etat.E;
-});
-
-document.getElementById('slider-R').addEventListener('input', (e) => {
-  etat.resistance = parseInt(e.target.value);
-  document.getElementById('input-R').value = etat.resistance;
-});
-document.getElementById('input-R').addEventListener('change', (e) => {
-  etat.resistance = Math.max(0, Math.min(500, parseInt(e.target.value) || 0));
-  document.getElementById('slider-R').value = etat.resistance;
-  document.getElementById('input-R').value = etat.resistance;
-});
-
-document.getElementById('slider-pot').addEventListener('input', (e) => {
-  etat.pot = parseInt(e.target.value);
-  document.getElementById('input-pot').value = etat.pot;
-});
-document.getElementById('input-pot').addEventListener('change', (e) => {
-  etat.pot = Math.max(0, Math.min(100, parseInt(e.target.value) || 100));
-  document.getElementById('slider-pot').value = etat.pot;
-  document.getElementById('input-pot').value = etat.pot;
-});
-
-document.getElementById('btnNext').addEventListener('click', passerAuMontage);
-document.getElementById('btnValidate').addEventListener('click', validateCircuit);
-document.getElementById('btnSwitch').addEventListener('click', toggleSwitch);
-document.getElementById('btnReset').addEventListener('click', resetAll);
-
-function passerAuMontage() {
-  etat.step = 2;
-  document.getElementById('btnNext').style.display = 'none';
-  document.getElementById('btnValidate').style.display = 'flex';
-  document.getElementById('btnSwitch').style.display = 'none';
-}
-
-function validateCircuit() {
-  const nbMin = etat.resistance > 0 ? 4 : 3;
-  if (etat.fils.length >= nbMin) {
-    etat.step = 3;
-    initElectrons();
-    document.getElementById('btnNext').style.display = 'none';
-    document.getElementById('btnValidate').style.display = 'none';
-    document.getElementById('btnSwitch').style.display = 'flex';
-  } else {
-    alert('❌ Il manque ' + (nbMin - etat.fils.length) + ' fil(s).');
-  }
-}
-
-function toggleSwitch() {
-  if (etat.step !== 3) return;
-  etat.switchFerme = !etat.switchFerme;
-  etat.animationActive = etat.switchFerme;
-  const btn = document.getElementById('btnSwitch');
-  if (etat.switchFerme) {
-    btn.textContent = '🔘 Ouvrir';
-    btn.style.background = 'linear-gradient(135deg, #f44336, #e53935)';
-  } else {
-    btn.textContent = '🔘 Fermer';
-    btn.style.background = 'linear-gradient(135deg, #4caf50, #66bb6a)';
-  }
-}
-
-function resetAll() {
-  etat.step = 1;
-  etat.fils = [];
-  etat.borneSelectionnee = null;
-  etat.switchFerme = false;
-  etat.animationActive = false;
-  etat.E = 4.5;
-  etat.resistance = 0;
-  etat.pot = 100;
-  etat.recepteur = 'ampoule';
-
-  document.querySelectorAll('#opt-generateur .tool-option').forEach(b => b.classList.toggle('active', parseFloat(b.dataset.value) === 4.5));
-  document.querySelectorAll('#opt-recepteur .tool-option').forEach(b => b.classList.toggle('active', b.dataset.value === 'ampoule'));
-  document.querySelectorAll('#opt-resistance .tool-option').forEach(b => b.classList.toggle('active', parseInt(b.dataset.value) === 0));
-
-  document.getElementById('input-E').value = 4.5;
-  document.getElementById('input-R').value = 0;
-  document.getElementById('input-pot').value = 100;
-  document.getElementById('slider-E').value = 4.5;
-  document.getElementById('slider-R').value = 0;
-  document.getElementById('slider-pot').value = 100;
-
-  const btn = document.getElementById('btnSwitch');
-  btn.textContent = '🔘 Fermer';
-  btn.style.background = 'linear-gradient(135deg, #4caf50, #66bb6a)';
-
-  document.getElementById('btnNext').style.display = 'flex';
-  document.getElementById('btnValidate').style.display = 'none';
-  document.getElementById('btnSwitch').style.display = 'none';
-
-  initBornes();
-}
-
-// ============================================================
-//  BOUCLE
-// ============================================================
-function loop() {
-  drawMontage();
-  updateUI();
-  requestAnimationFrame(loop);
-}
-
-// ============================================================
-//  INIT
-// ============================================================
-if (!CanvasRenderingContext2D.prototype.roundRect) {
-  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
-    if (w < 2 * r) r = w / 2;
-    if (h < 2 * r) r = h / 2;
-    this.beginPath();
-    this.moveTo(x + r, y);
-    this.arcTo(x + w, y, x + w, y + h, r);
-    this.arcTo(x + w, y + h, x, y + h, r);
-    this.arcTo(x, y + h, x, y, r);
-    this.arcTo(x, y, x + w, y, r);
-    this.closePath();
-    return this;
+  $('btn-add-row').onclick = function() {
+    var tbody = $('table-body');
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td><input type="number" step="0.01" placeholder="0.0"></td>' +
+                   '<td><input type="number" step="0.01" placeholder="7.0"></td>' +
+                   '<td><button onclick="window.__del(this)">✕</button></td>';
+    tbody.appendChild(tr);
   };
-}
 
-initBornes();
-loop();
+  $('btn-vider').onclick = function() {
+    if (!confirm('Vider tout le tableau ?')) return;
+    measures = [];
+    renderTableau();
+    if (chart) { chart.destroy(); chart = null; }
+    $('result-box').style.display = 'none';
+  };
+
+  $('btn-demarrer').onclick = function() {
+    started = true;
+    measures = [];
+    if (chart) { chart.destroy(); chart = null; }
+    $('result-box').style.display = 'none';
+    $('explication').classList.remove('show');
+    tangentes = false;
+    zoneTampon = false;
+    renderTableau();
+    appliquerCouleurInitiale();
+    majDispositif();
+  };
+
+  $('btn-reset').onclick = function() { resetSimulation(); };
+
+  $('btn-add-05').onclick = function() { ajouterVol(0.5); };
+  $('btn-add-1').onclick = function() { ajouterVol(1); };
+  $('btn-add-2').onclick = function() { ajouterVol(2); };
+  $('btn-add-5').onclick = function() { ajouterVol(5); };
+  $('btn-add-libre').onclick = function() {
+    var v = parseFloat($('volume-libre').value);
+    if (isNaN(v) || v <= 0) { alert('Volume invalide.'); return; }
+    ajouterVol(v);
+  };
+
+  $('indicateur').addEventListener('change', appliquerCouleurInitiale);
+
+  $('btn-tangentes-auto').onclick = function() {
+    if (measures.length < 2) { alert('Effectuez d\'abord le dosage.'); return; }
+    tangentes = !tangentes;
+    renderChart();
+  };
+
+  $('btn-tangentes-manuel').onclick = function() { $('modal-tangentes').classList.add('show'); };
+  $('btn-close-modal').onclick = function() { $('modal-tangentes').classList.remove('show'); };
+
+  $('btn-zone-tampon').onclick = function() {
+    var p = lireParametres();
+    if (p.type === 'fort-fort') { alert('La zone tampon n\'existe que pour les acides/bases faibles.'); return; }
+    zoneTampon = !zoneTampon;
+    renderChart();
+  };
+
+  $('btn-explication').onclick = function() {
+    var div = $('explication');
+    var p = lireParametres();
+    var veq = (p.va * p.ca) / p.cb;
+    var vdemi = veq / 2;
+    var pheq = calculerPH(veq, p);
+    var phdemi = calculerPH(vdemi, p);
+    var t = p.type === 'fort-fort' ? 'acide fort + base forte' : p.type === 'faible-fort' ? 'acide faible + base forte' : 'acide fort + base faible';
+    div.innerHTML = '<strong>📖 Dosage : ' + t + '</strong><br><br>' +
+      '<strong>🎯 Veq :</strong> ' + veq.toFixed(2) + ' mL<br>' +
+      'À l\'équivalence : CA × VA = CB × Veq<br>' +
+      'Veq = (' + p.ca + ' × ' + p.va + ') / ' + p.cb + ' = ' + veq.toFixed(2) + ' mL<br><br>' +
+      '<strong>📊 pH équivalence :</strong> ' + pheq.toFixed(2) + '<br>' +
+      (p.type === 'fort-fort' ? 'pH = 7' : p.type === 'faible-fort' ? 'pH > 7' : 'pH < 7') + '<br><br>' +
+      '<strong>🔵 Demi-équivalence :</strong> ' + vdemi.toFixed(2) + ' mL<br>' +
+      (p.type === 'faible-fort' ? 'pH = pKa = ' + p.pka : 'pH = ' + phdemi.toFixed(2));
+    div.classList.toggle('show');
+  };
+
+  $('tp-type').addEventListener('change', genererTP);
+  $('btn-nouveau-tp').onclick = function() { resetSimulation(); genererTP(); };
+
+  $('btn-verifier').onclick = function() {
+    if (!tpVerite) return;
+    var rpka = parseFloat($('tp-rep-pka').value);
+    var rpkb = parseFloat($('tp-rep-pkb').value);
+    var fb = $('tp-feedback');
+    var vraiPka = tpVerite.pka;
+    var vraiPkb = 14 - tpVerite.pka;
+    var html = '';
+    if (!isNaN(rpka)) {
+      var e = Math.abs(rpka - vraiPka);
+      if (e <= 0.05) html += '<div class="feedback success">✅ Correct ! pKa = ' + vraiPka.toFixed(2) + '</div>';
+      else if (e <= 0.2) html += '<div class="feedback warning">⚠️ Presque ! Votre : ' + rpka + ' — Vraie : ' + vraiPka.toFixed(2) + '</div>';
+      else html += '<div class="feedback error">❌ Incorrect. Votre : ' + rpka + ' — Vraie : ' + vraiPka.toFixed(2) + '</div>';
+    }
+    if (!isNaN(rpkb)) {
+      var e2 = Math.abs(rpkb - vraiPkb);
+      if (e2 <= 0.05) html += '<div class="feedback success">✅ Correct ! pKb = ' + vraiPkb.toFixed(2) + '</div>';
+      else if (e2 <= 0.2) html += '<div class="feedback warning">⚠️ Presque ! Votre : ' + rpkb + ' — Vraie : ' + vraiPkb.toFixed(2) + '</div>';
+      else html += '<div class="feedback error">❌ Incorrect. Votre : ' + rpkb + ' — Vraie : ' + vraiPkb.toFixed(2) + '</div>';
+    }
+    html += '<div style="margin-top:10px;padding:10px;background:#f0f7ff;border-radius:6px;font-size:12px;">' +
+      '<strong>Relation :</strong> pKa + pKb = 14<br>' +
+      '<strong>Substance :</strong> ' + tpVerite.nom + '</div>';
+    fb.innerHTML = html;
+  };
+
+  $('btn-export').onclick = function() {
+    if (measures.length === 0) { alert('Aucune mesure.'); return; }
+    var csv = "V(mL);pH\n";
+    measures.forEach(function(m) { csv += m.v.toFixed(2) + ';' + m.ph.toFixed(2) + '\n'; });
+    var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'dosage_' + new Date().toISOString().slice(0,10) + '.csv';
+    link.click();
+  };
+
+  $('btn-imprimer').onclick = function() { window.print(); };
+
+  window.showContact = function() {
+    alert("Pour contacter le Proviseur, rendez-vous sur la page d'accueil.");
+  };
+
+  window.openProfil = function() {
+    window.location.href = 'index.html';
+  };
+
+  // INIT
+  activerMode('standard');
+  appliquerCouleurInitiale();
+})();
 </script>
-
 </body>
 </html>
