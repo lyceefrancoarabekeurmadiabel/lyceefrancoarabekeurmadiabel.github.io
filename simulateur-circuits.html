@@ -733,8 +733,24 @@ function drawMontage() {
     drawBorne(borne);
   });
 
-  // ⚡ Animation des flux (électrons + courant)
+  // ⚡ Animation des flux
   if (etat.animationActive && etat.switchFerme) {
+    // 🔄 Vérifier que les flux existent, sinon les recréer
+    if (etat.electrons.length === 0 || etat.courants.length === 0) {
+      initFlux();
+    }
+    // 🔄 Vérifier aussi que le chemin est toujours valide (fils modifiés)
+    const cheminElec = getCheminCircuit('pile-B');
+    const cheminCour = getCheminCircuit('pile-A');
+    if (cheminElec.length < 3 && etat.electrons.length > 0) {
+      etat.electrons = [];
+    }
+    if (cheminCour.length < 3 && etat.courants.length > 0) {
+      etat.courants = [];
+    }
+    if (etat.electrons.length === 0 || etat.courants.length === 0) {
+      initFlux();
+    }
     drawFlux();
   }
 }
