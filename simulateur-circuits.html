@@ -746,7 +746,7 @@ function drawMontage() {
 function drawBorne(borne) {
   const isSelected = etat.borneSelectionnee === borne.id;
   const isConnected = etat.fils.some(f => f.a === borne.id || f.b === borne.id);
-  const cliquable = (etat.step === 2) && !isConnected;
+  const cliquable = (etat.step === 1 || etat.step === 2) && !isConnected;
 
   if (cliquable && !isSelected) {
     const pulse = (Math.sin(Date.now() / 500) + 1) / 2;
@@ -1339,7 +1339,7 @@ canvas.addEventListener('click', function(e) {
 
   if (etat.step === 2) {
     let borneCliquee = null;
-    let minDist = 60;
+    let minDist = 90;
 
     etat.bornes.forEach(b => {
       if (!borneEstVisible(b)) return;
