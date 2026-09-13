@@ -322,7 +322,33 @@ function drawBanc(progress) {
   ctx.moveTo(0, AXE_Y);
   ctx.lineTo(W, AXE_Y);
   ctx.stroke();
-  ctx.setLineDash([]);
+    ctx.setLineDash([]);
+
+  // Graduations pour mobile (moins de valeurs pour ne pas surcharger)
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.font = 'bold 11px monospace';
+  ctx.textAlign = 'center';
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+  ctx.lineWidth = 1.5;
+
+  for (let mm = -600; mm <= 600; mm += 200) {  // pas de 200 en mobile
+    const px = xCanvas(mm);
+    if (px < 20 || px > W - 20) continue;
+
+    ctx.beginPath();
+    ctx.moveTo(px, AXE_Y - 5);
+    ctx.lineTo(px, AXE_Y + 5);
+    ctx.stroke();
+
+    if (mm !== 0) {
+      const texte = `${mm}`;
+      const largeurTexte = ctx.measureText(texte).width;
+      ctx.fillStyle = 'rgba(10,10,26,0.85)';
+      ctx.fillRect(px - largeurTexte/2 - 2, AXE_Y + 8, largeurTexte + 4, 16);
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.fillText(texte, px, AXE_Y + 20);
+    }
+  }
 
   drawLentille();
   const f = etat.type === 'convergente' ? etat.focale : -Math.abs(etat.focale);
