@@ -735,19 +735,7 @@ function drawMontage() {
 
   // ⚡ Animation des flux
   if (etat.animationActive && etat.switchFerme) {
-    // 🔄 Vérifier que les flux existent, sinon les recréer
-    if (etat.electrons.length === 0 || etat.courants.length === 0) {
-      initFlux();
-    }
-    // 🔄 Vérifier aussi que le chemin est toujours valide (fils modifiés)
-    const cheminElec = getCheminCircuit('pile-B');
-    const cheminCour = getCheminCircuit('pile-A');
-    if (cheminElec.length < 3 && etat.electrons.length > 0) {
-      etat.electrons = [];
-    }
-    if (cheminCour.length < 3 && etat.courants.length > 0) {
-      etat.courants = [];
-    }
+    // Recréer les flux s'ils sont vides
     if (etat.electrons.length === 0 || etat.courants.length === 0) {
       initFlux();
     }
@@ -1009,10 +997,10 @@ function drawResistanceAdditionnelle(cx, cy, w, h) {
 }
 
 // ============================================================
-//  FLUX : ÉLECTRONS + COURANT (deux sens opposés)
+//  FLUX : ÉLECTRONS + COURANT
 // ============================================================
 
-// Construit le chemin en suivant les fils réels depuis une borne de départ
+// 🔑 CORRIGÉ : traverse les composants (ampoule, interrupteur, résistance)
 function getCheminCircuit(departId) {
   const depart = getBorneById(departId);
   if (!depart) return [];
@@ -1020,26 +1008,50 @@ function getCheminCircuit(departId) {
   const chemin = [{ x: depart.x, y: depart.y, id: depart.id }];
   const visited = new Set([depart.id]);
   let currentId = depart.id;
-  let maxIter = 20;
+  let maxIter = 30;
 
   const arriveeId = (departId === 'pile-A') ? 'pile-B' : 'pile-A';
 
+  // Correspondance borne → borne opposée du même composant (traversée interne)
+  const traversee = {
+    'pile-A': 'pile-B', 'pile-B': 'pile-A',
+    'rec-A': 'rec-B',   'rec-B': 'rec-A',
+    'int-A': 'int-B',   'int-B': 'int-A',
+    'res-A': 'res-B',   'res-B': 'res-A'
+  };
+
   while (maxIter-- > 0) {
+    if (currentId === arriveeId) break;
+
+    // 1) Chercher un fil partant de currentId
     const fil = etat.fils.find(f =>
       (f.a === currentId && !visited.has(f.b)) ||
       (f.b === currentId && !visited.has(f.a))
     );
-    if (!fil) break;
 
-    const nextId = (fil.a === currentId) ? fil.b : fil.a;
-    const nextBorne = getBorneById(nextId);
-    if (!nextBorne) break;
+    if (fil) {
+      const nextId = (fil.a === currentId) ? fil.b : fil.a;
+      const nextBorne = getBorneById(nextId);
+      if (!nextBorne) break;
+      chemin.push({ x: nextBorne.x, y: nextBorne.y, id: nextBorne.id });
+      visited.add(nextId);
+      currentId = nextId;
+      continue;
+    }
 
-    chemin.push({ x: nextBorne.x, y: nextBorne.y, id: nextBorne.id });
-    visited.add(nextId);
-    currentId = nextId;
+    // 2) Pas de fil → traverser le composant
+    const oppositeId = traversee[currentId];
+    if (oppositeId && !visited.has(oppositeId)) {
+      const oppBorne = getBorneById(oppositeId);
+      if (!oppBorne) break;
+      chemin.push({ x: oppBorne.x, y: oppBorne.y, id: oppBorne.id });
+      visited.add(oppositeId);
+      currentId = oppositeId;
+      continue;
+    }
 
-    if (nextId === arriveeId) break;
+    // 3) Bloqué
+    break;
   }
 
   return chemin;
@@ -1064,6 +1076,10 @@ function initFlux() {
       etat.courants.push({ t: i / 15 });
     }
   }
+
+  console.log('🔵 initFlux — Électrons:', etat.electrons.length, '| Courants:', etat.courants.length);
+  console.log('   Chemin pile-B:', cheminElec.map(b => b.id));
+  console.log('   Chemin pile-A:', cheminCour.map(b => b.id));
 }
 
 // Calcule la position sur un chemin en fonction de t ∈ [0,1]
@@ -1111,7 +1127,6 @@ function drawFlux() {
       const pos = positionSurChemin(cheminElec, e.t);
       if (!pos) return;
 
-      // Halo cyan
       const grad = ctx.createRadialGradient(pos.x, pos.y, 1, pos.x, pos.y, 14);
       grad.addColorStop(0, couleurElec);
       grad.addColorStop(1, 'rgba(0, 229, 255, 0)');
@@ -1120,13 +1135,11 @@ function drawFlux() {
       ctx.arc(pos.x, pos.y, 14, 0, Math.PI * 2);
       ctx.fill();
 
-      // Point central
       ctx.fillStyle = couleurElec;
       ctx.beginPath();
       ctx.arc(pos.x, pos.y, 3.5, 0, Math.PI * 2);
       ctx.fill();
 
-      // Signe − (électron)
       ctx.fillStyle = '#000';
       ctx.font = 'bold 7px Arial';
       ctx.textAlign = 'center';
@@ -1144,7 +1157,6 @@ function drawFlux() {
       const pos = positionSurChemin(cheminCour, c.t);
       if (!pos) return;
 
-      // Halo orange
       const grad = ctx.createRadialGradient(pos.x, pos.y, 1, pos.x, pos.y, 11);
       grad.addColorStop(0, couleurCour);
       grad.addColorStop(1, 'rgba(255, 167, 38, 0)');
@@ -1153,13 +1165,11 @@ function drawFlux() {
       ctx.arc(pos.x, pos.y, 11, 0, Math.PI * 2);
       ctx.fill();
 
-      // Point central
       ctx.fillStyle = couleurCour;
       ctx.beginPath();
       ctx.arc(pos.x, pos.y, 4, 0, Math.PI * 2);
       ctx.fill();
 
-      // Signe + (courant conventionnel)
       ctx.fillStyle = '#000';
       ctx.font = 'bold 7px Arial';
       ctx.textAlign = 'center';
@@ -1168,7 +1178,6 @@ function drawFlux() {
     });
   }
 
-  // Réinitialiser les styles de texte
   ctx.textBaseline = 'alphabetic';
 }
 
@@ -1176,18 +1185,31 @@ function drawFlux() {
 //  CALCULS
 // ============================================================
 function calculs() {
-  const nbFilsMin = etat.resistance > 0 ? 4 : 3;
-  const circuitFerme = etat.fils.length >= nbFilsMin;
+  // Détection du chemin réel (circuit fermé = passe par récepteur + interrupteur)
+  const cheminCour = getCheminCircuit('pile-A');
+  const passeParRecepteur = cheminCour.some(b =>
+    b.id === 'rec-A' || b.id === 'rec-B'
+  );
+  const passeParInterrupteur = cheminCour.some(b =>
+    b.id === 'int-A' || b.id === 'int-B'
+  );
+  const arrivePileB = cheminCour.some(b => b.id === 'pile-B');
+
+  const circuitFerme = passeParRecepteur && passeParInterrupteur && arrivePileB;
 
   const R_interne = 5;
-  const R_totale = R_interne + etat.resistance + (1 - etat.pot / 100) * 1000;
+  const R_pot = (etat.pot / 100) * 1000;  // 0% = 0Ω, 100% = 1000Ω
+  const R_totale = R_interne + etat.resistance + R_pot;
 
-  const isCourtCircuit = circuitFerme && etat.switchFerme && R_totale < 15;
+  // Court-circuit : uniquement si pas de récepteur dans la boucle
+  const isCourtCircuit = circuitFerme && etat.switchFerme && !passeParRecepteur;
 
-  const R_final = isCourtCircuit ? R_interne : Math.max(R_totale, 1);
+  const R_final = Math.max(R_totale, 1);
   const I = (circuitFerme && etat.switchFerme) ? etat.E / R_final : 0;
   const U = (circuitFerme && etat.switchFerme) ? etat.E - R_interne * I : 0;
   const P = circuitFerme && etat.switchFerme ? U * I : 0;
+
+  const nbFilsMin = etat.resistance > 0 ? 4 : 3;
 
   return { circuitFerme, R_totale, R_final, I, U, P, isCourtCircuit, nbFilsMin };
 }
@@ -1248,7 +1270,7 @@ function updateUI() {
     if (calc.isCourtCircuit) {
       stateBox.className = 'state-box danger';
       stateBox.textContent = '⚠️ COURT-CIRCUIT !';
-      observTxt.innerHTML = '<strong>⚠️ Danger :</strong> R trop faible, courant énorme !';
+      observTxt.innerHTML = '<strong>⚠️ Danger :</strong> aucun récepteur dans la boucle, courant énorme !';
       status.textContent = '⚠️ Court-circuit';
       hint.textContent = '⚠️ COURT-CIRCUIT !';
     } else if (etat.switchFerme) {
@@ -1285,14 +1307,31 @@ function updateUI() {
 }
 
 // ============================================================
-//  CLIC CANVAS
+//  CLIC CANVAS — CORRIGÉ POUR GRAND ÉCRAN (object-fit: contain)
 // ============================================================
 canvas.addEventListener('click', function(e) {
   const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
-  const x = (e.clientX - rect.left) * scaleX;
-  const y = (e.clientY - rect.top) * scaleY;
+  const canvasRatio = canvas.width / canvas.height;
+  const rectRatio = rect.width / rect.height;
+
+  let renderWidth, renderHeight, offsetX, offsetY;
+
+  if (rectRatio > canvasRatio) {
+    // Conteneur plus large → marges à gauche/droite
+    renderHeight = rect.height;
+    renderWidth = renderHeight * canvasRatio;
+    offsetX = (rect.width - renderWidth) / 2;
+    offsetY = 0;
+  } else {
+    // Conteneur plus haut → marges en haut/bas
+    renderWidth = rect.width;
+    renderHeight = renderWidth / canvasRatio;
+    offsetX = 0;
+    offsetY = (rect.height - renderHeight) / 2;
+  }
+
+  const x = (e.clientX - rect.left - offsetX) * (canvas.width / renderWidth);
+  const y = (e.clientY - rect.top - offsetY) * (canvas.height / renderHeight);
 
   console.log('🖱️ Clic canvas — étape:', etat.step, '| x:', x.toFixed(0), 'y:', y.toFixed(0));
 
