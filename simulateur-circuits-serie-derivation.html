@@ -658,11 +658,6 @@ function drawCircuit() {
 // ============================================================
 function drawSerie() {
   const calc = calculerSerie();
-  const y = H / 2;
-  const xStart = 100;
-  const xEnd = W - 100;
-
-  // Cadre du circuit (rectangle)
   const top = 120;
   const bot = H - 120;
   const left = 100;
@@ -672,100 +667,109 @@ function drawSerie() {
   ctx.lineWidth = 3;
   ctx.lineCap = 'round';
 
-  // Fil gauche (montée depuis pile)
+  // Fil gauche
   ctx.beginPath();
   ctx.moveTo(left, bot);
   ctx.lineTo(left, top);
   ctx.stroke();
 
-  // Fil haut avec dipôles
-  const totalDipoles = etat.nb;
-  const segW = (right - left) / totalDipoles;
+  // Positions des résistances (sur le fil du haut)
+  const nbR = etat.nb;
+  const segW = (right - left) / (nbR + 1);
   const dipolesPos = [];
-  for (let i = 0; i < totalDipoles; i++) {
-    const cx = left + segW * (i + 0.5);
-    dipolesPos.push(cx);
+  for (let i = 0; i < nbR; i++) {
+    dipolesPos.push(left + segW * (i + 1));
   }
 
-  // Fil haut avant le 1er dipôle
+  // Fil haut : avant la 1ère résistance
   ctx.beginPath();
   ctx.moveTo(left, top);
-  ctx.lineTo(dipolesPos[0] - 40, top);
+  ctx.lineTo(dipolesPos[0] - 45, top);
   ctx.stroke();
 
-  // Dessiner chaque résistance
+  // Dessin de chaque résistance + fils entre elles
   dipolesPos.forEach((cx, i) => {
-    const x1 = cx - 40;
-    const x2 = cx + 40;
     drawResistance(cx, top, etat.resistances[i], 'R' + (i + 1));
-
-    // Fil entre ce dipôle et le suivant
-    if (i < totalDipoles - 1) {
+    if (i < nbR - 1) {
       ctx.strokeStyle = '#4fc3f7';
       ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.moveTo(x2, top);
-      ctx.lineTo(dipolesPos[i + 1] - 40, top);
+      ctx.moveTo(cx + 45, top);
+      ctx.lineTo(dipolesPos[i + 1] - 45, top);
       ctx.stroke();
     }
   });
 
-  // Fil haut après le dernier dipôle
+  // Fil haut : après la dernière résistance
   ctx.beginPath();
-  ctx.moveTo(dipolesPos[totalDipoles - 1] + 40, top);
+  ctx.moveTo(dipolesPos[nbR - 1] + 45, top);
   ctx.lineTo(right, top);
   ctx.stroke();
 
-  // Fil droite (descente vers pile)
+  // Fil droit
   ctx.beginPath();
   ctx.moveTo(right, top);
   ctx.lineTo(right, bot);
   ctx.stroke();
 
-  // Fil bas (retour vers pile)
+  // Fil bas : partie droite jusqu'à la pile
+  const pileX = (left + right) / 2;
   ctx.beginPath();
   ctx.moveTo(right, bot);
-  ctx.lineTo(left + 60, bot);
+  ctx.lineTo(pileX + 35, bot);
   ctx.stroke();
 
-  // Pile au milieu du bas
-  drawPile((left + right) / 2 - 30, bot, etat.E);
+  // 🆕 Pile dessinée DANS le fil, au milieu du bas
+  drawPile(pileX, bot, etat.E);
 
-  // Suite du fil bas
+  // Fil bas : de la pile vers la gauche
   ctx.beginPath();
-  ctx.moveTo((left + right) / 2 + 30, bot);
+  ctx.moveTo(pileX - 35, bot);
   ctx.lineTo(left, bot);
   ctx.stroke();
 
-  // Ampèremètre (dans le fil de gauche, en montée)
+  // 🆕 Nœuds (points noirs) aux coins du rectangle
+  drawNode(left, top);
+  drawNode(right, top);
+  drawNode(left, bot);
+  drawNode(right, bot);
+
+  // 🆕 Ampèremètre : placé dans le fil de gauche
   if (etat.amperemetre) {
     drawAmperemetre(left, (top + bot) / 2, calc.I);
   }
 
-  // Voltmètre
+  // 🆕 Voltmètre : AU-DESSUS du composant ciblé
   if (etat.voltmetre) {
     let target = etat.voltTarget;
-    let targetX, targetY, targetU;
+    let targetX, targetU;
+
     if (target === 'pile') {
-      targetX = (left + right) / 2;
-      targetY = bot + 30;
+      targetX = pileX;
       targetU = calc.U_pile;
     } else {
       const idx = parseInt(target.replace('R', '')) - 1;
-      if (idx < etat.nb) {
+      if (idx < nbR) {
         targetX = dipolesPos[idx];
-        targetY = top - 30;
         targetU = calc.U_resistances[idx];
+      } else {
+        targetX = pileX;
+        targetU = calc.U_pile;
       }
     }
-    if (targetX !== undefined) drawVoltmetre(targetX, targetY, targetU, target);
+
+    if (targetX !== undefined) {
+      // Le voltmètre est placé 80px au-dessus du fil du haut
+      const voltY = top - 90;
+      drawVoltmetreAbove(targetX, voltY, targetU, target, top);
+    }
   }
 
-  // Titre
+  // Titre agrandi
   ctx.fillStyle = '#4fc3f7';
-  ctx.font = 'bold 14px monospace';
+  ctx.font = 'bold 18px monospace';
   ctx.textAlign = 'center';
-  ctx.fillText('CIRCUIT EN SÉRIE', W / 2, 40);
+  ctx.fillText('CIRCUIT EN SÉRIE', W / 2, 45);
 }
 
 // ============================================================
@@ -975,23 +979,26 @@ function drawMixte() {
 //  DESSINS DES COMPOSANTS
 // ============================================================
 function drawResistance(cx, cy, valeur, nom) {
+  // Corps de la résistance
   ctx.fillStyle = '#1a1a2e';
   ctx.strokeStyle = '#4fc3f7';
   ctx.lineWidth = 2.5;
   ctx.beginPath();
-  ctx.rect(cx - 40, cy - 14, 80, 28);
+  ctx.rect(cx - 45, cy - 16, 90, 32);
   ctx.fill();
   ctx.stroke();
 
+  // Valeur Ω agrandie
   ctx.fillStyle = '#4fc3f7';
-  ctx.font = 'bold 13px monospace';
+  ctx.font = 'bold 16px monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(valeur + 'Ω', cx, cy);
 
+  // Nom R₁, R₂... agrandi
   ctx.fillStyle = '#ffd54f';
-  ctx.font = 'bold 11px monospace';
-  ctx.fillText(nom, cx, cy - 22);
+  ctx.font = 'bold 15px monospace';
+  ctx.fillText(nom, cx, cy - 28);
   ctx.textBaseline = 'alphabetic';
 }
 
@@ -1000,20 +1007,22 @@ function drawPile(cx, cy, E) {
   ctx.strokeStyle = '#4fc3f7';
   ctx.lineWidth = 2.5;
   ctx.beginPath();
-  ctx.rect(cx - 30, cy - 16, 60, 32);
+  ctx.rect(cx - 35, cy - 18, 70, 36);
   ctx.fill();
   ctx.stroke();
 
+  // Signes + et − agrandis
   ctx.fillStyle = '#4caf50';
-  ctx.font = 'bold 18px Arial';
+  ctx.font = 'bold 22px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('+', cx - 18, cy);
+  ctx.fillText('+', cx - 20, cy);
   ctx.fillStyle = '#f44336';
-  ctx.fillText('−', cx + 18, cy);
+  ctx.fillText('−', cx + 20, cy);
 
+  // Valeur V agrandie
   ctx.fillStyle = '#fff';
-  ctx.font = 'bold 12px monospace';
+  ctx.font = 'bold 15px monospace';
   ctx.fillText(E + 'V', cx, cy);
   ctx.textBaseline = 'alphabetic';
 }
@@ -1043,64 +1052,115 @@ function drawPileHorizontal(cx, cy, E) {
 }
 
 function drawAmperemetre(cx, cy, I) {
-  // Cercle avec A
+  // Cercle avec A — agrandi
   ctx.fillStyle = '#0a0a1a';
   ctx.strokeStyle = '#4caf50';
   ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.arc(cx, cy, 26, 0, Math.PI * 2);
+  ctx.arc(cx, cy, 30, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 
+  // Lettre A agrandie
   ctx.fillStyle = '#4caf50';
-  ctx.font = 'bold 22px Arial';
+  ctx.font = 'bold 26px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('A', cx, cy);
   ctx.textBaseline = 'alphabetic';
 
-  // Valeur en dessous
+  // Valeur agrandie
   ctx.fillStyle = '#00ff00';
-  ctx.font = 'bold 11px monospace';
+  ctx.font = 'bold 14px monospace';
   ctx.textAlign = 'center';
-  ctx.fillText(I.toFixed(3) + ' A', cx, cy + 42);
+  ctx.fillText(I.toFixed(3) + ' A', cx, cy + 50);
 }
 
 function drawVoltmetre(cx, cy, U, target) {
-  // Cercle avec V
+  // Version simple (utilisée en dérivation et mixte)
   ctx.fillStyle = '#0a0a1a';
   ctx.strokeStyle = '#ff9800';
   ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.arc(cx, cy, 24, 0, Math.PI * 2);
+  ctx.arc(cx, cy, 28, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 
   ctx.fillStyle = '#ff9800';
-  ctx.font = 'bold 20px Arial';
+  ctx.font = 'bold 24px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('V', cx, cy);
   ctx.textBaseline = 'alphabetic';
 
-  // Valeur
   ctx.fillStyle = '#ffb74d';
-  ctx.font = 'bold 11px monospace';
+  ctx.font = 'bold 14px monospace';
   ctx.textAlign = 'center';
   const label = target === 'pile' ? 'E' : target === 'parallèle' ? '∥' : target;
-  ctx.fillText(U.toFixed(2) + ' V (' + label + ')', cx, cy - 38);
+  ctx.fillText(U.toFixed(2) + ' V (' + label + ')', cx, cy - 46);
+}
 
-  // Fils du voltmètre (2 traits pointillés)
+// 🆕 NOUVELLE FONCTION : Voltmètre AU-DESSUS du composant (pour la série)
+function drawVoltmetreAbove(cx, cy, U, target, targetY) {
+  // Cercle avec V
+  ctx.fillStyle = '#0a0a1a';
   ctx.strokeStyle = '#ff9800';
-  ctx.lineWidth = 1.5;
-  ctx.setLineDash([5, 4]);
+  ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(cx - 24, cy);
-  ctx.lineTo(cx - 60, cy);
-  ctx.moveTo(cx + 24, cy);
-  ctx.lineTo(cx + 60, cy);
+  ctx.arc(cx, cy, 28, 0, Math.PI * 2);
+  ctx.fill();
   ctx.stroke();
+
+  ctx.fillStyle = '#ff9800';
+  ctx.font = 'bold 24px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('V', cx, cy);
+  ctx.textBaseline = 'alphabetic';
+
+  // Label sous le V
+  ctx.fillStyle = '#ffb74d';
+  ctx.font = 'bold 14px monospace';
+  ctx.textAlign = 'center';
+  const label = target === 'pile' ? 'E' : target;
+  ctx.fillText(U.toFixed(2) + ' V (' + label + ')', cx, cy - 46);
+
+  // 🆕 Fils pointillés qui descendent jusqu'aux bornes du composant
+  ctx.strokeStyle = '#ff9800';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([6, 5]);
+
+  // Fil gauche du voltmètre vers la borne gauche du composant
+  ctx.beginPath();
+  ctx.moveTo(cx - 28, cy);
+  ctx.lineTo(cx - 60, cy);
+  ctx.lineTo(cx - 60, targetY - 5);
+  ctx.stroke();
+
+  // Fil droit du voltmètre vers la borne droite du composant
+  ctx.beginPath();
+  ctx.moveTo(cx + 28, cy);
+  ctx.lineTo(cx + 60, cy);
+  ctx.lineTo(cx + 60, targetY - 5);
+  ctx.stroke();
+
   ctx.setLineDash([]);
+
+  // 🆕 Petits cercles orange aux points de connexion
+  ctx.fillStyle = '#ff9800';
+  ctx.beginPath(); ctx.arc(cx - 60, targetY - 5, 5, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 60, targetY - 5, 5, 0, Math.PI * 2); ctx.fill();
+}
+
+// 🆕 NOUVELLE FONCTION : Nœud (point noir de connexion)
+function drawNode(x, y) {
+  ctx.fillStyle = '#fff';
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(x, y, 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
 }
 
 // ============================================================
