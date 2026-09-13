@@ -1127,24 +1127,49 @@ function drawFlux() {
       const pos = positionSurChemin(cheminElec, e.t);
       if (!pos) return;
 
-      const grad = ctx.createRadialGradient(pos.x, pos.y, 1, pos.x, pos.y, 14);
+      // Calcul de l'angle (direction du mouvement)
+      const posSuivante = positionSurChemin(cheminElec, (e.t + 0.001) % 1);
+      const angle = posSuivante 
+        ? Math.atan2(posSuivante.y - pos.y, posSuivante.x - pos.x)
+        : 0;
+
+      // Halo lumineux
+      const grad = ctx.createRadialGradient(pos.x, pos.y, 1, pos.x, pos.y, 16);
       grad.addColorStop(0, couleurElec);
       grad.addColorStop(1, 'rgba(0, 229, 255, 0)');
       ctx.fillStyle = grad;
       ctx.beginPath();
-      ctx.arc(pos.x, pos.y, 14, 0, Math.PI * 2);
+      ctx.arc(pos.x, pos.y, 16, 0, Math.PI * 2);
       ctx.fill();
 
+      // Disque de l'électron
       ctx.fillStyle = couleurElec;
       ctx.beginPath();
-      ctx.arc(pos.x, pos.y, 3.5, 0, Math.PI * 2);
+      ctx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
       ctx.fill();
 
+      // Signe "−" au centre
       ctx.fillStyle = '#000';
-      ctx.font = 'bold 7px Arial';
+      ctx.font = 'bold 9px Arial';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('−', pos.x, pos.y + 0.5);
+
+      // 🆕 FLÈCHE DE DIRECTION
+      const flecheX = pos.x + Math.cos(angle) * 12;
+      const flecheY = pos.y + Math.sin(angle) * 12;
+      
+      ctx.save();
+      ctx.translate(flecheX, flecheY);
+      ctx.rotate(angle);
+      ctx.fillStyle = couleurElec;
+      ctx.beginPath();
+      ctx.moveTo(6, 0);
+      ctx.lineTo(-4, -4);
+      ctx.lineTo(-4, 4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
     });
   }
 
@@ -1157,24 +1182,49 @@ function drawFlux() {
       const pos = positionSurChemin(cheminCour, c.t);
       if (!pos) return;
 
-      const grad = ctx.createRadialGradient(pos.x, pos.y, 1, pos.x, pos.y, 11);
+      // Calcul de l'angle (direction du mouvement)
+      const posSuivante = positionSurChemin(cheminCour, (c.t + 0.001) % 1);
+      const angle = posSuivante 
+        ? Math.atan2(posSuivante.y - pos.y, posSuivante.x - pos.x)
+        : 0;
+
+      // Halo lumineux
+      const grad = ctx.createRadialGradient(pos.x, pos.y, 1, pos.x, pos.y, 14);
       grad.addColorStop(0, couleurCour);
       grad.addColorStop(1, 'rgba(255, 167, 38, 0)');
       ctx.fillStyle = grad;
       ctx.beginPath();
-      ctx.arc(pos.x, pos.y, 11, 0, Math.PI * 2);
+      ctx.arc(pos.x, pos.y, 14, 0, Math.PI * 2);
       ctx.fill();
 
+      // Disque du courant
       ctx.fillStyle = couleurCour;
       ctx.beginPath();
-      ctx.arc(pos.x, pos.y, 4, 0, Math.PI * 2);
+      ctx.arc(pos.x, pos.y, 5.5, 0, Math.PI * 2);
       ctx.fill();
 
+      // Signe "+" au centre
       ctx.fillStyle = '#000';
-      ctx.font = 'bold 7px Arial';
+      ctx.font = 'bold 10px Arial';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('+', pos.x, pos.y + 0.5);
+
+      // 🆕 FLÈCHE DE DIRECTION
+      const flecheX = pos.x + Math.cos(angle) * 13;
+      const flecheY = pos.y + Math.sin(angle) * 13;
+      
+      ctx.save();
+      ctx.translate(flecheX, flecheY);
+      ctx.rotate(angle);
+      ctx.fillStyle = couleurCour;
+      ctx.beginPath();
+      ctx.moveTo(7, 0);
+      ctx.lineTo(-5, -5);
+      ctx.lineTo(-5, 5);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
     });
   }
 
