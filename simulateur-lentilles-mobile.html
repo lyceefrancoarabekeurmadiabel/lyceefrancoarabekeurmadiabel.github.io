@@ -451,13 +451,26 @@ function drawObjet(xStart, yBase, yTop) {
 
 function drawImage(img, progress) {
   if (!img.OA_prime || !isFinite(img.OA_prime)) return;
+  
   const xA = xCanvas(img.OA_prime);
   const yBase = AXE_Y;
   const yTopFull = yCanvas(img.AB_prime);
   const yTop = yBase + (yTopFull - yBase) * progress;
+  
   const isVirtuelle = img.OA_prime < 0;
   const couleur = isVirtuelle ? '#9c27b0' : '#ff5722';
-
+  
+  // 🆕 DEBUG dans la console pour comprendre
+  console.log('🔍 drawImage →', {
+    OA_prime: img.OA_prime.toFixed(1),
+    AB_prime: img.AB_prime.toFixed(1),
+    gamma: img.gamma.toFixed(2),
+    xA: xA.toFixed(0),
+    CENTRE_X: CENTRE_X,
+    side: xA > CENTRE_X ? 'DROITE ✅' : 'GAUCHE ⚠️'
+  });
+  
+  // Ligne verticale de l'image
   ctx.strokeStyle = couleur;
   ctx.fillStyle = couleur;
   ctx.lineWidth = 3;
@@ -467,17 +480,31 @@ function drawImage(img, progress) {
   ctx.lineTo(xA, yTop);
   ctx.stroke();
   ctx.setLineDash([]);
+  
+  // Pointe de la flèche (en haut de l'image)
   ctx.beginPath();
   ctx.moveTo(xA, yTop);
-  ctx.lineTo(xA - 6, yTop + 10);
-  ctx.lineTo(xA + 6, yTop + 10);
+  ctx.lineTo(xA - 6, yTop + (yTop > yBase ? 10 : -10));
+  ctx.lineTo(xA + 6, yTop + (yTop > yBase ? 10 : -10));
   ctx.closePath();
   ctx.fill();
+  
+  // Marqueurs A' et B'
   ctx.fillStyle = couleur;
-  ctx.font = 'bold 10px monospace';
+  ctx.font = 'bold 12px monospace';
   ctx.textAlign = 'center';
-  ctx.fillText("A'", xA, yBase + 14);
-  ctx.fillText("B'", xA, yTop - 4);
+  ctx.fillText("A'", xA, yBase + 18);
+  ctx.fillText("B'", xA, yTop > yBase ? yTop + 22 : yTop - 8);
+  
+  // 🆕 Cercle de mise en évidence autour de A' et B'
+  ctx.strokeStyle = couleur;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(xA, yBase, 5, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(xA, yTop, 5, 0, Math.PI * 2);
+  ctx.stroke();
 }
 
 // ============================================================
