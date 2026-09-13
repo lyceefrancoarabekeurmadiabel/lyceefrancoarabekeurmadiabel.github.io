@@ -267,6 +267,37 @@
   .state-box.info { border-color: #4fc3f7; background: rgba(79, 195, 247, 0.1); color: #4fc3f7; }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
+  .legend-box {
+    display: flex;
+    justify-content: space-around;
+    gap: 8px;
+    padding: 6px 8px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.65em;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .legend-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-dot.electron {
+    background: #00e5ff;
+    box-shadow: 0 0 8px #00e5ff;
+  }
+  .legend-dot.courant {
+    background: #ffa726;
+    box-shadow: 0 0 8px #ffa726;
+  }
+
   .control-bar {
     display: flex;
     align-items: center;
@@ -369,7 +400,7 @@
     font-family: monospace;
     font-size: 0.95em;
     font-weight: bold;
-    width: 55px;
+    width: 60px;
     text-align: center;
   }
   .input-value:focus {
@@ -535,6 +566,18 @@
       <div class="panel-title">🚦 État du circuit</div>
       <div class="state-box info" id="state-box">Choisis tes composants à gauche</div>
 
+      <div class="panel-title" style="margin-top: 6px;">🔬 Légende des flux</div>
+      <div class="legend-box">
+        <div class="legend-item">
+          <span class="legend-dot electron"></span>
+          <span style="color: #00e5ff;">Électrons − → +</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot courant"></span>
+          <span style="color: #ffa726;">Courant + → −</span>
+        </div>
+      </div>
+
       <div class="panel-title" style="margin-top: 6px;">💡 Explication</div>
       <div class="state-box info" id="observTxt" style="font-size: 0.7em; line-height: 1.5;">
         <strong>Étape 1 :</strong> Choisis la pile et le récepteur dans la boîte à outils.
@@ -560,21 +603,21 @@
     <div class="slider-mini" id="slider-T">
       <label>
         Tension E
-        <input type="number" class="input-value" id="input-E" value="4.5" min="1.5" max="12" step="0.1"> V
+        <input type="number" class="input-value" id="input-E" value="4.5" min="0.1" max="24" step="0.1"> V
       </label>
       <input type="range" id="slider-E" min="1.5" max="12" value="4.5" step="0.5">
     </div>
     <div class="slider-mini" id="slider-R">
       <label>
         Résistance R
-        <input type="number" class="input-value" id="input-R" value="0" min="0" max="500" step="10"> Ω
+        <input type="number" class="input-value" id="input-R" value="0" min="0" max="10000" step="1"> Ω
       </label>
       <input type="range" id="slider-R" min="0" max="500" value="0" step="10">
     </div>
     <div class="slider-mini" id="slider-P">
       <label>
         Potentiomètre
-        <input type="number" class="input-value" id="input-pot" value="100" min="0" max="100" step="5"> %
+        <input type="number" class="input-value" id="input-pot" value="100" min="0" max="100" step="1"> %
       </label>
       <input type="range" id="slider-pot" min="0" max="100" value="100" step="5">
     </div>
@@ -597,6 +640,7 @@ let etat = {
   fils: [],
   borneSelectionnee: null,
   electrons: [],
+  courants: [],
   animationActive: false
 };
 
@@ -630,6 +674,11 @@ function initBornes() {
 
 function getBorneById(id) {
   return etat.bornes.find(b => b.id === id);
+}
+
+function borneEstVisible(borne) {
+  if ((borne.id === 'res-A' || borne.id === 'res-B') && etat.resistance === 0) return false;
+  return true;
 }
 
 // ============================================================
@@ -679,39 +728,40 @@ function drawMontage() {
     drawResistanceAdditionnelle(positions.resistance.x, positions.resistance.y, positions.resistance.w, positions.resistance.h);
   }
 
-  // Bornes PAR-DESSUS
   etat.bornes.forEach(borne => {
-    if ((borne.id === 'res-A' || borne.id === 'res-B') && etat.resistance === 0) return;
+    if (!borneEstVisible(borne)) return;
     drawBorne(borne);
   });
 
+  // ⚡ Animation des flux (électrons + courant)
   if (etat.animationActive && etat.switchFerme) {
-    drawElectrons();
+    drawFlux();
   }
 }
 
 function drawBorne(borne) {
   const isSelected = etat.borneSelectionnee === borne.id;
   const isConnected = etat.fils.some(f => f.a === borne.id || f.b === borne.id);
+  const cliquable = (etat.step === 2) && !isConnected;
 
-  if (!isConnected && !isSelected && (etat.step === 1 || etat.step === 2)) {
+  if (cliquable && !isSelected) {
     const pulse = (Math.sin(Date.now() / 500) + 1) / 2;
-    const grad = ctx.createRadialGradient(borne.x, borne.y, 5, borne.x, borne.y, 22 + pulse * 10);
+    const grad = ctx.createRadialGradient(borne.x, borne.y, 5, borne.x, borne.y, 30 + pulse * 12);
     grad.addColorStop(0, `rgba(79, 195, 247, ${0.35 + pulse * 0.35})`);
     grad.addColorStop(1, 'rgba(79, 195, 247, 0)');
     ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.arc(borne.x, borne.y, 22 + pulse * 10, 0, Math.PI * 2);
+    ctx.arc(borne.x, borne.y, 30 + pulse * 12, 0, Math.PI * 2);
     ctx.fill();
   }
 
   if (isSelected) {
-    const grad = ctx.createRadialGradient(borne.x, borne.y, 5, borne.x, borne.y, 30);
+    const grad = ctx.createRadialGradient(borne.x, borne.y, 5, borne.x, borne.y, 36);
     grad.addColorStop(0, 'rgba(255, 213, 79, 0.8)');
     grad.addColorStop(1, 'rgba(255, 213, 79, 0)');
     ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.arc(borne.x, borne.y, 30, 0, Math.PI * 2);
+    ctx.arc(borne.x, borne.y, 36, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -749,7 +799,7 @@ function drawPile(cx, cy, w, h) {
 
   ctx.fillStyle = '#fff';
   ctx.font = 'bold 16px monospace';
-  ctx.fillText(`${etat.E} V`, cx, cy + 2);
+  ctx.fillText(`${etat.E.toFixed(1)} V`, cx, cy + 2);
 
   ctx.fillStyle = '#4fc3f7';
   ctx.font = 'bold 11px monospace';
@@ -943,88 +993,173 @@ function drawResistanceAdditionnelle(cx, cy, w, h) {
 }
 
 // ============================================================
-//  ÉLECTRONS
+//  FLUX : ÉLECTRONS + COURANT (deux sens opposés)
 // ============================================================
-function initElectrons() {
-  etat.electrons = [];
-  const chemin = getCheminCircuit();
-  if (chemin.length < 3) return;
-  for (let i = 0; i < 20; i++) {
-    etat.electrons.push({ t: i / 20 });
+
+// Construit le chemin en suivant les fils réels depuis une borne de départ
+function getCheminCircuit(departId) {
+  const depart = getBorneById(departId);
+  if (!depart) return [];
+
+  const chemin = [{ x: depart.x, y: depart.y, id: depart.id }];
+  const visited = new Set([depart.id]);
+  let currentId = depart.id;
+  let maxIter = 20;
+
+  const arriveeId = (departId === 'pile-A') ? 'pile-B' : 'pile-A';
+
+  while (maxIter-- > 0) {
+    const fil = etat.fils.find(f =>
+      (f.a === currentId && !visited.has(f.b)) ||
+      (f.b === currentId && !visited.has(f.a))
+    );
+    if (!fil) break;
+
+    const nextId = (fil.a === currentId) ? fil.b : fil.a;
+    const nextBorne = getBorneById(nextId);
+    if (!nextBorne) break;
+
+    chemin.push({ x: nextBorne.x, y: nextBorne.y, id: nextBorne.id });
+    visited.add(nextId);
+    currentId = nextId;
+
+    if (nextId === arriveeId) break;
   }
-}
 
-function getCheminCircuit() {
-  const chemin = [];
-  const pileA = getBorneById('pile-A');
-  const pileB = getBorneById('pile-B');
-  const recA = getBorneById('rec-A');
-  const recB = getBorneById('rec-B');
-  const intA = getBorneById('int-A');
-  const intB = getBorneById('int-B');
-
-  if (pileA) chemin.push({ x: pileA.x, y: pileA.y });
-  if (recA) chemin.push({ x: recA.x, y: recA.y });
-  if (recB) chemin.push({ x: recB.x, y: recB.y });
-  if (intA) chemin.push({ x: intA.x, y: intA.y });
-  if (intB) chemin.push({ x: intB.x, y: intB.y });
-  if (pileB) chemin.push({ x: pileB.x, y: pileB.y });
   return chemin;
 }
 
-function drawElectrons() {
-  const calc = calculs();
-  if (!calc.circuitFerme) return;
+function initFlux() {
+  etat.electrons = [];
+  etat.courants = [];
 
-  const chemin = getCheminCircuit();
-  if (chemin.length < 2) return;
+  // Électrons : partent de la borne − (pile-B), vont vers +
+  const cheminElec = getCheminCircuit('pile-B');
+  if (cheminElec.length >= 3) {
+    for (let i = 0; i < 15; i++) {
+      etat.electrons.push({ t: i / 15 });
+    }
+  }
+
+  // Courant : part de la borne + (pile-A), va vers −
+  const cheminCour = getCheminCircuit('pile-A');
+  if (cheminCour.length >= 3) {
+    for (let i = 0; i < 15; i++) {
+      etat.courants.push({ t: i / 15 });
+    }
+  }
+}
+
+// Calcule la position sur un chemin en fonction de t ∈ [0,1]
+function positionSurChemin(chemin, t) {
+  if (chemin.length < 2) return null;
 
   let totalLen = 0;
   const segments = [];
-  for (let i = 0; i < chemin.length; i++) {
+  for (let i = 0; i < chemin.length - 1; i++) {
     const p1 = chemin[i];
-    const p2 = chemin[(i + 1) % chemin.length];
+    const p2 = chemin[i + 1];
     const len = Math.hypot(p2.x - p1.x, p2.y - p1.y);
     segments.push({ p1, p2, len, start: totalLen });
     totalLen += len;
   }
+  if (totalLen === 0) return null;
 
-  const speed = calc.isCourtCircuit ? 0.02 : (0.001 + Math.min(calc.I * 0.3, 0.012));
-  const couleur = calc.isCourtCircuit ? '#ff5722' : '#4fc3f7';
+  const dist = t * totalLen;
+  let seg = segments[0];
+  for (let s of segments) {
+    if (dist >= s.start && dist < s.start + s.len) { seg = s; break; }
+  }
+  const tSeg = (dist - seg.start) / seg.len;
+  return {
+    x: seg.p1.x + (seg.p2.x - seg.p1.x) * tSeg,
+    y: seg.p1.y + (seg.p2.y - seg.p1.y) * tSeg
+  };
+}
 
-  etat.electrons.forEach(e => {
-    e.t = (e.t + speed) % 1;
-    const dist = e.t * totalLen;
+function drawFlux() {
+  const calc = calculs();
+  if (!calc.circuitFerme) return;
 
-    let seg = segments[0];
-    for (let s of segments) {
-      if (dist >= s.start && dist < s.start + s.len) { seg = s; break; }
-    }
+  // 🔽 Vitesse réduite (lente et pédagogique)
+  const speed = calc.isCourtCircuit
+    ? 0.0035
+    : (0.00025 + Math.min(calc.I * 0.07, 0.002));
 
-    const tSeg = (dist - seg.start) / seg.len;
-    const px = seg.p1.x + (seg.p2.x - seg.p1.x) * tSeg;
-    const py = seg.p1.y + (seg.p2.y - seg.p1.y) * tSeg;
+  // ---------- ÉLECTRONS (pôle − → pôle +) ----------
+  const cheminElec = getCheminCircuit('pile-B');
+  if (cheminElec.length >= 3) {
+    const couleurElec = calc.isCourtCircuit ? '#ff5722' : '#00e5ff';
+    etat.electrons.forEach(e => {
+      e.t = (e.t + speed) % 1;
+      const pos = positionSurChemin(cheminElec, e.t);
+      if (!pos) return;
 
-    const grad = ctx.createRadialGradient(px, py, 1, px, py, 12);
-    grad.addColorStop(0, couleur);
-    grad.addColorStop(1, 'rgba(79, 195, 247, 0)');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(px, py, 12, 0, Math.PI * 2);
-    ctx.fill();
+      // Halo cyan
+      const grad = ctx.createRadialGradient(pos.x, pos.y, 1, pos.x, pos.y, 14);
+      grad.addColorStop(0, couleurElec);
+      grad.addColorStop(1, 'rgba(0, 229, 255, 0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, 14, 0, Math.PI * 2);
+      ctx.fill();
 
-    ctx.fillStyle = couleur;
-    ctx.beginPath();
-    ctx.arc(px, py, calc.isCourtCircuit ? 5 : 3.5, 0, Math.PI * 2);
-    ctx.fill();
-  });
+      // Point central
+      ctx.fillStyle = couleurElec;
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Signe − (électron)
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 7px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('−', pos.x, pos.y + 0.5);
+    });
+  }
+
+  // ---------- COURANT CONVENTIONNEL (pôle + → pôle −) ----------
+  const cheminCour = getCheminCircuit('pile-A');
+  if (cheminCour.length >= 3) {
+    const couleurCour = calc.isCourtCircuit ? '#ff9800' : '#ffa726';
+    etat.courants.forEach(c => {
+      c.t = (c.t + speed) % 1;
+      const pos = positionSurChemin(cheminCour, c.t);
+      if (!pos) return;
+
+      // Halo orange
+      const grad = ctx.createRadialGradient(pos.x, pos.y, 1, pos.x, pos.y, 11);
+      grad.addColorStop(0, couleurCour);
+      grad.addColorStop(1, 'rgba(255, 167, 38, 0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, 11, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Point central
+      ctx.fillStyle = couleurCour;
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Signe + (courant conventionnel)
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 7px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('+', pos.x, pos.y + 0.5);
+    });
+  }
+
+  // Réinitialiser les styles de texte
+  ctx.textBaseline = 'alphabetic';
 }
 
 // ============================================================
 //  CALCULS
 // ============================================================
 function calculs() {
-  // 3 fils minimum (sans résistance), 4 avec résistance
   const nbFilsMin = etat.resistance > 0 ? 4 : 3;
   const circuitFerme = etat.fils.length >= nbFilsMin;
 
@@ -1063,6 +1198,24 @@ function updateUI() {
   document.getElementById('step2').classList.toggle('active', etat.step === 2);
   document.getElementById('step3').classList.toggle('active', etat.step === 3);
 
+  const btnNext = document.getElementById('btnNext');
+  const btnValidate = document.getElementById('btnValidate');
+  const btnSwitch = document.getElementById('btnSwitch');
+
+  if (etat.step === 1) {
+    btnNext.style.display = 'flex';
+    btnValidate.style.display = 'none';
+    btnSwitch.style.display = 'none';
+  } else if (etat.step === 2) {
+    btnNext.style.display = 'none';
+    btnValidate.style.display = 'flex';
+    btnSwitch.style.display = 'none';
+  } else {
+    btnNext.style.display = 'none';
+    btnValidate.style.display = 'none';
+    btnSwitch.style.display = 'flex';
+  }
+
   if (etat.step === 1) {
     stateBox.className = 'state-box info';
     stateBox.textContent = '🛠️ Choisis tes composants (boîte à gauche)';
@@ -1085,7 +1238,7 @@ function updateUI() {
     } else if (etat.switchFerme) {
       stateBox.className = 'state-box ok';
       stateBox.textContent = '✅ Circuit fermé — I circule';
-      observTxt.innerHTML = `<strong>Étape 3 :</strong> I = ${(calc.I*1000).toFixed(0)} mA. Modifie les paramètres en bas.`;
+      observTxt.innerHTML = `<strong>Étape 3 :</strong> I = ${(calc.I*1000).toFixed(0)} mA. Le courant va du + vers le −, les électrons du − vers le +.`;
       status.textContent = `✅ I = ${(calc.I*1000).toFixed(0)} mA`;
       hint.textContent = '💡 Modifie les paramètres en bas';
     } else {
@@ -1109,13 +1262,14 @@ function updateUI() {
     wiresList.innerHTML = etat.fils.map((f, i) => {
       const a = getBorneById(f.a);
       const b = getBorneById(f.b);
+      if (!a || !b) return '';
       return `${i+1}. ${a.nom} → ${b.nom}`;
     }).join('<br>');
   }
 }
 
 // ============================================================
-//  CLIC CANVAS (la méthode qui marche)
+//  CLIC CANVAS
 // ============================================================
 canvas.addEventListener('click', function(e) {
   const rect = canvas.getBoundingClientRect();
@@ -1124,21 +1278,25 @@ canvas.addEventListener('click', function(e) {
   const x = (e.clientX - rect.left) * scaleX;
   const y = (e.clientY - rect.top) * scaleY;
 
-  if (etat.step === 1 || etat.step === 2) {
-    // Chercher la borne la plus proche
+  console.log('🖱️ Clic canvas — étape:', etat.step, '| x:', x.toFixed(0), 'y:', y.toFixed(0));
+
+  if (etat.step === 1) return;
+
+  if (etat.step === 2) {
     let borneCliquee = null;
     let minDist = 60;
+
     etat.bornes.forEach(b => {
-      if ((b.id === 'res-A' || b.id === 'res-B') && etat.resistance === 0) return;
+      if (!borneEstVisible(b)) return;
       const d = Math.hypot(b.x - x, b.y - y);
       if (d < minDist) {
         minDist = d;
         borneCliquee = b;
       }
     });
+
     if (!borneCliquee) return;
 
-    // Anti court-circuit : pas 2 bornes du même composant
     if (etat.borneSelectionnee) {
       const typeA = etat.borneSelectionnee.split('-')[0];
       const typeB = borneCliquee.id.split('-')[0];
@@ -1204,42 +1362,80 @@ document.querySelectorAll('#opt-resistance .tool-option').forEach(btn => {
     btn.classList.add('active');
     etat.resistance = parseInt(btn.dataset.value);
     document.getElementById('input-R').value = etat.resistance;
-    document.getElementById('slider-R').value = etat.resistance;
+    document.getElementById('slider-R').value = Math.min(etat.resistance, 500);
+    initBornes();
   });
 });
 
-// Sliders + inputs synchronisés
+// --- Tension E ---
 document.getElementById('slider-E').addEventListener('input', (e) => {
   etat.E = parseFloat(e.target.value);
   document.getElementById('input-E').value = etat.E;
 });
+document.getElementById('input-E').addEventListener('input', (e) => {
+  const val = parseFloat(e.target.value);
+  if (!isNaN(val) && val >= 0.1 && val <= 24) {
+    etat.E = val;
+    document.getElementById('slider-E').value = Math.min(val, 12);
+  }
+});
 document.getElementById('input-E').addEventListener('change', (e) => {
-  etat.E = Math.max(1.5, Math.min(12, parseFloat(e.target.value) || 4.5));
-  document.getElementById('slider-E').value = etat.E;
-  document.getElementById('input-E').value = etat.E;
+  let val = parseFloat(e.target.value);
+  if (isNaN(val)) val = 4.5;
+  val = Math.max(0.1, Math.min(24, val));
+  etat.E = val;
+  e.target.value = val;
+  document.getElementById('slider-E').value = Math.min(val, 12);
 });
 
+// --- Résistance R ---
 document.getElementById('slider-R').addEventListener('input', (e) => {
   etat.resistance = parseInt(e.target.value);
   document.getElementById('input-R').value = etat.resistance;
+  initBornes();
+});
+document.getElementById('input-R').addEventListener('input', (e) => {
+  const val = parseInt(e.target.value);
+  if (!isNaN(val) && val >= 0 && val <= 10000) {
+    etat.resistance = val;
+    document.getElementById('slider-R').value = Math.min(val, 500);
+    initBornes();
+  }
 });
 document.getElementById('input-R').addEventListener('change', (e) => {
-  etat.resistance = Math.max(0, Math.min(500, parseInt(e.target.value) || 0));
-  document.getElementById('slider-R').value = etat.resistance;
-  document.getElementById('input-R').value = etat.resistance;
+  let val = parseInt(e.target.value);
+  if (isNaN(val)) val = 0;
+  val = Math.max(0, Math.min(10000, val));
+  etat.resistance = val;
+  e.target.value = val;
+  document.getElementById('slider-R').value = Math.min(val, 500);
+  initBornes();
 });
 
+// --- Potentiomètre ---
 document.getElementById('slider-pot').addEventListener('input', (e) => {
   etat.pot = parseInt(e.target.value);
   document.getElementById('input-pot').value = etat.pot;
 });
+document.getElementById('input-pot').addEventListener('input', (e) => {
+  const val = parseInt(e.target.value);
+  if (!isNaN(val) && val >= 0 && val <= 100) {
+    etat.pot = val;
+    document.getElementById('slider-pot').value = val;
+  }
+});
 document.getElementById('input-pot').addEventListener('change', (e) => {
-  etat.pot = Math.max(0, Math.min(100, parseInt(e.target.value) || 100));
-  document.getElementById('slider-pot').value = etat.pot;
-  document.getElementById('input-pot').value = etat.pot;
+  let val = parseInt(e.target.value);
+  if (isNaN(val)) val = 100;
+  val = Math.max(0, Math.min(100, val));
+  etat.pot = val;
+  e.target.value = val;
+  document.getElementById('slider-pot').value = val;
 });
 
-// Boutons
+// ============================================================
+//  BOUTONS
+// ============================================================
 document.getElementById('btnNext').addEventListener('click', passerAuMontage);
 document.getElementById('btnValidate').addEventListener('click', validateCircuit);
 document.getElementById('btnSwitch').addEventListener('click', toggleSwitch);
@@ -1247,19 +1443,15 @@ document.getElementById('btnReset').addEventListener('click', resetAll);
 
 function passerAuMontage() {
   etat.step = 2;
-  document.getElementById('btnNext').style.display = 'none';
-  document.getElementById('btnValidate').style.display = 'flex';
-  document.getElementById('btnSwitch').style.display = 'none';
+  etat.borneSelectionnee = null;
 }
 
 function validateCircuit() {
   const nbMin = etat.resistance > 0 ? 4 : 3;
   if (etat.fils.length >= nbMin) {
     etat.step = 3;
-    initElectrons();
-    document.getElementById('btnNext').style.display = 'none';
-    document.getElementById('btnValidate').style.display = 'none';
-    document.getElementById('btnSwitch').style.display = 'flex';
+    etat.borneSelectionnee = null;
+    initFlux();
   } else {
     alert('❌ Ton circuit n\'est pas complet ! Il manque ' + (nbMin - etat.fils.length) + ' fil(s).');
   }
@@ -1269,14 +1461,7 @@ function toggleSwitch() {
   if (etat.step !== 3) return;
   etat.switchFerme = !etat.switchFerme;
   etat.animationActive = etat.switchFerme;
-  const btn = document.getElementById('btnSwitch');
-  if (etat.switchFerme) {
-    btn.textContent = '🔘 Ouvrir l\'interrupteur';
-    btn.style.background = 'linear-gradient(135deg, #f44336, #e53935)';
-  } else {
-    btn.textContent = '🔘 Fermer l\'interrupteur';
-    btn.style.background = 'linear-gradient(135deg, #4caf50, #66bb6a)';
-  }
+  if (etat.switchFerme) initFlux();
 }
 
 function resetAll() {
@@ -1289,6 +1474,8 @@ function resetAll() {
   etat.resistance = 0;
   etat.pot = 100;
   etat.recepteur = 'ampoule';
+  etat.electrons = [];
+  etat.courants = [];
 
   document.querySelectorAll('#opt-generateur .tool-option').forEach(b => b.classList.toggle('active', parseFloat(b.dataset.value) === 4.5));
   document.querySelectorAll('#opt-recepteur .tool-option').forEach(b => b.classList.toggle('active', b.dataset.value === 'ampoule'));
@@ -1300,14 +1487,6 @@ function resetAll() {
   document.getElementById('slider-E').value = 4.5;
   document.getElementById('slider-R').value = 0;
   document.getElementById('slider-pot').value = 100;
-
-  const btn = document.getElementById('btnSwitch');
-  btn.textContent = '🔘 Fermer l\'interrupteur';
-  btn.style.background = 'linear-gradient(135deg, #4caf50, #66bb6a)';
-
-  document.getElementById('btnNext').style.display = 'flex';
-  document.getElementById('btnValidate').style.display = 'none';
-  document.getElementById('btnSwitch').style.display = 'none';
 
   initBornes();
 }
@@ -1343,6 +1522,7 @@ window.addEventListener('load', () => {
   document.body.classList.add('loaded');
   initBornes();
   loop();
+  console.log('🚀 Simulateur circuits prêt !');
 });
 </script>
 
