@@ -489,18 +489,37 @@ function drawBanc(progress) {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // Graduations
-  ctx.fillStyle = 'rgba(255,255,255,0.4)';
-  ctx.font = 'bold 10px monospace';
+    // Graduations — AMÉLIORÉES (plus lisibles)
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.font = 'bold 13px monospace';
   ctx.textAlign = 'center';
+
+  // Trait de l'axe plus visible pour les graduations
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+  ctx.lineWidth = 1.5;
+
   for (let mm = -600; mm <= 600; mm += 100) {
     const px = xCanvas(mm);
-    if (px < 20 || px > W - 20) continue;
+    if (px < 30 || px > W - 30) continue;
+
+    // Trait de graduation plus long
     ctx.beginPath();
-    ctx.moveTo(px, AXE_Y - 4);
-    ctx.lineTo(px, AXE_Y + 4);
+    ctx.moveTo(px, AXE_Y - 6);
+    ctx.lineTo(px, AXE_Y + 6);
     ctx.stroke();
-    if (mm !== 0) ctx.fillText(`${mm}`, px, AXE_Y + 18);
+
+    // Valeur bien lisible
+    if (mm !== 0) {
+      // Fond sombre derrière le texte pour la lisibilité
+      const texte = `${mm}`;
+      const largeurTexte = ctx.measureText(texte).width;
+      ctx.fillStyle = 'rgba(10,10,26,0.85)';
+      ctx.fillRect(px - largeurTexte/2 - 3, AXE_Y + 10, largeurTexte + 6, 18);
+
+      // Texte en blanc
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.fillText(texte, px, AXE_Y + 24);
+    }
   }
 
   drawLentille();
