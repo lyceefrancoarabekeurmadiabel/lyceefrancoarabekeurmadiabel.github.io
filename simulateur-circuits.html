@@ -32,7 +32,6 @@
     overflow: hidden;
   }
 
-  /* TOP BAR */
   .topbar {
     display: flex;
     align-items: center;
@@ -56,7 +55,6 @@
   .btn-mini-retour { background: rgba(168, 133, 63, 0.2); color: #ffd54f; border-color: rgba(255, 213, 79, 0.4); }
   .btn-mini-mobile { background: rgba(79, 195, 247, 0.15); color: #4fc3f7; border-color: rgba(79, 195, 247, 0.4); }
 
-  /* PROGRESS STEPPER */
   .stepper {
     display: flex;
     gap: 6px;
@@ -101,7 +99,6 @@
   .step.active .step-num { background: #4fc3f7; color: #16213e; }
   .step.done .step-num { background: #4caf50; color: #fff; }
 
-  /* MAIN ZONE */
   .main-zone {
     flex: 1;
     min-height: 0;
@@ -110,7 +107,6 @@
     gap: 5px;
   }
 
-  /* TOOLBOX */
   .toolbox {
     background: rgba(0,0,0,0.4);
     border-radius: 8px;
@@ -170,7 +166,6 @@
   .tool-option .icon { font-size: 1.6em; }
   .tool-option .label { font-size: 0.9em; }
 
-  /* CANVAS */
   .canvas-zone {
     background: #000;
     border-radius: 8px;
@@ -219,7 +214,6 @@
     z-index: 3;
   }
 
-  /* SIDE PANEL */
   .side-zone {
     background: rgba(0,0,0,0.4);
     border-radius: 8px;
@@ -273,7 +267,6 @@
   .state-box.info { border-color: #4fc3f7; background: rgba(79, 195, 247, 0.1); color: #4fc3f7; }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-  /* CONTROL BAR */
   .control-bar {
     display: flex;
     align-items: center;
@@ -332,7 +325,6 @@
   }
   .status-inline.active { color: #4fc3f7; }
 
-  /* SLIDERS */
   .sliders-bar {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -408,7 +400,6 @@
     </div>
   </div>
 
-  <!-- PROGRESS STEPS -->
   <div class="stepper">
     <div class="step active" id="step1">
       <div class="step-num">1</div>
@@ -426,7 +417,6 @@
 
   <div class="main-zone">
 
-    <!-- BOÎTE À OUTILS -->
     <div class="toolbox">
       <div class="panel-title">🧰 Matériel</div>
 
@@ -517,14 +507,12 @@
       </div>
     </div>
 
-    <!-- ZONE DE MONTAGE -->
     <div class="canvas-zone">
       <div class="zone-label">🔧 Zone de montage</div>
       <canvas id="canvasMontage" width="900" height="700"></canvas>
       <div class="hint-box" id="hintBox">👆 Cliquez sur une borne pour commencer</div>
     </div>
 
-    <!-- PANNEAU DROIT -->
     <div class="side-zone">
       <div class="panel-title">🚦 État du circuit</div>
       <div class="state-box info" id="state-box">Choisis tes composants à gauche</div>
@@ -602,7 +590,7 @@ const W = canvas.width;
 const H = canvas.height;
 
 // ============================================================
-//  GESTION DES BORNES
+//  GESTION DES BORNES (CORRIGÉ - décalage de 15px)
 // ============================================================
 function initBornes() {
   etat.bornes = [];
@@ -613,11 +601,13 @@ function initBornes() {
   etat.bornes.push({ id: 'int-A', x: positions.interrupteur.x - positions.interrupteur.w/2, y: positions.interrupteur.y, type: 'interrupteur', nom: 'Int. gauche' });
   etat.bornes.push({ id: 'int-B', x: positions.interrupteur.x + positions.interrupteur.w/2, y: positions.interrupteur.y, type: 'interrupteur', nom: 'Int. droite' });
 
-  etat.bornes.push({ id: 'rec-A', x: positions.recepteur.x, y: positions.recepteur.y - positions.recepteur.h/2, type: 'recepteur', nom: 'Réc. haut' });
-  etat.bornes.push({ id: 'rec-B', x: positions.recepteur.x, y: positions.recepteur.y + positions.recepteur.h/2, type: 'recepteur', nom: 'Réc. bas' });
+  // Bornes du récepteur DÉCALÉES de 15px vers l'extérieur
+  etat.bornes.push({ id: 'rec-A', x: positions.recepteur.x, y: positions.recepteur.y - positions.recepteur.h/2 - 15, type: 'recepteur', nom: 'Réc. haut' });
+  etat.bornes.push({ id: 'rec-B', x: positions.recepteur.x, y: positions.recepteur.y + positions.recepteur.h/2 + 15, type: 'recepteur', nom: 'Réc. bas' });
 
-  etat.bornes.push({ id: 'res-A', x: positions.resistance.x, y: positions.resistance.y - positions.resistance.h/2, type: 'resistance', nom: 'Rés. haut' });
-  etat.bornes.push({ id: 'res-B', x: positions.resistance.x, y: positions.resistance.y + positions.resistance.h/2, type: 'resistance', nom: 'Rés. bas' });
+  // Bornes de la résistance DÉCALÉES de 15px
+  etat.bornes.push({ id: 'res-A', x: positions.resistance.x, y: positions.resistance.y - positions.resistance.h/2 - 15, type: 'resistance', nom: 'Rés. haut' });
+  etat.bornes.push({ id: 'res-B', x: positions.resistance.x, y: positions.resistance.y + positions.resistance.h/2 + 15, type: 'resistance', nom: 'Rés. bas' });
 }
 
 function getBorneById(id) {
@@ -641,7 +631,7 @@ function drawMontage() {
     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
   }
 
-  // Dessiner les fils
+  // Fils
   etat.fils.forEach(fil => {
     const borneA = getBorneById(fil.a);
     const borneB = getBorneById(fil.b);
@@ -671,7 +661,7 @@ function drawMontage() {
     drawResistanceAdditionnelle(positions.resistance.x, positions.resistance.y, positions.resistance.w, positions.resistance.h);
   }
 
-  // Dessiner les bornes (sauf résistance si absente)
+  // Bornes PAR-DESSUS tout
   etat.bornes.forEach(borne => {
     if ((borne.id === 'res-A' || borne.id === 'res-B') && etat.resistance === 0) {
       return;
@@ -688,7 +678,7 @@ function drawBorne(borne) {
   const isSelected = etat.borneSelectionnee === borne.id;
   const isConnected = etat.fils.some(f => f.a === borne.id || f.b === borne.id);
 
-  // Halo pulsant UNIQUEMENT aux étapes 1 et 2
+  // Halo pulsant
   if (!isConnected && !isSelected && (etat.step === 1 || etat.step === 2)) {
     const pulse = (Math.sin(Date.now() / 500) + 1) / 2;
     const grad = ctx.createRadialGradient(borne.x, borne.y, 5, borne.x, borne.y, 22 + pulse * 10);
@@ -710,6 +700,7 @@ function drawBorne(borne) {
     ctx.fill();
   }
 
+  // Cercle de la borne
   ctx.fillStyle = isSelected ? '#ffd54f' : (isConnected ? '#4caf50' : '#fff');
   ctx.strokeStyle = isSelected ? '#fff' : '#000';
   ctx.lineWidth = 2;
@@ -1039,10 +1030,10 @@ function drawElectrons() {
 }
 
 // ============================================================
-//  CALCULS (CORRIGÉ - retiré etat.step >= 2)
+//  CALCULS
 // ============================================================
 function calculs() {
-  const circuitFerme = etat.fils.length >= 4;
+  const circuitFerme = etat.fils.length >= 3;
 
   const R_interne = 5;
   const R_totale = R_interne + etat.resistance + (1 - etat.pot / 100) * 1000;
@@ -1058,7 +1049,7 @@ function calculs() {
 }
 
 // ============================================================
-//  MISE À JOUR DE L'INTERFACE (CORRIGÉ - gestion 3 boutons)
+//  MISE À JOUR DE L'INTERFACE
 // ============================================================
 function updateUI() {
   const calc = calculs();
@@ -1080,7 +1071,6 @@ function updateUI() {
   document.getElementById('step3').classList.toggle('active', etat.step === 3);
   document.getElementById('step3').classList.toggle('done', false);
 
-  // Gestion des boutons selon l'étape
   const btnNext = document.getElementById('btnNext');
   const btnValidate = document.getElementById('btnValidate');
   const btnSwitch = document.getElementById('btnSwitch');
@@ -1107,9 +1097,9 @@ function updateUI() {
     hint.textContent = '👈 Sélectionne tes composants à gauche';
   } else if (etat.step === 2) {
     stateBox.className = 'state-box warn';
-    stateBox.textContent = `🔗 Connecte les fils (${etat.fils.length} / 4)`;
-    observTxt.innerHTML = '<strong>Étape 2 :</strong> Clique sur une borne (point blanc), puis sur une autre borne pour les relier. Crée <strong>4 fils</strong> pour former un circuit fermé.';
-    status.textContent = `Fils connectés : ${etat.fils.length} / 4`;
+    stateBox.textContent = `🔗 Connecte les fils (${etat.fils.length} / 3)`;
+    observTxt.innerHTML = '<strong>Étape 2 :</strong> Clique sur une borne (point blanc), puis sur une autre borne. Crée <strong>3 fils</strong> pour fermer le circuit (Pile → Ampoule → Interrupteur → Pile).';
+    status.textContent = `Fils connectés : ${etat.fils.length} / 3`;
     if (etat.borneSelectionnee) {
       hint.textContent = '👆 Clique sur la 2ᵉ borne pour créer le fil';
     } else {
@@ -1131,7 +1121,7 @@ function updateUI() {
     } else {
       stateBox.className = 'state-box warn';
       stateBox.textContent = '🔘 Clique sur l\'interrupteur pour fermer';
-      observTxt.innerHTML = '<strong>Étape 3 :</strong> Ton circuit est correct ! Clique sur l\'interrupteur (en bas du schéma ou sur le bouton) pour faire circuler le courant.';
+      observTxt.innerHTML = '<strong>Étape 3 :</strong> Ton circuit est correct ! Clique sur l\'interrupteur (sur le schéma ou sur le bouton) pour faire circuler le courant.';
       status.textContent = '🔘 Ferme l\'interrupteur';
       hint.textContent = '👆 Clique sur l\'interrupteur';
     }
@@ -1155,7 +1145,7 @@ function updateUI() {
 }
 
 // ============================================================
-//  INTERACTION CANVAS
+//  INTERACTION CANVAS (CORRIGÉ)
 // ============================================================
 canvas.addEventListener('click', (e) => {
   const rect = canvas.getBoundingClientRect();
@@ -1166,11 +1156,29 @@ canvas.addEventListener('click', (e) => {
 
   // Étape 1 OU 2 : connecter les bornes
   if (etat.step === 1 || etat.step === 2) {
-    const borneCliquee = etat.bornes.find(b => {
-      if ((b.id === 'res-A' || b.id === 'res-B') && etat.resistance === 0) return false;
-      return Math.hypot(b.x - x, b.y - y) < 30;
+    // Chercher la borne LA PLUS PROCHE
+    let borneCliquee = null;
+    let minDist = 50;
+    etat.bornes.forEach(b => {
+      if ((b.id === 'res-A' || b.id === 'res-B') && etat.resistance === 0) return;
+      const dist = Math.hypot(b.x - x, b.y - y);
+      if (dist < minDist) {
+        minDist = dist;
+        borneCliquee = b;
+      }
     });
     if (!borneCliquee) return;
+
+    // Interdire les connexions sur le même composant
+    if (etat.borneSelectionnee) {
+      const typeA = etat.borneSelectionnee.split('-')[0];
+      const typeB = borneCliquee.id.split('-')[0];
+      if (typeA === typeB) {
+        alert('⚠️ Tu ne peux pas relier 2 bornes du même composant !');
+        etat.borneSelectionnee = null;
+        return;
+      }
+    }
 
     if (!etat.borneSelectionnee) {
       etat.borneSelectionnee = borneCliquee.id;
@@ -1247,7 +1255,6 @@ document.getElementById('slider-pot').addEventListener('input', (e) => {
   document.getElementById('val-pot').textContent = etat.pot + ' %';
 });
 
-// NOUVELLE FONCTION : passer à l'étape 2
 function passerAuMontage() {
   etat.step = 2;
   document.getElementById('btnNext').style.display = 'none';
@@ -1256,14 +1263,14 @@ function passerAuMontage() {
 }
 
 function validateCircuit() {
-  if (etat.fils.length >= 4) {
+  if (etat.fils.length >= 3) {
     etat.step = 3;
     initElectrons();
     document.getElementById('btnNext').style.display = 'none';
     document.getElementById('btnValidate').style.display = 'none';
     document.getElementById('btnSwitch').style.display = 'flex';
   } else {
-    alert('❌ Ton circuit n\'est pas complet ! Il manque ' + (4 - etat.fils.length) + ' fil(s).\n\nAstuce : clique sur une borne, puis sur une autre pour créer un fil.');
+    alert('❌ Ton circuit n\'est pas complet ! Il manque ' + (3 - etat.fils.length) + ' fil(s).\n\nAstuce : clique sur une borne, puis sur une autre pour créer un fil.');
   }
 }
 
@@ -1308,7 +1315,6 @@ function resetAll() {
   btn.textContent = '🔘 Fermer l\'interrupteur';
   btn.style.background = 'linear-gradient(135deg, #4caf50, #66bb6a)';
 
-  // Réinitialiser les boutons
   document.getElementById('btnNext').style.display = 'flex';
   document.getElementById('btnValidate').style.display = 'none';
   document.getElementById('btnSwitch').style.display = 'none';
