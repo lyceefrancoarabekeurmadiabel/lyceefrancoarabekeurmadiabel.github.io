@@ -684,13 +684,16 @@ function drawMontage() {
   // Dessiner le récepteur
   drawRecepteur(positions.recepteur.x, positions.recepteur.y, positions.recepteur.w, positions.recepteur.h);
 
-  // Dessiner la résistance additionnelle (si > 0)
+   // Dessiner la résistance additionnelle (si > 0)
   if (etat.resistance > 0) {
     drawResistanceAdditionnelle(positions.resistance.x, positions.resistance.y, positions.resistance.w, positions.resistance.h);
   }
-
-  // Dessiner les bornes
+   // Dessiner seulement les bornes des composants actifs
   etat.bornes.forEach(borne => {
+    // Ne pas dessiner les bornes de la résistance si elle est absente
+    if ((borne.id === 'res-A' || borne.id === 'res-B') && etat.resistance === 0) {
+      return;
+    }
     drawBorne(borne);
   });
 
@@ -704,7 +707,19 @@ function drawBorne(borne) {
   const isSelected = etat.borneSelectionnee === borne.id;
   const isConnected = etat.fils.some(f => f.a === borne.id || f.b === borne.id);
 
-  // Halo
+  // Halo pulsant sur TOUTES les bornes (pour montrer qu'elles sont cliquables)
+  if (!isConnected && !isSelected) {
+    const pulse = (Math.sin(Date.now() / 500) + 1) / 2;
+    const grad = ctx.createRadialGradient(borne.x, borne.y, 5, borne.x, borne.y, 20 + pulse * 10);
+    grad.addColorStop(0, `rgba(79, 195, 247, ${0.3 + pulse * 0.3})`);
+    grad.addColorStop(1, 'rgba(79, 195, 247, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(borne.x, borne.y, 20 + pulse * 10, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Halo sélection
   if (isSelected) {
     const grad = ctx.createRadialGradient(borne.x, borne.y, 5, borne.x, borne.y, 30);
     grad.addColorStop(0, 'rgba(255, 213, 79, 0.8)');
@@ -720,7 +735,7 @@ function drawBorne(borne) {
   ctx.strokeStyle = isSelected ? '#fff' : '#000';
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.arc(borne.x, borne.y, 9, 0, Math.PI * 2);
+  ctx.arc(borne.x, borne.y, 14, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 
@@ -1161,9 +1176,9 @@ function updateUI() {
   document.getElementById('slider-P').classList.toggle('disabled', slidersDisabled);
 
   // Bouton vérifier
-  document.getElementById('btnValidate').disabled = etat.step === 3;
+  document.getElementById('btnValidate').disabled = false;
   // Bouton interrupteur
-  document.getElementById('btnSwitch').disabled = false;
+  document.getElementById('btnSwitch').disabled = etat.step !== 3;
 
   // Liste des fils
   const wiresList = document.getElementById('wires-list');
@@ -1188,10 +1203,10 @@ canvas.addEventListener('click', (e) => {
   const x = (e.clientX - rect.left) * scaleX;
   const y = (e.clientY - rect.top) * scaleY;
 
-  // Étape 1 ou 2 : connecter les bornes (dès le début)
+   // Étape 1 OU 2 : connecter les bornes
   if (etat.step === 1 || etat.step === 2) {
     // Chercher une borne proche
-    const borneCliquee = etat.bornes.find(b => Math.hypot(b.x - x, b.y - y) < 20);
+      const borneCliquee = etat.bornes.find(b => Math.hypot(b.x - x, b.y - y) < 30);
     if (!borneCliquee) return;
 
     if (!etat.borneSelectionnee) {
@@ -1272,9 +1287,8 @@ document.getElementById('slider-pot').addEventListener('input', (e) => {
 
 function validateCircuit() {
   if (etat.fils.length >= 4) {
+    // Vérifier que le circuit est logique (au moins 4 fils distincts connectant les bons éléments)
     etat.step = 3;
-    etat.switchFerme = true;  // Fermer automatiquement l'interrupteur
-    etat.animationActive = true;
     initElectrons();
     document.getElementById('status').textContent = '🔘 Clique sur l\'interrupteur !';
   } else {
