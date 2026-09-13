@@ -531,6 +531,21 @@
           <input type="range" id="sliderR3" min="1" max="100" step="1" value="10">
           <span class="value-display" id="valR3">10 Ω</span>
         </div>
+                <div class="param-row" id="rowR4" style="display:none;">
+          <label>R₄ (Ω)</label>
+          <input type="range" id="sliderR4" min="1" max="100" step="1" value="10">
+          <span class="value-display" id="valR4">10 Ω</span>
+        </div>
+        <div class="param-row" id="rowR5" style="display:none;">
+          <label>R₅ (Ω)</label>
+          <input type="range" id="sliderR5" min="1" max="100" step="1" value="10">
+          <span class="value-display" id="valR5">10 Ω</span>
+        </div>
+        <div class="param-row" id="rowR6" style="display:none;">
+          <label>R₆ (Ω)</label>
+          <input type="range" id="sliderR6" min="1" max="100" step="1" value="10">
+          <span class="value-display" id="valR6">10 Ω</span>
+        </div>
       </div>
 
       <div class="panel-title">📚 Lois appliquées</div>
@@ -1396,21 +1411,27 @@ document.getElementById('btnReset').addEventListener('click', () => {
   etat.resistances = [10, 10, 10, 10, 10, 10];
   document.getElementById('sliderE').value = 12;
   document.getElementById('valE').textContent = '12 V';
-  for (let i = 1; i <= 3; i++) {
-    document.getElementById('sliderR' + i).value = 10;
-    document.getElementById('valR' + i).textContent = '10 Ω';
+  // Réinitialise TOUS les sliders R1 à R6
+  for (let i = 1; i <= 6; i++) {
+    const slider = document.getElementById('sliderR' + i);
+    const valEl = document.getElementById('valR' + i);
+    if (slider) slider.value = 10;
+    if (valEl) valEl.textContent = '10 Ω';
   }
   drawCircuit();
   updateUI();
 });
 
 function updateRVisibilities() {
-  // Afficher/masquer les sliders R2, R3 (pour l'instant on n'en montre que 3)
-  for (let i = 2; i <= 6; i++) {
+  // Affiche les sliders R1 à Rn selon le nombre de dipôles choisi
+  for (let i = 1; i <= 6; i++) {
     const row = document.getElementById('rowR' + i);
     if (!row) continue;
-    if (i <= 3) row.style.display = 'flex';
-    else row.style.display = 'none'; // on limite à 3 sliders visibles pour l'instant
+    if (i <= etat.nb) {
+      row.style.display = 'flex';
+    } else {
+      row.style.display = 'none';
+    }
   }
 }
 
