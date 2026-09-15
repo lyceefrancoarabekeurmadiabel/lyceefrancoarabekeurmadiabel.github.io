@@ -130,6 +130,40 @@
     margin-top: auto;
     border-left: 3px solid #ffc107;
   }
+    /* 🆕 Sélecteur de type */
+  .type-selector {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  .type-label {
+    color: #4fc3f7;
+    font-weight: 700;
+    font-size: 0.82em;
+  }
+  .type-btn {
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    color: #ccc;
+    font-family: inherit;
+    font-size: 0.82em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .type-btn:hover { background: rgba(79,195,247,0.15); }
+  .type-btn.active {
+    background: rgba(79,195,247,0.25);
+    border-color: #4fc3f7;
+    color: #4fc3f7;
+  }
   .canvas-zone {
     background: #000;
     border-radius: 8px;
@@ -429,9 +463,28 @@
 <div class="app">
 
   <div class="topbar">
+  <div class="topbar-title">⚡ Atelier de circuits — Construis ton montage</div>
+  <a href="labo-pc.html" class="btn-mini">← Labo PC</a>
+</div>
+  <div class="topbar">
     <div class="topbar-title">⚡ Atelier de circuits — Construis ton montage</div>
     <a href="labo-pc.html" class="btn-mini">← Labo PC</a>
   </div>
+
+  <!-- 🆕 Sélecteur de type -->
+  <div class="type-selector">
+    <span class="type-label">Type de circuit :</span>
+    <button class="type-btn active" data-type="serie">🔗 Série</button>
+    <button class="type-btn" data-type="derivation">🌿 Dérivation</button>
+    <button class="type-btn" data-type="mixte">🔀 Mixte</button>
+  </div>
+
+<div class="type-selector">
+  <span class="type-label">Type de circuit :</span>
+  <button class="type-btn active" data-type="serie">🔗 Série</button>
+  <button class="type-btn" data-type="derivation">🌿 Dérivation</button>
+  <button class="type-btn" data-type="mixte">🔀 Mixte</button>
+</div>
 
   <div class="main-zone">
 
@@ -551,6 +604,7 @@
 // ============================================================
 let atelier = {
   composants: [],
+    typeChoisi: 'serie',  // 🆕 Type choisi par l'élève
   fils: [],
   borneSelectionnee: null,
   modeCablage: false,
@@ -1101,7 +1155,7 @@ document.getElementById('btnClearAll').addEventListener('click', () => {
 //  ANALYSE AUTOMATIQUE
 // ============================================================
 function analyserCircuit() {
-  atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null };
+  atelier.resultats = { type: atelier.typeChoisi, Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null };
 
   // Vérifier qu'il y a suffisamment de fils
   if (atelier.fils.length < 3) {
@@ -1111,7 +1165,7 @@ function analyserCircuit() {
 
   const piles = atelier.composants.filter(c => c.type === 'pile');
   if (piles.length === 0 || piles.length > 1) {
-    atelier.resultats.type = piles.length > 1 ? 'erreur' : 'aucun';
+    atelier.resultats.type = piles.length > 1 ? 'erreur' : atelier.typeChoisi;
     updateMesures();
     return;
   }
@@ -1121,34 +1175,32 @@ function analyserCircuit() {
 
   const graphe = construireGraphe();
   const chemin = trouverCheminAvecResistance(graphe, pile.id + '-R', pile.id + '-L');
-  
+
   if (!chemin) {
     atelier.resultats.type = 'ouvert';
     updateMesures();
     return;
   }
 
-  // Liste des composants traversés
-  const composantsDansChemin = chemin
-    .map(id => getBorneById(id)?.composantId)
-    .filter((id, idx, arr) => id && arr.indexOf(id) === idx);
-
-  const resistances = atelier.composants.filter(c => c.type === 'resistance');
-  const interrupteurs = atelier.composants.filter(c => c.type === 'interrupteur');
-
   // Si un interrupteur existe et est ouvert → circuit ouvert
-  const interExiste = interrupteurs.length > 0;
-  if (interExiste && !atelier.interrupteurFerme) {
+  const interrupteurs = atelier.composants.filter(c => c.type === 'interrupteur');
+  if (interrupteurs.length > 0 && !atelier.interrupteurFerme) {
     atelier.resultats.type = 'ouvert';
     updateMesures();
     return;
   }
 
-  // Détecter le type (série vs dérivation)
-  const type = detecterType(chemin, resistances);
+  const resistances = atelier.composants.filter(c => c.type === 'resistance');
 
-  // Calculs
-  let Req = 0, I_total = 0, branches = [];
+  if (resistances.length === 0) {
+    atelier.resultats.type = 'court-circuit';
+    updateMesures();
+    return;
+  }
+
+  // Calculer selon le type CHOISI
+  const type = atelier.typeChoisi;
+  let Req = 0, I_total = 0, branches = [], etapes = [];
 
   if (type === 'serie') {
     Req = resistances.reduce((sum, r) => sum + r.valeur, 0);
@@ -1159,16 +1211,51 @@ function analyserCircuit() {
     Req = G > 0 ? 1 / G : 0;
     I_total = Req > 0 ? E / Req : 0;
     branches = resistances.map(r => ({ id: r.id, valeur: r.valeur, I: E / r.valeur, U: E }));
+  } else if (type === 'mixte') {
+    // Méthode par étapes : 1ère résistance en série + le reste en parallèle
+    const R1 = resistances[0];
+    const R_paralleles = resistances.slice(1);
+    
+    let R_par_eq = 0;
+    if (R_paralleles.length > 0) {
+      const G = R_paralleles.reduce((sum, r) => sum + (1 / r.valeur), 0);
+      R_par_eq = G > 0 ? 1 / G : 0;
+    }
+    
+    Req = R1.valeur + R_par_eq;
+    I_total = Req > 0 ? E / Req : 0;
+    
+    // Étape 1 : Résistance équivalente du bloc parallèle
+    etapes.push({
+      titre: 'ÉTAPE 1 — Bloc parallèle',
+      formule: '1/R∥ = ' + R_paralleles.map(r => '1/' + r.valeur).join(' + '),
+      calcul: 'R∥ = ' + R_par_eq.toFixed(2) + ' Ω'
+    });
+    
+    // Étape 2 : Réduction en série
+    etapes.push({
+      titre: 'ÉTAPE 2 — Réduction en série',
+      formule: 'Req = R₁ + R∥',
+      calcul: 'Req = ' + R1.valeur + ' + ' + R_par_eq.toFixed(2) + ' = ' + Req.toFixed(2) + ' Ω'
+    });
+    
+    // Étape 3 : Courant total
+    etapes.push({
+      titre: 'ÉTAPE 3 — Courant total',
+      formule: 'I = E / Req',
+      calcul: 'I = ' + E + ' / ' + Req.toFixed(2) + ' = ' + I_total.toFixed(3) + ' A'
+    });
+    
+    // Branches
+    const U_R1 = R1.valeur * I_total;
+    const U_par = E - U_R1;
+    branches = R_paralleles.map(r => ({
+      id: r.id, valeur: r.valeur,
+      I: U_par / r.valeur, U: U_par
+    }));
   }
 
-  // Court-circuit : aucune résistance dans le chemin
-  if (resistances.length === 0) {
-    atelier.resultats.type = 'court-circuit';
-    updateMesures();
-    return;
-  }
-
-  atelier.resultats = { type, Req, I_total, U_pile: E, branches, chemin };
+  atelier.resultats = { type, Req, I_total, U_pile: E, branches, chemin, etapes };
   updateMesures();
 }
 
@@ -1255,13 +1342,14 @@ return 'serie';
 function updateMesures() {
   const r = atelier.resultats;
   const typeLabel = {
-    'aucun': '—',
-    'serie': '🔗 Série',
-    'derivation': '🌿 Dérivation',
-    'ouvert': '⚠️ Circuit ouvert',
-    'court-circuit': '⚡ COURT-CIRCUIT',
-    'erreur': '❌ Erreur'
-  };
+  'serie': '🔗 Série',
+  'derivation': '🌿 Dérivation',
+  'mixte': '🔀 Mixte',
+  'ouvert': '⚠️ Circuit ouvert',
+  'court-circuit': '⚡ COURT-CIRCUIT',
+  'erreur': '❌ Erreur',
+  'aucun': '—'
+};
 
   document.getElementById('circuitTypeValue').textContent = typeLabel[r.type] || '—';
 
@@ -1322,17 +1410,18 @@ function updateBoutonAnimer() {
 function genererLoisPanel() {
   const panel = document.getElementById('loisPanel');
   const r = atelier.resultats;
+  const typeChoisi = atelier.typeChoisi;
   let html = '';
 
-  if (r.type === 'aucun') {
-    html = `<div class="loi-warning">⚠️ Ajoute une pile et des résistances, puis relie-les.</div>`;
+  if (r.type === 'aucun' || !r.chemin) {
+    html = `<div class="loi-warning">⚠️ Ajoute une pile, des résistances, puis relie-les.</div>`;
   } else if (r.type === 'ouvert') {
     html = `<div class="loi-warning">⚠️ Circuit ouvert : aucun courant ne circule. Ferme l'interrupteur.</div>`;
   } else if (r.type === 'court-circuit') {
     html = `<div class="loi-warning">⚡ COURT-CIRCUIT ! Aucune résistance dans le circuit.</div>`;
   } else if (r.type === 'erreur') {
     html = `<div class="loi-warning">❌ Plusieurs piles détectées.</div>`;
-  } else if (r.type === 'serie') {
+  } else if (typeChoisi === 'serie') {
     html = `
       <div class="loi-title">🔗 Circuit en SÉRIE</div>
       <div class="loi-formule">Req = R₁ + R₂ + ...</div>
@@ -1340,14 +1429,27 @@ function genererLoisPanel() {
       <div class="loi-formule" style="margin-top:8px;">I = E / Req</div>
       <div class="loi-calcul">I = ${r.U_pile} / ${r.Req.toFixed(2)} = <span class="loi-result">${r.I_total.toFixed(3)} A</span></div>
     `;
-  } else if (r.type === 'derivation') {
+  } else if (typeChoisi === 'derivation') {
+    const resistances = atelier.composants.filter(c => c.type === 'resistance');
     html = `
       <div class="loi-title">🌿 Circuit en DÉRIVATION</div>
       <div class="loi-formule">1/Req = 1/R₁ + 1/R₂ + ...</div>
+      <div class="loi-calcul">1/Req = ${resistances.map(r => '1/' + r.valeur).join(' + ')}</div>
       <div class="loi-calcul">Req = <span class="loi-result">${r.Req.toFixed(2)} Ω</span></div>
       <div class="loi-formule" style="margin-top:8px;">I = E / Req</div>
       <div class="loi-calcul">I total = <span class="loi-result">${r.I_total.toFixed(3)} A</span></div>
     `;
+  } else if (typeChoisi === 'mixte') {
+    html = `<div class="loi-title">🔀 Circuit MIXTE — par étapes</div>`;
+    (r.etapes || []).forEach(etape => {
+      html += `
+        <div style="margin-top:8px;">
+          <div class="loi-title" style="font-size:0.85em;">${etape.titre}</div>
+          <div class="loi-formule">${etape.formule}</div>
+          <div class="loi-calcul">${etape.calcul}</div>
+        </div>
+      `;
+    });
   }
   panel.innerHTML = html;
 }
