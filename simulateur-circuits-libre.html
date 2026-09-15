@@ -476,6 +476,24 @@ canvas { display:block; max-width:100%; height:auto; }
   .action-bar button { flex:1 1 45%; }
 }
 
+
+.tool-subtitle {
+  margin: 12px 0 6px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,.10);
+  font-size: .78rem;
+  font-weight: 700;
+  color: #90caf9;
+}
+.symbol-legend {
+  margin-top: 10px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.04);
+  font-size: .75rem;
+  line-height: 1.45;
+}
+
 </style>
 </head>
 <body>
@@ -486,8 +504,6 @@ canvas { display:block; max-width:100%; height:auto; }
   <div class="topbar-title">⚡ Atelier de circuits — Construis ton montage</div>
   <a href="labo-pc.html" class="btn-mini">← Labo PC</a>
 </div>
-  <a href="labo-pc.html" class="btn-mini">← Labo PC</a>
-  </div>
 
   <!-- 🆕 Sélecteur de type -->
   <div class="type-selector">
@@ -513,6 +529,23 @@ canvas { display:block; max-width:100%; height:auto; }
         <span class="icon">🔘</span>
         <span>Ajouter un interrupteur</span>
       </button>
+      <div class="tool-subtitle">⚙️ Récepteurs — symboles conventionnels</div>
+      <button class="tool-btn" id="btnAddLampe">
+        <span class="icon">💡</span>
+        <span>Lampe</span>
+      </button>
+      <button class="tool-btn" id="btnAddMoteur">
+        <span class="icon">⚙️</span>
+        <span>Moteur</span>
+      </button>
+      <button class="tool-btn" id="btnAddBuzzer">
+        <span class="icon">🔔</span>
+        <span>Sonnerie / buzzer</span>
+      </button>
+      <button class="tool-btn" id="btnAddDiode">
+        <span class="icon">▷|</span>
+        <span>Diode</span>
+      </button>
       <div class="panel-title" style="margin-top: 10px;">🎛 Actions</div>
       <button class="tool-btn" id="btnConnect">
         <span class="icon">🔗</span>
@@ -522,6 +555,11 @@ canvas { display:block; max-width:100%; height:auto; }
         <span class="icon">🗑</span>
         <span>Tout effacer</span>
       </button>
+      <div class="symbol-legend">
+        <strong>Symboles :</strong> lampe = cercle + croix · moteur = cercle + M ·
+        sonnerie = cercle + haut-parleur · diode = triangle + barre.
+        Les récepteurs sont modélisés avec une résistance équivalente pour les calculs.
+      </div>
       <div class="tool-hint">
         💡 <strong>Comment faire :</strong><br>
         1. Clique sur "Ajouter" pour poser un composant<br>
@@ -636,8 +674,14 @@ const H = canvas.height;
 const TAILLE = {
   pile: { w: 80, h: 40 },
   resistance: { w: 80, h: 32 },
-  interrupteur: { w: 80, h: 40 }
+  interrupteur: { w: 80, h: 40 },
+  lampe: { w: 70, h: 50 },
+  moteur: { w: 70, h: 50 },
+  buzzer: { w: 70, h: 50 },
+  diode: { w: 70, h: 44 }
 };
+
+const COMPOSANTS_RESISTIFS = new Set(['resistance', 'lampe', 'moteur', 'buzzer']);
 
 let composantSurvoleClavier = null;
 
@@ -647,6 +691,10 @@ let composantSurvoleClavier = null;
 document.getElementById('btnAddPile').addEventListener('click', () => ajouterComposant('pile'));
 document.getElementById('btnAddResistance').addEventListener('click', () => ajouterComposant('resistance'));
 document.getElementById('btnAddInterrupteur').addEventListener('click', () => ajouterComposant('interrupteur'));
+document.getElementById('btnAddLampe').addEventListener('click', () => ajouterComposant('lampe'));
+document.getElementById('btnAddMoteur').addEventListener('click', () => ajouterComposant('moteur'));
+document.getElementById('btnAddBuzzer').addEventListener('click', () => ajouterComposant('buzzer'));
+document.getElementById('btnAddDiode').addEventListener('click', () => ajouterComposant('diode'));
 
 function ajouterComposant(type) {
   const index = atelier.composants.length;
@@ -660,8 +708,12 @@ function ajouterComposant(type) {
     type: type,
     x: x, y: y,
     rotation: 0,
-    valeur: type === 'resistance' ? 10 : null,
-    tension: type === 'pile' ? 12 : null
+    valeur: type === 'resistance' ? 10 :
+      type === 'lampe' ? 20 :
+      type === 'moteur' ? 30 :
+      type === 'buzzer' ? 40 : null,
+    tension: type === 'pile' ? 12 : null,
+    conducteur: type !== 'diode'
   };
 
   atelier.composants.push(composant);
@@ -759,6 +811,10 @@ function drawComposant(c) {
   if (c.type === 'pile') drawPile(c.x, c.y, t.w, t.h, c.tension);
   else if (c.type === 'resistance') drawResistance(c.x, c.y, t.w, t.h, c.valeur);
   else if (c.type === 'interrupteur') drawInterrupteur(c.x, c.y, t.w, t.h);
+  else if (c.type === 'lampe') drawLampe(c.x, c.y, t.w, t.h, c.valeur);
+  else if (c.type === 'moteur') drawMoteur(c.x, c.y, t.w, t.h, c.valeur);
+  else if (c.type === 'buzzer') drawBuzzer(c.x, c.y, t.w, t.h, c.valeur);
+  else if (c.type === 'diode') drawDiode(c.x, c.y, t.w, t.h);
 
   ctx.restore();
   ctx.shadowBlur = 0;
@@ -835,6 +891,103 @@ function drawResistance(cx, cy, w, h, valeur) {
   ctx.font = 'bold 11px monospace';
   ctx.fillText('R', cx, cy - h / 2 - 8);
   ctx.textBaseline = 'alphabetic';
+}
+
+
+function drawWireLine(cx, cy, w) {
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(cx - w / 2, cy);
+  ctx.lineTo(cx + w / 2, cy);
+  ctx.stroke();
+}
+
+function drawLampe(cx, cy, w, h, valeur) {
+  drawWireLine(cx, cy, w);
+  ctx.fillStyle = '#0a0a1a';
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+  ctx.fill(); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx - 10, cy - 10); ctx.lineTo(cx + 10, cy + 10);
+  ctx.moveTo(cx + 10, cy - 10); ctx.lineTo(cx - 10, cy + 10);
+  ctx.stroke();
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 11px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('L', cx, cy - 27);
+  ctx.font = '10px monospace';
+  ctx.fillText(valeur + ' Ω', cx, cy + 34);
+}
+
+function drawMoteur(cx, cy, w, h, valeur) {
+  drawWireLine(cx, cy, w);
+  ctx.fillStyle = '#0a0a1a';
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 18px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('M', cx, cy);
+  ctx.textBaseline = 'alphabetic';
+  ctx.font = 'bold 10px monospace';
+  ctx.fillText('MOTEUR', cx, cy - 27);
+  ctx.font = '10px monospace';
+  ctx.fillText(valeur + ' Ω', cx, cy + 34);
+}
+
+function drawBuzzer(cx, cy, w, h, valeur) {
+  drawWireLine(cx, cy, w);
+  ctx.strokeStyle = '#fff';
+  ctx.fillStyle = '#0a0a1a';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+  ctx.fill(); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx - 8, cy - 5);
+  ctx.lineTo(cx + 5, cy - 5);
+  ctx.lineTo(cx + 10, cy - 12);
+  ctx.lineTo(cx + 10, cy + 12);
+  ctx.lineTo(cx + 5, cy + 5);
+  ctx.lineTo(cx - 8, cy + 5);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx + 7, cy, 12, -0.7, 0.7);
+  ctx.stroke();
+  ctx.font = 'bold 10px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('SONNERIE', cx, cy - 27);
+  ctx.font = '10px monospace';
+  ctx.fillText(valeur + ' Ω', cx, cy + 34);
+}
+
+function drawDiode(cx, cy, w, h) {
+  drawWireLine(cx, cy, w);
+  ctx.strokeStyle = '#fff';
+  ctx.fillStyle = '#0a0a1a';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(cx - 13, cy - 13);
+  ctx.lineTo(cx - 13, cy + 13);
+  ctx.lineTo(cx + 12, cy);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx + 12, cy - 15);
+  ctx.lineTo(cx + 12, cy + 15);
+  ctx.stroke();
+  ctx.font = 'bold 10px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('DIODE', cx, cy - 27);
 }
 
 function drawInterrupteur(cx, cy, w, h) {
@@ -1201,7 +1354,7 @@ function analyserCircuit() {
     return;
   }
 
-  const resistances = atelier.composants.filter(c => c.type === 'resistance');
+  const resistances = atelier.composants.filter(c => COMPOSANTS_RESISTIFS.has(c.type));
 
   if (resistances.length === 0) {
     atelier.resultats.type = 'court-circuit';
@@ -1221,7 +1374,7 @@ function analyserCircuit() {
     const G = resistances.reduce((sum, r) => sum + (1 / valeurPositive(r.valeur, 1)), 0);
     Req = G > 0 ? 1 / G : 0;
     I_total = Req > 0 ? E / Req : 0;
-    branches = resistances.map(r => ({ id: r.id, valeur: r.valeur, I: E / r.valeur, U: E }));
+    branches = resistances.map(r => ({ id: r.id, valeur: r.valeur, I: E / valeurPositive(r.valeur, 1), U: E }));
   } else if (type === 'mixte') {
     // Méthode par étapes : 1ère résistance en série + le reste en parallèle
     const R1 = resistances[0];
@@ -1262,7 +1415,7 @@ function analyserCircuit() {
     const U_par = E - U_R1;
     branches = R_paralleles.map(r => ({
       id: r.id, valeur: r.valeur,
-      I: U_par / r.valeur, U: U_par
+      I: U_par / valeurPositive(r.valeur, 1), U: U_par
     }));
   }
 
@@ -1282,7 +1435,7 @@ function construireGraphe() {
     const leftId = c.id + '-L', rightId = c.id + '-R';
     if (!graphe[leftId]) graphe[leftId] = [];
     if (!graphe[rightId]) graphe[rightId] = [];
-    if (c.type === 'pile' || c.type === 'resistance') {
+    if (c.type === 'pile' || COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode') {
       graphe[leftId].push(rightId);
       graphe[rightId].push(leftId);
     } else if (c.type === 'interrupteur' && atelier.interrupteurFerme) {
@@ -1297,7 +1450,7 @@ function construireGraphe() {
 function trouverCheminAvecResistance(graphe, departId, arriveeId) {
   if (!graphe[departId]) return null;
 
-  const resistancesIds = atelier.composants.filter(c => c.type === 'resistance').map(c => c.id);
+  const resistancesIds = atelier.composants.filter(c => COMPOSANTS_RESISTIFS.has(c.type)).map(c => c.id);
   const chemins = [];
 
   function dfs(id, chemin, visited, profondeur) {
@@ -1354,6 +1507,7 @@ function updateMesures() {
   const r = atelier.resultats;
   const typeLabel = {
   'serie': '🔗 Série',
+
   'derivation': '🌿 Dérivation',
   'mixte': '🔀 Mixte',
   'ouvert': '⚠️ Circuit ouvert',
@@ -1441,7 +1595,7 @@ function genererLoisPanel() {
       <div class="loi-calcul">I = ${r.U_pile} / ${r.Req.toFixed(2)} = <span class="loi-result">${r.I_total.toFixed(3)} A</span></div>
     `;
   } else if (typeChoisi === 'derivation') {
-    const resistances = atelier.composants.filter(c => c.type === 'resistance');
+    const resistances = atelier.composants.filter(c => COMPOSANTS_RESISTIFS.has(c.type));
     html = `
       <div class="loi-title">🌿 Circuit en DÉRIVATION</div>
       <div class="loi-formule">1/Req = 1/R₁ + 1/R₂ + ...</div>
