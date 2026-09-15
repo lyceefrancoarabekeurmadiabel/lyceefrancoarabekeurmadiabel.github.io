@@ -1204,6 +1204,441 @@ function updateZoneInfo() {
     document.getElementById('zoneInfo').textContent = `${n} composant(s) · ${f} fil(s)`;
   }
 }
+
+// ============================================================
+//  ANALYSE AUTOMATIQUE DU CIRCUIT
+// ============================================================
+function analyserCircuit() {
+  atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null };
+
+  const piles = atelier.composants.filter(c => c.type === 'pile');
+  if (piles.length === 0) {
+    atelier.resultats.type = 'aucun';
+    updateMesures();
+    return;
+  }
+  if (piles.length > 1) {
+    atelier.resultats.type = 'erreur';
+    updateMesures();
+    return;
+  }
+
+  const pile = piles[0];
+  const E = pile.tension;
+
+  const graphe = construireGraphe();
+  if (!graphe) {
+    atelier.resultats.type = 'ouvert';
+    updateMesures();
+    return;
+  }
+
+  const chemin = trouverChemin(graphe, pile.id + '-R', pile.id + '-L');
+  if (!chemin) {
+    atelier.resultats.type = 'ouvert';
+    updateMesures();
+    return;
+  }
+
+  const composantsDansChemin = chemin
+    .map(borneId => getBorneById(borneId)?.composantId)
+    .filter((id, idx, arr) => id && arr.indexOf(id) === idx);
+
+  const resistances = atelier.composants.filter(c => c.type === 'resistance');
+  const interrupteurs = atelier.composants.filter(c => c.type === 'interrupteur');
+
+  const interDansChemin = interrupteurs.some(i => composantsDansChemin.includes(i.id));
+  if (interDansChemin && !atelier.interrupteurFerme) {
+    atelier.resultats.type = 'ouvert';
+    updateMesures();
+    return;
+  }
+
+  const type = detecterType(chemin, resistances);
+
+  let Req = 0;
+  let I_total = 0;
+  let branches = [];
+
+  if (type === 'serie') {
+    const R = resistances;
+    Req = R.reduce((sum, r) => sum + r.valeur, 0);
+    I_total = Req > 0 ? E / Req : 0;
+    branches = R.map(r => ({
+      id: r.id, valeur: r.valeur,
+      I: I_total, U: r.valeur * I_total
+    }));
+  } else if (type === 'derivation') {
+    const G = resistances.reduce((sum, r) => sum + (1 / r.valeur), 0);
+    Req = G > 0 ? 1 / G : 0;
+    I_total = Req > 0 ? E / Req : 0;
+    branches = resistances.map(r => ({
+      id: r.id, valeur: r.valeur,
+      I: E / r.valeur, U: E
+    }));
+  } else {
+    Req = resistances.reduce((sum, r) => sum + r.valeur, 0);
+    I_total = Req > 0 ? E / Req : 0;
+    branches = resistances.map(r => ({
+      id: r.id, valeur: r.valeur,
+      I: I_total, U: r.valeur * I_total
+    }));
+  }
+
+  if (resistances.length === 0 && (!interDansChemin || atelier.interrupteurFerme)) {
+    atelier.resultats.type = 'court-circuit';
+    updateMesures();
+    return;
+  }
+
+  atelier.resultats = {
+    type: type, Req: Req, I_total: I_total,
+    U_pile: E, branches: branches, chemin: chemin
+  };
+
+  updateMesures();
+}
+
+function construireGraphe() {
+  const graphe = {};
+  atelier.fils.forEach(f => {
+    if (!graphe[f.de]) graphe[f.de] = [];
+    if (!graphe[f.vers]) graphe[f.vers] = [];
+    graphe[f.de].push(f.vers);
+    graphe[f.vers].push(f.de);
+  });
+  atelier.composants.forEach(c => {
+    const leftId = c.id + '-L';
+    const rightId = c.id + '-R';
+    if (!graphe[leftId]) graphe[leftId] = [];
+    if (!graphe[rightId]) graphe[rightId] = [];
+    if (c.type === 'pile' || c.type === 'resistance') {
+      graphe[leftId].push(rightId);
+      graphe[rightId].push(leftId);
+    } else if (c.type === 'interrupteur' && atelier.interrupteurFerme) {
+      graphe[leftId].push(rightId);
+      graphe[rightId].push(leftId);
+    }
+  });
+  return graphe;
+}
+
+function trouverChemin(graphe, departId, arriveeId) {
+  if (!graphe[departId]) return null;
+  const visited = new Set([departId]);
+  const file = [{ id: departId, chemin: [departId] }];
+  while (file.length > 0) {
+    const { id, chemin } = file.shift();
+    if (id === arriveeId) return chemin;
+    const voisins = graphe[id] || [];
+    for (const v of voisins) {
+      if (!visited.has(v)) {
+        visited.add(v);
+        file.push({ id: v, chemin: [...chemin, v] });
+      }
+    }
+  }
+  return null;
+}
+
+function detecterType(chemin, resistances) {
+  if (resistances.length === 0) return 'aucun';
+  const degreBornes = {};
+  atelier.fils.forEach(f => {
+    degreBornes[f.de] = (degreBornes[f.de] || 0) + 1;
+    degreBornes[f.vers] = (degreBornes[f.vers] || 0) + 1;
+  });
+  const noeuds = Object.entries(degreBornes).filter(([id, deg]) => deg >= 2);
+  const noeudsDansChemin = noeuds.filter(([id]) => chemin.includes(id));
+  if (noeudsDansChemin.length >= 2) return 'derivation';
+  return 'serie';
+}
+
+// ============================================================
+//  MISE À JOUR DES MESURES
+// ============================================================
+function updateMesures() {
+  const r = atelier.resultats;
+  const typeLabel = {
+    'aucun': '—',
+    'serie': '🔗 Série',
+    'derivation': '🌿 Dérivation',
+    'mixte': '🔀 Mixte',
+    'ouvert': '⚠️ Circuit ouvert',
+    'court-circuit': '⚡ COURT-CIRCUIT',
+    'erreur': '❌ Erreur'
+  };
+
+  document.getElementById('circuitTypeValue').textContent = typeLabel[r.type] || '—';
+
+  const mmAmpere = document.getElementById('mmAmpere');
+  if (r.type === 'aucun' || r.type === 'ouvert') {
+    mmAmpere.classList.add('off');
+    document.getElementById('mmAmpereVal').textContent = '0.000';
+    document.getElementById('mmAmpereTarget').textContent = r.type === 'ouvert' ? 'Circuit ouvert' : 'En attente';
+  } else if (r.type === 'court-circuit') {
+    mmAmpere.classList.remove('off');
+    document.getElementById('mmAmpereVal').textContent = '∞';
+    document.getElementById('mmAmpereTarget').textContent = '⚠️ COURT-CIRCUIT';
+  } else {
+    mmAmpere.classList.remove('off');
+    document.getElementById('mmAmpereVal').textContent = r.I_total.toFixed(3);
+    document.getElementById('mmAmpereTarget').textContent = 'Courant total';
+  }
+
+  const mmVolt = document.getElementById('mmVolt');
+  if (r.type === 'aucun') {
+    mmVolt.classList.add('off');
+    document.getElementById('mmVoltVal').textContent = '0.00';
+    document.getElementById('mmVoltTarget').textContent = 'En attente';
+  } else {
+    mmVolt.classList.remove('off');
+    const pile = atelier.composants.find(c => c.type === 'pile');
+    const U = pile ? pile.tension : 0;
+    document.getElementById('mmVoltVal').textContent = U.toFixed(2);
+    document.getElementById('mmVoltTarget').textContent = 'Aux bornes de la pile';
+  }
+
+  genererLoisPanel();
+  updateBoutonAnimer();
+}
+
+function updateBoutonAnimer() {
+  const btn = document.getElementById('btnAnimer');
+  if (!btn) return;
+  const peutAnimer = atelier.interrupteurFerme &&
+                    atelier.resultats.type !== 'aucun' &&
+                    atelier.resultats.type !== 'ouvert' &&
+                    atelier.resultats.type !== 'court-circuit' &&
+                    atelier.resultats.chemin;
+
+  if (atelier.animation.active) {
+    btn.disabled = false;
+    btn.textContent = '⏸ Pause';
+  } else if (peutAnimer) {
+    btn.disabled = false;
+    btn.textContent = '▶ Animer les électrons';
+  } else {
+    btn.disabled = true;
+    btn.textContent = '▶ Animer les électrons';
+  }
+}
+
+function genererLoisPanel() {
+  const panel = document.getElementById('loisPanel');
+  const r = atelier.resultats;
+  let html = '';
+
+  if (r.type === 'aucun') {
+    html = `<div class="loi-warning">⚠️ Ajoute une pile et des résistances, puis relie-les.</div>`;
+  } else if (r.type === 'ouvert') {
+    html = `<div class="loi-warning">⚠️ Circuit ouvert : aucun courant ne circule.</div>`;
+  } else if (r.type === 'court-circuit') {
+    html = `<div class="loi-warning">⚡ COURT-CIRCUIT ! Aucune résistance dans le circuit.</div>`;
+  } else if (r.type === 'erreur') {
+    html = `<div class="loi-warning">❌ Plusieurs piles détectées.</div>`;
+  } else if (r.type === 'serie') {
+    html = `
+      <div class="loi-title">🔗 Circuit en SÉRIE</div>
+      <div class="loi-formule">Req = R₁ + R₂ + ...</div>
+      <div class="loi-calcul">Req = ${r.Req.toFixed(2)} Ω</div>
+      <div class="loi-formule" style="margin-top:8px;">I = E / Req</div>
+      <div class="loi-calcul">I = ${r.U_pile} / ${r.Req.toFixed(2)} = <span class="loi-result">${r.I_total.toFixed(3)} A</span></div>
+    `;
+  } else if (r.type === 'derivation') {
+    html = `
+      <div class="loi-title">🌿 Circuit en DÉRIVATION</div>
+      <div class="loi-formule">1/Req = 1/R₁ + 1/R₂ + ...</div>
+      <div class="loi-calcul">Req = <span class="loi-result">${r.Req.toFixed(2)} Ω</span></div>
+      <div class="loi-formule" style="margin-top:8px;">I = E / Req</div>
+      <div class="loi-calcul">I total = <span class="loi-result">${r.I_total.toFixed(3)} A</span></div>
+    `;
+  }
+
+  panel.innerHTML = html;
+}
+
+// ============================================================
+//  ÉLECTRONS
+// ============================================================
+function initElectrons() {
+  atelier.animation.electrons = [];
+  for (let i = 0; i < 20; i++) {
+    atelier.animation.electrons.push({ t: i / 20 });
+  }
+}
+
+function drawElectrons() {
+  if (!atelier.resultats.chemin) return;
+  if (!atelier.interrupteurFerme) return;
+
+  const chemin = atelier.resultats.chemin;
+  if (chemin.length < 3) return;
+
+  const points = chemin.map(id => {
+    const b = getBorneById(id);
+    return b ? { x: b.x, y: b.y } : null;
+  }).filter(p => p);
+
+  if (points.length < 3) return;
+
+  let totalLen = 0;
+  const segments = [];
+  for (let i = 0; i < points.length - 1; i++) {
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const len = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+    segments.push({ p1, p2, len, start: totalLen });
+    totalLen += len;
+  }
+
+  if (totalLen === 0) return;
+
+  const speed = 0.0035;
+  const couleur = '#00e5ff';
+
+  atelier.animation.electrons.forEach(e => {
+    e.t = (e.t + speed) % 1;
+    const d = e.t * totalLen;
+
+    let seg = segments[0];
+    for (const s of segments) {
+      if (d >= s.start && d < s.start + s.len) { seg = s; break; }
+    }
+
+    const tSeg = (d - seg.start) / seg.len;
+    const px = seg.p1.x + (seg.p2.x - seg.p1.x) * tSeg;
+    const py = seg.p1.y + (seg.p2.y - seg.p1.y) * tSeg;
+    const angle = Math.atan2(seg.p2.y - seg.p1.y, seg.p2.x - seg.p1.x);
+
+    const grad = ctx.createRadialGradient(px, py, 1, px, py, 14);
+    grad.addColorStop(0, couleur);
+    grad.addColorStop(1, 'rgba(0, 229, 255, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(px, py, 14, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = couleur;
+    ctx.beginPath();
+    ctx.arc(px, py, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.save();
+    ctx.translate(px + Math.cos(angle) * 12, py + Math.sin(angle) * 12);
+    ctx.rotate(angle);
+    ctx.fillStyle = couleur;
+    ctx.beginPath();
+    ctx.moveTo(6, 0);
+    ctx.lineTo(-4, -4);
+    ctx.lineTo(-4, 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+// ============================================================
+//  BOUCLE D'ANIMATION
+// ============================================================
+function animate(timestamp) {
+  if (!timestamp) timestamp = performance.now();
+  if (timestamp - atelier.animation.lastTime > 33) {
+    drawCircuit();
+    atelier.animation.lastTime = timestamp;
+  }
+  if (atelier.animation.active) {
+    atelier.animation.rafId = requestAnimationFrame(animate);
+  }
+}
+
+// ============================================================
+//  BOUTONS D'ACTION
+// ============================================================
+document.getElementById('btnAnimer').addEventListener('click', () => {
+  if (atelier.animation.active) {
+    atelier.animation.active = false;
+    document.getElementById('btnAnimer').textContent = '▶ Animer les électrons';
+    updateStatus('Animation en pause');
+  } else {
+    if (!atelier.interrupteurFerme) {
+      alert('⚠️ Ferme l\'interrupteur en cliquant dessus !');
+      return;
+    }
+    if (atelier.resultats.type === 'aucun' || atelier.resultats.type === 'ouvert') {
+      alert('⚠️ Le circuit est ouvert ou incomplet !');
+      return;
+    }
+    atelier.animation.active = true;
+    initElectrons();
+    document.getElementById('btnAnimer').textContent = '⏸ Pause';
+    updateStatus('⚡ Les électrons circulent');
+    animate();
+  }
+});
+
+document.getElementById('btnReset').addEventListener('click', () => {
+  if (!confirm('Tout réinitialiser ?')) return;
+  atelier.composants = [];
+  atelier.fils = [];
+  atelier.borneSelectionnee = null;
+  atelier.interrupteurFerme = false;
+  atelier.animation.active = false;
+  atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null };
+  drawCircuit();
+  updateZoneInfo();
+  updateMesures();
+  updateStatus('Atelier réinitialisé');
+});
+
+document.getElementById('btnFormules').addEventListener('click', () => {
+  document.getElementById('modalFormules').classList.add('show');
+});
+
+document.getElementById('btnFermerFormules').addEventListener('click', () => {
+  document.getElementById('modalFormules').classList.remove('show');
+});
+
+document.getElementById('modalFormules').addEventListener('click', (e) => {
+  if (e.target.id === 'modalFormules') e.target.classList.remove('show');
+});
+
+// ============================================================
+//  POLYFILL
+// ============================================================
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    this.beginPath();
+    this.moveTo(x + r, y);
+    this.arcTo(x + w, y, x + w, y + h, r);
+    this.arcTo(x + w, y + h, x, y + h, r);
+    this.arcTo(x, y + h, x, y, r);
+    this.arcTo(x, y, x + w, y, r);
+    this.closePath();
+    return this;
+  };
+}
+
+// ============================================================
+//  INITIALISATION
+// ============================================================
+window.addEventListener('load', () => {
+  drawCircuit();
+  updateZoneInfo();
+  updateMesures();
+  updateStatus('Ajoute des composants depuis la boîte à outils');
+  console.log('✅ Atelier de circuits libres chargé !');
+});
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log('✅ Service worker OK'))
+      .catch(err => console.warn('SW non enregistré :', err));
+  });
+}
 </script>
 
 </body>
