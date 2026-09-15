@@ -1333,7 +1333,14 @@ function analyserCircuit() {
     return;
   }
 
-  const chemin = trouverChemin(graphe, pile.id + '-R', pile.id + '-L');
+   // 🆕 Chercher un chemin qui traverse une résistance
+  const chemin = trouverCheminAvecResistance(graphe, pile.id + '-R', pile.id + '-L');
+  
+  if (!chemin) {
+    atelier.resultats.type = 'aucun';
+    updateMesures();
+    return;
+  }
   // 🆕 Vérifier que le chemin traverse au moins une résistance
 const compsDansChemin = chemin
   .map(id => getBorneById(id)?.composantId)
@@ -1456,6 +1463,50 @@ function trouverChemin(graphe, departId, arriveeId) {
     }
   }
   return null;
+}
+
+// 🆕 Chercher un chemin qui traverse au moins une résistance
+function trouverCheminAvecResistance(graphe, departId, arriveeId) {
+  if (!graphe[departId]) return null;
+  
+  // Liste des IDs de composants de type résistance
+  const resistancesIds = atelier.composants
+    .filter(c => c.type === 'resistance')
+    .map(c => c.id);
+  
+  // DFS pour trouver tous les chemins
+  const chemins = [];
+  
+  function dfs(id, chemin, visited, profondeur) {
+    if (profondeur > 20) return;  // sécurité anti-boucle infinie
+    if (id === arriveeId && chemin.length > 2) {
+      // Vérifier si le chemin traverse une résistance
+      const traverse = chemin.some(borneId => {
+        const b = getBorneById(borneId);
+        if (!b) return false;
+        return resistancesIds.includes(b.composantId);
+      });
+      if (traverse) chemins.push([...chemin]);
+      return;
+    }
+    const voisins = graphe[id] || [];
+    for (const v of voisins) {
+      if (!visited.has(v)) {
+        visited.add(v);
+        chemin.push(v);
+        dfs(v, chemin, visited, profondeur + 1);
+        chemin.pop();
+        visited.delete(v);
+      }
+    }
+  }
+  
+  dfs(departId, [departId], new Set([departId]), 0);
+  
+  // Retourner le chemin le plus court qui traverse une résistance
+  if (chemins.length === 0) return null;
+  chemins.sort((a, b) => a.length - b.length);
+  return chemins[0];
 }
 
 function detecterType(chemin, resistances) {
