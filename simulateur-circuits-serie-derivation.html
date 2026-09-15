@@ -148,18 +148,42 @@
     height: 16px;
     accent-color: #4fc3f7;
   }
+  /* 🆕 Tous les select de l'appareils-bar */
+.appareils-bar select {
+  color-scheme: dark;
+}
+.appareils-bar select option {
+  background: #1a1a2e !important;
+  color: #fff !important;
+}
   .select-target {
-    padding: 5px 10px;
-    background: rgba(0,0,0,0.4);
-    border: 1px solid rgba(79,195,247,0.3);
-    border-radius: 6px;
-    color: #4fc3f7;
-    font-family: inherit;
-    font-weight: 600;
-    font-size: 0.95em;
-    margin-left: 6px;
-    cursor: pointer;
-  }
+  padding: 5px 10px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(79,195,247,0.3);
+  border-radius: 6px;
+  color: #4fc3f7;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.95em;
+  margin-left: 6px;
+  cursor: pointer;
+  /* 🆕 Force un rendu sombre des menus natifs */
+  color-scheme: dark;
+}
+
+/* 🆕 Force les options en fond sombre sur tous les navigateurs */
+.select-target option {
+  background: #1a1a2e !important;
+  color: #fff !important;
+  font-family: inherit;
+  padding: 8px;
+}
+
+.select-target optgroup {
+  background: #0a0a1a !important;
+  color: #4fc3f7 !important;
+  font-weight: 700;
+}
 
   /* ===== ZONE PRINCIPALE ===== */
   .main-zone {
@@ -888,10 +912,10 @@ function drawDerivation() {
   ctx.lineWidth = 3;
   ctx.lineCap = 'round';
 
-  // === Fil principal (avec pile et interrupteur) ===
+    // === Fil principal (avec pile et interrupteur) ===
   // Fil gauche : depuis pile vers nœud A
-  const pileX = left + 50;
-  const intX = left + 110;
+  const pileX = left + 40;
+  const intX = left + 130;  // 🆕 Décalé plus à droite
 
   // Fil horizontal depuis la pile jusqu'au nœud A
   ctx.beginPath();
@@ -938,7 +962,8 @@ function drawDerivation() {
   ctx.stroke();
 
   // === Rails verticaux (nœuds A et B) ===
-  // Nœud A : rail vertical reliant toutes les branches
+    // Nœud A : rail vertical reliant toutes les branches
+  // Le rail va DU FIL PRINCIPAL (pileY) jusqu'à la dernière branche
   const railTopY = branchYs[0] - 30;
   const railBotY = branchYs[nbR - 1] + 30;
 
@@ -977,9 +1002,9 @@ function drawDerivation() {
     ctx.stroke();
   }
 
-  // Nœuds A et B
-  drawNode(nodeAX, railTopY, 'A');
-  drawNode(nodeBX, railTopY, 'B');
+    // Nœuds A et B — placés sur le fil principal (au niveau de pileY)
+  drawNode(nodeAX, pileY, 'A');
+  drawNode(nodeBX, pileY, 'B');
 
   // Fil vertical reliant le rail A au fil principal (nœud A "actif")
   ctx.beginPath();
