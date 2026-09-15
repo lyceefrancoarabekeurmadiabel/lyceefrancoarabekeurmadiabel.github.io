@@ -17,7 +17,6 @@
     padding: 8px;
     font-size: 14px;
   }
-
   .app {
     height: calc(100vh - 16px);
     display: flex;
@@ -30,7 +29,6 @@
     padding: 10px;
     overflow: hidden;
   }
-
   .topbar {
     display: flex;
     align-items: center;
@@ -58,7 +56,6 @@
     font-family: inherit;
   }
   .btn-mini:hover { background: rgba(168, 133, 63, 0.35); }
-
   .main-zone {
     flex: 1;
     min-height: 0;
@@ -66,7 +63,6 @@
     grid-template-columns: 220px 1fr 320px;
     gap: 6px;
   }
-
   .toolbox {
     background: rgba(0,0,0,0.4);
     border-radius: 8px;
@@ -88,7 +84,6 @@
     padding-bottom: 4px;
     margin-bottom: 4px;
   }
-
   .tool-btn {
     display: flex;
     align-items: center;
@@ -110,10 +105,7 @@
     border-color: #4fc3f7;
     color: #4fc3f7;
   }
-  .tool-btn .icon {
-    font-size: 1.6em;
-    flex-shrink: 0;
-  }
+  .tool-btn .icon { font-size: 1.6em; flex-shrink: 0; }
   .tool-btn.active {
     background: rgba(76, 175, 80, 0.2);
     border-color: #4caf50;
@@ -128,7 +120,6 @@
     color: #ff8a80;
     border-color: #f44336;
   }
-
   .tool-hint {
     font-size: 0.68em;
     color: #888;
@@ -139,7 +130,6 @@
     margin-top: auto;
     border-left: 3px solid #ffc107;
   }
-
   .canvas-zone {
     background: #000;
     border-radius: 8px;
@@ -185,7 +175,6 @@
     z-index: 2;
     pointer-events: none;
   }
-
   .side-zone {
     background: rgba(0,0,0,0.35);
     border-radius: 8px;
@@ -197,7 +186,6 @@
     flex-direction: column;
     gap: 10px;
   }
-
   .circuit-type {
     background: linear-gradient(135deg, #6a4c93 0%, #9b59b6 100%);
     color: #fff;
@@ -218,7 +206,6 @@
     margin-top: 4px;
     font-family: 'Source Serif 4', Georgia, serif;
   }
-
   .multimeter {
     background: #000;
     border: 2px solid #4caf50;
@@ -276,7 +263,6 @@
     margin-top: 4px;
     font-style: italic;
   }
-
   .lois-panel {
     background: rgba(79, 195, 247, 0.08);
     border-left: 4px solid #4fc3f7;
@@ -320,7 +306,6 @@
     border-radius: 4px;
     margin-top: 6px;
   }
-
   .action-bar {
     display: flex;
     gap: 8px;
@@ -357,7 +342,6 @@
     font-family: inherit;
   }
   .btn-secondary:hover { background: rgba(255,255,255,0.2); }
-
   .status-inline {
     flex: 1;
     text-align: center;
@@ -366,7 +350,6 @@
     font-style: italic;
   }
   .status-inline.active { color: #4fc3f7; }
-
   .modal-overlay {
     display: none;
     position: fixed;
@@ -431,7 +414,6 @@
     font-size: 0.9em;
     margin-top: 10px;
   }
-
   @media (max-width: 1200px) {
     .main-zone { grid-template-columns: 180px 1fr 280px; }
   }
@@ -446,71 +428,58 @@
 
 <div class="app">
 
-  <!-- ===== TOP BAR ===== -->
   <div class="topbar">
     <div class="topbar-title">⚡ Atelier de circuits — Construis ton montage</div>
     <a href="labo-pc.html" class="btn-mini">← Labo PC</a>
   </div>
 
-  <!-- ===== ZONE PRINCIPALE ===== -->
   <div class="main-zone">
 
-    <!-- ===== BOÎTE À OUTILS ===== -->
     <div class="toolbox">
       <div class="panel-title">🧰 Boîte à outils</div>
-
       <button class="tool-btn" id="btnAddPile">
         <span class="icon">🔋</span>
         <span>Ajouter une pile</span>
       </button>
-
       <button class="tool-btn" id="btnAddResistance">
         <span class="icon">📏</span>
         <span>Ajouter une résistance</span>
       </button>
-
       <button class="tool-btn" id="btnAddInterrupteur">
         <span class="icon">🔘</span>
         <span>Ajouter un interrupteur</span>
       </button>
-
       <div class="panel-title" style="margin-top: 10px;">🎛 Actions</div>
-
       <button class="tool-btn" id="btnConnect">
         <span class="icon">🔗</span>
         <span id="connectBtnLabel">Mode câblage : OFF</span>
       </button>
-
       <button class="tool-btn danger" id="btnClearAll">
         <span class="icon">🗑</span>
         <span>Tout effacer</span>
       </button>
-
       <div class="tool-hint">
         💡 <strong>Comment faire :</strong><br>
         1. Clique sur "Ajouter" pour poser un composant<br>
-        2. <strong>Mode déplacement (OFF)</strong> : glisse les composants pour les bouger<br>
+        2. <strong>Mode déplacement (OFF)</strong> : glisse les composants<br>
         3. <strong>Mode câblage (ON)</strong> : clique sur 2 bornes pour les relier<br>
-        4. <strong>Clic droit</strong> sur un composant ou un fil → supprimer
+        4. <strong>Double-clic</strong> sur l'interrupteur → ouvrir/fermer<br>
+        5. <strong>Clic droit</strong> sur un composant ou un fil → supprimer
       </div>
     </div>
 
-    <!-- ===== CANVAS ===== -->
     <div class="canvas-zone">
       <div class="zone-label">🔧 Zone de montage</div>
       <canvas id="canvasCircuit" width="1000" height="650"></canvas>
       <div class="zone-info" id="zoneInfo">Aucun composant pour l'instant</div>
     </div>
 
-    <!-- ===== PANNEAU DROIT ===== -->
     <div class="side-zone">
-
       <div class="panel-title">🔍 Circuit détecté</div>
       <div class="circuit-type" id="circuitTypeBox">
         <div class="ct-label">Type de circuit</div>
         <div class="ct-value" id="circuitTypeValue">—</div>
       </div>
-
       <div class="panel-title">📊 Appareils de mesure</div>
       <div class="multimeter off" id="mmAmpere">
         <div class="mm-title">Ⓐ AMPÈREMÈTRE</div>
@@ -524,16 +493,13 @@
         <div class="mm-unit">Volts (V)</div>
         <div class="mm-target" id="mmVoltTarget">En attente</div>
       </div>
-
       <div class="panel-title">📚 Lois appliquées</div>
       <div class="lois-panel" id="loisPanel">
         <div class="loi-warning">⚠️ Ajoute des composants pour commencer</div>
       </div>
-
     </div>
   </div>
 
-  <!-- ===== BOUTONS D'ACTION ===== -->
   <div class="action-bar">
     <button class="btn-play" id="btnAnimer" disabled>▶ Animer les électrons</button>
     <button class="btn-secondary" id="btnReset">🔄 Reset</button>
@@ -543,11 +509,9 @@
 
 </div>
 
-<!-- ===== MODALE FORMULES ===== -->
 <div class="modal-overlay" id="modalFormules">
   <div class="modal-box">
     <h3>📐 Formules à retenir</h3>
-
     <div class="formule-bloc">
       <h4>🔗 Circuit en SÉRIE</h4>
       <p>
@@ -557,7 +521,6 @@
         <strong>Loi d'Ohm :</strong> <code>U = R × I</code>
       </p>
     </div>
-
     <div class="formule-bloc">
       <h4>🌿 Circuit en DÉRIVATION</h4>
       <p>
@@ -567,7 +530,6 @@
         <strong>Tension (identique partout) :</strong> <code>U = E</code>
       </p>
     </div>
-
     <div class="formule-bloc">
       <h4>🔀 Circuit MIXTE</h4>
       <p>
@@ -579,14 +541,13 @@
         5. Appliquer <code>I = E / Req</code>
       </p>
     </div>
-
     <button class="btn-fermer" id="btnFermerFormules">Fermer</button>
   </div>
 </div>
 
 <script>
   // ============================================================
-//  ÉTAT GLOBAL DE L'ATELIER
+//  ÉTAT GLOBAL
 // ============================================================
 let atelier = {
   composants: [],
@@ -598,20 +559,8 @@ let atelier = {
   borneEnHover: null,
   prochainId: 1,
   interrupteurFerme: false,
-  animation: {
-    active: false,
-    electrons: [],
-    rafId: null,
-    lastTime: 0
-  },
-  resultats: {
-    type: 'aucun',
-    Req: 0,
-    I_total: 0,
-    U_pile: 0,
-    branches: [],
-    chemin: null
-  }
+  animation: { active: false, electrons: [], rafId: null, lastTime: 0 },
+  resultats: { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null }
 };
 
 const canvas = document.getElementById('canvasCircuit');
@@ -625,8 +574,10 @@ const TAILLE = {
   interrupteur: { w: 80, h: 40 }
 };
 
+let composantSurvoleClavier = null;
+
 // ============================================================
-//  AJOUTER DES COMPOSANTS
+//  AJOUT DE COMPOSANTS
 // ============================================================
 document.getElementById('btnAddPile').addEventListener('click', () => ajouterComposant('pile'));
 document.getElementById('btnAddResistance').addEventListener('click', () => ajouterComposant('resistance'));
@@ -642,9 +593,8 @@ function ajouterComposant(type) {
   const composant = {
     id: 'c' + atelier.prochainId++,
     type: type,
-    x: x,
-    y: y,
-    rotation: 0,   // 🆕 0 = horizontal, 90 = vertical
+    x: x, y: y,
+    rotation: 0,
     valeur: type === 'resistance' ? 10 : null,
     tension: type === 'pile' ? 12 : null
   };
@@ -652,75 +602,58 @@ function ajouterComposant(type) {
   atelier.composants.push(composant);
   drawCircuit();
   updateZoneInfo();
-  console.log('✅ Composant ajouté :', type, 'à', x, y);
+  analyserCircuit();
+  console.log('✅ Composant ajouté :', type);
 }
 
 // ============================================================
-//  BORNES DES COMPOSANTS
+//  BORNES
 // ============================================================
 function getBornes(composant) {
   const t = TAILLE[composant.type];
   const rotation = composant.rotation || 0;
   const bornes = [];
-
-  // Bornes locales (avant rotation) : gauche et droite
   const bornesLocales = [
-    { id: composant.id + '-L', offsetX: -t.w / 2, offsetY: 0, label: 'L' },
-    { id: composant.id + '-R', offsetX: t.w / 2, offsetY: 0, label: 'R' }
+    { id: composant.id + '-L', offsetX: -t.w / 2, offsetY: 0 },
+    { id: composant.id + '-R', offsetX: t.w / 2, offsetY: 0 }
   ];
-
-  // Appliquer la rotation
   const angle = rotation * Math.PI / 180;
   const cos = Math.cos(angle);
   const sin = Math.sin(angle);
-
   bornesLocales.forEach(bl => {
     const rx = bl.offsetX * cos - bl.offsetY * sin;
     const ry = bl.offsetX * sin + bl.offsetY * cos;
-    bornes.push({
-      id: bl.id,
-      composantId: composant.id,
-      x: composant.x + rx,
-      y: composant.y + ry
-    });
+    bornes.push({ id: bl.id, composantId: composant.id, x: composant.x + rx, y: composant.y + ry });
   });
-
   return bornes;
 }
 
 function getBorneById(borneId) {
   for (const c of atelier.composants) {
-    const bornes = getBornes(c);
-    const found = bornes.find(b => b.id === borneId);
+    const found = getBornes(c).find(b => b.id === borneId);
     if (found) return found;
   }
   return null;
 }
 
 // ============================================================
-//  DESSIN DU CIRCUIT
+//  DESSIN
 // ============================================================
 function drawCircuit() {
   ctx.clearRect(0, 0, W, H);
   ctx.fillStyle = '#0a0a1a';
   ctx.fillRect(0, 0, W, H);
 
-  // Grille
   ctx.strokeStyle = 'rgba(79,195,247,0.05)';
   ctx.lineWidth = 1;
-  for (let x = 0; x < W; x += 40) {
-    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
-  }
-  for (let y = 0; y < H; y += 40) {
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-  }
+  for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
 
   // Fils
   atelier.fils.forEach(fil => {
     const b1 = getBorneById(fil.de);
     const b2 = getBorneById(fil.vers);
     if (!b1 || !b2) return;
-
     ctx.strokeStyle = '#4fc3f7';
     ctx.lineWidth = 4;
     ctx.lineCap = 'round';
@@ -737,60 +670,43 @@ function drawCircuit() {
   atelier.composants.forEach(c => drawComposant(c));
 
   // Bornes
-  atelier.composants.forEach(c => {
-    getBornes(c).forEach(b => drawBorne(b));
-  });
+  atelier.composants.forEach(c => getBornes(c).forEach(b => drawBorne(b)));
 
   // Électrons
-  if (atelier.animation.active && atelier.interrupteurFerme && 
+  if (atelier.animation.active && atelier.interrupteurFerme &&
       atelier.resultats.type !== 'aucun' && atelier.resultats.type !== 'ouvert') {
     drawElectrons();
   }
 
-  // Curseur selon le mode
   canvas.style.cursor = atelier.modeCablage ? 'crosshair' : 'move';
 }
 
 function drawComposant(c) {
   const t = TAILLE[c.type];
   const isDragging = atelier.composantEnDrag && atelier.composantEnDrag.id === c.id;
+  if (isDragging) { ctx.shadowColor = '#ffd54f'; ctx.shadowBlur = 20; }
 
-  if (isDragging) {
-    ctx.shadowColor = '#ffd54f';
-    ctx.shadowBlur = 20;
-  }
-
-  // Sauvegarder le contexte et appliquer la rotation
   ctx.save();
   ctx.translate(c.x, c.y);
   ctx.rotate((c.rotation || 0) * Math.PI / 180);
   ctx.translate(-c.x, -c.y);
 
-  if (c.type === 'pile') {
-    drawPile(c.x, c.y, t.w, t.h, c.tension);
-  } else if (c.type === 'resistance') {
-    drawResistance(c.x, c.y, t.w, t.h, c.valeur);
-  } else if (c.type === 'interrupteur') {
-    drawInterrupteur(c.x, c.y, t.w, t.h);
-  }
+  if (c.type === 'pile') drawPile(c.x, c.y, t.w, t.h, c.tension);
+  else if (c.type === 'resistance') drawResistance(c.x, c.y, t.w, t.h, c.valeur);
+  else if (c.type === 'interrupteur') drawInterrupteur(c.x, c.y, t.w, t.h);
 
   ctx.restore();
   ctx.shadowBlur = 0;
-
-  // 🆕 Poignée de rotation (petit cercle au-dessus)
   drawPoigneeRotation(c);
 }
 
-// 🆕 Nouvelle fonction : poignée de rotation
 function drawPoigneeRotation(c) {
   const t = TAILLE[c.type];
   const angle = (c.rotation || 0) * Math.PI / 180;
-  // Position de la poignée (au-dessus du composant, avant rotation)
   const offsetY = -t.h / 2 - 20;
   const hx = c.x + offsetY * Math.sin(angle);
   const hy = c.y - offsetY * Math.cos(angle);
 
-  // Cercle de la poignée
   ctx.fillStyle = '#4fc3f7';
   ctx.strokeStyle = '#fff';
   ctx.lineWidth = 2;
@@ -799,40 +715,25 @@ function drawPoigneeRotation(c) {
   ctx.fill();
   ctx.stroke();
 
-  // Icône rotation
   ctx.fillStyle = '#fff';
   ctx.font = 'bold 10px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('⟳', hx, hy);
   ctx.textBaseline = 'alphabetic';
-
-  // Lien avec le composant (ligne pointillée)
-  ctx.strokeStyle = 'rgba(79, 195, 247, 0.4)';
-  ctx.lineWidth = 1;
-  ctx.setLineDash([3, 3]);
-  ctx.beginPath();
-  ctx.moveTo(c.x, c.y);
-  ctx.lineTo(hx, hy);
-  ctx.stroke();
-  ctx.setLineDash([]);
 }
 
 function drawPile(cx, cy, w, h, tension) {
   ctx.fillStyle = '#1a1a2e';
   ctx.strokeStyle = '#4fc3f7';
   ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.roundRect(cx - w / 2, cy - h / 2, w, h, 8);
-  ctx.fill();
-  ctx.stroke();
+  ctx.beginPath(); ctx.roundRect(cx - w / 2, cy - h / 2, w, h, 8); ctx.fill(); ctx.stroke();
 
   ctx.fillStyle = '#4caf50';
   ctx.font = 'bold 22px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('−', cx - 25, cy);
-
   ctx.fillStyle = '#f44336';
   ctx.fillText('+', cx + 25, cy);
 
@@ -840,7 +741,6 @@ function drawPile(cx, cy, w, h, tension) {
   ctx.font = 'bold 14px monospace';
   ctx.fillText(tension + 'V', cx, cy + 1);
   ctx.textBaseline = 'alphabetic';
-
   ctx.fillStyle = '#4fc3f7';
   ctx.font = 'bold 11px monospace';
   ctx.fillText('PILE', cx, cy - h / 2 - 8);
@@ -850,19 +750,14 @@ function drawResistance(cx, cy, w, h, valeur) {
   ctx.fillStyle = '#1a1a2e';
   ctx.strokeStyle = '#4fc3f7';
   ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.roundRect(cx - w / 2, cy - h / 2, w, h, 6);
-  ctx.fill();
-  ctx.stroke();
+  ctx.beginPath(); ctx.roundRect(cx - w / 2, cy - h / 2, w, h, 6); ctx.fill(); ctx.stroke();
 
   ctx.strokeStyle = '#ffd54f';
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(cx - w / 2 + 8, cy);
   const seg = (w - 16) / 6;
-  for (let i = 0; i < 6; i++) {
-    ctx.lineTo(cx - w / 2 + 8 + seg * (i + 1), cy + (i % 2 === 0 ? -8 : 8));
-  }
+  for (let i = 0; i < 6; i++) ctx.lineTo(cx - w / 2 + 8 + seg * (i + 1), cy + (i % 2 === 0 ? -8 : 8));
   ctx.stroke();
 
   ctx.fillStyle = '#4fc3f7';
@@ -881,33 +776,21 @@ function drawInterrupteur(cx, cy, w, h) {
   ctx.fillStyle = '#1a1a2e';
   ctx.strokeStyle = atelier.interrupteurFerme ? '#4caf50' : '#666';
   ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.roundRect(cx - w / 2, cy - h / 2, w, h, 8);
-  ctx.fill();
-  ctx.stroke();
+  ctx.beginPath(); ctx.roundRect(cx - w / 2, cy - h / 2, w, h, 8); ctx.fill(); ctx.stroke();
 
   const bx1 = cx - w / 2 + 12;
   const bx2 = cx + w / 2 - 12;
 
   ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  ctx.arc(bx1, cy, 5, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(bx2, cy, 5, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.beginPath(); ctx.arc(bx1, cy, 5, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(bx2, cy, 5, 0, Math.PI * 2); ctx.fill();
 
   ctx.strokeStyle = atelier.interrupteurFerme ? '#4caf50' : '#f44336';
   ctx.lineWidth = 4;
   ctx.lineCap = 'round';
   ctx.beginPath();
-  if (atelier.interrupteurFerme) {
-    ctx.moveTo(bx1, cy);
-    ctx.lineTo(bx2, cy);
-  } else {
-    ctx.moveTo(bx1, cy);
-    ctx.lineTo(bx2, cy - 20);
-  }
+  if (atelier.interrupteurFerme) { ctx.moveTo(bx1, cy); ctx.lineTo(bx2, cy); }
+  else { ctx.moveTo(bx1, cy); ctx.lineTo(bx2, cy - 20); }
   ctx.stroke();
 
   ctx.fillStyle = atelier.interrupteurFerme ? '#4caf50' : '#f44336';
@@ -929,55 +812,53 @@ function drawBorne(b) {
     grad.addColorStop(0, `rgba(255, 213, 79, ${0.5 + pulse * 0.4})`);
     grad.addColorStop(1, 'rgba(255, 213, 79, 0)');
     ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, 22 + pulse * 8, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(b.x, b.y, 22 + pulse * 8, 0, Math.PI * 2); ctx.fill();
   } else if (estSurvolee && atelier.modeCablage) {
     const grad = ctx.createRadialGradient(b.x, b.y, 3, b.x, b.y, 18);
     grad.addColorStop(0, 'rgba(76, 175, 80, 0.6)');
     grad.addColorStop(1, 'rgba(76, 175, 80, 0)');
     ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, 18, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(b.x, b.y, 18, 0, Math.PI * 2); ctx.fill();
   }
 
   ctx.fillStyle = estSelectionnee ? '#ffd54f' : (estConnectee ? '#4caf50' : '#fff');
   ctx.strokeStyle = '#000';
   ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(b.x, b.y, 8, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
+  ctx.beginPath(); ctx.arc(b.x, b.y, 8, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
 
   ctx.fillStyle = '#000';
-  ctx.beginPath();
-  ctx.arc(b.x, b.y, 2.5, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.beginPath(); ctx.arc(b.x, b.y, 2.5, 0, Math.PI * 2); ctx.fill();
 }
 
 // ============================================================
-//  GESTION DE LA SOURIS
+//  SOURIS / TACTILE
 // ============================================================
-canvas.addEventListener('mousedown', (e) => {
-  const pos = getCanvasCoords(e, false);
-  handlePointerDown(pos.x, pos.y);
+canvas.addEventListener('mousedown', e => { const p = getCanvasCoords(e, false); handlePointerDown(p.x, p.y); });
+canvas.addEventListener('mousemove', e => {
+  const p = getCanvasCoords(e, false);
+  composantSurvoleClavier = trouverComposantProche(p.x, p.y);
+  handlePointerMove(p.x, p.y);
 });
-
-canvas.addEventListener('mousemove', (e) => {
-  const pos = getCanvasCoords(e, false);
-  handlePointerMove(pos.x, pos.y);
-});
-
 canvas.addEventListener('mouseup', handlePointerUp);
 canvas.addEventListener('mouseleave', handlePointerUp);
-// 🆕 Double-clic sur un interrupteur pour le basculer
-canvas.addEventListener('dblclick', (e) => {
-  const pos = getCanvasCoords(e, false);
-  const comp = trouverComposantProche(pos.x, pos.y);
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const p = getCanvasCoords(e, true);
+  handlePointerDown(p.x, p.y);
+}, { passive: false });
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const p = getCanvasCoords(e, true);
+  handlePointerMove(p.x, p.y);
+}, { passive: false });
+canvas.addEventListener('touchend', e => { e.preventDefault(); handlePointerUp(); });
+
+canvas.addEventListener('dblclick', e => {
+  const p = getCanvasCoords(e, false);
+  const comp = trouverComposantProche(p.x, p.y);
   if (comp && comp.type === 'interrupteur') {
     atelier.interrupteurFerme = !atelier.interrupteurFerme;
-    // Empêcher le drag en cours
     atelier.composantEnDrag = null;
     drawCircuit();
     analyserCircuit();
@@ -985,21 +866,63 @@ canvas.addEventListener('dblclick', (e) => {
   }
 });
 
-canvas.addEventListener('touchstart', (e) => {
-  e.preventDefault();
-  const pos = getCanvasCoords(e, true);
-  handlePointerDown(pos.x, pos.y);
-}, { passive: false });
+document.addEventListener('keydown', e => {
+  if (e.key === 'r' || e.key === 'R') {
+    if (composantSurvoleClavier) {
+      composantSurvoleClavier.rotation = ((composantSurvoleClavier.rotation || 0) + 90) % 360;
+      drawCircuit();
+      analyserCircuit();
+    }
+  }
+  if (e.key === 'Delete' || e.key === 'Suppr') {
+    if (composantSurvoleClavier) {
+      if (confirm(`Supprimer ce ${composantSurvoleClavier.type} ?`)) {
+        atelier.fils = atelier.fils.filter(f => {
+          const b1 = getBorneById(f.de);
+          const b2 = getBorneById(f.vers);
+          return b1 && b2 && b1.composantId !== composantSurvoleClavier.id && b2.composantId !== composantSurvoleClavier.id;
+        });
+        atelier.composants = atelier.composants.filter(c => c.id !== composantSurvoleClavier.id);
+        composantSurvoleClavier = null;
+        drawCircuit(); updateZoneInfo(); analyserCircuit();
+      }
+    }
+  }
+});
 
-canvas.addEventListener('touchmove', (e) => {
+canvas.addEventListener('contextmenu', e => {
   e.preventDefault();
-  const pos = getCanvasCoords(e, true);
-  handlePointerMove(pos.x, pos.y);
-}, { passive: false });
-
-canvas.addEventListener('touchend', (e) => {
-  e.preventDefault();
-  handlePointerUp();
+  const pos = getCanvasCoords(e, false);
+  const comp = trouverComposantProche(pos.x, pos.y);
+  if (comp) {
+    const action = prompt(`Composant : ${comp.type}\n\n1 = Tourner de 90°\n2 = Supprimer`, '1');
+    if (action === '1') {
+      comp.rotation = ((comp.rotation || 0) + 90) % 360;
+      drawCircuit(); analyserCircuit();
+    } else if (action === '2') {
+      atelier.fils = atelier.fils.filter(f => {
+        const b1 = getBorneById(f.de);
+        const b2 = getBorneById(f.vers);
+        return b1 && b2 && b1.composantId !== comp.id && b2.composantId !== comp.id;
+      });
+      atelier.composants = atelier.composants.filter(c => c.id !== comp.id);
+      atelier.borneSelectionnee = null;
+      drawCircuit(); updateZoneInfo(); analyserCircuit();
+    }
+    return;
+  }
+  // Supprimer un fil
+  let filTrouve = null, minDist = 15;
+  atelier.fils.forEach((fil, idx) => {
+    const b1 = getBorneById(fil.de), b2 = getBorneById(fil.vers);
+    if (!b1 || !b2) return;
+    const d = distancePointSegment(pos.x, pos.y, b1.x, b1.y, b2.x, b2.y);
+    if (d < minDist) { minDist = d; filTrouve = idx; }
+  });
+  if (filTrouve !== null && confirm('Supprimer ce fil ?')) {
+    atelier.fils.splice(filTrouve, 1);
+    drawCircuit(); updateZoneInfo(); analyserCircuit();
+  }
 });
 
 function getCanvasCoords(e, isTouch) {
@@ -1007,7 +930,6 @@ function getCanvasCoords(e, isTouch) {
   const canvasRatio = canvas.width / canvas.height;
   const rectRatio = rect.width / rect.height;
   let renderWidth, renderHeight, offsetX, offsetY;
-
   if (rectRatio > canvasRatio) {
     renderHeight = rect.height;
     renderWidth = renderHeight * canvasRatio;
@@ -1019,62 +941,45 @@ function getCanvasCoords(e, isTouch) {
     offsetX = 0;
     offsetY = (rect.height - renderHeight) / 2;
   }
-
   let clientX, clientY;
-  if (isTouch) {
-    clientX = e.touches[0].clientX;
-    clientY = e.touches[0].clientY;
-  } else {
-    clientX = e.clientX;
-    clientY = e.clientY;
-  }
-
+  if (isTouch) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+  else { clientX = e.clientX; clientY = e.clientY; }
   return {
     x: (clientX - rect.left - offsetX) * (canvas.width / renderWidth),
     y: (clientY - rect.top - offsetY) * (canvas.height / renderHeight)
   };
 }
 
-// ============================================================
-//  LOGIQUE DE POINTEUR
-// ============================================================
 function handlePointerDown(x, y) {
-  // 0. Vérifier si on clique sur une poignée de rotation
+  // Rotation via poignée
   for (const c of atelier.composants) {
     const t = TAILLE[c.type];
     const angle = (c.rotation || 0) * Math.PI / 180;
     const offsetY = -t.h / 2 - 20;
     const hx = c.x + offsetY * Math.sin(angle);
     const hy = c.y - offsetY * Math.cos(angle);
-    
     if (Math.hypot(hx - x, hy - y) < 15) {
-      // Rotation de 90°
       c.rotation = ((c.rotation || 0) + 90) % 360;
-      drawCircuit();
-      analyserCircuit();
-      updateStatus(`🔄 ${c.type} tourné à ${c.rotation}°`);
+      drawCircuit(); analyserCircuit();
       return;
     }
   }
 
-  // 1. Chercher un composant
   const comp = trouverComposantProche(x, y);
-  
-  // 2. Si on est en mode CÂBLAGE → gérer le câblage
+
   if (atelier.modeCablage) {
     const borneTouchee = trouverBorneProche(x, y);
     if (borneTouchee) {
       if (!atelier.borneSelectionnee) {
         atelier.borneSelectionnee = borneTouchee.id;
-        updateStatus('🔗 Borne sélectionnée : clique sur une autre borne');
+        updateStatus('🔗 Borne sélectionnée');
       } else if (atelier.borneSelectionnee === borneTouchee.id) {
         atelier.borneSelectionnee = null;
-        updateStatus('Câblage annulé');
       } else {
         const b1 = getBorneById(atelier.borneSelectionnee);
         const b2 = borneTouchee;
         if (b1.composantId === b2.composantId) {
-          alert('⚠️ On ne peut pas relier 2 bornes du même composant !');
+          alert('⚠️ Impossible de relier 2 bornes du même composant !');
           atelier.borneSelectionnee = null;
         } else {
           const existe = atelier.fils.some(f =>
@@ -1084,13 +989,8 @@ function handlePointerDown(x, y) {
           if (!existe) {
             atelier.fils.push({ de: b1.id, vers: b2.id });
             updateStatus('✅ Fil créé !');
+            updateZoneInfo();
             analyserCircuit();
-            atelier.fils.push({ de: b1.id, vers: b2.id });
-updateStatus('✅ Fil créé !');
-updateZoneInfo();   // 🆕 mise à jour du compteur
-analyserCircuit();
-          } else {
-            updateStatus('Ce fil existe déjà');
           }
           atelier.borneSelectionnee = null;
         }
@@ -1100,7 +1000,6 @@ analyserCircuit();
     }
   }
 
-  // 4. Sinon, drag du composant
   if (comp) {
     atelier.composantEnDrag = comp;
     atelier.offsetDrag = { x: x - comp.x, y: y - comp.y };
@@ -1112,12 +1011,10 @@ analyserCircuit();
 function handlePointerMove(x, y) {
   const borne = trouverBorneProche(x, y);
   atelier.borneEnHover = borne ? borne.id : null;
-
   if (atelier.composantEnDrag) {
     atelier.composantEnDrag.x = Math.max(60, Math.min(W - 60, x - atelier.offsetDrag.x));
     atelier.composantEnDrag.y = Math.max(60, Math.min(H - 60, y - atelier.offsetDrag.y));
   }
-
   drawCircuit();
 }
 
@@ -1129,19 +1026,13 @@ function handlePointerUp() {
 }
 
 function trouverBorneProche(x, y) {
-  let meilleure = null;
-  let minDist = 25;
-
+  let meilleure = null, minDist = 25;
   atelier.composants.forEach(c => {
     getBornes(c).forEach(b => {
       const d = Math.hypot(b.x - x, b.y - y);
-      if (d < minDist) {
-        minDist = d;
-        meilleure = b;
-      }
+      if (d < minDist) { minDist = d; meilleure = b; }
     });
   });
-
   return meilleure;
 }
 
@@ -1150,34 +1041,34 @@ function trouverComposantProche(x, y) {
     const c = atelier.composants[i];
     const t = TAILLE[c.type];
     const rotation = c.rotation || 0;
-
-    // Transformer le point dans le repère local du composant
-    const dx = x - c.x;
-    const dy = y - c.y;
-    const angle = -rotation * Math.PI / 180;  // rotation inverse
-    const cos = Math.cos(angle);
-    const sin = Math.sin(angle);
+    const dx = x - c.x, dy = y - c.y;
+    const angle = -rotation * Math.PI / 180;
+    const cos = Math.cos(angle), sin = Math.sin(angle);
     const localX = dx * cos - dy * sin;
     const localY = dx * sin + dy * cos;
-
-    // Vérifier dans le repère local
     const w = (rotation % 180 === 0) ? t.w : t.h;
     const h = (rotation % 180 === 0) ? t.h : t.w;
-    if (Math.abs(localX) < w / 2 && Math.abs(localY) < h / 2) {
-      return c;
-    }
+    if (Math.abs(localX) < w / 2 && Math.abs(localY) < h / 2) return c;
   }
   return null;
 }
 
+function distancePointSegment(px, py, x1, y1, x2, y2) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len2 = dx * dx + dy * dy;
+  if (len2 === 0) return Math.hypot(px - x1, py - y1);
+  let t = ((px - x1) * dx + (py - y1) * dy) / len2;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+}
+
 // ============================================================
-//  MODE CÂBLAGE
+//  BOUTON MODE CÂBLAGE
 // ============================================================
 document.getElementById('btnConnect').addEventListener('click', () => {
   atelier.modeCablage = !atelier.modeCablage;
   const label = document.getElementById('connectBtnLabel');
   const btn = document.getElementById('btnConnect');
-  
   if (atelier.modeCablage) {
     label.textContent = 'Mode câblage : ON';
     btn.classList.add('active');
@@ -1186,7 +1077,7 @@ document.getElementById('btnConnect').addEventListener('click', () => {
     label.textContent = 'Mode câblage : OFF';
     btn.classList.remove('active');
     atelier.borneSelectionnee = null;
-    updateStatus('Mode déplacement : glisse les composants pour les bouger');
+    updateStatus('Mode déplacement');
   }
   drawCircuit();
 });
@@ -1202,123 +1093,25 @@ document.getElementById('btnClearAll').addEventListener('click', () => {
   atelier.interrupteurFerme = false;
   atelier.animation.active = false;
   atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null };
-  drawCircuit();
-  updateZoneInfo();
-  updateMesures();
+  drawCircuit(); updateZoneInfo(); updateMesures();
   updateStatus('Atelier vidé');
 });
 
 // ============================================================
-//  SUPPRESSION (clic droit)
-// ============================================================
-canvas.addEventListener('contextmenu', (e) => {
-  e.preventDefault();
-  const pos = getCanvasCoords(e, false);
-  
-  // 1. Chercher un composant
-  const comp = trouverComposantProche(pos.x, pos.y);
-  if (comp) {
-    const action = prompt(
-      `Composant : ${comp.type}\n\nChoisis une action :\n1 = Tourner de 90°\n2 = Supprimer`,
-      '1'
-    );
-    
-    if (action === '1') {
-      comp.rotation = ((comp.rotation || 0) + 90) % 360;
-      drawCircuit();
-      analyserCircuit();
-      updateStatus(`🔄 Composant tourné à ${comp.rotation}°`);
-    } else if (action === '2') {
-      atelier.fils = atelier.fils.filter(f => {
-        const b1 = getBorneById(f.de);
-        const b2 = getBorneById(f.vers);
-        return b1 && b2 && b1.composantId !== comp.id && b2.composantId !== comp.id;
-      });
-      atelier.composants = atelier.composants.filter(c => c.id !== comp.id);
-      atelier.borneSelectionnee = null;
-      drawCircuit();
-      updateZoneInfo();
-      analyserCircuit();
-      updateStatus(`🗑 ${comp.type} supprimé`);
-    }
-    return;
-  }
-  
-  // 2. Chercher un fil
-  let filTrouve = null;
-  let minDist = 15;
-  atelier.fils.forEach((fil, idx) => {
-    const b1 = getBorneById(fil.de);
-    const b2 = getBorneById(fil.vers);
-    if (!b1 || !b2) return;
-    const d = distancePointSegment(pos.x, pos.y, b1.x, b1.y, b2.x, b2.y);
-    if (d < minDist) {
-      minDist = d;
-      filTrouve = idx;
-    }
-  });
-  
-  if (filTrouve !== null) {
-    if (confirm('Supprimer ce fil ?')) {
-      atelier.fils.splice(filTrouve, 1);
-      drawCircuit();
-      updateZoneInfo();
-      analyserCircuit();
-      updateStatus('🗑 Fil supprimé');
-    }
-  }
-});
-
-function distancePointSegment(px, py, x1, y1, x2, y2) {
-  const dx = x2 - x1;
-  const dy = y2 - y1;
-  const len2 = dx * dx + dy * dy;
-  if (len2 === 0) return Math.hypot(px - x1, py - y1);
-  let t = ((px - x1) * dx + (py - y1) * dy) / len2;
-  t = Math.max(0, Math.min(1, t));
-  const projX = x1 + t * dx;
-  const projY = y1 + t * dy;
-  return Math.hypot(px - projX, py - projY);
-}
-
-// ============================================================
-//  UTILITAIRES UI
-// ============================================================
-function updateStatus(msg) {
-  document.getElementById('status').textContent = msg;
-}
-
-function updateZoneInfo() {
-  const n = atelier.composants.length;
-  const f = atelier.fils.length;
-  if (n === 0) {
-    document.getElementById('zoneInfo').textContent = 'Aucun composant pour l\'instant';
-  } else {
-    document.getElementById('zoneInfo').textContent = `${n} composant(s) · ${f} fil(s)`;
-  }
-}
-
-// ============================================================
-//  ANALYSE AUTOMATIQUE DU CIRCUIT
+//  ANALYSE AUTOMATIQUE
 // ============================================================
 function analyserCircuit() {
-    // 🆕 Vérifier qu'il y a des fils
-  if (atelier.fils.length < 3) {
-    atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null };
-    updateMesures();
-    return;
-  }
   atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null };
 
-
-  const piles = atelier.composants.filter(c => c.type === 'pile');
-  if (piles.length === 0) {
-    atelier.resultats.type = 'aucun';
+  // Vérifier qu'il y a suffisamment de fils
+  if (atelier.fils.length < 3) {
     updateMesures();
     return;
   }
-  if (piles.length > 1) {
-    atelier.resultats.type = 'erreur';
+
+  const piles = atelier.composants.filter(c => c.type === 'pile');
+  if (piles.length === 0 || piles.length > 1) {
+    atelier.resultats.type = piles.length > 1 ? 'erreur' : 'aucun';
     updateMesures();
     return;
   }
@@ -1327,112 +1120,55 @@ function analyserCircuit() {
   const E = pile.tension;
 
   const graphe = construireGraphe();
-  if (!graphe) {
-    atelier.resultats.type = 'ouvert';
-    updateMesures();
-    return;
-  }
-
-  // 🆕 Chercher un chemin qui passe par les résistances
-let chemin = null;
-const tousChemins = trouverTousChemins(graphe, pile.id + '-R', pile.id + '-L');
-for (const c of tousChemins) {
-  const traverseResistance = c.some(id => {
-    const b = getBorneById(id);
-    if (!b) return false;
-    const comp = atelier.composants.find(x => x.id === b.composantId);
-    return comp && comp.type === 'resistance';
-  });
-  if (traverseResistance) {
-    chemin = c;
-    break;
-  }
-}
-
-if (!chemin) {
-  atelier.resultats.type = 'aucun';
-  updateMesures();
-  return;
-}
-  // 🆕 Vérifier que le chemin traverse au moins une résistance
-const compsDansChemin = chemin
-  .map(id => getBorneById(id)?.composantId)
-  .filter((id, idx, arr) => id && arr.indexOf(id) === idx);
-
-const resistancesDansChemin = compsDansChemin.filter(id => 
-  atelier.composants.find(c => c.id === id && c.type === 'resistance')
-);
-
-if (resistancesDansChemin.length === 0) {
-  atelier.resultats.type = 'aucun';
-  atelier.resultats.chemin = null;
-  updateMesures();
-  return;
-}
+  const chemin = trouverCheminAvecResistance(graphe, pile.id + '-R', pile.id + '-L');
+  
   if (!chemin) {
     atelier.resultats.type = 'ouvert';
     updateMesures();
     return;
   }
 
+  // Liste des composants traversés
   const composantsDansChemin = chemin
-    .map(borneId => getBorneById(borneId)?.composantId)
+    .map(id => getBorneById(id)?.composantId)
     .filter((id, idx, arr) => id && arr.indexOf(id) === idx);
 
   const resistances = atelier.composants.filter(c => c.type === 'resistance');
   const interrupteurs = atelier.composants.filter(c => c.type === 'interrupteur');
 
+  // Si un interrupteur existe et est ouvert → circuit ouvert
   const interExiste = interrupteurs.length > 0;
-  const interDansChemin = interrupteurs.some(i => composantsDansChemin.includes(i.id));
-
   if (interExiste && !atelier.interrupteurFerme) {
     atelier.resultats.type = 'ouvert';
     updateMesures();
     return;
   }
 
+  // Détecter le type (série vs dérivation)
   const type = detecterType(chemin, resistances);
 
-  let Req = 0;
-  let I_total = 0;
-  let branches = [];
+  // Calculs
+  let Req = 0, I_total = 0, branches = [];
 
   if (type === 'serie') {
-    const R = resistances;
-    Req = R.reduce((sum, r) => sum + r.valeur, 0);
+    Req = resistances.reduce((sum, r) => sum + r.valeur, 0);
     I_total = Req > 0 ? E / Req : 0;
-    branches = R.map(r => ({
-      id: r.id, valeur: r.valeur,
-      I: I_total, U: r.valeur * I_total
-    }));
+    branches = resistances.map(r => ({ id: r.id, valeur: r.valeur, I: I_total, U: r.valeur * I_total }));
   } else if (type === 'derivation') {
     const G = resistances.reduce((sum, r) => sum + (1 / r.valeur), 0);
     Req = G > 0 ? 1 / G : 0;
     I_total = Req > 0 ? E / Req : 0;
-    branches = resistances.map(r => ({
-      id: r.id, valeur: r.valeur,
-      I: E / r.valeur, U: E
-    }));
-  } else {
-    Req = resistances.reduce((sum, r) => sum + r.valeur, 0);
-    I_total = Req > 0 ? E / Req : 0;
-    branches = resistances.map(r => ({
-      id: r.id, valeur: r.valeur,
-      I: I_total, U: r.valeur * I_total
-    }));
+    branches = resistances.map(r => ({ id: r.id, valeur: r.valeur, I: E / r.valeur, U: E }));
   }
 
-  if (resistances.length === 0 && (!interDansChemin || atelier.interrupteurFerme)) {
+  // Court-circuit : aucune résistance dans le chemin
+  if (resistances.length === 0) {
     atelier.resultats.type = 'court-circuit';
     updateMesures();
     return;
   }
 
-  atelier.resultats = {
-    type: type, Req: Req, I_total: I_total,
-    U_pile: E, branches: branches, chemin: chemin
-  };
-
+  atelier.resultats = { type, Req, I_total, U_pile: E, branches, chemin };
   updateMesures();
 }
 
@@ -1445,8 +1181,7 @@ function construireGraphe() {
     graphe[f.vers].push(f.de);
   });
   atelier.composants.forEach(c => {
-    const leftId = c.id + '-L';
-    const rightId = c.id + '-R';
+    const leftId = c.id + '-L', rightId = c.id + '-R';
     if (!graphe[leftId]) graphe[leftId] = [];
     if (!graphe[rightId]) graphe[rightId] = [];
     if (c.type === 'pile' || c.type === 'resistance') {
@@ -1460,40 +1195,16 @@ function construireGraphe() {
   return graphe;
 }
 
-function trouverChemin(graphe, departId, arriveeId) {
-  if (!graphe[departId]) return null;
-  const visited = new Set([departId]);
-  const file = [{ id: departId, chemin: [departId] }];
-  while (file.length > 0) {
-    const { id, chemin } = file.shift();
-    if (id === arriveeId) return chemin;
-    const voisins = graphe[id] || [];
-    for (const v of voisins) {
-      if (!visited.has(v)) {
-        visited.add(v);
-        file.push({ id: v, chemin: [...chemin, v] });
-      }
-    }
-  }
-  return null;
-}
-
 // 🆕 Chercher un chemin qui traverse au moins une résistance
 function trouverCheminAvecResistance(graphe, departId, arriveeId) {
   if (!graphe[departId]) return null;
-  
-  // Liste des IDs de composants de type résistance
-  const resistancesIds = atelier.composants
-    .filter(c => c.type === 'resistance')
-    .map(c => c.id);
-  
-  // DFS pour trouver tous les chemins
+
+  const resistancesIds = atelier.composants.filter(c => c.type === 'resistance').map(c => c.id);
   const chemins = [];
-  
+
   function dfs(id, chemin, visited, profondeur) {
-    if (profondeur > 20) return;  // sécurité anti-boucle infinie
+    if (profondeur > 20) return;
     if (id === arriveeId && chemin.length > 2) {
-      // Vérifier si le chemin traverse une résistance
       const traverse = chemin.some(borneId => {
         const b = getBorneById(borneId);
         if (!b) return false;
@@ -1513,27 +1224,26 @@ function trouverCheminAvecResistance(graphe, departId, arriveeId) {
       }
     }
   }
-  
   dfs(departId, [departId], new Set([departId]), 0);
-  
-  // Retourner le chemin le plus court qui traverse une résistance
   if (chemins.length === 0) return null;
   chemins.sort((a, b) => a.length - b.length);
   return chemins[0];
 }
 
+// 🆕 Détection précise : un VRAI nœud a 3 fils ou plus
 function detecterType(chemin, resistances) {
   if (resistances.length === 0) return 'aucun';
+
   const degreBornes = {};
   atelier.fils.forEach(f => {
     degreBornes[f.de] = (degreBornes[f.de] || 0) + 1;
     degreBornes[f.vers] = (degreBornes[f.vers] || 0) + 1;
   });
-  // 🆕 Un VRAI nœud a 3 fils ou plus (point de division)
-const noeuds = Object.entries(degreBornes).filter(([id, deg]) => deg >= 3);
-const noeudsDansChemin = noeuds.filter(([id]) => chemin.includes(id));
-if (noeudsDansChemin.length >= 1) return 'derivation';
-return 'serie';
+
+  const noeuds = Object.entries(degreBornes).filter(([id, deg]) => deg >= 3);
+  const noeudsDansChemin = noeuds.filter(([id]) => chemin.includes(id));
+  if (noeudsDansChemin.length >= 1) return 'derivation';
+  return 'serie';
 }
 
 // ============================================================
@@ -1545,7 +1255,6 @@ function updateMesures() {
     'aucun': '—',
     'serie': '🔗 Série',
     'derivation': '🌿 Dérivation',
-    'mixte': '🔀 Mixte',
     'ouvert': '⚠️ Circuit ouvert',
     'court-circuit': '⚡ COURT-CIRCUIT',
     'erreur': '❌ Erreur'
@@ -1589,15 +1298,14 @@ function updateBoutonAnimer() {
   const btn = document.getElementById('btnAnimer');
   if (!btn) return;
   const peutAnimer = atelier.interrupteurFerme &&
-                    atelier.resultats.type !== 'aucun' &&
-                    atelier.resultats.type !== 'ouvert' &&
-                    atelier.resultats.type !== 'court-circuit' &&
-                    atelier.resultats.chemin;
-
+    atelier.resultats.type !== 'aucun' &&
+    atelier.resultats.type !== 'ouvert' &&
+    atelier.resultats.type !== 'court-circuit' &&
+    atelier.resultats.chemin;
   if (atelier.animation.active) {
     btn.disabled = false;
     btn.textContent = '⏸ Pause';
-  } else if (peutAnimer) {
+    } else if (peutAnimer) {
     btn.disabled = false;
     btn.textContent = '▶ Animer les électrons';
   } else {
@@ -1605,7 +1313,9 @@ function updateBoutonAnimer() {
     btn.textContent = '▶ Animer les électrons';
   }
 }
-
+// ============================================================
+//  PANNEAU LOIS
+// ============================================================
 function genererLoisPanel() {
   const panel = document.getElementById('loisPanel');
   const r = atelier.resultats;
@@ -1614,7 +1324,7 @@ function genererLoisPanel() {
   if (r.type === 'aucun') {
     html = `<div class="loi-warning">⚠️ Ajoute une pile et des résistances, puis relie-les.</div>`;
   } else if (r.type === 'ouvert') {
-    html = `<div class="loi-warning">⚠️ Circuit ouvert : aucun courant ne circule.</div>`;
+    html = `<div class="loi-warning">⚠️ Circuit ouvert : aucun courant ne circule. Ferme l'interrupteur.</div>`;
   } else if (r.type === 'court-circuit') {
     html = `<div class="loi-warning">⚡ COURT-CIRCUIT ! Aucune résistance dans le circuit.</div>`;
   } else if (r.type === 'erreur') {
@@ -1636,7 +1346,6 @@ function genererLoisPanel() {
       <div class="loi-calcul">I total = <span class="loi-result">${r.I_total.toFixed(3)} A</span></div>
     `;
   }
-
   panel.innerHTML = html;
 }
 
@@ -1644,9 +1353,10 @@ function genererLoisPanel() {
 //  ÉLECTRONS
 // ============================================================
 function initElectrons() {
-  for (let i = 0; i < 35; i++) {   // 🆕 plus d'électrons
-  atelier.animation.electrons.push({ t: i / 35 });
-}
+  atelier.animation.electrons = [];
+  for (let i = 0; i < 35; i++) {
+    atelier.animation.electrons.push({ t: i / 35 });
+  }
 }
 
 function drawElectrons() {
@@ -1666,67 +1376,52 @@ function drawElectrons() {
   let totalLen = 0;
   const segments = [];
   for (let i = 0; i < points.length - 1; i++) {
-    const p1 = points[i];
-    const p2 = points[i + 1];
+    const p1 = points[i], p2 = points[i + 1];
     const len = Math.hypot(p2.x - p1.x, p2.y - p1.y);
     segments.push({ p1, p2, len, start: totalLen });
     totalLen += len;
   }
-
   if (totalLen === 0) return;
 
-  const speed = 0.005;  // 🆕 plus rapide
-  const couleur = '#ffeb3b';   // 🆕 jaune lumineux, très visible
+  const speed = 0.005;
+  const couleur = '#ffeb3b';
 
   atelier.animation.electrons.forEach(e => {
     e.t = (e.t + speed) % 1;
     const d = e.t * totalLen;
-
     let seg = segments[0];
     for (const s of segments) {
       if (d >= s.start && d < s.start + s.len) { seg = s; break; }
     }
-
     const tSeg = (d - seg.start) / seg.len;
     const px = seg.p1.x + (seg.p2.x - seg.p1.x) * tSeg;
     const py = seg.p1.y + (seg.p2.y - seg.p1.y) * tSeg;
     const angle = Math.atan2(seg.p2.y - seg.p1.y, seg.p2.x - seg.p1.x);
 
-    // 🆕 HALO plus large
     const grad = ctx.createRadialGradient(px, py, 1, px, py, 22);
     grad.addColorStop(0, couleur);
-    grad.addColorStop(1, 'rgba(0, 229, 255, 0)');
+    grad.addColorStop(1, 'rgba(255, 235, 59, 0)');
     ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(px, py, 22, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(px, py, 22, 0, Math.PI * 2); ctx.fill();
 
-    // 🆕 CONTOUR BLANC pour détacher
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 2;
     ctx.fillStyle = couleur;
-    ctx.beginPath();
-    ctx.arc(px, py, 7, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
+    ctx.beginPath(); ctx.arc(px, py, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
 
-    // 🆕 FLÈCHE de direction (plus grande)
     ctx.save();
     ctx.translate(px + Math.cos(angle) * 18, py + Math.sin(angle) * 18);
     ctx.rotate(angle);
     ctx.fillStyle = couleur;
     ctx.beginPath();
-    ctx.moveTo(9, 0);
-    ctx.lineTo(-6, -6);
-    ctx.lineTo(-6, 6);
-    ctx.closePath();
+    ctx.moveTo(9, 0); ctx.lineTo(-6, -6); ctx.lineTo(-6, 6); ctx.closePath();
     ctx.fill();
     ctx.restore();
   });
 }
 
 // ============================================================
-//  BOUCLE D'ANIMATION
+//  ANIMATION
 // ============================================================
 function animate(timestamp) {
   if (!timestamp) timestamp = performance.now();
@@ -1740,7 +1435,7 @@ function animate(timestamp) {
 }
 
 // ============================================================
-//  BOUTONS D'ACTION
+//  BOUTONS
 // ============================================================
 document.getElementById('btnAnimer').addEventListener('click', () => {
   if (atelier.animation.active) {
@@ -1749,7 +1444,7 @@ document.getElementById('btnAnimer').addEventListener('click', () => {
     updateStatus('Animation en pause');
   } else {
     if (!atelier.interrupteurFerme) {
-      alert('⚠️ Ferme l\'interrupteur en cliquant dessus !');
+      alert('⚠️ Ferme l\'interrupteur en double-cliquant dessus !');
       return;
     }
     if (atelier.resultats.type === 'aucun' || atelier.resultats.type === 'ouvert') {
@@ -1772,9 +1467,7 @@ document.getElementById('btnReset').addEventListener('click', () => {
   atelier.interrupteurFerme = false;
   atelier.animation.active = false;
   atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null };
-  drawCircuit();
-  updateZoneInfo();
-  updateMesures();
+  drawCircuit(); updateZoneInfo(); updateMesures();
   updateStatus('Atelier réinitialisé');
 });
 
@@ -1786,12 +1479,28 @@ document.getElementById('btnFermerFormules').addEventListener('click', () => {
   document.getElementById('modalFormules').classList.remove('show');
 });
 
-document.getElementById('modalFormules').addEventListener('click', (e) => {
+document.getElementById('modalFormules').addEventListener('click', e => {
   if (e.target.id === 'modalFormules') e.target.classList.remove('show');
 });
 
 // ============================================================
-//  POLYFILL
+//  UTILITAIRES
+// ============================================================
+function updateStatus(msg) {
+  document.getElementById('status').textContent = msg;
+}
+
+function updateZoneInfo() {
+  const n = atelier.composants.length;
+  const f = atelier.fils.length;
+  if (n === 0) {
+    document.getElementById('zoneInfo').textContent = 'Aucun composant pour l\'instant';
+  } else {
+    document.getElementById('zoneInfo').textContent = `${n} composant(s) · ${f} fil(s)`;
+  }
+}
+// ============================================================
+//  POLYFILL roundRect
 // ============================================================
 if (!CanvasRenderingContext2D.prototype.roundRect) {
   CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
@@ -1817,42 +1526,9 @@ window.addEventListener('load', () => {
   updateMesures();
   updateStatus('Ajoute des composants depuis la boîte à outils');
   console.log('✅ Atelier de circuits libres chargé !');
-  // 🆕 Raccourci clavier R pour rotation
-let composantSurvoleClavier = null;
-
-canvas.addEventListener('mousemove', (e) => {
-  const pos = getCanvasCoords(e, false);
-  composantSurvoleClavier = trouverComposantProche(pos.x, pos.y);
 });
 
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'r' || e.key === 'R') {
-    if (composantSurvoleClavier) {
-      composantSurvoleClavier.rotation = ((composantSurvoleClavier.rotation || 0) + 90) % 360;
-      drawCircuit();
-      analyserCircuit();
-      updateStatus(`🔄 Composant tourné à ${composantSurvoleClavier.rotation}°`);
-    }
-  }
-  if (e.key === 'Delete' || e.key === 'Suppr') {
-    if (composantSurvoleClavier) {
-      if (confirm(`Supprimer ce ${composantSurvoleClavier.type} ?`)) {
-        atelier.fils = atelier.fils.filter(f => {
-          const b1 = getBorneById(f.de);
-          const b2 = getBorneById(f.vers);
-          return b1 && b2 && b1.composantId !== composantSurvoleClavier.id && b2.composantId !== composantSurvoleClavier.id;
-        });
-        atelier.composants = atelier.composants.filter(c => c.id !== composantSurvoleClavier.id);
-        composantSurvoleClavier = null;
-        drawCircuit();
-        updateZoneInfo();
-        analyserCircuit();
-      }
-    }
-  }
-});
-});
-
+// Service worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('service-worker.js')
