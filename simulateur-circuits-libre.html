@@ -1334,6 +1334,21 @@ function analyserCircuit() {
   }
 
   const chemin = trouverChemin(graphe, pile.id + '-R', pile.id + '-L');
+  // 🆕 Vérifier que le chemin traverse au moins une résistance
+const compsDansChemin = chemin
+  .map(id => getBorneById(id)?.composantId)
+  .filter((id, idx, arr) => id && arr.indexOf(id) === idx);
+
+const resistancesDansChemin = compsDansChemin.filter(id => 
+  atelier.composants.find(c => c.id === id && c.type === 'resistance')
+);
+
+if (resistancesDansChemin.length === 0) {
+  atelier.resultats.type = 'aucun';
+  atelier.resultats.chemin = null;
+  updateMesures();
+  return;
+}
   if (!chemin) {
     atelier.resultats.type = 'ouvert';
     updateMesures();
@@ -1564,10 +1579,9 @@ function genererLoisPanel() {
 //  ÉLECTRONS
 // ============================================================
 function initElectrons() {
-  atelier.animation.electrons = [];
-  for (let i = 0; i < 20; i++) {
-    atelier.animation.electrons.push({ t: i / 20 });
-  }
+  for (let i = 0; i < 35; i++) {   // 🆕 plus d'électrons
+  atelier.animation.electrons.push({ t: i / 35 });
+}
 }
 
 function drawElectrons() {
@@ -1597,7 +1611,7 @@ function drawElectrons() {
   if (totalLen === 0) return;
 
   const speed = 0.005;  // 🆕 plus rapide
-  const couleur = '#00e5ff';
+  const couleur = '#ffeb3b';   // 🆕 jaune lumineux, très visible
 
   atelier.animation.electrons.forEach(e => {
     e.t = (e.t + speed) % 1;
