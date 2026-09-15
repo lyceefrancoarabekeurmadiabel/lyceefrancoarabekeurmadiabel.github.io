@@ -971,6 +971,19 @@ canvas.addEventListener('mousemove', (e) => {
 
 canvas.addEventListener('mouseup', handlePointerUp);
 canvas.addEventListener('mouseleave', handlePointerUp);
+// 🆕 Double-clic sur un interrupteur pour le basculer
+canvas.addEventListener('dblclick', (e) => {
+  const pos = getCanvasCoords(e, false);
+  const comp = trouverComposantProche(pos.x, pos.y);
+  if (comp && comp.type === 'interrupteur') {
+    atelier.interrupteurFerme = !atelier.interrupteurFerme;
+    // Empêcher le drag en cours
+    atelier.composantEnDrag = null;
+    drawCircuit();
+    analyserCircuit();
+    updateStatus(atelier.interrupteurFerme ? '🔘 Interrupteur FERMÉ' : '🔘 Interrupteur OUVERT');
+  }
+});
 
 canvas.addEventListener('touchstart', (e) => {
   e.preventDefault();
