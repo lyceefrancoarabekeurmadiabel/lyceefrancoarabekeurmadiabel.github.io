@@ -776,6 +776,16 @@ function drawSerie() {
 //  SCHÉMA : DÉRIVATION
 // ============================================================
 function drawDerivation() {
+    // 🔍 DIAG
+  if (!window._diagDrawCounter) window._diagDrawCounter = 0;
+  window._diagDrawCounter++;
+  if (window._diagDrawCounter % 120 === 0) {
+    console.log('🎨 [DIAG drawDerivation] Dessin #', window._diagDrawCounter);
+    console.log('   Dimensions W/H:', W, H);
+    console.log('   left/right:', 100, W - 100);
+    console.log('   railLeft/railRight:', 180, W - 180);
+    console.log('   top/bot:', 100, H - 100);
+  }
   const calc = calculerDerivation();
   const left = 100;
   const right = W - 100;
@@ -863,6 +873,18 @@ ctx.stroke();
   ctx.font = 'bold 14px monospace';
   ctx.textAlign = 'center';
   ctx.fillText('CIRCUIT EN DÉRIVATION', W / 2, 40);
+  // Fil bas retour
+  ctx.beginPath();
+  ctx.moveTo(left, H / 2 + 60);
+  ctx.lineTo(left, bot + 60);
+  ctx.lineTo(right, bot + 60);
+  ctx.lineTo(right, H / 2 + 60);
+  ctx.stroke();
+    // 🔍 DIAG — Vérifier que ce fil est bien dessiné
+  if (window._diagDrawCounter % 120 === 0) {
+    console.log('   ✓ Fil du bas dessiné de', { x: left, y: H/2 + 60 }, 'vers', { x: right, y: H/2 + 60 });
+    console.log('   ⚠️ MAIS ce fil ne relie PAS la pile !');
+  }
 }
 
 // ============================================================
@@ -1175,9 +1197,22 @@ function initElectrons() {
       branche: null
     });
   }
+    console.log('🔵 [DIAG] initElectrons appelé');
+  console.log('   Nombre d\'électrons créés:', etat.animation.electrons.length);
+  console.log('   Type de circuit:', etat.type);
+  console.log('   Nb dipôles:', etat.nb);
 }
 
 function drawElectrons() {
+    // 🔍 DIAG
+  if (!window._diagElecCounter) window._diagElecCounter = 0;
+  window._diagElecCounter++;
+  if (window._diagElecCounter % 120 === 0) {
+    console.log('⚡ [DIAG drawElectrons] Dessin #', window._diagElecCounter);
+    console.log('   Type:', etat.type);
+    console.log('   Nb électrons:', etat.animation.electrons.length);
+    console.log('   Animation active:', etat.animation.active);
+  }
   if (!etat.animation.active) return;
   const vitesse = 0.005;
   const couleur = '#00e5ff';
@@ -1234,6 +1269,14 @@ function positionSerieElectron(t) {
 }
 
 function positionDerivationElectron(t, e) {
+    // 🔍 DIAG — log toutes les 60 frames pour éviter de spammer
+  if (!window._diagCounter) window._diagCounter = 0;
+  window._diagCounter++;
+  const showLog = window._diagCounter % 60 === 0;
+  
+  if (showLog && t < 0.05) {
+    console.log('🔵 [DIAG positionDerivation] t =', t.toFixed(3), '| branche =', e.branche);
+  }
   // Circuit complet :
   // Pile (gauche) → Fil gauche horizontal → Rail gauche → 
   // Branches parallèles → Rail droit → Fil droit → Fil bas → Retour pile
@@ -1321,6 +1364,10 @@ function positionDerivationElectron(t, e) {
   cumul += segLongueurs.filPile;
   const tt = (d - (cumul - segLongueurs.filPile)) / segLongueurs.filPile;
   return { x: left, y: basY + (pileY - basY) * tt };
+  if (showLog && t < 0.05) {
+    console.log('   → Position retournée calculée');
+  }
+
 }
 
 function positionMixteElectron(t, e) {
