@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#1B2A4A">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; overflow: hidden; }
+  html, body { height: 100%; overflow-x: hidden; overflow-y: auto; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
@@ -456,6 +456,26 @@
     .toolbox { max-height: 150px; }
     .side-zone { max-height: 250px; }
   }
+
+/* ===== Correctifs et améliorations UI ===== */
+* { box-sizing: border-box; }
+button, input, select { font: inherit; }
+button { touch-action: manipulation; }
+canvas { display:block; max-width:100%; height:auto; }
+.type-selector { display:flex; flex-wrap:wrap; gap:8px; }
+.action-bar { display:flex; flex-wrap:wrap; gap:8px; }
+.status { min-height: 1.4em; }
+@media (max-width:1000px) {
+  .main-grid { grid-template-columns: 1fr !important; }
+  .app { min-height:100vh; height:auto !important; }
+  .canvas-wrap { overflow:auto; -webkit-overflow-scrolling:touch; }
+}
+@media (max-width:600px) {
+  .topbar { flex-wrap:wrap; height:auto !important; }
+  .type-btn { flex:1 1 30%; min-width:90px; }
+  .action-bar button { flex:1 1 45%; }
+}
+
 </style>
 </head>
 <body>
@@ -466,9 +486,7 @@
   <div class="topbar-title">⚡ Atelier de circuits — Construis ton montage</div>
   <a href="labo-pc.html" class="btn-mini">← Labo PC</a>
 </div>
-  <div class="topbar">
-    <div class="topbar-title">⚡ Atelier de circuits — Construis ton montage</div>
-    <a href="labo-pc.html" class="btn-mini">← Labo PC</a>
+  <a href="labo-pc.html" class="btn-mini">← Labo PC</a>
   </div>
 
   <!-- 🆕 Sélecteur de type -->
@@ -479,14 +497,7 @@
     <button class="type-btn" data-type="mixte">🔀 Mixte</button>
   </div>
 
-<div class="type-selector">
-  <span class="type-label">Type de circuit :</span>
-  <button class="type-btn active" data-type="serie">🔗 Série</button>
-  <button class="type-btn" data-type="derivation">🌿 Dérivation</button>
-  <button class="type-btn" data-type="mixte">🔀 Mixte</button>
-</div>
-
-  <div class="main-zone">
+<div class="main-zone">
 
     <div class="toolbox">
       <div class="panel-title">🧰 Boîte à outils</div>
@@ -1158,7 +1169,7 @@ function analyserCircuit() {
   atelier.resultats = { type: atelier.typeChoisi, Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null };
 
   // Vérifier qu'il y a suffisamment de fils
-  if (atelier.fils.length < 3) {
+  if (atelier.fils.length < 2) {
     updateMesures();
     return;
   }
@@ -1207,7 +1218,7 @@ function analyserCircuit() {
     I_total = Req > 0 ? E / Req : 0;
     branches = resistances.map(r => ({ id: r.id, valeur: r.valeur, I: I_total, U: r.valeur * I_total }));
   } else if (type === 'derivation') {
-    const G = resistances.reduce((sum, r) => sum + (1 / r.valeur), 0);
+    const G = resistances.reduce((sum, r) => sum + (1 / valeurPositive(r.valeur, 1)), 0);
     Req = G > 0 ? 1 / G : 0;
     I_total = Req > 0 ? E / Req : 0;
     branches = resistances.map(r => ({ id: r.id, valeur: r.valeur, I: E / r.valeur, U: E }));
@@ -1218,7 +1229,7 @@ function analyserCircuit() {
     
     let R_par_eq = 0;
     if (R_paralleles.length > 0) {
-      const G = R_paralleles.reduce((sum, r) => sum + (1 / r.valeur), 0);
+      const G = R_paralleles.reduce((sum, r) => sum + (1 / valeurPositive(r.valeur, 1)), 0);
       R_par_eq = G > 0 ? 1 / G : 0;
     }
     
@@ -1622,6 +1633,37 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
   };
 }
 
+
+// ============================================================
+//  SÉLECTION DU TYPE DE CIRCUIT
+// ============================================================
+document.querySelectorAll('.type-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    atelier.typeChoisi = btn.dataset.type || 'serie';
+    stopAnimation();
+    analyserCircuit();
+    drawCircuit();
+
+    const labels = {
+      serie: 'Série',
+      derivation: 'Dérivation',
+      mixte: 'Mixte'
+    };
+    updateStatus(`Mode ${labels[atelier.typeChoisi] || atelier.typeChoisi} sélectionné`);
+  });
+});
+
+// ============================================================
+//  PROTECTION GÉNÉRALE CONTRE LES ERREURS DE VALEUR
+// ============================================================
+function valeurPositive(v, fallback = 1) {
+  const n = Number(v);
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+}
+
 // ============================================================
 //  INITIALISATION
 // ============================================================
@@ -1638,9 +1680,22 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('service-worker.js')
       .then(() => console.log('✅ Service worker OK'))
-      .catch(err => console.warn('SW non enregistré :', err));
+      .catch(err => console.warn('SW non enregistré (facultatif) :', err));
   });
 }
+
+// ===== Petites améliorations d'ergonomie =====
+document.querySelectorAll('button').forEach(btn => {
+  if (!btn.getAttribute('type')) btn.setAttribute('type', 'button');
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (typeof stopAnimation === 'function') stopAnimation();
+    if (typeof drawCircuit === 'function') drawCircuit();
+  }
+});
+
 </script>
 
 </body>
