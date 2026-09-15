@@ -644,6 +644,7 @@ function ajouterComposant(type) {
     type: type,
     x: x,
     y: y,
+    rotation: 0,   // 🆕 0 = horizontal, 90 = vertical
     valeur: type === 'resistance' ? 10 : null,
     tension: type === 'pile' ? 12 : null
   };
@@ -659,35 +660,30 @@ function ajouterComposant(type) {
 // ============================================================
 function getBornes(composant) {
   const t = TAILLE[composant.type];
+  const rotation = composant.rotation || 0;
   const bornes = [];
 
-  if (composant.type === 'pile' || composant.type === 'resistance') {
+  // Bornes locales (avant rotation) : gauche et droite
+  const bornesLocales = [
+    { id: composant.id + '-L', offsetX: -t.w / 2, offsetY: 0, label: 'L' },
+    { id: composant.id + '-R', offsetX: t.w / 2, offsetY: 0, label: 'R' }
+  ];
+
+  // Appliquer la rotation
+  const angle = rotation * Math.PI / 180;
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+
+  bornesLocales.forEach(bl => {
+    const rx = bl.offsetX * cos - bl.offsetY * sin;
+    const ry = bl.offsetX * sin + bl.offsetY * cos;
     bornes.push({
-      id: composant.id + '-L',
+      id: bl.id,
       composantId: composant.id,
-      x: composant.x - t.w / 2,
-      y: composant.y
+      x: composant.x + rx,
+      y: composant.y + ry
     });
-    bornes.push({
-      id: composant.id + '-R',
-      composantId: composant.id,
-      x: composant.x + t.w / 2,
-      y: composant.y
-    });
-  } else if (composant.type === 'interrupteur') {
-    bornes.push({
-      id: composant.id + '-L',
-      composantId: composant.id,
-      x: composant.x - t.w / 2,
-      y: composant.y
-    });
-    bornes.push({
-      id: composant.id + '-R',
-      composantId: composant.id,
-      x: composant.x + t.w / 2,
-      y: composant.y
-    });
-  }
+  });
 
   return bornes;
 }
@@ -764,6 +760,12 @@ function drawComposant(c) {
     ctx.shadowBlur = 20;
   }
 
+  // Sauvegarder le contexte et appliquer la rotation
+  ctx.save();
+  ctx.translate(c.x, c.y);
+  ctx.rotate((c.rotation || 0) * Math.PI / 180);
+  ctx.translate(-c.x, -c.y);
+
   if (c.type === 'pile') {
     drawPile(c.x, c.y, t.w, t.h, c.tension);
   } else if (c.type === 'resistance') {
@@ -772,7 +774,48 @@ function drawComposant(c) {
     drawInterrupteur(c.x, c.y, t.w, t.h);
   }
 
+  ctx.restore();
   ctx.shadowBlur = 0;
+
+  // 🆕 Poignée de rotation (petit cercle au-dessus)
+  drawPoigneeRotation(c);
+}
+
+// 🆕 Nouvelle fonction : poignée de rotation
+function drawPoigneeRotation(c) {
+  const t = TAILLE[c.type];
+  const angle = (c.rotation || 0) * Math.PI / 180;
+  // Position de la poignée (au-dessus du composant, avant rotation)
+  const offsetY = -t.h / 2 - 20;
+  const hx = c.x + offsetY * Math.sin(angle);
+  const hy = c.y - offsetY * Math.cos(angle);
+
+  // Cercle de la poignée
+  ctx.fillStyle = '#4fc3f7';
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(hx, hy, 8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // Icône rotation
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 10px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('⟳', hx, hy);
+  ctx.textBaseline = 'alphabetic';
+
+  // Lien avec le composant (ligne pointillée)
+  ctx.strokeStyle = 'rgba(79, 195, 247, 0.4)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(c.x, c.y);
+  ctx.lineTo(hx, hy);
+  ctx.stroke();
+  ctx.setLineDash([]);
 }
 
 function drawPile(cx, cy, w, h, tension) {
@@ -983,6 +1026,24 @@ function getCanvasCoords(e, isTouch) {
 //  LOGIQUE DE POINTEUR
 // ============================================================
 function handlePointerDown(x, y) {
+  // 0. Vérifier si on clique sur une poignée de rotation
+  for (const c of atelier.composants) {
+    const t = TAILLE[c.type];
+    const angle = (c.rotation || 0) * Math.PI / 180;
+    const offsetY = -t.h / 2 - 20;
+    const hx = c.x + offsetY * Math.sin(angle);
+    const hy = c.y - offsetY * Math.cos(angle);
+    
+    if (Math.hypot(hx - x, hy - y) < 15) {
+      // Rotation de 90°
+      c.rotation = ((c.rotation || 0) + 90) % 360;
+      drawCircuit();
+      analyserCircuit();
+      updateStatus(`🔄 ${c.type} tourné à ${c.rotation}°`);
+      return;
+    }
+  }
+
   // 1. Chercher un composant
   const comp = trouverComposantProche(x, y);
   
@@ -1020,14 +1081,6 @@ function handlePointerDown(x, y) {
       drawCircuit();
       return;
     }
-  }
-
-  // 3. Si on clique sur l'interrupteur → basculer ouvert/fermé
-  if (comp && comp.type === 'interrupteur' && !atelier.modeCablage) {
-    atelier.interrupteurFerme = !atelier.interrupteurFerme;
-    drawCircuit();
-    analyserCircuit();
-    return;
   }
 
   // 4. Sinon, drag du composant
@@ -1079,7 +1132,21 @@ function trouverComposantProche(x, y) {
   for (let i = atelier.composants.length - 1; i >= 0; i--) {
     const c = atelier.composants[i];
     const t = TAILLE[c.type];
-    if (Math.abs(x - c.x) < t.w / 2 && Math.abs(y - c.y) < t.h / 2) {
+    const rotation = c.rotation || 0;
+
+    // Transformer le point dans le repère local du composant
+    const dx = x - c.x;
+    const dy = y - c.y;
+    const angle = -rotation * Math.PI / 180;  // rotation inverse
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const localX = dx * cos - dy * sin;
+    const localY = dx * sin + dy * cos;
+
+    // Vérifier dans le repère local
+    const w = (rotation % 180 === 0) ? t.w : t.h;
+    const h = (rotation % 180 === 0) ? t.h : t.w;
+    if (Math.abs(localX) < w / 2 && Math.abs(localY) < h / 2) {
       return c;
     }
   }
@@ -1134,8 +1201,17 @@ canvas.addEventListener('contextmenu', (e) => {
   // 1. Chercher un composant
   const comp = trouverComposantProche(pos.x, pos.y);
   if (comp) {
-    if (confirm(`Supprimer ce ${comp.type} ?`)) {
-      // Supprimer les fils liés à ce composant
+    const action = prompt(
+      `Composant : ${comp.type}\n\nChoisis une action :\n1 = Tourner de 90°\n2 = Supprimer`,
+      '1'
+    );
+    
+    if (action === '1') {
+      comp.rotation = ((comp.rotation || 0) + 90) % 360;
+      drawCircuit();
+      analyserCircuit();
+      updateStatus(`🔄 Composant tourné à ${comp.rotation}°`);
+    } else if (action === '2') {
       atelier.fils = atelier.fils.filter(f => {
         const b1 = getBorneById(f.de);
         const b2 = getBorneById(f.vers);
@@ -1494,7 +1570,7 @@ function drawElectrons() {
 
   if (totalLen === 0) return;
 
-  const speed = 0.0035;
+  const speed = 0.005;  // 🆕 plus rapide
   const couleur = '#00e5ff';
 
   atelier.animation.electrons.forEach(e => {
@@ -1511,27 +1587,33 @@ function drawElectrons() {
     const py = seg.p1.y + (seg.p2.y - seg.p1.y) * tSeg;
     const angle = Math.atan2(seg.p2.y - seg.p1.y, seg.p2.x - seg.p1.x);
 
-    const grad = ctx.createRadialGradient(px, py, 1, px, py, 14);
+    // 🆕 HALO plus large
+    const grad = ctx.createRadialGradient(px, py, 1, px, py, 22);
     grad.addColorStop(0, couleur);
     grad.addColorStop(1, 'rgba(0, 229, 255, 0)');
     ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.arc(px, py, 14, 0, Math.PI * 2);
+    ctx.arc(px, py, 22, 0, Math.PI * 2);
     ctx.fill();
 
+    // 🆕 CONTOUR BLANC pour détacher
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
     ctx.fillStyle = couleur;
     ctx.beginPath();
-    ctx.arc(px, py, 4.5, 0, Math.PI * 2);
+    ctx.arc(px, py, 7, 0, Math.PI * 2);
     ctx.fill();
+    ctx.stroke();
 
+    // 🆕 FLÈCHE de direction (plus grande)
     ctx.save();
-    ctx.translate(px + Math.cos(angle) * 12, py + Math.sin(angle) * 12);
+    ctx.translate(px + Math.cos(angle) * 18, py + Math.sin(angle) * 18);
     ctx.rotate(angle);
     ctx.fillStyle = couleur;
     ctx.beginPath();
-    ctx.moveTo(6, 0);
-    ctx.lineTo(-4, -4);
-    ctx.lineTo(-4, 4);
+    ctx.moveTo(9, 0);
+    ctx.lineTo(-6, -6);
+    ctx.lineTo(-6, 6);
     ctx.closePath();
     ctx.fill();
     ctx.restore();
@@ -1630,6 +1712,40 @@ window.addEventListener('load', () => {
   updateMesures();
   updateStatus('Ajoute des composants depuis la boîte à outils');
   console.log('✅ Atelier de circuits libres chargé !');
+  // 🆕 Raccourci clavier R pour rotation
+let composantSurvoleClavier = null;
+
+canvas.addEventListener('mousemove', (e) => {
+  const pos = getCanvasCoords(e, false);
+  composantSurvoleClavier = trouverComposantProche(pos.x, pos.y);
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'r' || e.key === 'R') {
+    if (composantSurvoleClavier) {
+      composantSurvoleClavier.rotation = ((composantSurvoleClavier.rotation || 0) + 90) % 360;
+      drawCircuit();
+      analyserCircuit();
+      updateStatus(`🔄 Composant tourné à ${composantSurvoleClavier.rotation}°`);
+    }
+  }
+  if (e.key === 'Delete' || e.key === 'Suppr') {
+    if (composantSurvoleClavier) {
+      if (confirm(`Supprimer ce ${composantSurvoleClavier.type} ?`)) {
+        atelier.fils = atelier.fils.filter(f => {
+          const b1 = getBorneById(f.de);
+          const b2 = getBorneById(f.vers);
+          return b1 && b2 && b1.composantId !== composantSurvoleClavier.id && b2.composantId !== composantSurvoleClavier.id;
+        });
+        atelier.composants = atelier.composants.filter(c => c.id !== composantSurvoleClavier.id);
+        composantSurvoleClavier = null;
+        drawCircuit();
+        updateZoneInfo();
+        analyserCircuit();
+      }
+    }
+  }
+});
 });
 
 if ('serviceWorker' in navigator) {
