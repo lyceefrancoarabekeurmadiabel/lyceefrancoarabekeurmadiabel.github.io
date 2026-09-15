@@ -666,3 +666,1259 @@
 </div>
 
 <script>
+  // ============================================================
+//  ÉTAT GLOBAL DU SIMULATEUR
+// ============================================================
+let etat = {
+  type: 'serie',
+  nb: 3,
+  E: 12,
+  resistances: [10, 10, 10, 10],
+  interrupteurFerme: false,
+  amperemetre: true,
+  voltmetre: true,
+  ampTarget: 'total',
+  voltTarget: 'pile',
+  animation: {
+    active: false,
+    electrons: [],
+    rafId: null,
+    lastTime: 0
+  }
+};
+
+let positionsCanvas = {
+  interrupteur: { x: 0, y: 0, w: 0, h: 0 },
+  recepteurs: [],
+  pile: { x: 0, y: 0, w: 0, h: 0 }
+};
+
+const canvas = document.getElementById('canvasCircuit');
+const ctx = canvas.getContext('2d');
+const W = canvas.width;
+const H = canvas.height;
+
+// ============================================================
+//  CALCULS PHYSIQUES
+// ============================================================
+function calculerSerie() {
+  const R = etat.resistances.slice(0, etat.nb);
+  const R_total = R.reduce((a, b) => a + b, 0);
+  const I = R_total > 0 ? etat.E / R_total : 0;
+  const U_resistances = R.map(r => r * I);
+  return { R_total, I, U_resistances };
+}
+
+function calculerDerivation() {
+  const R = etat.resistances.slice(0, etat.nb);
+  const G_total = R.reduce((a, r) => a + (1 / r), 0);
+  const R_eq = G_total > 0 ? 1 / G_total : 0;
+  const I_total = R_eq > 0 ? etat.E / R_eq : 0;
+  const U = etat.E;
+  const I_branches = R.map(r => U / r);
+  return { R_eq, I_total, U, I_branches };
+}
+
+// ============================================================
+//  DESSIN PRINCIPAL
+// ============================================================
+function drawCircuit() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0a0a1a';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = 'rgba(79,195,247,0.04)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 40) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let y = 0; y < H; y += 40) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  if (etat.type === 'serie') drawSerie();
+  else if (etat.type === 'derivation') drawDerivation();
+
+  if (etat.animation.active && etat.interrupteurFerme) {
+    drawElectrons();
+  }
+}
+
+// ============================================================
+//  SCHÉMA : CIRCUIT EN SÉRIE
+// ============================================================
+function drawSerie() {
+  const calc = calculerSerie();
+  const left = 100;
+  const right = W - 100;
+  const top = 130;
+  const bot = H - 130;
+  const nbR = etat.nb;
+  const pileX = left + (right - left) / 2 - 150;
+  const intX = left + (right - left) / 2 + 50;
+
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+
+  // Positions des résistances sur le fil du haut
+  const positionsR = [];
+  const startX = left + 80;
+  const endX = right - 80;
+  const spacing = (endX - startX) / (nbR - 1 || 1);
+  for (let i = 0; i < nbR; i++) {
+    positionsR.push(startX + i * spacing);
+  }
+  positionsCanvas.recepteurs = [];
+
+  // Fil haut
+  ctx.beginPath();
+  ctx.moveTo(left, top);
+  ctx.lineTo(positionsR[0] - 40, top);
+  ctx.stroke();
+
+  // Résistances
+  for (let i = 0; i < nbR; i++) {
+    drawResistance(positionsR[i], top, etat.resistances[i], 'R' + (i + 1));
+    positionsCanvas.recepteurs.push({
+      x: positionsR[i], y: top, w: 80, h: 32, id: 'R' + (i + 1), index: i
+    });
+    if (i < nbR - 1) {
+      ctx.beginPath();
+      ctx.moveTo(positionsR[i] + 40, top);
+      ctx.lineTo(positionsR[i + 1] - 40, top);
+      ctx.stroke();
+    }
+  }
+
+  // Fil haut suite
+  ctx.beginPath();
+  ctx.moveTo(positionsR[nbR - 1] + 40, top);
+  ctx.lineTo(right, top);
+  ctx.stroke();
+
+  // Fil droit
+  ctx.beginPath();
+  ctx.moveTo(right, top);
+  ctx.lineTo(right, bot);
+  ctx.stroke();
+
+  // Fil bas
+  ctx.beginPath();
+  ctx.moveTo(right, bot);
+  ctx.lineTo(intX + 40, bot);
+  ctx.stroke();
+
+  // Interrupteur sur le fil du bas
+  drawInterrupteur(intX, bot, 80, 40);
+
+  // Fil bas (entre pile et interrupteur)
+  ctx.beginPath();
+  ctx.moveTo(intX - 40, bot);
+  ctx.lineTo(pileX + 40, bot);
+  ctx.stroke();
+
+  // Pile
+  drawPile(pileX, bot, etat.E);
+  positionsCanvas.pile = { x: pileX, y: bot, w: 80, h: 40 };
+
+  // Fil bas (de la pile au coin gauche)
+  ctx.beginPath();
+  ctx.moveTo(pileX - 40, bot);
+  ctx.lineTo(left, bot);
+  ctx.stroke();
+
+  // Fil gauche
+  ctx.beginPath();
+  ctx.moveTo(left, top);
+  ctx.lineTo(left, bot);
+  ctx.stroke();
+
+  // Nœuds aux coins
+  drawNode(left, top);
+  drawNode(right, top);
+  drawNode(left, bot);
+  drawNode(right, bot);
+
+  // Ampèremètre : toujours dans le fil principal (gauche)
+  if (etat.amperemetre) {
+    drawAmperemetreDansFil(left, (top + bot) / 2, calc.I, 'I', 'vertical');
+  }
+
+  // Voltmètre intelligent
+  if (etat.voltmetre) {
+    let targetX, targetY, U_mesure, label;
+
+    if (etat.voltTarget === 'pile') {
+      targetX = pileX;
+      targetY = bot;
+      U_mesure = etat.E;
+      label = 'E';
+    } else {
+      const idx = parseInt(etat.voltTarget.replace('R', '')) - 1;
+      if (idx < nbR) {
+        targetX = positionsR[idx];
+        targetY = top;
+        U_mesure = etat.interrupteurFerme ? calc.U_resistances[idx] : 0;
+        label = 'R' + (idx + 1);
+      } else {
+        targetX = pileX;
+        targetY = bot;
+        U_mesure = etat.E;
+        label = 'E';
+      }
+    }
+
+    drawVoltmetreIntelligent(targetX, targetY, U_mesure, label);
+  }
+
+  // Titre
+  ctx.fillStyle = '#4fc3f7';
+  ctx.font = 'bold 16px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('CIRCUIT EN SÉRIE', W / 2, 45);
+}
+
+// ============================================================
+//  SCHÉMA : CIRCUIT EN DÉRIVATION (v2 corrigée)
+// ============================================================
+function drawDerivation() {
+  const calc = calculerDerivation();
+  const left = 100;
+  const right = W - 100;
+  const top = 140;
+  const bot = H - 140;
+  const nbR = etat.nb;
+
+  // Positions
+  const nodeAX = left + 220;
+  const nodeBX = right - 220;
+  const pileY = top - 60;          // Pile et fil principal EN HAUT
+  const retourY = bot + 60;         // Fil de retour EN BAS
+
+  const branchYs = [];
+  const spacing = (bot - top) / (nbR + 1);
+  for (let i = 0; i < nbR; i++) {
+    branchYs.push(top + spacing * (i + 1));
+  }
+
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+
+  // === Fil principal (EN HAUT) ===
+  // Pile + Interrupteur sur le fil du HAUT
+  const pileX = left + 30;
+  const intX = left + 130;
+
+  // Pile
+  drawPile(pileX, pileY, etat.E);
+  positionsCanvas.pile = { x: pileX, y: pileY, w: 80, h: 40 };
+
+  // Fil de la pile à l'interrupteur
+  ctx.beginPath();
+  ctx.moveTo(pileX + 40, pileY);
+  ctx.lineTo(intX - 35, pileY);
+  ctx.stroke();
+
+  // Interrupteur (à droite de la pile)
+  drawInterrupteur(intX, pileY, 70, 40);
+
+  // Fil de l'interrupteur au nœud A
+  ctx.beginPath();
+  ctx.moveTo(intX + 35, pileY);
+  ctx.lineTo(nodeAX, pileY);
+  ctx.stroke();
+
+  // === Rails verticaux A et B (entre le fil principal et la 1ère branche) ===
+  ctx.beginPath();
+  ctx.moveTo(nodeAX, pileY);
+  ctx.lineTo(nodeAX, branchYs[0]);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(nodeBX, pileY);
+  ctx.lineTo(nodeBX, branchYs[0]);
+  ctx.stroke();
+
+  // === Branches horizontales avec résistances ===
+  positionsCanvas.recepteurs = [];
+  for (let i = 0; i < nbR; i++) {
+    const yBr = branchYs[i];
+
+    // Fil de A vers la résistance
+    const centerX = (nodeAX + nodeBX) / 2;
+    ctx.beginPath();
+    ctx.moveTo(nodeAX, yBr);
+    ctx.lineTo(centerX - 40, yBr);
+    ctx.stroke();
+
+    // Résistance
+    drawResistance(centerX, yBr, etat.resistances[i], 'R' + (i + 1));
+    positionsCanvas.recepteurs.push({
+      x: centerX, y: yBr, w: 80, h: 32, id: 'R' + (i + 1), index: i
+    });
+
+    // Fil de la résistance vers B
+    ctx.beginPath();
+    ctx.moveTo(centerX + 40, yBr);
+    ctx.lineTo(nodeBX, yBr);
+    ctx.stroke();
+
+    // Rails entre les branches (si plusieurs)
+    if (i < nbR - 1) {
+      ctx.beginPath();
+      ctx.moveTo(nodeAX, yBr);
+      ctx.lineTo(nodeAX, branchYs[i + 1]);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(nodeBX, yBr);
+      ctx.lineTo(nodeBX, branchYs[i + 1]);
+      ctx.stroke();
+    }
+  }
+
+  // === Rails verticaux sous la dernière branche ===
+  ctx.beginPath();
+  ctx.moveTo(nodeAX, branchYs[nbR - 1]);
+  ctx.lineTo(nodeAX, retourY);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(nodeBX, branchYs[nbR - 1]);
+  ctx.lineTo(nodeBX, retourY);
+  ctx.stroke();
+
+  // === Fil de retour (EN BAS) avec interrupteur ===
+  // Interrupteur sur le fil du bas
+  const intRetourX = (nodeAX + nodeBX) / 2;
+  drawInterrupteur(intRetourX, retourY, 80, 40);
+
+  // Fil de B vers l'interrupteur
+  ctx.beginPath();
+  ctx.moveTo(nodeBX, retourY);
+  ctx.lineTo(intRetourX + 40, retourY);
+  ctx.stroke();
+
+  // Fil de l'interrupteur vers A
+  ctx.beginPath();
+  ctx.moveTo(intRetourX - 40, retourY);
+  ctx.lineTo(nodeAX, retourY);
+  ctx.stroke();
+
+  // === Nœuds A et B sur le fil principal (pileY) ===
+  drawNode(nodeAX, pileY, 'A');
+  drawNode(nodeBX, pileY, 'B');
+
+  // === Ampèremètre DANS la branche choisie ===
+  if (etat.amperemetre) {
+    if (etat.ampTarget === 'total') {
+      // Ampèremètre dans le fil principal (entre pile et nœud A)
+      drawAmperemetreDansFil((intX + nodeAX) / 2, pileY, calc.I_total, 'I', 'horizontal');
+    } else {
+      const idx = parseInt(etat.ampTarget.replace('R', '')) - 1;
+      if (idx < nbR) {
+        // Ampèremètre dans la branche choisie
+        const yBr = branchYs[idx];
+        const centerX = (nodeAX + nodeBX) / 2;
+        // Position : entre nodeAX et la résistance (à gauche de la résistance)
+        const ampX = nodeAX + 50;
+        drawAmperemetreDansFil(ampX, yBr, calc.I_branches[idx], 'I' + (idx + 1), 'horizontal');
+      }
+    }
+  }
+
+  // === Voltmètre intelligent ===
+  if (etat.voltmetre) {
+    let targetX, targetY, U_mesure, label;
+
+    if (etat.voltTarget === 'pile') {
+      targetX = pileX;
+      targetY = pileY;
+      U_mesure = etat.E;
+      label = 'E';
+    } else {
+      const idx = parseInt(etat.voltTarget.replace('R', '')) - 1;
+      if (idx < nbR) {
+        const centerX = (nodeAX + nodeBX) / 2;
+        targetX = centerX;
+        targetY = branchYs[idx];
+        U_mesure = etat.interrupteurFerme ? etat.E : 0;
+        label = 'R' + (idx + 1);
+      } else {
+        targetX = pileX;
+        targetY = pileY;
+        U_mesure = etat.E;
+        label = 'E';
+      }
+    }
+
+    drawVoltmetreIntelligent(targetX, targetY, U_mesure, label);
+  }
+
+  // === Titre ===
+  ctx.fillStyle = '#4fc3f7';
+  ctx.font = 'bold 16px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('CIRCUIT EN DÉRIVATION', W / 2, 45);
+
+  // Rappel des nœuds
+  ctx.fillStyle = 'rgba(255, 213, 79, 0.9)';
+  ctx.font = 'bold 11px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('A = nœud de division', nodeAX + 15, pileY - 20);
+  ctx.textAlign = 'right';
+  ctx.fillText('B = nœud de recombinaison', nodeBX - 15, pileY - 20);
+}
+
+// ============================================================
+//  DESSINS DES COMPOSANTS
+// ============================================================
+function drawResistance(cx, cy, valeur, nom) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.rect(cx - 40, cy - 16, 80, 32);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#4fc3f7';
+  ctx.font = 'bold 15px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(valeur + 'Ω', cx, cy);
+
+  ctx.fillStyle = '#ffd54f';
+  ctx.font = 'bold 13px monospace';
+  ctx.fillText(nom, cx, cy - 26);
+  ctx.textBaseline = 'alphabetic';
+}
+
+function drawPile(cx, cy, E) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.rect(cx - 40, cy - 20, 80, 40);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#4caf50';
+  ctx.font = 'bold 22px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('+', cx - 25, cy);
+
+  ctx.fillStyle = '#f44336';
+  ctx.fillText('−', cx + 25, cy);
+
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 14px monospace';
+  ctx.fillText(E + 'V', cx, cy + 1);
+  ctx.textBaseline = 'alphabetic';
+
+  ctx.fillStyle = '#4fc3f7';
+  ctx.font = 'bold 11px monospace';
+  ctx.fillText('PILE', cx, cy - 28);
+}
+
+function drawInterrupteur(cx, cy, w, h) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = etat.interrupteurFerme ? '#4caf50' : '#666';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.roundRect(cx - w / 2 - 8, cy - h / 2, w + 16, h, 10);
+  ctx.fill();
+  ctx.stroke();
+
+  const bx1 = cx - w / 2;
+  const bx2 = cx + w / 2;
+
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(bx1, cy, 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(bx2, cy, 6, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = etat.interrupteurFerme ? '#4caf50' : '#f44336';
+  ctx.lineWidth = 5;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  if (etat.interrupteurFerme) {
+    ctx.moveTo(bx1, cy);
+    ctx.lineTo(bx2, cy);
+  } else {
+    ctx.moveTo(bx1, cy);
+    ctx.lineTo(bx2, cy - 28);
+  }
+  ctx.stroke();
+
+  ctx.fillStyle = etat.interrupteurFerme ? '#4caf50' : '#f44336';
+  ctx.font = 'bold 10px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(etat.interrupteurFerme ? '✓ FERMÉ' : '○ OUVERT', cx, cy + 30);
+  ctx.fillStyle = '#4fc3f7';
+  ctx.fillText('INTERRUPTEUR', cx, cy - h / 2 - 10);
+
+  positionsCanvas.interrupteur = { x: cx, y: cy, w: w + 16, h: h };
+}
+
+function drawNode(x, y, label) {
+  ctx.fillStyle = '#fff';
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(x, y, 7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  if (label) {
+    ctx.fillStyle = '#ffd54f';
+    ctx.font = 'bold 14px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, x, y - 16);
+    ctx.textBaseline = 'alphabetic';
+  }
+}
+
+// 🆕 Ampèremètre DANS le fil (pas à côté)
+function drawAmperemetreDansFil(cx, cy, I, label, orientation) {
+  const r = 22;
+  let bx1, bx2, by1, by2;
+
+  if (orientation === 'horizontal') {
+    bx1 = cx - r - 6;
+    bx2 = cx + r + 6;
+    by1 = cy;
+    by2 = cy;
+  } else {
+    bx1 = cx;
+    bx2 = cx;
+    by1 = cy - r - 6;
+    by2 = cy + r + 6;
+  }
+
+  // Cercle
+  ctx.fillStyle = '#0a0a1a';
+  ctx.strokeStyle = '#4caf50';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // Lettre A
+  ctx.fillStyle = '#4caf50';
+  ctx.font = 'bold 20px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('A', cx, cy);
+  ctx.textBaseline = 'alphabetic';
+
+  // Valeur au-dessus
+  ctx.fillStyle = '#00ff00';
+  ctx.font = 'bold 12px monospace';
+  ctx.textAlign = 'center';
+  if (orientation === 'horizontal') {
+    ctx.fillText(I.toFixed(3) + ' A', cx, cy - 32);
+    ctx.fillStyle = '#ffd54f';
+    ctx.font = 'bold 10px monospace';
+    ctx.fillText(label, cx, cy + 38);
+  } else {
+    ctx.fillText(I.toFixed(3) + ' A', cx + 50, cy + 4);
+    ctx.fillStyle = '#ffd54f';
+    ctx.font = 'bold 10px monospace';
+    ctx.fillText(label, cx + 50, cy + 18);
+  }
+}
+
+// Voltmètre intelligent : fils pointillés vers les bornes
+function drawVoltmetreIntelligent(cx, cy, U, label) {
+  const offset = 70;
+  const voltX = cx;
+  const voltY = cy > H / 2 ? cy - offset : cy + offset;
+
+  // Cercle
+  ctx.fillStyle = '#0a0a1a';
+  ctx.strokeStyle = '#ff9800';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(voltX, voltY, 26, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#ff9800';
+  ctx.font = 'bold 22px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('V', voltX, voltY);
+  ctx.textBaseline = 'alphabetic';
+
+  // Fils pointillés
+  ctx.strokeStyle = '#ff9800';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([5, 4]);
+
+  const leftBorneX = cx - 45;
+  const rightBorneX = cx + 45;
+
+  ctx.beginPath();
+  ctx.moveTo(voltX - 20, voltY);
+  ctx.lineTo(voltX - 55, voltY);
+  ctx.lineTo(leftBorneX, cy);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(voltX + 20, voltY);
+  ctx.lineTo(voltX + 55, voltY);
+  ctx.lineTo(rightBorneX, cy);
+  ctx.stroke();
+
+  ctx.setLineDash([]);
+
+  // Bornes
+  ctx.fillStyle = '#ff9800';
+  ctx.beginPath();
+  ctx.arc(leftBorneX, cy, 5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(rightBorneX, cy, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Valeur
+  ctx.fillStyle = '#ffb74d';
+  ctx.font = 'bold 13px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(U.toFixed(2) + ' V (' + label + ')', voltX, voltY - 40);
+}
+
+// ============================================================
+//  ÉLECTRONS — avec ordre physique
+// ============================================================
+function initElectrons() {
+  etat.animation.electrons = [];
+  for (let i = 0; i < 20; i++) {
+    etat.animation.electrons.push({
+      t: i / 20,
+      branche: null
+    });
+  }
+}
+
+function drawElectrons() {
+  if (!etat.animation.active || !etat.interrupteurFerme) return;
+
+  const speed = 0.0035;
+  const couleur = '#00e5ff';
+
+  etat.animation.electrons.forEach(e => {
+    e.t = (e.t + speed) % 1;
+
+    let pos = null;
+    let angle = 0;
+
+    if (etat.type === 'serie') {
+      const result = positionSerieElectron(e.t);
+      pos = result.pos;
+      angle = result.angle;
+    } else if (etat.type === 'derivation') {
+      const result = positionDerivationElectron(e.t, e);
+      pos = result.pos;
+      angle = result.angle;
+    }
+
+    if (!pos) return;
+
+    const grad = ctx.createRadialGradient(pos.x, pos.y, 1, pos.x, pos.y, 14);
+    grad.addColorStop(0, couleur);
+    grad.addColorStop(1, 'rgba(0, 229, 255, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, 14, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = couleur;
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.save();
+    ctx.translate(pos.x + Math.cos(angle) * 12, pos.y + Math.sin(angle) * 12);
+    ctx.rotate(angle);
+    ctx.fillStyle = couleur;
+    ctx.beginPath();
+    ctx.moveTo(6, 0);
+    ctx.lineTo(-4, -4);
+    ctx.lineTo(-4, 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+// Ordre physique : Pile (+) → R₁ → R₂ → R₃ → Interrupteur → Pile (−)
+// Mais on suit le sens conventionnel : + → −
+function positionSerieElectron(t) {
+  const left = 100;
+  const right = W - 100;
+  const top = 130;
+  const bot = H - 130;
+  const pileX = left + (right - left) / 2 - 150;
+  const intX = left + (right - left) / 2 + 50;
+
+  // Ordre du parcours :
+  // 1. De la borne + de la pile (à gauche de la pile) → coin gauche bas
+  // 2. Coin gauche bas → coin gauche haut
+  // 3. Coin gauche haut → coin droit haut (par les résistances)
+  // 4. Coin droit haut → coin droit bas
+  // 5. Coin droit bas → borne − de la pile (à droite de la pile) en passant par l'interrupteur
+
+  // Longueurs
+  const L1 = pileX - 40 - left;              // Segment bas gauche (pile → coin)
+  const L2 = bot - top;                       // Fil gauche vertical
+  const L3 = right - left;                    // Fil haut (avec R₁, R₂, R₃)
+  const L4 = bot - top;                       // Fil droit vertical
+  const L5 = right - (intX + 40);             // Segment bas droit (coin → interrupteur)
+  const L6 = (intX - 40) - (pileX + 40);      // Segment bas (interrupteur → pile)
+
+  const total = L1 + L2 + L3 + L4 + L5 + L6;
+  const d = t * total;
+  let cumul = 0;
+
+  // Seg 1 : Pile → coin gauche bas (gauche à droite... non, on part de la pile vers la gauche)
+  // On va dans le sens conventionnel : + vers −
+  // La borne + est à gauche de la pile. Donc : + → coin gauche → fil gauche → fil haut → fil droit → coin droit bas → interrupteur → borne −
+
+  cumul += L1;
+  if (d < cumul) {
+    const tt = (d - (cumul - L1)) / L1;
+    // Part de pileX - 40 (borne +) vers left
+    return { pos: { x: (pileX - 40) - L1 * tt, y: bot }, angle: Math.PI };
+  }
+
+  cumul += L2;
+  if (d < cumul) {
+    const tt = (d - (cumul - L2)) / L2;
+    return { pos: { x: left, y: bot - (bot - top) * tt }, angle: -Math.PI / 2 };
+  }
+
+  cumul += L3;
+  if (d < cumul) {
+    const tt = (d - (cumul - L3)) / L3;
+    return { pos: { x: left + (right - left) * tt, y: top }, angle: 0 };
+  }
+
+  cumul += L4;
+  if (d < cumul) {
+    const tt = (d - (cumul - L4)) / L4;
+    return { pos: { x: right, y: top + (bot - top) * tt }, angle: Math.PI / 2 };
+  }
+
+  cumul += L5;
+  if (d < cumul) {
+    const tt = (d - (cumul - L5)) / L5;
+    return { pos: { x: right - L5 * tt, y: bot }, angle: Math.PI };
+  }
+
+  cumul += L6;
+  const tt = (d - (cumul - L6)) / L6;
+  return { pos: { x: (intX - 40) - L6 * tt, y: bot }, angle: Math.PI };
+}
+
+// Ordre physique en dérivation
+function positionDerivationElectron(t, e) {
+  const left = 100;
+  const right = W - 100;
+  const top = 140;
+  const bot = H - 140;
+  const nbR = etat.nb;
+
+  const nodeAX = left + 220;
+  const nodeBX = right - 220;
+  const pileY = top - 60;
+  const retourY = bot + 60;
+
+  const branchYs = [];
+  const spacing = (bot - top) / (nbR + 1);
+  for (let i = 0; i < nbR; i++) {
+    branchYs.push(top + spacing * (i + 1));
+  }
+
+  // Choix de la branche
+  if (e.branche === null) {
+    e.branche = Math.floor(Math.random() * nbR);
+  }
+  const idxBranche = e.branche % nbR;
+
+  // Parcours : Pile (+) → Nœud A → Branche → Nœud B → Retour bas → Interrupteur → Pile (−)
+  // Segments :
+  // 1. Pile + → Nœud A (sur le fil du haut)
+  // 2. Nœud A → branche (descente)
+  // 3. Branche (traversée horizontale)
+  // 4. Branche → Nœud B (remontée sur le rail droit de la branche)
+  // 5. Nœud B → retour (descente vers le bas)
+  // 6. Retour (de B vers interrupteur en bas)
+  // 7. Interrupteur → Pile − (retour vers la gauche)
+
+  const pileX = left + 30;
+  const intRetourX = (nodeAX + nodeBX) / 2;
+
+  const L1 = nodeAX - (pileX + 40);
+  const L2 = Math.abs(branchYs[idxBranche] - pileY);
+  const L3 = nodeBX - nodeAX;
+  const L4 = Math.abs(retourY - branchYs[idxBranche]);
+  const L5 = nodeBX - intRetourX - 40;
+  const L6 = (intRetourX - 40) - (pileX - 40);
+
+  const total = L1 + L2 + L3 + L4 + L5 + L6;
+  const d = t * total;
+  let cumul = 0;
+
+  // Seg 1 : Pile → Nœud A
+  cumul += L1;
+  if (d < cumul) {
+    const tt = (d - (cumul - L1)) / L1;
+    return { pos: { x: (pileX + 40) + L1 * tt, y: pileY }, angle: 0 };
+  }
+
+  // Seg 2 : Nœud A → branche (vertical)
+  cumul += L2;
+  if (d < cumul) {
+    const tt = (d - (cumul - L2)) / L2;
+    const targetY = branchYs[idxBranche];
+    return { pos: { x: nodeAX, y: pileY + (targetY - pileY) * tt }, angle: Math.PI / 2 };
+  }
+
+  // Seg 3 : Branche (horizontal)
+  cumul += L3;
+  if (d < cumul) {
+    const tt = (d - (cumul - L3)) / L3;
+    return { pos: { x: nodeAX + (nodeBX - nodeAX) * tt, y: branchYs[idxBranche] }, angle: 0 };
+  }
+
+  // Seg 4 : Branche → Retour (vertical descente sur le rail B)
+  cumul += L4;
+  if (d < cumul) {
+    const tt = (d - (cumul - L4)) / L4;
+    return { pos: { x: nodeBX, y: branchYs[idxBranche] + (retourY - branchYs[idxBranche]) * tt }, angle: Math.PI / 2 };
+  }
+
+  // Seg 5 : Retour (de B vers l'interrupteur, en bas, horizontal)
+  cumul += L5;
+  if (d < cumul) {
+    const tt = (d - (cumul - L5)) / L5;
+    return { pos: { x: nodeBX - L5 * tt, y: retourY }, angle: Math.PI };
+  }
+
+  // Seg 6 : Interrupteur → Pile − (horizontal)
+  const tt = (d - (cumul - L6)) / L6;
+  return { pos: { x: (intRetourX - 40) - L6 * tt, y: retourY }, angle: Math.PI };
+}
+
+// ============================================================
+//  MISE À JOUR DES MESURES (avec correction circuit ouvert)
+// ============================================================
+function updateMesures() {
+  const calc = etat.type === 'serie' ? calculerSerie() : calculerDerivation();
+  const circuitFerme = etat.interrupteurFerme;
+
+  // ---- AMPÈREMÈTRE ----
+  let I_affiche = 0;
+  let I_label = '';
+  if (!circuitFerme) {
+    I_affiche = 0;
+    I_label = 'Circuit ouvert (I = 0)';
+  } else if (etat.type === 'serie') {
+    I_affiche = calc.I;
+    I_label = 'Fil principal';
+  } else {
+    if (etat.ampTarget === 'total') {
+      I_affiche = calc.I_total;
+      I_label = 'Courant total';
+    } else {
+      const idx = parseInt(etat.ampTarget.replace('R', '')) - 1;
+      I_affiche = calc.I_branches[idx] || 0;
+      I_label = 'Branche R' + (idx + 1);
+    }
+  }
+  document.getElementById('mmAmpereVal').textContent = I_affiche.toFixed(3);
+  document.getElementById('mmAmpereTarget').textContent = I_label;
+
+  // ---- VOLTMÈTRE ----
+  let U_affiche = 0;
+  let U_label = '';
+  if (etat.voltTarget === 'pile') {
+    U_affiche = etat.E;
+    U_label = 'Pile (E)';
+  } else {
+    const idx = parseInt(etat.voltTarget.replace('R', '')) - 1;
+    if (!circuitFerme) {
+      U_affiche = 0;
+    } else if (etat.type === 'serie') {
+      U_affiche = calc.U_resistances[idx] || 0;
+    } else {
+      U_affiche = etat.E;
+    }
+    U_label = 'R' + (idx + 1);
+  }
+  document.getElementById('mmVoltVal').textContent = U_affiche.toFixed(2);
+  document.getElementById('mmVoltTarget').textContent = 'Aux bornes de : ' + U_label;
+
+  // Affichage / masquage + grisage quand OFF
+  const mmAmpere = document.getElementById('mmAmpere');
+  const mmVolt = document.getElementById('mmVolt');
+  mmAmpere.style.display = etat.amperemetre ? 'block' : 'none';
+  mmVolt.style.display = etat.voltmetre ? 'block' : 'none';
+  mmAmpere.classList.toggle('off', !circuitFerme);
+  // Le voltmètre sur la pile reste allumé même à circuit ouvert
+  mmVolt.classList.toggle('off', !circuitFerme && etat.voltTarget !== 'pile');
+
+  document.getElementById('ampSelectZone').style.display = etat.type === 'serie' ? 'none' : 'inline-block';
+  document.getElementById('voltmSelectZone').style.display = 'inline-block';
+
+  genererLoisPanel(calc, circuitFerme);
+}
+
+// ============================================================
+//  PANNEAU "LOIS APPLIQUÉES"
+// ============================================================
+function genererLoisPanel(calc, circuitFerme) {
+  const panel = document.getElementById('loisPanel');
+  let html = '';
+
+  if (!circuitFerme) {
+    html += `<div class="loi-warning">⚠️ Circuit ouvert : aucun courant ne circule.</div>`;
+  }
+
+  if (etat.type === 'serie') {
+    html += `
+      <div class="loi-step">
+        <div class="loi-title">📏 Loi des mailles</div>
+        <div class="loi-formule">U = U₁ + U₂ + U₃ + ...</div>
+        <div class="loi-calcul">${circuitFerme ? etat.E + ' V = ' + calc.U_resistances.map(u => u.toFixed(2)).join(' + ') + ' V' : '—'}</div>
+      </div>
+      <div class="loi-step">
+        <div class="loi-title">🔗 Résistance équivalente</div>
+        <div class="loi-formule">Req = R₁ + R₂ + R₃ + ...</div>
+        <div class="loi-calcul">Req = ${calc.R_total.toFixed(2)} Ω</div>
+      </div>
+      <div class="loi-step">
+        <div class="loi-title">⚡ Courant</div>
+        <div class="loi-formule">I = E / Req</div>
+        <div class="loi-calcul">I = ${circuitFerme ? etat.E + ' / ' + calc.R_total.toFixed(2) + ' = ' : '— '}<span class="loi-result">${circuitFerme ? calc.I.toFixed(3) + ' A' : '0 A'}</span></div>
+      </div>
+    `;
+  } else if (etat.type === 'derivation') {
+    const R = etat.resistances.slice(0, etat.nb);
+    html += `
+      <div class="loi-step">
+        <div class="loi-title">🔀 Loi des nœuds</div>
+        <div class="loi-formule">I = I₁ + I₂ + I₃ + ...</div>
+        <div class="loi-calcul">${circuitFerme ? calc.I_total.toFixed(3) + ' A = ' + calc.I_branches.map(i => i.toFixed(3)).join(' + ') + ' A' : '—'}</div>
+      </div>
+      <div class="loi-step">
+        <div class="loi-title">🌿 Résistance équivalente (étape 1 : blocs parallèles)</div>
+        <div class="loi-formule">1/Req = 1/R₁ + 1/R₂ + ...</div>
+        <div class="loi-calcul">1/Req = ${R.map(r => '1/' + r).join(' + ')}</div>
+        <div class="loi-calcul">Req = <span class="loi-result">${calc.R_eq.toFixed(2)} Ω</span></div>
+      </div>
+      <div class="loi-step">
+        <div class="loi-title">⚡ Courant total (étape 2)</div>
+        <div class="loi-formule">I = E / Req</div>
+        <div class="loi-calcul">I = ${circuitFerme ? etat.E + ' / ' + calc.R_eq.toFixed(2) + ' = ' : '— '}<span class="loi-result">${circuitFerme ? calc.I_total.toFixed(3) + ' A' : '0 A'}</span></div>
+      </div>
+    `;
+  }
+
+  panel.innerHTML = html;
+}
+
+// ============================================================
+//  INTERACTIONS — clic sur l'interrupteur
+// ============================================================
+canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const canvasRatio = canvas.width / canvas.height;
+  const rectRatio = rect.width / rect.height;
+  let renderWidth, renderHeight, offsetX, offsetY;
+
+  if (rectRatio > canvasRatio) {
+    renderHeight = rect.height;
+    renderWidth = renderHeight * canvasRatio;
+    offsetX = (rect.width - renderWidth) / 2;
+    offsetY = 0;
+  } else {
+    renderWidth = rect.width;
+    renderHeight = renderWidth / canvasRatio;
+    offsetX = 0;
+    offsetY = (rect.height - renderHeight) / 2;
+  }
+
+  const x = (e.clientX - rect.left - offsetX) * (canvas.width / renderWidth);
+  const y = (e.clientY - rect.top - offsetY) * (canvas.height / renderHeight);
+
+  const inter = positionsCanvas.interrupteur;
+  if (inter && Math.abs(x - inter.x) < inter.w / 2 + 10 && Math.abs(y - inter.y) < inter.h / 2 + 10) {
+    toggleInterrupteur();
+    return;
+  }
+
+  const pile = positionsCanvas.pile;
+  if (pile && Math.abs(x - pile.x) < pile.w / 2 + 10 && Math.abs(y - pile.y) < pile.h / 2 + 10) {
+    if (etat.voltmetre) {
+      etat.voltTarget = 'pile';
+      document.getElementById('voltmTarget').value = 'pile';
+      drawCircuit();
+      updateMesures();
+    }
+  }
+});
+
+function toggleInterrupteur() {
+  etat.interrupteurFerme = !etat.interrupteurFerme;
+  if (etat.interrupteurFerme) {
+    etat.animation.active = true;
+    initElectrons();
+    document.getElementById('btnAnimer').textContent = '⏸ Pause';
+    document.getElementById('status').textContent = '⚡ Circuit fermé — les électrons circulent';
+    document.getElementById('status').classList.add('active');
+    animate();
+  } else {
+    etat.animation.active = false;
+    document.getElementById('btnAnimer').textContent = '▶ Animer les électrons';
+    document.getElementById('status').textContent = 'Interrupteur ouvert — cliquez dessus pour fermer le circuit';
+    document.getElementById('status').classList.remove('active');
+  }
+  drawCircuit();
+  updateMesures();
+}
+
+// ============================================================
+//  ACTIONS UI
+// ============================================================
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    if (tab.dataset.tab === 'mixte') {
+      alert('🔀 L\'onglet Mixte arrive bientôt (Phase 2) !');
+      return;
+    }
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    etat.type = tab.dataset.tab;
+    etat.animation.active = false;
+    etat.interrupteurFerme = false;
+    document.getElementById('btnAnimer').textContent = '▶ Animer les électrons';
+    document.getElementById('status').textContent = 'Interrupteur ouvert — cliquez dessus pour fermer le circuit';
+    document.getElementById('status').classList.remove('active');
+    document.getElementById('zoneLabel').textContent = etat.type === 'serie' ? '🔬 CIRCUIT EN SÉRIE' : '🌿 CIRCUIT EN DÉRIVATION';
+    drawCircuit();
+    updateMesures();
+  });
+});
+
+document.querySelectorAll('.branch-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.branch-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    etat.nb = parseInt(btn.dataset.nb);
+    updateRowVisibilities();
+    updateVoltmOptions();
+    drawCircuit();
+    updateMesures();
+  });
+});
+
+document.getElementById('chkAmperemetre').addEventListener('change', (e) => {
+  etat.amperemetre = e.target.checked;
+  drawCircuit();
+  updateMesures();
+});
+
+document.getElementById('chkVoltmetre').addEventListener('change', (e) => {
+  etat.voltmetre = e.target.checked;
+  drawCircuit();
+  updateMesures();
+});
+
+document.getElementById('ampTarget').addEventListener('change', (e) => {
+  etat.ampTarget = e.target.value;
+  drawCircuit();
+  updateMesures();
+});
+
+document.getElementById('voltmTarget').addEventListener('change', (e) => {
+  etat.voltTarget = e.target.value;
+  drawCircuit();
+  updateMesures();
+});
+
+['E', 'R1', 'R2', 'R3', 'R4'].forEach(id => {
+  const input = document.getElementById('input' + id);
+  if (!input) return;
+  input.addEventListener('input', (e) => {
+    let val = parseFloat(e.target.value);
+    if (isNaN(val)) return;
+    if (id === 'E') {
+      val = Math.max(1, Math.min(24, val));
+      etat.E = val;
+    } else {
+      val = Math.max(1, Math.min(200, val));
+      const idx = parseInt(id.replace('R', '')) - 1;
+      etat.resistances[idx] = val;
+    }
+    drawCircuit();
+    updateMesures();
+  });
+});
+
+document.getElementById('btnAnimer').addEventListener('click', () => {
+  if (etat.animation.active) {
+    etat.animation.active = false;
+    document.getElementById('btnAnimer').textContent = '▶ Animer les électrons';
+    document.getElementById('status').textContent = 'Pause';
+    document.getElementById('status').classList.remove('active');
+  } else {
+    if (!etat.interrupteurFerme) {
+      alert('⚠️ Ferme d\'abord l\'interrupteur en cliquant dessus !');
+      return;
+    }
+    etat.animation.active = true;
+    initElectrons();
+    document.getElementById('btnAnimer').textContent = '⏸ Pause';
+    document.getElementById('status').textContent = '⚡ Les électrons circulent';
+    document.getElementById('status').classList.add('active');
+    animate();
+  }
+});
+
+document.getElementById('btnReset').addEventListener('click', () => {
+  etat.E = 12;
+  etat.resistances = [10, 10, 10, 10];
+  etat.interrupteurFerme = false;
+  etat.animation.active = false;
+  document.getElementById('inputE').value = 12;
+  document.getElementById('inputR1').value = 10;
+  document.getElementById('inputR2').value = 10;
+  document.getElementById('inputR3').value = 10;
+  document.getElementById('inputR4').value = 10;
+  document.getElementById('btnAnimer').textContent = '▶ Animer les électrons';
+  document.getElementById('status').textContent = 'Interrupteur ouvert — cliquez dessus pour fermer le circuit';
+  document.getElementById('status').classList.remove('active');
+  drawCircuit();
+  updateMesures();
+});
+
+document.getElementById('btnFormules').addEventListener('click', () => {
+  document.getElementById('modalFormules').classList.add('show');
+});
+
+document.getElementById('btnFermerFormules').addEventListener('click', () => {
+  document.getElementById('modalFormules').classList.remove('show');
+});
+
+document.getElementById('modalFormules').addEventListener('click', (e) => {
+  if (e.target.id === 'modalFormules') e.target.classList.remove('show');
+});
+
+// ============================================================
+//  AFFICHAGE CONDITIONNEL DES CHAMPS
+// ============================================================
+function updateRowVisibilities() {
+  for (let i = 1; i <= 4; i++) {
+    const row = document.getElementById('rowR' + i);
+    if (!row) continue;
+    row.style.display = i <= etat.nb ? 'flex' : 'none';
+  }
+}
+
+function updateVoltmOptions() {
+  const sel = document.getElementById('voltmTarget');
+  const current = sel.value;
+  sel.innerHTML = '<option value="pile">Pile (E)</option>';
+  for (let i = 1; i <= etat.nb; i++) {
+    const opt = document.createElement('option');
+    opt.value = 'R' + i;
+    opt.textContent = 'R' + i;
+    sel.appendChild(opt);
+  }
+  if (current !== 'pile' && parseInt(current.replace('R', '')) > etat.nb) {
+    sel.value = 'pile';
+    etat.voltTarget = 'pile';
+  } else {
+    sel.value = current;
+  }
+
+  const selAmp = document.getElementById('ampTarget');
+  const currentAmp = selAmp.value;
+  selAmp.innerHTML = '<option value="total">Courant total I</option>';
+  for (let i = 1; i <= etat.nb; i++) {
+    const opt = document.createElement('option');
+    opt.value = 'R' + i;
+    opt.textContent = 'Branche R' + i;
+    selAmp.appendChild(opt);
+  }
+  if (currentAmp !== 'total' && parseInt(currentAmp.replace('R', '')) > etat.nb) {
+    selAmp.value = 'total';
+    etat.ampTarget = 'total';
+  } else {
+    selAmp.value = currentAmp;
+  }
+}
+
+// ============================================================
+//  BOUCLE D'ANIMATION
+// ============================================================
+function animate(timestamp) {
+  if (!timestamp) timestamp = performance.now();
+  if (timestamp - etat.animation.lastTime > 33) {
+    drawCircuit();
+    etat.animation.lastTime = timestamp;
+  }
+  if (etat.animation.active) {
+    etat.animation.rafId = requestAnimationFrame(animate);
+  }
+}
+
+// Polyfill roundRect
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    this.beginPath();
+    this.moveTo(x + r, y);
+    this.arcTo(x + w, y, x + w, y + h, r);
+    this.arcTo(x + w, y + h, x, y + h, r);
+    this.arcTo(x, y + h, x, y, r);
+    this.arcTo(x, y, x + w, y, r);
+    this.closePath();
+    return this;
+  };
+}
+
+// ============================================================
+//  INITIALISATION
+// ============================================================
+window.addEventListener('load', () => {
+  updateRowVisibilities();
+  updateVoltmOptions();
+  drawCircuit();
+  updateMesures();
+  console.log('✅ Simulateur Série/Dérivation v2 chargé !');
+});
+
+// Service worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log('✅ Service worker OK'))
+      .catch(err => console.warn('SW non enregistré :', err));
+  });
+}
+</script>
+
+</body>
+</html>
