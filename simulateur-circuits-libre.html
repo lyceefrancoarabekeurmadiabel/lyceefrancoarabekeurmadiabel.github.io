@@ -479,7 +479,7 @@
 
       <div class="panel-title" style="margin-top: 10px;">🎛 Actions</div>
 
-      <button class="tool-btn" id="btnConnect" style="border-color: rgba(76, 175, 80, 0.5);">
+      <button class="tool-btn" id="btnConnect"></button>
         <span class="icon">🔗</span>
         <span id="connectBtnLabel">Mode câblage : OFF</span>
       </button>
@@ -661,6 +661,8 @@ function ajouterComposant(type) {
   drawCircuit();
   updateZoneInfo();
   console.log('✅ Composant ajouté :', type, 'à', x, y);
+    // Changer le curseur selon le mode
+  canvas.style.cursor = atelier.modeCablage ? 'crosshair' : 'move';
 }
 
 // ============================================================
@@ -1025,57 +1027,60 @@ function onTouchEnd(e) {
 //  LOGIQUE DE POINTEUR (partagée souris/tactile)
 // ============================================================
 function handlePointerDown(x, y) {
-  // 1. Chercher si on clique sur une borne
-  const borneTouchee = trouverBorneProche(x, y);
-  if (borneTouchee && atelier.modeCablage) {
-    // Mode câblage : clic sur borne
-    if (!atelier.borneSelectionnee) {
-      atelier.borneSelectionnee = borneTouchee.id;
-      updateStatus('🔗 Borne sélectionnée : clique sur une autre borne pour créer un fil');
-    } else if (atelier.borneSelectionnee === borneTouchee.id) {
-      atelier.borneSelectionnee = null;
-      updateStatus('Câblage annulé');
-    } else {
-      // Vérifier qu'on ne connecte pas 2 bornes du même composant
-      const b1 = getBorneById(atelier.borneSelectionnee);
-      const b2 = borneTouchee;
-      if (b1.composantId === b2.composantId) {
-        alert('⚠️ On ne peut pas relier 2 bornes du même composant !');
-        atelier.borneSelectionnee = null;
-      } else {
-        // Vérifier qu'un fil n'existe pas déjà
-        const existe = atelier.fils.some(f =>
-          (f.de === b1.id && f.vers === b2.id) ||
-          (f.vers === b1.id && f.de === b2.id)
-        );
-        if (!existe) {
-          atelier.fils.push({ de: b1.id, vers: b2.id });
-          updateStatus('✅ Fil créé !');
-          analyserCircuit();
-        } else {
-          updateStatus('Ce fil existe déjà');
-        }
-        atelier.borneSelectionnee = null;
-      }
-    }
-    drawCircuit();
-    return;
-  }
-
-  // 2. Chercher si on clique sur l'interrupteur (pour le basculer)
+  // D'abord, chercher si on clique sur un composant
   const comp = trouverComposantProche(x, y);
-  if (comp && comp.type === 'interrupteur') {
+  
+  // Si on est en mode CÂBLAGE et qu'on clique sur une borne → câbler
+  if (atelier.modeCablage) {
+    const borneTouchee = trouverBorneProche(x, y);
+    if (borneTouchee) {
+      // ... (logique de câblage existante)
+      if (!atelier.borneSelectionnee) {
+        atelier.borneSelectionnee = borneTouchee.id;
+        updateStatus('🔗 Borne sélectionnée : clique sur une autre borne');
+      } else if (atelier.borneSelectionnee === borneTouchee.id) {
+        atelier.borneSelectionnee = null;
+        updateStatus('Câblage annulé');
+      } else {
+        const b1 = getBorneById(atelier.borneSelectionnee);
+        const b2 = borneTouchee;
+        if (b1.composantId === b2.composantId) {
+          alert('⚠️ On ne peut pas relier 2 bornes du même composant !');
+          atelier.borneSelectionnee = null;
+        } else {
+          const existe = atelier.fils.some(f =>
+            (f.de === b1.id && f.vers === b2.id) ||
+            (f.vers === b1.id && f.de === b2.id)
+          );
+          if (!existe) {
+            atelier.fils.push({ de: b1.id, vers: b2.id });
+            updateStatus('✅ Fil créé !');
+            analyserCircuit();
+          } else {
+            updateStatus('Ce fil existe déjà');
+          }
+          atelier.borneSelectionnee = null;
+        }
+      }
+      drawCircuit();
+      return;
+    }
+  }
+  
+  // Sinon, si on clique sur l'interrupteur → basculer
+  if (comp && comp.type === 'interrupteur' && !atelier.modeCablage) {
     atelier.interrupteurFerme = !atelier.interrupteurFerme;
     drawCircuit();
     analyserCircuit();
     return;
   }
-
-  // 3. Sinon, drag du composant
+  
+  // Sinon, drag du composant
   if (comp) {
     atelier.composantEnDrag = comp;
     atelier.offsetDrag = { x: x - comp.x, y: y - comp.y };
     canvas.style.cursor = 'grabbing';
+    drawCircuit();
   }
 }
 
@@ -1170,7 +1175,30 @@ document.getElementById('btnClearAll').addEventListener('click', () => {
   drawCircuit();
   updateZoneInfo();
   updateMesures();
-  updateStatus('Atelier vidé');
+    updateStatus('Atelier vidé');
+      // Mettre à jour l'état du bouton Animer
+  updateBoutonAnimer();
+}
+
+function updateBoutonAnimer() {
+  const btn = document.getElementById('btnAnimer');
+  const peutAnimer = atelier.interrupteurFerme && 
+                    atelier.resultats.type !== 'aucun' && 
+                    atelier.resultats.type !== 'ouvert' &&
+                    atelier.resultats.type !== 'court-circuit' &&
+                    atelier.resultats.chemin;
+  
+  if (atelier.animation.active) {
+    btn.disabled = false;
+    btn.textContent = '⏸ Pause';
+  } else if (peutAnimer) {
+    btn.disabled = false;
+    btn.textContent = '▶ Animer les électrons';
+  } else {
+    btn.disabled = true;
+    btn.textContent = '▶ Animer les électrons';
+  }
+}
 });
 
 // ============================================================
@@ -1640,6 +1668,84 @@ document.getElementById('modalFormules').addEventListener('click', (e) => {
   if (e.target.id === 'modalFormules') e.target.classList.remove('show');
 });
 
+// ============================================================
+//  SUPPRESSION DE COMPOSANTS / FILS
+// ============================================================
+canvas.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+  const pos = getCanvasCoords(e, false);
+  
+  // 1. Chercher un composant
+  const comp = trouverComposantProche(pos.x, pos.y);
+  if (comp) {
+    if (confirm(`Supprimer ce ${comp.type} ?`)) {
+      // Supprimer les fils liés à ce composant
+      atelier.fils = atelier.fils.filter(f => {
+        const b = getBorneById(f.de);
+        return b && b.composantId !== comp.id;
+      }).filter(f => {
+        const b = getBorneById(f.vers);
+        return b && b.composantId !== comp.id;
+      });
+      // Supprimer le composant
+      atelier.composants = atelier.composants.filter(c => c.id !== comp.id);
+      atelier.borneSelectionnee = null;
+      drawCircuit();
+      updateZoneInfo();
+      analyserCircuit();
+      updateStatus(`🗑 ${comp.type} supprimé`);
+    }
+    return;
+  }
+  
+  // 2. Chercher un fil (clic proche de la ligne)
+  let filTrouve = null;
+  let minDist = 15;
+  atelier.fils.forEach((fil, idx) => {
+    const b1 = getBorneById(fil.de);
+    const b2 = getBorneById(fil.vers);
+    if (!b1 || !b2) return;
+    // Distance point-segment
+    const d = distancePointSegment(pos.x, pos.y, b1.x, b1.y, b2.x, b2.y);
+    if (d < minDist) {
+      minDist = d;
+      filTrouve = idx;
+    }
+  });
+  
+  if (filTrouve !== null) {
+    if (confirm('Supprimer ce fil ?')) {
+      atelier.fils.splice(filTrouve, 1);
+      drawCircuit();
+      updateZoneInfo();
+      analyserCircuit();
+      updateStatus('🗑 Fil supprimé');
+    }
+  }
+});
+
+// Distance d'un point à un segment
+function distancePointSegment(px, py, x1, y1, x2, y2) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len2 = dx * dx + dy * dy;
+  if (len2 === 0) return Math.hypot(px - x1, py - y1);
+  
+  let t = ((px - x1) * dx + (py - y1) * dy) / len2;
+  t = Math.max(0, Math.min(1, t));
+  
+  const projX = x1 + t * dx;
+  const projY = y1 + t * dy;
+  return Math.hypot(px - projX, py - projY);
+}
+
+// Support touche Suppr pour supprimer
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Delete' || e.key === 'Suppr') {
+    // Si un composant est sélectionné (on n'a pas de "sélection" formelle, on utilise le composant sous le curseur)
+    // Pour simplifier, on ne fait rien pour l'instant
+  }
+});
 // ============================================================
 //  POLYFILL
 // ============================================================
