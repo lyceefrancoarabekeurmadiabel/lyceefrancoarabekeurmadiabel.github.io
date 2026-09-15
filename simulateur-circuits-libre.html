@@ -1343,25 +1343,14 @@ function analyserCircuit() {
   const resistances = atelier.composants.filter(c => c.type === 'resistance');
   const interrupteurs = atelier.composants.filter(c => c.type === 'interrupteur');
 
-  
-// 🆕 Vérifier si un interrupteur est présent ET ouvert
-const interExiste = interrupteurs.length > 0;
-if (interExiste && !atelier.interrupteurFerme) {
-  atelier.resultats.type = 'ouvert';
-  updateMesures();
-  return;
-}
+  const interExiste = interrupteurs.length > 0;
+  const interDansChemin = interrupteurs.some(i => composantsDansChemin.includes(i.id));
 
-// 🆕 Définir interDansChemin pour la suite
-const interDansChemin = interrupteurs.some(i => composantsDansChemin.includes(i.id));
-
-  // 🆕 Si un interrupteur est présent ET ouvert → circuit ouvert
-const interExiste = interrupteurs.length > 0;
-if (interExiste && !atelier.interrupteurFerme) {
-  atelier.resultats.type = 'ouvert';
-  updateMesures();
-  return;
-}
+  if (interExiste && !atelier.interrupteurFerme) {
+    atelier.resultats.type = 'ouvert';
+    updateMesures();
+    return;
+  }
 
   const type = detecterType(chemin, resistances);
 
