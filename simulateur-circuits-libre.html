@@ -1333,14 +1333,27 @@ function analyserCircuit() {
     return;
   }
 
-   // 🆕 Chercher un chemin qui traverse une résistance
-  const chemin = trouverCheminAvecResistance(graphe, pile.id + '-R', pile.id + '-L');
-  
-  if (!chemin) {
-    atelier.resultats.type = 'aucun';
-    updateMesures();
-    return;
+  // 🆕 Chercher un chemin qui passe par les résistances
+let chemin = null;
+const tousChemins = trouverTousChemins(graphe, pile.id + '-R', pile.id + '-L');
+for (const c of tousChemins) {
+  const traverseResistance = c.some(id => {
+    const b = getBorneById(id);
+    if (!b) return false;
+    const comp = atelier.composants.find(x => x.id === b.composantId);
+    return comp && comp.type === 'resistance';
+  });
+  if (traverseResistance) {
+    chemin = c;
+    break;
   }
+}
+
+if (!chemin) {
+  atelier.resultats.type = 'aucun';
+  updateMesures();
+  return;
+}
   // 🆕 Vérifier que le chemin traverse au moins une résistance
 const compsDansChemin = chemin
   .map(id => getBorneById(id)?.composantId)
@@ -1516,10 +1529,11 @@ function detecterType(chemin, resistances) {
     degreBornes[f.de] = (degreBornes[f.de] || 0) + 1;
     degreBornes[f.vers] = (degreBornes[f.vers] || 0) + 1;
   });
-  const noeuds = Object.entries(degreBornes).filter(([id, deg]) => deg >= 2);
-  const noeudsDansChemin = noeuds.filter(([id]) => chemin.includes(id));
-  if (noeudsDansChemin.length >= 2) return 'derivation';
-  return 'serie';
+  // 🆕 Un VRAI nœud a 3 fils ou plus (point de division)
+const noeuds = Object.entries(degreBornes).filter(([id, deg]) => deg >= 3);
+const noeudsDansChemin = noeuds.filter(([id]) => chemin.includes(id));
+if (noeudsDansChemin.length >= 1) return 'derivation';
+return 'serie';
 }
 
 // ============================================================
