@@ -1240,10 +1240,13 @@ function detecterType(chemin, resistances) {
     degreBornes[f.vers] = (degreBornes[f.vers] || 0) + 1;
   });
 
-  const noeuds = Object.entries(degreBornes).filter(([id, deg]) => deg >= 3);
-  const noeudsDansChemin = noeuds.filter(([id]) => chemin.includes(id));
-  if (noeudsDansChemin.length >= 1) return 'derivation';
-  return 'serie';
+  // 🆕 Un nœud = borne avec AU MOINS 2 fils qui s'y rejoignent
+const noeuds = Object.entries(degreBornes).filter(([id, deg]) => deg >= 2);
+const noeudsDansChemin = noeuds.filter(([id]) => chemin.includes(id));
+
+// Si au moins un nœud dans le chemin → DÉRIVATION
+if (noeudsDansChemin.length >= 1) return 'derivation';
+return 'serie';
 }
 
 // ============================================================
