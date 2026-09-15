@@ -1298,14 +1298,14 @@ function updateZoneInfo() {
 //  ANALYSE AUTOMATIQUE DU CIRCUIT
 // ============================================================
 function analyserCircuit() {
-  atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null };
-
-  // 🆕 S'il n'y a AUCUN fil, le circuit n'est pas valide
-  if (atelier.fils.length === 0) {
-    atelier.resultats.type = 'aucun';
+    // 🆕 Vérifier qu'il y a des fils
+  if (atelier.fils.length < 3) {
+    atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null };
     updateMesures();
     return;
   }
+  atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null };
+
 
   const piles = atelier.composants.filter(c => c.type === 'pile');
   if (piles.length === 0) {
@@ -1342,6 +1342,18 @@ function analyserCircuit() {
 
   const resistances = atelier.composants.filter(c => c.type === 'resistance');
   const interrupteurs = atelier.composants.filter(c => c.type === 'interrupteur');
+
+  
+// 🆕 Vérifier si un interrupteur est présent ET ouvert
+const interExiste = interrupteurs.length > 0;
+if (interExiste && !atelier.interrupteurFerme) {
+  atelier.resultats.type = 'ouvert';
+  updateMesures();
+  return;
+}
+
+// 🆕 Définir interDansChemin pour la suite
+const interDansChemin = interrupteurs.some(i => composantsDansChemin.includes(i.id));
 
   // 🆕 Si un interrupteur est présent ET ouvert → circuit ouvert
 const interExiste = interrupteurs.length > 0;
