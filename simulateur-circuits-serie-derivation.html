@@ -823,13 +823,33 @@ function drawDerivation() {
   ctx.lineTo(right, H / 2);
   ctx.stroke();
 
- // Fil bas retour (de la pile vers le bas, puis vers la droite, puis remonte)
+ // 🆕 Fil de retour : descend de la pile, va à droite, remonte au rail droit
+const basY = H - 40;  // y = 610
+ctx.strokeStyle = '#4fc3f7';
+ctx.lineWidth = 3;
+ctx.lineCap = 'round';
+
+// Segment 1 : descente depuis la pile (gauche)
 ctx.beginPath();
-ctx.moveTo(left + 40, H / 2);          // Part de la pile
-ctx.lineTo(left + 40, bot + 60);       // Descend
-ctx.lineTo(right - 40, bot + 60);      // Va à droite
-ctx.lineTo(right - 40, H / 2);         // Remonte
+ctx.moveTo(railLeft, H / 2 + 60);   // Sous la pile
+ctx.lineTo(railLeft, basY);         // Descend au fil du bas
 ctx.stroke();
+
+// Segment 2 : fil horizontal du bas
+ctx.beginPath();
+ctx.moveTo(railLeft, basY);
+ctx.lineTo(railRight, basY);
+ctx.stroke();
+
+// Segment 3 : remontée vers le rail droit
+ctx.beginPath();
+ctx.moveTo(railRight, basY);
+ctx.lineTo(railRight, H / 2 + 60);  // Remonte
+ctx.stroke();
+
+// 🆕 Nœuds de connexion
+drawNode(railLeft, basY);
+drawNode(railRight, basY);
 
   // Branches horizontales
   const nbBranches = etat.nb;
@@ -1269,105 +1289,85 @@ function positionSerieElectron(t) {
 }
 
 function positionDerivationElectron(t, e) {
-    // 🔍 DIAG — log toutes les 60 frames pour éviter de spammer
-  if (!window._diagCounter) window._diagCounter = 0;
-  window._diagCounter++;
-  const showLog = window._diagCounter % 60 === 0;
-  
-  if (showLog && t < 0.05) {
-    console.log('🔵 [DIAG positionDerivation] t =', t.toFixed(3), '| branche =', e.branche);
-  }
   // Circuit complet :
-  // Pile (gauche) → Fil gauche horizontal → Rail gauche → 
-  // Branches parallèles → Rail droit → Fil droit → Fil bas → Retour pile
+  // 1. Fil horizontal gauche (pile → rail gauche)
+  // 2. Rail vertical gauche (montée)
+  // 3. Une branche horizontale
+  // 4. Rail vertical droit (descente)
+  // 5. Fil horizontal droit (rail droit → bord droit)
+  // 6. Fil du bas (retour de droite à gauche)
+  // 7. Remontée vers la pile
   
   const left = 100, right = W - 100;
   const railLeft = left + 80, railRight = right - 80;
   const top = 100, bot = H - 100;
   const pileY = H / 2;
-  const basY = bot + 60;  // Le fil de retour en bas
+  const basY = H - 40;
   
-  // Calcul de la longueur totale du circuit
-  const segLongueurs = {
-    filGaucheH: railLeft - left,                 // Fil horizontal gauche
-    railGaucheV: bot - top,                      // Rail vertical gauche
-    branche: railRight - railLeft,               // Chaque branche (mais on prend 1 fois)
-    railDroitV: bot - top,                       // Rail vertical droit
-    filDroitH: right - railRight,                // Fil horizontal droit
-    filBasH: right - left,                       // Fil bas de retour
-    filPile: 60                                  // Petite remontée vers la pile
-  };
+  // Longueurs
+  const L1 = railLeft - left;           // Fil horizontal gauche
+  const L2 = bot - top;                 // Rail vertical gauche
+  const L3 = railRight - railLeft;      // Branche horizontale
+  const L4 = bot - top;                 // Rail vertical droit
+  const L5 = right - railRight;         // Fil horizontal droit
+  const L6 = right - left;              // Fil du bas
+  const L7 = basY - pileY;              // Remontée vers pile
   
-  // Pour la dérivation, on considère UNE branche pour simplifier
-  // (les électrons se répartissent, mais visuellement on en montre une)
-  const nbBranches = etat.nb;
-  const longueurTotale = 
-    segLongueurs.filGaucheH +
-    segLongueurs.railGaucheV +
-    segLongueurs.branche +
-    segLongueurs.railDroitV +
-    segLongueurs.filDroitH +
-    segLongueurs.filBasH +
-    segLongueurs.filPile;
+  const total = L1 + L2 + L3 + L4 + L5 + L6 + L7;
+  const d = t * total;
+  let c = 0;
   
-  const d = t * longueurTotale;
-  let cumul = 0;
-  
-  // Segment 1 : Fil horizontal gauche (pile → rail gauche)
-  cumul += segLongueurs.filGaucheH;
-  if (d < cumul) {
-    const tt = (d - (cumul - segLongueurs.filGaucheH)) / segLongueurs.filGaucheH;
+  // Seg 1 : horizontal gauche (pile → rail gauche)
+  c += L1;
+  if (d < c) {
+    const tt = (d - (c - L1)) / L1;
     return { x: left + (railLeft - left) * tt, y: pileY };
   }
   
-  // Segment 2 : Rail vertical gauche (haut → bas)
-  cumul += segLongueurs.railGaucheV;
-  if (d < cumul) {
-    const tt = (d - (cumul - segLongueurs.railGaucheV)) / segLongueurs.railGaucheV;
-    return { x: railLeft, y: top + (bot - top) * tt };
+  // Seg 2 : rail vertical gauche (montée)
+  c += L2;
+  if (d < c) {
+    const tt = (d - (c - L2)) / L2;
+    return { x: railLeft, y: bot - (bot - top) * tt };
   }
   
-  // Segment 3 : Une branche horizontale (on répartit les électrons)
-  cumul += segLongueurs.branche;
-  if (d < cumul) {
-    // Choisir la branche selon l'électron
-    if (e.branche === null) e.branche = Math.floor(Math.random() * nbBranches);
-    const idx = e.branche % nbBranches;
-    const spacing = (bot - top) / (nbBranches + 1);
+  // Seg 3 : branche horizontale (choix selon e.branche)
+  c += L3;
+  if (d < c) {
+    if (e.branche === null || e.branche === undefined) {
+      e.branche = Math.floor(Math.random() * etat.nb);
+    }
+    const idx = e.branche % etat.nb;
+    const spacing = (bot - top) / (etat.nb + 1);
     const yBr = top + spacing * (idx + 1);
-    const tt = (d - (cumul - segLongueurs.branche)) / segLongueurs.branche;
+    const tt = (d - (c - L3)) / L3;
     return { x: railLeft + (railRight - railLeft) * tt, y: yBr };
   }
   
-  // Segment 4 : Rail vertical droit (haut → bas)
-  cumul += segLongueurs.railDroitV;
-  if (d < cumul) {
-    const tt = (d - (cumul - segLongueurs.railDroitV)) / segLongueurs.railDroitV;
+  // Seg 4 : rail vertical droit (descente)
+  c += L4;
+  if (d < c) {
+    const tt = (d - (c - L4)) / L4;
     return { x: railRight, y: top + (bot - top) * tt };
   }
   
-  // Segment 5 : Fil horizontal droit (rail droit → bord droit)
-  cumul += segLongueurs.filDroitH;
-  if (d < cumul) {
-    const tt = (d - (cumul - segLongueurs.filDroitH)) / segLongueurs.filDroitH;
-    return { x: railRight + (right - railRight) * tt, y: pileY };
+  // Seg 5 : horizontal droit (rail droit → bord droit)
+  c += L5;
+  if (d < c) {
+    const tt = (d - (c - L5)) / L5;
+    return { x: railRight + (right - railRight) * tt, y: pileY + 60 };
   }
   
-  // Segment 6 : Fil du bas (retour vers la gauche)
-  cumul += segLongueurs.filBasH;
-  if (d < cumul) {
-    const tt = (d - (cumul - segLongueurs.filBasH)) / segLongueurs.filBasH;
+  // Seg 6 : fil du bas (retour de droite à gauche)
+  c += L6;
+  if (d < c) {
+    const tt = (d - (c - L6)) / L6;
     return { x: right - (right - left) * tt, y: basY };
   }
   
-  // Segment 7 : Retour vers la pile (petit segment vertical)
-  cumul += segLongueurs.filPile;
-  const tt = (d - (cumul - segLongueurs.filPile)) / segLongueurs.filPile;
-  return { x: left, y: basY + (pileY - basY) * tt };
-  if (showLog && t < 0.05) {
-    console.log('   → Position retournée calculée');
-  }
-
+  // Seg 7 : remontée vers la pile (gauche)
+  const tt = (d - (c - L7)) / L7;
+  return { x: left, y: basY - (basY - pileY) * tt };
 }
 
 function positionMixteElectron(t, e) {
