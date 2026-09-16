@@ -17,8 +17,8 @@
     padding: 8px;
     font-size: 14px;
   }
-  .app {
-    min-height: calc(100vh - 16px);
+    .app {
+    height: calc(100vh - 16px);    /* 🆕 Hauteur fixe au lieu de min-height */
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -27,6 +27,7 @@
     background: rgba(255,255,255,0.05);
     border-radius: 12px;
     padding: 10px;
+    overflow: hidden;
   }
   .topbar {
     display: flex;
@@ -55,24 +56,26 @@
     font-family: inherit;
   }
   .btn-mini:hover { background: rgba(168, 133, 63, 0.35); }
-  .main-zone {
+   .main-zone {
     flex: 1;
     min-height: 0;
     display: grid;
-    grid-template-columns: 240px 1fr 340px;
+    grid-template-columns: 220px 1fr 320px;
     gap: 6px;
+    max-height: calc(100vh - 200px);  /* 🆕 Hauteur max */
   }
-  .toolbox {
+    .toolbox {
     background: rgba(0,0,0,0.4);
     border-radius: 8px;
     border: 2px solid rgba(79, 195, 247, 0.3);
     padding: 10px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     overflow-y: auto;
     min-height: 0;
-    max-height: 700px;
+    height: 100%;          /* 🆕 S'adapte à la grille */
+    font-size: 0.9em;      /* 🆕 Réduit légèrement */
   }
   .panel-title {
     color: #4fc3f7;
@@ -145,14 +148,22 @@
     margin-top: auto;
     border-left: 3px solid #ffc107;
   }
-  .canvas-zone {
+    .canvas-zone {
     background: #000;
     border-radius: 8px;
     border: 2px solid #4fc3f7;
     padding: 4px;
     position: relative;
     overflow: hidden;
-    min-height: 500px;
+    min-height: 0;         /* 🆕 Retiré la contrainte */
+    height: 100%;
+  }
+  .canvas-zone canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    cursor: default;
   }
   .canvas-zone canvas {
     display: block;
@@ -204,17 +215,18 @@
     pointer-events: none;
     border: 1px solid rgba(76, 175, 80, 0.5);
   }
-  .side-zone {
+    .side-zone {
     background: rgba(0,0,0,0.35);
     border-radius: 8px;
     border: 1px solid rgba(79,195,247,0.3);
     padding: 10px;
     overflow-y: auto;
     min-height: 0;
-    max-height: 700px;
+    height: 100%;          /* 🆕 S'adapte à la grille */
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
+    font-size: 0.9em;
   }
   .circuit-type {
     background: linear-gradient(135deg, #6a4c93 0%, #9b59b6 100%);
@@ -2014,24 +2026,135 @@ function analyserCircuit() {
 }
 
 // 🆕 Détection automatique précise
+// 🆕 Détection CORRIGÉE : analyse topologique par degré des nœuds ET
+//    structure du graphe entre la pile et les résistances
 function detecterType(chemin, resistances) {
   if (resistances.length === 0) return 'aucun';
   if (resistances.length === 1) return 'serie';
 
-  // Compter les vrais nœuds (3 fils ou plus)
-  const degreBornes = {};
-  atelier.fils.forEach(f => {
-    if (!f.de || !f.vers) return;
-    degreBornes[f.de] = (degreBornes[f.de] || 0) + 1;
-    degreBornes[f.vers] = (degreBornes[f.vers] || 0) + 1;
+  // Construire le graphe
+  const graphe = construireGraphe();
+
+  // Compter le degré de chaque nœud (nombre de fils qui y arrivent)
+  const degreNoeuds = {};
+  Object.keys(graphe).forEach(id => {
+    degreNoeuds[id] = graphe[id].length;
   });
 
-  // Un vrai nœud = 3 fils ou plus
-  const noeuds = Object.entries(degreBornes).filter(([id, deg]) => deg >= 3);
+  // Un "vrai" point de dérivation = nœud avec 3 fils ou plus
+  const pointsDerivation = Object.entries(degreNoeuds)
+    .filter(([id, deg]) => deg >= 3)
+    .map(([id]) => id);
 
-  if (noeuds.length === 0) return 'serie';
-  if (noeuds.length === 1) return 'derivation'; // 1 nœud = dérivation simple
-  return 'mixte';
+  // 🆕 ANALYSE : compter les chemins distincts entre la pile et les résistances
+  const pile = atelier.composants.find(c => c.type === 'pile');
+  if (!pile) return 'serie';
+
+  // Pour chaque résistance, trouver un chemin vers la pile
+  // Si toutes les résistances sont en série (chemin unique) → série
+  // Si plusieurs chemins parallèles → dérivation ou mixte
+
+  // Méthode : on compte le nombre de chemins indépendants entre
+  // la borne + de la pile et la borne - de la pile
+  // On regarde combien de résistances sont dans des branches parallèles
+
+  // Simplification : on regarde le graphe après retrait de la pile
+  // et on vérifie la structure
+
+  // Étape 1 : chaque résistance a-t-elle un chemin unique à la pile ?
+  const bornesResistances = resistances.map(r => ({
+    id: r.id,
+    leftId: r.id + '-L',
+    rightId: r.id + '-R'
+  }));
+
+  // Étape 2 : compter les branches parallèles
+  // Une branche parallèle = un point de dérivation qui se sépare en 2+
+  // et se rejoint à un autre point
+
+  // 🆕 Algorithme précis : on compte les points de dérivation
+  // qui sont dans le chemin principal (celui qui traverse la pile)
+  const pointsDerivationDansCircuit = pointsDerivation.filter(id => {
+    // Est-ce que ce nœud est accessible depuis la pile ?
+    return graphe[id] !== undefined;
+  });
+
+  // 🆕 Distinguer DÉRIVATION SIMPLE de MIXTE :
+  //   - Dérivation simple : 2 points de dérivation (entrée + sortie)
+  //   - Mixte : au moins une résistance en série + un bloc en parallèle
+
+  // Méthode : pour chaque résistance, compter combien d'autres résistances
+  // sont en parallèle avec elle (c'est-à-dire partagent les mêmes 2 nœuds)
+  let nbParalleles = 0;
+  let nbSeries = 0;
+
+  const bornesParResistance = {};
+  bornesResistances.forEach(br => {
+    // Trouver les nœuds réels (après fusion par fils)
+    const nL = trouverNoeudEffectif(graphe, br.leftId);
+    const nR = trouverNoeudEffectif(graphe, br.rightId);
+    bornesParResistance[br.id] = { nL, nR };
+  });
+
+  // Deux résistances sont en parallèle si elles partagent les 2 mêmes nœuds effectifs
+  const resistancesArray = Object.entries(bornesParResistance);
+  for (let i = 0; i < resistancesArray.length; i++) {
+    for (let j = i + 1; j < resistancesArray.length; j++) {
+      const r1 = resistancesArray[i][1];
+      const r2 = resistancesArray[j][1];
+      if ((r1.nL === r2.nL && r1.nR === r2.nR) ||
+          (r1.nL === r2.nR && r1.nR === r2.nL)) {
+        nbParalleles++;
+      }
+    }
+  }
+
+  // Si on a trouvé au moins une paire en parallèle
+  if (nbParalleles > 0) {
+    // Vérifier si TOUTES les résistances sont en parallèle entre elles
+    // (cas de dérivation pure)
+    const nbTotalResistances = resistances.length;
+    const nbPairesTheorique = (nbTotalResistances * (nbTotalResistances - 1)) / 2;
+
+    if (nbParalleles === nbPairesTheorique) {
+      // Toutes les résistances sont en parallèle entre elles → DÉRIVATION
+      return 'derivation';
+    }
+    // Sinon → MIXTE (certaines en série, d'autres en parallèle)
+    return 'mixte';
+  }
+
+  // Aucune paire en parallèle → SÉRIE
+  return 'serie';
+}
+
+// 🆕 Trouver le nœud effectif d'une borne (en remontant les fils et nœuds)
+function trouverNoeudEffectif(graphe, borneId) {
+  // BFS : à partir de borneId, suivre tous les fils et nœuds
+  // jusqu'à trouver un nœud de "jonction" (point de dérivation)
+  // ou une borne de composant
+  const visited = new Set([borneId]);
+  const queue = [borneId];
+
+  while (queue.length > 0) {
+    const current = queue.shift();
+
+    // Si c'est une borne de composant (contient '-L' ou '-R'), on s'arrête
+    if (current.includes('-L') || current.includes('-R')) {
+      return current;
+    }
+
+    // Sinon, explorer les voisins
+    const voisins = graphe[current] || [];
+    for (const v of voisins) {
+      if (!visited.has(v)) {
+        visited.add(v);
+        queue.push(v);
+      }
+    }
+  }
+
+  return borneId;
 }
 
 // Analyse nodale (vraie résolution par matrice de conductance)
@@ -2425,64 +2548,151 @@ function initElectrons() {
   }
 }
 
-function drawElectrons() {
-  if (!atelier.resultats.chemin) return;
-  if (!atelier.interrupteurFerme) return;
+// 🆕 Trouver TOUS les chemins possibles entre 2 bornes (pour les dérivations)
+function trouverTousLesChemins(graphe, departId, arriveeId, maxProfondeur) {
+  const chemins = [];
 
-  const chemin = atelier.resultats.chemin;
-  if (chemin.length < 3) return;
-
-  const points = chemin.map(id => {
-    const b = getBorneById(id);
-    return b ? { x: b.x, y: b.y } : null;
-  }).filter(p => p);
-
-  if (points.length < 3) return;
-
-  let totalLen = 0;
-  const segments = [];
-  for (let i = 0; i < points.length - 1; i++) {
-    const p1 = points[i], p2 = points[i + 1];
-    const len = Math.hypot(p2.x - p1.x, p2.y - p1.y);
-    segments.push({ p1, p2, len, start: totalLen });
-    totalLen += len;
+  function dfs(id, chemin, visited, profondeur) {
+    if (profondeur > maxProfondeur) return;
+    if (id === arriveeId && chemin.length > 2) {
+      chemins.push([...chemin]);
+      return;
+    }
+    const voisins = graphe[id] || [];
+    for (const v of voisins) {
+      if (!visited.has(v)) {
+        visited.add(v);
+        chemin.push(v);
+        dfs(v, chemin, visited, profondeur + 1);
+        chemin.pop();
+        visited.delete(v);
+      }
+    }
   }
-  if (totalLen === 0) return;
+  dfs(departId, [departId], new Set([departId]), 0);
+  return chemins;
+}
 
+// 🆕 Version CORRIGÉE : on fait circuler les électrons sur TOUTES les mailles
+function drawElectrons() {
+  if (!atelier.interrupteurFerme) return;
+  if (atelier.resultats.type === 'aucun' ||
+      atelier.resultats.type === 'ouvert' ||
+      atelier.resultats.type === 'court-circuit' ||
+      atelier.resultats.type === 'erreur') return;
+
+  const pile = atelier.composants.find(c => c.type === 'pile');
+  if (!pile) return;
+
+  const graphe = construireGraphe();
+  const departId = pile.id + '-R';
+  const arriveeId = pile.id + '-L';
+
+  // 🆕 Trouver TOUS les chemins (pas seulement le plus court)
+  const tousChemins = trouverTousLesChemins(graphe, departId, arriveeId, 25);
+
+  if (tousChemins.length === 0) return;
+
+  // Filtrer pour ne garder que les chemins qui contiennent au moins une résistance
+  const resistancesIds = atelier.composants
+    .filter(c => COMPOSANTS_RESISTIFS.has(c.type))
+    .map(c => c.id);
+
+  const cheminsValides = tousChemins.filter(chemin =>
+    chemin.some(borneId => {
+      const b = getBorneById(borneId);
+      return b && resistancesIds.includes(b.composantId);
+    })
+  );
+
+  if (cheminsValides.length === 0) return;
+
+  // Filtrer les chemins redondants : on ne garde que les chemins "élémentaires"
+  // (qui ne sont pas des sous-chemins d'autres chemins plus longs)
+  // On déduplique aussi les chemins qui font le tour par le même nœud
+  const cheminsUniques = [];
+  const signaturesVues = new Set();
+
+  cheminsValides.forEach(chemin => {
+    // Signature : ensemble des bornes de résistances traversées
+    const resTraversees = chemin
+      .map(id => getBorneById(id))
+      .filter(b => b && resistancesIds.includes(b.composantId))
+      .map(b => b.composantId)
+      .sort()
+      .join(',');
+    if (!signaturesVues.has(resTraversees)) {
+      signaturesVues.add(resTraversees);
+      cheminsUniques.push(chemin);
+    }
+  });
+
+  // 🆕 Dessiner les électrons sur CHAQUE chemin unique
   const speed = 0.005;
   const couleur = '#ffeb3b';
 
-  atelier.animation.electrons.forEach(e => {
-    e.t = (e.t + speed) % 1;
-    const d = e.t * totalLen;
-    let seg = segments[0];
-    for (const s of segments) {
-      if (d >= s.start && d < s.start + s.len) { seg = s; break; }
+  // Nombre d'électrons par chemin, proportionnel à sa longueur
+  cheminsUniques.forEach(chemin => {
+    if (chemin.length < 3) return;
+
+    const points = chemin.map(id => {
+      const b = getBorneById(id);
+      return b ? { x: b.x, y: b.y } : null;
+    }).filter(p => p);
+
+    if (points.length < 3) return;
+
+    // Construire les segments
+    let totalLen = 0;
+    const segments = [];
+    for (let i = 0; i < points.length - 1; i++) {
+      const p1 = points[i], p2 = points[i + 1];
+      const len = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+      segments.push({ p1, p2, len, start: totalLen });
+      totalLen += len;
     }
-    const tSeg = (d - seg.start) / seg.len;
-    const px = seg.p1.x + (seg.p2.x - seg.p1.x) * tSeg;
-    const py = seg.p1.y + (seg.p2.y - seg.p1.y) * tSeg;
-    const angle = Math.atan2(seg.p2.y - seg.p1.y, seg.p2.x - seg.p1.x);
+    if (totalLen === 0) return;
 
-    const grad = ctx.createRadialGradient(px, py, 1, px, py, 22);
-    grad.addColorStop(0, couleur);
-    grad.addColorStop(1, 'rgba(255, 235, 59, 0)');
-    ctx.fillStyle = grad;
-    ctx.beginPath(); ctx.arc(px, py, 22, 0, Math.PI * 2); ctx.fill();
+    // Nombre d'électrons proportionnel à la longueur (max 25 par chemin)
+    const nbElectrons = Math.max(8, Math.min(25, Math.round(totalLen / 40)));
 
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 2;
-    ctx.fillStyle = couleur;
-    ctx.beginPath(); ctx.arc(px, py, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    for (let i = 0; i < nbElectrons; i++) {
+      // t dépend du temps pour animer
+      const t = ((Date.now() / 1000 * speed * nbElectrons / 10) + i / nbElectrons) % 1;
+      const d = t * totalLen;
 
-    ctx.save();
-    ctx.translate(px + Math.cos(angle) * 18, py + Math.sin(angle) * 18);
-    ctx.rotate(angle);
-    ctx.fillStyle = couleur;
-    ctx.beginPath();
-    ctx.moveTo(9, 0); ctx.lineTo(-6, -6); ctx.lineTo(-6, 6); ctx.closePath();
-    ctx.fill();
-    ctx.restore();
+      let seg = segments[0];
+      for (const s of segments) {
+        if (d >= s.start && d < s.start + s.len) { seg = s; break; }
+      }
+      const tSeg = (d - seg.start) / seg.len;
+      const px = seg.p1.x + (seg.p2.x - seg.p1.x) * tSeg;
+      const py = seg.p1.y + (seg.p2.y - seg.p1.y) * tSeg;
+      const angle = Math.atan2(seg.p2.y - seg.p1.y, seg.p2.x - seg.p1.x);
+
+      // Halo
+      const grad = ctx.createRadialGradient(px, py, 1, px, py, 22);
+      grad.addColorStop(0, couleur);
+      grad.addColorStop(1, 'rgba(255, 235, 59, 0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.arc(px, py, 22, 0, Math.PI * 2); ctx.fill();
+
+      // Électron
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.fillStyle = couleur;
+      ctx.beginPath(); ctx.arc(px, py, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+      // Flèche
+      ctx.save();
+      ctx.translate(px + Math.cos(angle) * 18, py + Math.sin(angle) * 18);
+      ctx.rotate(angle);
+      ctx.fillStyle = couleur;
+      ctx.beginPath();
+      ctx.moveTo(9, 0); ctx.lineTo(-6, -6); ctx.lineTo(-6, 6); ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
   });
 }
 
