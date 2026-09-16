@@ -1755,28 +1755,36 @@ function updateBoutonSupprNoeud() {
 
 function getBornes(composant) {
   const t = TAILLE[composant.type];
-  const rotation = composant.rotation || 0;
+  if (!t) return [];
+
+  // Les bornes sont toujours placées aux extrémités de l'axe électrique
+  // du composant. L'ancienne version utilisait t.w/t.h sans tenir compte
+  // correctement de la rotation, ce qui décalait les points de connexion
+  // après une rotation de 90° (résistance, condensateur, interrupteur).
+  const rotation = ((composant.rotation || 0) % 360 + 360) % 360;
   const angle = rotation * Math.PI / 180;
   const cos = Math.cos(angle);
   const sin = Math.sin(angle);
-  const orientations = { pile: 'vertical', condensateur: 'vertical', resistance: 'horizontal', interrupteur: 'horizontal' };
+  const orientations = {
+    pile: 'vertical',
+    condensateur: 'vertical',
+    resistance: 'horizontal',
+    interrupteur: 'horizontal'
+  };
   const orientation = orientations[composant.type] || 'horizontal';
-  const estTourne90 = (rotation % 180 !== 0);
-  const orientationFinale = estTourne90 ? (orientation === 'horizontal' ? 'vertical' : 'horizontal') : orientation;
-  let offsetX, offsetY;
-  if (orientationFinale === 'horizontal') { offsetX = t.w / 2; offsetY = 0; }
-  else { offsetX = 0; offsetY = t.h / 2; }
+  const longueur = orientation === 'horizontal' ? t.w : t.h;
+
   const pointsLocaux = [
-    { id: composant.id + '-L', lx: -offsetX, ly: -offsetY },
-    { id: composant.id + '-R', lx: offsetX, ly: offsetY }
+    { id: composant.id + '-L', lx: -longueur / 2, ly: 0 },
+    { id: composant.id + '-R', lx:  longueur / 2, ly: 0 }
   ];
-  const bornes = [];
-  pointsLocaux.forEach(p => {
-    const rx = p.lx * cos - p.ly * sin;
-    const ry = p.lx * sin + p.ly * cos;
-    bornes.push({ id: p.id, composantId: composant.id, x: composant.x + rx, y: composant.y + ry });
-  });
-  return bornes;
+
+  return pointsLocaux.map(pt => ({
+    id: pt.id,
+    composantId: composant.id,
+    x: composant.x + pt.lx * cos - pt.ly * sin,
+    y: composant.y + pt.lx * sin + pt.ly * cos
+  }));
 }
 
 function getToutesLesBornes() {
@@ -2185,6 +2193,10 @@ function effacerTout() {
   montage.fils = [];
   montage.noeuds = [];
   montage.filSelectionne = null;
+  montage.prochainIdComp = 1;
+  montage.prochainIdFil = 1;
+  montage.prochainIdNoeud = 1;
+  montage.interrupteurFerme = false;
   document.querySelectorAll('.outil-btn').forEach(b => b.classList.remove('used'));
   drawMontage(); updateProgress(); updateCanvasHint(); updateBoutonSupprNoeud();
   document.getElementById('verifMessage').classList.remove('show');
@@ -2214,7 +2226,12 @@ function verifierMontage() {
   if (composantsOK && filsConnectes >= 4) {
     const graphe = construireGraphe();
     const pile = montage.composants.find(c => c.type === 'pile');
+    const interrupteur = montage.composants.find(c => c.type === 'interrupteur');
     if (pile) {
+      if (!montage.interrupteurFerme) {
+        checks.push({ ok: false, txt: "L'interrupteur K est ouvert : ferme-le avec un double-clic avant de valider le circuit." });
+        toutOK = false;
+      }
       const chemin = trouverChemin(graphe, pile.id + '-L', pile.id + '-R');
       if (chemin) {
         const composantsTraverses = new Set();
@@ -2241,22 +2258,28 @@ function verifierMontage() {
 
 function construireGraphe() {
   const graphe = {};
+
+  const ajouterLien = (a, b) => {
+    if (!a || !b) return;
+    if (!graphe[a]) graphe[a] = [];
+    if (!graphe[b]) graphe[b] = [];
+    graphe[a].push(b);
+    graphe[b].push(a);
+  };
+
+  // Les fils représentent les liaisons électriques.
   montage.fils.forEach(f => {
-    if (!f.de || !f.vers) return;
-    if (!graphe[f.de]) graphe[f.de] = [];
-    if (!graphe[f.vers]) graphe[f.vers] = [];
-    graphe[f.de].push(f.vers);
-    graphe[f.vers].push(f.de);
+    if (f.de && f.vers) ajouterLien(f.de, f.vers);
   });
+
+  // Chaque composant relie ses deux bornes. La pile doit être incluse dans
+  // le graphe : l'ancienne version l'excluait, rendant impossible la
+  // recherche d'un chemin entre ses deux bornes.
   montage.composants.forEach(c => {
-    if (c.type === 'pile') return;
     if (c.type === 'interrupteur' && !montage.interrupteurFerme) return;
-    const l = c.id + '-L', r = c.id + '-R';
-    if (!graphe[l]) graphe[l] = [];
-    if (!graphe[r]) graphe[r] = [];
-    graphe[l].push(r);
-    graphe[r].push(l);
+    ajouterLien(c.id + '-L', c.id + '-R');
   });
+
   return graphe;
 }
 
@@ -2533,6 +2556,21 @@ canvasB.addEventListener('mousedown', e => { const p = getCanvasCoordsB(e, false
 canvasB.addEventListener('mousemove', e => { const p = getCanvasCoordsB(e, false); handlePointerMoveB(p.x, p.y); });
 canvasB.addEventListener('mouseup', handlePointerUpB);
 canvasB.addEventListener('mouseleave', handlePointerUpB);
+// Support tactile : l'étape 3 était jusque-là utilisable uniquement à la souris.
+canvasB.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const p = getCanvasCoordsB(e, true);
+  handlePointerDownB(p.x, p.y);
+}, { passive: false });
+canvasB.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const p = getCanvasCoordsB(e, true);
+  handlePointerMoveB(p.x, p.y);
+}, { passive: false });
+canvasB.addEventListener('touchend', e => {
+  e.preventDefault();
+  handlePointerUpB();
+}, { passive: false });
 
 function getCanvasCoordsB(e, isTouch) {
   const rect = canvasB.getBoundingClientRect();
