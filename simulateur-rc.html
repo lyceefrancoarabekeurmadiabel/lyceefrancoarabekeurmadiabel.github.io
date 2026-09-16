@@ -313,6 +313,248 @@
   .verif-message li.ok::before { content: '✅'; }
   .verif-message li.ko::before { content: '❌'; }
 
+  /* ===== ÉTAPE 3 : MESURES ===== */
+  .mesures-layout {
+    display: grid; grid-template-columns: 1fr 340px; gap: 20px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 1000px) { .mesures-layout { grid-template-columns: 1fr; } }
+
+  .oscillo-zone {
+    background: #000;
+    border: 3px solid #4caf50;
+    border-radius: 12px;
+    padding: 6px;
+    position: relative;
+    min-height: 500px;
+    box-shadow: inset 0 0 40px rgba(76, 175, 80, 0.15);
+    display: flex;
+    flex-direction: column;
+  }
+  .oscillo-zone canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    min-height: 0;
+  }
+  .oscillo-label {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    color: #4caf50;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: bold;
+    background: rgba(0,0,0,0.75);
+    padding: 4px 10px;
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .oscillo-time {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    color: #ffeb3b;
+    font-size: 13px;
+    font-weight: 700;
+    background: rgba(0,0,0,0.85);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    pointer-events: none;
+    z-index: 2;
+    border: 1px solid rgba(255, 235, 59, 0.4);
+  }
+  .oscillo-bottom {
+    position: absolute;
+    bottom: 8px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 2;
+    flex-wrap: wrap;
+  }
+  .oscillo-readout {
+    background: rgba(0,0,0,0.85);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+    border: 1px solid rgba(79, 195, 247, 0.4);
+    color: #4fc3f7;
+    font-weight: 700;
+  }
+  .oscillo-readout strong { color: #ffd54f; }
+
+  /* Panneau droit */
+  .panneau-mesures {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  .panneau-box {
+    background: #fff;
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    padding: 15px;
+  }
+  .panneau-box h4 {
+    font-family: var(--serif);
+    font-size: 15px;
+    color: var(--ink);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Réglages oscillo */
+  .reglage-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .reglage-row label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+    flex: 1;
+  }
+  .reglage-row select {
+    padding: 8px 10px;
+    border: 2px solid var(--line);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    background: #fff;
+    cursor: pointer;
+    min-width: 100px;
+  }
+  .reglage-row select:focus {
+    outline: none;
+    border-color: var(--brass);
+  }
+
+  /* Contrôles */
+  .controls-box {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .btn-ctrl {
+    flex: 1;
+    min-width: 100px;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn-ctrl:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-play { background: linear-gradient(135deg, #4caf50, #66bb6a); color: #fff; box-shadow: 0 3px 10px rgba(76, 175, 80, 0.4); }
+  .btn-play:hover:not(:disabled) { transform: translateY(-2px); }
+  .btn-pause { background: linear-gradient(135deg, #ff9800, #f57c00); color: #fff; }
+  .btn-pause:hover:not(:disabled) { transform: translateY(-2px); }
+  .btn-reset { background: rgba(0,0,0,0.05); color: var(--ink); border: 2px solid var(--line); }
+  .btn-reset:hover { background: #f0f0f0; }
+
+  /* Modif R et C */
+  .param-slider {
+    margin-bottom: 15px;
+  }
+  .param-slider label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--ink);
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .param-slider .value {
+    color: var(--brass);
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+  }
+  .param-slider input[type="range"] {
+    width: 100%;
+    height: 24px;
+    accent-color: var(--brass);
+    cursor: pointer;
+  }
+
+  /* Question */
+  .question-box {
+    background: linear-gradient(135deg, #fff8e1 0%, #fffbf0 100%);
+    border: 2px solid var(--brass);
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .question-box .question-text {
+    font-size: 14px;
+    color: var(--ink);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .question-box .question-input {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .question-box input[type="number"] {
+    flex: 1;
+    padding: 10px 12px;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .question-box input[type="number"]:focus {
+    outline: none;
+    border-color: var(--brass);
+  }
+  .question-box .question-btn {
+    padding: 10px 18px;
+    background: var(--brass);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+  }
+  .question-box .question-btn:hover { background: #8e6f33; }
+  .question-box .question-feedback {
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px;
+    border-radius: 6px;
+    display: none;
+  }
+  .question-box .question-feedback.show { display: block; }
+  .question-box .question-feedback.success { background: #e8f5e9; color: #1b5e20; }
+  .question-box .question-feedback.error { background: #ffebee; color: #b71c1c; }
+
   /* ===== MODAL ===== */
   .modal-overlay {
     display: none; position: fixed; inset: 0;
@@ -372,21 +614,17 @@
       <div class="step-circle">1</div>
       <div class="step-label">Matériel</div>
     </div>
-    <div class="step-item active" data-step="2" onclick="allerEtape(2)">
+    <div class="step-item" data-step="2" onclick="allerEtape(2)">
       <div class="step-circle">2</div>
       <div class="step-label">Montage</div>
     </div>
-    <div class="step-item locked" data-step="3" onclick="allerEtape(3)">
+    <div class="step-item active" data-step="3" onclick="allerEtape(3)">
       <div class="step-circle">3</div>
-      <div class="step-label">Sécurité</div>
+      <div class="step-label">Mesures</div>
     </div>
     <div class="step-item locked" data-step="4" onclick="allerEtape(4)">
       <div class="step-circle">4</div>
-      <div class="step-label">Mesures</div>
-    </div>
-    <div class="step-item locked" data-step="5" onclick="allerEtape(5)">
-      <div class="step-circle">5</div>
-      <div class="step-label">Conclusion</div>
+      <div class="step-label">Analyse</div>
     </div>
   </div>
 </div>
@@ -397,7 +635,7 @@
   <!-- ===== ÉTAPE 1 ===== -->
   <section class="etape" id="etape-1">
     <div class="etape-header">
-      <div class="etape-eyebrow">Étape 1 sur 5</div>
+      <div class="etape-eyebrow">Étape 1 sur 4</div>
       <h1 class="etape-title">📦 Présentation du matériel</h1>
       <p class="etape-subtitle">
         Avant de manipuler, découvrons ensemble les composants et les appareils
@@ -410,15 +648,13 @@
       <div class="text">
         Déterminer <strong>expérimentalement</strong> la constante de temps
         <strong>τ</strong> d'un circuit RC, puis vérifier la relation
-        <strong>τ = R × C</strong>. Pour cela, nous utiliserons un
-        <strong>oscilloscope</strong> pour visualiser la courbe U_C(t).
+        <strong>τ = R × C</strong>.
       </div>
     </div>
 
     <div class="card">
       <div class="card-title">
-        <span class="icon">🔧</span>
-        Composants du circuit
+        <span class="icon">🔧</span> Composants du circuit
       </div>
       <div class="card-subtitle">Clique sur un composant pour découvrir son rôle.</div>
 
@@ -464,7 +700,6 @@
           <p>L'appareil de mesure qui trace la courbe U_C(t)</p>
         </div>
       </div>
-
       <div class="oscillo-desc">
         <div class="oscillo-role">
           <div class="role-title">📌 Rôle</div>
@@ -482,7 +717,6 @@
           </div>
         </div>
       </div>
-
       <div style="font-size: 13px; color: #4fc3f7; font-weight: 700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">
         🎛️ Les 2 réglages essentiels
       </div>
@@ -498,25 +732,17 @@
           <div class="btn-desc">Tension par division (ex : 2 V/div)</div>
         </div>
       </div>
-
-      <div style="margin-top: 18px; padding: 12px 15px; background: rgba(255, 213, 79, 0.1); border-left: 4px solid #ffd54f; border-radius: 6px;">
-        <div style="font-size: 12px; color: #ffd54f; font-weight: 700; margin-bottom: 5px;">💡 À savoir</div>
-        <div style="font-size: 13px; color: #ddd; line-height: 1.5;">
-          L'oscilloscope sera utilisé à l'étape 4. Pour l'instant, on construit d'abord le circuit RC.
-        </div>
-      </div>
     </div>
 
     <div class="card">
       <div class="card-title">
-        <span class="icon">📚</span>
-        Notions à connaître
+        <span class="icon">📚</span> Notions à connaître
       </div>
       <ul class="notions-list">
         <li>Un condensateur <strong>stocke de l'énergie</strong> sous forme électrique.</li>
         <li>Pendant la charge : <strong>U_C(t) = E·(1 − e^(−t/τ))</strong></li>
         <li>La <strong>constante de temps</strong> : <strong>τ = R × C</strong></li>
-        <li>À <strong>t = τ</strong> : U_C atteint <strong>63 % de E</strong>. À t = 5τ : ≈ 99 %.</li>
+        <li>À <strong>t = τ</strong> : U_C atteint <strong>63 % de E</strong>.</li>
       </ul>
     </div>
 
@@ -526,13 +752,13 @@
     </div>
   </section>
 
-  <!-- ===== ÉTAPE 2 ===== -->
-  <section class="etape active" id="etape-2">
+  <!-- ===== ÉTAPE 2 : MONTAGE ===== -->
+  <section class="etape" id="etape-2">
     <div class="etape-header">
-      <div class="etape-eyebrow">Étape 2 sur 5</div>
+      <div class="etape-eyebrow">Étape 2 sur 4</div>
       <h1 class="etape-title">🛠️ Montage du circuit</h1>
       <p class="etape-subtitle">
-        Construis le circuit RC. Tu peux orienter les composants (poignée ⟳) et
+        Construis le circuit RC. Orienter les composants avec la poignée ⟳ et
         ajouter des nœuds si nécessaire.
       </p>
     </div>
@@ -546,55 +772,45 @@
     </div>
 
     <div class="montage-layout">
-
       <div class="toolbox">
         <div class="toolbox-title">🧰 Boîte à outils</div>
         <div class="toolbox-grid">
           <button class="outil-btn" id="btn-pile" onclick="ajouterComposant('pile')">
-            <span class="icon">🔋</span>
-            <span>Pile (9 V)</span>
+            <span class="icon">🔋</span><span>Pile (9 V)</span>
           </button>
           <button class="outil-btn" id="btn-resistance" onclick="ajouterComposant('resistance')">
-            <span class="icon">📏</span>
-            <span>Résistance (1 kΩ)</span>
+            <span class="icon">📏</span><span>Résistance (1 kΩ)</span>
           </button>
           <button class="outil-btn" id="btn-condensateur" onclick="ajouterComposant('condensateur')">
-            <span class="icon">⚡</span>
-            <span>Condensateur (100 µF)</span>
+            <span class="icon">⚡</span><span>Condensateur (100 µF)</span>
           </button>
           <button class="outil-btn" id="btn-interrupteur" onclick="ajouterComposant('interrupteur')">
-            <span class="icon">🔘</span>
-            <span>Interrupteur</span>
+            <span class="icon">🔘</span><span>Interrupteur</span>
           </button>
           <button class="outil-btn wire-btn" onclick="ajouterFil()">
-            <span class="icon">🧵</span>
-            <span>➕ Ajouter un fil</span>
+            <span class="icon">🧵</span><span>➕ Ajouter un fil</span>
           </button>
           <button class="outil-btn noeud-btn" onclick="ajouterNoeud()">
-            <span class="icon">⬤</span>
-            <span>➕ Ajouter un nœud</span>
+            <span class="icon">⬤</span><span>➕ Ajouter un nœud</span>
           </button>
           <button class="outil-btn danger" id="btnSupprNoeud" onclick="supprimerDernierNoeud()" style="display: none;">
-            <span class="icon">✖</span>
-            <span>Supprimer le dernier nœud</span>
+            <span class="icon">✖</span><span>Supprimer le dernier nœud</span>
           </button>
           <button class="outil-btn danger" onclick="effacerTout()">
-            <span class="icon">🗑</span>
-            <span>Tout effacer</span>
+            <span class="icon">🗑</span><span>Tout effacer</span>
           </button>
         </div>
         <div style="margin-top: 15px; padding: 10px; background: #f9f7f2; border-radius: 8px; font-size: 12px; color: var(--slate); line-height: 1.5;">
           <strong style="color: var(--ink);">💡 Comment faire :</strong><br>
           1. Clique sur un composant pour l'ajouter<br>
-          2. Clique sur <strong>⟳</strong> pour tourner un composant<br>
+          2. Clique sur <strong>⟳</strong> pour tourner<br>
           3. Glisse les poignées des fils vers les bornes<br>
           4. <strong>Double-clic</strong> sur K → ouvrir/fermer<br>
-          5. <strong>Clic droit</strong> ou <strong>double-clic</strong> sur un nœud → supprimer
+          5. <strong>Clic droit</strong> sur un nœud/fil → supprimer
         </div>
       </div>
 
       <div class="montage-right">
-
         <div class="schema-cible">
           <h4>📐 Schéma à réaliser</h4>
           <svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
@@ -604,20 +820,16 @@
             <line x1="60" y1="130" x2="60" y2="180" stroke="#4fc3f7" stroke-width="3"/>
             <line x1="340" y1="60" x2="340" y2="100" stroke="#4fc3f7" stroke-width="3"/>
             <line x1="340" y1="140" x2="340" y2="180" stroke="#4fc3f7" stroke-width="3"/>
-
             <rect x="45" y="90" width="30" height="40" fill="#fff" stroke="#4caf50" stroke-width="2" rx="3"/>
             <text x="60" y="106" text-anchor="middle" font-size="12" fill="#4caf50" font-weight="bold">+</text>
             <text x="60" y="124" text-anchor="middle" font-size="12" fill="#f44336" font-weight="bold">−</text>
             <text x="60" y="150" text-anchor="middle" font-size="10" fill="#4fc3f7" font-weight="bold">E = 9V</text>
-
             <rect x="150" y="45" width="100" height="30" fill="#fff" stroke="#ffd54f" stroke-width="2" rx="4"/>
             <path d="M 160 60 L 172 50 L 184 70 L 196 50 L 208 70 L 220 50 L 232 60" stroke="#ffd54f" stroke-width="2" fill="none"/>
             <text x="200" y="35" text-anchor="middle" font-size="10" fill="#ffd54f" font-weight="bold">R = 1 kΩ</text>
-
             <line x1="320" y1="100" x2="360" y2="100" stroke="#4fc3f7" stroke-width="3"/>
             <line x1="320" y1="140" x2="360" y2="140" stroke="#4fc3f7" stroke-width="3"/>
             <text x="340" y="85" text-anchor="middle" font-size="10" fill="#4fc3f7" font-weight="bold">C = 100 µF</text>
-
             <circle cx="180" cy="180" r="5" fill="#fff" stroke="#4fc3f7" stroke-width="2"/>
             <circle cx="220" cy="180" r="5" fill="#fff" stroke="#4fc3f7" stroke-width="2"/>
             <line x1="180" y1="180" x2="215" y2="165" stroke="#f44336" stroke-width="3" stroke-linecap="round"/>
@@ -643,7 +855,6 @@
         </div>
 
         <div class="verif-message" id="verifMessage"></div>
-
       </div>
     </div>
 
@@ -653,37 +864,134 @@
     </div>
   </section>
 
-  <!-- ÉTAPES 3-5 placeholders -->
-  <section class="etape" id="etape-3">
-    <div class="placeholder">
-      <span class="icon">🛡️</span>
-      <h3>Étape 3 — Vérification de sécurité</h3>
-      <p>Cette étape sera construite dans une prochaine session.</p>
+  <!-- ===== ÉTAPE 3 : MESURES ===== -->
+  <section class="etape active" id="etape-3">
+    <div class="etape-header">
+      <div class="etape-eyebrow">Étape 3 sur 4</div>
+      <h1 class="etape-title">📺 Mesures avec l'oscilloscope</h1>
+      <p class="etape-subtitle">
+        Branche l'oscilloscope, règle les boutons, ferme l'interrupteur et observe
+        la courbe U_C(t) se tracer en temps réel.
+      </p>
     </div>
+
+    <div class="objectif-box">
+      <div class="label">🎯 Mission</div>
+      <div class="text">
+        Règle correctement l'oscilloscope, puis ferme l'interrupteur pour
+        lancer la charge. Observe la courbe et réponds à la question.
+      </div>
+    </div>
+
+    <div class="mesures-layout">
+
+      <!-- OSCILLOSCOPE -->
+      <div class="oscillo-zone">
+        <div class="oscillo-label">📺 OSCILLOSCOPE — U_C(t)</div>
+        <div class="oscillo-time" id="oscTime">t = 0.000 s</div>
+        <canvas id="oscilloscope" width="1000" height="650"></canvas>
+        <div class="oscillo-bottom">
+          <div class="oscillo-readout">U_C = <strong id="oscUC">0.00 V</strong></div>
+          <div class="oscillo-readout">I = <strong id="oscI">0.000 mA</strong></div>
+          <div class="oscillo-readout">τ = <strong id="oscTau">100 ms</strong></div>
+        </div>
+      </div>
+
+      <!-- PANNEAU DROIT -->
+      <div class="panneau-mesures">
+
+        <!-- Réglages -->
+        <div class="panneau-box">
+          <h4>🎛️ Réglages oscilloscope</h4>
+          <div class="reglage-row">
+            <label>⏱️ Base de temps :</label>
+            <select id="selectBaseTemps" onchange="onReglageChange()">
+              <option value="10">10 ms/div</option>
+              <option value="20">20 ms/div</option>
+              <option value="50" selected>50 ms/div</option>
+              <option value="100">100 ms/div</option>
+              <option value="200">200 ms/div</option>
+            </select>
+          </div>
+          <div class="reglage-row">
+            <label>📊 Sensibilité vert. :</label>
+            <select id="selectSensibilite" onchange="onReglageChange()">
+              <option value="0.5">0.5 V/div</option>
+              <option value="1">1 V/div</option>
+              <option value="2" selected>2 V/div</option>
+              <option value="5">5 V/div</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Contrôles -->
+        <div class="panneau-box">
+          <h4>▶️ Contrôles</h4>
+          <div class="controls-box">
+            <button class="btn-ctrl btn-play" id="btnPlay" onclick="toggleSimulation()">
+              ▶️ Fermer K
+            </button>
+            <button class="btn-ctrl btn-reset" onclick="resetSimulation()">
+              🔄 Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Modification R et C -->
+        <div class="panneau-box">
+          <h4>🎚️ Modifier les paramètres</h4>
+          <div class="param-slider">
+            <label>
+              Résistance R
+              <span class="value" id="valR">1.0 kΩ</span>
+            </label>
+            <input type="range" id="sliderR" min="100" max="5000" value="1000" step="100" oninput="onParamChange()">
+          </div>
+          <div class="param-slider">
+            <label>
+              Condensateur C
+              <span class="value" id="valC">100 µF</span>
+            </label>
+            <input type="range" id="sliderC" min="10" max="500" value="100" step="10" oninput="onParamChange()">
+          </div>
+          <div style="font-size: 11px; color: var(--slate); text-align: center; margin-top: 6px;">
+            Modifie ces valeurs pour voir l'effet sur τ
+          </div>
+        </div>
+
+        <!-- Question -->
+        <div class="question-box">
+          <div class="question-text">❓ À quel instant U_C atteint-elle 63 % de E ?</div>
+          <div style="font-size: 11px; color: var(--slate); margin-bottom: 8px;">
+            63 % de 9 V = <strong style="color: var(--brass);">5.67 V</strong>
+          </div>
+          <div class="question-input">
+            <input type="number" id="reponseTau" placeholder="t en ms" step="1">
+            <button class="question-btn" onclick="verifierReponse()">Vérifier</button>
+          </div>
+          <div class="question-feedback" id="questionFeedback"></div>
+        </div>
+
+      </div>
+    </div>
+
     <div class="actions">
       <button class="btn btn-secondary" onclick="allerEtape(2)">← Étape précédente</button>
+      <button class="btn btn-primary" onclick="allerEtape(4)" id="btnVersAnalyse" disabled>
+        ➡️ Passer à l'analyse
+      </button>
     </div>
   </section>
 
+  <!-- ===== ÉTAPE 4 : ANALYSE (placeholder) ===== -->
   <section class="etape" id="etape-4">
     <div class="placeholder">
-      <span class="icon">🔬</span>
-      <h3>Étape 4 — Mesures avec l'oscilloscope</h3>
+      <span class="icon">🎓</span>
+      <h3>Étape 4 — Analyse & Conclusion</h3>
       <p>Cette étape sera construite dans une prochaine session.</p>
     </div>
     <div class="actions">
       <button class="btn btn-secondary" onclick="allerEtape(3)">← Étape précédente</button>
-    </div>
-  </section>
-
-  <section class="etape" id="etape-5">
-    <div class="placeholder">
-      <span class="icon">📝</span>
-      <h3>Étape 5 — Conclusion</h3>
-      <p>Cette étape sera construite dans une prochaine session.</p>
-    </div>
-    <div class="actions">
-      <button class="btn btn-secondary" onclick="allerEtape(4)">← Étape précédente</button>
     </div>
   </section>
 
@@ -723,8 +1031,6 @@ function fermerModal() { document.getElementById('modalOverlay').classList.remov
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') fermerModal();
-
-  // 🆕 Suppr : supprimer le fil sélectionné
   if ((e.key === 'Delete' || e.key === 'Suppr') && typeof montage !== 'undefined') {
     if (montage.filSelectionne) {
       montage.fils = montage.fils.filter(f => f.id !== montage.filSelectionne);
@@ -740,8 +1046,8 @@ document.addEventListener('keydown', e => {
 // ============================================================
 //  NAVIGATION
 // ============================================================
-let etapeActuelle = 2;
-let etapesDebloquees = [1, 2];
+let etapeActuelle = 3;
+let etapesDebloquees = [1, 2, 3];
 
 function allerEtape(n) {
   if (!etapesDebloquees.includes(n)) {
@@ -763,6 +1069,11 @@ function allerEtape(n) {
 
   etapeActuelle = n;
   window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Redessiner l'oscilloscope si on va à l'étape 3
+  if (n === 3) {
+    setTimeout(() => drawOscilloscope(), 50);
+  }
 }
 
 function debloquerEtape(n) {
@@ -770,7 +1081,7 @@ function debloquerEtape(n) {
 }
 
 // ============================================================
-//  ÉTAPE 2 : MONTAGE
+//  ÉTAPE 2 : MONTAGE (code conservé de la V3.2)
 // ============================================================
 const canvas = document.getElementById('canvasMontage');
 const ctx = canvas.getContext('2d');
@@ -799,17 +1110,12 @@ const TAILLE = {
   interrupteur: { w: 90, h: 50 }
 };
 
-// 🆕 Tolérances augmentées pour mieux détecter les connexions
 const DIST_CONNEXION = 55;
 const DIST_SNAP = 65;
 
-// --------- AJOUT COMPOSANT ---------
 function ajouterComposant(type) {
   const exist = montage.composants.find(c => c.type === type);
-  if (exist) {
-    alert('⚠️ Tu as déjà placé ce composant !');
-    return;
-  }
+  if (exist) { alert('⚠️ Tu as déjà placé ce composant !'); return; }
 
   const index = montage.composants.length;
   const positionsParDefaut = [
@@ -823,8 +1129,7 @@ function ajouterComposant(type) {
   const composant = {
     id: 'c' + montage.prochainIdComp++,
     type: type,
-    x: pos.x,
-    y: pos.y,
+    x: pos.x, y: pos.y,
     rotation: 0,
     valeur: type === 'pile' ? '9 V' :
             type === 'resistance' ? '1 kΩ' :
@@ -838,7 +1143,6 @@ function ajouterComposant(type) {
   updateCanvasHint();
 }
 
-// --------- AJOUT FIL ---------
 function ajouterFil() {
   const cx = W / 2 + (Math.random() - 0.5) * 250;
   const cy = H / 2 + (Math.random() - 0.5) * 150;
@@ -851,8 +1155,7 @@ function ajouterFil() {
     y1: cy - Math.sin(angle) * longueur / 2,
     x2: cx + Math.cos(angle) * longueur / 2,
     y2: cy + Math.sin(angle) * longueur / 2,
-    de: null,
-    vers: null
+    de: null, vers: null
   };
 
   montage.fils.push(fil);
@@ -862,17 +1165,10 @@ function ajouterFil() {
   updateProgress();
 }
 
-// --------- AJOUT NŒUD ---------
 function ajouterNoeud() {
   const cx = W / 2 + (Math.random() - 0.5) * 250;
   const cy = H / 2 + (Math.random() - 0.5) * 150;
-
-  const noeud = {
-    id: 'n' + montage.prochainIdNoeud++,
-    x: cx,
-    y: cy
-  };
-
+  const noeud = { id: 'n' + montage.prochainIdNoeud++, x: cx, y: cy };
   montage.noeuds.push(noeud);
   drawMontage();
   updateProgress();
@@ -880,17 +1176,12 @@ function ajouterNoeud() {
   updateBoutonSupprNoeud();
 }
 
-// 🆕 Supprimer le dernier nœud
 function supprimerDernierNoeud() {
-  if (montage.noeuds.length === 0) {
-    alert('Aucun nœud à supprimer.');
-    return;
-  }
+  if (montage.noeuds.length === 0) { alert('Aucun nœud à supprimer.'); return; }
   const dernier = montage.noeuds[montage.noeuds.length - 1];
   supprimerNoeud(dernier.id);
 }
 
-// 🆕 Supprimer un nœud précis
 function supprimerNoeud(id) {
   montage.fils.forEach(f => {
     if (f.de === id) f.de = null;
@@ -904,14 +1195,13 @@ function supprimerNoeud(id) {
   updateBoutonSupprNoeud();
 }
 
-// 🆕 Mettre à jour le bouton "Supprimer un nœud"
 function updateBoutonSupprNoeud() {
   const btn = document.getElementById('btnSupprNoeud');
   if (!btn) return;
   btn.style.display = montage.noeuds.length > 0 ? 'flex' : 'none';
 }
 
-// --------- BORNES (🆕 CORRIGÉ : suivent la rotation) ---------
+// Bornes (CORRIGÉ : suivent la rotation)
 function getBornes(composant) {
   const t = TAILLE[composant.type];
   const rotation = composant.rotation || 0;
@@ -919,32 +1209,25 @@ function getBornes(composant) {
   const cos = Math.cos(angle);
   const sin = Math.sin(angle);
 
-  // 🆕 Orientations "naturelles" de chaque composant (à rotation 0)
   const orientations = {
-    pile: 'vertical',        // bornes en haut / bas
-    condensateur: 'vertical', // bornes en haut / bas
-    resistance: 'horizontal', // bornes à gauche / droite
-    interrupteur: 'horizontal' // bornes à gauche / droite
+    pile: 'vertical',
+    condensateur: 'vertical',
+    resistance: 'horizontal',
+    interrupteur: 'horizontal'
   };
   const orientation = orientations[composant.type] || 'horizontal';
-
-  // Rotation effective : si on tourne d'un multiple de 90°, on alterne
   const estTourne90 = (rotation % 180 !== 0);
   const orientationFinale = estTourne90
     ? (orientation === 'horizontal' ? 'vertical' : 'horizontal')
     : orientation;
 
-  // Offset selon l'orientation finale
   let offsetX, offsetY;
   if (orientationFinale === 'horizontal') {
-    offsetX = t.w / 2;
-    offsetY = 0;
+    offsetX = t.w / 2; offsetY = 0;
   } else {
-    offsetX = 0;
-    offsetY = t.h / 2;
+    offsetX = 0; offsetY = t.h / 2;
   }
 
-  // Points d'ancrage en coordonnées locales
   const pointsLocaux = [
     { id: composant.id + '-L', lx: -offsetX, ly: -offsetY },
     { id: composant.id + '-R', lx: offsetX, ly: offsetY }
@@ -963,6 +1246,7 @@ function getBornes(composant) {
   });
   return bornes;
 }
+
 function getToutesLesBornes() {
   const toutes = [];
   montage.composants.forEach(c => getBornes(c).forEach(b => toutes.push(b)));
@@ -970,9 +1254,7 @@ function getToutesLesBornes() {
     toutes.push({
       id: n.id,
       composantId: 'NOEUD_' + n.id,
-      x: n.x,
-      y: n.y,
-      estNoeud: true
+      x: n.x, y: n.y, estNoeud: true
     });
   });
   return toutes;
@@ -982,12 +1264,10 @@ function getBorneById(id) {
   return getToutesLesBornes().find(b => b.id === id);
 }
 
-// --------- CONNEXIONS ---------
 function updateConnexionsFils() {
   const bornes = getToutesLesBornes();
   montage.fils.forEach(fil => {
-    fil.de = null;
-    fil.vers = null;
+    fil.de = null; fil.vers = null;
 
     let meilleurDe = null, meilleurDeDist = DIST_CONNEXION;
     let meilleurVers = null, meilleurVersDist = DIST_CONNEXION;
@@ -999,7 +1279,6 @@ function updateConnexionsFils() {
       if (d2 < meilleurVersDist) { meilleurVersDist = d2; meilleurVers = b.id; }
     });
 
-    // Interdire 2 bornes du même composant (sauf si nœud)
     if (meilleurDe && meilleurVers) {
       const b1 = getBorneById(meilleurDe);
       const b2 = getBorneById(meilleurVers);
@@ -1014,7 +1293,6 @@ function updateConnexionsFils() {
   });
 }
 
-// --------- DESSIN ---------
 function drawMontage() {
   ctx.clearRect(0, 0, W, H);
   ctx.fillStyle = '#0a0a1a';
@@ -1225,7 +1503,6 @@ function drawCondensateur(cx, cy, w, h, valeur) {
   ctx.textBaseline = 'alphabetic';
 }
 
-// 🆕 Interrupteur CORRIGÉ : suit l'état ouvert/fermé
 function drawInterrupteur(cx, cy, w, h) {
   const ferme = montage.interrupteurFerme;
 
@@ -1280,7 +1557,9 @@ function drawBorne(b) {
   ctx.beginPath(); ctx.arc(b.x, b.y, 8, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
 }
 
-// --------- INTERACTIONS ---------
+// ============================================================
+//  INTERACTIONS CANVAS
+// ============================================================
 canvas.addEventListener('mousedown', e => {
   const p = getCanvasCoords(e, false);
   handlePointerDown(p.x, p.y);
@@ -1307,18 +1586,13 @@ canvas.addEventListener('touchend', e => {
   handlePointerUp();
 });
 
-// 🆕 Double-clic : nœud (supprimer) ou interrupteur (toggle)
 canvas.addEventListener('dblclick', e => {
   const p = getCanvasCoords(e, false);
-
-  // Nœud ?
   const noeud = trouverNoeudProche(p.x, p.y);
   if (noeud) {
     if (confirm('Supprimer ce nœud ?')) supprimerNoeud(noeud.id);
     return;
   }
-
-  // Interrupteur ?
   const comp = trouverComposantProche(p.x, p.y);
   if (comp && comp.type === 'interrupteur') {
     montage.interrupteurFerme = !montage.interrupteurFerme;
@@ -1326,7 +1600,6 @@ canvas.addEventListener('dblclick', e => {
   }
 });
 
-// 🆕 Clic droit : supprimer nœud ou fil
 canvas.addEventListener('contextmenu', e => {
   e.preventDefault();
   const p = getCanvasCoords(e, false);
@@ -1377,7 +1650,6 @@ function getCanvasCoords(e, isTouch) {
 }
 
 function handlePointerDown(x, y) {
-  // 1) Poignée de rotation ?
   for (const c of montage.composants) {
     const t = TAILLE[c.type];
     const angle = (c.rotation || 0) * Math.PI / 180;
@@ -1393,7 +1665,6 @@ function handlePointerDown(x, y) {
     }
   }
 
-  // 2) Poignée de fil ?
   if (montage.filSelectionne) {
     const fil = montage.fils.find(f => f.id === montage.filSelectionne);
     if (fil) {
@@ -1404,7 +1675,6 @@ function handlePointerDown(x, y) {
     }
   }
 
-  // 3) Nœud ?
   const noeud = trouverNoeudProche(x, y);
   if (noeud) {
     montage.noeudEnDrag = noeud;
@@ -1413,7 +1683,6 @@ function handlePointerDown(x, y) {
     return;
   }
 
-  // 4) Fil ?
   const filClique = trouverFilProche(x, y);
   if (filClique) {
     montage.filSelectionne = filClique.id;
@@ -1421,7 +1690,6 @@ function handlePointerDown(x, y) {
     return;
   }
 
-  // 5) Composant ?
   const comp = trouverComposantProche(x, y);
   if (comp) {
     montage.composantEnDrag = comp;
@@ -1431,7 +1699,6 @@ function handlePointerDown(x, y) {
     return;
   }
 
-  // 6) Rien
   montage.filSelectionne = null;
   drawMontage();
 }
@@ -1443,15 +1710,9 @@ function handlePointerMove(x, y) {
       const borneProche = trouverBorneProche(x, y, DIST_SNAP);
       let finalX = Math.max(10, Math.min(W - 10, x));
       let finalY = Math.max(10, Math.min(H - 10, y));
-      if (borneProche) {
-        finalX = borneProche.x;
-        finalY = borneProche.y;
-      }
-      if (montage.poigneeEnDrag.cote === 'A') {
-        fil.x1 = finalX; fil.y1 = finalY;
-      } else {
-        fil.x2 = finalX; fil.y2 = finalY;
-      }
+      if (borneProche) { finalX = borneProche.x; finalY = borneProche.y; }
+      if (montage.poigneeEnDrag.cote === 'A') { fil.x1 = finalX; fil.y1 = finalY; }
+      else { fil.x2 = finalX; fil.y2 = finalY; }
       updateConnexionsFils();
       updateProgress();
     }
@@ -1545,7 +1806,6 @@ function distancePointSegment(px, py, x1, y1, x2, y2) {
   return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
 }
 
-// --------- PROGRESSION ---------
 function updateProgress() {
   const nbComposants = montage.composants.length;
   const nbFilsConnectes = montage.fils.filter(f => f.de && f.vers).length;
@@ -1579,7 +1839,6 @@ function updateCanvasHint() {
   }
 }
 
-// --------- EFFACER ---------
 function effacerTout() {
   if (!confirm('Effacer tout le montage ?')) return;
   montage.composants = [];
@@ -1594,13 +1853,11 @@ function effacerTout() {
   document.getElementById('verifMessage').classList.remove('show');
 }
 
-// --------- VÉRIFIER ---------
 function verifierMontage() {
   const msg = document.getElementById('verifMessage');
   const checks = [];
   let toutOK = true;
 
-  // 1) Composants présents
   const typesAttendus = ['pile', 'resistance', 'condensateur', 'interrupteur'];
   const typesPresents = montage.composants.map(c => c.type);
   const composantsOK = typesAttendus.every(t => typesPresents.includes(t));
@@ -1613,7 +1870,6 @@ function verifierMontage() {
     toutOK = false;
   }
 
-  // 2) Chaque borne a un fil
   if (composantsOK) {
     const bornesSansFil = [];
     montage.composants.forEach(c => {
@@ -1630,16 +1886,14 @@ function verifierMontage() {
     }
   }
 
-  // 3) 4 fils connectés
   const filsConnectes = montage.fils.filter(f => f.de && f.vers).length;
   if (filsConnectes >= 4) {
     checks.push({ ok: true, txt: `Au moins 4 fils connectés (${filsConnectes})` });
   } else {
-    checks.push({ ok: false, txt: `Il manque ${4 - filsConnectes} fil(s) connecté(s) — actuellement ${filsConnectes}/4` });
+    checks.push({ ok: false, txt: `Il manque ${4 - filsConnectes} fil(s) — actuellement ${filsConnectes}/4` });
     toutOK = false;
   }
 
-  // 4) Chemin fermé traversant les 4 composants
   if (composantsOK && filsConnectes >= 4) {
     const graphe = construireGraphe();
     const pile = montage.composants.find(c => c.type === 'pile');
@@ -1668,7 +1922,6 @@ function verifierMontage() {
     }
   }
 
-  // Afficher
   msg.classList.remove('success', 'error');
   msg.classList.add('show', toutOK ? 'success' : 'error');
 
@@ -1684,7 +1937,7 @@ function verifierMontage() {
   if (toutOK) {
     html += `<div style="margin-top: 15px; text-align: center;">
       <button class="btn btn-primary" onclick="debloquerEtape(3); allerEtape(3);">
-        ➡️ Passer à l'étape 3
+        ➡️ Passer aux mesures
       </button>
     </div>`;
     debloquerEtape(3);
@@ -1693,7 +1946,6 @@ function verifierMontage() {
   msg.innerHTML = html;
 }
 
-// --------- GRAPHE ---------
 function construireGraphe() {
   const graphe = {};
   montage.fils.forEach(f => {
@@ -1704,6 +1956,9 @@ function construireGraphe() {
     graphe[f.vers].push(f.de);
   });
   montage.composants.forEach(c => {
+    if (c.type === 'pile') return;
+    if (c.type === 'interrupteur' && !montage.interrupteurFerme) return;
+
     const leftId = c.id + '-L', rightId = c.id + '-R';
     if (!graphe[leftId]) graphe[leftId] = [];
     if (!graphe[rightId]) graphe[rightId] = [];
@@ -1733,15 +1988,303 @@ function trouverChemin(graphe, departId, arriveeId) {
 }
 
 // ============================================================
+//  ÉTAPE 3 : SIMULATION OSCILLOSCOPE
+// ============================================================
+const oscCanvas = document.getElementById('oscilloscope');
+const oscCtx = oscCanvas.getContext('2d');
+const OW = oscCanvas.width;
+const OH = oscCanvas.height;
+
+const simulation = {
+  active: false,
+  t: 0,                    // temps courant en s
+  R: 1000,                 // Ohms
+  C: 100e-6,               // Farads
+  E: 9,                    // Volts
+  UC: 0,                   // Tension du condensateur
+  I: 0,                    // Courant
+  running: false,          // K fermé ou pas
+  rafId: null,
+  lastTimestamp: 0,
+  echantillons: [],        // [{t, U}]
+  verrouille: false        // Après 5τ
+};
+
+function tau() { return simulation.R * simulation.C; }
+
+function calculerUC(t) {
+  return simulation.E * (1 - Math.exp(-t / tau()));
+}
+
+function toggleSimulation() {
+  if (simulation.verrouille) {
+    resetSimulation();
+  }
+  if (simulation.running) {
+    // Pause
+    simulation.running = false;
+    if (simulation.rafId) cancelAnimationFrame(simulation.rafId);
+    document.getElementById('btnPlay').textContent = '▶️ Reprendre';
+  } else {
+    // Démarrage ou reprise
+    simulation.running = true;
+    simulation.lastTimestamp = 0;
+    document.getElementById('btnPlay').textContent = '⏸ Pause';
+    simulation.rafId = requestAnimationFrame(animer);
+  }
+}
+
+function resetSimulation() {
+  if (simulation.rafId) cancelAnimationFrame(simulation.rafId);
+  simulation.running = false;
+  simulation.active = false;
+  simulation.verrouille = false;
+  simulation.t = 0;
+  simulation.UC = 0;
+  simulation.I = 0;
+  simulation.echantillons = [];
+  simulation.lastTimestamp = 0;
+  document.getElementById('btnPlay').textContent = '▶️ Fermer K';
+  drawOscilloscope();
+  updateOscReadouts();
+}
+
+function animer(timestamp) {
+  if (!simulation.running) return;
+
+  if (!simulation.lastTimestamp) simulation.lastTimestamp = timestamp;
+  const dt = Math.min((timestamp - simulation.lastTimestamp) / 1000, 0.05);
+  simulation.lastTimestamp = timestamp;
+
+  // Avancer le temps
+  simulation.t += dt;
+  const T = tau();
+  const tMax = T * 5;
+
+  // Calculer U_C
+  simulation.UC = calculerUC(simulation.t);
+  simulation.I = (simulation.E - simulation.UC) / simulation.R;
+
+  // Échantillonner
+  if (simulation.echantillons.length === 0 ||
+      simulation.t - simulation.echantillons[simulation.echantillons.length-1].t > 0.005) {
+    simulation.echantillons.push({ t: simulation.t, U: simulation.UC });
+  }
+
+  // Vérifier fin (5τ)
+  if (simulation.t >= tMax) {
+    simulation.t = tMax;
+    simulation.UC = simulation.E * (1 - Math.exp(-5));
+    simulation.I = (simulation.E - simulation.UC) / simulation.R;
+    simulation.running = false;
+    simulation.verrouille = true;
+    document.getElementById('btnPlay').textContent = '🔄 Recommencer';
+    drawOscilloscope();
+    updateOscReadouts();
+    return;
+  }
+
+  drawOscilloscope();
+  updateOscReadouts();
+  simulation.rafId = requestAnimationFrame(animer);
+}
+
+function updateOscReadouts() {
+  document.getElementById('oscTime').textContent = 't = ' + simulation.t.toFixed(3) + ' s';
+  document.getElementById('oscUC').textContent = simulation.UC.toFixed(2) + ' V';
+  document.getElementById('oscI').textContent = (simulation.I * 1000).toFixed(3) + ' mA';
+  const T = tau();
+  document.getElementById('oscTau').textContent = T < 1 ? (T * 1000).toFixed(0) + ' ms' : T.toFixed(2) + ' s';
+}
+
+function drawOscilloscope() {
+  oscCtx.clearRect(0, 0, OW, OH);
+  oscCtx.fillStyle = '#000';
+  oscCtx.fillRect(0, 0, OW, OH);
+
+  const margeG = 90, margeD = 40, margeH = 60, margeB = 70;
+  const largeur = OW - margeG - margeD;
+  const hauteur = OH - margeH - margeB;
+
+  const T = tau();
+  const tMax = T * 5;          // 5τ
+  const Umax = simulation.E * 1.1;
+
+  // Grille
+  oscCtx.strokeStyle = 'rgba(76, 175, 80, 0.15)';
+  oscCtx.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) {
+    const y = margeH + (hauteur * i / 10);
+    oscCtx.beginPath(); oscCtx.moveTo(margeG, y); oscCtx.lineTo(margeG + largeur, y); oscCtx.stroke();
+  }
+  for (let i = 0; i <= 10; i++) {
+    const x = margeG + (largeur * i / 10);
+    oscCtx.beginPath(); oscCtx.moveTo(x, margeH); oscCtx.lineTo(x, margeH + hauteur); oscCtx.stroke();
+  }
+
+  // Axes
+  oscCtx.strokeStyle = 'rgba(76, 175, 80, 0.6)';
+  oscCtx.lineWidth = 1.5;
+  oscCtx.beginPath();
+  oscCtx.moveTo(margeG, margeH + hauteur);
+  oscCtx.lineTo(margeG + largeur, margeH + hauteur);
+  oscCtx.moveTo(margeG, margeH);
+  oscCtx.lineTo(margeG, margeH + hauteur);
+  oscCtx.stroke();
+
+  // Graduations U
+  oscCtx.fillStyle = '#4caf50';
+  oscCtx.font = 'bold 12px "Courier New", monospace';
+  oscCtx.textAlign = 'right';
+  oscCtx.textBaseline = 'middle';
+  for (let i = 0; i <= 5; i++) {
+    const u = (Umax * i / 5);
+    const y = margeH + hauteur - (hauteur * i / 5);
+    oscCtx.fillText(u.toFixed(1) + ' V', margeG - 8, y);
+  }
+
+  // Graduations t
+  oscCtx.textAlign = 'center';
+  oscCtx.textBaseline = 'top';
+  for (let i = 0; i <= 5; i++) {
+    const t = (tMax * i / 5);
+    const x = margeG + (largeur * i / 5);
+    const label = t < 1 ? (t * 1000).toFixed(0) + ' ms' : t.toFixed(2) + ' s';
+    oscCtx.fillText(label, x, margeH + hauteur + 8);
+  }
+
+  // Marqueurs τ, 2τ, 3τ, 4τ, 5τ
+  oscCtx.setLineDash([4, 4]);
+  oscCtx.strokeStyle = 'rgba(255, 213, 79, 0.5)';
+  oscCtx.lineWidth = 1;
+  for (let k = 1; k <= 5; k++) {
+    const tK = k * T;
+    const xK = margeG + (largeur * tK / tMax);
+    oscCtx.beginPath();
+    oscCtx.moveTo(xK, margeH);
+    oscCtx.lineTo(xK, margeH + hauteur);
+    oscCtx.stroke();
+    oscCtx.fillStyle = 'rgba(255, 213, 79, 0.7)';
+    oscCtx.font = 'bold 11px "Courier New", monospace';
+    oscCtx.textAlign = 'center';
+    oscCtx.textBaseline = 'top';
+    oscCtx.fillText(k + 'τ', xK, margeH + 4);
+  }
+  oscCtx.setLineDash([]);
+
+  // Marqueurs 63% et 95%
+  oscCtx.setLineDash([3, 3]);
+  oscCtx.strokeStyle = 'rgba(76, 175, 80, 0.6)';
+  const y63 = margeH + hauteur - (hauteur * 0.63 * simulation.E / Umax);
+  const y95 = margeH + hauteur - (hauteur * 0.95 * simulation.E / Umax);
+  oscCtx.beginPath();
+  oscCtx.moveTo(margeG, y63); oscCtx.lineTo(margeG + largeur, y63);
+  oscCtx.moveTo(margeG, y95); oscCtx.lineTo(margeG + largeur, y95);
+  oscCtx.stroke();
+  oscCtx.setLineDash([]);
+  oscCtx.fillStyle = 'rgba(76, 175, 80, 0.8)';
+  oscCtx.font = 'bold 11px "Courier New", monospace';
+  oscCtx.textAlign = 'left';
+  oscCtx.textBaseline = 'middle';
+  oscCtx.fillText('63 %', margeG + 8, y63 - 8);
+  oscCtx.fillText('95 %', margeG + 8, y95 - 8);
+
+  // Courbe tracée jusqu'à t actuel
+  if (simulation.echantillons.length > 0) {
+    oscCtx.strokeStyle = '#ffeb3b';
+    oscCtx.lineWidth = 3;
+    oscCtx.shadowColor = '#ffeb3b';
+    oscCtx.shadowBlur = 10;
+    oscCtx.beginPath();
+    simulation.echantillons.forEach((e, i) => {
+      const x = margeG + (largeur * e.t / tMax);
+      const y = margeH + hauteur - (hauteur * e.U / Umax);
+      if (i === 0) oscCtx.moveTo(x, y);
+      else oscCtx.lineTo(x, y);
+    });
+    oscCtx.stroke();
+    oscCtx.shadowBlur = 0;
+
+    // Point actuel
+    const dernier = simulation.echantillons[simulation.echantillons.length - 1];
+    const xP = margeG + (largeur * dernier.t / tMax);
+    const yP = margeH + hauteur - (hauteur * dernier.U / Umax);
+    const grad = oscCtx.createRadialGradient(xP, yP, 2, xP, yP, 20);
+    grad.addColorStop(0, 'rgba(255, 235, 59, 0.9)');
+    grad.addColorStop(1, 'rgba(255, 235, 59, 0)');
+    oscCtx.fillStyle = grad;
+    oscCtx.beginPath(); oscCtx.arc(xP, yP, 20, 0, Math.PI * 2); oscCtx.fill();
+
+    oscCtx.fillStyle = '#ffeb3b';
+    oscCtx.strokeStyle = '#fff';
+    oscCtx.lineWidth = 2;
+    oscCtx.beginPath(); oscCtx.arc(xP, yP, 7, 0, Math.PI * 2); oscCtx.fill(); oscCtx.stroke();
+  }
+
+  // Légende
+  oscCtx.fillStyle = '#ffeb3b';
+  oscCtx.font = 'bold 13px "Courier New", monospace';
+  oscCtx.textAlign = 'right';
+  oscCtx.textBaseline = 'top';
+  oscCtx.fillText('U_C(t)  [V]', OW - 15, 15);
+}
+
+function onReglageChange() {
+  // Les réglages changent la façon dont on dessine mais pas la physique
+  // Pour simplifier, on redessine
+  drawOscilloscope();
+}
+
+function onParamChange() {
+  const R = parseFloat(document.getElementById('sliderR').value);
+  const C = parseFloat(document.getElementById('sliderC').value) * 1e-6;
+  simulation.R = R;
+  simulation.C = C;
+
+  document.getElementById('valR').textContent = (R / 1000).toFixed(1) + ' kΩ';
+  document.getElementById('valC').textContent = (C * 1e6).toFixed(0) + ' µF';
+
+  // Réinitialiser la simulation
+  resetSimulation();
+}
+
+function verifierReponse() {
+  const rep = parseFloat(document.getElementById('reponseTau').value);
+  const fb = document.getElementById('questionFeedback');
+  const T_ms = tau() * 1000;
+
+  if (isNaN(rep)) {
+    fb.className = 'question-feedback error show';
+    fb.textContent = '⚠️ Saisis une valeur en ms.';
+    return;
+  }
+
+  const ecart = Math.abs(rep - T_ms);
+  const tolerance = T_ms * 0.05; // 5%
+
+  if (ecart <= tolerance) {
+    fb.className = 'question-feedback success show';
+    fb.innerHTML = `✅ Bravo ! τ = ${T_ms.toFixed(0)} ms. U_C atteint 63 % de E à t = τ.`;
+    debloquerEtape(4);
+    document.getElementById('btnVersAnalyse').disabled = false;
+  } else {
+    fb.className = 'question-feedback error show';
+    fb.innerHTML = `❌ Ta réponse : ${rep} ms. Rappel : U_C = 63 % de E à t = τ = R × C.<br>Essaie encore !`;
+  }
+}
+
+// ============================================================
 //  INIT
 // ============================================================
 window.addEventListener('load', () => {
-  allerEtape(2);
+  allerEtape(3);
   drawMontage();
   updateProgress();
   updateCanvasHint();
   updateBoutonSupprNoeud();
-  console.log('✅ Simulateur RC V3.2 chargé (bornes rotation corrigées)');
+  drawOscilloscope();
+  updateOscReadouts();
+  console.log('✅ Simulateur RC V4 chargé (Étape 3 : Mesures)');
 });
 
 if (!CanvasRenderingContext2D.prototype.roundRect) {
