@@ -181,6 +181,137 @@
   @media (max-width: 640px) {
     .sim-sub-buttons { grid-template-columns: 1fr; }
   }
+    /* ===== ACCORDÉON SIMULATEURS ===== */
+  .sim-accordion {
+    background: linear-gradient(135deg, #1B2A4A 0%, #4fc3f7 100%);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(27, 42, 74, 0.2);
+    margin-bottom: 20px;
+    transition: box-shadow 0.3s;
+  }
+  .sim-accordion:hover {
+    box-shadow: 0 10px 30px rgba(27, 42, 74, 0.3);
+  }
+
+  .sim-accordion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    width: 100%;
+    padding: 18px 25px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-family: var(--sans);
+    text-align: left;
+    transition: background 0.2s;
+  }
+  .sim-accordion-header:hover {
+    background: rgba(255,255,255,0.08);
+  }
+
+  .sim-accordion-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sim-accordion-icon {
+    font-size: 32px;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    backdrop-filter: blur(10px);
+  }
+
+  .sim-accordion-heading {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 3px;
+  }
+
+  .sim-accordion-sub {
+    font-size: 13px;
+    opacity: 0.85;
+    font-weight: 500;
+  }
+
+  .sim-accordion-arrow {
+    font-size: 20px;
+    transition: transform 0.3s;
+    flex-shrink: 0;
+    opacity: 0.8;
+  }
+  .sim-accordion.open .sim-accordion-arrow {
+    transform: rotate(180deg);
+  }
+
+  .sim-accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s;
+    padding: 0 15px;
+    background: rgba(0,0,0,0.15);
+  }
+  .sim-accordion.open .sim-accordion-content {
+    max-height: 1500px;
+    padding: 18px 15px 20px;
+  }
+
+  /* Bannière "bientôt" */
+  .sim-banner-bientot {
+    opacity: 0.7;
+    cursor: not-allowed;
+    position: relative;
+  }
+  .sim-banner-bientot:hover {
+    transform: none;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  }
+
+  .sim-bientot-badge {
+    position: absolute;
+    top: 12px;
+    right: 15px;
+    background: rgba(255,255,255,0.25);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    z-index: 2;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .sim-accordion-header {
+      padding: 14px 18px;
+    }
+    .sim-accordion-heading {
+      font-size: 17px;
+    }
+    .sim-accordion-sub {
+      font-size: 11px;
+    }
+    .sim-accordion-icon {
+      width: 45px;
+      height: 45px;
+      font-size: 24px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -238,102 +369,86 @@
   <!-- ============================================================ -->
   <!-- ⚡ BLOC 1 : SIMULATEURS ÉLECTRIQUES LFAKM                    -->
   <!-- ============================================================ -->
+    <!-- ============================================================ -->
+  <!-- ⚡ BLOC 1 : SIMULATEURS ÉLECTRIQUES LFAKM (dépliable)         -->
+  <!-- ============================================================ -->
   <div style="margin: 30px 0;">
-    <h2 style="font-family: var(--serif); font-size: 24px; color: var(--ink); border-left: 6px solid var(--brass); padding-left: 15px; margin-bottom: 10px;">
-      ⚡ Simulateurs électriques LFAKM
-    </h2>
-    <p style="font-size: 14px; color: var(--slate); margin-bottom: 20px; padding-left: 21px;">
-      Nos propres simulateurs interactifs conçus pour le programme sénégalais — 4ème à la Terminale.
-    </p>
-
-    <!-- Bannière 1 : Atelier de circuits (ACTIF) -->
-    <a href="simulateur-circuits-libre.html" class="sim-banner" style="background: linear-gradient(135deg, #1B2A4A 0%, #4fc3f7 100%);">
-      <div class="sim-banner-inner">
-        <div class="sim-icon">⚡</div>
-        <div class="sim-text">
-          <div class="sim-eyebrow">INTERACTIF · CIRCUITS</div>
-          <h2 class="sim-title">Atelier de circuits — Fils libres</h2>
-          <p class="sim-desc">🔗 Fils libres · ⬤ Nœuds multi-connexions · 🎯 Détection automatique (série/dérivation/mixte)</p>
+    <div class="sim-accordion" id="simElecAccordion">
+      <!-- En-tête cliquable -->
+      <button class="sim-accordion-header" onclick="toggleSimAccordion('simElecAccordion')">
+        <div class="sim-accordion-title">
+          <span class="sim-accordion-icon">⚡</span>
+          <div>
+            <div class="sim-accordion-heading">Simulateurs électriques LFAKM</div>
+            <div class="sim-accordion-sub">Circuits · RC/RL · RLC libre · RLC forcé</div>
+          </div>
         </div>
-        <div class="sim-arrow">→</div>
-      </div>
-      <div class="sim-tags">
-        <span class="sim-tag">💡 Lampe progressive</span>
-        <span class="sim-tag">⚙️ Moteur rotatif</span>
-        <span class="sim-tag">📊 Tableau mesures</span>
-        <span class="sim-tag">🎛 Édition valeurs</span>
-        <span class="sim-tag">🔋 Piles 6V/12V</span>
-      </div>
-    </a>
+        <span class="sim-accordion-arrow">▼</span>
+      </button>
 
-    <!-- Bannière 2 : RC / RL (à venir) -->
-    <a href="#" class="sim-banner" style="background: linear-gradient(135deg, #0d47a1 0%, #26a69a 100%); opacity: 0.7; cursor: not-allowed; position: relative;" onclick="event.preventDefault(); alert('🚧 Simulateur RC/RL en préparation — disponible très bientôt !');">
-      <div style="position: absolute; top: 12px; right: 15px; background: rgba(255,255,255,0.25); color: #fff; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; letter-spacing: 1px;">
-        🚧 BIENTÔT
-      </div>
-      <div class="sim-banner-inner">
-        <div class="sim-icon">🔋</div>
-        <div class="sim-text">
-          <div class="sim-eyebrow">À VENIR · RÉGIME TRANSITOIRE</div>
-          <h2 class="sim-title">Charge / Décharge — RC & RL</h2>
-          <p class="sim-desc">📈 Évolution de U(t) et I(t) · ⏱️ Constante de temps τ · 📊 Oscilloscope virtuel</p>
-        </div>
-        <div class="sim-arrow">→</div>
-      </div>
-      <div class="sim-tags">
-        <span class="sim-tag">🔵 RC</span>
-        <span class="sim-tag">🟢 RL</span>
-        <span class="sim-tag">📈 Courbes U(t)</span>
-        <span class="sim-tag">⏱️ Constante τ</span>
-        <span class="sim-tag">🎓 1ère → Tle</span>
-      </div>
-    </a>
+      <!-- Contenu dépliable -->
+      <div class="sim-accordion-content">
+        <p style="font-size: 13px; color: var(--slate); margin: 0 0 15px; padding-left: 5px;">
+          Cliquez sur un simulateur pour l'ouvrir. Les bannières grisées sont en préparation.
+        </p>
 
-    <!-- Bannière 3 : RLC libre (à venir) -->
-    <a href="#" class="sim-banner" style="background: linear-gradient(135deg, #1b5e20 0%, #9e9d24 100%); opacity: 0.7; cursor: not-allowed; position: relative;" onclick="event.preventDefault(); alert('🚧 Simulateur RLC libre en préparation — disponible très bientôt !');">
-      <div style="position: absolute; top: 12px; right: 15px; background: rgba(255,255,255,0.25); color: #fff; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; letter-spacing: 1px;">
-        🚧 BIENTÔT
-      </div>
-      <div class="sim-banner-inner">
-        <div class="sim-icon">🌊</div>
-        <div class="sim-text">
-          <div class="sim-eyebrow">À VENIR · OSCILLATIONS</div>
-          <h2 class="sim-title">Circuit RLC libre — Oscillations amorties</h2>
-          <p class="sim-desc">🌊 Régime pseudopériodique · ⚡ Facteur de qualité Q · 📐 Période propre T₀</p>
-        </div>
-        <div class="sim-arrow">→</div>
-      </div>
-      <div class="sim-tags">
-        <span class="sim-tag">🌊 Pseudopériodique</span>
-        <span class="sim-tag">🎯 Critique</span>
-        <span class="sim-tag">📉 Apériodique</span>
-        <span class="sim-tag">📐 T₀ = 2π√(LC)</span>
-        <span class="sim-tag">🎓 Tle</span>
-      </div>
-    </a>
+        <!-- Bannière 1 : Atelier de circuits (ACTIF) -->
+        <a href="simulateur-circuits-libre.html" class="sim-banner" style="background: linear-gradient(135deg, #1B2A4A 0%, #4fc3f7 100%); margin-bottom: 12px;">
+          <div class="sim-banner-inner">
+            <div class="sim-icon">⚡</div>
+            <div class="sim-text">
+              <div class="sim-eyebrow">INTERACTIF · CIRCUITS</div>
+              <h2 class="sim-title">Atelier de circuits — Fils libres</h2>
+              <p class="sim-desc">🔗 Fils libres · ⬤ Nœuds · 🎯 Détection automatique</p>
+            </div>
+            <div class="sim-arrow">→</div>
+          </div>
+        </a>
 
-    <!-- Bannière 4 : RLC forcé (à venir) -->
-    <a href="#" class="sim-banner" style="background: linear-gradient(135deg, #e65100 0%, #ffa726 100%); opacity: 0.7; cursor: not-allowed; position: relative;" onclick="event.preventDefault(); alert('🚧 Simulateur RLC forcé en préparation — disponible très bientôt !');">
-      <div style="position: absolute; top: 12px; right: 15px; background: rgba(255,255,255,0.25); color: #fff; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; letter-spacing: 1px;">
-        🚧 BIENTÔT
+        <!-- Bannière 2 : RC / RL (à venir) -->
+        <a href="#" class="sim-banner sim-banner-bientot" style="background: linear-gradient(135deg, #0d47a1 0%, #26a69a 100%); margin-bottom: 12px;" onclick="event.preventDefault(); alert('🚧 Simulateur RC/RL en préparation — disponible très bientôt !');">
+          <div class="sim-bientot-badge">🚧 BIENTÔT</div>
+          <div class="sim-banner-inner">
+            <div class="sim-icon">🔋</div>
+            <div class="sim-text">
+              <div class="sim-eyebrow">À VENIR · RÉGIME TRANSITOIRE</div>
+              <h2 class="sim-title">Charge / Décharge — RC & RL</h2>
+              <p class="sim-desc">📈 Courbes U(t) · ⏱️ Constante τ · 📊 Oscilloscope</p>
+            </div>
+            <div class="sim-arrow">→</div>
+          </div>
+        </a>
+
+        <!-- Bannière 3 : RLC libre (à venir) -->
+        <a href="#" class="sim-banner sim-banner-bientot" style="background: linear-gradient(135deg, #1b5e20 0%, #9e9d24 100%); margin-bottom: 12px;" onclick="event.preventDefault(); alert('🚧 Simulateur RLC libre en préparation — disponible très bientôt !');">
+          <div class="sim-bientot-badge">🚧 BIENTÔT</div>
+          <div class="sim-banner-inner">
+            <div class="sim-icon">🌊</div>
+            <div class="sim-text">
+              <div class="sim-eyebrow">À VENIR · OSCILLATIONS</div>
+              <h2 class="sim-title">Circuit RLC libre — Oscillations amorties</h2>
+              <p class="sim-desc">🌊 Régime pseudopériodique · ⚡ Facteur Q · 📐 Période T₀</p>
+            </div>
+            <div class="sim-arrow">→</div>
+          </div>
+        </a>
+
+        <!-- Bannière 4 : RLC forcé (à venir) -->
+        <a href="#" class="sim-banner sim-banner-bientot" style="background: linear-gradient(135deg, #e65100 0%, #ffa726 100%);" onclick="event.preventDefault(); alert('🚧 Simulateur RLC forcé en préparation — disponible très bientôt !');">
+          <div class="sim-bientot-badge">🚧 BIENTÔT</div>
+          <div class="sim-banner-inner">
+            <div class="sim-icon">🎵</div>
+            <div class="sim-text">
+              <div class="sim-eyebrow">À VENIR · RÉGIME SINUSOÏDAL</div>
+              <h2 class="sim-title">Circuit RLC forcé — Résonance</h2>
+              <p class="sim-desc">🎵 Source alternative · 📊 Résonance · 🎨 Fresnel</p>
+            </div>
+            <div class="sim-arrow">→</div>
+          </div>
+        </a>
+
       </div>
-      <div class="sim-banner-inner">
-        <div class="sim-icon">🎵</div>
-        <div class="sim-text">
-          <div class="sim-eyebrow">À VENIR · RÉGIME SINUSOÏDAL</div>
-          <h2 class="sim-title">Circuit RLC forcé — Résonance</h2>
-          <p class="sim-desc">🎵 Source alternative · 📊 Courbe de résonance I(f) · 🎨 Diagramme de Fresnel</p>
-        </div>
-        <div class="sim-arrow">→</div>
-      </div>
-      <div class="sim-tags">
-        <span class="sim-tag">🎵 Sinusoïdal</span>
-        <span class="sim-tag">📊 Résonance</span>
-        <span class="sim-tag">🎨 Phaseurs</span>
-        <span class="sim-tag">📐 f₀ = 1/(2π√(LC))</span>
-        <span class="sim-tag">🎓 Tle</span>
-      </div>
-    </a>
+    </div>
   </div>
 
   <!-- ============================================================ -->
@@ -802,6 +917,11 @@
   setTimeout(() => { if (document.getElementById('viewer-3d')) loadMolecule3D('methane'); }, 500);
 
   console.log('✅ Labo Physique-Chimie chargé');
+  <script>
+  function toggleSimAccordion(id) {
+    const acc = document.getElementById(id);
+    acc.classList.toggle('open');
+  }
 </script>
 </body>
 </html>
