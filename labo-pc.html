@@ -3,956 +3,1001 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Laboratoire de Physique-Chimie — LFAKM</title>
-<script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+<title>TP RC — Démarche expérimentale | LFAKM</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B2A4A">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
-    --slate: #5B6472; --line: rgba(27,42,74,0.14); --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --slate: #5B6472; --line: rgba(27,42,74,0.14);
+    --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
     --gov-purple: #6a4c93;
+    --success: #2e7d32; --warning: #f39c12; --danger: #d9534f; --info: #3498db;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; }
-  header { position:sticky; top:0; z-index:1000; background:var(--paper); border-bottom:1px solid var(--line); height: 84px; display: flex; align-items: center; }
-  .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; max-width:1180px; margin:0 auto; padding:0 24px; }
-  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); width: 220px; flex-shrink: 0; }
-  .brand-mark { width:55px; height:45px; display:flex; align-items:center; justify-content:center; flex-shrink: 0; }
-  .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
-  .brand-name { font-family:var(--serif); font-weight:700; font-size:14px; color:var(--ink); line-height: 1.3; text-align: center; width: 100%; white-space: normal; }
-  .brand-tag { font-size: 10px; color: var(--slate); text-align: center; margin-top: 2px; letter-spacing: 0.5px; white-space: nowrap; }
-  nav { flex: 1; display: flex; justify-content: flex-end; align-items: center; }
-  nav ul { display:flex; gap:18px; list-style:none; align-items: center; justify-content: flex-end; }
-  nav a { font-size:13px; font-weight:600; color:var(--ink); text-decoration:none; white-space: nowrap; display: flex; align-items: center; }
-  nav a:hover { color: var(--brass); }
-  .admin-item { display: none; position: relative; }
-  .admin-dropdown { display: none; position: absolute; top: 100%; right: 0; background: #fff; border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); min-width: 180px; z-index: 100; padding: 5px 0; }
-  .admin-dropdown a { display: block; padding: 8px 15px; color: var(--ink); font-size: 13px; text-decoration: none; }
-  .admin-dropdown a:hover { background: #f5f5f5; }
-  .admin-item:hover .admin-dropdown { display: block; }
-  .admin-trigger { background: var(--brass); color: #fff !important; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 12px; cursor: pointer; display: inline-block; line-height: 1.4; text-align: center; margin: 0; white-space: nowrap; }
-  .profile-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 13px; }
-  .profile-name { font-weight: 700; color: var(--brass); font-size: 14px; }
-  .profile-role { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; }
-  .contact-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 12px; }
-  .contact-label { font-weight: 600; color: var(--ink); }
-  .contact-phone { font-size: 12px; color: var(--brass); font-weight: 700; }
-  #user-profile { display: none; font-weight: 700; color: var(--brass); font-size: 14px; }
-  .nav-cta { background: var(--ink-deep); color:#fff !important; padding:10px 18px; font-size:12px; font-weight:600; border-radius:4px; text-decoration:none; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
-  .menu-toggle { display: none; font-size: 30px; cursor: pointer; }
-  .labo-item { display: none; }
-  .feedback-item { display: none; }
-  .feedback-link { background: var(--brass); color: #fff !important; padding: 4px 12px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
-  .gov-item { display: none; }
-  .gov-item a { color: var(--gov-purple) !important; font-weight: 700; }
-  .gov-item a:hover { color: #9b59b6 !important; }
-  @media (max-width: 1024px) {
-    .menu-toggle { display: block; }
-    nav ul { display: none; flex-direction: column; position: absolute; top: 84px; left: 0; width: 100%; background: #fff; padding: 20px; border-bottom: 2px solid var(--line); gap: 15px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-    nav ul.show { display: flex; }
-    .admin-dropdown { position: static; box-shadow: none; border: none; }
-    .brand { width: auto; }
-  }
-  .hero { background: var(--ink-deep); color:#EFE9DC; padding: 60px 20px; text-align: center; }
-  .hero h1 { font-family: var(--serif); font-size: 36px; margin-bottom: 10px; }
-  .hero p { font-size: 16px; opacity: 0.8; }
-  .wrap { max-width:1100px; margin:0 auto; padding: 20px; }
-  .domain-section { margin-bottom: 50px; }
-  .domain-title { font-family: var(--serif); font-size: 26px; color: var(--ink); border-left: 6px solid var(--brass); padding-left: 15px; margin-bottom: 20px; }
-  .domain-subtitle { font-size: 14px; color: var(--slate); margin-bottom: 20px; padding-left: 21px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-  .sim-card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; }
-  .sim-card:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
-  .sim-card h4 { font-size: 16px; color: var(--ink); margin-bottom: 8px; }
-  .sim-card p { font-size: 13px; color: var(--slate); margin-bottom: 8px; flex-grow: 1; }
-  .badge { display: inline-block; background: var(--brass); color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-top: 5px; font-weight: 700; align-self: flex-start; }
-  .badge-priority { background: #d9534f; }
-  .tool-box { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; margin-top: 20px; }
-  .tool-box h3 { margin-bottom: 15px; color: var(--ink); }
-  .btn-action { background: var(--brass); color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; margin: 5px; font-size: 13px; }
-  .btn-action:hover { background: #96743a; }
-  .btn-secondary { background: #5B6472; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; margin: 5px; font-size: 13px; }
-  .btn-secondary:hover { background: #3a424e; }
-  .btn-danger { background: #d9534f; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; margin: 5px; font-size: 13px; }
-  .btn-danger:hover { background: #c9302c; }
-  #periodic-table { display: grid; grid-template-columns: repeat(18, 1fr); gap: 4px; margin: 20px 0; }
-  .element { background: #eee; border-radius: 4px; padding: 5px 2px; text-align: center; cursor: pointer; font-size: 11px; transition: 0.2s; }
-  .element:hover { background: var(--brass); color: #fff; }
-  .element .symbol { font-weight: 800; font-size: 14px; }
-  .element .num { font-size: 9px; color: #777; }
-  .nonmetal { background: #d4efdf; } .metal { background: #fadbd8; } .noble { background: #d6eaf8; }
-  #viewer-3d { width: 100%; height: 400px; margin-top: 15px; background: #fff; border-radius: 8px; border: 1px solid var(--line); position: relative; }
-  #viewer-status { margin-top: 8px; font-size: 13px; color: var(--slate); text-align: center; min-height: 20px; }
-  #viewer-status.loading { color: var(--brass); font-weight: 600; }
-  #viewer-status.error { color: #B3402A; font-weight: 600; }
-  #viewer-status.success { color: #2E7D32; font-weight: 600; }
-  footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
-
-  /* ===== BANNIÈRES SIMULATEURS ===== */
-  .sim-banner {
-    display: block;
-    text-decoration: none;
-    color: #fff;
-    padding: 20px 24px;
-    border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-    margin-bottom: 12px;
-  }
-  .sim-banner:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 26px rgba(0,0,0,0.3);
-  }
-  .sim-banner-inner { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
-  .sim-icon {
-    background: rgba(255,255,255,0.2);
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-    flex-shrink: 0;
-    backdrop-filter: blur(10px);
-  }
-  .sim-text { flex: 1; min-width: 200px; }
-  .sim-eyebrow { font-size: 10px; letter-spacing: 2px; opacity: 0.85; font-weight: 700; margin-bottom: 3px; }
-  .sim-title {
-    font-family: 'Source Serif 4', Georgia, serif;
-    font-size: 19px;
-    margin-bottom: 4px;
-    line-height: 1.2;
-  }
-  .sim-desc { font-size: 13px; opacity: 0.9; margin: 0; }
-  .sim-arrow { font-size: 26px; opacity: 0.9; flex-shrink: 0; }
-  .sim-tags { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
-  .sim-tag {
-    background: rgba(255,255,255,0.2);
-    padding: 4px 10px;
-    border-radius: 16px;
-    font-size: 10.5px;
-    font-weight: 700;
-  }
-  .sim-banner-dosage {
-    background: linear-gradient(135deg, #6a4c93 0%, #9b59b6 100%);
-    box-shadow: 0 8px 24px rgba(106, 76, 147, 0.35);
-  }
-
-  /* ===== SOUS-BOUTONS DU BLOC OPTIQUE ===== */
-  .sim-sub-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 18px;
-  }
-  .sim-sub-btn {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 10px;
-    padding: 14px 16px;
-    text-decoration: none;
-    color: #fff;
-    transition: all 0.2s;
-    backdrop-filter: blur(10px);
-  }
-  .sim-sub-btn:hover {
-    background: rgba(255,255,255,0.25);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-  }
-  .sim-sub-icon { font-size: 28px; flex-shrink: 0; }
-  .sim-sub-text { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-  .sim-sub-text strong { font-size: 15px; font-weight: 700; margin-bottom: 2px; line-height: 1.2; }
-  .sim-sub-text span { font-size: 11.5px; opacity: 0.85; }
-  .sim-sub-arrow { font-size: 20px; opacity: 0.8; flex-shrink: 0; }
-
-  /* ============================================================ */
-  /* ⚡ ACCORDÉON SIMULATEURS ÉLECTRIQUES                          */
-  /* ============================================================ */
-  .sim-accordion {
-    background: linear-gradient(135deg, #1B2A4A 0%, #4fc3f7 100%);
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 6px 20px rgba(27, 42, 74, 0.2);
-    margin-bottom: 20px;
-    transition: box-shadow 0.3s;
-  }
-  .sim-accordion:hover {
-    box-shadow: 0 10px 30px rgba(27, 42, 74, 0.3);
-  }
-
-  .sim-accordion-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    width: 100%;
-    padding: 18px 25px;
-    background: transparent;
-    border: none;
-    color: #fff;
-    cursor: pointer;
+  body {
     font-family: var(--sans);
-    text-align: left;
+    background: var(--paper);
+    color: #1a1a1a;
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+
+  /* ============================================================ */
+  /*  HEADER NAVIGATION                                            */
+  /* ============================================================ */
+  .top-nav {
+    background: var(--ink-deep);
+    color: #fff;
+    padding: 8px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .top-nav .nav-links {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .top-nav a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 4px;
     transition: background 0.2s;
   }
-  .sim-accordion-header:hover {
-    background: rgba(255,255,255,0.08);
+  .top-nav a:hover { background: rgba(255,255,255,0.15); }
+  .top-nav .title {
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 700;
+    color: #4fc3f7;
   }
 
-  .sim-accordion-title {
+  /* ============================================================ */
+  /*  BARRE DE PROGRESSION DES ÉTAPES                              */
+  /* ============================================================ */
+  .steps-bar {
+    background: #fff;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .steps-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    gap: 8px;
+  }
+  .steps-container::before {
+    content: '';
+    position: absolute;
+    top: 22px;
+    left: 40px;
+    right: 40px;
+    height: 2px;
+    background: var(--line);
+    z-index: 0;
+  }
+  .step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    transition: opacity 0.2s;
+    min-width: 0;
+  }
+  .step-item.locked {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .step-item.locked:hover {
+    opacity: 0.5;
+  }
+  .step-item:not(.locked):hover {
+    opacity: 0.8;
+  }
+  .step-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--slate);
+    transition: all 0.3s;
+    flex-shrink: 0;
+  }
+  .step-item.active .step-circle {
+    border-color: var(--brass);
+    background: var(--brass);
+    color: #fff;
+    box-shadow: 0 0 0 6px rgba(168, 133, 63, 0.15);
+  }
+  .step-item.done .step-circle {
+    border-color: var(--success);
+    background: var(--success);
+    color: #fff;
+  }
+  .step-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--slate);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+  .step-item.active .step-label { color: var(--brass); }
+  .step-item.done .step-label { color: var(--success); }
+
+  @media (max-width: 700px) {
+    .step-label { font-size: 9px; }
+    .step-circle { width: 34px; height: 34px; font-size: 14px; }
+    .steps-container::before { top: 17px; left: 25px; right: 25px; }
+  }
+
+  /* ============================================================ */
+  /*  CONTENU DES ÉTAPES                                           */
+  /* ============================================================ */
+  .main-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px 20px 60px;
+  }
+  .etape {
+    display: none;
+  }
+  .etape.active {
+    display: block;
+    animation: fadeIn 0.4s ease-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* En-tête de l'étape */
+  .etape-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  .etape-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--brass);
+    margin-bottom: 8px;
+  }
+  .etape-title {
+    font-family: var(--serif);
+    font-size: 32px;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .etape-subtitle {
+    font-size: 15px;
+    color: var(--slate);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  /* Cartes */
+  .card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  }
+  .card-title {
+    font-family: var(--serif);
+    font-size: 20px;
+    color: var(--ink);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-title .icon { font-size: 26px; }
+  .card-subtitle {
+    font-size: 13px;
+    color: var(--slate);
+    margin-bottom: 20px;
+  }
+
+  /* Objectif */
+  .objectif-box {
+    background: linear-gradient(135deg, #fff8e1 0%, #fffbf0 100%);
+    border-left: 5px solid var(--brass);
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+  }
+  .objectif-box .label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--brass);
+    margin-bottom: 6px;
+  }
+  .objectif-box .text {
+    font-size: 15px;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+
+  /* Grille des composants */
+  .composants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+  }
+  .composant-card {
+    background: #f9f7f2;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    padding: 18px 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .composant-card:hover {
+    border-color: var(--brass);
+    background: #fff;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+  }
+  .composant-card .symbol {
+    font-size: 42px;
+    margin-bottom: 8px;
+    display: block;
+    line-height: 1;
+  }
+  .composant-card .name {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .composant-card .value {
+    font-size: 12px;
+    color: var(--brass);
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+  }
+  .composant-card .click-hint {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-size: 10px;
+    color: var(--slate);
+    opacity: 0.6;
+  }
+
+  /* Oscilloscope — présentation */
+  .oscillo-presentation {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 12px;
+    padding: 25px;
+    color: #fff;
+    margin-bottom: 20px;
+    border: 3px solid #4fc3f7;
+    box-shadow: 0 8px 24px rgba(79, 195, 247, 0.2);
+  }
+  .oscillo-header {
     display: flex;
     align-items: center;
     gap: 15px;
-    flex: 1;
-    min-width: 0;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(79, 195, 247, 0.3);
   }
-
-  .sim-accordion-icon {
-    font-size: 32px;
-    width: 55px;
-    height: 55px;
+  .oscillo-header .icon {
+    font-size: 45px;
+    background: rgba(79, 195, 247, 0.2);
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.2);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    backdrop-filter: blur(10px);
   }
-
-  .sim-accordion-heading {
+  .oscillo-header h3 {
     font-family: var(--serif);
     font-size: 22px;
-    font-weight: 700;
-    line-height: 1.2;
+    color: #4fc3f7;
     margin-bottom: 3px;
   }
-
-  .sim-accordion-sub {
+  .oscillo-header p {
     font-size: 13px;
-    opacity: 0.85;
-    font-weight: 500;
+    color: #aaa;
   }
 
-  .sim-accordion-arrow {
-    font-size: 20px;
-    transition: transform 0.3s;
-    flex-shrink: 0;
-    opacity: 0.8;
+  .oscillo-desc {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
   }
-  .sim-accordion.open .sim-accordion-arrow {
-    transform: rotate(180deg);
-  }
-
-  .sim-accordion-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.45s ease, padding 0.3s;
-    padding: 0 15px;
-    background: rgba(0,0,0,0.18);
-  }
-  .sim-accordion.open .sim-accordion-content {
-    max-height: 1500px;
-    padding: 18px 15px 20px;
+  @media (max-width: 700px) {
+    .oscillo-desc { grid-template-columns: 1fr; }
   }
 
-  /* Bannière "bientôt" */
-  .sim-banner-bientot {
-    opacity: 0.75;
-    cursor: not-allowed;
-    position: relative;
+  .oscillo-role {
+    background: rgba(79, 195, 247, 0.08);
+    border-left: 4px solid #4fc3f7;
+    border-radius: 6px;
+    padding: 12px 15px;
   }
-  .sim-banner-bientot:hover {
-    transform: none;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
-  }
-
-  .sim-bientot-badge {
-    position: absolute;
-    top: 12px;
-    right: 15px;
-    background: rgba(255,255,255,0.25);
-    color: #fff;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 10.5px;
+  .oscillo-role .role-title {
+    font-size: 12px;
     font-weight: 700;
+    color: #4fc3f7;
+    text-transform: uppercase;
     letter-spacing: 1px;
-    z-index: 2;
+    margin-bottom: 5px;
+  }
+  .oscillo-role .role-text {
+    font-size: 13px;
+    color: #ccc;
+    line-height: 1.5;
   }
 
-  @media (max-width: 768px) {
-    .sim-banner { padding: 16px 18px; }
-    .sim-icon { width: 45px; height: 45px; font-size: 22px; }
-    .sim-title { font-size: 16px; }
-    .sim-desc { font-size: 12px; }
-    .sim-arrow { font-size: 20px; }
-    .sim-accordion-header { padding: 14px 18px; }
-    .sim-accordion-heading { font-size: 17px; }
-    .sim-accordion-sub { font-size: 11px; }
-    .sim-accordion-icon { width: 45px; height: 45px; font-size: 24px; }
+  .oscillo-boutons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
   }
-  @media (max-width: 640px) {
-    .sim-sub-buttons { grid-template-columns: 1fr; }
+  .oscillo-bouton {
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(79, 195, 247, 0.3);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .oscillo-bouton:hover {
+    background: rgba(79, 195, 247, 0.15);
+    border-color: #4fc3f7;
+    transform: translateY(-2px);
+  }
+  .oscillo-bouton .btn-icon { font-size: 24px; margin-bottom: 5px; display: block; }
+  .oscillo-bouton .btn-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: #4fc3f7;
+    margin-bottom: 3px;
+  }
+  .oscillo-bouton .btn-desc {
+    font-size: 10.5px;
+    color: #888;
+    line-height: 1.3;
+  }
+
+  /* Notions */
+  .notions-list {
+    list-style: none;
+    padding: 0;
+  }
+  .notions-list li {
+    padding: 12px 15px 12px 45px;
+    background: #f9f7f2;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+    position: relative;
+    color: var(--ink);
+  }
+  .notions-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 15px;
+    top: 12px;
+    color: var(--brass);
+    font-weight: 800;
+    font-size: 18px;
+  }
+  .notions-list li strong {
+    color: var(--brass);
+    font-family: 'Courier New', monospace;
+  }
+
+  /* Boutons de navigation */
+  .actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 14px 28px;
+    border-radius: 10px;
+    border: none;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--brass) 0%, #8e6f33 100%);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(168, 133, 63, 0.3);
+  }
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(168, 133, 63, 0.4);
+  }
+  .btn-secondary {
+    background: #fff;
+    color: var(--ink);
+    border: 2px solid var(--line);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    border-color: var(--brass);
+    color: var(--brass);
+  }
+
+  /* Placeholder des étapes à venir */
+  .placeholder {
+    text-align: center;
+    padding: 80px 20px;
+    background: #f9f7f2;
+    border-radius: 12px;
+    border: 2px dashed var(--line);
+  }
+  .placeholder .icon {
+    font-size: 60px;
+    margin-bottom: 15px;
+    display: block;
+    opacity: 0.5;
+  }
+  .placeholder h3 {
+    font-family: var(--serif);
+    font-size: 22px;
+    color: var(--slate);
+    margin-bottom: 8px;
+  }
+  .placeholder p {
+    font-size: 14px;
+    color: var(--slate);
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  /* Modal explication composant */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 3000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.3s;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: #fff;
+    border-radius: 14px;
+    padding: 30px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: slideUp 0.3s;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal-box h3 {
+    font-family: var(--serif);
+    font-size: 22px;
+    color: var(--ink);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .modal-box .modal-content {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  .modal-box .modal-content code {
+    font-family: 'Courier New', monospace;
+    background: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--brass);
+    font-weight: 700;
+  }
+  .modal-box .modal-content strong {
+    color: var(--ink);
+  }
+  .modal-box .modal-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+  }
+  .modal-box .modal-btn:hover {
+    background: var(--ink-deep);
+  }
+
+  @media (max-width: 600px) {
+    .etape-title { font-size: 24px; }
+    .card { padding: 18px; }
+    .btn { padding: 12px 20px; font-size: 13px; }
+    .composants-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
   }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="wrap nav-row">
-    <a href="index.html" class="brand">
-      <div class="brand-mark"><img src="logo-header.png" alt="LFAKM"></div>
-      <div>
-        <div class="brand-name">Lycée Franco<br>Arabe de Keur<br>Madiabel</div>
-        <div class="brand-tag">Excellence & Savoir</div>
+<!-- ============================================================ -->
+<!--  NAVIGATION TOP                                               -->
+<!-- ============================================================ -->
+<div class="top-nav">
+  <div class="title">🔋 TP RC — Démarche expérimentale</div>
+  <div class="nav-links">
+    <a href="labo-pc.html">← Labo PC</a>
+    <a href="index.html">🏠 Accueil</a>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  BARRE DE PROGRESSION (5 ÉTAPES)                              -->
+<!-- ============================================================ -->
+<div class="steps-bar">
+  <div class="steps-container">
+    <div class="step-item active" data-step="1" onclick="allerEtape(1)">
+      <div class="step-circle">1</div>
+      <div class="step-label">Matériel</div>
+    </div>
+    <div class="step-item locked" data-step="2" onclick="allerEtape(2)">
+      <div class="step-circle">2</div>
+      <div class="step-label">Montage</div>
+    </div>
+    <div class="step-item locked" data-step="3" onclick="allerEtape(3)">
+      <div class="step-circle">3</div>
+      <div class="step-label">Sécurité</div>
+    </div>
+    <div class="step-item locked" data-step="4" onclick="allerEtape(4)">
+      <div class="step-circle">4</div>
+      <div class="step-label">Mesures</div>
+    </div>
+    <div class="step-item locked" data-step="5" onclick="allerEtape(5)">
+      <div class="step-circle">5</div>
+      <div class="step-label">Conclusion</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  CONTENU PRINCIPAL                                            -->
+<!-- ============================================================ -->
+<div class="main-content">
+
+  <!-- ============================================================ -->
+  <!--  ÉTAPE 1 : PRÉSENTATION DU MATÉRIEL                           -->
+  <!-- ============================================================ -->
+  <section class="etape active" id="etape-1">
+    <div class="etape-header">
+      <div class="etape-eyebrow">Étape 1 sur 5</div>
+      <h1 class="etape-title">📦 Présentation du matériel</h1>
+      <p class="etape-subtitle">
+        Avant de manipuler, découvrons ensemble les composants et les appareils
+        que nous allons utiliser dans ce travail pratique.
+      </p>
+    </div>
+
+    <!-- OBJECTIF -->
+    <div class="objectif-box">
+      <div class="label">🎯 Objectif du TP</div>
+      <div class="text">
+        Déterminer <strong>expérimentalement</strong> la constante de temps
+        <strong>τ</strong> d'un circuit RC, puis vérifier la relation
+        <strong>τ = R × C</strong>. Pour cela, nous utiliserons un
+        <strong>oscilloscope</strong> pour visualiser la courbe U_C(t).
       </div>
-    </a>
-    <div class="menu-toggle" id="burger-btn">☰</div>
-    <nav>
-      <ul id="menu">
-        <li><a href="index.html">Accueil</a></li>
-        <li class="admin-item">
-          <span class="admin-trigger">⚙️ Admin</span>
-          <div class="admin-dropdown">
-            <a href="admin-ine.html">📥 Import INE</a>
-            <a href="admin-gestion.html">👥 Gestion</a>
-            <a href="admin-news.html">📰 Actualités</a>
-            <a href="feedback.html#tab-dashboard">📊 Retours</a>
+    </div>
+
+    <!-- COMPOSANTS -->
+    <div class="card">
+      <div class="card-title">
+        <span class="icon">🔧</span>
+        Composants du circuit
+      </div>
+      <div class="card-subtitle">Clique sur un composant pour découvrir son rôle.</div>
+
+      <div class="composants-grid">
+        <div class="composant-card" onclick="ouvrirModal('pile')">
+          <span class="click-hint">👆</span>
+          <span class="symbol">🔋</span>
+          <div class="name">Pile</div>
+          <div class="value">9 V</div>
+        </div>
+        <div class="composant-card" onclick="ouvrirModal('resistance')">
+          <span class="click-hint">👆</span>
+          <span class="symbol">📏</span>
+          <div class="name">Résistance</div>
+          <div class="value">1 kΩ</div>
+        </div>
+        <div class="composant-card" onclick="ouvrirModal('condensateur')">
+          <span class="click-hint">👆</span>
+          <span class="symbol">⚡</span>
+          <div class="name">Condensateur</div>
+          <div class="value">100 µF</div>
+        </div>
+        <div class="composant-card" onclick="ouvrirModal('interrupteur')">
+          <span class="click-hint">👆</span>
+          <span class="symbol">🔘</span>
+          <div class="name">Interrupteur</div>
+          <div class="value">K</div>
+        </div>
+        <div class="composant-card" onclick="ouvrirModal('fils')">
+          <span class="click-hint">👆</span>
+          <span class="symbol">🧵</span>
+          <div class="name">Fils de connexion</div>
+          <div class="value">× 6</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OSCILLOSCOPE -->
+    <div class="oscillo-presentation">
+      <div class="oscillo-header">
+        <div class="icon">📺</div>
+        <div>
+          <h3>Oscilloscope</h3>
+          <p>L'appareil de mesure qui trace la courbe U_C(t)</p>
+        </div>
+      </div>
+
+      <div class="oscillo-desc">
+        <div class="oscillo-role">
+          <div class="role-title">📌 Rôle</div>
+          <div class="role-text">
+            L'oscilloscope affiche en <strong>temps réel</strong> l'évolution
+            d'une tension. Sans lui, on ne pourrait voir que des valeurs isolées
+            (avec un voltmètre), mais pas la <strong>forme</strong> de la courbe.
           </div>
+        </div>
+        <div class="oscillo-role">
+          <div class="role-title">📌 Ce qu'on y voit</div>
+          <div class="role-text">
+            Deux <strong>voies</strong> sont disponibles :<br>
+            • <strong>Voie 1</strong> : tension aux bornes du condensateur → U_C(t)<br>
+            • <strong>Voie 2</strong> : tension de la pile → U_E(t) (constante)
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size: 13px; color: #4fc3f7; font-weight: 700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">
+        🎛️ Les 2 réglages essentiels
+      </div>
+      <div class="oscillo-boutons">
+        <div class="oscillo-bouton" onclick="ouvrirModal('base-temps')">
+          <span class="btn-icon">⏱️</span>
+          <div class="btn-name">Base de temps</div>
+          <div class="btn-desc">Durée d'une division horizontale<br>(ex : 50 ms/div)</div>
+        </div>
+        <div class="oscillo-bouton" onclick="ouvrirModal('sensibilite')">
+          <span class="btn-icon">📊</span>
+          <div class="btn-name">Sensibilité verticale</div>
+          <div class="btn-desc">Tension par division verticale<br>(ex : 2 V/div)</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 18px; padding: 12px 15px; background: rgba(255, 213, 79, 0.1); border-left: 4px solid #ffd54f; border-radius: 6px;">
+        <div style="font-size: 12px; color: #ffd54f; font-weight: 700; margin-bottom: 5px;">💡 À savoir</div>
+        <div style="font-size: 13px; color: #ddd; line-height: 1.5;">
+          Bien régler l'oscilloscope est essentiel : si la base de temps est
+          trop rapide, on ne voit qu'un début de courbe. Si elle est trop lente,
+          la courbe est écrasée.
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTIONS -->
+    <div class="card">
+      <div class="card-title">
+        <span class="icon">📚</span>
+        Notions à connaître
+      </div>
+      <div class="card-subtitle">Ces notions seront utilisées tout au long du TP.</div>
+
+      <ul class="notions-list">
+        <li>
+          Un condensateur <strong>stocke de l'énergie</strong> sous forme
+          électrique (sur ses armatures).
         </li>
-        <li><a href="historique.html">Historique</a></li>
-        <li><a href="actualites.html">Actualités</a></li>
-        <li class="labo-item"><a href="labo-pc.html" style="color: var(--brass); font-weight:700;">🔬 Labo PC</a></li>
-        <li><a href="ressources.html">Ressources</a></li>
-        <li class="gov-item">
-          <a href="publier-annonce.html">🎓 Gouvernement</a>
+        <li>
+          Pendant la charge, la tension évolue selon la loi :
+          <strong>U_C(t) = E·(1 − e^(−t/τ))</strong>
         </li>
-        <li><a href="#" onclick="window.showContact(); return false;" class="contact-info" style="text-decoration: none;">
-          <span class="contact-label">📞 Contacter le Proviseur</span>
-          <span class="contact-phone" id="contact-phone-display">...</span>
-        </a></li>
-        <li id="user-profile" class="profile-info" onclick="window.openProfil()" style="cursor:pointer;" title="Voir mon profil"></li>
-        <li class="feedback-item"><a href="feedback.html" class="feedback-link">📋 Donner mon avis</a></li>
-        <li><a href="identification.html" class="nav-cta" id="auth-link">Se connecter</a></li>
+        <li>
+          La <strong>constante de temps</strong> τ caractérise la vitesse de
+          charge du condensateur : <strong>τ = R × C</strong>
+        </li>
+        <li>
+          À <strong>t = τ</strong>, la tension atteint
+          <strong>63 % de E</strong>. À t = 5τ, elle atteint ≈ 99 %.
+        </li>
       </ul>
-    </nav>
-  </div>
-</header>
+    </div>
 
-<section class="hero">
-  <div class="wrap">
-    <h1>🔬 Laboratoire de Physique-Chimie</h1>
-    <p>Simulateurs, manipulations et activités interactives conformes au programme officiel du Sénégal.</p>
-  </div>
-</section>
-
-<div class="wrap">
-
-  <!-- ============================================================ -->
-  <!-- ⚡ BLOC 1 : SIMULATEURS ÉLECTRIQUES LFAKM (ACCORDÉON)         -->
-  <!-- ============================================================ -->
-  <div style="margin: 30px 0;">
-    <div class="sim-accordion" id="simElecAccordion">
-      <!-- En-tête cliquable -->
-      <button class="sim-accordion-header" onclick="toggleSimAccordion('simElecAccordion')">
-        <div class="sim-accordion-title">
-          <span class="sim-accordion-icon">⚡</span>
-          <div>
-            <div class="sim-accordion-heading">Simulateurs électriques LFAKM</div>
-            <div class="sim-accordion-sub">Circuits · RC/RL · RLC libre · RLC forcé</div>
-          </div>
-        </div>
-        <span class="sim-accordion-arrow">▼</span>
+    <!-- ACTIONS -->
+    <div class="actions">
+      <a href="labo-pc.html" class="btn btn-secondary">← Retour au Labo PC</a>
+      <button class="btn btn-primary" onclick="allerEtape(2)">
+        ➡️ Passer au montage
       </button>
-
-      <!-- Contenu dépliable -->
-      <div class="sim-accordion-content">
-        <p style="font-size: 13px; color: #fff; opacity: 0.85; margin: 0 0 15px; padding-left: 5px;">
-          Cliquez sur un simulateur pour l'ouvrir. Les bannières grisées sont en préparation.
-        </p>
-
-        <!-- Bannière 1 : Atelier de circuits (ACTIF) -->
-        <a href="simulateur-circuits-libre.html" class="sim-banner" style="background: linear-gradient(135deg, #1B2A4A 0%, #4fc3f7 100%);">
-          <div class="sim-banner-inner">
-            <div class="sim-icon">⚡</div>
-            <div class="sim-text">
-              <div class="sim-eyebrow">INTERACTIF · CIRCUITS</div>
-              <h2 class="sim-title">Atelier de circuits — Fils libres</h2>
-              <p class="sim-desc">🔗 Fils libres · ⬤ Nœuds · 🎯 Détection automatique (série/dérivation/mixte)</p>
-            </div>
-            <div class="sim-arrow">→</div>
-          </div>
-          <div class="sim-tags">
-            <span class="sim-tag">💡 Lampe progressive</span>
-            <span class="sim-tag">⚙️ Moteur rotatif</span>
-            <span class="sim-tag">📊 Tableau mesures</span>
-            <span class="sim-tag">🎛 Édition valeurs</span>
-            <span class="sim-tag">🔋 Piles 6V/12V</span>
-          </div>
-        </a>
-
-        <!-- Bannière 2 : RC / RL (à venir) -->
-        <a href="#" class="sim-banner sim-banner-bientot" style="background: linear-gradient(135deg, #0d47a1 0%, #26a69a 100%);" onclick="event.preventDefault(); alert('🚧 Simulateur RC/RL en préparation — disponible très bientôt !');">
-          <div class="sim-bientot-badge">🚧 BIENTÔT</div>
-          <div class="sim-banner-inner">
-            <div class="sim-icon">🔋</div>
-            <div class="sim-text">
-              <div class="sim-eyebrow">À VENIR · RÉGIME TRANSITOIRE</div>
-              <h2 class="sim-title">Charge / Décharge — RC & RL</h2>
-              <p class="sim-desc">📈 Évolution de U(t) et I(t) · ⏱️ Constante de temps τ · 📊 Oscilloscope virtuel</p>
-            </div>
-            <div class="sim-arrow">→</div>
-          </div>
-          <div class="sim-tags">
-            <span class="sim-tag">🔵 RC</span>
-            <span class="sim-tag">🟢 RL</span>
-            <span class="sim-tag">📈 Courbes U(t)</span>
-            <span class="sim-tag">⏱️ Constante τ</span>
-            <span class="sim-tag">🎓 1ère → Tle</span>
-          </div>
-        </a>
-
-        <!-- Bannière 3 : RLC libre (à venir) -->
-        <a href="#" class="sim-banner sim-banner-bientot" style="background: linear-gradient(135deg, #1b5e20 0%, #9e9d24 100%);" onclick="event.preventDefault(); alert('🚧 Simulateur RLC libre en préparation — disponible très bientôt !');">
-          <div class="sim-bientot-badge">🚧 BIENTÔT</div>
-          <div class="sim-banner-inner">
-            <div class="sim-icon">🌊</div>
-            <div class="sim-text">
-              <div class="sim-eyebrow">À VENIR · OSCILLATIONS</div>
-              <h2 class="sim-title">Circuit RLC libre — Oscillations amorties</h2>
-              <p class="sim-desc">🌊 Régime pseudopériodique · ⚡ Facteur de qualité Q · 📐 Période propre T₀</p>
-            </div>
-            <div class="sim-arrow">→</div>
-          </div>
-          <div class="sim-tags">
-            <span class="sim-tag">🌊 Pseudopériodique</span>
-            <span class="sim-tag">🎯 Critique</span>
-            <span class="sim-tag">📉 Apériodique</span>
-            <span class="sim-tag">📐 T₀ = 2π√(LC)</span>
-            <span class="sim-tag">🎓 Tle</span>
-          </div>
-        </a>
-
-        <!-- Bannière 4 : RLC forcé (à venir) -->
-        <a href="#" class="sim-banner sim-banner-bientot" style="background: linear-gradient(135deg, #e65100 0%, #ffa726 100%);" onclick="event.preventDefault(); alert('🚧 Simulateur RLC forcé en préparation — disponible très bientôt !');">
-          <div class="sim-bientot-badge">🚧 BIENTÔT</div>
-          <div class="sim-banner-inner">
-            <div class="sim-icon">🎵</div>
-            <div class="sim-text">
-              <div class="sim-eyebrow">À VENIR · RÉGIME SINUSOÏDAL</div>
-              <h2 class="sim-title">Circuit RLC forcé — Résonance</h2>
-              <p class="sim-desc">🎵 Source alternative · 📊 Courbe de résonance I(f) · 🎨 Diagramme de Fresnel</p>
-            </div>
-            <div class="sim-arrow">→</div>
-          </div>
-          <div class="sim-tags">
-            <span class="sim-tag">🎵 Sinusoïdal</span>
-            <span class="sim-tag">📊 Résonance</span>
-            <span class="sim-tag">🎨 Phaseurs</span>
-            <span class="sim-tag">📐 f₀ = 1/(2π√(LC))</span>
-            <span class="sim-tag">🎓 Tle</span>
-          </div>
-        </a>
-      </div>
     </div>
-  </div>
+  </section>
 
   <!-- ============================================================ -->
-  <!-- 🧪 BLOC 2 : SIMULATEURS CHIMIE LFAKM                         -->
+  <!--  ÉTAPE 2 : MONTAGE (placeholder)                              -->
   <!-- ============================================================ -->
-  <div style="margin: 40px 0 30px;">
-    <h2 style="font-family: var(--serif); font-size: 24px; color: var(--ink); border-left: 6px solid #6a4c93; padding-left: 15px; margin-bottom: 10px;">
-      🧪 Simulateurs chimie LFAKM
-    </h2>
-    <p style="font-size: 14px; color: var(--slate); margin-bottom: 20px; padding-left: 21px;">
-      Nos propres simulateurs de chimie, conformes au programme sénégalais.
-    </p>
-
-    <a href="simulateur-dosage.html" class="sim-banner sim-banner-dosage">
-      <div class="sim-banner-inner">
-        <div class="sim-icon">🧪</div>
-        <div class="sim-text">
-          <div class="sim-eyebrow">INTERACTIF · ACIDO-BASIQUE</div>
-          <h2 class="sim-title">Simulateur de Dosage Acido-Basique</h2>
-          <p class="sim-desc">🔬 Dosage colorimétrique et pH-métrique · 📊 Courbe interactive · 🧪 Détermination de pKa/pKb</p>
-        </div>
-        <div class="sim-arrow">→</div>
-      </div>
-      <div class="sim-tags">
-        <span class="sim-tag">🌱 Initiation</span>
-        <span class="sim-tag">📘 Standard</span>
-        <span class="sim-tag">🔬 Expert</span>
-        <span class="sim-tag">🧪 TP pKa/pKb</span>
-        <span class="sim-tag">📄 Export PDF</span>
-      </div>
-    </a>
-  </div>
-
-  <!-- ============================================================ -->
-  <!-- 🔬 BLOC 3 : SIMULATEURS OPTIQUE LFAKM                        -->
-  <!-- ============================================================ -->
-  <div style="margin: 40px 0 30px;">
-    <h2 style="font-family: var(--serif); font-size: 24px; color: var(--ink); border-left: 6px solid #4fc3f7; padding-left: 15px; margin-bottom: 10px;">
-      🔬 Simulateurs optique LFAKM
-    </h2>
-    <p style="font-size: 14px; color: var(--slate); margin-bottom: 20px; padding-left: 21px;">
-      Fentes de Young, dispersion par prisme et lentilles minces.
-    </p>
-
-    <div class="sim-banner" style="background: linear-gradient(135deg, #1B2A4A 0%, #4fc3f7 100%); cursor: default;">
-      <div class="sim-banner-inner">
-        <div class="sim-icon">🎯</div>
-        <div class="sim-text">
-          <div class="sim-eyebrow">INTERACTIF · OPTIQUE</div>
-          <h2 class="sim-title">Simulateurs d'Optique</h2>
-          <p class="sim-desc">🎯 Fentes de Young & Prisme · 🔭 Lentilles minces · 🌈 Lumière blanche & polychromatique</p>
-        </div>
-        <div class="sim-arrow" style="opacity: 0.5;">▼</div>
-      </div>
-
-      <div class="sim-sub-buttons">
-        <a href="simulateur-interferences.html" class="sim-sub-btn">
-          <div class="sim-sub-icon">🎯</div>
-          <div class="sim-sub-text">
-            <strong>Fentes de Young & Prisme</strong>
-            <span>Interférences · Dispersion</span>
-          </div>
-          <div class="sim-sub-arrow">→</div>
-        </a>
-        <a href="simulateur-lentilles.html" class="sim-sub-btn">
-          <div class="sim-sub-icon">🔭</div>
-          <div class="sim-sub-text">
-            <strong>Lentilles minces</strong>
-            <span>Banc d'optique · Rayons</span>
-          </div>
-          <div class="sim-sub-arrow">→</div>
-        </a>
-      </div>
-
-      <div class="sim-tags">
-        <span class="sim-tag">🎯 Interférences</span>
-        <span class="sim-tag">🌈 Dispersion</span>
-        <span class="sim-tag">🔭 Lentilles</span>
-        <span class="sim-tag">📘 3ème → Tle</span>
-      </div>
+  <section class="etape" id="etape-2">
+    <div class="placeholder">
+      <span class="icon">🛠️</span>
+      <h3>Étape 2 — Montage du circuit</h3>
+      <p>Cette étape sera construite dans la prochaine session.</p>
     </div>
-  </div>
-
-  <!-- ============================================================ -->
-  <!-- 🆓 BLOC 4 : PLATEFORMES EXTERNES GRATUITES                   -->
-  <!-- ============================================================ -->
-  <div style="background: linear-gradient(135deg, #6a4c93 0%, #9b59b6 100%); color: #fff; padding: 25px; border-radius: 12px; margin-bottom: 30px;">
-    <h2 style="font-family: var(--serif); font-size: 22px; margin-bottom: 12px;">🌟 Plateformes externes recommandées</h2>
-    <p style="font-size: 14px; opacity: 0.9; margin-bottom: 18px;">Ces plateformes gratuites complètent nos simulateurs avec des expériences 3D et un tuteur IA.</p>
-    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-      <a href="https://sciencelab-two.vercel.app" target="_blank" style="background: #fff; color: #6a4c93; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px;">🔬 ScienceLab 3D (40+ expériences 3D)</a>
-      <a href="https://yachay-lab.vercel.app" target="_blank" style="background: #fff; color: #6a4c93; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px;">🤖 Yachay Lab (tuteur IA + 17 simulateurs)</a>
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="allerEtape(1)">← Étape précédente</button>
     </div>
-    <p style="font-size: 12px; opacity: 0.8; margin-top: 12px;">✅ 100% gratuit — aucune inscription requise</p>
-  </div>
+  </section>
 
-  <!-- ============================================================ -->
-  <!-- DOMAINE 1 : ÉLECTRICITÉ                                       -->
-  <!-- ============================================================ -->
-  <div class="domain-section">
-    <h2 class="domain-title">⚡ Électricité & Électronique</h2>
-    <p class="domain-subtitle">De la 4ème à la Terminale : des circuits simples aux dipôles RC/RL.</p>
-    <div class="grid">
-      <a class="sim-card" href="simulateur-circuits-libre.html" style="border-left: 4px solid #6a4c93; background: linear-gradient(135deg, #fff 0%, #f8f4ff 100%);">
-        <h4>⚡ Atelier de circuits — Fils libres</h4>
-        <p>Construis ton propre circuit : pile, ampoule, moteur, interrupteur, nœuds. Animation des électrons, détection automatique du type de circuit, mesures U/I/P en temps réel.</p>
-        <span class="badge" style="background: #6a4c93;">▶ Notre simulateur LFAKM</span>
-      </a>
-
-      <a class="sim-card" href="simulateur-circuits.html">
-        <h4>⚡ Simulateur pas-à-pas (guidé)</h4>
-        <p>Mode pas-à-pas pédagogique : choisis tes composants, connecte les fils, ferme l'interrupteur.</p>
-        <span class="badge">4ème → 3ème</span>
-      </a>
-
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_fr.html" target="_blank">
-        <h4>Circuits électriques (DC)</h4>
-        <p>Montages en série, en dérivation, loi d'Ohm (PhET).</p>
-        <span class="badge">4ème → Tle</span>
-      </a>
-
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/circuit-construction-kit-ac/latest/circuit-construction-kit-ac_fr.html" target="_blank">
-        <h4>Circuits en courant alternatif (AC)</h4>
-        <p>Oscilloscope virtuel, dipôles RC, RL.</p>
-        <span class="badge">1ère → Tle</span>
-      </a>
-
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/charges-and-fields/latest/charges-and-fields_fr.html" target="_blank">
-        <h4>Champs et charges électriques</h4>
-        <p>Loi de Coulomb, champ électrostatique.</p>
-        <span class="badge">2nde → Tle</span>
-      </a>
+  <!-- ÉTAPE 3 : SÉCURITÉ (placeholder) -->
+  <section class="etape" id="etape-3">
+    <div class="placeholder">
+      <span class="icon">🛡️</span>
+      <h3>Étape 3 — Vérification de sécurité</h3>
+      <p>Cette étape sera construite dans une prochaine session.</p>
     </div>
-  </div>
-
-  <!-- ============================================================ -->
-  <!-- DOMAINE 2 : MÉCANIQUE                                         -->
-  <!-- ============================================================ -->
-  <div class="domain-section">
-    <h2 class="domain-title">🔧 Mécanique & Énergie</h2>
-    <p class="domain-subtitle">De la 4ème à la Terminale : forces, mouvements, énergie et gravitation.</p>
-    <div class="grid">
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/projectile-motion/latest/projectile-motion_fr.html" target="_blank">
-        <h4>Mouvement d'un projectile</h4>
-        <p>Chute libre, chute parabolique, vitesse initiale.</p>
-        <span class="badge">1ère → Tle</span>
-      </a>
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/pendulum-lab/latest/pendulum-lab_fr.html" target="_blank">
-        <h4>Pendule simple</h4>
-        <p>Oscillations mécaniques libres, période propre.</p>
-        <span class="badge">Tle S</span>
-      </a>
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/energy-skate-park/latest/energy-skate-park_fr.html" target="_blank">
-        <h4>Conservation de l'énergie</h4>
-        <p>Énergie cinétique, potentielle, mécanique.</p>
-        <span class="badge">3ème → Tle</span>
-      </a>
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/gravity-and-orbits/latest/gravity-and-orbits_fr.html" target="_blank">
-        <h4>Gravitation universelle</h4>
-        <p>Satellites, orbites, champ de gravitation.</p>
-        <span class="badge">Tle S</span>
-      </a>
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="allerEtape(2)">← Étape précédente</button>
     </div>
-  </div>
+  </section>
 
-  <!-- ============================================================ -->
-  <!-- DOMAINE 3 : OPTIQUE & ONDES (PhET)                            -->
-  <!-- ============================================================ -->
-  <div class="domain-section">
-    <h2 class="domain-title">🔆 Optique & Ondes (PhET)</h2>
-    <p class="domain-subtitle">Des lentilles minces aux interférences lumineuses (compléments).</p>
-    <div class="grid">
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/geometric-optics/latest/geometric-optics_fr.html" target="_blank">
-        <h4>Lentilles minces (PhET)</h4>
-        <p>Convergentes, divergentes, image réelle/virtuelle.</p>
-        <span class="badge">3ème → Tle</span>
-      </a>
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/bending-light/latest/bending-light_fr.html" target="_blank">
-        <h4>Réflexion & Réfraction</h4>
-        <p>Lois de Descartes, indice de réfraction, dispersion.</p>
-        <span class="badge">4ème → 2nde</span>
-      </a>
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/wave-interference/latest/wave-interference_fr.html" target="_blank">
-        <h4>Interférences lumineuses ⭐</h4>
-        <p>Fentes de Young, interfrange, longueur d'onde.</p>
-        <span class="badge badge-priority">Tle S — PRIORITAIRE</span>
-      </a>
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/photoelectric-effect/latest/photoelectric-effect_fr.html" target="_blank">
-        <h4>Effet photoélectrique ⭐</h4>
-        <p>Travail d'extraction, fréquence seuil, quantum.</p>
-        <span class="badge badge-priority">Tle S — PRIORITAIRE</span>
-      </a>
+  <!-- ÉTAPE 4 : MESURES (placeholder) -->
+  <section class="etape" id="etape-4">
+    <div class="placeholder">
+      <span class="icon">🔬</span>
+      <h3>Étape 4 — Mesures avec l'oscilloscope</h3>
+      <p>Cette étape sera construite dans une prochaine session.</p>
     </div>
-  </div>
-
-  <!-- ============================================================ -->
-  <!-- DOMAINE 4 : STRUCTURE DE LA MATIÈRE                           -->
-  <!-- ============================================================ -->
-  <div class="domain-section">
-    <h2 class="domain-title">🧬 Structure de la Matière & Chimie Organique</h2>
-    <p class="domain-subtitle">Du tableau périodique à la construction de molécules en 3D via PubChem.</p>
-
-    <h3 style="margin-bottom: 10px;">📊 Tableau Périodique Interactif</h3>
-    <div id="periodic-table"></div>
-
-    <h3 style="margin-top: 30px; margin-bottom: 10px;">⚗️ Visualisation de Molécules (3D interactive via PubChem)</h3>
-    <p style="margin-bottom: 10px; color: var(--slate);">
-      Cliquez sur une molécule. Les coordonnées 3D sont récupérées en direct depuis la base de données officielle 
-      <a href="https://pubchem.ncbi.nlm.nih.gov/" target="_blank" style="color:var(--brass); font-weight:700;">PubChem</a> (NIH, USA).
-    </p>
-    <div style="margin-bottom: 10px;">
-      <button class="btn-action" onclick="loadMolecule3D('methane')">Méthane (CH₄)</button>
-      <button class="btn-action" onclick="loadMolecule3D('ethane')">Éthane (C₂H₆)</button>
-      <button class="btn-action" onclick="loadMolecule3D('ethene')">Éthylène (C₂H₄)</button>
-      <button class="btn-action" onclick="loadMolecule3D('acetylene')">Acétylène (C₂H₂)</button>
-      <button class="btn-action" onclick="loadMolecule3D('benzene')">Benzène (C₆H₆)</button>
-      <button class="btn-action" onclick="loadMolecule3D('ethanol')">Éthanol (C₂H₅OH)</button>
-      <button class="btn-action" onclick="loadMolecule3D('acetic')">Acide éthanoïque</button>
-      <button class="btn-action" onclick="loadMolecule3D('aspirine')">Aspirine</button>
-      <button class="btn-action" onclick="loadMolecule3D('caffeine')">Caféine</button>
-      <button class="btn-action" onclick="loadMolecule3D('glucose')">Glucose</button>
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="allerEtape(3)">← Étape précédente</button>
     </div>
-    <div id="viewer-3d"></div>
-    <div id="viewer-status"></div>
+  </section>
 
-    <h3 style="margin-top: 30px; margin-bottom: 10px;">🎨 Créer sa propre molécule</h3>
-    <p style="margin-bottom: 10px; color: var(--slate);">
-      Tapez le <strong>nom</strong> d'une molécule (ex : "paracétamol", "testostérone") ou un code SMILES.
-    </p>
-    <div class="tool-box">
-      <label style="font-size: 13px; font-weight: 600; color: var(--ink); display: block; margin-bottom: 6px;">Nom ou code SMILES :</label>
-      <input type="text" id="smiles-input" placeholder="Ex: paracétamol, CC(=O)O, caféine..." style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid var(--line); border-radius: 6px; font-family: 'Courier New', monospace;">
-      <button class="btn-action" onclick="loadCustomSmiles()">🔍 Afficher en 3D</button>
-      <button class="btn-secondary" onclick="window.open('https://molview.org/', '_blank')">🎨 Ouvrir l'éditeur externe (MolView)</button>
-      <button class="btn-secondary" onclick="window.open('https://www.rcsb.org/chemical-sketch', '_blank')">🎨 Éditeur alternatif (Ketcher)</button>
+  <!-- ÉTAPE 5 : CONCLUSION (placeholder) -->
+  <section class="etape" id="etape-5">
+    <div class="placeholder">
+      <span class="icon">📝</span>
+      <h3>Étape 5 — Conclusion</h3>
+      <p>Cette étape sera construite dans une prochaine session.</p>
     </div>
-  </div>
-
-  <!-- ============================================================ -->
-  <!-- DOMAINE 5 : SOLUTIONS & pH                                    -->
-  <!-- ============================================================ -->
-  <div class="domain-section">
-    <h2 class="domain-title">🧪 Solutions & pH (Acido-basicité)</h2>
-    <p class="domain-subtitle">Acides, bases, dosages et pH. Toutes les manipulations acido-basiques se font via notre simulateur complet.</p>
-    <div class="grid">
-      <a class="sim-card" href="simulateur-dosage.html" style="border-left: 4px solid var(--gov-purple); background: linear-gradient(135deg, #fff 0%, #f8f4ff 100%);">
-        <h4>🧪 Simulateur de Dosage Acido-Basique</h4>
-        <p>Dosage colorimétrique et pH-métrique · Courbe interactive · Détermination de pKa/pKb · Modes Initiation / Standard / Expert / TP</p>
-        <span class="badge" style="background: var(--gov-purple);">▶ Ouvrir le simulateur complet</span>
-      </a>
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/acid-base-solutions/latest/acid-base-solutions_fr.html" target="_blank">
-        <h4>Solutions acides et basiques (PhET)</h4>
-        <p>Force des acides, pH, indicateurs colorés.</p>
-        <span class="badge">3ème → Tle</span>
-      </a>
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/ph-scale/latest/ph-scale_fr.html" target="_blank">
-        <h4>Échelle de pH (PhET)</h4>
-        <p>Mesure du pH, solutions courantes.</p>
-        <span class="badge">2nde → Tle</span>
-      </a>
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="allerEtape(4)">← Étape précédente</button>
     </div>
-  </div>
-
-  <!-- ============================================================ -->
-  <!-- DOMAINE 6 : ÉLECTROCHIMIE                                     -->
-  <!-- ============================================================ -->
-  <div class="domain-section">
-    <h2 class="domain-title">🔋 Électrochimie & Oxydoréduction</h2>
-    <p class="domain-subtitle">Piles, électrolyse et radioactivité.</p>
-    <div class="grid">
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/redox/latest/redox_fr.html" target="_blank">
-        <h4>Réactions d'oxydoréduction</h4>
-        <p>Transfert d'électrons, couples oxydant/réducteur.</p>
-        <span class="badge">1ère → Tle</span>
-      </a>
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/radioactive-dating-game/latest/radioactive-dating-game_fr.html" target="_blank">
-        <h4>Radioactivité ⭐</h4>
-        <p>Désintégration, demi-vie, datation.</p>
-        <span class="badge badge-priority">Tle S — PRIORITAIRE</span>
-      </a>
-      <a class="sim-card" href="https://phet.colorado.edu/sims/html/isotopes-and-atomic-mass/latest/isotopes-and-atomic-mass_fr.html" target="_blank">
-        <h4>Isotopes et masse atomique</h4>
-        <p>Noyau, isotopes, stabilité.</p>
-        <span class="badge">2nde → Tle</span>
-      </a>
-    </div>
-  </div>
+  </section>
 
 </div>
 
-<footer>© 2026 Lycée Franco Arabe de Keur Madiabel</footer>
+<!-- ============================================================ -->
+<!--  MODAL EXPLICATION COMPOSANT                                  -->
+<!-- ============================================================ -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target === this) fermerModal();">
+  <div class="modal-box">
+    <h3 id="modalTitle">Titre</h3>
+    <div class="modal-content" id="modalContent">Contenu</div>
+    <button class="modal-btn" onclick="fermerModal()">Compris !</button>
+  </div>
+</div>
 
 <script>
-  // ============================================================
-  //  ACCORDÉON SIMULATEURS ÉLECTRIQUES + MÉMORISATION
-  // ============================================================
-  function toggleSimAccordion(id) {
-    const acc = document.getElementById(id);
-    if (!acc) return;
-    acc.classList.toggle('open');
-    // 🆕 Sauvegarder l'état dans le localStorage
-    try {
-      localStorage.setItem('simAccordion_' + id, acc.classList.contains('open') ? '1' : '0');
-    } catch (e) { /* localStorage indisponible */ }
+// ============================================================
+//  EXPLICATIONS DES COMPOSANTS
+// ============================================================
+const EXPLICATIONS = {
+  pile: {
+    title: '🔋 Pile (E = 9 V)',
+    content: `
+      <p>La pile fournit la <strong>tension électrique</strong> nécessaire pour charger le condensateur.</p>
+      <p>Dans ce TP, on utilise une pile de <code>9 V</code>. Sa tension reste constante pendant toute la manipulation.</p>
+      <p><strong>Symbole :</strong> une grande barre (le +) et une petite barre (le −).</p>
+    `
+  },
+  resistance: {
+    title: '📏 Résistance (R = 1 kΩ)',
+    content: `
+      <p>La résistance <strong>limite le courant</strong> qui circule dans le circuit.</p>
+      <p>Elle détermine la <strong>vitesse de charge</strong> du condensateur : plus R est grand, plus la charge est lente.</p>
+      <p><strong>Valeur :</strong> <code>1 kΩ = 1000 Ω</code>. Son unité est l'<strong>ohm (Ω)</strong>.</p>
+      <p><strong>Symbole :</strong> un rectangle.</p>
+    `
+  },
+  condensateur: {
+    title: '⚡ Condensateur (C = 100 µF)',
+    content: `
+      <p>Le condensateur est le <strong>composant principal</strong> de ce TP. Il <strong>stocke de l'énergie</strong> sous forme électrique, sur ses deux armatures.</p>
+      <p>Sa tension <code>U_C</code> évolue progressivement lors de la charge.</p>
+      <p><strong>Valeur :</strong> <code>100 µF = 100 × 10⁻⁶ F</code>. Son unité est le <strong>farad (F)</strong>.</p>
+      <p><strong>Symbole :</strong> deux barres parallèles (les deux armatures).</p>
+    `
+  },
+  interrupteur: {
+    title: '🔘 Interrupteur (K)',
+    content: `
+      <p>L'interrupteur permet d'<strong>ouvrir</strong> ou de <strong>fermer</strong> le circuit.</p>
+      <p>Au début du TP, il est <strong>ouvert</strong> : le courant ne circule pas, le condensateur est déchargé.</p>
+      <p>Au moment de fermer K, la <strong>charge commence</strong> : c'est notre <code>t = 0</code>.</p>
+      <p><strong>Symbole :</strong> un segment incliné.</p>
+    `
+  },
+  fils: {
+    title: '🧵 Fils de connexion',
+    content: `
+      <p>Les fils permettent de <strong>relier</strong> tous les composants entre eux.</p>
+      <p>Chaque liaison doit être <strong>bien serrée</strong> pour éviter les faux contacts.</p>
+      <p>Il faut au minimum <strong>6 fils</strong> pour réaliser le circuit complet.</p>
+    `
+  },
+  'base-temps': {
+    title: '⏱️ Base de temps (TIME / DIV)',
+    content: `
+      <p>La base de temps règle la <strong>vitesse horizontale</strong> de l'oscilloscope.</p>
+      <p>Elle indique la <strong>durée d'une division</strong> sur l'écran.</p>
+      <p>Exemple : si on règle <code>50 ms/div</code>, chaque carreau horizontal vaut 50 ms.</p>
+      <p>Pour notre TP, on utilisera <code>50 ms/div</code> pour voir toute la charge.</p>
+      <p><strong>Astuce :</strong> si la courbe sort de l'écran, augmente la base de temps. Si elle est trop écrasée, diminue-la.</p>
+    `
+  },
+  sensibilite: {
+    title: '📊 Sensibilité verticale (VOLTS / DIV)',
+    content: `
+      <p>La sensibilité verticale règle la <strong>hauteur</strong> de la trace sur l'écran.</p>
+      <p>Elle indique la <strong>tension par division</strong>.</p>
+      <p>Exemple : si on règle <code>2 V/div</code>, chaque carreau vertical vaut 2 V.</p>
+      <p>Avec une pile de 9 V, on utilise <code>2 V/div</code> → la courbe occupera environ 4,5 carreaux en hauteur.</p>
+      <p><strong>Astuce :</strong> si la courbe est trop petite, diminue cette valeur. Si elle dépasse, augmente-la.</p>
+    `
+  }
+};
+
+// ============================================================
+//  GESTION DES MODALES
+// ============================================================
+function ouvrirModal(cle) {
+  const exp = EXPLICATIONS[cle];
+  if (!exp) return;
+  document.getElementById('modalTitle').innerHTML = exp.title;
+  document.getElementById('modalContent').innerHTML = exp.content;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function fermerModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+// Fermer avec Échap
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') fermerModal();
+});
+
+// ============================================================
+//  NAVIGATION ENTRE LES ÉTAPES
+// ============================================================
+let etapeActuelle = 1;
+let etapesDebloquees = [1]; // On commence avec l'étape 1 débloquée
+
+function allerEtape(n) {
+  // Vérifier si l'étape est débloquée
+  if (!etapesDebloquees.includes(n)) {
+    alert('🔒 Tu dois d\'abord terminer les étapes précédentes.');
+    return;
   }
 
-  // 🆕 Restaurer l'état au chargement (mémorisation)
-  document.addEventListener('DOMContentLoaded', () => {
-    const acc = document.getElementById('simElecAccordion');
-    if (!acc) return;
-    try {
-      if (localStorage.getItem('simAccordion_simElecAccordion') === '1') {
-        acc.classList.add('open');
-      }
-    } catch (e) { /* localStorage indisponible */ }
-  });
-</script>
+  // Cacher toutes les étapes
+  document.querySelectorAll('.etape').forEach(e => e.classList.remove('active'));
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  // Afficher la nouvelle étape
+  const cible = document.getElementById('etape-' + n);
+  if (cible) cible.classList.add('active');
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
-    authDomain: "lfakm-87dec.firebaseapp.com",
-    projectId: "lfakm-87dec",
-    storageBucket: "lfakm-87dec.firebasestorage.app",
-    messagingSenderId: "739517262614",
-    appId: "1:739517262614:web:14abd3538427960c527e37"
-  };
+  // Mettre à jour la barre de progression
+  document.querySelectorAll('.step-item').forEach(item => {
+    const step = parseInt(item.dataset.step);
+    item.classList.remove('active', 'done');
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+    if (step === n) {
+      item.classList.add('active');
+    } else if (step < n) {
+      item.classList.add('done');
+    }
 
-  let profile = null;
-  const isAdmin = (role) => role === 'admin' || role === 'proviseur' || role === 'censeur';
-  const isGouvernement = (role) => role === 'president' || role === 'ministre_communication';
-  const escapeHtml = (str) => { const div = document.createElement('div'); div.textContent = str ?? ''; return div.innerHTML; };
-
-  onAuthStateChanged(auth, async (user) => {
-    const link = document.getElementById('auth-link');
-    const profileSpan = document.getElementById('user-profile');
-    if (user) {
-      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
-      profile = snap.exists() ? snap.data() : null;
-      if (!profile) return;
-      profileSpan.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
-      profileSpan.style.display = 'flex';
-      link.textContent = "Déconnexion";
-      link.onclick = () => signOut(auth).then(() => location.reload());
-      
-      if (isAdmin(profile.role)) {
-        document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
-      }
-      if (isAdmin(profile.role) || isGouvernement(profile.role)) {
-        document.querySelectorAll('.gov-item').forEach(el => el.style.display = 'block');
-      }
-
-      const feedbackItems = document.querySelectorAll('.feedback-item');
-      feedbackItems.forEach(el => {
-        el.style.display = 'block';
-        const lnk = el.querySelector('a');
-        if (isAdmin(profile.role)) { lnk.href = 'feedback.html#tab-dashboard'; lnk.textContent = '📊 Voir les retours'; }
-        else if (profile.role === 'professeur') { lnk.href = 'feedback.html#tab-professeurs'; lnk.textContent = '📋 Donner mon avis (prof)'; }
-        else if (profile.role === 'eleve' || isGouvernement(profile.role)) { lnk.href = 'feedback.html#tab-eleves'; lnk.textContent = '📋 Donner mon avis (élève)'; }
-      });
+    if (!etapesDebloquees.includes(step)) {
+      item.classList.add('locked');
     } else {
-      profileSpan.style.display = 'none';
-      link.textContent = "Connexion";
-      link.href = "identification.html";
-      document.querySelectorAll('.gov-item').forEach(el => el.style.display = 'none');
+      item.classList.remove('locked');
     }
   });
 
-  document.getElementById('burger-btn').onclick = () => document.getElementById('menu').classList.toggle('show');
+  etapeActuelle = n;
 
-  window.showContact = async () => {
-    const snap = await getDoc(doc(db, 'config', 'contact'));
-    if (!snap.exists() || !snap.data().email) return;
-    const c = snap.data();
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
-    overlay.innerHTML = `
-      <div style="background:#fff;border-radius:12px;padding:25px;max-width:340px;width:100%;text-align:center;">
-        <h3 style="font-family:var(--serif);color:var(--ink);margin-bottom:6px;">${escapeHtml(c.nom) || 'Le Proviseur'}</h3>
-        <p style="font-size:12px;color:var(--slate);margin-bottom:18px;">Chef d'établissement — LFAKM</p>
-        ${c.telephone ? `<a href="tel:${c.telephone}" style="display:block;padding:10px;margin-bottom:8px;background:var(--ink-deep);color:#fff;border-radius:6px;text-decoration:none;">📞 ${c.telephone}</a>` : ''}
-        ${c.email ? `<a href="mailto:${c.email}" style="display:block;padding:10px;margin-bottom:14px;background:var(--brass);color:#fff;border-radius:6px;text-decoration:none;">✉️ ${c.email}</a>` : ''}
-        <button onclick="this.closest('div[style*=fixed]').remove()" style="border:none;background:#eee;padding:8px 16px;border-radius:6px;cursor:pointer;">Fermer</button>
-      </div>`;
-    document.body.appendChild(overlay);
-  };
+  // Scroll en haut
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-  window.openProfil = () => {
-    if (profile && (profile.role === 'eleve' || isGouvernement(profile.role)) && auth.currentUser) {
-      window.location.href = `profil-eleve.html?uid=${auth.currentUser.uid}`;
-    }
-  };
-
-  // Tableau périodique
-  const elements = [
-    {num:1, sym:"H", cat:"nonmetal"}, {num:2, sym:"He", cat:"noble"},
-    {num:3, sym:"Li", cat:"metal"}, {num:4, sym:"Be", cat:"metal"}, {num:5, sym:"B", cat:"nonmetal"}, {num:6, sym:"C", cat:"nonmetal"}, {num:7, sym:"N", cat:"nonmetal"}, {num:8, sym:"O", cat:"nonmetal"}, {num:9, sym:"F", cat:"nonmetal"}, {num:10, sym:"Ne", cat:"noble"},
-    {num:11, sym:"Na", cat:"metal"}, {num:12, sym:"Mg", cat:"metal"}, {num:13, sym:"Al", cat:"metal"}, {num:14, sym:"Si", cat:"nonmetal"}, {num:15, sym:"P", cat:"nonmetal"}, {num:16, sym:"S", cat:"nonmetal"}, {num:17, sym:"Cl", cat:"nonmetal"}, {num:18, sym:"Ar", cat:"noble"},
-    {num:19, sym:"K", cat:"metal"}, {num:20, sym:"Ca", cat:"metal"}, {num:26, sym:"Fe", cat:"metal"}, {num:29, sym:"Cu", cat:"metal"}, {num:30, sym:"Zn", cat:"metal"}, {num:47, sym:"Ag", cat:"metal"}, {num:50, sym:"Sn", cat:"metal"}, {num:82, sym:"Pb", cat:"metal"}, {num:80, sym:"Hg", cat:"metal"}
-  ];
-  const tableContainer = document.getElementById('periodic-table');
-  if (tableContainer) {
-    elements.forEach(el => {
-      const div = document.createElement('div');
-      div.className = `element ${el.cat}`;
-      div.innerHTML = `<div class="num">${el.num}</div><div class="symbol">${el.sym}</div>`;
-      tableContainer.appendChild(div);
-    });
+// 🆕 Fonction pour débloquer les étapes suivantes (utilisée à chaque fin d'étape)
+function debloquerEtape(n) {
+  if (!etapesDebloquees.includes(n)) {
+    etapesDebloquees.push(n);
   }
+}
 
-  // 3Dmol + PubChem
-  let viewer3D = null;
-  const statusEl = () => document.getElementById('viewer-status');
-
-  const molecules3D = {
-    methane: { name: "Méthane", pubchem: "methane" },
-    ethane: { name: "Éthane", pubchem: "ethane" },
-    ethene: { name: "Éthylène", pubchem: "ethylene" },
-    acetylene: { name: "Acétylène", pubchem: "acetylene" },
-    benzene: { name: "Benzène", pubchem: "benzene" },
-    ethanol: { name: "Éthanol", pubchem: "ethanol" },
-    acetic: { name: "Acide éthanoïque", pubchem: "acetic acid" },
-    aspirine: { name: "Aspirine", pubchem: "aspirin" },
-    caffeine: { name: "Caféine", pubchem: "caffeine" },
-    glucose: { name: "Glucose", pubchem: "glucose" }
-  };
-
-  async function loadFromPubChem(query, displayName) {
-    const container = document.getElementById('viewer-3d');
-    const status = statusEl();
-    container.innerHTML = '';
-    status.className = 'loading';
-    status.textContent = `⏳ Recherche de "${displayName}" sur PubChem...`;
-
-    try {
-      const nameEncoded = encodeURIComponent(query);
-      const cidResponse = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${nameEncoded}/cids/TXT`);
-      if (!cidResponse.ok) throw new Error('Molécule introuvable sur PubChem');
-      const cidText = await cidResponse.text();
-      const cid = cidText.trim().split('\n')[0];
-      if (!cid) throw new Error('Aucun CID retourné');
-
-      status.textContent = `⏳ Téléchargement des coordonnées 3D (CID: ${cid})...`;
-
-      const sdfResponse = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/SDF?record_type=3d`);
-      if (!sdfResponse.ok) throw new Error('Coordonnées 3D non disponibles pour cette molécule');
-      const sdfData = await sdfResponse.text();
-
-      viewer3D = $3Dmol.createViewer(container, { backgroundColor: 'white' });
-      viewer3D.addModel(sdfData, 'sdf');
-      viewer3D.setStyle({}, { stick: { radius: 0.15, colorscheme: 'Jmol' }, sphere: { scale: 0.25, colorscheme: 'Jmol' } });
-      viewer3D.zoomTo();
-      viewer3D.render();
-      viewer3D.spin('y', 0.5);
-
-      status.className = 'success';
-      status.textContent = `✅ ${displayName} — CID ${cid} — Source : PubChem (NIH)`;
-    } catch (err) {
-      status.className = 'error';
-      status.textContent = `❌ ${err.message}`;
-      container.innerHTML = `<div style="padding:20px; text-align:center; color:#B3402A;">
-        <p style="font-size:40px; margin-bottom:10px;">⚠️</p>
-        <p><strong>Impossible de charger la molécule</strong></p>
-        <p style="font-size:13px; margin-top:8px;">${err.message}</p>
-      </div>`;
-    }
-  }
-
-  window.loadMolecule3D = (key) => {
-    const mol = molecules3D[key];
-    if (!mol) return;
-    loadFromPubChem(mol.pubchem, mol.name);
-  };
-
-  window.loadCustomSmiles = () => {
-    const input = document.getElementById('smiles-input').value.trim();
-    if (!input) { statusEl().className = 'error'; statusEl().textContent = '⚠️ Veuillez saisir un nom ou un code SMILES.'; return; }
-    loadFromPubChem(input, input);
-  };
-
-  setTimeout(() => { if (document.getElementById('viewer-3d')) loadMolecule3D('methane'); }, 500);
-
-  console.log('✅ Labo Physique-Chimie chargé');
+// ============================================================
+//  INITIALISATION
+// ============================================================
+window.addEventListener('load', () => {
+  allerEtape(1);
+  console.log('✅ Simulateur RC — Étape 1 chargée');
+});
 </script>
+
 </body>
 </html>
