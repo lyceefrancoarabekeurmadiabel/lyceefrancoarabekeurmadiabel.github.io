@@ -2034,15 +2034,27 @@ let branchement = {
 
 // Copier les composants de l'étape 2
 function initialiserBranchement() {
+  // Copier les composants
   branchement.composants = JSON.parse(JSON.stringify(montage.composants));
-  // Repositionner pour qu'ils soient bien visibles
   branchement.composants.forEach(c => {
     c.x = 200 + (c.x - 200) * 1.1;
     c.y = 200 + (c.y - 200) * 1.1;
   });
+  
+  // 🆕 Copier les fils du circuit RC (ceux de l'étape 2)
+  branchement.fils = JSON.parse(JSON.stringify(montage.fils));
+  // Repositionner les fils proportionnellement
+  branchement.fils.forEach(f => {
+    f.x1 = 200 + (f.x1 - 200) * 1.1;
+    f.y1 = 200 + (f.y1 - 200) * 1.1;
+    f.x2 = 200 + (f.x2 - 200) * 1.1;
+    f.y2 = 200 + (f.y2 - 200) * 1.1;
+  });
+  
+  // Recalculer les connexions pour ces fils copiés
   branchement.oscilloscope = null;
-  branchement.fils = [];
   branchement.oscilloPlace = false;
+  updateConnexionsFilsBranchement();
   drawBranchement();
 }
 
@@ -2573,7 +2585,11 @@ function verifierBranchement() {
   checks.push({ ok: true, txt: 'L\'oscilloscope est bien placé' });
 
   // 2. Vérifier que 2 fils sont connectés
-  const filsConnectes = branchement.fils.filter(f => f.de && f.vers);
+    // 🆕 Ne compter que les fils branchés sur l'oscilloscope
+  const filsConnectes = branchement.fils.filter(f => 
+    f.de && f.vers && 
+    ((f.de === 'osc-1' || f.vers === 'osc-1') || (f.de === 'osc-2' || f.vers === 'osc-2'))
+  );
   if (filsConnectes.length < 2) {
     checks.push({ ok: false, txt: `Il manque ${2 - filsConnectes.length} fil(s) — actuellement ${filsConnectes.length}/2` });
     toutOK = false;
