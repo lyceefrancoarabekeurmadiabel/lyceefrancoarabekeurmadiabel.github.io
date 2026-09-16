@@ -1765,14 +1765,12 @@ function getBornes(composant) {
   const angle = rotation * Math.PI / 180;
   const cos = Math.cos(angle);
   const sin = Math.sin(angle);
-  const orientations = {
-    pile: 'vertical',
-    condensateur: 'vertical',
-    resistance: 'horizontal',
-    interrupteur: 'horizontal'
-  };
-  const orientation = orientations[composant.type] || 'horizontal';
-  const longueur = orientation === 'horizontal' ? t.w : t.h;
+  // Dans le dessin actuel, les deux bornes électriques de TOUS les
+  // composants sont sur l'axe horizontal à rotation 0°.
+  // La rotation est ensuite appliquée autour du centre.
+  // (L'ancienne version plaçait la pile et le condensateur sur l'axe
+  // vertical alors que leur dessin et leurs fils étaient horizontaux.)
+  const longueur = t.w;
 
   const pointsLocaux = [
     { id: composant.id + '-L', lx: -longueur / 2, ly: 0 },
@@ -2209,44 +2207,103 @@ function verifierMontage() {
   const typesAttendus = ['pile', 'resistance', 'condensateur', 'interrupteur'];
   const typesPresents = montage.composants.map(c => c.type);
   const composantsOK = typesAttendus.every(t => typesPresents.includes(t));
-  if (composantsOK) checks.push({ ok: true, txt: 'Les 4 composants sont présents (pile, R, C, K)' });
-  else { const manquants = typesAttendus.filter(t => !typesPresents.includes(t)); checks.push({ ok: false, txt: `Composants manquants : ${manquants.join(', ')}` }); toutOK = false; }
+
+  if (composantsOK) {
+    checks.push({ ok: true, txt: 'Les 4 composants sont présents (pile, R, C, K)' });
+  } else {
+    const manquants = typesAttendus.filter(t => !typesPresents.includes(t));
+    checks.push({ ok: false, txt: `Composants manquants : ${manquants.join(', ')}` });
+    toutOK = false;
+  }
+
+  // ------------------------------------------------------------
+  // Les bornes doivent toutes être reliées par un fil.
+  // Cette vérification ne suppose AUCUN ordre particulier des
+  // composants : série, parallèle ou montage avec nœuds sont acceptés.
+  // ------------------------------------------------------------
   if (composantsOK) {
     const bornesSansFil = [];
     montage.composants.forEach(c => getBornes(c).forEach(b => {
       const connectee = montage.fils.some(f => f.de === b.id || f.vers === b.id);
       if (!connectee) bornesSansFil.push(b.id);
     }));
-    if (bornesSansFil.length === 0) checks.push({ ok: true, txt: 'Toutes les bornes sont connectées' });
-    else { checks.push({ ok: false, txt: `${bornesSansFil.length} borne(s) non connectée(s)` }); toutOK = false; }
-  }
-  const filsConnectes = montage.fils.filter(f => f.de && f.vers).length;
-  if (filsConnectes >= 4) checks.push({ ok: true, txt: `Au moins 4 fils connectés (${filsConnectes})` });
-  else { checks.push({ ok: false, txt: `Il manque ${4 - filsConnectes} fil(s)` }); toutOK = false; }
-  if (composantsOK && filsConnectes >= 4) {
-    const graphe = construireGraphe();
-    const pile = montage.composants.find(c => c.type === 'pile');
-    const interrupteur = montage.composants.find(c => c.type === 'interrupteur');
-    if (pile) {
-      if (!montage.interrupteurFerme) {
-        checks.push({ ok: false, txt: "L'interrupteur K est ouvert : ferme-le avec un double-clic avant de valider le circuit." });
-        toutOK = false;
-      }
-      const chemin = trouverChemin(graphe, pile.id + '-L', pile.id + '-R');
-      if (chemin) {
-        const composantsTraverses = new Set();
-        chemin.forEach(bid => { const b = getBorneById(bid); if (b && !b.estNoeud) composantsTraverses.add(b.composantId); });
-        const tousTraverses = typesAttendus.every(t => { const comp = montage.composants.find(c => c.type === t); return comp && composantsTraverses.has(comp.id); });
-        if (tousTraverses) checks.push({ ok: true, txt: 'Circuit fermé : le courant circule à travers les 4 composants' });
-        else { checks.push({ ok: false, txt: 'Le circuit est fermé mais ne traverse pas les 4 composants' }); toutOK = false; }
-      } else { checks.push({ ok: false, txt: 'Le circuit n\'est pas fermé' }); toutOK = false; }
+
+    if (bornesSansFil.length === 0) {
+      checks.push({ ok: true, txt: 'Toutes les bornes sont connectées' });
+    } else {
+      checks.push({ ok: false, txt: `${bornesSansFil.length} borne(s) non connectée(s)` });
+      toutOK = false;
     }
   }
+
+  const filsConnectes = montage.fils.filter(f => f.de && f.vers).length;
+  if (filsConnectes >= 4) {
+    checks.push({ ok: true, txt: `Fils correctement connectés (${filsConnectes})` });
+  } else {
+    checks.push({ ok: false, txt: `Il manque ${4 - filsConnectes} fil(s) correctement connecté(s)` });
+    toutOK = false;
+  }
+
+  if (composantsOK && filsConnectes >= 4) {
+    const pile = montage.composants.find(c => c.type === 'pile');
+
+    // Un interrupteur ouvert ne peut pas fermer le circuit.
+    if (!montage.interrupteurFerme) {
+      checks.push({ ok: false, txt: "L'interrupteur K est ouvert : ferme-le avec un double-clic avant de valider le circuit." });
+      toutOK = false;
+    }
+
+    if (pile && montage.interrupteurFerme) {
+      /*
+       * IMPORTANT : on ne cherche plus un chemin qui devrait contenir
+       * successivement Pile -> R -> C -> K.
+       *
+       * Un montage électrique peut être série, parallèle, comporter des
+       * dérivations/nœuds, etc. La seule contrainte ici est topologique :
+       * - il existe une liaison conductrice entre les deux bornes de la pile
+       *   EN PASSANT PAR L'EXTERIEUR de la pile ;
+       * - R, C et K appartiennent au même réseau électrique fermé.
+       *
+       * La pile est donc volontairement EXCLUE des arêtes internes du graphe
+       * pour éviter de considérer la pile elle-même comme un faux court-circuit.
+       */
+      const grapheExterne = construireGraphe({ inclurePile: false });
+      const bornePileL = pile.id + '-L';
+      const bornePileR = pile.id + '-R';
+      const composantePile = composanteConnexe(grapheExterne, bornePileL);
+      const pileFermee = composantePile.has(bornePileR);
+
+      if (!pileFermee) {
+        checks.push({ ok: false, txt: "Le circuit n'est pas fermé : les deux bornes de la pile ne sont pas reliées par le réseau." });
+        toutOK = false;
+      } else {
+        // Vérifie que R, C et K font bien partie du même réseau que la pile.
+        // On ne fixe volontairement ni l'ordre ni la forme du branchement.
+        const composantsHorsPile = montage.composants.filter(c => c.type !== 'pile');
+        const composantsDansLeReseau = composantsHorsPile.every(c => {
+          const bornes = getBornes(c);
+          return bornes.length === 2 && bornes.every(b => composantePile.has(b.id));
+        });
+
+        if (composantsDansLeReseau) {
+          checks.push({ ok: true, txt: 'Circuit fermé : le réseau électrique est continu et les 4 composants participent au montage' });
+        } else {
+          checks.push({ ok: false, txt: 'Le circuit est fermé, mais un composant est isolé du réseau de la pile.' });
+          toutOK = false;
+        }
+      }
+    }
+  }
+
   msg.classList.remove('success', 'error');
   msg.classList.add('show', toutOK ? 'success' : 'error');
-  let html = toutOK ? `<strong>🎉 Bravo, ton montage RC est validé !</strong><ul>` : `<strong>⚠️ Presque ! Vérifie :</strong><ul>`;
+  let html = toutOK
+    ? `<strong>🎉 Bravo, ton montage RC est validé !</strong><ul>`
+    : `<strong>⚠️ Presque ! Vérifie :</strong><ul>`;
+
   checks.forEach(c => html += `<li class="${c.ok ? 'ok' : 'ko'}">${c.txt}</li>`);
   html += `</ul>`;
+
   if (toutOK) {
     html += `<div style="margin-top: 15px; text-align: center;">
       <button class="btn btn-primary" onclick="debloquerEtape(3); allerEtape(3);">➡️ Passer au branchement de l'oscilloscope</button>
@@ -2256,8 +2313,29 @@ function verifierMontage() {
   msg.innerHTML = html;
 }
 
-function construireGraphe() {
+// Retourne tous les sommets accessibles depuis un sommet donné.
+function composanteConnexe(graphe, departId) {
+  const vus = new Set();
+  if (!graphe[departId]) return vus;
+
+  const file = [departId];
+  vus.add(departId);
+
+  while (file.length) {
+    const courant = file.shift();
+    (graphe[courant] || []).forEach(voisin => {
+      if (!vus.has(voisin)) {
+        vus.add(voisin);
+        file.push(voisin);
+      }
+    });
+  }
+  return vus;
+}
+
+function construireGraphe(options = {}) {
   const graphe = {};
+  const inclurePile = options.inclurePile !== false;
 
   const ajouterLien = (a, b) => {
     if (!a || !b) return;
@@ -2272,10 +2350,10 @@ function construireGraphe() {
     if (f.de && f.vers) ajouterLien(f.de, f.vers);
   });
 
-  // Chaque composant relie ses deux bornes. La pile doit être incluse dans
-  // le graphe : l'ancienne version l'excluait, rendant impossible la
-  // recherche d'un chemin entre ses deux bornes.
+  // Chaque composant est une liaison entre ses deux bornes.
+  // La pile peut être exclue lors du contrôle de la fermeture externe.
   montage.composants.forEach(c => {
+    if (c.type === 'pile' && !inclurePile) return;
     if (c.type === 'interrupteur' && !montage.interrupteurFerme) return;
     ajouterLien(c.id + '-L', c.id + '-R');
   });
@@ -2290,9 +2368,14 @@ function trouverChemin(graphe, departId, arriveeId) {
   while (queue.length > 0) {
     const chemin = queue.shift();
     const dernier = chemin[chemin.length - 1];
-    if (dernier === arriveeId && chemin.length > 2) return chemin;
+    if (dernier === arriveeId && chemin.length > 1) return chemin;
     const voisins = graphe[dernier] || [];
-    for (const v of voisins) if (!visited.has(v)) { visited.add(v); queue.push([...chemin, v]); }
+    for (const v of voisins) {
+      if (!visited.has(v)) {
+        visited.add(v);
+        queue.push([...chemin, v]);
+      }
+    }
   }
   return null;
 }
