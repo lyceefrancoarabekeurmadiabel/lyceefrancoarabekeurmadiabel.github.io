@@ -1094,8 +1094,13 @@ function allerEtape(n) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
   // Redessiner le canvas de branchement si on va à l'étape 3
-  if (n === 3) {
-    setTimeout(() => drawBranchement(), 50);
+   if (n === 3) {
+    setTimeout(() => {
+      if (branchement.composants.length === 0) {
+        initialiserBranchement();
+      }
+      drawBranchement();
+    }, 100);
   }
 }
 
