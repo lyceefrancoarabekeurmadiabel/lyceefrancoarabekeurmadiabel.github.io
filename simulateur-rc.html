@@ -109,12 +109,6 @@
     cursor: not-allowed;
     opacity: 0.5;
   }
-  .step-item.locked:hover {
-    opacity: 0.5;
-  }
-  .step-item:not(.locked):hover {
-    opacity: 0.8;
-  }
   .step-circle {
     width: 44px;
     height: 44px;
@@ -168,9 +162,7 @@
     margin: 0 auto;
     padding: 30px 20px 60px;
   }
-  .etape {
-    display: none;
-  }
+  .etape { display: none; }
   .etape.active {
     display: block;
     animation: fadeIn 0.4s ease-out;
@@ -180,7 +172,6 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* En-tête de l'étape */
   .etape-header {
     text-align: center;
     margin-bottom: 30px;
@@ -231,7 +222,6 @@
     margin-bottom: 20px;
   }
 
-  /* Objectif */
   .objectif-box {
     background: linear-gradient(135deg, #fff8e1 0%, #fffbf0 100%);
     border-left: 5px solid var(--brass);
@@ -253,7 +243,6 @@
     line-height: 1.6;
   }
 
-  /* Grille des composants */
   .composants-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -302,7 +291,6 @@
     opacity: 0.6;
   }
 
-  /* Oscilloscope — présentation */
   .oscillo-presentation {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     border-radius: 12px;
@@ -341,7 +329,6 @@
     font-size: 13px;
     color: #aaa;
   }
-
   .oscillo-desc {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -351,7 +338,6 @@
   @media (max-width: 700px) {
     .oscillo-desc { grid-template-columns: 1fr; }
   }
-
   .oscillo-role {
     background: rgba(79, 195, 247, 0.08);
     border-left: 4px solid #4fc3f7;
@@ -371,7 +357,6 @@
     color: #ccc;
     line-height: 1.5;
   }
-
   .oscillo-boutons {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -404,7 +389,6 @@
     line-height: 1.3;
   }
 
-  /* Notions */
   .notions-list {
     list-style: none;
     padding: 0;
@@ -433,7 +417,6 @@
     font-family: 'Courier New', monospace;
   }
 
-  /* Boutons de navigation */
   .actions {
     display: flex;
     justify-content: space-between;
@@ -456,10 +439,7 @@
     gap: 8px;
     justify-content: center;
   }
-  .btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn-primary {
     background: linear-gradient(135deg, var(--brass) 0%, #8e6f33 100%);
     color: #fff;
@@ -479,7 +459,6 @@
     color: var(--brass);
   }
 
-  /* Placeholder des étapes à venir */
   .placeholder {
     text-align: center;
     padding: 80px 20px;
@@ -506,7 +485,231 @@
     margin: 0 auto;
   }
 
-  /* Modal explication composant */
+  /* ============================================================ */
+  /*  ÉTAPE 2 : MONTAGE — LAYOUT SPÉCIAL                           */
+  /* ============================================================ */
+  .montage-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 900px) {
+    .montage-layout { grid-template-columns: 1fr; }
+  }
+
+  /* Boîte à outils */
+  .toolbox {
+    background: #fff;
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    padding: 15px;
+    height: fit-content;
+    position: sticky;
+    top: 100px;
+  }
+  .toolbox-title {
+    font-family: var(--serif);
+    font-size: 16px;
+    color: var(--ink);
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toolbox-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .outil-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: #f9f7f2;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    text-align: left;
+    transition: all 0.15s;
+  }
+  .outil-btn:hover {
+    background: #fff;
+    border-color: var(--brass);
+    color: var(--brass);
+    transform: translateX(3px);
+  }
+  .outil-btn:active { transform: translateX(1px); }
+  .outil-btn .icon { font-size: 22px; flex-shrink: 0; }
+  .outil-btn.wire-btn {
+    background: rgba(76, 175, 80, 0.1);
+    border-color: rgba(76, 175, 80, 0.4);
+    color: #2e7d32;
+  }
+  .outil-btn.wire-btn:hover {
+    background: rgba(76, 175, 80, 0.2);
+    border-color: #4caf50;
+  }
+  .outil-btn.danger {
+    background: #fff5f5;
+    border-color: rgba(217, 83, 79, 0.4);
+    color: #d9534f;
+  }
+  .outil-btn.danger:hover {
+    background: #fff;
+    border-color: #d9534f;
+  }
+
+  /* Zone schéma + canvas */
+  .montage-right {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  /* Schéma cible */
+  .schema-cible {
+    background: linear-gradient(135deg, #f0f8ff 0%, #e8f4fd 100%);
+    border: 2px solid #4fc3f7;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+  }
+  .schema-cible h4 {
+    font-family: var(--serif);
+    font-size: 15px;
+    color: var(--ink);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .schema-cible svg {
+    width: 100%;
+    max-width: 380px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+
+  /* Canvas de montage */
+  .canvas-montage {
+    background: #000;
+    border: 2px solid #4fc3f7;
+    border-radius: 12px;
+    padding: 5px;
+    position: relative;
+    min-height: 450px;
+    overflow: hidden;
+  }
+  .canvas-montage canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    cursor: default;
+  }
+  .canvas-hint {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.85);
+    color: #4fc3f7;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(79, 195, 247, 0.4);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  /* Progression du montage */
+  .montage-progress {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    background: #fff;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 20px;
+  }
+  .progress-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .progress-item .count {
+    background: var(--brass);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 800;
+    font-family: 'Courier New', monospace;
+  }
+  .progress-item.done .count { background: var(--success); }
+
+  /* Boutons de la zone montage */
+  .montage-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* Message vérification */
+  .verif-message {
+    border-radius: 10px;
+    padding: 15px 20px;
+    font-size: 14px;
+    line-height: 1.6;
+    display: none;
+    margin-top: 15px;
+  }
+  .verif-message.show { display: block; }
+  .verif-message.success {
+    background: #e8f5e9;
+    border-left: 4px solid var(--success);
+    color: #1b5e20;
+  }
+  .verif-message.error {
+    background: #ffebee;
+    border-left: 4px solid var(--danger);
+    color: #b71c1c;
+  }
+  .verif-message strong { color: inherit; }
+  .verif-message ul {
+    margin: 8px 0 0 20px;
+    padding: 0;
+  }
+  .verif-message li {
+    margin-bottom: 4px;
+    list-style: none;
+    position: relative;
+    padding-left: 20px;
+  }
+  .verif-message li::before {
+    position: absolute;
+    left: 0;
+    font-weight: 700;
+  }
+  .verif-message li.ok::before { content: '✅'; }
+  .verif-message li.ko::before { content: '❌'; }
+
+  /* Modal */
   .modal-overlay {
     display: none;
     position: fixed;
@@ -555,9 +758,6 @@
     color: var(--brass);
     font-weight: 700;
   }
-  .modal-box .modal-content strong {
-    color: var(--ink);
-  }
   .modal-box .modal-btn {
     width: 100%;
     padding: 12px;
@@ -570,15 +770,15 @@
     font-family: inherit;
     font-size: 14px;
   }
-  .modal-box .modal-btn:hover {
-    background: var(--ink-deep);
-  }
+  .modal-box .modal-btn:hover { background: var(--ink-deep); }
 
+  /* Responsive */
   @media (max-width: 600px) {
     .etape-title { font-size: 24px; }
     .card { padding: 18px; }
     .btn { padding: 12px 20px; font-size: 13px; }
     .composants-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    .canvas-montage { min-height: 350px; }
   }
 </style>
 </head>
@@ -600,11 +800,11 @@
 <!-- ============================================================ -->
 <div class="steps-bar">
   <div class="steps-container">
-    <div class="step-item active" data-step="1" onclick="allerEtape(1)">
+    <div class="step-item" data-step="1" onclick="allerEtape(1)">
       <div class="step-circle">1</div>
       <div class="step-label">Matériel</div>
     </div>
-    <div class="step-item locked" data-step="2" onclick="allerEtape(2)">
+    <div class="step-item active" data-step="2" onclick="allerEtape(2)">
       <div class="step-circle">2</div>
       <div class="step-label">Montage</div>
     </div>
@@ -631,7 +831,7 @@
   <!-- ============================================================ -->
   <!--  ÉTAPE 1 : PRÉSENTATION DU MATÉRIEL                           -->
   <!-- ============================================================ -->
-  <section class="etape active" id="etape-1">
+  <section class="etape" id="etape-1">
     <div class="etape-header">
       <div class="etape-eyebrow">Étape 1 sur 5</div>
       <h1 class="etape-title">📦 Présentation du matériel</h1>
@@ -641,7 +841,6 @@
       </p>
     </div>
 
-    <!-- OBJECTIF -->
     <div class="objectif-box">
       <div class="label">🎯 Objectif du TP</div>
       <div class="text">
@@ -652,7 +851,6 @@
       </div>
     </div>
 
-    <!-- COMPOSANTS -->
     <div class="card">
       <div class="card-title">
         <span class="icon">🔧</span>
@@ -694,7 +892,6 @@
       </div>
     </div>
 
-    <!-- OSCILLOSCOPE -->
     <div class="oscillo-presentation">
       <div class="oscillo-header">
         <div class="icon">📺</div>
@@ -749,7 +946,6 @@
       </div>
     </div>
 
-    <!-- NOTIONS -->
     <div class="card">
       <div class="card-title">
         <span class="icon">📚</span>
@@ -777,7 +973,6 @@
       </ul>
     </div>
 
-    <!-- ACTIONS -->
     <div class="actions">
       <a href="labo-pc.html" class="btn btn-secondary">← Retour au Labo PC</a>
       <button class="btn btn-primary" onclick="allerEtape(2)">
@@ -787,16 +982,137 @@
   </section>
 
   <!-- ============================================================ -->
-  <!--  ÉTAPE 2 : MONTAGE (placeholder)                              -->
+  <!--  ÉTAPE 2 : MONTAGE DU CIRCUIT                                 -->
   <!-- ============================================================ -->
-  <section class="etape" id="etape-2">
-    <div class="placeholder">
-      <span class="icon">🛠️</span>
-      <h3>Étape 2 — Montage du circuit</h3>
-      <p>Cette étape sera construite dans la prochaine session.</p>
+  <section class="etape active" id="etape-2">
+    <div class="etape-header">
+      <div class="etape-eyebrow">Étape 2 sur 5</div>
+      <h1 class="etape-title">🛠️ Montage du circuit</h1>
+      <p class="etape-subtitle">
+        Construis le circuit RC en plaçant les composants et en les reliant avec des fils.
+        Suis le schéma de référence affiché à droite.
+      </p>
     </div>
+
+    <div class="objectif-box">
+      <div class="label">🎯 Mission</div>
+      <div class="text">
+        Place les <strong>4 composants</strong> et connecte-les avec
+        <strong>6 fils</strong> pour former un circuit RC série complet.
+        Le montage doit correspondre au schéma cible.
+      </div>
+    </div>
+
+    <!-- LAYOUT : Boîte à outils + Zone de montage -->
+    <div class="montage-layout">
+
+      <!-- Boîte à outils -->
+      <div class="toolbox">
+        <div class="toolbox-title">
+          🧰 Boîte à outils
+        </div>
+        <div class="toolbox-grid">
+          <button class="outil-btn" onclick="ajouterComposant('pile')">
+            <span class="icon">🔋</span>
+            <span>Pile (9 V)</span>
+          </button>
+          <button class="outil-btn" onclick="ajouterComposant('resistance')">
+            <span class="icon">📏</span>
+            <span>Résistance (1 kΩ)</span>
+          </button>
+          <button class="outil-btn" onclick="ajouterComposant('condensateur')">
+            <span class="icon">⚡</span>
+            <span>Condensateur (100 µF)</span>
+          </button>
+          <button class="outil-btn" onclick="ajouterComposant('interrupteur')">
+            <span class="icon">🔘</span>
+            <span>Interrupteur</span>
+          </button>
+          <button class="outil-btn wire-btn" onclick="ajouterFil()">
+            <span class="icon">🧵</span>
+            <span>➕ Ajouter un fil</span>
+          </button>
+          <button class="outil-btn danger" onclick="effacerTout()">
+            <span class="icon">🗑</span>
+            <span>Tout effacer</span>
+          </button>
+        </div>
+        <div style="margin-top: 15px; padding: 10px; background: #f9f7f2; border-radius: 8px; font-size: 12px; color: var(--slate); line-height: 1.5;">
+          <strong style="color: var(--ink);">💡 Comment faire :</strong><br>
+          1. Clique sur un composant pour l'ajouter<br>
+          2. Glisse les poignées des fils vers les bornes<br>
+          3. Quand une borne est verte, la connexion est faite
+        </div>
+      </div>
+
+      <!-- Zone droite : schéma + canvas -->
+      <div class="montage-right">
+
+        <!-- Schéma cible -->
+        <div class="schema-cible">
+          <h4>📐 Schéma à réaliser</h4>
+          <svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+            <!-- Fils -->
+            <line x1="60" y1="60" x2="340" y2="60" stroke="#4fc3f7" stroke-width="3"/>
+            <line x1="60" y1="180" x2="340" y2="180" stroke="#4fc3f7" stroke-width="3"/>
+            <line x1="60" y1="60" x2="60" y2="90" stroke="#4fc3f7" stroke-width="3"/>
+            <line x1="60" y1="130" x2="60" y2="180" stroke="#4fc3f7" stroke-width="3"/>
+            <line x1="340" y1="60" x2="340" y2="100" stroke="#4fc3f7" stroke-width="3"/>
+            <line x1="340" y1="140" x2="340" y2="180" stroke="#4fc3f7" stroke-width="3"/>
+
+            <!-- Pile -->
+            <rect x="45" y="90" width="30" height="40" fill="#fff" stroke="#4caf50" stroke-width="2" rx="3"/>
+            <text x="60" y="106" text-anchor="middle" font-size="12" fill="#4caf50" font-weight="bold">+</text>
+            <text x="60" y="124" text-anchor="middle" font-size="12" fill="#f44336" font-weight="bold">−</text>
+            <text x="60" y="150" text-anchor="middle" font-size="10" fill="#4fc3f7" font-weight="bold">E = 9V</text>
+
+            <!-- Résistance -->
+            <rect x="150" y="45" width="100" height="30" fill="#fff" stroke="#ffd54f" stroke-width="2" rx="4"/>
+            <path d="M 160 60 L 172 50 L 184 70 L 196 50 L 208 70 L 220 50 L 232 60" stroke="#ffd54f" stroke-width="2" fill="none"/>
+            <text x="200" y="35" text-anchor="middle" font-size="10" fill="#ffd54f" font-weight="bold">R = 1 kΩ</text>
+
+            <!-- Condensateur -->
+            <line x1="320" y1="100" x2="360" y2="100" stroke="#4fc3f7" stroke-width="3"/>
+            <line x1="320" y1="140" x2="360" y2="140" stroke="#4fc3f7" stroke-width="3"/>
+            <text x="340" y="85" text-anchor="middle" font-size="10" fill="#4fc3f7" font-weight="bold">C = 100 µF</text>
+
+            <!-- Interrupteur -->
+            <circle cx="180" cy="180" r="5" fill="#fff" stroke="#4fc3f7" stroke-width="2"/>
+            <circle cx="220" cy="180" r="5" fill="#fff" stroke="#4fc3f7" stroke-width="2"/>
+            <line x1="180" y1="180" x2="215" y2="165" stroke="#f44336" stroke-width="3" stroke-linecap="round"/>
+            <text x="200" y="200" text-anchor="middle" font-size="10" fill="#4fc3f7" font-weight="bold">K (ouvert)</text>
+          </svg>
+        </div>
+
+        <!-- Canvas de montage -->
+        <div class="canvas-montage">
+          <canvas id="canvasMontage" width="900" height="600"></canvas>
+          <div class="canvas-hint" id="canvasHint">👈 Clique sur les composants dans la boîte à outils</div>
+        </div>
+
+        <!-- Barre de progression -->
+        <div class="montage-progress">
+          <div class="progress-item" id="progComposants">
+            🔧 Composants
+            <span class="count" id="countComposants">0/4</span>
+          </div>
+          <div class="progress-item" id="progFils">
+            🧵 Fils
+            <span class="count" id="countFils">0/6</span>
+          </div>
+        </div>
+
+        <!-- Message de vérification -->
+        <div class="verif-message" id="verifMessage"></div>
+
+      </div>
+    </div>
+
     <div class="actions">
       <button class="btn btn-secondary" onclick="allerEtape(1)">← Étape précédente</button>
+      <button class="btn btn-primary" onclick="verifierMontage()">
+        ✅ Vérifier mon montage
+      </button>
     </div>
   </section>
 
@@ -839,7 +1155,7 @@
 </div>
 
 <!-- ============================================================ -->
-<!--  MODAL EXPLICATION COMPOSANT                                  -->
+<!--  MODAL EXPLICATION                                            -->
 <!-- ============================================================ -->
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target === this) fermerModal();">
   <div class="modal-box">
@@ -851,77 +1167,39 @@
 
 <script>
 // ============================================================
-//  EXPLICATIONS DES COMPOSANTS
+//  EXPLICATIONS DES COMPOSANTS (ÉTAPE 1)
 // ============================================================
 const EXPLICATIONS = {
   pile: {
     title: '🔋 Pile (E = 9 V)',
-    content: `
-      <p>La pile fournit la <strong>tension électrique</strong> nécessaire pour charger le condensateur.</p>
-      <p>Dans ce TP, on utilise une pile de <code>9 V</code>. Sa tension reste constante pendant toute la manipulation.</p>
-      <p><strong>Symbole :</strong> une grande barre (le +) et une petite barre (le −).</p>
-    `
+    content: `<p>La pile fournit la <strong>tension électrique</strong> nécessaire pour charger le condensateur.</p><p>Dans ce TP, on utilise une pile de <code>9 V</code>. Sa tension reste constante pendant toute la manipulation.</p>`
   },
   resistance: {
     title: '📏 Résistance (R = 1 kΩ)',
-    content: `
-      <p>La résistance <strong>limite le courant</strong> qui circule dans le circuit.</p>
-      <p>Elle détermine la <strong>vitesse de charge</strong> du condensateur : plus R est grand, plus la charge est lente.</p>
-      <p><strong>Valeur :</strong> <code>1 kΩ = 1000 Ω</code>. Son unité est l'<strong>ohm (Ω)</strong>.</p>
-      <p><strong>Symbole :</strong> un rectangle.</p>
-    `
+    content: `<p>La résistance <strong>limite le courant</strong> qui circule dans le circuit.</p><p>Elle détermine la <strong>vitesse de charge</strong> du condensateur : plus R est grand, plus la charge est lente.</p><p><strong>Valeur :</strong> <code>1 kΩ = 1000 Ω</code>.</p>`
   },
   condensateur: {
     title: '⚡ Condensateur (C = 100 µF)',
-    content: `
-      <p>Le condensateur est le <strong>composant principal</strong> de ce TP. Il <strong>stocke de l'énergie</strong> sous forme électrique, sur ses deux armatures.</p>
-      <p>Sa tension <code>U_C</code> évolue progressivement lors de la charge.</p>
-      <p><strong>Valeur :</strong> <code>100 µF = 100 × 10⁻⁶ F</code>. Son unité est le <strong>farad (F)</strong>.</p>
-      <p><strong>Symbole :</strong> deux barres parallèles (les deux armatures).</p>
-    `
+    content: `<p>Le condensateur <strong>stocke de l'énergie</strong> sous forme électrique, sur ses deux armatures.</p><p>Sa tension <code>U_C</code> évolue progressivement lors de la charge.</p><p><strong>Valeur :</strong> <code>100 µF = 100 × 10⁻⁶ F</code>.</p>`
   },
   interrupteur: {
     title: '🔘 Interrupteur (K)',
-    content: `
-      <p>L'interrupteur permet d'<strong>ouvrir</strong> ou de <strong>fermer</strong> le circuit.</p>
-      <p>Au début du TP, il est <strong>ouvert</strong> : le courant ne circule pas, le condensateur est déchargé.</p>
-      <p>Au moment de fermer K, la <strong>charge commence</strong> : c'est notre <code>t = 0</code>.</p>
-      <p><strong>Symbole :</strong> un segment incliné.</p>
-    `
+    content: `<p>L'interrupteur permet d'<strong>ouvrir</strong> ou de <strong>fermer</strong> le circuit.</p><p>Au début du TP, il est <strong>ouvert</strong> : le courant ne circule pas.</p><p>Au moment de fermer K, la charge commence : c'est notre <code>t = 0</code>.</p>`
   },
   fils: {
     title: '🧵 Fils de connexion',
-    content: `
-      <p>Les fils permettent de <strong>relier</strong> tous les composants entre eux.</p>
-      <p>Chaque liaison doit être <strong>bien serrée</strong> pour éviter les faux contacts.</p>
-      <p>Il faut au minimum <strong>6 fils</strong> pour réaliser le circuit complet.</p>
-    `
+    content: `<p>Les fils permettent de <strong>relier</strong> tous les composants entre eux.</p><p>Chaque liaison doit être <strong>bien serrée</strong> pour éviter les faux contacts.</p><p>Il faut au minimum <strong>6 fils</strong> pour réaliser le circuit complet.</p>`
   },
   'base-temps': {
     title: '⏱️ Base de temps (TIME / DIV)',
-    content: `
-      <p>La base de temps règle la <strong>vitesse horizontale</strong> de l'oscilloscope.</p>
-      <p>Elle indique la <strong>durée d'une division</strong> sur l'écran.</p>
-      <p>Exemple : si on règle <code>50 ms/div</code>, chaque carreau horizontal vaut 50 ms.</p>
-      <p>Pour notre TP, on utilisera <code>50 ms/div</code> pour voir toute la charge.</p>
-      <p><strong>Astuce :</strong> si la courbe sort de l'écran, augmente la base de temps. Si elle est trop écrasée, diminue-la.</p>
-    `
+    content: `<p>La base de temps règle la <strong>vitesse horizontale</strong> de l'oscilloscope.</p><p>Elle indique la <strong>durée d'une division</strong> sur l'écran.</p><p>Exemple : si on règle <code>50 ms/div</code>, chaque carreau horizontal vaut 50 ms.</p>`
   },
   sensibilite: {
     title: '📊 Sensibilité verticale (VOLTS / DIV)',
-    content: `
-      <p>La sensibilité verticale règle la <strong>hauteur</strong> de la trace sur l'écran.</p>
-      <p>Elle indique la <strong>tension par division</strong>.</p>
-      <p>Exemple : si on règle <code>2 V/div</code>, chaque carreau vertical vaut 2 V.</p>
-      <p>Avec une pile de 9 V, on utilise <code>2 V/div</code> → la courbe occupera environ 4,5 carreaux en hauteur.</p>
-      <p><strong>Astuce :</strong> si la courbe est trop petite, diminue cette valeur. Si elle dépasse, augmente-la.</p>
-    `
+    content: `<p>La sensibilité verticale règle la <strong>hauteur</strong> de la trace sur l'écran.</p><p>Elle indique la <strong>tension par division</strong>.</p><p>Exemple : si on règle <code>2 V/div</code>, chaque carreau vertical vaut 2 V.</p>`
   }
 };
 
-// ============================================================
-//  GESTION DES MODALES
-// ============================================================
 function ouvrirModal(cle) {
   const exp = EXPLICATIONS[cle];
   if (!exp) return;
@@ -929,12 +1207,9 @@ function ouvrirModal(cle) {
   document.getElementById('modalContent').innerHTML = exp.content;
   document.getElementById('modalOverlay').classList.add('show');
 }
-
 function fermerModal() {
   document.getElementById('modalOverlay').classList.remove('show');
 }
-
-// Fermer avec Échap
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') fermerModal();
 });
@@ -943,60 +1218,772 @@ document.addEventListener('keydown', (e) => {
 //  NAVIGATION ENTRE LES ÉTAPES
 // ============================================================
 let etapeActuelle = 1;
-let etapesDebloquees = [1]; // On commence avec l'étape 1 débloquée
+let etapesDebloquees = [1, 2];
 
 function allerEtape(n) {
-  // Vérifier si l'étape est débloquée
   if (!etapesDebloquees.includes(n)) {
     alert('🔒 Tu dois d\'abord terminer les étapes précédentes.');
     return;
   }
-
-  // Cacher toutes les étapes
   document.querySelectorAll('.etape').forEach(e => e.classList.remove('active'));
-
-  // Afficher la nouvelle étape
   const cible = document.getElementById('etape-' + n);
   if (cible) cible.classList.add('active');
 
-  // Mettre à jour la barre de progression
   document.querySelectorAll('.step-item').forEach(item => {
     const step = parseInt(item.dataset.step);
     item.classList.remove('active', 'done');
-
-    if (step === n) {
-      item.classList.add('active');
-    } else if (step < n) {
-      item.classList.add('done');
-    }
-
-    if (!etapesDebloquees.includes(step)) {
-      item.classList.add('locked');
-    } else {
-      item.classList.remove('locked');
-    }
+    if (step === n) item.classList.add('active');
+    else if (step < n) item.classList.add('done');
+    if (!etapesDebloquees.includes(step)) item.classList.add('locked');
+    else item.classList.remove('locked');
   });
 
   etapeActuelle = n;
-
-  // Scroll en haut
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// 🆕 Fonction pour débloquer les étapes suivantes (utilisée à chaque fin d'étape)
 function debloquerEtape(n) {
-  if (!etapesDebloquees.includes(n)) {
-    etapesDebloquees.push(n);
+  if (!etapesDebloquees.includes(n)) etapesDebloquees.push(n);
+}
+
+// ============================================================
+//  ÉTAPE 2 : MONTAGE DU CIRCUIT
+// ============================================================
+const canvas = document.getElementById('canvasMontage');
+const ctx = canvas.getContext('2d');
+const W = canvas.width;
+const H = canvas.height;
+
+let montage = {
+  composants: [],
+  fils: [],
+  composantEnDrag: null,
+  poigneeEnDrag: null,
+  offsetDrag: { x: 0, y: 0 },
+  prochainIdComp: 1,
+  prochainIdFil: 1,
+  filSelectionne: null,
+  interrupteurFerme: false
+};
+
+const TAILLE = {
+  pile: { w: 90, h: 90 },
+  resistance: { w: 110, h: 40 },
+  condensateur: { w: 80, h: 90 },
+  interrupteur: { w: 90, h: 50 }
+};
+
+const DIST_CONNEXION = 45;
+const DIST_SNAP = 50;
+
+// --------- AJOUTER UN COMPOSANT ---------
+function ajouterComposant(type) {
+  const compsExistants = montage.composants.filter(c => c.type === type);
+  if (compsExistants.length > 0) {
+    alert('⚠️ Tu as déjà placé ce composant !');
+    return;
   }
+
+  const index = montage.composants.length;
+  const positionsParDefaut = [
+    { x: 200, y: 150 },
+    { x: 500, y: 150 },
+    { x: 200, y: 400 },
+    { x: 500, y: 400 }
+  ];
+  const pos = positionsParDefaut[index] || { x: 300, y: 300 };
+
+  const composant = {
+    id: 'c' + montage.prochainIdComp++,
+    type: type,
+    x: pos.x,
+    y: pos.y,
+    rotation: 0,
+    valeur: type === 'pile' ? '9 V' :
+            type === 'resistance' ? '1 kΩ' :
+            type === 'condensateur' ? '100 µF' :
+            type === 'interrupteur' ? 'K' : ''
+  };
+
+  montage.composants.push(composant);
+  drawMontage();
+  updateProgress();
+  updateCanvasHint();
+}
+
+// --------- AJOUTER UN FIL ---------
+function ajouterFil() {
+  if (montage.fils.length >= 6) {
+    alert('✅ Tu as déjà placé 6 fils (le maximum pour ce circuit) !');
+    return;
+  }
+
+  const cx = W / 2 + (Math.random() - 0.5) * 200;
+  const cy = H / 2 + (Math.random() - 0.5) * 100;
+  const longueur = 180;
+  const angle = Math.random() * Math.PI;
+
+  const fil = {
+    id: 'f' + montage.prochainIdFil++,
+    x1: cx - Math.cos(angle) * longueur / 2,
+    y1: cy - Math.sin(angle) * longueur / 2,
+    x2: cx + Math.cos(angle) * longueur / 2,
+    y2: cy + Math.sin(angle) * longueur / 2,
+    de: null,
+    vers: null
+  };
+
+  montage.fils.push(fil);
+  montage.filSelectionne = fil.id;
+  updateConnexionsFils();
+  drawMontage();
+  updateProgress();
+}
+
+// --------- BORNES D'UN COMPOSANT ---------
+function getBornes(composant) {
+  const t = TAILLE[composant.type];
+  const rotation = composant.rotation || 0;
+  const bornes = [];
+  const bornesLocales = [
+    { id: composant.id + '-L', offsetX: -t.w / 2, offsetY: 0 },
+    { id: composant.id + '-R', offsetX: t.w / 2, offsetY: 0 }
+  ];
+  const angle = rotation * Math.PI / 180;
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  bornesLocales.forEach(bl => {
+    const rx = bl.offsetX * cos - bl.offsetY * sin;
+    const ry = bl.offsetX * sin + bl.offsetY * cos;
+    bornes.push({
+      id: bl.id,
+      composantId: composant.id,
+      x: composant.x + rx,
+      y: composant.y + ry
+    });
+  });
+  return bornes;
+}
+
+function getToutesLesBornes() {
+  const toutes = [];
+  montage.composants.forEach(c => getBornes(c).forEach(b => toutes.push(b)));
+  return toutes;
+}
+
+function getBorneById(id) {
+  return getToutesLesBornes().find(b => b.id === id);
+}
+
+// --------- METTRE À JOUR LES CONNEXIONS ---------
+function updateConnexionsFils() {
+  const bornes = getToutesLesBornes();
+  montage.fils.forEach(fil => {
+    fil.de = null;
+    fil.vers = null;
+
+    let meilleurDe = null, meilleurDeDist = DIST_CONNEXION;
+    let meilleurVers = null, meilleurVersDist = DIST_CONNEXION;
+
+    bornes.forEach(b => {
+      const d1 = Math.hypot(b.x - fil.x1, b.y - fil.y1);
+      if (d1 < meilleurDeDist) { meilleurDeDist = d1; meilleurDe = b.id; }
+      const d2 = Math.hypot(b.x - fil.x2, b.y - fil.y2);
+      if (d2 < meilleurVersDist) { meilleurVersDist = d2; meilleurVers = b.id; }
+    });
+
+    if (meilleurDe && meilleurVers) {
+      const b1 = getBorneById(meilleurDe);
+      const b2 = getBorneById(meilleurVers);
+      if (b1 && b2 && b1.composantId === b2.composantId) {
+        if (meilleurDeDist <= meilleurVersDist) meilleurVers = null;
+        else meilleurDe = null;
+      }
+    }
+
+    fil.de = meilleurDe;
+    fil.vers = meilleurVers;
+  });
+}
+
+// --------- DESSIN ---------
+function drawMontage() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0a0a1a';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grille
+  ctx.strokeStyle = 'rgba(79,195,247,0.05)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 40) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let y = 0; y < H; y += 40) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  // Fils
+  montage.fils.forEach(fil => drawFil(fil));
+
+  // Composants
+  montage.composants.forEach(c => drawComposant(c));
+
+  // Bornes
+  montage.composants.forEach(c => getBornes(c).forEach(b => drawBorne(b)));
+
+  // Curseur
+  if (montage.composantEnDrag || montage.poigneeEnDrag) {
+    canvas.style.cursor = 'grabbing';
+  } else if (montage.filSelectionne) {
+    canvas.style.cursor = 'pointer';
+  } else {
+    canvas.style.cursor = 'default';
+  }
+}
+
+function drawFil(fil) {
+  const estSelectionne = montage.filSelectionne === fil.id;
+  const estBranche = fil.de && fil.vers;
+
+  ctx.strokeStyle = estSelectionne ? '#ffd54f' : (estBranche ? '#4caf50' : '#4fc3f7');
+  ctx.lineWidth = estSelectionne ? 6 : 4;
+  ctx.lineCap = 'round';
+  ctx.shadowColor = estSelectionne ? '#ffd54f' : (estBranche ? '#4caf50' : '#4fc3f7');
+  ctx.shadowBlur = estSelectionne ? 12 : 6;
+  ctx.beginPath();
+  ctx.moveTo(fil.x1, fil.y1);
+  ctx.lineTo(fil.x2, fil.y2);
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Extrémités
+  ctx.fillStyle = fil.de ? '#4caf50' : '#888';
+  ctx.beginPath(); ctx.arc(fil.x1, fil.y1, 6, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = fil.vers ? '#4caf50' : '#888';
+  ctx.beginPath(); ctx.arc(fil.x2, fil.y2, 6, 0, Math.PI * 2); ctx.fill();
+
+  // Poignées si sélectionné
+  if (estSelectionne) {
+    const pulse = (Math.sin(Date.now() / 300) + 1) / 2;
+    drawPoigneeFil(fil.x1, fil.y1, pulse);
+    drawPoigneeFil(fil.x2, fil.y2, pulse);
+  }
+}
+
+function drawPoigneeFil(x, y, pulse) {
+  const grad = ctx.createRadialGradient(x, y, 2, x, y, 22 + pulse * 6);
+  grad.addColorStop(0, `rgba(255, 213, 79, ${0.5 + pulse * 0.4})`);
+  grad.addColorStop(1, 'rgba(255, 213, 79, 0)');
+  ctx.fillStyle = grad;
+  ctx.beginPath(); ctx.arc(x, y, 22 + pulse * 6, 0, Math.PI * 2); ctx.fill();
+
+  ctx.fillStyle = '#ffd54f';
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.arc(x, y, 10, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+}
+
+function drawComposant(c) {
+  const t = TAILLE[c.type];
+  const isDragging = montage.composantEnDrag && montage.composantEnDrag.id === c.id;
+  if (isDragging) { ctx.shadowColor = '#ffd54f'; ctx.shadowBlur = 15; }
+
+  ctx.save();
+  ctx.translate(c.x, c.y);
+  ctx.rotate((c.rotation || 0) * Math.PI / 180);
+  ctx.translate(-c.x, -c.y);
+
+  if (c.type === 'pile') drawPile(c.x, c.y, t.w, t.h, c.valeur);
+  else if (c.type === 'resistance') drawResistance(c.x, c.y, t.w, t.h, c.valeur);
+  else if (c.type === 'condensateur') drawCondensateur(c.x, c.y, t.w, t.h, c.valeur);
+  else if (c.type === 'interrupteur') drawInterrupteur(c.x, c.y, t.w, t.h);
+
+  ctx.restore();
+  ctx.shadowBlur = 0;
+}
+
+function drawPile(cx, cy, w, h, valeur) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#4caf50';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.roundRect(cx - w / 2, cy - h / 2, w, h, 8); ctx.fill(); ctx.stroke();
+
+  ctx.fillStyle = '#4caf50';
+  ctx.font = 'bold 24px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('+', cx, cy - 20);
+  ctx.fillStyle = '#f44336';
+  ctx.fillText('−', cx, cy + 20);
+
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 13px monospace';
+  ctx.fillText(valeur, cx, cy + 1);
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#4fc3f7';
+  ctx.font = 'bold 11px monospace';
+  ctx.fillText('PILE', cx, cy - h / 2 - 8);
+}
+
+function drawResistance(cx, cy, w, h, valeur) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#ffd54f';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.roundRect(cx - w / 2, cy - h / 2, w, h, 6); ctx.fill(); ctx.stroke();
+
+  ctx.strokeStyle = '#ffd54f';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx - w / 2 + 10, cy);
+  const seg = (w - 20) / 6;
+  for (let i = 0; i < 6; i++) ctx.lineTo(cx - w / 2 + 10 + seg * (i + 1), cy + (i % 2 === 0 ? -8 : 8));
+  ctx.stroke();
+
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 12px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(valeur, cx, cy);
+
+  ctx.fillStyle = '#ffd54f';
+  ctx.font = 'bold 10px monospace';
+  ctx.fillText('R', cx, cy - h / 2 - 8);
+  ctx.textBaseline = 'alphabetic';
+}
+
+function drawCondensateur(cx, cy, w, h, valeur) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.roundRect(cx - w / 2, cy - h / 2, w, h, 8); ctx.fill(); ctx.stroke();
+
+  // Deux armatures
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - 15, cy - 18);
+  ctx.lineTo(cx - 15, cy + 18);
+  ctx.moveTo(cx + 15, cy - 18);
+  ctx.lineTo(cx + 15, cy + 18);
+  ctx.stroke();
+
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 12px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(valeur, cx, cy + h / 2 - 8);
+
+  ctx.fillStyle = '#4fc3f7';
+  ctx.font = 'bold 10px monospace';
+  ctx.fillText('C', cx, cy - h / 2 - 8);
+  ctx.textBaseline = 'alphabetic';
+}
+
+function drawInterrupteur(cx, cy, w, h) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.roundRect(cx - w / 2, cy - h / 2, w, h, 8); ctx.fill(); ctx.stroke();
+
+  const bx1 = cx - w / 2 + 15;
+  const bx2 = cx + w / 2 - 15;
+
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(bx1, cy, 6, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(bx2, cy, 6, 0, Math.PI * 2); ctx.fill();
+
+  // Levier (ouvert par défaut)
+  ctx.strokeStyle = '#f44336';
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(bx1, cy);
+  ctx.lineTo(bx2, cy - 22);
+  ctx.stroke();
+
+  ctx.fillStyle = '#4fc3f7';
+  ctx.font = 'bold 10px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('K', cx, cy - h / 2 - 8);
+}
+
+function drawBorne(b) {
+  const estConnectee = montage.fils.some(f => f.de === b.id || f.vers === b.id);
+
+  if (estConnectee) {
+    const grad = ctx.createRadialGradient(b.x, b.y, 2, b.x, b.y, 18);
+    grad.addColorStop(0, 'rgba(76, 175, 80, 0.6)');
+    grad.addColorStop(1, 'rgba(76, 175, 80, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(b.x, b.y, 18, 0, Math.PI * 2); ctx.fill();
+  } else {
+    const pulse = (Math.sin(Date.now() / 500) + 1) / 2;
+    const grad = ctx.createRadialGradient(b.x, b.y, 2, b.x, b.y, 12 + pulse * 5);
+    grad.addColorStop(0, `rgba(79, 195, 247, ${0.3 + pulse * 0.3})`);
+    grad.addColorStop(1, 'rgba(79, 195, 247, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(b.x, b.y, 12 + pulse * 5, 0, Math.PI * 2); ctx.fill();
+  }
+
+  ctx.fillStyle = estConnectee ? '#4caf50' : '#fff';
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(b.x, b.y, 8, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+}
+
+// --------- INTERACTIONS ---------
+canvas.addEventListener('mousedown', e => {
+  const p = getCanvasCoords(e, false);
+  handlePointerDown(p.x, p.y);
+});
+canvas.addEventListener('mousemove', e => {
+  const p = getCanvasCoords(e, false);
+  handlePointerMove(p.x, p.y);
+});
+canvas.addEventListener('mouseup', handlePointerUp);
+canvas.addEventListener('mouseleave', handlePointerUp);
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const p = getCanvasCoords(e, true);
+  handlePointerDown(p.x, p.y);
+}, { passive: false });
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const p = getCanvasCoords(e, true);
+  handlePointerMove(p.x, p.y);
+}, { passive: false });
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  handlePointerUp();
+});
+
+// Double-clic sur l'interrupteur → ouvrir/fermer
+canvas.addEventListener('dblclick', e => {
+  const p = getCanvasCoords(e, false);
+  const comp = trouverComposantProche(p.x, p.y);
+  if (comp && comp.type === 'interrupteur') {
+    montage.interrupteurFerme = !montage.interrupteurFerme;
+    drawMontage();
+  }
+});
+
+function getCanvasCoords(e, isTouch) {
+  const rect = canvas.getBoundingClientRect();
+  const canvasRatio = canvas.width / canvas.height;
+  const rectRatio = rect.width / rect.height;
+  let renderWidth, renderHeight, offsetX, offsetY;
+  if (rectRatio > canvasRatio) {
+    renderHeight = rect.height;
+    renderWidth = renderHeight * canvasRatio;
+    offsetX = (rect.width - renderWidth) / 2;
+    offsetY = 0;
+  } else {
+    renderWidth = rect.width;
+    renderHeight = renderWidth / canvasRatio;
+    offsetX = 0;
+    offsetY = (rect.height - renderHeight) / 2;
+  }
+  let clientX, clientY;
+  if (isTouch) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+  else { clientX = e.clientX; clientY = e.clientY; }
+  return {
+    x: (clientX - rect.left - offsetX) * (canvas.width / renderWidth),
+    y: (clientY - rect.top - offsetY) * (canvas.height / renderHeight)
+  };
+}
+
+function handlePointerDown(x, y) {
+  // Poignée de fil ?
+  if (montage.filSelectionne) {
+    const fil = montage.fils.find(f => f.id === montage.filSelectionne);
+    if (fil) {
+      const dA = Math.hypot(fil.x1 - x, fil.y1 - y);
+      const dB = Math.hypot(fil.x2 - x, fil.y2 - y);
+      if (dA < 25) { montage.poigneeEnDrag = { filId: fil.id, cote: 'A' }; return; }
+      if (dB < 25) { montage.poigneeEnDrag = { filId: fil.id, cote: 'B' }; return; }
+    }
+  }
+
+  // Fil ?
+  const filClique = trouverFilProche(x, y);
+  if (filClique) {
+    montage.filSelectionne = filClique.id;
+    drawMontage();
+    return;
+  }
+
+  // Composant ?
+  const comp = trouverComposantProche(x, y);
+  if (comp) {
+    montage.composantEnDrag = comp;
+    montage.offsetDrag = { x: x - comp.x, y: y - comp.y };
+    montage.filSelectionne = null;
+    drawMontage();
+    return;
+  }
+
+  // Rien
+  montage.filSelectionne = null;
+  drawMontage();
+}
+
+function handlePointerMove(x, y) {
+  if (montage.poigneeEnDrag) {
+    const fil = montage.fils.find(f => f.id === montage.poigneeEnDrag.filId);
+    if (fil) {
+      const borneProche = trouverBorneProche(x, y, DIST_SNAP);
+      let finalX = Math.max(10, Math.min(W - 10, x));
+      let finalY = Math.max(10, Math.min(H - 10, y));
+      if (borneProche) {
+        finalX = borneProche.x;
+        finalY = borneProche.y;
+      }
+      if (montage.poigneeEnDrag.cote === 'A') {
+        fil.x1 = finalX; fil.y1 = finalY;
+      } else {
+        fil.x2 = finalX; fil.y2 = finalY;
+      }
+      updateConnexionsFils();
+      updateProgress();
+    }
+    drawMontage();
+    return;
+  }
+
+  if (montage.composantEnDrag) {
+    montage.composantEnDrag.x = Math.max(80, Math.min(W - 80, x - montage.offsetDrag.x));
+    montage.composantEnDrag.y = Math.max(80, Math.min(H - 80, y - montage.offsetDrag.y));
+    updateConnexionsFils();
+    drawMontage();
+    return;
+  }
+
+  drawMontage();
+}
+
+function handlePointerUp() {
+  const avaitDrag = montage.composantEnDrag || montage.poigneeEnDrag;
+  montage.composantEnDrag = null;
+  montage.poigneeEnDrag = null;
+  if (avaitDrag) {
+    updateConnexionsFils();
+    updateProgress();
+    drawMontage();
+  }
+}
+
+function trouverBorneProche(x, y, maxDist) {
+  let meilleure = null, minDist = maxDist;
+  getToutesLesBornes().forEach(b => {
+    const d = Math.hypot(b.x - x, b.y - y);
+    if (d < minDist) { minDist = d; meilleure = b; }
+  });
+  return meilleure;
+}
+
+function trouverFilProche(x, y) {
+  let meilleur = null, minDist = 15;
+  montage.fils.forEach(fil => {
+    const d = distancePointSegment(x, y, fil.x1, fil.y1, fil.x2, fil.y2);
+    if (d < minDist) { minDist = d; meilleur = fil; }
+  });
+  return meilleur;
+}
+
+function trouverComposantProche(x, y) {
+  for (let i = montage.composants.length - 1; i >= 0; i--) {
+    const c = montage.composants[i];
+    const t = TAILLE[c.type];
+    if (Math.abs(x - c.x) < t.w / 2 && Math.abs(y - c.y) < t.h / 2) return c;
+  }
+  return null;
+}
+
+function distancePointSegment(px, py, x1, y1, x2, y2) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len2 = dx * dx + dy * dy;
+  if (len2 === 0) return Math.hypot(px - x1, py - y1);
+  let t = ((px - x1) * dx + (py - y1) * dy) / len2;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+}
+
+// --------- PROGRESSION ---------
+function updateProgress() {
+  const nbComposants = montage.composants.length;
+  const nbFilsConnectes = montage.fils.filter(f => f.de && f.vers).length;
+
+  document.getElementById('countComposants').textContent = `${nbComposants}/4`;
+  document.getElementById('countFils').textContent = `${nbFilsConnectes}/6`;
+
+  document.getElementById('progComposants').classList.toggle('done', nbComposants === 4);
+  document.getElementById('progFils').classList.toggle('done', nbFilsConnectes >= 6);
+}
+
+function updateCanvasHint() {
+  const hint = document.getElementById('canvasHint');
+  if (montage.composants.length === 0) {
+    hint.textContent = '👈 Clique sur les composants dans la boîte à outils';
+  } else if (montage.fils.length === 0) {
+    hint.textContent = '🧵 Clique sur « Ajouter un fil » pour commencer le câblage';
+  } else if (montage.fils.filter(f => f.de && f.vers).length < 6) {
+    hint.textContent = '🔗 Glisse les poignées des fils vers les bornes (snap automatique)';
+  } else {
+    hint.textContent = '✅ Clique sur « Vérifier mon montage » en bas';
+  }
+}
+
+// --------- TOUT EFFACER ---------
+function effacerTout() {
+  if (!confirm('Effacer tout le montage ?')) return;
+  montage.composants = [];
+  montage.fils = [];
+  montage.filSelectionne = null;
+  drawMontage();
+  updateProgress();
+  updateCanvasHint();
+  document.getElementById('verifMessage').classList.remove('show');
+}
+
+// --------- VÉRIFIER LE MONTAGE ---------
+function verifierMontage() {
+  const msg = document.getElementById('verifMessage');
+  const checks = [];
+  let toutOK = true;
+
+  // 1. Vérifier les 4 composants
+  const typesAttendus = ['pile', 'resistance', 'condensateur', 'interrupteur'];
+  const typesPresents = montage.composants.map(c => c.type);
+  const composantsOK = typesAttendus.every(t => typesPresents.includes(t));
+
+  if (composantsOK) {
+    checks.push({ ok: true, txt: 'Les 4 composants sont présents (pile, R, C, K)' });
+  } else {
+    const manquants = typesAttendus.filter(t => !typesPresents.includes(t));
+    checks.push({ ok: false, txt: `Composants manquants : ${manquants.join(', ')}` });
+    toutOK = false;
+  }
+
+  // 2. Vérifier 6 fils connectés
+  const filsConnectes = montage.fils.filter(f => f.de && f.vers);
+  if (filsConnectes.length >= 6) {
+    checks.push({ ok: true, txt: `6 fils connectés (${filsConnectes.length}/6)` });
+  } else {
+    checks.push({ ok: false, txt: `Il manque ${6 - filsConnectes.length} fil(s) connecté(s) — actuellement ${filsConnectes.length}/6` });
+    toutOK = false;
+  }
+
+  // 3. Vérifier le chemin fermé : parcours Pile+ → R → C → K → Pile−
+  if (composantsOK && filsConnectes.length >= 6) {
+    const graphe = construireGraphe();
+    const pile = montage.composants.find(c => c.type === 'pile');
+    if (pile) {
+      const chemin = trouverChemin(graphe, pile.id + '-L', pile.id + '-R');
+      if (chemin) {
+        checks.push({ ok: true, txt: 'Circuit fermé : le courant peut circuler' });
+      } else {
+        checks.push({ ok: false, txt: 'Le circuit n\'est pas fermé : vérifie tes connexions' });
+        toutOK = false;
+      }
+    }
+  }
+
+  // Afficher le message
+  msg.classList.remove('success', 'error');
+  msg.classList.add('show', toutOK ? 'success' : 'error');
+
+  let html = toutOK
+    ? `<strong>🎉 Bravo, ton montage est validé !</strong><br>Tu peux passer à l'étape suivante.<ul>`
+    : `<strong>⚠️ Presque ! Voici ce qu'il faut vérifier :</strong><ul>`;
+
+  checks.forEach(c => {
+    html += `<li class="${c.ok ? 'ok' : 'ko'}">${c.txt}</li>`;
+  });
+  html += `</ul>`;
+
+  if (toutOK) {
+    html += `<div style="margin-top: 15px; text-align: center;">
+      <button class="btn btn-primary" onclick="debloquerEtape(3); allerEtape(3);">
+        ➡️ Passer à l'étape 3
+      </button>
+    </div>`;
+  }
+
+  msg.innerHTML = html;
+
+  if (toutOK) {
+    debloquerEtape(3);
+  }
+}
+
+// --------- GRAPHE POUR VÉRIFIER LE CHEMIN ---------
+function construireGraphe() {
+  const graphe = {};
+  montage.fils.forEach(f => {
+    if (!f.de || !f.vers) return;
+    if (!graphe[f.de]) graphe[f.de] = [];
+    if (!graphe[f.vers]) graphe[f.vers] = [];
+    graphe[f.de].push(f.vers);
+    graphe[f.vers].push(f.de);
+  });
+  montage.composants.forEach(c => {
+    const leftId = c.id + '-L', rightId = c.id + '-R';
+    if (!graphe[leftId]) graphe[leftId] = [];
+    if (!graphe[rightId]) graphe[rightId] = [];
+    // Tous les composants conduisent pour l'analyse (on cherche juste un chemin fermé)
+    graphe[leftId].push(rightId);
+    graphe[rightId].push(leftId);
+  });
+  return graphe;
+}
+
+function trouverChemin(graphe, departId, arriveeId) {
+  if (!graphe[departId]) return null;
+  const visited = new Set([departId]);
+  const queue = [[departId]];
+  while (queue.length > 0) {
+    const chemin = queue.shift();
+    const dernier = chemin[chemin.length - 1];
+    if (dernier === arriveeId && chemin.length > 2) return chemin;
+    const voisins = graphe[dernier] || [];
+    for (const v of voisins) {
+      if (!visited.has(v)) {
+        visited.add(v);
+        queue.push([...chemin, v]);
+      }
+    }
+  }
+  return null;
 }
 
 // ============================================================
 //  INITIALISATION
 // ============================================================
 window.addEventListener('load', () => {
+  // On démarre toujours sur l'étape 1 au chargement
   allerEtape(1);
-  console.log('✅ Simulateur RC — Étape 1 chargée');
+  drawMontage();
+  updateProgress();
+  updateCanvasHint();
+  console.log('✅ Simulateur RC — Étape 2 prête');
 });
+
+// Polyfill roundRect
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    this.beginPath();
+    this.moveTo(x + r, y);
+    this.arcTo(x + w, y, x + w, y + h, r);
+    this.arcTo(x + w, y + h, x, y + h, r);
+    this.arcTo(x, y + h, x, y, r);
+    this.arcTo(x, y, x + w, y, r);
+    this.closePath();
+    return this;
+  };
+}
 </script>
 
 </body>
