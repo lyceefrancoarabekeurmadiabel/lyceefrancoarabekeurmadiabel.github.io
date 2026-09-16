@@ -644,6 +644,10 @@
         <span>Diode</span>
       </button>
       <div class="panel-title" style="margin-top: 10px;">🎛 Actions</div>
+      <button class="tool-btn" id="btnAutoConnect" style="background: rgba(79, 195, 247, 0.15); border-color: rgba(79, 195, 247, 0.4); color: #4fc3f7;">
+  <span class="icon">⚡</span>
+  <span>Aide au câblage</span>
+</button>
       <button class="tool-btn danger" id="btnClearAll">
         <span class="icon">🗑</span>
         <span>Tout effacer</span>
@@ -813,7 +817,8 @@ const TAILLE = {
 };
 
 const COMPOSANTS_RESISTIFS = new Set(['resistance', 'lampe', 'moteur', 'buzzer']);
-const DIST_CONNEXION = 25;
+const DIST_CONNEXION = 40;   // Snap plus généreux
+const DIST_SNAP = 40;        // Aimantation
 
 let composantSurvole = null;
 
@@ -1398,11 +1403,20 @@ function drawBorne(b) {
   const estConnectee = atelier.fils.some(f => f.de === b.id || f.vers === b.id);
 
   if (estConnectee) {
+    // Halo vert fixe
     const grad = ctx.createRadialGradient(b.x, b.y, 2, b.x, b.y, 18);
     grad.addColorStop(0, 'rgba(76, 175, 80, 0.6)');
     grad.addColorStop(1, 'rgba(76, 175, 80, 0)');
     ctx.fillStyle = grad;
     ctx.beginPath(); ctx.arc(b.x, b.y, 18, 0, Math.PI * 2); ctx.fill();
+  } else {
+    // 🆕 Halo bleu pulsant pour signaler les bornes LIBRES
+    const pulse = (Math.sin(Date.now() / 500) + 1) / 2;
+    const grad = ctx.createRadialGradient(b.x, b.y, 2, b.x, b.y, 14 + pulse * 6);
+    grad.addColorStop(0, `rgba(79, 195, 247, ${0.3 + pulse * 0.3})`);
+    grad.addColorStop(1, 'rgba(79, 195, 247, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(b.x, b.y, 14 + pulse * 6, 0, Math.PI * 2); ctx.fill();
   }
 
   ctx.fillStyle = estConnectee ? '#4caf50' : '#fff';
@@ -1607,12 +1621,21 @@ function handlePointerMove(x, y) {
   if (atelier.poigneeEnDrag) {
     const fil = atelier.fils.find(f => f.id === atelier.poigneeEnDrag.filId);
     if (fil) {
+      // 🆕 SNAP : si on est proche d'une borne, on s'y accroche
+      const borneProche = trouverBorneProcheDe(x, y, DIST_SNAP);
+      let finalX = Math.max(10, Math.min(W - 10, x));
+      let finalY = Math.max(10, Math.min(H - 10, y));
+      if (borneProche) {
+        finalX = borneProche.x;
+        finalY = borneProche.y;
+      }
+
       if (atelier.poigneeEnDrag.cote === 'A') {
-        fil.x1 = Math.max(10, Math.min(W - 10, x));
-        fil.y1 = Math.max(10, Math.min(H - 10, y));
+        fil.x1 = finalX;
+        fil.y1 = finalY;
       } else {
-        fil.x2 = Math.max(10, Math.min(W - 10, x));
-        fil.y2 = Math.max(10, Math.min(H - 10, y));
+        fil.x2 = finalX;
+        fil.y2 = finalY;
       }
       updateConnexionsFils();
     }
@@ -1642,7 +1665,19 @@ function handlePointerUp() {
     analyserCircuit();
   }
 }
+// 🆕 Trouve la borne la plus proche d'un point (avec une distance max)
+function trouverBorneProcheDe(x, y, maxDist) {
+  let meilleure = null, minDist = maxDist;
+  atelier.composants.forEach(c => {
+    getBornes(c).forEach(b => {
+      const d = Math.hypot(b.x - x, b.y - y);
+      if (d < minDist) { minDist = d; meilleure = b; }
+    });
+  });
+  return meilleure;
+}
 
+function trouverFilProche(x, y) {
 function trouverFilProche(x, y) {
   let meilleur = null, minDist = 15;
   atelier.fils.forEach(fil => {
@@ -2484,6 +2519,52 @@ function valeurPositive(v, fallback = 1) {
 // ============================================================
 //  INITIALISATION
 // ============================================================
+// 🆕 Bouton "Aide au câblage" : connecte automatiquement les fils aux bornes les plus proches
+document.getElementById('btnAutoConnect').addEventListener('click', () => {
+  if (atelier.fils.length === 0) {
+    alert('Ajoute d\'abord des fils !');
+    return;
+  }
+
+  // Pour chaque extrémité de fil qui n'est pas connectée,
+  // on cherche la borne la plus proche et on y accroche le fil
+  let connexionsAjoutees = 0;
+
+  atelier.fils.forEach(fil => {
+    // Extrémité 1
+    if (!fil.de) {
+      const borne = trouverBorneProcheDe(fil.x1, fil.y1, 200);
+      if (borne) {
+        // Vérifier que ça ne crée pas de conflit (autre bout sur même composant)
+        const b2 = getBorneById(fil.vers);
+        if (!b2 || b2.composantId !== borne.composantId) {
+          fil.x1 = borne.x;
+          fil.y1 = borne.y;
+          connexionsAjoutees++;
+        }
+      }
+    }
+    // Extrémité 2
+    if (!fil.vers) {
+      const borne = trouverBorneProcheDe(fil.x2, fil.y2, 200);
+      if (borne) {
+        const b1 = getBorneById(fil.de);
+        if (!b1 || b1.composantId !== borne.composantId) {
+          fil.x2 = borne.x;
+          fil.y2 = borne.y;
+          connexionsAjoutees++;
+        }
+      }
+    }
+  });
+
+  updateConnexionsFils();
+  drawCircuit();
+  updateZoneInfo();
+  updateSelectors();
+  analyserCircuit();
+  updateStatus(`⚡ ${connexionsAjoutees} connexion(s) automatique(s) effectuée(s)`);
+});
 window.addEventListener('load', () => {
   drawCircuit();
   updateZoneInfo();
