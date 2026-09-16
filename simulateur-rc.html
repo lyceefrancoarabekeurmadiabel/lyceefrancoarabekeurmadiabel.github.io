@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Circuit RC — Charge & Décharge | LFAKM</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
+    --slate: #5B6472; --line: rgba(27,42,74,0.14);
+    --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --gov-purple: #6a4c93;
+    --success: #2e7d32; --warning: #f39c12; --danger: #d9534f; --info: #3498db;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: var(--sans);
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #eee;
+    padding: 6px;
+    font-size: 13px;
+  }
+  .app {
+    height: calc(100vh - 12px);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    max-width: 1600px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 8px;
+    overflow: hidden;
+  }
+  /* ---------- TOP BAR ---------- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .topbar-title { color: #4fc3f7; font-size: 1em; font-weight: bold; white-space: nowrap; }
+  .topbar-actions { display: flex; gap: 6px; }
+  .btn-mini {
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.72em;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    border: 1px solid rgba(255, 213, 79, 0.4);
+    background: rgba(168, 133, 63, 0.2);
+    color: #ffd54f;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-mini:hover { background: rgba(168, 133, 63, 0.35); }
+  .btn-mini.blue { background: rgba(79, 195, 247, 0.15); color: #4fc3f7; border-color: rgba(79, 195, 247, 0.4); }
+
+  /* ---------- LAYOUT PRINCIPAL ---------- */
+  .main-zone {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 260px 1fr 320px;
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  /* ---------- COLONNE GAUCHE : CONTRÔLES ---------- */
+  .control-panel {
+    background: rgba(0,0,0,0.4);
+    border-radius: 8px;
+    border: 2px solid rgba(79, 195, 247, 0.3);
+    padding: 10px;
+    overflow-y: auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .panel-title {
+    color: #4fc3f7;
+    font-size: 0.72em;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(79,195,247,0.3);
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+  }
+
+  /* Mode selector */
+  .mode-selector {
+    display: flex;
+    gap: 4px;
+    background: rgba(0,0,0,0.3);
+    padding: 4px;
+    border-radius: 8px;
+  }
+  .mode-btn {
+    flex: 1;
+    padding: 8px 6px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: #888;
+    font-size: 0.72em;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .mode-btn:hover { color: #4fc3f7; }
+  .mode-btn.active {
+    background: rgba(79, 195, 247, 0.2);
+    color: #4fc3f7;
+  }
+
+  /* Slider */
+  .slider-group {
+    background: rgba(79, 195, 247, 0.06);
+    border-left: 3px solid #4fc3f7;
+    border-radius: 6px;
+    padding: 8px 10px;
+  }
+  .slider-group label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75em;
+    color: #ccc;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .slider-group .value {
+    color: #4fc3f7;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    font-size: 1.05em;
+  }
+  .slider-group input[type="range"] {
+    width: 100%;
+    height: 20px;
+    accent-color: #4fc3f7;
+    cursor: pointer;
+  }
+  .slider-group .hint {
+    font-size: 0.65em;
+    color: #888;
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  /* Info τ */
+  .tau-display {
+    background: linear-gradient(135deg, #ffd54f 0%, #ff9800 100%);
+    color: #1a1a2e;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    font-weight: 700;
+  }
+  .tau-display .label {
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.7;
+  }
+  .tau-display .value {
+    font-size: 1.6em;
+    font-family: 'Courier New', monospace;
+    font-weight: 900;
+    margin: 3px 0;
+    line-height: 1;
+  }
+  .tau-display .sub {
+    font-size: 0.7em;
+    opacity: 0.8;
+  }
+
+  /* Boutons d'action */
+  .actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+  }
+  .btn-action {
+    padding: 9px 8px;
+    border-radius: 6px;
+    border: none;
+    font-family: inherit;
+    font-size: 0.75em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+  .btn-action:hover { transform: translateY(-1px); }
+  .btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-play {
+    background: linear-gradient(135deg, #4caf50, #66bb6a);
+    color: #fff;
+    grid-column: span 2;
+  }
+  .btn-pause {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: #fff;
+    grid-column: span 2;
+  }
+  .btn-reset {
+    background: rgba(255,255,255,0.1);
+    color: #eee;
+    border: 1px solid rgba(255,255,255,0.2);
+    grid-column: span 2;
+  }
+  .btn-secondary {
+    background: rgba(255,255,255,0.08);
+    color: #ccc;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.15); }
+
+  /* ---------- COLONNE CENTRALE : OSCILLOSCOPE ---------- */
+  .oscilloscope-zone {
+    background: #000;
+    border-radius: 8px;
+    border: 2px solid #4caf50;
+    padding: 4px;
+    position: relative;
+    overflow: hidden;
+    min-height: 0;
+    box-shadow: inset 0 0 30px rgba(76, 175, 80, 0.15);
+    display: flex;
+    flex-direction: column;
+  }
+  .oscilloscope-zone canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    flex: 1;
+    min-height: 0;
+  }
+  .osc-label {
+    position: absolute;
+    top: 6px;
+    left: 10px;
+    color: #4caf50;
+    font-size: 0.6em;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: bold;
+    background: rgba(0,0,0,0.7);
+    padding: 3px 8px;
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .osc-time {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    color: #ffeb3b;
+    font-size: 0.7em;
+    font-weight: 700;
+    background: rgba(0,0,0,0.85);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    pointer-events: none;
+    z-index: 2;
+    border: 1px solid rgba(255, 235, 59, 0.4);
+  }
+  .osc-measures {
+    position: absolute;
+    bottom: 6px;
+    left: 10px;
+    right: 10px;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .osc-measure {
+    background: rgba(0,0,0,0.85);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.68em;
+    font-family: 'Courier New', monospace;
+    border: 1px solid rgba(79, 195, 247, 0.4);
+    color: #4fc3f7;
+    font-weight: 700;
+  }
+  .osc-measure strong { color: #ffd54f; }
+
+  /* ---------- COLONNE DROITE : SCHÉMA + MESURES ---------- */
+  .side-zone {
+    background: rgba(0,0,0,0.35);
+    border-radius: 8px;
+    border: 1px solid rgba(79,195,247,0.3);
+    padding: 10px;
+    overflow-y: auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Schéma du circuit RC */
+  .schema-box {
+    background: #000;
+    border-radius: 8px;
+    border: 2px solid #4fc3f7;
+    padding: 8px;
+  }
+  .schema-box svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    max-height: 180px;
+  }
+
+  /* Mesures */
+  .measures-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .measure-box {
+    background: #000;
+    border: 2px solid #4caf50;
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+    box-shadow: inset 0 0 8px rgba(76, 175, 80, 0.3);
+  }
+  .measure-box.voltm {
+    border-color: #ff9800;
+    box-shadow: inset 0 0 8px rgba(255, 152, 0, 0.3);
+  }
+  .measure-box.ampm {
+    border-color: #2196f3;
+    box-shadow: inset 0 0 8px rgba(33, 150, 243, 0.3);
+  }
+  .measure-box .mb-title {
+    font-size: 0.6em;
+    color: #4caf50;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .measure-box.voltm .mb-title { color: #ff9800; }
+  .measure-box.ampm .mb-title { color: #2196f3; }
+  .measure-box .mb-value {
+    font-family: 'Courier New', monospace;
+    font-size: 1.3em;
+    font-weight: 900;
+    color: #00ff00;
+    text-shadow: 0 0 8px #00ff00;
+    letter-spacing: 1px;
+    margin: 3px 0;
+    line-height: 1;
+  }
+  .measure-box.voltm .mb-value {
+    color: #ffb74d;
+    text-shadow: 0 0 8px #ff9800;
+  }
+  .measure-box.ampm .mb-value {
+    color: #64b5f6;
+    text-shadow: 0 0 8px #2196f3;
+  }
+  .measure-box .mb-unit {
+    font-size: 0.6em;
+    color: #888;
+  }
+
+  /* Tableau des valeurs */
+  .table-wrapper {
+    max-height: 200px;
+    overflow-y: auto;
+    border-radius: 6px;
+    border: 1px solid rgba(79, 195, 247, 0.3);
+    background: rgba(0,0,0,0.3);
+  }
+  .measures-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.7em;
+  }
+  .measures-table thead {
+    position: sticky;
+    top: 0;
+    background: #1a1a2e;
+    z-index: 2;
+  }
+  .measures-table th {
+    padding: 5px 6px;
+    text-align: left;
+    color: #4fc3f7;
+    font-weight: 700;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(79, 195, 247, 0.3);
+  }
+  .measures-table td {
+    padding: 4px 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-family: 'Courier New', monospace;
+  }
+  .measures-table tr:last-child td { border-bottom: none; }
+  .measures-table .empty-msg {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 12px;
+  }
+
+  /* Info box */
+  .info-box {
+    background: rgba(79, 195, 247, 0.08);
+    border-left: 4px solid #4fc3f7;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 0.72em;
+    line-height: 1.5;
+    color: #ccc;
+  }
+  .info-box strong { color: #4fc3f7; }
+  .info-box code {
+    font-family: 'Courier New', monospace;
+    color: #ffd54f;
+    background: rgba(0,0,0,0.3);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  @media (max-width: 1200px) {
+    .main-zone { grid-template-columns: 220px 1fr 280px; }
+  }
+  @media (max-width: 1000px) {
+    html, body { overflow: auto; height: auto; }
+    .app { height: auto; }
+    .main-zone { grid-template-columns: 1fr; }
+    .control-panel, .side-zone { max-height: none; }
+    .oscilloscope-zone { min-height: 400px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ TOP BAR ============ -->
+  <div class="topbar">
+    <div class="topbar-title">🔋 Circuit RC — Charge & Décharge</div>
+    <div class="topbar-actions">
+      <a href="labo-pc.html" class="btn-mini">← Labo PC</a>
+      <a href="simulateur-rc-mobile.html" class="btn-mini blue">📱 Mobile</a>
+    </div>
+  </div>
+
+  <!-- ============ MAIN ZONE ============ -->
+  <div class="main-zone">
+
+    <!-- ============ COLONNE GAUCHE : CONTRÔLES ============ -->
+    <div class="control-panel">
+      <div class="panel-title">🎓 Mode d'expérience</div>
+      <div class="mode-selector">
+        <button class="mode-btn active" data-mode="charge">🔋 Charge</button>
+        <button class="mode-btn" data-mode="decharge">⚡ Décharge</button>
+        <button class="mode-btn" data-mode="libre">🎨 Libre</button>
+      </div>
+
+      <div class="panel-title" style="margin-top: 6px;">⚙️ Paramètres</div>
+
+      <div class="slider-group">
+        <label>
+          Résistance R
+          <span class="value" id="rValue">1.0 kΩ</span>
+        </label>
+        <input type="range" id="rSlider" min="100" max="10000" value="1000" step="100">
+        <div class="hint">100 Ω → 10 kΩ</div>
+      </div>
+
+      <div class="slider-group">
+        <label>
+          Condensateur C
+          <span class="value" id="cValue">100 µF</span>
+        </label>
+        <input type="range" id="cSlider" min="10" max="1000" value="100" step="10">
+        <div class="hint">10 µF → 1000 µF</div>
+      </div>
+
+      <div class="slider-group">
+        <label>
+          Tension E
+          <span class="value" id="eValue">9.0 V</span>
+        </label>
+        <input type="range" id="eSlider" min="1" max="24" value="9" step="0.5">
+        <div class="hint">1 V → 24 V</div>
+      </div>
+
+      <div class="tau-display">
+        <div class="label">Constante de temps τ</div>
+        <div class="value" id="tauValue">0.10 s</div>
+        <div class="sub">τ = RC</div>
+      </div>
+
+      <div class="panel-title" style="margin-top: 6px;">🎛 Actions</div>
+      <div class="actions-grid">
+        <button class="btn-action btn-play" id="btnPlay">▶ Démarrer la simulation</button>
+        <button class="btn-action btn-reset" id="btnReset">🔄 Réinitialiser</button>
+        <button class="btn-action btn-secondary" id="btnStep">⏭ Avancer τ</button>
+        <button class="btn-action btn-secondary" id="btnExport">📥 CSV</button>
+      </div>
+
+      <div class="info-box" id="modeInfo">
+        <strong>🔋 Mode Charge :</strong> Le condensateur se charge progressivement.<br>
+        <code>U_C(t) = E·(1 − e^(−t/τ))</code>
+      </div>
+    </div>
+
+    <!-- ============ COLONNE CENTRALE : OSCILLOSCOPE ============ -->
+    <div class="oscilloscope-zone">
+      <div class="osc-label">📈 OSCILLOSCOPE — U_C(t)</div>
+      <div class="osc-time" id="oscTime">t = 0.00 s</div>
+      <canvas id="oscilloscope" width="1200" height="700"></canvas>
+      <div class="osc-measures">
+        <div class="osc-measure">U_C = <strong id="oscUC">0.00 V</strong></div>
+        <div class="osc-measure">I = <strong id="oscI">0.000 mA</strong></div>
+        <div class="osc-measure">τ = <strong id="oscTau">0.10 s</strong></div>
+      </div>
+    </div>
+
+    <!-- ============ COLONNE DROITE : SCHÉMA + MESURES ============ -->
+    <div class="side-zone">
+
+      <div class="panel-title">🔬 Schéma du circuit</div>
+      <div class="schema-box">
+        <svg viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg">
+          <!-- Fils du circuit -->
+          <line x1="50" y1="30" x2="250" y2="30" stroke="#4fc3f7" stroke-width="3"/>
+          <line x1="50" y1="130" x2="250" y2="130" stroke="#4fc3f7" stroke-width="3"/>
+          <line x1="50" y1="30" x2="50" y2="60" stroke="#4fc3f7" stroke-width="3"/>
+          <line x1="50" y1="100" x2="50" y2="130" stroke="#4fc3f7" stroke-width="3"/>
+          <line x1="250" y1="30" x2="250" y2="70" stroke="#4fc3f7" stroke-width="3"/>
+          <line x1="250" y1="90" x2="250" y2="130" stroke="#4fc3f7" stroke-width="3"/>
+
+          <!-- Pile (à gauche) -->
+          <rect x="38" y="60" width="24" height="40" fill="#1a1a2e" stroke="#4caf50" stroke-width="2" rx="3"/>
+          <text x="50" y="75" text-anchor="middle" font-size="11" fill="#4caf50" font-weight="bold">+</text>
+          <text x="50" y="90" text-anchor="middle" font-size="11" fill="#f44336" font-weight="bold">−</text>
+          <text x="50" y="115" text-anchor="middle" font-size="9" fill="#4fc3f7">E = <tspan id="svgE">9.0</tspan> V</text>
+
+          <!-- Résistance (en haut) -->
+          <rect x="120" y="20" width="60" height="20" fill="#1a1a2e" stroke="#ffd54f" stroke-width="2" rx="3"/>
+          <path d="M 128 30 L 136 24 L 144 36 L 152 24 L 160 36 L 168 24 L 172 30" stroke="#ffd54f" stroke-width="1.5" fill="none"/>
+          <text x="150" y="15" text-anchor="middle" font-size="9" fill="#ffd54f">R = <tspan id="svgR">1.0</tspan> kΩ</text>
+
+          <!-- Condensateur (à droite) -->
+          <line x1="230" y1="70" x2="270" y2="70" stroke="#4fc3f7" stroke-width="3"/>
+          <line x1="230" y1="90" x2="270" y2="90" stroke="#4fc3f7" stroke-width="3"/>
+          <text x="250" y="62" text-anchor="middle" font-size="9" fill="#4fc3f7">C = <tspan id="svgC">100</tspan> µF</text>
+
+          <!-- Ampèremètre -->
+          <circle cx="150" cy="130" r="12" fill="#1a1a2e" stroke="#2196f3" stroke-width="2"/>
+          <text x="150" y="135" text-anchor="middle" font-size="11" fill="#2196f3" font-weight="bold">A</text>
+
+          <!-- Voltmetre -->
+          <circle cx="290" cy="80" r="10" fill="#1a1a2e" stroke="#ff9800" stroke-width="2"/>
+          <text x="290" y="84" text-anchor="middle" font-size="9" fill="#ff9800" font-weight="bold">V</text>
+        </svg>
+      </div>
+
+      <div class="panel-title">📊 Mesures en direct</div>
+      <div class="measures-grid">
+        <div class="measure-box voltm">
+          <div class="mb-title">Ⓥ U_C</div>
+          <div class="mb-value" id="liveUC">0.00</div>
+          <div class="mb-unit">Volts</div>
+        </div>
+        <div class="measure-box ampm">
+          <div class="mb-title">Ⓐ I</div>
+          <div class="mb-value" id="liveI">0.000</div>
+          <div class="mb-unit">mA</div>
+        </div>
+      </div>
+
+      <div class="panel-title">📋 Tableau des valeurs</div>
+      <div class="table-wrapper">
+        <table class="measures-table">
+          <thead>
+            <tr>
+              <th>t / τ</th>
+              <th>t (s)</th>
+              <th>U_C (V)</th>
+              <th>I (mA)</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr><td colspan="4" class="empty-msg">Appuie sur ▶ pour démarrer</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-box">
+        <strong>📚 À retenir :</strong><br>
+        • À t = τ : U_C ≈ 63 % de E<br>
+        • À t = 3τ : U_C ≈ 95 % de E<br>
+        • À t = 5τ : U_C ≈ 99 % de E<br>
+        • Plus R ou C est grand, plus τ est long
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+//  ÉTAT GLOBAL
+// ============================================================
+const etat = {
+  mode: 'charge',           // 'charge' | 'decharge' | 'libre'
+  R: 1000,                  // Ohms
+  C: 100e-6,                // Farads (100 µF)
+  E: 9,                     // Volts
+  t: 0,                     // temps courant (s)
+  U_C: 0,                   // tension condensateur (V)
+  I: 0,                     // courant (A)
+  running: false,
+  lastTimestamp: 0,
+  rafId: null,
+  echantillons: [],         // [{t, U, I}]
+  vitesseSimulation: 1,     // facteur temps (1 = temps réel)
+  dernierEchantillon: -1
+};
+
+// ============================================================
+//  RACCOURCIS DOM
+// ============================================================
+const canvas = document.getElementById('oscilloscope');
+const ctx = canvas.getContext('2d');
+const W = canvas.width;
+const H = canvas.height;
+
+// ============================================================
+//  CALCULS PHYSIQUES
+// ============================================================
+function tau() {
+  return etat.R * etat.C;
+}
+
+function calculerUC_charge(t) {
+  const T = tau();
+  return etat.E * (1 - Math.exp(-t / T));
+}
+
+function calculerUC_decharge(t, U0) {
+  const T = tau();
+  return U0 * Math.exp(-t / T);
+}
+
+function calculerI(UC) {
+  // I = (E - U_C) / R en charge, I = -U_C / R en décharge
+  if (etat.mode === 'charge' || (etat.mode === 'libre' && etat.U_C < etat.E)) {
+    return (etat.E - UC) / etat.R;
+  } else {
+    return -UC / etat.R;
+  }
+}
+
+// ============================================================
+//  DESSIN DE L'OSCILLOSCOPE
+// ============================================================
+function drawOscilloscope() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Fond
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, W, H);
+
+  const margeGauche = 90;
+  const margeDroite = 40;
+  const margeHaut = 60;
+  const margeBas = 70;
+  const largeur = W - margeGauche - margeDroite;
+  const hauteur = H - margeHaut - margeBas;
+
+  const T = tau();
+  // Fenêtre de temps : 5τ par défaut, adaptatif
+  const tMax = Math.max(T * 5, 0.1);
+  const Umax = etat.E * 1.1;
+
+  // ---------- GRILLE ----------
+  ctx.strokeStyle = 'rgba(76, 175, 80, 0.15)';
+  ctx.lineWidth = 1;
+
+  // Lignes horizontales (division U)
+  const nbDivH = 10;
+  for (let i = 0; i <= nbDivH; i++) {
+    const y = margeHaut + (hauteur * i / nbDivH);
+    ctx.beginPath();
+    ctx.moveTo(margeGauche, y);
+    ctx.lineTo(margeGauche + largeur, y);
+    ctx.stroke();
+  }
+  // Lignes verticales (division t)
+  const nbDivV = 10;
+  for (let i = 0; i <= nbDivV; i++) {
+    const x = margeGauche + (largeur * i / nbDivV);
+    ctx.beginPath();
+    ctx.moveTo(x, margeHaut);
+    ctx.lineTo(x, margeHaut + hauteur);
+    ctx.stroke();
+  }
+
+  // ---------- AXES ----------
+  ctx.strokeStyle = 'rgba(76, 175, 80, 0.6)';
+  ctx.lineWidth = 1.5;
+
+  // Axe X
+  ctx.beginPath();
+  ctx.moveTo(margeGauche, margeHaut + hauteur);
+  ctx.lineTo(margeGauche + largeur, margeHaut + hauteur);
+  ctx.stroke();
+
+  // Axe Y
+  ctx.beginPath();
+  ctx.moveTo(margeGauche, margeHaut);
+  ctx.lineTo(margeGauche, margeHaut + hauteur);
+  ctx.stroke();
+
+  // ---------- GRADUATIONS U ----------
+  ctx.fillStyle = '#4caf50';
+  ctx.font = 'bold 12px "Courier New", monospace';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  for (let i = 0; i <= 5; i++) {
+    const u = (Umax * i / 5);
+    const y = margeHaut + hauteur - (hauteur * i / 5);
+    ctx.fillText(u.toFixed(1) + ' V', margeGauche - 8, y);
+  }
+
+  // ---------- GRADUATIONS t ----------
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  for (let i = 0; i <= 5; i++) {
+    const t = (tMax * i / 5);
+    const x = margeGauche + (largeur * i / 5);
+    ctx.fillText(t.toFixed(2) + ' s', x, margeHaut + hauteur + 8);
+  }
+
+  // ---------- MARQUEURS τ, 2τ, 3τ... ----------
+  ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = 'rgba(255, 213, 79, 0.4)';
+  ctx.lineWidth = 1;
+  for (let k = 1; k <= 5; k++) {
+    const tK = k * T;
+    if (tK > tMax) break;
+    const xK = margeGauche + (largeur * tK / tMax);
+    ctx.beginPath();
+    ctx.moveTo(xK, margeHaut);
+    ctx.lineTo(xK, margeHaut + hauteur);
+    ctx.stroke();
+
+    // Label
+    ctx.fillStyle = 'rgba(255, 213, 79, 0.6)';
+    ctx.font = 'bold 10px "Courier New", monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText(k + 'τ', xK, margeHaut + 5);
+  }
+  ctx.setLineDash([]);
+
+  // ---------- MARQUEURS 63% / 99% ----------
+  if (etat.mode === 'charge') {
+    // 63% de E (à t = τ)
+    ctx.setLineDash([3, 3]);
+    ctx.strokeStyle = 'rgba(76, 175, 80, 0.5)';
+    const y63 = margeHaut + hauteur - (hauteur * 0.63 * etat.E / Umax);
+    ctx.beginPath();
+    ctx.moveTo(margeGauche, y63);
+    ctx.lineTo(margeGauche + largeur, y63);
+    ctx.stroke();
+
+    const y95 = margeHaut + hauteur - (hauteur * 0.95 * etat.E / Umax);
+    ctx.beginPath();
+    ctx.moveTo(margeGauche, y95);
+    ctx.lineTo(margeGauche + largeur, y95);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = 'rgba(76, 175, 80, 0.7)';
+    ctx.font = 'bold 10px "Courier New", monospace';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('63 %', margeGauche + 8, y63 - 8);
+    ctx.fillText('95 %', margeGauche + 8, y95 - 8);
+  }
+
+  // ---------- COURBE U_C(t) ----------
+  ctx.strokeStyle = '#ffeb3b';
+  ctx.lineWidth = 3;
+  ctx.shadowColor = '#ffeb3b';
+  ctx.shadowBlur = 12;
+  ctx.beginPath();
+
+  let premierPoint = true;
+  const nbPoints = 500;
+
+  for (let i = 0; i <= nbPoints; i++) {
+    const t = (tMax * i / nbPoints);
+
+    // Calculer U_C(t) théorique
+    let UC;
+    if (etat.mode === 'charge') {
+      UC = calculerUC_charge(t);
+    } else if (etat.mode === 'decharge') {
+      UC = etat.E * Math.exp(-t / T);
+    } else {
+      // Mode libre : charge puis décharge (période 5τ)
+      const periode = T * 5;
+      const tc = t % (periode * 2);
+      if (tc < periode) {
+        UC = etat.E * (1 - Math.exp(-tc / T));
+      } else {
+        const td = tc - periode;
+        UC = etat.E * Math.exp(-td / T);
+      }
+    }
+
+    const x = margeGauche + (largeur * t / tMax);
+    const y = margeHaut + hauteur - (hauteur * UC / Umax);
+
+    if (premierPoint) {
+      ctx.moveTo(x, y);
+      premierPoint = false;
+    } else {
+      ctx.lineTo(x, y);
+    }
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // ---------- POINT ANIMÉ (position actuelle) ----------
+  if (etat.t > 0 || etat.running) {
+    const tActuel = Math.min(etat.t, tMax);
+    const xActuel = margeGauche + (largeur * tActuel / tMax);
+    const yActuel = margeHaut + hauteur - (hauteur * etat.U_C / Umax);
+
+    // Halo
+    const grad = ctx.createRadialGradient(xActuel, yActuel, 2, xActuel, yActuel, 25);
+    grad.addColorStop(0, 'rgba(255, 235, 59, 0.9)');
+    grad.addColorStop(1, 'rgba(255, 235, 59, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(xActuel, yActuel, 25, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Point
+    ctx.fillStyle = '#ffeb3b';
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(xActuel, yActuel, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Ligne verticale vers l'axe X
+    ctx.strokeStyle = 'rgba(255, 235, 59, 0.4)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(xActuel, yActuel);
+    ctx.lineTo(xActuel, margeHaut + hauteur);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // ---------- LÉGENDE ----------
+  ctx.fillStyle = '#ffeb3b';
+  ctx.font = 'bold 13px "Courier New", monospace';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'top';
+  ctx.fillText('U_C(t)  [V]', W - 15, 15);
+
+  // Bandeau mode
+  ctx.fillStyle = 'rgba(0,0,0,0.7)';
+  ctx.fillRect(W - 200, 40, 185, 30);
+  ctx.strokeStyle = 'rgba(79, 195, 247, 0.5)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(W - 200, 40, 185, 30);
+  ctx.fillStyle = '#4fc3f7';
+  ctx.font = 'bold 12px "Courier New", monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const modeLabels = {
+    charge: '🔋 CHARGE',
+    decharge: '⚡ DÉCHARGE',
+    libre: '🎨 LIBRE'
+  };
+  ctx.fillText(modeLabels[etat.mode], W - 107, 55);
+}
+
+// ============================================================
+//  ANIMATION
+// ============================================================
+function animate(timestamp) {
+  if (!etat.running) return;
+
+  if (!etat.lastTimestamp) etat.lastTimestamp = timestamp;
+  const dt = (timestamp - etat.lastTimestamp) / 1000;
+  etat.lastTimestamp = timestamp;
+
+  // Avancer le temps (avec vitesse contrôlée)
+  const dtSim = Math.min(dt, 0.05) * etat.vitesseSimulation;
+
+  // Calculer nouvelle valeur
+  const T = tau();
+  if (etat.mode === 'charge') {
+    etat.U_C = etat.E * (1 - Math.exp(-(etat.t + dtSim) / T));
+  } else if (etat.mode === 'decharge') {
+    etat.U_C = etat.E * Math.exp(-(etat.t + dtSim) / T);
+  } else {
+    const periode = T * 5;
+    const tc = (etat.t + dtSim) % (periode * 2);
+    if (tc < periode) {
+      etat.U_C = etat.E * (1 - Math.exp(-tc / T));
+    } else {
+      const td = tc - periode;
+      etat.U_C = etat.E * Math.exp(-td / T);
+    }
+  }
+  etat.t += dtSim;
+  etat.I = calculerI(etat.U_C);
+
+  // Échantillonnage (tous les 0.02s réels)
+  if (etat.t - etat.dernierEchantillon > 0.02 || etat.dernierEchantillon < 0) {
+    etat.echantillons.push({ t: etat.t, U: etat.U_C, I: etat.I });
+    etat.dernierEchantillon = etat.t;
+  }
+
+  // Arrêter si dépassement
+  const tMax = T * 6;
+  if (etat.t >= tMax) {
+    etat.running = false;
+    etat.t = tMax;
+    // Valeur finale
+    if (etat.mode === 'charge') etat.U_C = etat.E;
+    else if (etat.mode === 'decharge') etat.U_C = 0;
+    etat.I = calculerI(etat.U_C);
+    updateUI();
+    return;
+  }
+
+  drawOscilloscope();
+  updateUI();
+
+  etat.rafId = requestAnimationFrame(animate);
+}
+
+// ============================================================
+//  MISE À JOUR UI
+// ============================================================
+function updateUI() {
+  const T = tau();
+
+  // Affichage τ
+  document.getElementById('tauValue').textContent = formatTemps(T);
+  document.getElementById('oscTau').textContent = formatTemps(T);
+
+  // Temps
+  document.getElementById('oscTime').textContent = 't = ' + etat.t.toFixed(3) + ' s';
+
+  // Mesures oscilloscope
+  document.getElementById('oscUC').textContent = etat.U_C.toFixed(2) + ' V';
+  document.getElementById('oscI').textContent = (etat.I * 1000).toFixed(3) + ' mA';
+
+  // Mesures boîtes
+  document.getElementById('liveUC').textContent = etat.U_C.toFixed(2);
+  document.getElementById('liveI').textContent = (etat.I * 1000).toFixed(3);
+
+  // Schéma
+  document.getElementById('svgE').textContent = etat.E.toFixed(1);
+  document.getElementById('svgR').textContent = (etat.R / 1000).toFixed(1);
+  document.getElementById('svgC').textContent = (etat.C * 1e6).toFixed(0);
+
+  // Tableau
+  updateTableau();
+}
+
+function updateTableau() {
+  const tbody = document.getElementById('tableBody');
+  const T = tau();
+
+  // Afficher les échantillons tous les τ/2 maximum
+  const aAfficher = etat.echantillons.filter((e, i) => {
+    if (i === 0) return true;
+    if (i === etat.echantillons.length - 1) return true;
+    // Garder tous les τ/2
+    const tPrec = etat.echantillons[i - 1].t;
+    return (Math.floor(e.t / (T / 4)) > Math.floor(tPrec / (T / 4)));
+  });
+
+  // Limiter à 15 dernières valeurs
+  const recent = aAfficher.slice(-15);
+
+  if (recent.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">Appuie sur ▶ pour démarrer</td></tr>';
+    return;
+  }
+
+  let html = '';
+  recent.forEach(e => {
+    html += `<tr>
+      <td>${(e.t / T).toFixed(2)}</td>
+      <td>${e.t.toFixed(3)}</td>
+      <td>${e.U.toFixed(2)}</td>
+      <td>${(e.I * 1000).toFixed(3)}</td>
+    </tr>`;
+  });
+  tbody.innerHTML = html;
+
+  // Scroll auto vers le bas
+  const wrapper = tbody.closest('.table-wrapper');
+  if (wrapper) wrapper.scrollTop = wrapper.scrollHeight;
+}
+
+function formatTemps(t) {
+  if (t < 0.001) return (t * 1e6).toFixed(1) + ' µs';
+  if (t < 1) return (t * 1000).toFixed(1) + ' ms';
+  if (t < 60) return t.toFixed(3) + ' s';
+  return (t / 60).toFixed(2) + ' min';
+}
+
+// ============================================================
+//  CONTRÔLES
+// ============================================================
+// Mode
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    etat.mode = btn.dataset.mode;
+
+    // Mettre à jour l'info
+    const infos = {
+      charge: '<strong>🔋 Mode Charge :</strong> Le condensateur se charge progressivement.<br><code>U_C(t) = E·(1 − e^(−t/τ))</code>',
+      decharge: '<strong>⚡ Mode Décharge :</strong> Le condensateur se décharge.<br><code>U_C(t) = E·e^(−t/τ)</code>',
+      libre: '<strong>🎨 Mode Libre :</strong> Cycle charge / décharge automatique.<br>Le condensateur oscille entre 0 et E.'
+    };
+    document.getElementById('modeInfo').innerHTML = infos[etat.mode];
+
+    resetSimulation();
+  });
+});
+
+// Sliders
+document.getElementById('rSlider').addEventListener('input', e => {
+  etat.R = parseFloat(e.target.value);
+  document.getElementById('rValue').textContent = (etat.R / 1000).toFixed(1) + ' kΩ';
+  updateUI();
+  drawOscilloscope();
+});
+
+document.getElementById('cSlider').addEventListener('input', e => {
+  etat.C = parseFloat(e.target.value) * 1e-6;
+  document.getElementById('cValue').textContent = (etat.C * 1e6).toFixed(0) + ' µF';
+  updateUI();
+  drawOscilloscope();
+});
+
+document.getElementById('eSlider').addEventListener('input', e => {
+  etat.E = parseFloat(e.target.value);
+  document.getElementById('eValue').textContent = etat.E.toFixed(1) + ' V';
+  updateUI();
+  drawOscilloscope();
+});
+
+// Boutons
+document.getElementById('btnPlay').addEventListener('click', () => {
+  if (etat.running) {
+    // Pause
+    etat.running = false;
+    if (etat.rafId) cancelAnimationFrame(etat.rafId);
+    document.getElementById('btnPlay').textContent = '▶ Reprendre';
+    document.getElementById('btnPlay').className = 'btn-action btn-play';
+  } else {
+    // Démarrer
+    etat.running = true;
+    etat.lastTimestamp = 0;
+    document.getElementById('btnPlay').textContent = '⏸ Pause';
+    document.getElementById('btnPlay').className = 'btn-action btn-pause';
+    etat.rafId = requestAnimationFrame(animate);
+  }
+});
+
+document.getElementById('btnReset').addEventListener('click', resetSimulation);
+
+document.getElementById('btnStep').addEventListener('click', () => {
+  const T = tau();
+  // Avancer de τ en une fois
+  etat.t += T;
+
+  if (etat.mode === 'charge') {
+    etat.U_C = etat.E * (1 - Math.exp(-etat.t / T));
+  } else if (etat.mode === 'decharge') {
+    etat.U_C = etat.E * Math.exp(-etat.t / T);
+  } else {
+    const periode = T * 5;
+    const tc = etat.t % (periode * 2);
+    if (tc < periode) etat.U_C = etat.E * (1 - Math.exp(-tc / T));
+    else etat.U_C = etat.E * Math.exp(-(tc - periode) / T);
+  }
+  etat.I = calculerI(etat.U_C);
+  etat.echantillons.push({ t: etat.t, U: etat.U_C, I: etat.I });
+  updateUI();
+  drawOscilloscope();
+});
+
+document.getElementById('btnExport').addEventListener('click', () => {
+  if (etat.echantillons.length === 0) {
+    alert('Aucune donnée à exporter. Démarre d\'abord la simulation.');
+    return;
+  }
+  let csv = 't(s);tau;U_C(V);I(mA)\n';
+  const T = tau();
+  etat.echantillons.forEach(e => {
+    csv += `${e.t.toFixed(4)};${(e.t / T).toFixed(3)};${e.U.toFixed(4)};${(e.I * 1000).toFixed(4)}\n`;
+  });
+  const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `RC_${etat.mode}_R${etat.R}_C${etat.C * 1e6}_${new Date().toISOString().slice(0, 10)}.csv`;
+  link.click();
+});
+
+// ============================================================
+//  RÉINITIALISATION
+// ============================================================
+function resetSimulation() {
+  if (etat.rafId) cancelAnimationFrame(etat.rafId);
+  etat.running = false;
+  etat.lastTimestamp = 0;
+  etat.t = 0;
+  etat.U_C = (etat.mode === 'decharge') ? etat.E : 0;
+  etat.I = calculerI(etat.U_C);
+  etat.echantillons = [];
+  etat.dernierEchantillon = -1;
+
+  document.getElementById('btnPlay').textContent = '▶ Démarrer la simulation';
+  document.getElementById('btnPlay').className = 'btn-action btn-play';
+
+  updateUI();
+  drawOscilloscope();
+}
+
+// ============================================================
+//  INITIALISATION
+// ============================================================
+window.addEventListener('load', () => {
+  resetSimulation();
+  drawOscilloscope();
+  console.log('🔋 Simulateur RC chargé !');
+});
+</script>
+
+</body>
+</html>
