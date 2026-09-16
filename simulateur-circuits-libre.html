@@ -626,8 +626,9 @@
         <span class="icon">🗑</span>
         <span>Tout effacer</span>
       </button>
-      <div class="symbol-legend">
-        <strong>🆕 Nœuds :</strong> relient <b>3 fils ou +</b> au même point (dérivations).<br><br>
+            <div class="symbol-legend">
+        <strong>🆕 Nœuds :</strong> relient <b>3 fils ou +</b> au même point.<br><br>
+        <strong>✎ Modifier un composant :</strong> <b>double-clic</b> dessus pour changer sa valeur.<br><br>
         <strong>Détection auto</strong> du type de circuit.
       </div>
       <div class="tool-hint">
@@ -715,6 +716,37 @@
 
 </div>
 
+<!-- 🆕 Panneau d'édition de composant -->
+<div class="modal-overlay" id="modalEditComposant">
+  <div class="modal-box" style="max-width: 420px;">
+    <h3 id="editTitle">Modifier le composant</h3>
+    <div class="formule-bloc" style="border-left-color: #4fc3f7;">
+      <p style="margin-bottom: 12px; font-size: 0.9em; color: #ccc;">
+        <span id="editDescription">Choisissez une nouvelle valeur :</span>
+      </p>
+      <div class="field" style="margin-bottom: 10px;">
+        <label id="editLabel" style="display: block; font-size: 12px; font-weight: 700; color: var(--ink, #4fc3f7); margin-bottom: 5px;">
+          Valeur
+        </label>
+        <input type="number" id="editValue" step="any"
+               style="width: 100%; padding: 12px 14px; border: 2px solid rgba(79, 195, 247, 0.4);
+                      border-radius: 8px; background: #0a0a1a; color: #fff;
+                      font-family: 'Courier New', monospace; font-size: 16px; font-weight: 700; text-align: center;">
+        <div id="editHelper" style="font-size: 11px; color: #888; margin-top: 5px; text-align: center;">
+          Plage : 1 à 10 000 Ω
+        </div>
+      </div>
+      <!-- Raccourcis rapides -->
+      <div id="editRaccourcis" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px;">
+        <!-- Remplis dynamiquement -->
+      </div>
+    </div>
+    <div style="display: flex; gap: 8px; margin-top: 15px;">
+      <button class="btn-fermer" id="btnAnnulerEdit" style="flex: 1; background: #333; color: #ccc;">Annuler</button>
+      <button class="btn-fermer" id="btnValiderEdit" style="flex: 1;">✅ Valider</button>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="modalFormules">
   <div class="modal-box">
     <h3>📐 Formules à retenir</h3>
@@ -1132,7 +1164,32 @@ function drawComposant(c) {
     drawEtiquetteMesures(c, mesures);
   }
 
+  // 🆕 Indice visuel : petit crayon sur les composants modifiables
+  if (c.type === 'pile' || COMPOSANTS_RESISTIFS.has(c.type)) {
+    drawIndicateurEditable(c);
+  }
+
   drawPoigneeRotation(c);
+}
+
+// 🆕 Petit crayon discret pour indiquer que le composant est modifiable
+function drawIndicateurEditable(c) {
+  const t = TAILLE[c.type];
+  const angle = (c.rotation || 0) * Math.PI / 180;
+  // Position en bas à droite du composant
+  const offsetX = t.w / 2 - 8;
+  const offsetY = t.h / 2 - 8;
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  const ix = c.x + (offsetX * cos - offsetY * sin);
+  const iy = c.y + (offsetX * sin + offsetY * cos);
+
+  ctx.fillStyle = 'rgba(79, 195, 247, 0.9)';
+  ctx.font = 'bold 11px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('✎', ix, iy);
+  ctx.textBaseline = 'alphabetic';
 }
 
 function drawEtiquetteMesures(c, mesures) {
@@ -1488,12 +1545,141 @@ canvas.addEventListener('touchend', e => { e.preventDefault(); handlePointerUp()
 canvas.addEventListener('dblclick', e => {
   const p = getCanvasCoords(e, false);
   const comp = trouverComposantProche(p.x, p.y);
-  if (comp && comp.type === 'interrupteur') {
+  if (!comp) return;
+
+  // 🆕 Interrupteur : basculer ouvert/fermé
+  if (comp.type === 'interrupteur') {
     atelier.interrupteurFerme = !atelier.interrupteurFerme;
     atelier.composantEnDrag = null;
     drawCircuit();
     analyserCircuit();
     updateStatus(atelier.interrupteurFerme ? '🔘 Interrupteur FERMÉ' : '🔘 Interrupteur OUVERT');
+    return;
+  }
+
+  // 🆕 Autres composants : ouvrir le panneau d'édition
+  ouvrirPanneauEdition(comp);
+});
+
+// ============================================================
+//  🆕 PANNEAU D'ÉDITION DE COMPOSANT
+// ============================================================
+let composantEnEdition = null;
+
+function ouvrirPanneauEdition(comp) {
+  composantEnEdition = comp;
+
+  const titre = document.getElementById('editTitle');
+  const description = document.getElementById('editDescription');
+  const label = document.getElementById('editLabel');
+  const input = document.getElementById('editValue');
+  const helper = document.getElementById('editHelper');
+  const raccourcis = document.getElementById('editRaccourcis');
+
+  raccourcis.innerHTML = '';
+  input.value = '';
+
+  if (comp.type === 'pile') {
+    titre.textContent = '🔋 Modifier la pile';
+    description.textContent = 'Choisissez la tension de la pile :';
+    label.textContent = 'Tension E (volts)';
+    input.value = comp.tension;
+    input.min = 1;
+    input.max = 24;
+    input.step = 0.5;
+    helper.textContent = 'Plage : 1 à 24 V';
+    // Raccourcis rapides
+    [1.5, 3, 4.5, 6, 9, 12].forEach(v => {
+      const btn = document.createElement('button');
+      btn.textContent = `${v} V`;
+      btn.style.cssText = 'padding: 6px 12px; background: rgba(79, 195, 247, 0.15); color: #4fc3f7; border: 1px solid rgba(79, 195, 247, 0.4); border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 700;';
+      btn.onclick = () => { input.value = v; };
+      raccourcis.appendChild(btn);
+    });
+  } else if (comp.type === 'resistance' || comp.type === 'lampe' || comp.type === 'moteur' || comp.type === 'buzzer') {
+    const labels = {
+      resistance: '📏 Modifier la résistance',
+      lampe: '💡 Modifier la lampe',
+      moteur: '⚙️ Modifier le moteur',
+      buzzer: '🔔 Modifier la sonnerie'
+    };
+    const descriptions = {
+      resistance: 'Choisissez la valeur de la résistance :',
+      lampe: 'Choisissez la résistance équivalente de la lampe :',
+      moteur: 'Choisissez la résistance équivalente du moteur :',
+      buzzer: 'Choisissez la résistance équivalente de la sonnerie :'
+    };
+    titre.textContent = labels[comp.type];
+    description.textContent = descriptions[comp.type];
+    label.textContent = 'Résistance R (ohms)';
+    input.value = comp.valeur;
+    input.min = 1;
+    input.max = 10000;
+    input.step = 1;
+    helper.textContent = 'Plage : 1 à 10 000 Ω';
+    // Raccourcis rapides
+    [5, 10, 20, 50, 100, 220, 470, 1000].forEach(v => {
+      const btn = document.createElement('button');
+      btn.textContent = `${v} Ω`;
+      btn.style.cssText = 'padding: 6px 12px; background: rgba(255, 213, 79, 0.15); color: #ffd54f; border: 1px solid rgba(255, 213, 79, 0.4); border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 700;';
+      btn.onclick = () => { input.value = v; };
+      raccourcis.appendChild(btn);
+    });
+  }
+
+  // Afficher le panneau
+  document.getElementById('modalEditComposant').classList.add('show');
+  setTimeout(() => input.focus(), 100);
+}
+
+document.getElementById('btnAnnulerEdit').addEventListener('click', () => {
+  document.getElementById('modalEditComposant').classList.remove('show');
+  composantEnEdition = null;
+});
+
+document.getElementById('btnValiderEdit').addEventListener('click', () => {
+  if (!composantEnEdition) return;
+
+  const input = document.getElementById('editValue');
+  let valeur = parseFloat(input.value);
+
+  if (isNaN(valeur)) {
+    alert('⚠️ Veuillez entrer une valeur numérique valide.');
+    return;
+  }
+
+  if (composantEnEdition.type === 'pile') {
+    valeur = Math.max(1, Math.min(24, valeur));
+    composantEnEdition.tension = valeur;
+    updateStatus(`🔋 Pile modifiée : ${valeur} V`);
+  } else if (COMPOSANTS_RESISTIFS.has(composantEnEdition.type)) {
+    valeur = Math.max(1, Math.min(10000, valeur));
+    composantEnEdition.valeur = valeur;
+    updateStatus(`📏 ${composantEnEdition.type} modifié : ${valeur} Ω`);
+  }
+
+  document.getElementById('modalEditComposant').classList.remove('show');
+  composantEnEdition = null;
+
+  // Recalculer et redessiner
+  drawCircuit();
+  updateSelectors();
+  analyserCircuit();
+});
+
+// Valider avec Entrée
+document.getElementById('editValue').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('btnValiderEdit').click();
+  }
+});
+
+// Fermer le panneau en cliquant à l'extérieur
+document.getElementById('modalEditComposant').addEventListener('click', e => {
+  if (e.target.id === 'modalEditComposant') {
+    e.target.classList.remove('show');
+    composantEnEdition = null;
   }
 });
 
