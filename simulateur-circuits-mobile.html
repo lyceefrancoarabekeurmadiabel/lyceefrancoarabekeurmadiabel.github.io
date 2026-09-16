@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Circuits électriques — Mobile | LFAKM</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #eee;
+    min-height: 100vh;
+    padding: 8px;
+    font-size: 14px;
+    overflow-x: hidden;
+  }
+  .container {
+    max-width: 100%;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 12px;
+  }
+  .top-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 8px;
+  }
+  .btn-retour, .btn-pc {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.75em;
+    font-weight: 700;
+  }
+  .btn-retour { background: rgba(168, 133, 63, 0.2); color: #ffd54f; border: 1px solid rgba(255, 213, 79, 0.4); }
+  .btn-pc { background: rgba(79, 195, 247, 0.15); color: #4fc3f7; border: 1px solid rgba(79, 195, 247, 0.4); }
+
+  h1 { text-align: center; color: #4fc3f7; font-size: 1.15em; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #aaa; font-size: 0.72em; margin-bottom: 12px; }
+
+  .stepper {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+  .step {
+    flex: 1;
+    padding: 6px 4px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    font-size: 0.62em;
+    font-weight: bold;
+    color: #888;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .step.active { background: rgba(79, 195, 247, 0.2); border-color: #4fc3f7; color: #4fc3f7; }
+  .step.done { background: rgba(76, 175, 80, 0.15); border-color: #4caf50; color: #81c784; }
+
+  .section-title {
+    color: #4fc3f7;
+    font-size: 0.72em;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: 10px 0 6px;
+    padding-left: 6px;
+    border-left: 3px solid #4fc3f7;
+    font-weight: bold;
+  }
+
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .tool-option {
+    padding: 8px 6px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    color: #ddd;
+    cursor: pointer;
+    font-size: 0.72em;
+    font-weight: bold;
+    font-family: inherit;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .tool-option.active { background: rgba(79, 195, 247, 0.25); border-color: #4fc3f7; color: #4fc3f7; }
+  .tool-option .icon { font-size: 1.8em; }
+
+  .canvas-wrapper {
+    background: #000;
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 10px;
+    border: 2px solid #4fc3f7;
+    position: relative;
+  }
+  .canvas-wrapper canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    touch-action: manipulation;
+    cursor: pointer;
+  }
+  .zone-label {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    color: #4fc3f7;
+    font-size: 0.62em;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: bold;
+    background: rgba(0,0,0,0.7);
+    padding: 3px 8px;
+    border-radius: 4px;
+    pointer-events: none;
+  }
+  .hint-box {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.85);
+    color: #4fc3f7;
+    font-size: 0.68em;
+    font-weight: bold;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(79, 195, 247, 0.4);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .button-bar {
+    display: flex;
+    gap: 6px;
+    margin: 10px 0;
+    flex-wrap: wrap;
+  }
+  .btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 12px 8px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.82em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+    color: #16213e;
+    box-shadow: 0 3px 10px rgba(79, 195, 247, 0.4);
+  }
+  .btn-success { background: linear-gradient(135deg, #4caf50, #66bb6a); color: #fff; }
+  .btn-warning { background: linear-gradient(135deg, #ff9800, #f57c00); color: #fff; }
+  .btn-reset { background: rgba(255,255,255,0.1); color: #eee; border: 1px solid rgba(255,255,255,0.2); }
+  .btn:disabled { opacity: 0.5; }
+
+  .status {
+    text-align: center;
+    font-size: 0.78em;
+    color: #aaa;
+    margin: 8px 0;
+    min-height: 18px;
+    font-style: italic;
+  }
+  .status.active { color: #4fc3f7; }
+
+  .measure-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .measure-item {
+    background: rgba(79, 195, 247, 0.08);
+    border-radius: 6px;
+    padding: 8px 6px;
+    text-align: center;
+    border: 1px solid rgba(79, 195, 247, 0.2);
+  }
+  .measure-item .label {
+    font-size: 0.6em;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .measure-item .val {
+    font-size: 1em;
+    color: #4fc3f7;
+    font-weight: bold;
+    font-family: monospace;
+    margin-top: 2px;
+  }
+
+  .state-box {
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 0.75em;
+    font-weight: bold;
+    text-align: center;
+    border-left: 4px solid #4fc3f7;
+    background: rgba(79, 195, 247, 0.1);
+    margin-bottom: 10px;
+  }
+  .state-box.ok { border-color: #4caf50; background: rgba(76, 175, 80, 0.15); color: #81c784; }
+  .state-box.warn { border-color: #ff9800; background: rgba(255, 152, 0, 0.15); color: #ffb74d; }
+  .state-box.danger { border-color: #f44336; background: rgba(244, 67, 54, 0.2); color: #ff8a80; }
+  .state-box.info { border-color: #4fc3f7; background: rgba(79, 195, 247, 0.1); color: #4fc3f7; }
+
+  .legend-box {
+    display: flex;
+    justify-content: space-around;
+    gap: 8px;
+    padding: 8px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+    font-size: 0.68em;
+    margin-bottom: 10px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+  .legend-dot.electron { background: #00e5ff; box-shadow: 0 0 6px #00e5ff; }
+  .legend-dot.courant { background: #ffa726; box-shadow: 0 0 6px #ffa726; }
+
+  .slider-mini {
+    background: rgba(255,255,255,0.05);
+    padding: 8px 10px;
+    border-radius: 8px;
+    border-left: 3px solid #4fc3f7;
+    margin-bottom: 8px;
+  }
+  .slider-mini.disabled { opacity: 0.35; pointer-events: none; }
+  .slider-mini label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72em;
+    color: #ccc;
+    margin-bottom: 4px;
+  }
+  .slider-mini .value {
+    color: #4fc3f7;
+    font-weight: bold;
+    font-family: monospace;
+  }
+  .slider-mini input[type="range"] {
+    width: 100%;
+    height: 28px;
+    accent-color: #4fc3f7;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="top-actions">
+    <a href="labo-pc.html" class="btn-retour">← Labo PC</a>
+    <a href="simulateur-circuits.html" class="btn-pc">🖥️ Version PC</a>
+  </div>
+
+  <h1>⚡ Circuits électriques</h1>
+  <p class="subtitle">Atelier de montage — mode tactile</p>
+
+  <div class="stepper">
+    <div class="step active" id="step1">1. Composants</div>
+    <div class="step" id="step2">2. Fils</div>
+    <div class="step" id="step3">3. Fermer</div>
+  </div>
+
+  <div class="section-title">🔋 Générateur</div>
+  <div class="tool-grid" id="opt-generateur">
+    <button class="tool-option" data-value="1.5"><span class="icon">🔋</span>1.5 V</button>
+    <button class="tool-option active" data-value="4.5"><span class="icon">🔋</span>4.5 V</button>
+    <button class="tool-option" data-value="9"><span class="icon">🔋</span>9 V</button>
+    <button class="tool-option" data-value="12"><span class="icon">🔋</span>12 V</button>
+  </div>
+
+  <div class="section-title">💡 Récepteur</div>
+  <div class="tool-grid" id="opt-recepteur">
+    <button class="tool-option active" data-value="ampoule"><span class="icon">💡</span>Ampoule</button>
+    <button class="tool-option" data-value="moteur"><span class="icon">⚙️</span>Moteur</button>
+    <button class="tool-option" data-value="electrolyseur"><span class="icon">🧪</span>Électro.</button>
+    <button class="tool-option" data-value="resistance"><span class="icon">📐</span>Résist.</button>
+  </div>
+
+  <div class="section-title">🎛 Résistance additionnelle</div>
+  <div class="tool-grid" id="opt-resistance">
+    <button class="tool-option active" data-value="0"><span class="icon">⭕</span>Aucune</button>
+    <button class="tool-option" data-value="100"><span class="icon">📏</span>100 Ω</button>
+    <button class="tool-option" data-value="220"><span class="icon">📏</span>220 Ω</button>
+    <button class="tool-option" data-value="470"><span class="icon">📏</span>470 Ω</button>
+  </div>
+
+  <div class="section-title">🎨 Zone de montage</div>
+  <div class="canvas-wrapper">
+    <div class="zone-label">Appuie sur les bornes</div>
+    <canvas id="canvasMobile" width="800" height="900"></canvas>
+    <div class="hint-box" id="hintBox">👆 Choisis tes composants</div>
+  </div>
+
+  <div class="button-bar">
+    <button class="btn btn-primary" id="btnNext">➡️ Montage</button>
+    <button class="btn btn-success" id="btnValidate" style="display:none;">✅ Vérifier</button>
+    <button class="btn btn-warning" id="btnSwitch" style="display:none;">🔘 Fermer</button>
+    <button class="btn btn-reset" id="btnReset">🔄 Reset</button>
+  </div>
+
+  <p class="status" id="status">Étape 1 : choisis tes composants</p>
+
+  <div class="state-box info" id="state-box">Choisis tes composants ci-dessus</div>
+
+  <div class="legend-box">
+    <div class="legend-item"><span class="legend-dot electron"></span> Électrons − → +</div>
+    <div class="legend-item"><span class="legend-dot courant"></span> Courant + → −</div>
+  </div>
+
+  <div class="section-title">📊 Mesures</div>
+  <div class="measure-grid">
+    <div class="measure-item">
+      <div class="label">Tension U</div>
+      <div class="val" id="m-tension">0 V</div>
+    </div>
+    <div class="measure-item">
+      <div class="label">Intensité I</div>
+      <div class="val" id="m-intensite">0 mA</div>
+    </div>
+    <div class="measure-item">
+      <div class="label">Puissance P</div>
+      <div class="val" id="m-puissance">0 W</div>
+    </div>
+    <div class="measure-item">
+      <div class="label">R équiv.</div>
+      <div class="val" id="m-resistance">— Ω</div>
+    </div>
+  </div>
+
+  <div class="section-title">⚙️ Réglages</div>
+  <div class="slider-mini" id="slider-T">
+    <label>Tension E <span class="value" id="v-E">4.5 V</span></label>
+    <input type="range" id="slider-E" min="1.5" max="12" value="4.5" step="0.5">
+  </div>
+  <div class="slider-mini" id="slider-R">
+    <label>Résistance R <span class="value" id="v-R">0 Ω</span></label>
+    <input type="range" id="slider-R" min="0" max="500" value="0" step="10">
+  </div>
+  <div class="slider-mini" id="slider-P">
+    <label>Potentiomètre <span class="value" id="v-pot">100 %</span></label>
+    <input type="range" id="slider-pot" min="0" max="100" value="100" step="5">
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+//  ÉTAT
+// ============================================================
+let etat = {
+  E: 4.5,
+  recepteur: 'ampoule',
+  resistance: 0,
+  pot: 100,
+  switchFerme: false,
+  step: 1,
+  bornes: [],
+  fils: [],
+  borneSelectionnee: null,
+  electrons: [],
+  courants: [],
+  animationActive: false
+};
+
+// Positions adaptées au format mobile vertical
+const positions = {
+  pile:        { x: 400, y: 100, w: 160, h: 80 },
+  recepteur:   { x: 130, y: 450, w: 150, h: 150 },
+  resistance:  { x: 670, y: 450, w: 150, h: 120 },
+  interrupteur:{ x: 400, y: 800, w: 160, h: 70 }
+};
+
+const canvas = document.getElementById('canvasMobile');
+const ctx = canvas.getContext('2d');
+const W = canvas.width;
+const H = canvas.height;
+
+// ============================================================
+//  BORNES
+// ============================================================
+function initBornes() {
+  etat.bornes = [
+    { id: 'pile-A', x: positions.pile.x - positions.pile.w/2, y: positions.pile.y + 25, type: 'pile', nom: 'Pile +' },
+    { id: 'pile-B', x: positions.pile.x + positions.pile.w/2, y: positions.pile.y + 25, type: 'pile', nom: 'Pile −' },
+    { id: 'int-A', x: positions.interrupteur.x - positions.interrupteur.w/2, y: positions.interrupteur.y, type: 'interrupteur', nom: 'Int. gauche' },
+    { id: 'int-B', x: positions.interrupteur.x + positions.interrupteur.w/2, y: positions.interrupteur.y, type: 'interrupteur', nom: 'Int. droite' },
+    { id: 'rec-A', x: positions.recepteur.x, y: positions.recepteur.y - positions.recepteur.h/2 - 18, type: 'recepteur', nom: 'Réc. haut' },
+    { id: 'rec-B', x: positions.recepteur.x, y: positions.recepteur.y + positions.recepteur.h/2 + 18, type: 'recepteur', nom: 'Réc. bas' },
+    { id: 'res-A', x: positions.resistance.x, y: positions.resistance.y - positions.resistance.h/2 - 18, type: 'resistance', nom: 'Rés. haut' },
+    { id: 'res-B', x: positions.resistance.x, y: positions.resistance.y + positions.resistance.h/2 + 18, type: 'resistance', nom: 'Rés. bas' }
+  ];
+}
+
+function getBorneById(id) { return etat.bornes.find(b => b.id === id); }
+function borneEstVisible(b) {
+  if ((b.id === 'res-A' || b.id === 'res-B') && etat.resistance === 0) return false;
+  return true;
+}
+
+// ============================================================
+//  DESSIN
+// ============================================================
+function drawMontage() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0a0a1a';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = 'rgba(79,195,247,0.05)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 60) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let y = 0; y < H; y += 60) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  // Fils
+  etat.fils.forEach(fil => {
+    const bA = getBorneById(fil.a);
+    const bB = getBorneById(fil.b);
+    if (!bA || !bB) return;
+    ctx.strokeStyle = '#4fc3f7';
+    ctx.lineWidth = 8;
+    ctx.lineCap = 'round';
+    ctx.shadowColor = '#4fc3f7';
+    ctx.shadowBlur = 10;
+    const midY = (bA.y + bB.y) / 2;
+    ctx.beginPath();
+    ctx.moveTo(bA.x, bA.y);
+    ctx.lineTo(bA.x, midY);
+    ctx.lineTo(bB.x, midY);
+    ctx.lineTo(bB.x, bB.y);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  });
+
+  drawPile();
+  drawInterrupteur();
+  drawRecepteur();
+  if (etat.resistance > 0) drawResistanceAdditionnelle();
+
+  etat.bornes.forEach(b => { if (borneEstVisible(b)) drawBorne(b); });
+
+  if (etat.animationActive && etat.switchFerme) {
+    if (etat.electrons.length === 0) initFlux();
+    drawFlux();
+  }
+}
+
+function drawBorne(b) {
+  const isSelected = etat.borneSelectionnee === b.id;
+  const isConnected = etat.fils.some(f => f.a === b.id || f.b === b.id);
+  const cliquable = (etat.step === 1 || etat.step === 2) && !isConnected;
+
+  if (cliquable && !isSelected) {
+    const pulse = (Math.sin(Date.now() / 500) + 1) / 2;
+    const grad = ctx.createRadialGradient(b.x, b.y, 5, b.x, b.y, 40 + pulse * 15);
+    grad.addColorStop(0, `rgba(79, 195, 247, ${0.35 + pulse * 0.35})`);
+    grad.addColorStop(1, 'rgba(79, 195, 247, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, 40 + pulse * 15, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  if (isSelected) {
+    const grad = ctx.createRadialGradient(b.x, b.y, 5, b.x, b.y, 50);
+    grad.addColorStop(0, 'rgba(255, 213, 79, 0.9)');
+    grad.addColorStop(1, 'rgba(255, 213, 79, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, 50, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = isSelected ? '#ffd54f' : (isConnected ? '#4caf50' : '#fff');
+  ctx.strokeStyle = isSelected ? '#fff' : '#000';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(b.x, b.y, 22, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#000';
+  ctx.beginPath();
+  ctx.arc(b.x, b.y, 5, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawPile() {
+  const { x: cx, y: cy, w, h } = positions.pile;
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.roundRect(cx - w/2, cy - h/2, w, h, 12);
+  ctx.fill(); ctx.stroke();
+
+  ctx.fillStyle = '#4caf50';
+  ctx.font = 'bold 30px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('+', cx - 45, cy);
+
+  ctx.fillStyle = '#f44336';
+  ctx.fillText('−', cx + 45, cy);
+
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 22px monospace';
+  ctx.fillText(`${etat.E.toFixed(1)} V`, cx, cy + 2);
+
+  ctx.fillStyle = '#4fc3f7';
+  ctx.font = 'bold 14px monospace';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText('PILE', cx, cy - h/2 - 12);
+}
+
+function drawRecepteur() {
+  const { x: cx, y: cy, w, h } = positions.recepteur;
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.roundRect(cx - w/2, cy - h/2, w, h, 14);
+  ctx.fill(); ctx.stroke();
+
+  const calc = calculs();
+  const I_norm = Math.min(calc.I / 0.1, 1);
+  ctx.save();
+  ctx.translate(cx, cy);
+
+  if (etat.recepteur === 'ampoule') {
+    const brillance = (etat.animationActive && etat.switchFerme) ? Math.min(1, I_norm * 2 + 0.3) : 0;
+    if (brillance > 0) {
+      const g = ctx.createRadialGradient(0, 0, 5, 0, 0, 60);
+      g.addColorStop(0, `rgba(255, 235, 59, ${brillance * 0.9})`);
+      g.addColorStop(1, 'rgba(255, 235, 59, 0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(0, 0, 60, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.fillStyle = brillance > 0 ? '#ffeb3b' : '#555';
+    ctx.beginPath();
+    ctx.arc(0, 0, 35, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#ff9800';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.strokeStyle = brillance > 0 ? '#ff9800' : '#444';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(-18, -12); ctx.lineTo(18, 12);
+    ctx.moveTo(-18, 12); ctx.lineTo(18, -12);
+    ctx.stroke();
+  } else if (etat.recepteur === 'moteur') {
+    ctx.fillStyle = '#555';
+    ctx.beginPath();
+    ctx.arc(0, 0, 35, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#4caf50';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.fillStyle = (etat.animationActive && etat.switchFerme) ? '#fff' : '#888';
+    ctx.font = 'bold 32px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('M', 0, 0);
+    ctx.textBaseline = 'alphabetic';
+  } else if (etat.recepteur === 'electrolyseur') {
+    ctx.strokeStyle = '#4fc3f7';
+    ctx.lineWidth = 3;
+    ctx.fillStyle = 'rgba(79, 195, 247, 0.2)';
+    ctx.beginPath();
+    ctx.roundRect(-45, -35, 90, 70, 8);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#999';
+    ctx.fillRect(-28, -45, 9, 45);
+    ctx.fillRect(19, -45, 9, 45);
+  } else if (etat.recepteur === 'resistance') {
+    ctx.fillStyle = '#1a1a2e';
+    ctx.strokeStyle = '#4fc3f7';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.rect(-55, -30, 110, 60);
+    ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = '#4fc3f7';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(-55, 0);
+    for (let i = 0; i < 10; i++) {
+      ctx.lineTo(-50 + i * 11, i % 2 === 0 ? -15 : 15);
+    }
+    ctx.lineTo(55, 0);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  const labels = { ampoule: 'AMPOULE', moteur: 'MOTEUR', electrolyseur: 'ÉLECTROLYSEUR', resistance: 'RÉSISTANCE' };
+  ctx.fillStyle = '#4fc3f7';
+  ctx.font = 'bold 14px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(labels[etat.recepteur] || 'RÉCEPTEUR', cx, cy + h/2 + 26);
+}
+
+function drawResistanceAdditionnelle() {
+  const { x: cx, y: cy, w, h } = positions.resistance;
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#ffd54f';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.roundRect(cx - w/2, cy - h/2, w, h, 10);
+  ctx.fill(); ctx.stroke();
+
+  ctx.strokeStyle = '#ffd54f';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - w/2 + 12, cy);
+  for (let i = 0; i < 8; i++) {
+    ctx.lineTo(cx - w/2 + 25 + i * 14, i % 2 === 0 ? cy - 15 : cy + 15);
+  }
+  ctx.lineTo(cx + w/2 - 12, cy);
+  ctx.stroke();
+
+  ctx.fillStyle = '#ffd54f';
+  ctx.font = 'bold 16px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${etat.resistance} Ω`, cx, cy - h/2 - 12);
+  ctx.fillText('RÉSISTANCE', cx, cy + h/2 + 22);
+}
+
+function drawInterrupteur() {
+  const { x: cx, y: cy, w, h } = positions.interrupteur;
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = etat.switchFerme ? '#4caf50' : '#666';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.roundRect(cx - w/2 - 12, cy - h/2, w + 24, h, 12);
+  ctx.fill(); ctx.stroke();
+
+  const bx1 = cx - w/2, bx2 = cx + w/2;
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(bx1, cy, 10, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(bx2, cy, 10, 0, Math.PI * 2); ctx.fill();
+
+  ctx.strokeStyle = etat.switchFerme ? '#4caf50' : '#f44336';
+  ctx.lineWidth = 8;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  if (etat.switchFerme) {
+    ctx.moveTo(bx1, cy); ctx.lineTo(bx2, cy);
+  } else {
+    ctx.moveTo(bx1, cy); ctx.lineTo(bx2, cy - 45);
+  }
+  ctx.stroke();
+
+  ctx.fillStyle = etat.switchFerme ? '#4caf50' : '#f44336';
+  ctx.font = 'bold 14px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(etat.switchFerme ? '✓ FERMÉ' : '○ OUVERT', cx, cy + 40);
+  ctx.fillStyle = '#4fc3f7';
+  ctx.fillText('INTERRUPTEUR', cx, cy - h/2 - 12);
+}
+
+// ============================================================
+//  FLUX
+// ============================================================
+function getCheminCircuit(departId) {
+  const depart = getBorneById(departId);
+  if (!depart) return [];
+  const chemin = [{ x: depart.x, y: depart.y, id: depart.id }];
+  const visited = new Set([depart.id]);
+  let currentId = depart.id;
+  let maxIter = 30;
+  const arriveeId = (departId === 'pile-A') ? 'pile-B' : 'pile-A';
+  const traversee = {
+    'pile-A': 'pile-B', 'pile-B': 'pile-A',
+    'rec-A': 'rec-B',   'rec-B': 'rec-A',
+    'int-A': 'int-B',   'int-B': 'int-A',
+    'res-A': 'res-B',   'res-B': 'res-A'
+  };
+
+  while (maxIter-- > 0) {
+    if (currentId === arriveeId) break;
+    const fil = etat.fils.find(f =>
+      (f.a === currentId && !visited.has(f.b)) ||
+      (f.b === currentId && !visited.has(f.a))
+    );
+    if (fil) {
+      const nextId = (fil.a === currentId) ? fil.b : fil.a;
+      const nextBorne = getBorneById(nextId);
+      if (!nextBorne) break;
+      chemin.push({ x: nextBorne.x, y: nextBorne.y, id: nextBorne.id });
+      visited.add(nextId);
+      currentId = nextId;
+      continue;
+    }
+    const oppositeId = traversee[currentId];
+    if (oppositeId && !visited.has(oppositeId)) {
+      const oppBorne = getBorneById(oppositeId);
+      if (!oppBorne) break;
+      chemin.push({ x: oppBorne.x, y: oppBorne.y, id: oppBorne.id });
+      visited.add(oppositeId);
+      currentId = oppositeId;
+      continue;
+    }
+    break;
+  }
+  return chemin;
+}
+
+function initFlux() {
+  etat.electrons = [];
+  etat.courants = [];
+  let cheminElec = getCheminCircuit('pile-B');
+  if (cheminElec.length < 3) cheminElec = getCheminCircuit('pile-A');
+  let cheminCour = getCheminCircuit('pile-A');
+  if (cheminCour.length < 3) cheminCour = getCheminCircuit('pile-B');
+  if (cheminElec.length >= 3) for (let i = 0; i < 15; i++) etat.electrons.push({ t: i / 15 });
+  if (cheminCour.length >= 3) for (let i = 0; i < 15; i++) etat.courants.push({ t: i / 15 });
+}
+
+function positionSurChemin(chemin, t) {
+  if (chemin.length < 2) return null;
+  let totalLen = 0;
+  const segments = [];
+  for (let i = 0; i < chemin.length - 1; i++) {
+    const p1 = chemin[i], p2 = chemin[i + 1];
+    const len = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+    segments.push({ p1, p2, len, start: totalLen });
+    totalLen += len;
+  }
+  if (totalLen === 0) return null;
+  const dist = t * totalLen;
+  let seg = segments[0];
+  for (let s of segments) {
+    if (dist >= s.start && dist < s.start + s.len) { seg = s; break; }
+  }
+  const tSeg = (dist - seg.start) / seg.len;
+  return {
+    x: seg.p1.x + (seg.p2.x - seg.p1.x) * tSeg,
+    y: seg.p1.y + (seg.p2.y - seg.p1.y) * tSeg
+  };
+}
+
+function drawFlux() {
+  const calc = calculs();
+  if (!calc.circuitFerme) return;
+  const speed = calc.isCourtCircuit ? 0.0035 : (0.00025 + Math.min(calc.I * 0.07, 0.002));
+
+  // Électrons
+  const cheminElec = getCheminCircuit('pile-B').length >= 3
+    ? getCheminCircuit('pile-B')
+    : getCheminCircuit('pile-A');
+  if (cheminElec.length >= 3) {
+    const couleur = calc.isCourtCircuit ? '#ff5722' : '#00e5ff';
+    etat.electrons.forEach(e => {
+      e.t = (e.t + speed) % 1;
+      const pos = positionSurChemin(cheminElec, e.t);
+      if (!pos) return;
+      const g = ctx.createRadialGradient(pos.x, pos.y, 1, pos.x, pos.y, 22);
+      g.addColorStop(0, couleur);
+      g.addColorStop(1, 'rgba(0, 229, 255, 0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(pos.x, pos.y, 22, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = couleur;
+      ctx.beginPath(); ctx.arc(pos.x, pos.y, 8, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 12px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('−', pos.x, pos.y + 0.5);
+    });
+  }
+
+  // Courant
+  const cheminCour = getCheminCircuit('pile-A').length >= 3
+    ? getCheminCircuit('pile-A')
+    : getCheminCircuit('pile-B');
+  if (cheminCour.length >= 3) {
+    const couleur = calc.isCourtCircuit ? '#ff9800' : '#ffa726';
+    etat.courants.forEach(c => {
+      c.t = (c.t + speed) % 1;
+      const pos = positionSurChemin(cheminCour, c.t);
+      if (!pos) return;
+      const g = ctx.createRadialGradient(pos.x, pos.y, 1, pos.x, pos.y, 20);
+      g.addColorStop(0, couleur);
+      g.addColorStop(1, 'rgba(255, 167, 38, 0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(pos.x, pos.y, 20, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = couleur;
+      ctx.beginPath(); ctx.arc(pos.x, pos.y, 8, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 12px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('+', pos.x, pos.y + 0.5);
+    });
+  }
+  ctx.textBaseline = 'alphabetic';
+}
+
+// ============================================================
+//  CALCULS
+// ============================================================
+function calculs() {
+  const cheminCour = getCheminCircuit('pile-A');
+  const passeParRecepteur = cheminCour.some(b => b.id === 'rec-A' || b.id === 'rec-B');
+  const passeParInterrupteur = cheminCour.some(b => b.id === 'int-A' || b.id === 'int-B');
+  const arrivePileB = cheminCour.some(b => b.id === 'pile-B');
+
+  const circuitFerme = passeParRecepteur && arrivePileB;
+  const interrupteurBloque = passeParInterrupteur && !etat.switchFerme;
+
+  const R_interne = 5;
+  const R_pot = (etat.pot / 100) * 1000;
+  const R_totale = R_interne + etat.resistance + R_pot;
+  const isCourtCircuit = circuitFerme && !passeParRecepteur;
+  const R_final = Math.max(R_totale, 1);
+  const actif = circuitFerme && !interrupteurBloque;
+  const I = actif ? etat.E / R_final : 0;
+  const U = actif ? etat.E - R_interne * I : 0;
+  const P = actif ? U * I : 0;
+
+  const nbFilsMin = etat.resistance > 0 ? 4 : 3;
+  return { circuitFerme, R_totale, R_final, I, U, P, isCourtCircuit, nbFilsMin };
+}
+
+// ============================================================
+//  UI
+// ============================================================
+function updateUI() {
+  const calc = calculs();
+  document.getElementById('m-tension').textContent = calc.U.toFixed(1) + ' V';
+  document.getElementById('m-intensite').textContent = (calc.I * 1000).toFixed(0) + ' mA';
+  document.getElementById('m-puissance').textContent = calc.P.toFixed(2) + ' W';
+  document.getElementById('m-resistance').textContent = calc.R_final.toFixed(0) + ' Ω';
+
+  const stateBox = document.getElementById('state-box');
+  const status = document.getElementById('status');
+  const hint = document.getElementById('hintBox');
+
+  document.getElementById('step1').classList.toggle('done', etat.step > 1);
+  document.getElementById('step1').classList.toggle('active', etat.step === 1);
+  document.getElementById('step2').classList.toggle('done', etat.step > 2);
+  document.getElementById('step2').classList.toggle('active', etat.step === 2);
+  document.getElementById('step3').classList.toggle('active', etat.step === 3);
+
+  const btnNext = document.getElementById('btnNext');
+  const btnValidate = document.getElementById('btnValidate');
+  const btnSwitch = document.getElementById('btnSwitch');
+
+  if (etat.step === 1) {
+    btnNext.style.display = 'flex';
+    btnValidate.style.display = 'none';
+    btnSwitch.style.display = 'none';
+  } else if (etat.step === 2) {
+    btnNext.style.display = 'none';
+    btnValidate.style.display = 'flex';
+    btnSwitch.style.display = 'none';
+  } else {
+    btnNext.style.display = 'none';
+    btnValidate.style.display = 'none';
+    btnSwitch.style.display = 'flex';
+  }
+
+  if (etat.step === 1) {
+    stateBox.className = 'state-box info';
+    stateBox.textContent = '🛠️ Choisis tes composants';
+    status.textContent = 'Étape 1 : choisis tes composants';
+    hint.textContent = '👆 Sélectionne ci-dessus';
+  } else if (etat.step === 2) {
+    stateBox.className = 'state-box warn';
+    stateBox.textContent = `🔗 Fils : ${etat.fils.length} / ${calc.nbFilsMin}`;
+    status.textContent = `Fils : ${etat.fils.length} / ${calc.nbFilsMin}`;
+    hint.textContent = etat.borneSelectionnee ? '👆 2ᵉ borne' : '👆 Touche une borne';
+  } else {
+    if (calc.isCourtCircuit) {
+      stateBox.className = 'state-box danger';
+      stateBox.textContent = '⚠️ COURT-CIRCUIT !';
+      status.textContent = '⚠️ Court-circuit';
+      hint.textContent = '⚠️ COURT-CIRCUIT !';
+    } else if (etat.switchFerme && calc.circuitFerme) {
+      stateBox.className = 'state-box ok';
+      stateBox.textContent = `✅ Circuit fermé — I = ${(calc.I*1000).toFixed(0)} mA`;
+      status.textContent = `✅ I = ${(calc.I*1000).toFixed(0)} mA`;
+      hint.textContent = '💡 Ajuste les réglages';
+    } else {
+      stateBox.className = 'state-box warn';
+      stateBox.textContent = '🔘 Ferme l\'interrupteur';
+      status.textContent = '🔘 Touche l\'interrupteur';
+      hint.textContent = '👆 Touche l\'interrupteur';
+    }
+  }
+
+  const disabled = etat.step < 3;
+  document.getElementById('slider-T').classList.toggle('disabled', disabled);
+  document.getElementById('slider-R').classList.toggle('disabled', disabled);
+  document.getElementById('slider-P').classList.toggle('disabled', disabled);
+
+  document.getElementById('v-E').textContent = etat.E.toFixed(1) + ' V';
+  document.getElementById('v-R').textContent = etat.resistance + ' Ω';
+  document.getElementById('v-pot').textContent = etat.pot + ' %';
+}
+
+// ============================================================
+//  INTERACTION TACTILE
+// ============================================================
+canvas.addEventListener('click', function(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const x = (e.clientX - rect.left) * scaleX;
+  const y = (e.clientY - rect.top) * scaleY;
+
+  if (etat.step === 1) return;
+
+  if (etat.step === 2) {
+    let borneCliquee = null;
+    let minDist = 120;
+
+    etat.bornes.forEach(b => {
+      if (!borneEstVisible(b)) return;
+      const d = Math.hypot(b.x - x, b.y - y);
+      if (d < minDist) { minDist = d; borneCliquee = b; }
+    });
+
+    if (!borneCliquee) return;
+
+    if (etat.borneSelectionnee) {
+      const typeA = etat.borneSelectionnee.split('-')[0];
+      const typeB = borneCliquee.id.split('-')[0];
+      if (typeA === typeB) {
+        alert('⚠️ Impossible : 2 bornes du même composant !');
+        etat.borneSelectionnee = null;
+        return;
+      }
+    }
+
+    if (!etat.borneSelectionnee) {
+      etat.borneSelectionnee = borneCliquee.id;
+    } else if (etat.borneSelectionnee === borneCliquee.id) {
+      etat.borneSelectionnee = null;
+    } else {
+      const exists = etat.fils.some(f =>
+        (f.a === etat.borneSelectionnee && f.b === borneCliquee.id) ||
+        (f.b === etat.borneSelectionnee && f.a === borneCliquee.id)
+      );
+      if (!exists) {
+        etat.fils.push({ a: etat.borneSelectionnee, b: borneCliquee.id });
+      }
+      etat.borneSelectionnee = null;
+    }
+  }
+
+  if (etat.step === 3) {
+    const { x: ix, y: iy, w: iw, h: ih } = positions.interrupteur;
+    if (x >= ix - iw/2 - 20 && x <= ix + iw/2 + 20 &&
+        y >= iy - ih/2 - 20 && y <= iy + ih/2 + 20) {
+      toggleSwitch();
+    }
+  }
+});
+
+// ============================================================
+//  SÉLECTION DES COMPOSANTS
+// ============================================================
+document.querySelectorAll('#opt-generateur .tool-option').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (etat.step > 1) return;
+    document.querySelectorAll('#opt-generateur .tool-option').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    etat.E = parseFloat(btn.dataset.value);
+    document.getElementById('slider-E').value = Math.min(etat.E, 12);
+  });
+});
+
+document.querySelectorAll('#opt-recepteur .tool-option').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (etat.step > 1) return;
+    document.querySelectorAll('#opt-recepteur .tool-option').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    etat.recepteur = btn.dataset.value;
+  });
+});
+
+document.querySelectorAll('#opt-resistance .tool-option').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (etat.step > 1) return;
+    document.querySelectorAll('#opt-resistance .tool-option').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    etat.resistance = parseInt(btn.dataset.value);
+    document.getElementById('slider-R').value = Math.min(etat.resistance, 500);
+    initBornes();
+  });
+});
+
+// Sliders
+document.getElementById('slider-E').addEventListener('input', e => {
+  etat.E = parseFloat(e.target.value);
+});
+document.getElementById('slider-R').addEventListener('input', e => {
+  etat.resistance = parseInt(e.target.value);
+  initBornes();
+});
+document.getElementById('slider-pot').addEventListener('input', e => {
+  etat.pot = parseInt(e.target.value);
+});
+
+// ============================================================
+//  BOUTONS
+// ============================================================
+document.getElementById('btnNext').addEventListener('click', () => {
+  etat.step = 2;
+  etat.borneSelectionnee = null;
+});
+
+document.getElementById('btnValidate').addEventListener('click', () => {
+  const nbMin = etat.resistance > 0 ? 4 : 3;
+  if (etat.fils.length < nbMin) {
+    alert(`❌ Circuit incomplet ! Il manque ${nbMin - etat.fils.length} fil(s).`);
+    return;
+  }
+  const chemin = getCheminCircuit('pile-A');
+  if (chemin.length < 3) {
+    alert('❌ Circuit non fermé ! Vérifie tes connexions.');
+    return;
+  }
+  const passeParRecepteur = chemin.some(b => b.id === 'rec-A' || b.id === 'rec-B');
+  if (!passeParRecepteur) {
+    alert('❌ Le récepteur n\'est pas dans la boucle !');
+    return;
+  }
+  etat.step = 3;
+  etat.borneSelectionnee = null;
+  initFlux();
+});
+
+document.getElementById('btnSwitch').addEventListener('click', toggleSwitch);
+
+document.getElementById('btnReset').addEventListener('click', () => {
+  etat.step = 1;
+  etat.fils = [];
+  etat.borneSelectionnee = null;
+  etat.switchFerme = false;
+  etat.animationActive = false;
+  etat.E = 4.5;
+  etat.resistance = 0;
+  etat.pot = 100;
+  etat.recepteur = 'ampoule';
+  etat.electrons = [];
+  etat.courants = [];
+
+  document.querySelectorAll('#opt-generateur .tool-option').forEach(b => b.classList.toggle('active', parseFloat(b.dataset.value) === 4.5));
+  document.querySelectorAll('#opt-recepteur .tool-option').forEach(b => b.classList.toggle('active', b.dataset.value === 'ampoule'));
+  document.querySelectorAll('#opt-resistance .tool-option').forEach(b => b.classList.toggle('active', parseInt(b.dataset.value) === 0));
+
+  document.getElementById('slider-E').value = 4.5;
+  document.getElementById('slider-R').value = 0;
+  document.getElementById('slider-pot').value = 100;
+
+  initBornes();
+});
+
+function toggleSwitch() {
+  if (etat.step !== 3) return;
+  etat.switchFerme = !etat.switchFerme;
+  etat.animationActive = etat.switchFerme;
+  if (etat.switchFerme) initFlux();
+}
+
+// ============================================================
+//  BOUCLE + POLYFILL
+// ============================================================
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    this.beginPath();
+    this.moveTo(x + r, y);
+    this.arcTo(x + w, y, x + w, y + h, r);
+    this.arcTo(x + w, y + h, x, y + h, r);
+    this.arcTo(x, y + h, x, y, r);
+    this.arcTo(x, y, x + w, y, r);
+    this.closePath();
+    return this;
+  };
+}
+
+function loop() {
+  drawMontage();
+  updateUI();
+  requestAnimationFrame(loop);
+}
+
+window.addEventListener('load', () => {
+  initBornes();
+  loop();
+  console.log('📱 Simulateur circuits mobile prêt !');
+});
+</script>
+
+</body>
+</html>

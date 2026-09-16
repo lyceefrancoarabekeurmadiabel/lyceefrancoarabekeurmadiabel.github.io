@@ -277,11 +277,7 @@
     border: 1px solid rgba(255,255,255,0.1);
     font-size: 0.65em;
   }
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
   .legend-dot {
     display: inline-block;
     width: 12px;
@@ -289,14 +285,8 @@
     border-radius: 50%;
     flex-shrink: 0;
   }
-  .legend-dot.electron {
-    background: #00e5ff;
-    box-shadow: 0 0 8px #00e5ff;
-  }
-  .legend-dot.courant {
-    background: #ffa726;
-    box-shadow: 0 0 8px #ffa726;
-  }
+  .legend-dot.electron { background: #00e5ff; box-shadow: 0 0 8px #00e5ff; }
+  .legend-dot.courant { background: #ffa726; box-shadow: 0 0 8px #ffa726; }
 
   .control-bar {
     display: flex;
@@ -327,10 +317,7 @@
   }
   .btn-play:hover:not(:disabled) { transform: translateY(-1px); }
   .btn-play:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-validate {
-    background: linear-gradient(135deg, #4caf50, #66bb6a);
-    color: #fff;
-  }
+  .btn-validate { background: linear-gradient(135deg, #4caf50, #66bb6a); color: #fff; }
   .btn-reset-sm {
     padding: 6px 12px;
     border: 1px solid rgba(255,255,255,0.2);
@@ -427,17 +414,7 @@
 </head>
 <body>
 
-<script>
-  (function() {
-    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent)
-                     || window.innerWidth < 768;
-    const alreadyRedirected = sessionStorage.getItem('circuits_mobile_redirected');
-    if (isMobile && !alreadyRedirected) {
-      sessionStorage.setItem('circuits_mobile_redirected', '1');
-      window.location.replace('simulateur-circuits-mobile.html');
-    }
-  })();
-</script>
+<!-- 🆕 CORRECTION BUG n°1 : Redirection SUPPRIMÉE. Le simulateur reste utilisable sur mobile. -->
 
 <div class="app">
 
@@ -445,7 +422,7 @@
     <div class="topbar-title">⚡ Circuits électriques — Atelier de montage</div>
     <div class="topbar-actions">
       <a href="labo-pc.html" class="btn-mini btn-mini-retour">← Labo PC</a>
-      <a href="simulateur-circuits-mobile.html" class="btn-mini btn-mini-mobile">📱 Mobile</a>
+      <a href="simulateur-circuits-libre.html" class="btn-mini btn-mini-mobile">🎨 Mode libre</a>
     </div>
   </div>
 
@@ -735,7 +712,6 @@ function drawMontage() {
 
   // ⚡ Animation des flux
   if (etat.animationActive && etat.switchFerme) {
-    // Recréer les flux s'ils sont vides
     if (etat.electrons.length === 0 || etat.courants.length === 0) {
       initFlux();
     }
@@ -1000,7 +976,7 @@ function drawResistanceAdditionnelle(cx, cy, w, h) {
 //  FLUX : ÉLECTRONS + COURANT
 // ============================================================
 
-// 🔑 CORRIGÉ : traverse les composants (ampoule, interrupteur, résistance)
+// 🔑 CORRIGÉ BUG n°4 : traverse les composants (ampoule, interrupteur, résistance)
 function getCheminCircuit(departId) {
   const depart = getBorneById(departId);
   if (!depart) return [];
@@ -1057,29 +1033,25 @@ function getCheminCircuit(departId) {
   return chemin;
 }
 
+// 🆕 CORRIGÉ BUG n°4 : teste les deux sens pour trouver un chemin valide
 function initFlux() {
   etat.electrons = [];
   etat.courants = [];
 
   // Électrons : partent de la borne − (pile-B), vont vers +
-  const cheminElec = getCheminCircuit('pile-B');
-  if (cheminElec.length >= 3) {
-    for (let i = 0; i < 15; i++) {
-      etat.electrons.push({ t: i / 15 });
-    }
-  }
+  let cheminElec = getCheminCircuit('pile-B');
+  if (cheminElec.length < 3) cheminElec = getCheminCircuit('pile-A');
 
   // Courant : part de la borne + (pile-A), va vers −
-  const cheminCour = getCheminCircuit('pile-A');
-  if (cheminCour.length >= 3) {
-    for (let i = 0; i < 15; i++) {
-      etat.courants.push({ t: i / 15 });
-    }
-  }
+  let cheminCour = getCheminCircuit('pile-A');
+  if (cheminCour.length < 3) cheminCour = getCheminCircuit('pile-B');
 
-  console.log('🔵 initFlux — Électrons:', etat.electrons.length, '| Courants:', etat.courants.length);
-  console.log('   Chemin pile-B:', cheminElec.map(b => b.id));
-  console.log('   Chemin pile-A:', cheminCour.map(b => b.id));
+  if (cheminElec.length >= 3) {
+    for (let i = 0; i < 15; i++) etat.electrons.push({ t: i / 15 });
+  }
+  if (cheminCour.length >= 3) {
+    for (let i = 0; i < 15; i++) etat.courants.push({ t: i / 15 });
+  }
 }
 
 // Calcule la position sur un chemin en fonction de t ∈ [0,1]
@@ -1113,13 +1085,16 @@ function drawFlux() {
   const calc = calculs();
   if (!calc.circuitFerme) return;
 
-  // 🔽 Vitesse réduite (lente et pédagogique)
+  // Vitesse adaptée
   const speed = calc.isCourtCircuit
     ? 0.0035
     : (0.00025 + Math.min(calc.I * 0.07, 0.002));
 
   // ---------- ÉLECTRONS (pôle − → pôle +) ----------
-  const cheminElec = getCheminCircuit('pile-B');
+  const cheminElec = getCheminCircuit('pile-B').length >= 3
+    ? getCheminCircuit('pile-B')
+    : getCheminCircuit('pile-A');
+
   if (cheminElec.length >= 3) {
     const couleurElec = calc.isCourtCircuit ? '#ff5722' : '#00e5ff';
     etat.electrons.forEach(e => {
@@ -1127,13 +1102,11 @@ function drawFlux() {
       const pos = positionSurChemin(cheminElec, e.t);
       if (!pos) return;
 
-      // Calcul de l'angle (direction du mouvement)
       const posSuivante = positionSurChemin(cheminElec, (e.t + 0.001) % 1);
-      const angle = posSuivante 
+      const angle = posSuivante
         ? Math.atan2(posSuivante.y - pos.y, posSuivante.x - pos.x)
         : 0;
 
-      // Halo lumineux
       const grad = ctx.createRadialGradient(pos.x, pos.y, 1, pos.x, pos.y, 16);
       grad.addColorStop(0, couleurElec);
       grad.addColorStop(1, 'rgba(0, 229, 255, 0)');
@@ -1142,23 +1115,19 @@ function drawFlux() {
       ctx.arc(pos.x, pos.y, 16, 0, Math.PI * 2);
       ctx.fill();
 
-      // Disque de l'électron
       ctx.fillStyle = couleurElec;
       ctx.beginPath();
       ctx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
       ctx.fill();
 
-      // Signe "−" au centre
       ctx.fillStyle = '#000';
       ctx.font = 'bold 9px Arial';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('−', pos.x, pos.y + 0.5);
 
-      // 🆕 FLÈCHE DE DIRECTION
       const flecheX = pos.x + Math.cos(angle) * 12;
       const flecheY = pos.y + Math.sin(angle) * 12;
-      
       ctx.save();
       ctx.translate(flecheX, flecheY);
       ctx.rotate(angle);
@@ -1174,7 +1143,10 @@ function drawFlux() {
   }
 
   // ---------- COURANT CONVENTIONNEL (pôle + → pôle −) ----------
-  const cheminCour = getCheminCircuit('pile-A');
+  const cheminCour = getCheminCircuit('pile-A').length >= 3
+    ? getCheminCircuit('pile-A')
+    : getCheminCircuit('pile-B');
+
   if (cheminCour.length >= 3) {
     const couleurCour = calc.isCourtCircuit ? '#ff9800' : '#ffa726';
     etat.courants.forEach(c => {
@@ -1182,13 +1154,11 @@ function drawFlux() {
       const pos = positionSurChemin(cheminCour, c.t);
       if (!pos) return;
 
-      // Calcul de l'angle (direction du mouvement)
       const posSuivante = positionSurChemin(cheminCour, (c.t + 0.001) % 1);
-      const angle = posSuivante 
+      const angle = posSuivante
         ? Math.atan2(posSuivante.y - pos.y, posSuivante.x - pos.x)
         : 0;
 
-      // Halo lumineux
       const grad = ctx.createRadialGradient(pos.x, pos.y, 1, pos.x, pos.y, 14);
       grad.addColorStop(0, couleurCour);
       grad.addColorStop(1, 'rgba(255, 167, 38, 0)');
@@ -1197,23 +1167,19 @@ function drawFlux() {
       ctx.arc(pos.x, pos.y, 14, 0, Math.PI * 2);
       ctx.fill();
 
-      // Disque du courant
       ctx.fillStyle = couleurCour;
       ctx.beginPath();
       ctx.arc(pos.x, pos.y, 5.5, 0, Math.PI * 2);
       ctx.fill();
 
-      // Signe "+" au centre
       ctx.fillStyle = '#000';
       ctx.font = 'bold 10px Arial';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('+', pos.x, pos.y + 0.5);
 
-      // 🆕 FLÈCHE DE DIRECTION
       const flecheX = pos.x + Math.cos(angle) * 13;
       const flecheY = pos.y + Math.sin(angle) * 13;
-      
       ctx.save();
       ctx.translate(flecheX, flecheY);
       ctx.rotate(angle);
@@ -1234,8 +1200,8 @@ function drawFlux() {
 // ============================================================
 //  CALCULS
 // ============================================================
+// 🆕 CORRIGÉ BUG n°5 : le circuit peut être fermé sans interrupteur
 function calculs() {
-  // Détection du chemin réel (circuit fermé = passe par récepteur + interrupteur)
   const cheminCour = getCheminCircuit('pile-A');
   const passeParRecepteur = cheminCour.some(b =>
     b.id === 'rec-A' || b.id === 'rec-B'
@@ -1245,23 +1211,26 @@ function calculs() {
   );
   const arrivePileB = cheminCour.some(b => b.id === 'pile-B');
 
-  const circuitFerme = passeParRecepteur && passeParInterrupteur && arrivePileB;
+  // 🆕 Le circuit est fermé même SANS interrupteur
+  const circuitFerme = passeParRecepteur && arrivePileB;
+  // 🆕 L'interrupteur ne bloque QUE s'il est présent ET ouvert
+  const interrupteurBloque = passeParInterrupteur && !etat.switchFerme;
 
   const R_interne = 5;
-  const R_pot = (etat.pot / 100) * 1000;  // 0% = 0Ω, 100% = 1000Ω
+  const R_pot = (etat.pot / 100) * 1000;
   const R_totale = R_interne + etat.resistance + R_pot;
 
-  // Court-circuit : uniquement si pas de récepteur dans la boucle
-  const isCourtCircuit = circuitFerme && etat.switchFerme && !passeParRecepteur;
+  const isCourtCircuit = circuitFerme && !passeParRecepteur;
 
   const R_final = Math.max(R_totale, 1);
-  const I = (circuitFerme && etat.switchFerme) ? etat.E / R_final : 0;
-  const U = (circuitFerme && etat.switchFerme) ? etat.E - R_interne * I : 0;
-  const P = circuitFerme && etat.switchFerme ? U * I : 0;
+  const actif = circuitFerme && !interrupteurBloque;
+  const I = actif ? etat.E / R_final : 0;
+  const U = actif ? etat.E - R_interne * I : 0;
+  const P = actif ? U * I : 0;
 
   const nbFilsMin = etat.resistance > 0 ? 4 : 3;
 
-  return { circuitFerme, R_totale, R_final, I, U, P, isCourtCircuit, nbFilsMin };
+  return { circuitFerme, R_totale, R_final, I, U, P, isCourtCircuit, nbFilsMin, passeParRecepteur, passeParInterrupteur };
 }
 
 // ============================================================
@@ -1323,7 +1292,7 @@ function updateUI() {
       observTxt.innerHTML = '<strong>⚠️ Danger :</strong> aucun récepteur dans la boucle, courant énorme !';
       status.textContent = '⚠️ Court-circuit';
       hint.textContent = '⚠️ COURT-CIRCUIT !';
-    } else if (etat.switchFerme) {
+    } else if (etat.switchFerme && calc.circuitFerme) {
       stateBox.className = 'state-box ok';
       stateBox.textContent = '✅ Circuit fermé — I circule';
       observTxt.innerHTML = `<strong>Étape 3 :</strong> I = ${(calc.I*1000).toFixed(0)} mA. Le courant va du + vers le −, les électrons du − vers le +.`;
@@ -1367,13 +1336,11 @@ canvas.addEventListener('click', function(e) {
   let renderWidth, renderHeight, offsetX, offsetY;
 
   if (rectRatio > canvasRatio) {
-    // Conteneur plus large → marges à gauche/droite
     renderHeight = rect.height;
     renderWidth = renderHeight * canvasRatio;
     offsetX = (rect.width - renderWidth) / 2;
     offsetY = 0;
   } else {
-    // Conteneur plus haut → marges en haut/bas
     renderWidth = rect.width;
     renderHeight = renderWidth / canvasRatio;
     offsetX = 0;
@@ -1382,8 +1349,6 @@ canvas.addEventListener('click', function(e) {
 
   const x = (e.clientX - rect.left - offsetX) * (canvas.width / renderWidth);
   const y = (e.clientY - rect.top - offsetY) * (canvas.height / renderHeight);
-
-  console.log('🖱️ Clic canvas — étape:', etat.step, '| x:', x.toFixed(0), 'y:', y.toFixed(0));
 
   if (etat.step === 1) return;
 
@@ -1551,15 +1516,31 @@ function passerAuMontage() {
   etat.borneSelectionnee = null;
 }
 
+// 🆕 CORRIGÉ BUG n°6 : Validation vérifie le VRAI chemin
 function validateCircuit() {
+  // Compter les fils minimum
   const nbMin = etat.resistance > 0 ? 4 : 3;
-  if (etat.fils.length >= nbMin) {
-    etat.step = 3;
-    etat.borneSelectionnee = null;
-    initFlux();
-  } else {
-    alert('❌ Ton circuit n\'est pas complet ! Il manque ' + (nbMin - etat.fils.length) + ' fil(s).');
+  if (etat.fils.length < nbMin) {
+    alert(`❌ Ton circuit n'est pas complet ! Il manque ${nbMin - etat.fils.length} fil(s).`);
+    return;
   }
+
+  // 🆕 Vérifier qu'un chemin fermé EXISTE réellement
+  const chemin = getCheminCircuit('pile-A');
+  if (chemin.length < 3) {
+    alert('❌ Ton circuit n\'est pas fermé ! Vérifie tes connexions.');
+    return;
+  }
+
+  const passeParRecepteur = chemin.some(b => b.id === 'rec-A' || b.id === 'rec-B');
+  if (!passeParRecepteur) {
+    alert('❌ Ton récepteur n\'est pas dans la boucle du circuit !');
+    return;
+  }
+
+  etat.step = 3;
+  etat.borneSelectionnee = null;
+  initFlux();
 }
 
 function toggleSwitch() {
@@ -1627,7 +1608,7 @@ window.addEventListener('load', () => {
   document.body.classList.add('loaded');
   initBornes();
   loop();
-  console.log('🚀 Simulateur circuits prêt !');
+  console.log('🚀 Simulateur circuits PC prêt !');
 });
 </script>
 
