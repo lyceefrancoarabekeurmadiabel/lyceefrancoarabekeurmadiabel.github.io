@@ -1547,7 +1547,7 @@ function analyserCircuit() {
 
   // 🔑 CORRECTION n°3 : calcul du Req par vraie analyse nodale
   //    On construit le circuit et on calcule Req par la méthode des nœuds
-  const analyse = analyserNodal(pile, resistances, graphe);
+  const analyse = analyserNodal(pile, resistances, graphe, E);
 
   let Req = analyse.Req;
   let I_total = Req > 0 ? E / Req : 0;
@@ -1609,7 +1609,7 @@ function detecterType(chemin, resistances) {
 // 🆕 CORRECTION n°3 : analyse nodale par résolution du système linéaire
 // Pour un circuit simple avec une seule source, on peut simplifier :
 // - On calcule le Req en utilisant la méthode de réduction progressive
-function analyserNodal(pile, resistances, graphe) {
+function analyserNodal(pile, resistances, graphe, E) {
   // Méthode : on simule un courant de test I_test = 1 A entre les bornes
   // de la pile, et on calcule la tension résultante → Req = U / I_test
 
