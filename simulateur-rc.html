@@ -581,6 +581,10 @@
             <span class="icon">⬤</span>
             <span>➕ Ajouter un nœud</span>
           </button>
+          <button class="outil-btn danger" id="btnSupprNoeud" onclick="supprimerDernierNoeud()" style="display: none;">
+  <span class="icon">✖</span>
+  <span>Supprimer un nœud</span>
+</button>
           <button class="outil-btn danger" onclick="effacerTout()">
             <span class="icon">🗑</span>
             <span>Tout effacer</span>
@@ -732,8 +736,25 @@ function ouvrirModal(cle) {
   document.getElementById('modalOverlay').classList.add('show');
 }
 function fermerModal() { document.getElementById('modalOverlay').classList.remove('show'); }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') fermerModal(); });
-
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') fermerModal();
+  
+  // 🆕 Suppr : supprimer l'élément sélectionné
+  if (e.key === 'Delete' || e.key === 'Suppr') {
+    // 1) Si un FIL est sélectionné → le supprimer
+    if (montage.filSelectionne) {
+      montage.fils = montage.fils.filter(f => f.id !== montage.filSelectionne);
+      montage.filSelectionne = null;
+      updateConnexionsFils();
+      drawMontage();
+      updateProgress();
+      updateCanvasHint();
+      return;
+    }
+    // 2) Si un COMPOSANT est sélectionné → le supprimer
+    // (optionnel — on peut l'ajouter plus tard)
+  }
+});
 // ============================================================
 //  NAVIGATION
 // ============================================================
@@ -874,6 +895,39 @@ function ajouterNoeud() {
   drawMontage();
   updateProgress();
   updateCanvasHint();
+  updateBoutonSupprNoeud();  // 🆕
+}
+
+// 🆕 Supprimer le dernier nœud ajouté
+function supprimerDernierNoeud() {
+  if (montage.noeuds.length === 0) {
+    alert('Aucun nœud à supprimer.');
+    return;
+  }
+  const dernier = montage.noeuds[montage.noeuds.length - 1];
+  supprimerNoeud(dernier.id);
+}
+
+// 🆕 Supprimer un nœud précis (par id)
+function supprimerNoeud(id) {
+  // Déconnecter les fils liés
+  montage.fils.forEach(f => {
+    if (f.de === id) f.de = null;
+    if (f.vers === id) f.vers = null;
+  });
+  montage.noeuds = montage.noeuds.filter(n => n.id !== id);
+  updateConnexionsFils();
+  drawMontage();
+  updateProgress();
+  updateCanvasHint();
+  updateBoutonSupprNoeud();
+}
+
+// 🆕 Mettre à jour la visibilité du bouton "Supprimer un nœud"
+function updateBoutonSupprNoeud() {
+  const btn = document.getElementById('btnSupprNoeud');
+  if (!btn) return;
+  btn.style.display = montage.noeuds.length > 0 ? 'flex' : 'none';
 }
 
 // --------- BORNES ---------
@@ -1175,30 +1229,42 @@ function drawCondensateur(cx, cy, w, h, valeur) {
 }
 
 function drawInterrupteur(cx, cy, w, h) {
+  const ferme = montage.interrupteurFerme;
+
+  // Cadre
   ctx.fillStyle = '#1a1a2e';
-  ctx.strokeStyle = '#4fc3f7';
+  ctx.strokeStyle = ferme ? '#4caf50' : '#4fc3f7';
   ctx.lineWidth = 3;
   ctx.beginPath(); ctx.roundRect(cx - w / 2, cy - h / 2, w, h, 8); ctx.fill(); ctx.stroke();
 
   const bx1 = cx - w / 2 + 15;
   const bx2 = cx + w / 2 - 15;
 
+  // Bornes
   ctx.fillStyle = '#fff';
   ctx.beginPath(); ctx.arc(bx1, cy, 6, 0, Math.PI * 2); ctx.fill();
   ctx.beginPath(); ctx.arc(bx2, cy, 6, 0, Math.PI * 2); ctx.fill();
 
-  ctx.strokeStyle = '#f44336';
+  // Levier — ouvert ou fermé
+  ctx.strokeStyle = ferme ? '#4caf50' : '#f44336';
   ctx.lineWidth = 4;
   ctx.lineCap = 'round';
   ctx.beginPath();
   ctx.moveTo(bx1, cy);
-  ctx.lineTo(bx2, cy - 22);
+  if (ferme) {
+    // Fermé : levier horizontal
+    ctx.lineTo(bx2, cy);
+  } else {
+    // Ouvert : levier incliné vers le haut
+    ctx.lineTo(bx2, cy - 22);
+  }
   ctx.stroke();
 
-  ctx.fillStyle = '#4fc3f7';
+  // Label "K" + état
+  ctx.fillStyle = ferme ? '#4caf50' : '#4fc3f7';
   ctx.font = 'bold 10px monospace';
   ctx.textAlign = 'center';
-  ctx.fillText('K', cx, cy - h / 2 - 10);
+  ctx.fillText(ferme ? 'K ✓ FERMÉ' : 'K ○ OUVERT', cx, cy - h / 2 - 10);
 }
 
 function drawBorne(b) {
@@ -1254,10 +1320,50 @@ canvas.addEventListener('touchend', e => {
 
 canvas.addEventListener('dblclick', e => {
   const p = getCanvasCoords(e, false);
+  
+  // 🆕 Double-clic sur un NŒUD → supprimer
+  const noeud = trouverNoeudProche(p.x, p.y);
+  if (noeud) {
+    if (confirm('Supprimer ce nœud ?')) {
+      supprimerNoeud(noeud.id);
+    }
+    return;
+  }
+  
+  // Double-clic sur un INTERRUPTEUR → ouvrir/fermer
   const comp = trouverComposantProche(p.x, p.y);
   if (comp && comp.type === 'interrupteur') {
     montage.interrupteurFerme = !montage.interrupteurFerme;
     drawMontage();
+  }
+});
+
+// 🆕 CLIC DROIT → menu contextuel
+canvas.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  const p = getCanvasCoords(e, false);
+  
+  // Clic droit sur un nœud → supprimer
+  const noeud = trouverNoeudProche(p.x, p.y);
+  if (noeud) {
+    if (confirm('Supprimer ce nœud ?')) {
+      supprimerNoeud(noeud.id);
+    }
+    return;
+  }
+  
+  // Clic droit sur un fil → supprimer
+  const fil = trouverFilProche(p.x, p.y);
+  if (fil) {
+    if (confirm('Supprimer ce fil ?')) {
+      montage.fils = montage.fils.filter(f => f.id !== fil.id);
+      if (montage.filSelectionne === fil.id) montage.filSelectionne = null;
+      updateConnexionsFils();
+      drawMontage();
+      updateProgress();
+      updateCanvasHint();
+    }
+    return;
   }
 });
 
@@ -1502,6 +1608,7 @@ function effacerTout() {
   drawMontage();
   updateProgress();
   updateCanvasHint();
+  updateBoutonSupprNoeud();  // 🆕
   document.getElementById('verifMessage').classList.remove('show');
 }
 
