@@ -919,15 +919,35 @@ function getBornes(composant) {
   const cos = Math.cos(angle);
   const sin = Math.sin(angle);
 
-  // 🆕 Demi-dimensions qui s'inversent si rotation à 90° ou 270°
-  const estTourne = (rotation % 180 !== 0);
-  const demiLargeur = estTourne ? t.h / 2 : t.w / 2;
-  const demiHauteur = estTourne ? t.w / 2 : t.h / 2;
+  // 🆕 Orientations "naturelles" de chaque composant (à rotation 0)
+  const orientations = {
+    pile: 'vertical',        // bornes en haut / bas
+    condensateur: 'vertical', // bornes en haut / bas
+    resistance: 'horizontal', // bornes à gauche / droite
+    interrupteur: 'horizontal' // bornes à gauche / droite
+  };
+  const orientation = orientations[composant.type] || 'horizontal';
 
-  // Points d'ancrage en coordonnées locales (avant rotation)
+  // Rotation effective : si on tourne d'un multiple de 90°, on alterne
+  const estTourne90 = (rotation % 180 !== 0);
+  const orientationFinale = estTourne90
+    ? (orientation === 'horizontal' ? 'vertical' : 'horizontal')
+    : orientation;
+
+  // Offset selon l'orientation finale
+  let offsetX, offsetY;
+  if (orientationFinale === 'horizontal') {
+    offsetX = t.w / 2;
+    offsetY = 0;
+  } else {
+    offsetX = 0;
+    offsetY = t.h / 2;
+  }
+
+  // Points d'ancrage en coordonnées locales
   const pointsLocaux = [
-    { id: composant.id + '-L', lx: -demiLargeur, ly: 0 },
-    { id: composant.id + '-R', lx: demiLargeur, ly: 0 }
+    { id: composant.id + '-L', lx: -offsetX, ly: -offsetY },
+    { id: composant.id + '-R', lx: offsetX, ly: offsetY }
   ];
 
   const bornes = [];
@@ -943,7 +963,6 @@ function getBornes(composant) {
   });
   return bornes;
 }
-
 function getToutesLesBornes() {
   const toutes = [];
   montage.composants.forEach(c => getBornes(c).forEach(b => toutes.push(b)));
