@@ -870,6 +870,111 @@
     color: var(--slate);
     margin-bottom: 8px;
   }
+  /* ===== ÉTAPE 4.5 : CONCLUSION ===== */
+  .conclusion-bilan {
+    background: linear-gradient(135deg, #fff8e1 0%, #fffbf0 100%);
+    border-left: 5px solid var(--brass);
+    border-radius: 8px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+  }
+  .bilan-item { display: flex; gap: 12px; align-items: flex-start; }
+  .bilan-icon { font-size: 28px; flex-shrink: 0; }
+  .bilan-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1.2px; color: var(--brass); margin-bottom: 4px;
+  }
+  .bilan-text { font-size: 14px; color: var(--ink); line-height: 1.55; }
+
+  .conclusion-form {
+    background: #fff;
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .conclusion-champ { margin-bottom: 22px; }
+  .conclusion-champ label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14.5px; font-weight: 700; color: var(--ink);
+    margin-bottom: 6px; cursor: pointer;
+  }
+  .champ-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--brass); color: #fff;
+    font-size: 13px; font-weight: 800; flex-shrink: 0;
+  }
+  .champ-indice {
+    font-size: 12px; color: var(--slate); font-style: italic;
+    margin: 0 0 8px 36px; line-height: 1.45;
+  }
+  .conclusion-champ input,
+  .conclusion-champ select {
+    width: 100%; padding: 12px 14px;
+    border: 2px solid var(--line); border-radius: 8px;
+    font-family: inherit; font-size: 14px; color: var(--ink);
+    background: #f9f7f2; transition: all 0.2s;
+  }
+  .conclusion-champ input:focus,
+  .conclusion-champ select:focus {
+    outline: none; border-color: var(--brass);
+    background: #fff; box-shadow: 0 0 0 3px rgba(168,133,63,0.12);
+  }
+  .conclusion-champ input.correct,
+  .conclusion-champ select.correct {
+    border-color: var(--success); background: #f1f8f3;
+  }
+  .conclusion-champ input.incorrect,
+  .conclusion-champ select.incorrect {
+    border-color: var(--danger); background: #fdf2f2;
+  }
+
+  .champ-feedback {
+    font-size: 12.5px; margin-top: 6px; line-height: 1.5;
+    display: none; padding: 8px 12px; border-radius: 6px;
+  }
+  .champ-feedback.show { display: block; }
+  .champ-feedback.success {
+    background: #e8f5e9; color: #1b5e20;
+    border-left: 3px solid var(--success);
+  }
+  .champ-feedback.error {
+    background: #ffebee; color: #b71c1c;
+    border-left: 3px solid var(--danger);
+  }
+
+  .conclusion-actions {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px;
+  }
+
+  .conclusion-resultat {
+    margin-top: 20px; padding: 15px 20px; border-radius: 10px;
+    font-size: 14px; line-height: 1.6; display: none;
+  }
+  .conclusion-resultat.show { display: block; }
+  .conclusion-resultat.success {
+    background: #e8f5e9; border-left: 5px solid var(--success); color: #1b5e20;
+  }
+  .conclusion-resultat.partiel {
+    background: #fff8e1; border-left: 5px solid var(--warning); color: #7a5a00;
+  }
+
+  .conclusion-finale {
+    display: none; margin-top: 25px;
+    background: #fff; border: 2px solid var(--success);
+    border-radius: 12px; padding: 22px;
+  }
+  .conclusion-finale.show { display: block; animation: fadeIn 0.4s ease-out; }
+  .conclusion-finale h4 {
+    font-family: var(--serif); font-size: 18px; color: var(--ink);
+    margin-bottom: 14px; padding-bottom: 10px; border-bottom: 2px solid var(--line);
+  }
+  .conclusion-texte {
+    font-size: 14.5px; line-height: 1.7; color: var(--ink);
+    background: #f9f7f2; border-radius: 8px; padding: 18px 20px;
+    margin-bottom: 15px; white-space: pre-line;
+  }
+  .conclusion-texte strong { color: var(--brass); }
 </style>
 </head>
 <body>
@@ -1541,12 +1646,94 @@
         </div>
       </div>
 
-      <!-- Onglet 4.5 : Conclusion (placeholder) -->
+           <!-- Onglet 4.5 : Conclusion -->
       <div class="sous-onglet-contenu" id="sous-conclusion">
-        <div class="conclusion-placeholder">
-          <span class="icon">✍️</span>
-          <h3>Ma conclusion</h3>
-          <p>Cette section sera construite dans la V6.2.</p>
+        <div class="recap-header">
+          <h3>✍️ Ma conclusion</h3>
+          <p>Rédige ta conclusion en t'aidant des indices. Elle sera vérifiée automatiquement.</p>
+        </div>
+
+        <div class="conclusion-bilan">
+          <div class="bilan-item">
+            <span class="bilan-icon">🎯</span>
+            <div>
+              <div class="bilan-label">Objectif du TP</div>
+              <div class="bilan-text">
+                Déterminer expérimentalement la constante de temps <strong>τ</strong>
+                d'un circuit RC et vérifier la relation <strong>τ = R × C</strong>.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="conclusion-form">
+          <div class="conclusion-champ">
+            <label for="concl-1">
+              <span class="champ-num">1</span>
+              Quelle est la valeur théorique de la constante de temps τ ?
+            </label>
+            <div class="champ-indice">💡 τ = R × C avec R = 1 kΩ et C = 100 µF</div>
+            <input type="text" id="concl-1" placeholder="Ex : 100 ms" autocomplete="off">
+            <div class="champ-feedback" id="fb-1"></div>
+          </div>
+
+          <div class="conclusion-champ">
+            <label for="concl-2">
+              <span class="champ-num">2</span>
+              Quelle est la tension U_C à t = τ lors de la charge ?
+            </label>
+            <div class="champ-indice">💡 U_C = E × (1 − e^(−1)) ≈ 0,63 × E, avec E = 9 V</div>
+            <input type="text" id="concl-2" placeholder="Ex : 5,7 V" autocomplete="off">
+            <div class="champ-feedback" id="fb-2"></div>
+          </div>
+
+          <div class="conclusion-champ">
+            <label for="concl-3">
+              <span class="champ-num">3</span>
+              Quelle est la tension U_C à t = τ lors de la décharge ?
+            </label>
+            <div class="champ-indice">💡 U_C = E × e^(−1) ≈ 0,37 × E</div>
+            <input type="text" id="concl-3" placeholder="Ex : 3,3 V" autocomplete="off">
+            <div class="champ-feedback" id="fb-3"></div>
+          </div>
+
+          <div class="conclusion-champ">
+            <label for="concl-4">
+              <span class="champ-num">4</span>
+              Complète : « Plus τ est grand, plus la charge du condensateur est… »
+            </label>
+            <div class="champ-indice">💡 Pense à la vitesse d'évolution de la courbe</div>
+            <select id="concl-4">
+              <option value="">— Choisis une réponse —</option>
+              <option value="lente">lente</option>
+              <option value="rapide">rapide</option>
+              <option value="instantanee">instantanée</option>
+            </select>
+            <div class="champ-feedback" id="fb-4"></div>
+          </div>
+
+          <div class="conclusion-champ">
+            <label for="concl-5">
+              <span class="champ-num">5</span>
+              Cite une application concrète du circuit RC vue dans ce TP.
+            </label>
+            <div class="champ-indice">💡 Regarde l'onglet « Applications »</div>
+            <input type="text" id="concl-5" placeholder="Ex : flash d'appareil photo" autocomplete="off">
+            <div class="champ-feedback" id="fb-5"></div>
+          </div>
+
+          <div class="conclusion-actions">
+            <button class="btn btn-primary" onclick="verifierConclusion()">✅ Vérifier ma conclusion</button>
+            <button class="btn btn-secondary" onclick="reinitialiserConclusion()">↺ Recommencer</button>
+          </div>
+
+          <div class="conclusion-resultat" id="conclusionResultat"></div>
+        </div>
+
+        <div class="conclusion-finale" id="conclusionFinale">
+          <h4>📝 Ta conclusion rédigée</h4>
+          <div class="conclusion-texte" id="conclusionTexte"></div>
+          <button class="btn btn-secondary" onclick="imprimerConclusion()">🖨️ Imprimer ma conclusion</button>
         </div>
       </div>
 
@@ -3248,12 +3435,178 @@ function validerQCM(num) {
   }
 
   // Vérifier si les 3 sont validées
-  if (qcmValides[1] && qcmValides[2] && qcmValides[3]) {
-    // Débloquer l'onglet conclusion
+   if (qcmValides[1] && qcmValides[2] && qcmValides[3]) {
     setTimeout(() => {
-      alert('🎉 Toutes les questions sont validées ! Tu peux passer à « Ma conclusion » (V6.2).');
+      alert('🎉 Toutes les questions sont validées ! Tu peux maintenant rédiger « Ma conclusion ».');
     }, 500);
   }
+}
+
+// ============================================================
+//  ÉTAPE 4.5 : CONCLUSION
+// ============================================================
+function verifierConclusion() {
+  const reponses = {
+    1: document.getElementById('concl-1').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, ''),
+    2: document.getElementById('concl-2').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, ''),
+    3: document.getElementById('concl-3').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, ''),
+    4: document.getElementById('concl-4').value,
+    5: document.getElementById('concl-5').value.trim().toLowerCase()
+  };
+
+  // Réponses acceptées (tolérance sur les unités et écritures)
+  const accepte = {
+    1: ['100ms', '0.1s', '0,1s', '100e-3s', '1e-1s'],
+    2: ['5.67v', '5,7v', '5.7v', '5.6v', '5.67', '5.7', '5.6', '63%', '0.63*9', '5.67v(63%)'],
+    3: ['3.33v', '3,3v', '3.3v', '3.32v', '3.33', '3.3', '37%', '0.37*9'],
+    4: ['lente'],
+    5: null // texte libre, on vérifie juste qu'il n'est pas vide
+  };
+
+  let score = 0;
+  const total = 5;
+  const details = [];
+
+  // Q1
+  const ok1 = accepte[1].some(r => reponses[1].includes(r));
+  marquerChamp(1, ok1, ok1
+    ? '✅ Exact ! τ = R × C = 1000 × 100×10⁻⁶ = 0,1 s = 100 ms.'
+    : '❌ τ = R × C = 1000 Ω × 100×10⁻⁶ F = 0,1 s = 100 ms.');
+  if (ok1) score++;
+  details.push({ q: 'Valeur de τ', ok: ok1 });
+
+  // Q2
+  const ok2 = accepte[2].some(r => reponses[2].includes(r));
+  marquerChamp(2, ok2, ok2
+    ? '✅ Exact ! U_C(τ) = 9 × (1 − e⁻¹) ≈ 5,7 V, soit 63 % de E.'
+    : '❌ U_C(τ) = E × (1 − e⁻¹) ≈ 0,63 × 9 ≈ 5,7 V (63 % de E).');
+  if (ok2) score++;
+  details.push({ q: 'U_C à t = τ (charge)', ok: ok2 });
+
+  // Q3
+  const ok3 = accepte[3].some(r => reponses[3].includes(r));
+  marquerChamp(3, ok3, ok3
+    ? '✅ Exact ! U_C(τ) = 9 × e⁻¹ ≈ 3,3 V, soit 37 % de E.'
+    : '❌ U_C(τ) = E × e⁻¹ ≈ 0,37 × 9 ≈ 3,3 V (37 % de E).');
+  if (ok3) score++;
+  details.push({ q: 'U_C à t = τ (décharge)', ok: ok3 });
+
+  // Q4
+  const ok4 = reponses[4] === 'lente';
+  marquerChamp(4, ok4, ok4
+    ? '✅ Exact ! Plus τ est grand, plus la charge est lente (la courbe monte doucement).'
+    : '❌ Plus τ est grand, plus la charge est LENTE. Un grand τ = une évolution lente.');
+  if (ok4) score++;
+  details.push({ q: 'Influence de τ', ok: ok4 });
+
+  // Q5 (texte libre)
+  const ok5 = reponses[5].length >= 3;
+  marquerChamp(5, ok5, ok5
+    ? '✅ Bien ! Cette application utilise bien un circuit RC.'
+    : '❌ Réponse trop courte. Cite une application vue dans l\'onglet « Applications » (flash, clignotant, minuterie, supercondensateur…).');
+  if (ok5) score++;
+  details.push({ q: 'Application concrète', ok: ok5 });
+
+  // Résultat global
+  const resultat = document.getElementById('conclusionResultat');
+  resultat.className = 'conclusion-resultat show ' + (score === total ? 'success' : 'partiel');
+
+  if (score === total) {
+    resultat.innerHTML = `<strong>🎉 Parfait ! ${score}/${total} — Ta conclusion est complète.</strong><br>
+      Tu as bien compris le comportement du circuit RC et la signification de la constante de temps τ.`;
+  } else {
+    resultat.innerHTML = `<strong>📊 Score : ${score}/${total}</strong><br>
+      Corrige les réponses marquées en rouge, puis revalide.`;
+  }
+
+  // Afficher la conclusion rédigée si au moins 3/5
+  if (score >= 3) {
+    afficherConclusionFinale(reponses, score, total);
+  }
+}
+
+function marquerChamp(num, ok, message) {
+  const champ = document.getElementById('concl-' + num);
+  const fb = document.getElementById('fb-' + num);
+  champ.classList.remove('correct', 'incorrect');
+  champ.classList.add(ok ? 'correct' : 'incorrect');
+  fb.className = 'champ-feedback show ' + (ok ? 'success' : 'error');
+  fb.innerHTML = message;
+}
+
+function afficherConclusionFinale(rep, score, total) {
+  const zone = document.getElementById('conclusionFinale');
+  const texte = document.getElementById('conclusionTexte');
+
+  const appli = document.getElementById('concl-5').value.trim();
+
+  texte.innerHTML = `
+<strong>Conclusion du TP RC</strong>
+
+Nous avons réalisé un circuit RC composé d'une pile (E = 9 V), d'une résistance
+(R = 1 kΩ), d'un condensateur (C = 100 µF) et d'un interrupteur K. L'oscilloscope,
+branché en dérivation aux bornes du condensateur, nous a permis de tracer la
+courbe U_C(t) lors de la charge et de la décharge.
+
+La constante de temps théorique du circuit est :
+<strong>τ = R × C = 1000 × 100×10⁻⁶ = 0,1 s = 100 ms</strong>.
+
+À t = τ, lors de la <strong>charge</strong>, la tension aux bornes du condensateur
+atteint 63 % de E, soit environ <strong>5,7 V</strong>. Lors de la <strong>décharge</strong>,
+elle est descendue à 37 % de E, soit environ <strong>3,3 V</strong>.
+
+Nous avons observé que plus la constante de temps τ est grande, plus la charge
+(et la décharge) du condensateur est <strong>lente</strong>.
+
+Cette expérience nous a permis de vérifier la relation <strong>τ = R × C</strong>
+et de comprendre le rôle du condensateur dans de nombreuses applications
+pratiques telles que ${appli ? '<strong>' + appli + '</strong>' : 'le flash d\'un appareil photo, le clignotant d\'une voiture ou les minuteries'}.
+
+<em>Score obtenu : ${score}/${total}</em>
+  `.trim();
+
+  zone.classList.add('show');
+  zone.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function reinitialiserConclusion() {
+  ['concl-1', 'concl-2', 'concl-3', 'concl-5'].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = '';
+    el.classList.remove('correct', 'incorrect');
+  });
+  const sel = document.getElementById('concl-4');
+  sel.value = '';
+  sel.classList.remove('correct', 'incorrect');
+
+  for (let i = 1; i <= 5; i++) {
+    const fb = document.getElementById('fb-' + i);
+    fb.className = 'champ-feedback';
+    fb.innerHTML = '';
+  }
+
+  document.getElementById('conclusionResultat').className = 'conclusion-resultat';
+  document.getElementById('conclusionFinale').classList.remove('show');
+}
+
+function imprimerConclusion() {
+  const texte = document.getElementById('conclusionTexte').innerText;
+  const fenetre = window.open('', '_blank');
+  fenetre.document.write(`
+    <!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+    <title>Ma conclusion — TP RC</title>
+    <style>
+      body { font-family: Georgia, serif; max-width: 700px; margin: 40px auto; padding: 20px; line-height: 1.7; color: #1a1a1a; }
+      h1 { font-size: 22px; border-bottom: 2px solid #A8853F; padding-bottom: 10px; }
+      pre { white-space: pre-wrap; font-family: Georgia, serif; font-size: 14.5px; }
+      @media print { body { margin: 20px; } }
+    </style></head><body>
+    <h1>✍️ Ma conclusion — TP RC</h1>
+    <pre>${texte.replace(/</g, '&lt;')}</pre>
+    </body></html>
+  `);
+  fenetre.document.close();
+  setTimeout(() => fenetre.print(), 400);
 }
 
 // ============================================================
