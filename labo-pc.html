@@ -147,6 +147,20 @@
     gap: 12px;
     margin-top: 18px;
   }
+    /* Grille à 3 colonnes pour les circuits RC/RL/LC */
+  .sim-sub-buttons[style*="1fr 1fr 1fr"] {
+    grid-template-columns: 1fr 1fr 1fr !important;
+  }
+  @media (max-width: 900px) {
+    .sim-sub-buttons[style*="1fr 1fr 1fr"] {
+      grid-template-columns: 1fr 1fr !important;
+    }
+  }
+  @media (max-width: 640px) {
+    .sim-sub-buttons[style*="1fr 1fr 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+  }
   .sim-sub-btn {
     display: flex;
     align-items: center;
@@ -398,26 +412,55 @@
           </div>
         </a>
 
-        <!-- Bannière 2 : RC / RL (à venir) -->
-        <a href="#" class="sim-banner sim-banner-bientot" style="background: linear-gradient(135deg, #0d47a1 0%, #26a69a 100%);" onclick="event.preventDefault(); alert('🚧 Simulateur RC/RL en préparation — disponible très bientôt !');">
-          <div class="sim-bientot-badge">🚧 BIENTÔT</div>
+                <!-- Bannière 2 : RC / RL / LC (ACTIF — 3 sous-boutons) -->
+        <div class="sim-banner" style="background: linear-gradient(135deg, #0d47a1 0%, #26a69a 50%, #9c27b0 100%); cursor: default;">
           <div class="sim-banner-inner">
-            <div class="sim-icon">🔋</div>
+            <div class="sim-icon">🌊</div>
             <div class="sim-text">
-              <div class="sim-eyebrow">À VENIR · RÉGIME TRANSITOIRE</div>
-              <h2 class="sim-title">Charge / Décharge — RC & RL</h2>
-              <p class="sim-desc">📈 Évolution de U(t) et I(t) · ⏱️ Constante de temps τ · 📊 Oscilloscope virtuel</p>
+              <div class="sim-eyebrow">INTERACTIF · RÉGIME TRANSITOIRE & OSCILLATIONS</div>
+              <h2 class="sim-title">Circuits RC, RL & LC</h2>
+              <p class="sim-desc">📈 Évolution de U(t) et i(t) · ⏱️ Constantes τ (RC/RL) et période T₀ (LC) · 📄 Certificat PDF</p>
             </div>
-            <div class="sim-arrow">→</div>
+            <div class="sim-arrow" style="opacity: 0.5;">▼</div>
           </div>
+
+          <div class="sim-sub-buttons" style="grid-template-columns: 1fr 1fr 1fr;">
+            <a href="simulateur-rc.html" class="sim-sub-btn">
+              <div class="sim-sub-icon">⚡</div>
+              <div class="sim-sub-text">
+                <strong>RC — Condensateur</strong>
+                <span>Charge/décharge · τ = R × C</span>
+              </div>
+              <div class="sim-sub-arrow">→</div>
+            </a>
+            <a href="simulateur-rl.html" class="sim-sub-btn">
+              <div class="sim-sub-icon">🌀</div>
+              <div class="sim-sub-text">
+                <strong>RL — Bobine</strong>
+                <span>Établissement/rupture · τ = L / R</span>
+              </div>
+              <div class="sim-sub-arrow">→</div>
+            </a>
+            <a href="simulateur-lc.html" class="sim-sub-btn">
+              <div class="sim-sub-icon">🌊</div>
+              <div class="sim-sub-text">
+                <strong>LC — Oscillant</strong>
+                <span>Oscillations libres · T₀ = 2π√(LC)</span>
+              </div>
+              <div class="sim-sub-arrow">→</div>
+            </a>
+          </div>
+
           <div class="sim-tags">
-            <span class="sim-tag">🔵 RC</span>
-            <span class="sim-tag">🟢 RL</span>
-            <span class="sim-tag">📈 Courbes U(t)</span>
+            <span class="sim-tag">⚡ RC</span>
+            <span class="sim-tag">🌀 RL</span>
+            <span class="sim-tag">🌊 LC</span>
             <span class="sim-tag">⏱️ Constante τ</span>
+            <span class="sim-tag">📐 T₀ = 2π√(LC)</span>
             <span class="sim-tag">🎓 1ère → Tle</span>
+            <span class="sim-tag">📄 Certificat PDF</span>
           </div>
-        </a>
+        </div>
 
         <!-- Bannière 3 : RLC libre (à venir) -->
         <a href="#" class="sim-banner sim-banner-bientot" style="background: linear-gradient(135deg, #1b5e20 0%, #9e9d24 100%);" onclick="event.preventDefault(); alert('🚧 Simulateur RLC libre en préparation — disponible très bientôt !');">
