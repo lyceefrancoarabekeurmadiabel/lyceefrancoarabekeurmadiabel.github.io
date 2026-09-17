@@ -1785,10 +1785,10 @@ function drawComposant(c) {
   ctx.translate(c.x, c.y);
   ctx.rotate((c.rotation || 0) * Math.PI / 180);
   ctx.translate(-c.x, -c.y);
-  if (c.type === 'pile') drawPile(c.x, c.y, t.w, t.h, c.valeur);
-  else if (c.type === 'resistance') drawResistance(c.x, c.y, t.w, t.h, c.valeur);
-  else if (c.type === 'condensateur') drawCondensateur(c.x, c.y, t.w, t.h, c.valeur);
-  else if (c.type === 'interrupteur') drawInterrupteur(c.x, c.y, t.w, t.h);
+  if (c.type === 'pile') drawPileB(c.x, c.y, TAILLE.pile.w, TAILLE.pile.h, c.valeur);
+else if (c.type === 'resistance') drawResistanceB(c.x, c.y, TAILLE.resistance.w, TAILLE.resistance.h, c.valeur);
+else if (c.type === 'condensateur') drawCondensateurB(c.x, c.y, TAILLE.condensateur.w, TAILLE.condensateur.h, c.valeur);
+else if (c.type === 'interrupteur') drawInterrupteurB(c.x, c.y, TAILLE.interrupteur.w, TAILLE.interrupteur.h);
   ctx.restore();
   ctx.shadowBlur = 0;
   drawPoigneeRotation(c);
@@ -1828,6 +1828,44 @@ function drawResistance(cx, cy, w, h, valeur) {
   ctx.fillText(valeur, cx, cy); ctx.textBaseline = 'alphabetic';
 }
 
+// ---- Versions B : dessinent sur le canvas de branchement (ctxB) ----
+function drawPileB(cx, cy, w, h, valeur) {
+  ctxB.fillStyle = '#1a1a2e'; ctxB.strokeStyle = '#4caf50'; ctxB.lineWidth = 3;
+  ctxB.beginPath(); ctxB.roundRect(cx - w/2, cy - h/2, w, h, 8); ctxB.fill(); ctxB.stroke();
+  ctxB.fillStyle = '#4caf50'; ctxB.font = 'bold 24px Arial'; ctxB.textAlign = 'center'; ctxB.textBaseline = 'middle';
+  ctxB.fillText('+', cx, cy - 20);
+  ctxB.fillStyle = '#f44336'; ctxB.fillText('−', cx, cy + 20);
+  ctxB.fillStyle = '#fff'; ctxB.font = 'bold 13px monospace'; ctxB.fillText(valeur || '9 V', cx, cy + 1);
+  ctxB.textBaseline = 'alphabetic';
+}
+
+function drawResistanceB(cx, cy, w, h, valeur) {
+  ctxB.fillStyle = '#1a1a2e'; ctxB.strokeStyle = '#ffd54f'; ctxB.lineWidth = 3;
+  ctxB.beginPath(); ctxB.roundRect(cx - w/2, cy - h/2, w, h, 6); ctxB.fill(); ctxB.stroke();
+  ctxB.strokeStyle = '#ffd54f'; ctxB.lineWidth = 2;
+  ctxB.beginPath(); ctxB.moveTo(cx - w/2 + 10, cy);
+  const seg = (w - 20) / 6;
+  for (let i = 0; i < 6; i++) ctxB.lineTo(cx - w/2 + 10 + seg * (i+1), cy + (i % 2 === 0 ? -8 : 8));
+  ctxB.stroke();
+  ctxB.fillStyle = '#fff'; ctxB.font = 'bold 12px monospace'; ctxB.textAlign = 'center'; ctxB.textBaseline = 'middle';
+  ctxB.fillText(valeur || '1 kΩ', cx, cy); ctxB.textBaseline = 'alphabetic';
+}
+
+function drawInterrupteurB(cx, cy, w, h) {
+  const ferme = montage.interrupteurFerme;
+  ctxB.fillStyle = '#1a1a2e'; ctxB.strokeStyle = ferme ? '#4caf50' : '#4fc3f7'; ctxB.lineWidth = 3;
+  ctxB.beginPath(); ctxB.roundRect(cx - w/2, cy - h/2, w, h, 8); ctxB.fill(); ctxB.stroke();
+  const bx1 = cx - w/2 + 15, bx2 = cx + w/2 - 15;
+  ctxB.fillStyle = '#fff';
+  ctxB.beginPath(); ctxB.arc(bx1, cy, 6, 0, Math.PI * 2); ctxB.fill();
+  ctxB.beginPath(); ctxB.arc(bx2, cy, 6, 0, Math.PI * 2); ctxB.fill();
+  ctxB.strokeStyle = ferme ? '#4caf50' : '#f44336'; ctxB.lineWidth = 4; ctxB.lineCap = 'round';
+  ctxB.beginPath(); ctxB.moveTo(bx1, cy);
+  if (ferme) ctxB.lineTo(bx2, cy); else ctxB.lineTo(bx2, cy - 22);
+  ctxB.stroke();
+  ctxB.fillStyle = ferme ? '#4caf50' : '#4fc3f7'; ctxB.font = 'bold 10px monospace'; ctxB.textAlign = 'center';
+  ctxB.fillText(ferme ? 'K ✓ FERMÉ' : 'K ○ OUVERT', cx, cy - h/2 - 10);
+}
 function drawCondensateur(cx, cy, w, h, valeur) {
   ctx.fillStyle = '#1a1a2e'; ctx.strokeStyle = '#4fc3f7'; ctx.lineWidth = 3;
   ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 8); ctx.fill(); ctx.stroke();
