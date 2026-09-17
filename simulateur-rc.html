@@ -1795,19 +1795,26 @@ function initialiserBranchement() {
   if (!montage.composants || montage.composants.length < 4) {
     console.warn('⚠️ Le montage est incomplet :', montage.composants);
     branchement.composants = [];
+    branchement.fils = [];
     branchement.oscilloscope = null;
     branchement.oscilloPlace = false;
-    branchement.fils = [];
     drawBranchement();
     return;
   }
 
+  // 1. Copie FIDÈLE des composants
   branchement.composants = JSON.parse(JSON.stringify(montage.composants));
 
-  console.log('✅ Copie vers branchement :',
-    branchement.composants.map(c => `${c.type}(${c.x},${c.y},${c.rotation}°)`));
+  // 2. ⭐ COPIE DES FILS DU MONTAGE (c'est ce qui manquait !)
+  //    On recrée chaque fil avec un nouvel ID pour éviter les collisions
+  branchement.fils = (montage.fils || []).map((fil, i) => ({
+    id: 'fb' + (branchement.prochainIdFil++),
+    x1: fil.x1, y1: fil.y1,
+    x2: fil.x2, y2: fil.y2,
+    de: null, vers: null  // sera recalculé par updateConnexionsFilsBranchement
+  }));
 
-  // ⭐ POSE AUTOMATIQUE de l'oscilloscope
+  // 3. Pose AUTO de l'oscilloscope (déjà en place)
   if (!branchement.oscilloscope) {
     branchement.oscilloscope = {
       id: 'osc',
@@ -1818,10 +1825,15 @@ function initialiserBranchement() {
       h: 130
     };
     branchement.oscilloPlace = true;
-    console.log('✅ Oscilloscope posé automatiquement à', branchement.oscilloscope.x, branchement.oscilloscope.y);
   }
 
-  if (!branchement.fils) branchement.fils = [];
+  // 4. Recalcul des connexions : les fils copiés doivent retrouver
+  //    leurs bornes d'attache dans le nouveau canvas
+  updateConnexionsFilsBranchement();
+
+  console.log('✅ Copie vers branchement :',
+    branchement.composants.length, 'composants,',
+    branchement.fils.length, 'fils');
 
   drawBranchement();
   updateHintBranchement();
