@@ -2253,16 +2253,46 @@ let branchement = {
 };
 
 function initialiserBranchement() {
+  // Vérification : le montage doit contenir 4 composants
+  if (!montage.composants || montage.composants.length < 4) {
+    console.warn('⚠️ Le montage est incomplet :', montage.composants);
+    branchement.composants = [];
+    branchement.oscilloscope = null;
+    branchement.oscilloPlace = false;
+    branchement.fils = [];
+    drawBranchement();
+    return;
+  }
+  
+  // Copie profonde
   branchement.composants = JSON.parse(JSON.stringify(montage.composants));
+  console.log('✅ Copie vers branchement :', branchement.composants.map(c => c.type));
+  
+  // Repositionnement : on garde les composants CENTRÉS sur le canvas
+  // On les place en grille 2x2 dans la zone gauche (pour laisser la place à l'oscillo)
+  const positionsCibles = {
+    pile:          { x: 150, y: 150 },
+    resistance:    { x: 400, y: 150 },
+    interrupteur:  { x: 150, y: 400 },
+    condensateur:  { x: 400, y: 400 }
+  };
+  
   branchement.composants.forEach(c => {
-    c.x = Math.max(120, Math.min(WB - 300, 200 + (c.x - 200) * 0.9));
-    c.y = Math.max(120, Math.min(HB - 120, 150 + (c.y - 180) * 0.9));
+    const cible = positionsCibles[c.type];
+    if (cible) {
+      c.x = cible.x;
+      c.y = cible.y;
+      c.rotation = 0; // On remet à plat pour éviter les surprises
+    }
   });
+  
+  // On garde l'oscillo et les fils s'ils existent déjà
   if (!branchement.oscilloscope) {
     branchement.oscilloscope = null;
     branchement.oscilloPlace = false;
   }
   if (!branchement.fils) branchement.fils = [];
+  
   drawBranchement();
   updateHintBranchement();
 }
