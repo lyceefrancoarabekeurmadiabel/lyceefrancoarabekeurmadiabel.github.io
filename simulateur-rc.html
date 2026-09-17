@@ -2253,7 +2253,7 @@ let branchement = {
 };
 
 function initialiserBranchement() {
-  // Vérification : le montage doit contenir 4 composants
+  // Le montage doit contenir les 4 composants
   if (!montage.composants || montage.composants.length < 4) {
     console.warn('⚠️ Le montage est incomplet :', montage.composants);
     branchement.composants = [];
@@ -2263,36 +2263,21 @@ function initialiserBranchement() {
     drawBranchement();
     return;
   }
-  
-  // Copie profonde
+
+  // Copie FIDÈLE du montage : positions, rotations, tout est conservé.
+  // Aucune position fixe, aucun ordre imposé.
   branchement.composants = JSON.parse(JSON.stringify(montage.composants));
-  console.log('✅ Copie vers branchement :', branchement.composants.map(c => c.type));
-  
-  // Repositionnement : on garde les composants CENTRÉS sur le canvas
-  // On les place en grille 2x2 dans la zone gauche (pour laisser la place à l'oscillo)
-  const positionsCibles = {
-    pile:          { x: 150, y: 150 },
-    resistance:    { x: 400, y: 150 },
-    interrupteur:  { x: 150, y: 400 },
-    condensateur:  { x: 400, y: 400 }
-  };
-  
-  branchement.composants.forEach(c => {
-    const cible = positionsCibles[c.type];
-    if (cible) {
-      c.x = cible.x;
-      c.y = cible.y;
-      c.rotation = 0; // On remet à plat pour éviter les surprises
-    }
-  });
-  
-  // On garde l'oscillo et les fils s'ils existent déjà
+
+  console.log('✅ Copie vers branchement :',
+    branchement.composants.map(c => `${c.type}(${c.x},${c.y},${c.rotation}°)`));
+
+  // On garde l'oscillo et les fils s'ils existent déjà (retour sur l'étape)
   if (!branchement.oscilloscope) {
     branchement.oscilloscope = null;
     branchement.oscilloPlace = false;
   }
   if (!branchement.fils) branchement.fils = [];
-  
+
   drawBranchement();
   updateHintBranchement();
 }
@@ -2302,7 +2287,14 @@ function ajouterOscilloscope() {
     alert('⚠️ L\'oscilloscope est déjà placé. Déplace-le si nécessaire.');
     return;
   }
-  branchement.oscilloscope = { id: 'osc', x: WB - 180, y: 150, rotation: 0, w: 160, h: 130 };
+  branchement.oscilloscope = {
+    id: 'osc',
+    x: WB - 180,
+    y: 150,
+    rotation: 0,
+    w: 160,
+    h: 130
+  };
   branchement.oscilloPlace = true;
   drawBranchement();
   updateHintBranchement();
