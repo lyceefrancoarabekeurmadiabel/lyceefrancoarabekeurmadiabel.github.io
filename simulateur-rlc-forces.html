@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TP RLC forcé — Oscillations électriques forcées | LFAKM</title>
 <link rel="icon" type="image/png" href="favicon.png">
-<link rel="manifest" href="manifest.json">
+<meta name="manifest" href="manifest.json">
 <meta name="theme-color" content="#0f766e">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -109,7 +109,6 @@
   .outil-btn:hover:not(:disabled) { background: #fff; border-color: var(--gbf); color: var(--gbf); transform: translateX(3px); }
   .outil-btn.used { opacity: 0.5; cursor: not-allowed; }
   .outil-btn.used:hover { transform: none; border-color: var(--line); color: var(--ink); background: #f9f7f2; }
-  .outil-btn:disabled { cursor: not-allowed; }
   .outil-btn .icon { font-size: 22px; flex-shrink: 0; }
   .outil-btn.wire-btn { background: rgba(76, 175, 80, 0.1); border-color: rgba(76, 175, 80, 0.4); color: #2e7d32; }
   .outil-btn.wire-btn:hover { background: rgba(76, 175, 80, 0.2); border-color: #4caf50; }
@@ -289,6 +288,14 @@
   .modal-content p { margin-bottom: 8px; }
   .modal-content code { background: #f9f7f2; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 13px; color: var(--brass); }
   .modal-btn { margin-top: 18px; padding: 10px 20px; background: var(--gbf); color: #fff; border: none; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+  
+  /* Slider fréquence GBF */
+  .freq-control { background: #fff; border: 2px solid var(--gbf); border-radius: 10px; padding: 15px 20px; margin-bottom: 20px; }
+  .freq-control .ligne { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+  .freq-control label { font-size: 13px; font-weight: 700; color: var(--ink); }
+  .freq-control input[type="range"] { flex: 1; min-width: 200px; accent-color: var(--gbf); }
+  .freq-control .valeur { font-family: 'Courier New', monospace; font-size: 18px; font-weight: 800; color: var(--gbf); min-width: 100px; text-align: right; }
+  .freq-control .info { font-size: 12px; color: var(--slate); margin-top: 8px; font-style: italic; }
 </style>
 </head>
 <body>
@@ -528,15 +535,12 @@
         <div class="schema-cible">
           <h4>📐 Schéma à réaliser (RLC série avec GBF)</h4>
           <svg viewBox="0 0 460 240" xmlns="http://www.w3.org/2000/svg">
-            <!-- Boucle principale -->
             <line x1="80" y1="60" x2="400" y2="60" stroke="#a78bfa" stroke-width="3"/>
             <line x1="80" y1="200" x2="400" y2="200" stroke="#a78bfa" stroke-width="3"/>
             <line x1="80" y1="60" x2="80" y2="90" stroke="#a78bfa" stroke-width="3"/>
             <line x1="80" y1="150" x2="80" y2="200" stroke="#a78bfa" stroke-width="3"/>
             <line x1="400" y1="60" x2="400" y2="100" stroke="#a78bfa" stroke-width="3"/>
             <line x1="400" y1="160" x2="400" y2="200" stroke="#a78bfa" stroke-width="3"/>
-            
-            <!-- GBF (générateur) -->
             <g transform="translate(80, 120)">
               <circle cx="0" cy="0" r="26" fill="#fff" stroke="#7c3aed" stroke-width="3"/>
               <path d="M -15 0 Q -7.5 -12 0 0 Q 7.5 12 15 0" fill="none" stroke="#7c3aed" stroke-width="2.5"/>
@@ -544,13 +548,9 @@
               <text x="-38" y="14" text-anchor="middle" font-size="11" fill="#7c3aed" font-weight="bold">−</text>
             </g>
             <text x="80" y="80" text-anchor="middle" font-size="11" fill="#7c3aed" font-weight="bold">GBF ~</text>
-            
-            <!-- Résistance -->
             <rect x="150" y="45" width="70" height="30" fill="#fff" stroke="#ffd54f" stroke-width="2.5" rx="4"/>
             <path d="M 160 60 L 170 50 L 180 70 L 190 50 L 200 70 L 210 60" stroke="#ffd54f" stroke-width="2.5" fill="none"/>
             <text x="185" y="35" text-anchor="middle" font-size="12" fill="#b45309" font-weight="bold">R</text>
-            
-            <!-- Bobine -->
             <g stroke="#B87333" stroke-width="3" fill="none">
               <path d="M 250 120 Q 258 105 266 120 Q 274 135 282 120 Q 290 105 298 120 Q 306 135 314 120"/>
               <path d="M 250 160 Q 258 145 266 160 Q 274 175 282 160 Q 290 145 298 160 Q 306 175 314 160"/>
@@ -558,17 +558,12 @@
             <line x1="240" y1="140" x2="250" y2="140" stroke="#B87333" stroke-width="3"/>
             <line x1="314" y1="140" x2="324" y2="140" stroke="#B87333" stroke-width="3"/>
             <text x="282" y="105" text-anchor="middle" font-size="12" fill="#8B4513" font-weight="bold">L</text>
-            
-            <!-- Condensateur -->
             <rect x="380" y="100" width="40" height="60" fill="#fff" stroke="#4fc3f7" stroke-width="2.5" rx="4"/>
             <line x1="392" y1="112" x2="392" y2="148" stroke="#4fc3f7" stroke-width="3"/>
             <line x1="408" y1="112" x2="408" y2="148" stroke="#4fc3f7" stroke-width="3"/>
             <text x="400" y="90" text-anchor="middle" font-size="12" fill="#0288d1" font-weight="bold">C</text>
-            
-            <!-- Flèche de courant -->
             <path d="M 220 40 L 240 40 L 235 34 M 240 40 L 235 46" stroke="#e91e63" stroke-width="2" fill="none"/>
             <text x="255" y="42" font-size="10" fill="#e91e63" font-weight="bold" font-style="italic">i</text>
-            
             <text x="240" y="225" text-anchor="middle" font-size="11" fill="#7c3aed" font-weight="bold" font-style="italic">Boucle RLC série — régime forcé</text>
           </svg>
         </div>
@@ -618,7 +613,7 @@
         <div style="margin-top:6px;"><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-weight:700;margin-right:8px;background:#4fc3f7;color:#1a1a2e;">Voie 2 (−)</span> → bornes de <strong>R</strong> (image de i)</div>
       </div>
       <div style="margin-top:10px;font-size:12px;opacity:0.85;">
-        💡 Le GBF et l'oscilloscope sont <strong>déjà posés</strong>. Branche les fils !
+        💡 Le GBF et l'oscilloscope sont <strong>déjà posés</strong> et <strong>déplaçables</strong> (glisse-les avec la souris).
       </div>
     </div>
 
@@ -638,7 +633,8 @@
         </div>
         <div style="margin-top:15px;padding:10px;background:rgba(255,255,255,0.1);border-radius:8px;font-size:11.5px;line-height:1.5;">
           <strong>💡 Rappel :</strong><br>
-          L'oscilloscope est un <strong>voltmètre différentiel</strong> : branche-le <strong>en dérivation</strong>.
+          L'oscilloscope est un <strong>voltmètre différentiel</strong> : branche-le <strong>en dérivation</strong>.<br><br>
+          <strong>🖱️ Déplaçable :</strong> le GBF et l'oscilloscope peuvent être déplacés avec la souris.
         </div>
       </div>
 
@@ -686,6 +682,20 @@
           <p>Voici les grandeurs caractéristiques avec leurs formules et valeurs calculées.</p>
         </div>
 
+        <!-- Slider fréquence GBF -->
+        <div class="freq-control">
+          <div class="ligne">
+            <label for="freqGBF">🔊 Fréquence du GBF :</label>
+            <input type="range" id="freqGBF" min="10" max="500" step="1" value="159" oninput="majFrequenceGBF(this.value)">
+            <span class="valeur" id="valeurFreqGBF">159 Hz</span>
+          </div>
+          <div class="ligne" style="margin-top:10px;">
+            <label>⚙️ Pulsation :</label>
+            <span class="valeur" id="valeurOmegaGBF" style="color:var(--gbf);">≈ 1000 rad/s</span>
+          </div>
+          <div class="info">💡 Ajuste la fréquence du GBF pour observer l'effet sur l'impédance et le courant.</div>
+        </div>
+
         <div class="recap-grid" id="recapGrid">
           <div class="recap-card">
             <span class="recap-icon">🔊</span>
@@ -710,6 +720,39 @@
             <div class="recap-label">Condensateur C</div>
             <input type="number" id="inputC" class="recap-input" value="10" min="1" max="100" step="1">
             <span class="recap-unit">µF</span>
+          </div>
+          <div class="recap-card">
+            <span class="recap-icon">📡</span>
+            <div class="recap-label">Fréquence GBF f</div>
+            <div class="recap-value" id="valeurFGBF" style="color:var(--gbf);">159 Hz</div>
+            <div class="recap-formule">Pulsation : ω = 2πf<br>= <strong style="color:var(--gbf);" id="formOmegaGBF">1000 rad/s</strong></div>
+          </div>
+          <div class="recap-card">
+            <span class="recap-icon">⚙️</span>
+            <div class="recap-label">Impédance Z(f)</div>
+            <div class="recap-value" id="valeurZf" style="color:var(--gbf);">50 Ω</div>
+            <div class="recap-formule">
+              Z = √(R² + (Lω − 1/(Cω))²)<br>
+              = <strong style="color:var(--gbf);" id="formZf">50 Ω</strong>
+            </div>
+          </div>
+          <div class="recap-card">
+            <span class="recap-icon">🔌</span>
+            <div class="recap-label">Courant efficace I(f)</div>
+            <div class="recap-value" id="valeurIf" style="color:var(--gbf);">120 mA</div>
+            <div class="recap-formule">
+              I = U_m/Z<br>
+              = <strong style="color:var(--gbf);" id="formIf">120 mA</strong>
+            </div>
+          </div>
+          <div class="recap-card">
+            <span class="recap-icon">📐</span>
+            <div class="recap-label">Déphasage φ(f)</div>
+            <div class="recap-value" id="valeurPhiF" style="color:var(--gbf);">0.0°</div>
+            <div class="recap-formule">
+              φ = arctan((Lω − 1/(Cω))/R)<br>
+              = <strong style="color:var(--gbf);" id="formPhiF">0.0°</strong>
+            </div>
           </div>
         </div>
 
@@ -747,16 +790,6 @@
             </div>
           </div>
           <div class="recap-card">
-            <span class="recap-icon">⚡</span>
-            <div class="recap-label">Intensité max i_max</div>
-            <div class="recap-value" id="valeurImax">120 mA</div>
-            <div class="recap-formule">
-              i_max = U_m/R<br>
-              = <span id="formImUm">6</span>/<span id="formImR">50</span><br>
-              = <strong style="color:var(--gbf);" id="formImRes">120 mA</strong>
-            </div>
-          </div>
-          <div class="recap-card">
             <span class="recap-icon">⏱️</span>
             <div class="recap-label">Pulsation propre ω₀</div>
             <div class="recap-value" id="valeurW0">1000 rad/s</div>
@@ -764,16 +797,6 @@
               ω₀ = 2π·f₀ = 1/√(L·C)<br>
               = 1/√(<span id="formW0L">0.1</span>×<span id="formW0C">10</span>×10⁻⁶)<br>
               = <strong style="color:var(--gbf);" id="formW0Res">1000 rad/s</strong>
-            </div>
-          </div>
-          <div class="recap-card">
-            <span class="recap-icon">📐</span>
-            <div class="recap-label">Impédance à la résonance</div>
-            <div class="recap-value" id="valeurZ0">50 Ω</div>
-            <div class="recap-formule">
-              Z(f₀) = R<br>
-              = <strong style="color:var(--gbf);" id="formZRes">50 Ω</strong><br>
-              <em>(u et i en phase)</em>
             </div>
           </div>
         </div>
@@ -797,16 +820,10 @@
           <canvas id="recapCourbe" width="800" height="320"></canvas>
         </div>
 
-        <div class="tau-interactif-banner show" id="tauBanner">
-          <div class="titre">📊 Mesure interactive de la bande passante Δf</div>
-          <div>👆 <strong>Clique sur les deux points à −3 dB</strong> de la courbe pour mesurer Δf.</div>
-          <div class="tau-resultat" id="tauResultat"></div>
-        </div>
-
         <div class="info-encadre">
           <strong>💡 Remarque :</strong> à la fréquence de résonance f = f₀, l'impédance du circuit
           est minimale (Z = R), l'intensité est maximale et le courant est <strong>en phase</strong>
-          avec la tension du GBF.
+          avec la tension du GBF. Le point rouge sur la courbe indique le <strong>point de fonctionnement actuel</strong>.
         </div>
       </div>
 
@@ -866,7 +883,8 @@
         </div>
 
         <div class="courbe-controls">
-          <button class="btn-courbe charge" onclick="afficherPhases()">🔄 Afficher les 3 cas</button>
+          <button class="btn-courbe charge" onclick="animerPhases()">▶️ Animer les 3 cas</button>
+          <button class="btn-courbe" style="background: linear-gradient(135deg, #5B6472, #3a4250); color:#fff;" onclick="afficherPhases()">📊 Vue statique</button>
         </div>
 
         <div class="info-encadre">
@@ -1169,7 +1187,7 @@
             </select>
             <button class="btn btn-gbf" style="padding:10px 18px;font-size:13px;" onclick="verifierExo3()">Vérifier</button>
           </div>
-          <div class="exercice-feedback" id="exo3-fb"></div>
+          <div class="exercice-feedback" id="exo3fb"></div>
         </div>
       </div>
 
@@ -1217,6 +1235,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') fermerModal(
 // ============================================================
 let choixRes = 'moyen';
 let R = 50, L = 0.1, C = 10;
+let freqGBF = 159; // Fréquence imposée par le GBF
 const Um = 6;
 const FREQ_MIN = 10, FREQ_MAX = 500;
 
@@ -1307,33 +1326,74 @@ function majRPersonnalise() {
 }
 
 // ============================================================
+//  FRÉQUENCE GBF (NOUVEAU)
+// ============================================================
+function majFrequenceGBF(val) {
+  freqGBF = parseFloat(val) || 159;
+  const slider = document.getElementById('freqGBF');
+  if (slider && parseFloat(slider.value) !== freqGBF) slider.value = freqGBF;
+  majAffichage();
+  drawRecapCourbe();
+}
+
+// ============================================================
 //  AFFICHAGE DES GRANDEURS
 // ============================================================
 function calculerF0(L, C) { return 1 / (2 * Math.PI * Math.sqrt(L * C * 1e-6)); }
+
+function calculerImpedance(f, R, L, C) {
+  const omega = 2 * Math.PI * f;
+  const C_farad = C * 1e-6;
+  const XL = L * omega;
+  const XC = 1 / (C_farad * omega);
+  const Z = Math.sqrt(R * R + (XL - XC) * (XL - XC));
+  const phi = Math.atan2(XL - XC, R);
+  return { Z, phi, XL, XC, omega };
+}
+
+function calculerCourantAmplitude(f, R, L, C) {
+  const { Z } = calculerImpedance(f, R, L, C);
+  return Um / Z;
+}
 
 function majAffichage() {
   const f0 = calculerF0(L, C);
   const Q = (1 / R) * Math.sqrt(L / (C * 1e-6));
   const deltaF = f0 / Q;
-  const imax = Um / R;
   const w0 = 2 * Math.PI * f0;
-  const Z0 = R;
+  
+  // Calculs au point de fonctionnement (fréquence GBF)
+  const imp = calculerImpedance(freqGBF, R, L, C);
+  const iF = Um / imp.Z;
+  const phiDeg = imp.phi * 180 / Math.PI;
+  const omegaGBF = 2 * Math.PI * freqGBF;
 
   const setTxt = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
 
+  // Fréquence GBF
+  setTxt('valeurFreqGBF', freqGBF.toFixed(0) + ' Hz');
+  setTxt('valeurOmegaGBF', '≈ ' + omegaGBF.toFixed(0) + ' rad/s');
+  setTxt('valeurFGBF', freqGBF.toFixed(0) + ' Hz');
+  setTxt('formOmegaGBF', omegaGBF.toFixed(0) + ' rad/s');
+
+  // Impédance et courant au point de fonctionnement
+  setTxt('valeurZf', imp.Z.toFixed(1) + ' Ω');
+  setTxt('formZf', imp.Z.toFixed(1) + ' Ω');
+  setTxt('valeurIf', (iF * 1000).toFixed(0) + ' mA');
+  setTxt('formIf', (iF * 1000).toFixed(0) + ' mA');
+  setTxt('valeurPhiF', phiDeg.toFixed(1) + '°');
+  setTxt('formPhiF', phiDeg.toFixed(1) + '°');
+
+  // Grandeurs caractéristiques
   setTxt('valeurF0', f0.toFixed(1) + ' Hz');
   setTxt('valeurQ', Q.toFixed(1));
   setTxt('valeurDeltaF', deltaF.toFixed(1) + ' Hz');
-  setTxt('valeurImax', (imax * 1000).toFixed(0) + ' mA');
   setTxt('valeurW0', w0.toFixed(0) + ' rad/s');
-  setTxt('valeurZ0', Z0.toFixed(0) + ' Ω');
 
   setTxt('formF0L', L); setTxt('formF0C', C); setTxt('formF0Res', f0.toFixed(1) + ' Hz');
   setTxt('formQR', R); setTxt('formQL', L); setTxt('formQC', C); setTxt('formQRes', Q.toFixed(1));
   setTxt('formDfF0', f0.toFixed(1)); setTxt('formDfQ', Q.toFixed(1)); setTxt('formDfRes', deltaF.toFixed(1) + ' Hz');
-  setTxt('formImUm', Um); setTxt('formImR', R); setTxt('formImRes', (imax * 1000).toFixed(0) + ' mA');
   setTxt('formW0L', L); setTxt('formW0C', C); setTxt('formW0Res', w0.toFixed(0) + ' rad/s');
-  setTxt('formZRes', Z0.toFixed(0) + ' Ω');
 }
 
 // ============================================================
@@ -1605,11 +1665,7 @@ function drawPoigneeRotation(c) {
   ctx.fillText('⟳', hx, hy + 1); ctx.textBaseline = 'alphabetic';
 }
 
-// ============================================================
-//  🎨 GBF AMÉLIORÉ (rendu canvas)
-// ============================================================
 function drawGBF(cx, cy, w, h) {
-  // Boîtier
   ctx.fillStyle = '#1a1a2e'; 
   ctx.strokeStyle = '#7c3aed'; 
   ctx.lineWidth = 3;
@@ -1617,8 +1673,6 @@ function drawGBF(cx, cy, w, h) {
   ctx.roundRect(cx - w/2, cy - h/2, w, h, 12); 
   ctx.fill(); 
   ctx.stroke();
-  
-  // Halo intérieur
   const grad = ctx.createRadialGradient(cx, cy, 5, cx, cy, w/2);
   grad.addColorStop(0, 'rgba(124,58,237,0.15)');
   grad.addColorStop(1, 'rgba(124,58,237,0)');
@@ -1626,32 +1680,24 @@ function drawGBF(cx, cy, w, h) {
   ctx.beginPath(); 
   ctx.roundRect(cx - w/2 + 3, cy - h/2 + 3, w - 6, h - 6, 10); 
   ctx.fill();
-  
-  // Symbole sinusoïdal — BIEN VISIBLE
   ctx.strokeStyle = '#a78bfa'; 
   ctx.lineWidth = 3;
   ctx.shadowColor = '#a78bfa';
   ctx.shadowBlur = 8;
   ctx.beginPath();
-  const amplitude = 18;
-  const periode = 15;
   for (let i = -30; i <= 30; i++) {
     const x = cx + i;
-    const y = cy - amplitude * Math.sin(i * Math.PI / periode);
+    const y = cy - 18 * Math.sin(i * Math.PI / 15);
     if (i === -30) ctx.moveTo(x, y); 
     else ctx.lineTo(x, y);
   }
   ctx.stroke();
   ctx.shadowBlur = 0;
-  
-  // Label GBF
   ctx.fillStyle = '#fff'; 
   ctx.font = 'bold 13px monospace'; 
   ctx.textAlign = 'center'; 
   ctx.textBaseline = 'middle';
   ctx.fillText('GBF ~', cx, cy + h/2 - 14);
-  
-  // Bornes + et −
   ctx.fillStyle = '#a78bfa'; 
   ctx.font = 'bold 14px Arial'; 
   ctx.textAlign = 'center';
@@ -1969,12 +2015,11 @@ const WB = canvasB.width, HB = canvasB.height;
 let branchement = {
   composants: [], gbf: null, oscilloscope: null, fils: [],
   prochainIdFil: 100, poigneeEnDrag: null, filSelectionne: null,
+  gbfEnDrag: null, oscilloEnDrag: null,
+  offsetDragGbf: { x: 0, y: 0 }, offsetDragOscillo: { x: 0, y: 0 },
   gbfPos: false, oscilloPos: false
 };
 
-// ============================================================
-//  AUTO-POSE DU GBF ET DE L'OSCILLOSCOPE
-// ============================================================
 function initialiserBranchement() {
   branchement.composants = JSON.parse(JSON.stringify(montage.composants));
   branchement.fils = (montage.fils || []).map(fil => ({
@@ -1982,9 +2027,8 @@ function initialiserBranchement() {
     x1: fil.x1, y1: fil.y1, x2: fil.x2, y2: fil.y2, de: null, vers: null
   }));
   
-  // Auto-poser le GBF s'il n'existe pas
   if (!branchement.gbf) {
-    branchement.gbf = { id: 'gbf1', x: 130, y: 130, rotation: 0, w: 130, h: 110 };
+    branchement.gbf = { id: 'gbf1', x: 110, y: 110, rotation: 0, w: 130, h: 110 };
     branchement.gbfPos = true;
     const btn = document.getElementById('btn-gbf-3');
     if (btn) { 
@@ -1994,9 +2038,8 @@ function initialiserBranchement() {
     }
   }
   
-  // Auto-poser l'oscilloscope s'il n'existe pas
   if (!branchement.oscilloscope) {
-    branchement.oscilloscope = { id: 'osc', x: WB - 200, y: 180, rotation: 0, w: 180, h: 140 };
+    branchement.oscilloscope = { id: 'osc', x: WB - 130, y: 130, rotation: 0, w: 140, h: 100 };
     branchement.oscilloPos = true;
     const btn = document.getElementById('btn-oscillo-3');
     if (btn) { 
@@ -2006,34 +2049,6 @@ function initialiserBranchement() {
     }
   }
   
-  updateConnexionsFilsBranchement();
-  drawBranchement();
-  updateHintBranchement();
-}
-
-function poserAppareil(type) {
-  if (type === 'gbf' && !branchement.gbf) {
-    branchement.gbf = { id: 'gbf1', x: 130, y: 130, rotation: 0, w: 130, h: 110 };
-    branchement.gbfPos = true;
-    const btn = document.getElementById('btn-gbf-3');
-    if (btn) { 
-      btn.classList.add('used'); 
-      btn.disabled = true;
-      btn.innerHTML = '<span class="icon">✅</span><span>GBF posé</span>';
-    }
-    jouerSon('pose');
-  }
-  if (type === 'oscillo' && !branchement.oscilloscope) {
-    branchement.oscilloscope = { id: 'osc', x: WB - 200, y: 180, rotation: 0, w: 180, h: 140 };
-    branchement.oscilloPos = true;
-    const btn = document.getElementById('btn-oscillo-3');
-    if (btn) { 
-      btn.classList.add('used'); 
-      btn.disabled = true;
-      btn.innerHTML = '<span class="icon">✅</span><span>Oscilloscope posé</span>';
-    }
-    jouerSon('pose');
-  }
   updateConnexionsFilsBranchement();
   drawBranchement();
   updateHintBranchement();
@@ -2159,20 +2174,14 @@ function drawPoigneeFilB(x, y, pulse) {
   ctxB.beginPath(); ctxB.arc(x, y, 11, 0, Math.PI * 2); ctxB.fill(); ctxB.stroke();
 }
 
-// ============================================================
-//  🎨 GBF AMÉLIORÉ (version branchement)
-// ============================================================
 function drawGBFB(o) {
-  // Boîtier
   ctxB.fillStyle = '#1a1a2e'; 
-  ctxB.strokeStyle = '#7c3aed'; 
-  ctxB.lineWidth = 3;
+  ctxB.strokeStyle = branchement.gbfEnDrag ? '#ffd54f' : '#7c3aed'; 
+  ctxB.lineWidth = branchement.gbfEnDrag ? 4 : 3;
   ctxB.beginPath(); 
   ctxB.roundRect(o.x - o.w/2, o.y - o.h/2, o.w, o.h, 12); 
   ctxB.fill(); 
   ctxB.stroke();
-  
-  // Halo intérieur
   const grad = ctxB.createRadialGradient(o.x, o.y, 5, o.x, o.y, o.w/2);
   grad.addColorStop(0, 'rgba(124,58,237,0.15)');
   grad.addColorStop(1, 'rgba(124,58,237,0)');
@@ -2180,8 +2189,6 @@ function drawGBFB(o) {
   ctxB.beginPath(); 
   ctxB.roundRect(o.x - o.w/2 + 3, o.y - o.h/2 + 3, o.w - 6, o.h - 6, 10); 
   ctxB.fill();
-  
-  // Symbole sinusoïdal
   ctxB.strokeStyle = '#a78bfa'; 
   ctxB.lineWidth = 3;
   ctxB.shadowColor = '#a78bfa'; 
@@ -2195,20 +2202,21 @@ function drawGBFB(o) {
   }
   ctxB.stroke();
   ctxB.shadowBlur = 0;
-  
-  // Label GBF
   ctxB.fillStyle = '#fff'; 
   ctxB.font = 'bold 13px monospace'; 
   ctxB.textAlign = 'center'; 
   ctxB.textBaseline = 'middle';
   ctxB.fillText('GBF ~', o.x, o.y + o.h/2 - 16);
-  
-  // Bornes + et −
   ctxB.fillStyle = '#a78bfa'; 
   ctxB.font = 'bold 14px Arial'; 
   ctxB.textAlign = 'center';
   ctxB.fillText('+', o.x - o.w/2 - 14, o.y - o.h/4);
   ctxB.fillText('−', o.x - o.w/2 - 14, o.y + o.h/4);
+  // Poignée de drag
+  if (branchement.gbfEnDrag) {
+    ctxB.fillStyle = 'rgba(255,213,79,0.4)';
+    ctxB.beginPath(); ctxB.arc(o.x, o.y, o.w/2 + 8, 0, Math.PI * 2); ctxB.fill();
+  }
 }
 
 function drawCondensateurB(cx, cy, w, h, v) {
@@ -2252,19 +2260,29 @@ function drawResistanceB(cx, cy, w, h, v) {
 }
 
 function drawOscilloB(o) {
-  ctxB.fillStyle = '#0f766e'; ctxB.strokeStyle = '#5eead4'; ctxB.lineWidth = 3;
-  ctxB.beginPath(); ctxB.roundRect(o.x - o.w/2, o.y - o.h/2, o.w, o.h, 10); ctxB.fill(); ctxB.stroke();
+  ctxB.fillStyle = '#0f766e'; 
+  ctxB.strokeStyle = branchement.oscilloEnDrag ? '#ffd54f' : '#5eead4'; 
+  ctxB.lineWidth = branchement.oscilloEnDrag ? 4 : 3;
+  ctxB.beginPath(); 
+  ctxB.roundRect(o.x - o.w/2, o.y - o.h/2, o.w, o.h, 10); 
+  ctxB.fill(); 
+  ctxB.stroke();
+  // Écran compact
   ctxB.fillStyle = '#000'; ctxB.strokeStyle = '#4caf50'; ctxB.lineWidth = 2;
-  ctxB.beginPath(); ctxB.rect(o.x - 25, o.y - 30, 95, 60); ctxB.fill(); ctxB.stroke();
-  // Grille
+  ctxB.beginPath(); ctxB.rect(o.x - 20, o.y - 22, 70, 44); ctxB.fill(); ctxB.stroke();
   ctxB.strokeStyle = 'rgba(76, 175, 80, 0.4)'; ctxB.lineWidth = 1;
-  for (let i = 1; i < 4; i++) { ctxB.beginPath(); ctxB.moveTo(o.x - 25 + i * 23.75, o.y - 30); ctxB.lineTo(o.x - 25 + i * 23.75, o.y + 30); ctxB.stroke(); }
-  for (let i = 1; i < 3; i++) { ctxB.beginPath(); ctxB.moveTo(o.x - 25, o.y - 30 + i * 20); ctxB.lineTo(o.x + 70, o.y - 30 + i * 20); ctxB.stroke(); }
-  ctxB.fillStyle = '#fff'; ctxB.font = 'bold 11px monospace'; ctxB.textAlign = 'center'; ctxB.textBaseline = 'middle';
-  ctxB.fillText('OSCILLO', o.x, o.y - o.h/2 + 15);
+  for (let i = 1; i < 3; i++) { ctxB.beginPath(); ctxB.moveTo(o.x - 20 + i * 23.33, o.y - 22); ctxB.lineTo(o.x - 20 + i * 23.33, o.y + 22); ctxB.stroke(); }
+  for (let i = 1; i < 2; i++) { ctxB.beginPath(); ctxB.moveTo(o.x - 20, o.y - 22 + i * 22); ctxB.lineTo(o.x + 50, o.y - 22 + i * 22); ctxB.stroke(); }
+  ctxB.fillStyle = '#fff'; ctxB.font = 'bold 10px monospace'; ctxB.textAlign = 'center'; ctxB.textBaseline = 'middle';
+  ctxB.fillText('OSCILLO', o.x, o.y - o.h/2 + 12);
   ctxB.fillStyle = '#4fc3f7'; ctxB.font = 'bold 9px monospace'; ctxB.textAlign = 'left';
-  ctxB.fillText('Voie 1 (+)', o.x - o.w/2 + 8, o.y - o.h/4);
-  ctxB.fillStyle = '#ffeb3b'; ctxB.fillText('Voie 2 (−)', o.x - o.w/2 + 8, o.y + o.h/4);
+  ctxB.fillText('Voie 1 (+)', o.x - o.w/2 + 6, o.y - o.h/4 - 2);
+  ctxB.fillStyle = '#ffeb3b'; ctxB.fillText('Voie 2 (−)', o.x - o.w/2 + 6, o.y + o.h/4 + 2);
+  // Poignée de drag
+  if (branchement.oscilloEnDrag) {
+    ctxB.fillStyle = 'rgba(255,213,79,0.4)';
+    ctxB.beginPath(); ctxB.arc(o.x, o.y, o.w/2 + 8, 0, Math.PI * 2); ctxB.fill();
+  }
 }
 
 function drawBorneB(b, type) {
@@ -2298,6 +2316,7 @@ function getCanvasCoordsB(e, isTouch) {
 }
 
 function handlePointerDownB(x, y) {
+  // 1. Priorité : poignée d'un fil sélectionné
   if (branchement.filSelectionne) {
     const fil = branchement.fils.find(f => f.id === branchement.filSelectionne);
     if (fil) {
@@ -2307,6 +2326,29 @@ function handlePointerDownB(x, y) {
       if (dB < 28) { branchement.poigneeEnDrag = { filId: fil.id, cote: 'B' }; return; }
     }
   }
+  // 2. Drag du GBF
+  if (branchement.gbf) {
+    const o = branchement.gbf;
+    if (Math.abs(x - o.x) < o.w/2 + 10 && Math.abs(y - o.y) < o.h/2 + 10) {
+      branchement.gbfEnDrag = o;
+      branchement.offsetDragGbf = { x: x - o.x, y: y - o.y };
+      branchement.filSelectionne = null;
+      drawBranchement();
+      return;
+    }
+  }
+  // 3. Drag de l'oscilloscope
+  if (branchement.oscilloscope) {
+    const o = branchement.oscilloscope;
+    if (Math.abs(x - o.x) < o.w/2 + 10 && Math.abs(y - o.y) < o.h/2 + 10) {
+      branchement.oscilloEnDrag = o;
+      branchement.offsetDragOscillo = { x: x - o.x, y: y - o.y };
+      branchement.filSelectionne = null;
+      drawBranchement();
+      return;
+    }
+  }
+  // 4. Sélection d'un fil
   const f = trouverFilProcheB(x, y);
   if (f) { branchement.filSelectionne = f.id; drawBranchement(); return; }
   branchement.filSelectionne = null;
@@ -2327,13 +2369,30 @@ function handlePointerMoveB(x, y) {
     }
     drawBranchement(); return;
   }
+  if (branchement.gbfEnDrag) {
+    branchement.gbfEnDrag.x = Math.max(branchement.gbfEnDrag.w/2 + 30, Math.min(WB - branchement.gbfEnDrag.w/2 - 10, x - branchement.offsetDragGbf.x));
+    branchement.gbfEnDrag.y = Math.max(branchement.gbfEnDrag.h/2 + 30, Math.min(HB - branchement.gbfEnDrag.h/2 - 10, y - branchement.offsetDragGbf.y));
+    updateConnexionsFilsBranchement();
+    drawBranchement(); return;
+  }
+  if (branchement.oscilloEnDrag) {
+    branchement.oscilloEnDrag.x = Math.max(branchement.oscilloEnDrag.w/2 + 30, Math.min(WB - branchement.oscilloEnDrag.w/2 - 10, x - branchement.offsetDragOscillo.x));
+    branchement.oscilloEnDrag.y = Math.max(branchement.oscilloEnDrag.h/2 + 30, Math.min(HB - branchement.oscilloEnDrag.h/2 - 10, y - branchement.offsetDragOscillo.y));
+    updateConnexionsFilsBranchement();
+    drawBranchement(); return;
+  }
   drawBranchement();
 }
 
 function handlePointerUpB() {
+  const avaitDrag = branchement.poigneeEnDrag || branchement.gbfEnDrag || branchement.oscilloEnDrag;
   branchement.poigneeEnDrag = null;
-  updateConnexionsFilsBranchement();
-  drawBranchement();
+  branchement.gbfEnDrag = null;
+  branchement.oscilloEnDrag = null;
+  if (avaitDrag) {
+    updateConnexionsFilsBranchement();
+    drawBranchement();
+  }
 }
 
 function trouverBorneProcheB(x, y, maxD) {
@@ -2354,9 +2413,6 @@ function trouverFilProcheB(x, y) {
   return best;
 }
 
-// ============================================================
-//  💬 MESSAGE D'ALERTE RENFORCÉ
-// ============================================================
 function updateHintBranchement() {
   const h = document.getElementById('canvasHintBranchement');
   if (!h) return;
@@ -2373,15 +2429,12 @@ function updateHintBranchement() {
     h.style.background = 'rgba(217, 83, 79, 0.9)';
     h.style.color = '#fff';
   } else {
-    h.textContent = '🔗 Branche les fils puis clique sur « Vérifier »';
+    h.textContent = '🖱️ Glisse le GBF et l\'oscilloscope pour les déplacer • 🔗 Branche les fils';
     h.style.background = 'rgba(0, 0, 0, 0.85)';
     h.style.color = 'var(--gbf-light)';
   }
 }
 
-// ============================================================
-//  VÉRIFICATION PRÉCISE DU BRANCHEMENT
-// ============================================================
 function verifierBranchement() {
   const msg = document.getElementById('verifBranchement');
   const checks = [];
@@ -2395,7 +2448,6 @@ function verifierBranchement() {
 
   const fils = branchement.fils.filter(f => f.de && f.vers);
   
-  // Voie 1 doit être sur le GBF
   const filVoie1 = fils.find(f => f.de === 'osc-1' || f.vers === 'osc-1');
   if (filVoie1) {
     const autreExt = filVoie1.de === 'osc-1' ? filVoie1.vers : filVoie1.de;
@@ -2411,7 +2463,6 @@ function verifierBranchement() {
     toutOK = false;
   }
 
-  // Voie 2 doit être sur la résistance
   const filVoie2 = fils.find(f => f.de === 'osc-2' || f.vers === 'osc-2');
   if (filVoie2) {
     const autreExt = filVoie2.de === 'osc-2' ? filVoie2.vers : filVoie2.de;
@@ -2500,21 +2551,9 @@ function initRecapEditable() {
   majAffichage();
 }
 
-function calculerImpedance(f, R, L, C) {
-  const omega = 2 * Math.PI * f;
-  const C_farad = C * 1e-6;
-  const XL = L * omega;
-  const XC = 1 / (C_farad * omega);
-  const Z = Math.sqrt(R * R + (XL - XC) * (XL - XC));
-  const phi = Math.atan2(XL - XC, R);
-  return { Z, phi, XL, XC, omega };
-}
-
-function calculerCourantAmplitude(f, R, L, C) {
-  const { Z } = calculerImpedance(f, R, L, C);
-  return Um / Z;
-}
-
+// ============================================================
+//  COURBE i(f) avec marqueur du point de fonctionnement
+// ============================================================
 function drawRecapCourbe() {
   const canvas = document.getElementById('recapCourbe');
   if (!canvas) return;
@@ -2551,6 +2590,7 @@ function drawRecapCourbe() {
     ctx2.fillText((val * 1000).toFixed(0) + ' mA', mG - 6, y);
   }
 
+  // Courbe principale
   ctx2.strokeStyle = '#a78bfa'; ctx2.lineWidth = 3;
   ctx2.shadowColor = '#a78bfa'; ctx2.shadowBlur = 10;
   ctx2.beginPath();
@@ -2563,6 +2603,7 @@ function drawRecapCourbe() {
   }
   ctx2.stroke(); ctx2.shadowBlur = 0;
 
+  // Courbes de comparaison
   courbesComparaison.forEach(({ R: Rc, L: Lc, C: Cc, couleur: cc }) => {
     ctx2.strokeStyle = cc; ctx2.lineWidth = 2; ctx2.setLineDash([5, 4]);
     ctx2.beginPath();
@@ -2576,6 +2617,7 @@ function drawRecapCourbe() {
     ctx2.stroke(); ctx2.setLineDash([]);
   });
 
+  // Marquer f0
   const f0 = calculerF0(L, C);
   if (f0 >= FREQ_MIN && f0 <= FREQ_MAX) {
     const xF0 = mG + largeur * (f0 - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
@@ -2590,6 +2632,31 @@ function drawRecapCourbe() {
     ctx2.beginPath(); ctx2.arc(xF0, yMax, 6, 0, Math.PI * 2); ctx2.fill();
   }
 
+  // Marqueur du point de fonctionnement (fréquence GBF)
+  if (freqGBF >= FREQ_MIN && freqGBF <= FREQ_MAX) {
+    const xFGBF = mG + largeur * (freqGBF - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
+    const iGBF = calculerCourantAmplitude(freqGBF, R, L, C);
+    const yFGBF = mH + hauteur - (hauteur * iGBF / iMaxPlot);
+    // Ligne verticale
+    ctx2.strokeStyle = '#e91e63'; ctx2.lineWidth = 2;
+    ctx2.beginPath(); ctx2.moveTo(xFGBF, mH); ctx2.lineTo(xFGBF, mH + hauteur); ctx2.stroke();
+    // Halo
+    const grad = ctx2.createRadialGradient(xFGBF, yFGBF, 2, xFGBF, yFGBF, 18);
+    grad.addColorStop(0, 'rgba(233,30,99,0.9)');
+    grad.addColorStop(1, 'rgba(233,30,99,0)');
+    ctx2.fillStyle = grad;
+    ctx2.beginPath(); ctx2.arc(xFGBF, yFGBF, 18, 0, Math.PI * 2); ctx2.fill();
+    // Point
+    ctx2.fillStyle = '#e91e63';
+    ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 2;
+    ctx2.beginPath(); ctx2.arc(xFGBF, yFGBF, 7, 0, Math.PI * 2); ctx2.fill(); ctx2.stroke();
+    // Label
+    ctx2.fillStyle = '#e91e63'; ctx2.font = 'bold 10px "Courier New", monospace';
+    ctx2.textAlign = 'center'; ctx2.textBaseline = 'top';
+    ctx2.fillText('f GBF', xFGBF, mH + hauteur + 22);
+  }
+
+  // Bande passante
   const Q = (1 / R) * Math.sqrt(L / (C * 1e-6));
   const deltaF = f0 / Q;
   const f1 = f0 - deltaF / 2, f2 = f0 + deltaF / 2;
@@ -2611,6 +2678,11 @@ function drawRecapCourbe() {
   ctx2.fillStyle = '#a78bfa'; ctx2.font = 'bold 12px "Courier New", monospace';
   ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
   ctx2.fillText('i(f) [mA]', cw - 8, 8);
+  
+  // Légende
+  ctx2.fillStyle = '#e91e63'; ctx2.font = 'bold 10px "Courier New", monospace';
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
+  ctx2.fillText('● f GBF = ' + freqGBF.toFixed(0) + ' Hz', cw - 8, 24);
 }
 
 function ajouterCourbeComparaison() {
@@ -2799,73 +2871,125 @@ function drawResonanceAnimee(canvas, progression) {
   });
 }
 
+// ============================================================
+//  DÉPHASAGE — ANIMATION PROGRESSIVE (NOUVEAU)
+// ============================================================
+let animPhaseRAF = null;
+
+function animerPhases() {
+  if (animPhaseRAF) cancelAnimationFrame(animPhaseRAF);
+  const f0 = calculerF0(L, C);
+  const cas = [
+    { canvas: 'courbeBasFreq', f: f0 * 0.5, couleur: '#4fc3f7' },
+    { canvas: 'courbeResFreq', f: f0,        couleur: '#4caf50' },
+    { canvas: 'courbeHautFreq', f: f0 * 1.5, couleur: '#f59e0b' }
+  ];
+  let startTime = performance.now();
+  const duree = 1500;
+  function animer(now) {
+    const elapsed = now - startTime;
+    const progression = Math.min(elapsed / duree, 1);
+    cas.forEach(c => {
+      const canvas = document.getElementById(c.canvas);
+      if (canvas) drawPhaseAnimee(canvas, c, progression);
+    });
+    if (progression < 1) animPhaseRAF = requestAnimationFrame(animer);
+  }
+  animPhaseRAF = requestAnimationFrame(animer);
+  jouerSon('valide');
+}
+
+function drawPhaseAnimee(canvas, c, progression) {
+  const ctx2 = canvas.getContext('2d');
+  const cw = canvas.width, ch = canvas.height;
+  const mG = 40, mD = 15, mH = 20, mB = 25;
+  const largeur = cw - mG - mD, hauteur = ch - mH - mB;
+
+  ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
+  ctx2.strokeStyle = 'rgba(124,58,237,0.15)';
+  for (let i = 0; i <= 10; i++) { const y = mH + hauteur * i / 10; ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
+  for (let i = 0; i <= 10; i++) { const x = mG + largeur * i / 10; ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
+  ctx2.strokeStyle = 'rgba(124,58,237,0.6)'; ctx2.lineWidth = 1.5;
+  ctx2.beginPath();
+  ctx2.moveTo(mG, mH + hauteur / 2); ctx2.lineTo(mG + largeur, mH + hauteur / 2);
+  ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
+  ctx2.stroke();
+
+  const T = 1 / c.f;
+  const nbPts = 400;
+  const nMax = Math.floor(nbPts * progression);
+
+  // u(t)
+  ctx2.strokeStyle = '#a78bfa'; ctx2.lineWidth = 2;
+  ctx2.beginPath();
+  for (let i = 0; i <= nMax; i++) {
+    const t = 2 * T * i / nbPts;
+    const u = Math.cos(2 * Math.PI * c.f * t);
+    const x = mG + largeur * i / nbPts;
+    const y = mH + hauteur / 2 - (hauteur / 2.4) * u;
+    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke();
+
+  // i(t)
+  const { Z, phi } = calculerImpedance(c.f, R, L, C);
+  const imax = Um / Z;
+  ctx2.strokeStyle = c.couleur; ctx2.lineWidth = 2;
+  ctx2.shadowColor = c.couleur; ctx2.shadowBlur = 6;
+  ctx2.beginPath();
+  for (let i = 0; i <= nMax; i++) {
+    const t = 2 * T * i / nbPts;
+    const ii = imax * Math.cos(2 * Math.PI * c.f * t - phi);
+    const x = mG + largeur * i / nbPts;
+    const y = mH + hauteur / 2 - (hauteur / 2.4) * (ii / (Um / R));
+    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke(); ctx2.shadowBlur = 0;
+
+  // Point en tête de tracé
+  if (nMax > 0) {
+    const tTete = 2 * T * nMax / nbPts;
+    const uTete = Math.cos(2 * Math.PI * c.f * tTete);
+    const xTete = mG + largeur * nMax / nbPts;
+    const yTeteU = mH + hauteur / 2 - (hauteur / 2.4) * uTete;
+    ctx2.fillStyle = '#a78bfa';
+    ctx2.beginPath(); ctx2.arc(xTete, yTeteU, 4, 0, Math.PI * 2); ctx2.fill();
+    
+    const iTete = imax * Math.cos(2 * Math.PI * c.f * tTete - phi);
+    const yTeteI = mH + hauteur / 2 - (hauteur / 2.4) * (iTete / (Um / R));
+    ctx2.fillStyle = c.couleur;
+    ctx2.beginPath(); ctx2.arc(xTete, yTeteI, 4, 0, Math.PI * 2); ctx2.fill();
+  }
+
+  ctx2.fillStyle = '#a78bfa'; ctx2.font = 'bold 10px "Courier New", monospace';
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
+  ctx2.fillText('u(t)', cw - 6, 6);
+  ctx2.fillStyle = c.couleur;
+  ctx2.fillText('i(t)', cw - 6, 20);
+
+  const phiDeg = phi * 180 / Math.PI;
+  ctx2.fillStyle = '#fff'; ctx2.font = 'bold 10px monospace';
+  ctx2.textAlign = 'left'; ctx2.textBaseline = 'top';
+  ctx2.fillText('φ = ' + phiDeg.toFixed(1) + '°', mG + 4, 6);
+}
+
 function afficherPhases() {
   const f0 = calculerF0(L, C);
   const cas = [
-    { canvas: 'courbeBasFreq', f: f0 * 0.5, couleur: '#4fc3f7', titre: 'f < f₀' },
-    { canvas: 'courbeResFreq', f: f0,        couleur: '#4caf50', titre: 'f = f₀' },
-    { canvas: 'courbeHautFreq', f: f0 * 1.5, couleur: '#f59e0b', titre: 'f > f₀' }
+    { canvas: 'courbeBasFreq', f: f0 * 0.5, couleur: '#4fc3f7' },
+    { canvas: 'courbeResFreq', f: f0,        couleur: '#4caf50' },
+    { canvas: 'courbeHautFreq', f: f0 * 1.5, couleur: '#f59e0b' }
   ];
-
   cas.forEach(c => {
     const canvas = document.getElementById(c.canvas);
-    if (!canvas) return;
-    const ctx2 = canvas.getContext('2d');
-    const cw = canvas.width, ch = canvas.height;
-    const mG = 40, mD = 15, mH = 20, mB = 25;
-    const largeur = cw - mG - mD, hauteur = ch - mH - mB;
-
-    ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
-    ctx2.strokeStyle = 'rgba(124,58,237,0.15)';
-    for (let i = 0; i <= 10; i++) { const y = mH + hauteur * i / 10; ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
-    for (let i = 0; i <= 10; i++) { const x = mG + largeur * i / 10; ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
-    ctx2.strokeStyle = 'rgba(124,58,237,0.6)'; ctx2.lineWidth = 1.5;
-    ctx2.beginPath();
-    ctx2.moveTo(mG, mH + hauteur / 2); ctx2.lineTo(mG + largeur, mH + hauteur / 2);
-    ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
-    ctx2.stroke();
-
-    const T = 1 / c.f;
-    const nbPts = 400;
-    ctx2.strokeStyle = '#a78bfa'; ctx2.lineWidth = 2;
-    ctx2.beginPath();
-    for (let i = 0; i <= nbPts; i++) {
-      const t = 2 * T * i / nbPts;
-      const u = Math.cos(2 * Math.PI * c.f * t);
-      const x = mG + largeur * i / nbPts;
-      const y = mH + hauteur / 2 - (hauteur / 2.4) * u;
-      if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
-    }
-    ctx2.stroke();
-
-    const { Z, phi } = calculerImpedance(c.f, R, L, C);
-    const imax = Um / Z;
-    ctx2.strokeStyle = c.couleur; ctx2.lineWidth = 2;
-    ctx2.shadowColor = c.couleur; ctx2.shadowBlur = 6;
-    ctx2.beginPath();
-    for (let i = 0; i <= nbPts; i++) {
-      const t = 2 * T * i / nbPts;
-      const ii = imax * Math.cos(2 * Math.PI * c.f * t - phi);
-      const x = mG + largeur * i / nbPts;
-      const y = mH + hauteur / 2 - (hauteur / 2.4) * (ii / (Um / R));
-      if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
-    }
-    ctx2.stroke(); ctx2.shadowBlur = 0;
-
-    ctx2.fillStyle = '#a78bfa'; ctx2.font = 'bold 10px "Courier New", monospace';
-    ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
-    ctx2.fillText('u(t)', cw - 6, 6);
-    ctx2.fillStyle = c.couleur;
-    ctx2.fillText('i(t)', cw - 6, 20);
-
-    const phiDeg = phi * 180 / Math.PI;
-    ctx2.fillStyle = '#fff'; ctx2.font = 'bold 10px monospace';
-    ctx2.textAlign = 'left'; ctx2.textBaseline = 'top';
-    ctx2.fillText('φ = ' + phiDeg.toFixed(1) + '°', mG + 4, 6);
+    if (canvas) drawPhaseAnimee(canvas, c, 1);
   });
   jouerSon('valide');
 }
 
+// ============================================================
+//  MESURE INTERACTIVE DE LA BANDE PASSANTE
+// ============================================================
 function initTInteractif() {
   const canvas = document.getElementById('recapCourbe');
   if (!canvas || canvas.dataset.tBound) return;
@@ -3152,6 +3276,7 @@ function genererCertificat() {
         <div class="case"><div class="lab">Fréquence propre f₀</div><div class="val">${f0.toFixed(1)} Hz</div></div>
         <div class="case"><div class="lab">Facteur Q</div><div class="val">${Q.toFixed(1)}</div></div>
         <div class="case"><div class="lab">Résistance R</div><div class="val">${R} Ω</div></div>
+        <div class="case"><div class="lab">Fréquence GBF</div><div class="val">${freqGBF.toFixed(0)} Hz</div></div>
         <div class="case"><div class="lab">Score QCM</div><div class="val">${qcm}</div></div>
         <div class="case"><div class="lab">Date</div><div class="val">${date}</div></div>
       </div>
@@ -3228,6 +3353,13 @@ window.addEventListener('load', () => {
   updateBoutonSupprNoeud();
   majAffichage();
 
+  // Init slider fréquence GBF
+  const slider = document.getElementById('freqGBF');
+  if (slider) {
+    slider.addEventListener('input', e => majFrequenceGBF(e.target.value));
+    majFrequenceGBF(slider.value);
+  }
+
   const btnSon = document.getElementById('sonToggle');
   if (btnSon) {
     btnSon.textContent = sonActif ? '🔊' : '🔇';
@@ -3239,7 +3371,7 @@ window.addEventListener('load', () => {
     if (el) { el.addEventListener('input', majProgression); el.addEventListener('change', majProgression); }
   });
 
-  console.log('✅ Simulateur RLC forcé V1.2 — GBF amélioré, auto-pose, schéma SVG corrigé');
+  console.log('✅ Simulateur RLC forcé V1.3 — GBF+oscillo déplaçables, animation progressive, slider fréquence');
 });
 
 if (!CanvasRenderingContext2D.prototype.roundRect) {
