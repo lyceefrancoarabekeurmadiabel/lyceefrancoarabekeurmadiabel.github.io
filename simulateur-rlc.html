@@ -622,109 +622,62 @@
     </div>
   </section>
 
-  <!-- ===== ÉTAPE 3 : BRANCHER L'OSCILLOSCOPE ===== -->
-  <section class="etape" id="etape-3">
-    <div class="etape-header">
-      <div class="etape-eyebrow">Étape 3 sur 4</div>
-      <h1 class="etape-title">📺 Brancher l'oscilloscope</h1>
-      <p class="etape-subtitle">
-        Branche les 2 voies de l'oscilloscope <strong>en dérivation</strong>
-        sur le condensateur pour observer U_C(t).
-      </p>
-    </div>
+  // ============================================================
+//  ÉTAPE 3 : MODE DE MESURE
+// ============================================================
+let modeMesure = 'C'; // 'C' | 'R' | 'double'
 
-    <div class="message-3a">
+function choisirModeMesure(mode) {
+  modeMesure = mode;
+  ['C', 'R', 'double'].forEach(m => {
+    const id = 'modeOpt' + (m === 'C' ? 'C' : m === 'R' ? 'R' : 'Double');
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('actif', m === mode);
+  });
+  majMessageBranchement();
+  jouerSon('connect');
+}
+
+function majMessageBranchement() {
+  const msg = document.getElementById('message3a');
+  const objectif = document.getElementById('objectifBranchement');
+  if (!msg || !objectif) return;
+
+  if (modeMesure === 'C') {
+    msg.innerHTML = `
       <strong>🎯 Mission :</strong> branche les 2 voies de l'oscilloscope aux bornes du <strong>condensateur C</strong>.
       <div class="voie-info">
         <div><span class="voie-tag voie-1">Voie 1 (+)</span> → borne <strong>+ du condensateur C</strong></div>
         <div style="margin-top:6px;"><span class="voie-tag voie-2">Voie 2 (−)</span> → borne <strong>− du condensateur C</strong></div>
-      </div>
-      <div style="margin-top: 10px; font-size: 12px; opacity: 0.85;">
-        💡 L'oscilloscope est déjà posé sur le canvas. S'il te gêne, tu peux le <strong>glisser</strong> dans une zone libre.
-      </div>
-    </div>
+      </div>`;
+    objectif.innerHTML = '1 fil relie <span style="color:#4fc3f7; font-weight:700;">Voie 1 (+)</span> à la borne <strong>+ de C</strong><br>1 fil relie <span style="color:#ffeb3b; font-weight:700;">Voie 2 (−)</span> à la borne <strong>− de C</strong>';
+  } else if (modeMesure === 'R') {
+    msg.innerHTML = `
+      <strong>🎯 Mission :</strong> branche les 2 voies de l'oscilloscope aux bornes du <strong>résistor R</strong>.
+      <div class="voie-info">
+        <div><span class="voie-tag voie-1">Voie 1 (+)</span> → borne <strong>gauche de R</strong></div>
+        <div style="margin-top:6px;"><span class="voie-tag voie-2">Voie 2 (−)</span> → borne <strong>droite de R</strong></div>
+      </div>`;
+    objectif.innerHTML = '1 fil relie <span style="color:#4fc3f7; font-weight:700;">Voie 1 (+)</span> à une borne de R<br>1 fil relie <span style="color:#ffeb3b; font-weight:700;">Voie 2 (−)</span> à l\'autre borne de R';
+  } else {
+    msg.innerHTML = `
+      <strong>🎯 Mission :</strong> mesure <strong>simultanément</strong> U_C et U_R.
+      <div class="voie-info">
+        <div><span class="voie-tag voie-1">Voie 1 (+)</span> → borne <strong>+ du condensateur C</strong> (mesure U_C)</div>
+        <div style="margin-top:6px;"><span class="voie-tag voie-2">Voie 2 (−)</span> → borne <strong>de R</strong> (mesure U_R)</div>
+      </div>`;
+    objectif.innerHTML = '1 fil relie <span style="color:#4fc3f7; font-weight:700;">Voie 1 (+)</span> à la borne + de C<br>1 fil relie <span style="color:#ffeb3b; font-weight:700;">Voie 2 (−)</span> à une borne de R';
+  }
+  majSchemaCible();
+}
 
-    <div class="branchement-layout">
-
-      <div class="appareil-zone">
-        <h4>🧰 Appareil à utiliser</h4>
-        <div class="oscillo-drag-item" style="cursor:default; background:rgba(76,175,80,0.15); border:2px solid rgba(76,175,80,0.5);">
-          <span class="drag-icon">✅</span>
-          <span class="drag-label" style="color:#a5d6a7;">Oscilloscope posé</span>
-          <span class="drag-hint" style="color:#c8e6c9;">Il est déjà sur le canvas</span>
-        </div>
-        <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; font-size: 11.5px; line-height: 1.5;">
-          <strong>💡 Rappel :</strong><br>
-          L'oscilloscope est un <strong>voltmètre différentiel</strong>.<br>
-          On le branche <strong>en dérivation</strong> sur le composant à mesurer.
-        </div>
-        <div style="margin-top: 10px;">
-          <button class="outil-btn wire-btn" style="width: 100%; margin-bottom: 8px;" onclick="ajouterFilBranchement()">
-            <span class="icon">🧵</span><span>➕ Ajouter un fil</span>
-          </button>
-        </div>
-        <div style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.08); border-radius: 8px; font-size: 11.5px; line-height: 1.5;">
-          <strong>🎯 Objectif :</strong><br>
-          1 fil relie <span style="color:#4fc3f7; font-weight:700;">Voie 1 (+)</span> à la borne <strong>+ de C</strong><br>
-          1 fil relie <span style="color:#ffeb3b; font-weight:700;">Voie 2 (−)</span> à la borne <strong>− de C</strong>
-        </div>
-      </div>
-
-      <div class="montage-right">
-
-        <div class="schema-cible">
-          <h4>📐 Schéma du branchement</h4>
-          <svg viewBox="0 0 400 240" xmlns="http://www.w3.org/2000/svg" style="width: 100%; max-width: 100%; height: auto;">
-            <line x1="40" y1="80" x2="280" y2="80" stroke="#5eead4" stroke-width="3"/>
-            <line x1="40" y1="200" x2="280" y2="200" stroke="#5eead4" stroke-width="3"/>
-            <line x1="40" y1="80" x2="40" y2="110" stroke="#5eead4" stroke-width="3"/>
-            <line x1="40" y1="150" x2="40" y2="200" stroke="#5eead4" stroke-width="3"/>
-            <line x1="280" y1="80" x2="280" y2="120" stroke="#5eead4" stroke-width="3"/>
-            <line x1="280" y1="160" x2="280" y2="200" stroke="#5eead4" stroke-width="3"/>
-            <rect x="25" y="110" width="30" height="40" fill="#fff" stroke="#4fc3f7" stroke-width="2" rx="3"/>
-            <line x1="32" y1="120" x2="32" y2="140" stroke="#4fc3f7" stroke-width="2"/>
-            <line x1="48" y1="120" x2="48" y2="140" stroke="#4fc3f7" stroke-width="2"/>
-            <text x="40" y="100" text-anchor="middle" font-size="9" fill="#4fc3f7" font-weight="bold">C</text>
-            <rect x="120" y="65" width="60" height="30" fill="#fff" stroke="#ffd54f" stroke-width="2" rx="4"/>
-            <path d="M 128 80 L 138 70 L 148 90 L 158 70 L 168 90 L 175 80" stroke="#ffd54f" stroke-width="2" fill="none"/>
-            <text x="150" y="55" text-anchor="middle" font-size="10" fill="#ffd54f" font-weight="bold">R</text>
-            <line x1="260" y1="120" x2="300" y2="120" stroke="#5eead4" stroke-width="3"/>
-            <line x1="260" y1="160" x2="300" y2="160" stroke="#5eead4" stroke-width="3"/>
-            <g stroke="#B87333" stroke-width="2.5" fill="none">
-              <path d="M 260 120 Q 266 114 272 120 Q 278 126 284 120 Q 290 114 296 120 Q 300 124 304 120"/>
-              <path d="M 260 160 Q 266 154 272 160 Q 278 166 284 160 Q 290 154 296 160 Q 300 164 304 160"/>
-            </g>
-            <text x="282" y="105" text-anchor="middle" font-size="9" fill="#B87333" font-weight="bold">L</text>
-            <circle cx="180" cy="80" r="4" fill="#fff" stroke="#5eead4" stroke-width="2"/>
-            <circle cx="220" cy="80" r="4" fill="#fff" stroke="#5eead4" stroke-width="2"/>
-            <line x1="180" y1="80" x2="215" y2="68" stroke="#f44336" stroke-width="2.5" stroke-linecap="round"/>
-            <text x="200" y="60" text-anchor="middle" font-size="9" fill="#5eead4" font-weight="bold">K</text>
-            <rect x="320" y="30" width="70" height="90" fill="#0f766e" stroke="#5eead4" stroke-width="2" rx="6"/>
-            <text x="355" y="48" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">OSCILLO</text>
-            <text x="355" y="68" text-anchor="middle" font-size="8" fill="#4fc3f7">Voie 1 (+)</text>
-            <text x="355" y="82" text-anchor="middle" font-size="8" fill="#ffeb3b">Voie 2 (−)</text>
-            <circle cx="325" cy="68" r="3" fill="#4fc3f7"/>
-            <circle cx="325" cy="85" r="3" fill="#ffeb3b"/>
-            <line x1="325" y1="68" x2="25" y2="115" stroke="#4fc3f7" stroke-width="2" stroke-dasharray="4,4"/>
-            <line x1="325" y1="85" x2="55" y2="145" stroke="#ffeb3b" stroke-width="2" stroke-dasharray="4,4"/>
-            <rect x="20" y="105" width="40" height="50" fill="none" stroke="#5eead4" stroke-width="2.5" stroke-dasharray="6,3" rx="6"/>
-          </svg>
-        </div>
-
-        <div class="canvas-montage">
-          <canvas id="canvasBranchement" width="900" height="600"></canvas>
-          <div class="canvas-hint" id="canvasHintBranchement">🔗 Clique sur « ➕ Ajouter un fil »</div>
-        </div>
-
-        <div class="verif-message" id="verifBranchement"></div>
-      </div>
-    </div>
-
-    <div class="actions">
-      <button class="btn btn-secondary" onclick="allerEtape(2)">← Étape précédente</button>
-      <button class="btn btn-primary" onclick="verifierBranchement()">✅ Vérifier le branchement</button>
-    </div>
-  </section>
+function majSchemaCible() {
+  const zone = document.getElementById('schemaCibleBranchement');
+  if (!zone) return;
+  // On garde le même schéma SVG mais on peut changer les annotations
+  // Pour simplifier, on réutilise le schéma existant
+  // (le schéma est identique, seules les consignes changent)
+}
   
   <!-- ===== ÉTAPE 4 : ANALYSE & CONCLUSION ===== -->
   <section class="etape" id="etape-4">
@@ -3061,22 +3014,22 @@ function drawCourbeEnergies(canvas, t) {
   ctx2.stroke(); ctx2.shadowBlur = 0;
 
   // E_totale
-  ctx2.strokeStyle = '#4caf50'; ctx2.lineWidth = 2.5; ctx2.setLineDash([8, 5]);
-  ctx2.beginPath();
-  for (let i = 0; i <= nPts; i++) {
-    const tCur = tFin * i / nPts;
-    const Uc = calculerUc(tCur, R, L, C, U0);
-    // Approximation : énergie totale = ½C·Uc² + ½L·i²
-    // On calcule i via dérivée numérique
-    const dt = tMax / 1000;
-    const UcNext = calculerUc(tCur + dt, R, L, C, U0);
-    const i = -C_farad * (UcNext - Uc) / dt;
-    const Etot = 0.5 * C_farad * Uc * Uc + 0.5 * L * i * i;
-    const x = mG + largeur * tCur / tMax;
-    const y = mH + hauteur - (hauteur * Math.min(Etot, Emax) / Emax);
-    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
-  }
-  ctx2.stroke(); ctx2.setLineDash([]);
+ctx2.strokeStyle = '#4caf50'; ctx2.lineWidth = 2.5; ctx2.setLineDash([8, 5]);
+ctx2.beginPath();
+for (let i = 0; i <= nPts; i++) {
+  const tCur = tFin * i / nPts;
+  const Uc = calculerUc(tCur, R, L, C, U0);
+  // Approximation : énergie totale = ½C·Uc² + ½L·i²
+  // On calcule i via dérivée numérique
+  const dt = tMax / 1000;
+  const UcNext = calculerUc(tCur + dt, R, L, C, U0);
+  const courant = -C_farad * (UcNext - Uc) / dt;   // <-- RENOMMÉ
+  const Etot = 0.5 * C_farad * Uc * Uc + 0.5 * L * courant * courant;
+  const x = mG + largeur * tCur / tMax;
+  const y = mH + hauteur - (hauteur * Math.min(Etot, Emax) / Emax);
+  if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+}
+ctx2.stroke(); ctx2.setLineDash([]);
 
   // Légende
   ctx2.font = 'bold 12px "Courier New", monospace';
