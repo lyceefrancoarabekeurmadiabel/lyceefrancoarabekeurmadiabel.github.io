@@ -3332,6 +3332,134 @@ function verifierExo3() {
 }
 
 // ============================================================
+//  INTERACTIVITÉ DE LA COURBE i(f) — TOOLTIP AU SURVOL
+// ============================================================
+let recapCourbeLiee = false;
+
+function initRecapCourbeInteractif() {
+  const canvas = document.getElementById('recapCourbe');
+  const tooltip = document.getElementById('tooltipCourbe');
+  const tooltipContenu = document.getElementById('tooltipContenu');
+  if (!canvas || !tooltip || !tooltipContenu) return;
+  
+  if (recapCourbeLiee) return;
+  recapCourbeLiee = true;
+  
+  canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const xClic = (e.clientX - rect.left) * scaleX;
+    const yClic = (e.clientY - rect.top) * (canvas.height / rect.height);
+    
+    const mG = 70, mD = 20, mH = 30, mB = 50;
+    const largeur = canvas.width - mG - mD;
+    const hauteur = canvas.height - mH - mB;
+    
+    if (xClic < mG || xClic > mG + largeur || yClic < mH || yClic > mH + hauteur) {
+      tooltip.style.display = 'none';
+      drawRecapCourbe();
+      return;
+    }
+    
+    const f = FREQ_MIN + (FREQ_MAX - FREQ_MIN) * (xClic - mG) / largeur;
+    const iVal = calculerCourantAmplitude(f, R, L, C);
+    
+    tooltipContenu.innerHTML = `
+      <div>f = <strong>${f.toFixed(1)} Hz</strong></div>
+      <div>i = <strong>${(iVal * 1000).toFixed(1)} mA</strong></div>
+    `;
+    tooltip.style.display = 'block';
+    
+    const tooltipX = Math.min(rect.width - 150, e.clientX - rect.left + 15);
+    const tooltipY = Math.max(0, e.clientY - rect.top - 60);
+    tooltip.style.left = tooltipX + 'px';
+    tooltip.style.top = tooltipY + 'px';
+    
+    drawRecapCourbe();
+    drawMarqueurCurseur(canvas, f, iVal);
+  });
+  
+  canvas.addEventListener('mouseleave', () => {
+    tooltip.style.display = 'none';
+    drawRecapCourbe();
+  });
+  
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const xClic = (e.clientX - rect.left) * scaleX;
+    
+    const mG = 70, mD = 20;
+    const largeur = canvas.width - mG - mD;
+    if (xClic < mG || xClic > mG + largeur) return;
+    
+    const f = FREQ_MIN + (FREQ_MAX - FREQ_MIN) * (xClic - mG) / largeur;
+    const iVal = calculerCourantAmplitude(f, R, L, C);
+    
+    let info = document.getElementById('infoCourbeCliquee');
+    if (!info) {
+      info = document.createElement('div');
+      info.id = 'infoCourbeCliquee';
+      info.style.cssText = 'margin-top: 12px; padding: 10px 14px; background: #fff; border: 2px solid #e91e63; border-radius: 8px; font-family: "Courier New", monospace; font-size: 14px; color: #1a1a1a;';
+      canvas.parentElement.appendChild(info);
+    }
+    info.innerHTML = `
+      📌 <strong>Point sélectionné :</strong> 
+      <span style="color: #e91e63;">f = ${f.toFixed(1)} Hz</span>, 
+      <span style="color: #a78bfa;">i = ${(iVal * 1000).toFixed(1)} mA</span>
+    `;
+    jouerSon('valide');
+  });
+}
+
+function drawMarqueurCurseur(canvas, f, iVal) {
+  const ctx2 = canvas.getContext('2d');
+  const mG = 70, mD = 20, mH = 30, mB = 50;
+  const largeur = canvas.width - mG - mD;
+  const hauteur = canvas.height - mH - mB;
+  
+  const iMaxPlot = (Um / R) * 1.15;
+  const x = mG + largeur * (f - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
+  const y = mH + hauteur - (hauteur * iVal / iMaxPlot);
+  
+  ctx2.strokeStyle = 'rgba(233,30,99,0.5)';
+  ctx2.lineWidth = 1;
+  ctx2.setLineDash([4, 4]);
+  ctx2.beginPath();
+  ctx2.moveTo(x, mH);
+  ctx2.lineTo(x, mH + hauteur);
+  ctx2.stroke();
+  
+  ctx2.beginPath();
+  ctx2.moveTo(mG, y);
+  ctx2.lineTo(mG + largeur, y);
+  ctx2.stroke();
+  ctx2.setLineDash([]);
+  
+  const grad = ctx2.createRadialGradient(x, y, 2, x, y, 14);
+  grad.addColorStop(0, 'rgba(233,30,99,0.8)');
+  grad.addColorStop(1, 'rgba(233,30,99,0)');
+  ctx2.fillStyle = grad;
+  ctx2.beginPath();
+  ctx2.arc(x, y, 14, 0, Math.PI * 2);
+  ctx2.fill();
+  
+  ctx2.fillStyle = '#e91e63';
+  ctx2.strokeStyle = '#fff';
+  ctx2.lineWidth = 2;
+  ctx2.beginPath();
+  ctx2.arc(x, y, 6, 0, Math.PI * 2);
+  ctx2.fill();
+  ctx2.stroke();
+  
+  ctx2.fillStyle = '#fff';
+  ctx2.font = 'bold 11px "Courier New", monospace';
+  ctx2.textAlign = 'left';
+  ctx2.textBaseline = 'bottom';
+  ctx2.fillText(`(${f.toFixed(0)} Hz, ${(iVal * 1000).toFixed(0)} mA)`, x + 10, y - 8);
+}
+
+// ============================================================
 //  INIT
 // ============================================================
 window.addEventListener('load', () => {
