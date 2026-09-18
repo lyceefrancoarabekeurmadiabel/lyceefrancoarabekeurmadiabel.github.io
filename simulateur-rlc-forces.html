@@ -491,19 +491,19 @@
           <button class="outil-btn wire-btn" onclick="ajouterFil()">
             <span class="icon">🧵</span><span>➕ Ajouter un fil</span>
           </button>
+          <button class="outil-btn danger" onclick="supprimerDernierComposant()">
+            <span class="icon">✖</span><span>Supprimer le dernier composant</span>
+          </button>
           <button class="outil-btn danger" onclick="effacerTout()">
             <span class="icon">🗑</span><span>Tout effacer</span>
           </button>
-          <button class="outil-btn danger" onclick="supprimerDernierComposant()">
-  <span class="icon">✖</span><span>Supprimer le dernier composant</span>
-</button>
         </div>
         <div style="margin-top: 15px; padding: 10px; background: #f9f7f2; border-radius: 8px; font-size: 12px; color: var(--slate); line-height: 1.5;">
           <strong style="color: var(--ink);">💡 Comment faire :</strong><br>
           1. Clique sur un composant pour l'ajouter<br>
           2. Clique sur <strong>⟳</strong> pour tourner<br>
           3. Glisse les poignées des fils vers les bornes<br>
-          4. <strong>Clic droit</strong> sur un fil → supprimer
+          4. <strong>Clic droit</strong> sur un composant ou un fil → supprimer
         </div>
       </div>
 
@@ -586,7 +586,7 @@
         <div style="margin-top:6px;"><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-weight:700;margin-right:8px;background:#4fc3f7;color:#1a1a2e;">Voie 2 (−)</span> → bornes de <strong>R</strong> (image de i)</div>
       </div>
       <div style="margin-top:10px;font-size:12px;opacity:0.85;">
-        💡 <strong>Ton montage est conservé à l'identique.</strong> Pose l'oscilloscope à côté puis branche ses voies.
+        💡 <strong>Ton montage est conservé à l'identique.</strong> Pose l'oscilloscope puis branche ses voies.
       </div>
     </div>
 
@@ -1163,14 +1163,22 @@
 // ============================================================
 const EXPLICATIONS = {
   gbf: { title: '🔊 GBF — Générateur Basse Fréquence', content: `<p>Délivre une tension sinusoïdale <strong>u(t) = U_m·cos(2πft)</strong> avec f réglable.</p><p>C'est la <strong>source</strong> qui force le circuit à osciller à sa fréquence.</p><p><strong>Branchement :</strong> en série avec le circuit RLC.</p>` },
-  condensateur: { title: '⚡ Condensateur (C)', content: `<p>Impédance : <code>Z_C = 1/(Cω)</code></p><p>Diminue quand f augmente. À haute fréquence, il se comporte comme un court-circuit.</p>` },
-  bobine: { title: '🌀 Bobine (L = 0,1 H)', content: `<p>Impédance : <code>Z_L = Lω</code></p><p>Augmente quand f augmente. À basse fréquence, elle se comporte comme un fil.</p>` },
+  condensateur: { title: '⚡ Condensateur (C)', content: `<p>Impédance : <code>Z_C = 1/(Cω)</code></p><p>Diminue quand f augmente.</p>` },
+  bobine: { title: '🌀 Bobine (L = 0,1 H)', content: `<p>Impédance : <code>Z_L = Lω</code></p><p>Augmente quand f augmente.</p>` },
   resistance: { title: '📏 Résistance variable (R)', content: `<p>Dissipe l'énergie par effet Joule.</p><p>Contrôle l'<strong>acuité de la résonance</strong> : plus R est petite, plus Q est grand.</p><p><code>Q = (1/R)·√(L/C)</code></p>` },
-  oscillo: { title: '📺 Oscilloscope 2 voies', content: `<p>Voie 1 : tension du GBF u(t).</p><p>Voie 2 : tension aux bornes de R (image de i car U_R = R·i).</p><p>Il est branché <strong>en dérivation</strong> (voltmètre différentiel).</p>` }
+  oscillo: { title: '📺 Oscilloscope 2 voies', content: `<p>Voie 1 : tension du GBF u(t).</p><p>Voie 2 : tension aux bornes de R (image de i car U_R = R·i).</p>` }
 };
-</script>
 
-<script>
+function ouvrirModal(cle) {
+  const exp = EXPLICATIONS[cle];
+  if (!exp) return;
+  document.getElementById('modalTitle').innerHTML = exp.title;
+  document.getElementById('modalContent').innerHTML = exp.content;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function fermerModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fermerModal(); });
+
 // ============================================================
 //  ÉTAT GLOBAL
 // ============================================================
@@ -1368,7 +1376,7 @@ function allerEtape(n) {
 function debloquerEtape(n) { if (!etapesDebloquees.includes(n)) etapesDebloquees.push(n); }
 
 // ============================================================
-//  ÉTAPE 2 : MONTAGE (canvas)
+//  ÉTAPE 2 : MONTAGE
 // ============================================================
 const canvas = document.getElementById('canvasMontage');
 const ctx = canvas.getContext('2d');
@@ -1413,6 +1421,7 @@ function ajouterComposant(type) {
   drawMontage(); updateProgress(); updateCanvasHint();
 }
 
+// ⚠️ NOUVEAU : Suppression du dernier composant
 function supprimerDernierComposant() {
   if (montage.composants.length === 0) {
     alert('Aucun composant à supprimer.');
@@ -1421,14 +1430,12 @@ function supprimerDernierComposant() {
   const dernier = montage.composants[montage.composants.length - 1];
   if (!confirm(`Supprimer le dernier composant (${dernier.type}) ?`)) return;
   
-  // Réactive le bouton de la toolbox
   const btn = document.getElementById('btn-' + dernier.type);
   if (btn) btn.classList.remove('used');
   
-  // Supprime le composant
   montage.composants = montage.composants.filter(c => c.id !== dernier.id);
   
-  // Supprime les fils qui étaient connectés à ce composant
+  // Supprime les fils connectés
   montage.fils = montage.fils.filter(f => {
     if (f.de && f.de.startsWith(dernier.id + '-')) return false;
     if (f.vers && f.vers.startsWith(dernier.id + '-')) return false;
@@ -1692,11 +1699,12 @@ canvas.addEventListener('touchstart', e => { e.preventDefault(); const p = getCa
 canvas.addEventListener('touchmove', e => { e.preventDefault(); const p = getCanvasCoords(e, true); handlePointerMove(p.x, p.y); }, { passive: false });
 canvas.addEventListener('touchend', e => { e.preventDefault(); handlePointerUp(); });
 
+// ⚠️ AMÉLIORATION : clic droit supprime composant OU fil
 canvas.addEventListener('contextmenu', e => {
   e.preventDefault();
   const p = getCanvasCoords(e, false);
   
-  // 1. Priorité : supprimer un composant
+  // Priorité 1 : composant
   const comp = trouverComposantProche(p.x, p.y);
   if (comp) {
     if (confirm(`Supprimer le ${comp.type} ?`)) {
@@ -1714,38 +1722,14 @@ canvas.addEventListener('contextmenu', e => {
     return;
   }
   
-  // 2. Sinon : supprimer un fil
+  // Priorité 2 : fil
   const fil = trouverFilProche(p.x, p.y);
   if (fil) {
     if (confirm('Supprimer ce fil ?')) {
       montage.fils = montage.fils.filter(f => f.id !== fil.id);
       if (montage.filSelectionne === fil.id) montage.filSelectionne = null;
       updateConnexionsFils(); drawMontage(); updateProgress(); updateCanvasHint();
-    }
-  }
-});
-canvasB.addEventListener('contextmenu', e => {
-  e.preventDefault();
-  const p = getCanvasCoordsB(e, false);
-  const fil = trouverFilProcheB(p.x, p.y);
-  if (fil) {
-    if (confirm('Supprimer ce fil ?')) {
-      branchement.fils = branchement.fils.filter(f => f.id !== fil.id);
-      if (branchement.filSelectionne === fil.id) branchement.filSelectionne = null;
-      updateConnexionsFilsBranchement();
-      drawBranchement();
-    }
-  }
-});
-canvas.addEventListener('contextmenu', e => {
-  e.preventDefault();
-  const p = getCanvasCoords(e, false);
-  const fil = trouverFilProche(p.x, p.y);
-  if (fil) {
-    if (confirm('Supprimer ce fil ?')) {
-      montage.fils = montage.fils.filter(f => f.id !== fil.id);
-      if (montage.filSelectionne === fil.id) montage.filSelectionne = null;
-      updateConnexionsFils(); drawMontage(); updateProgress(); updateCanvasHint();
+      jouerSon('erreur');
     }
   }
 });
@@ -1933,16 +1917,15 @@ function verifierMontage() {
 }
 
 // ============================================================
-//  ÉTAPE 3 : BRANCHEMENT (oscilloscope seulement)
-//  On réutilise EXACTEMENT les composants et fils du montage
+//  ÉTAPE 3 : BRANCHEMENT
 // ============================================================
 const canvasB = document.getElementById('canvasBranchement');
 const ctxB = canvasB.getContext('2d');
 const WB = canvasB.width, HB = canvasB.height;
 
 let branchement = {
-  composants: [],       // copie des composants du montage
-  fils: [],             // copie des fils du montage + nouveaux fils
+  composants: [],
+  fils: [],
   oscilloscope: null,
   prochainIdFil: 100,
   poigneeEnDrag: null, filSelectionne: null,
@@ -1950,22 +1933,15 @@ let branchement = {
   oscilloPlace: false
 };
 
-// ⚠️ VERSION V2.0 : LE GBF EST UN COMPOSANT COMME LES AUTRES
-// Il est DÉJÀ dans montage.composants, donc il est copié tel quel.
-// L'oscilloscope est le SEUL appareil ajouté à l'étape 3.
-
 function initialiserBranchement() {
-  // Copie fidèle des composants (positions identiques au montage validé)
   branchement.composants = JSON.parse(JSON.stringify(montage.composants));
   
-  // Copie fidèle des fils AVEC leurs connexions
   branchement.fils = (montage.fils || []).map(fil => ({
     id: 'fb' + (branchement.prochainIdFil++),
     x1: fil.x1, y1: fil.y1, x2: fil.x2, y2: fil.y2,
     de: fil.de, vers: fil.vers
   }));
   
-  // L'oscilloscope n'est PAS auto-posé : l'élève doit cliquer
   drawBranchement();
   updateHintBranchement();
 }
@@ -2005,21 +1981,15 @@ function getToutesLesBornesB() {
 
 function getBorneByIdB(id) { return getToutesLesBornesB().find(b => b.id === id); }
 
-// Recalcule UNIQUEMENT les connexions des fils dont les bornes ont bougé
-// (par exemple si l'oscilloscope est déplacé)
 function updateConnexionsFilsBranchement() {
   const bornes = getToutesLesBornesB();
   branchement.fils.forEach(fil => {
-    // Si la borne de est toujours valide, on garde la connexion
     const borneDeExiste = fil.de ? bornes.find(b => b.id === fil.de) : null;
     const borneVersExiste = fil.vers ? bornes.find(b => b.id === fil.vers) : null;
     
-    // Si les deux connexions existent, on met à jour les coordonnées
-    // (au cas où le composant a bougé)
     if (borneDeExiste) { fil.x1 = borneDeExiste.x; fil.y1 = borneDeExiste.y; }
     if (borneVersExiste) { fil.x2 = borneVersExiste.x; fil.y2 = borneVersExiste.y; }
     
-    // Si l'une des bornes n'existe plus, on cherche la plus proche
     if (!borneDeExiste) {
       let mD = null, mDDist = DIST_CONNEXION;
       bornes.forEach(b => {
@@ -2109,7 +2079,6 @@ function drawPoigneeFilB(x, y, pulse) {
   ctxB.beginPath(); ctxB.arc(x, y, 11, 0, Math.PI * 2); ctxB.fill(); ctxB.stroke();
 }
 
-// Le GBF dans le branchement : MÊME rendu que dans le montage
 function drawGBFB(cx, cy, w, h) {
   ctxB.fillStyle = '#1a1a2e'; 
   ctxB.strokeStyle = '#7c3aed'; 
@@ -2231,6 +2200,22 @@ canvasB.addEventListener('touchstart', e => { e.preventDefault(); const p = getC
 canvasB.addEventListener('touchmove', e => { e.preventDefault(); const p = getCanvasCoordsB(e, true); handlePointerMoveB(p.x, p.y); }, { passive: false });
 canvasB.addEventListener('touchend', e => { e.preventDefault(); handlePointerUpB(); });
 
+// ⚠️ NOUVEAU : clic droit sur fil dans étape 3 pour supprimer
+canvasB.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  const p = getCanvasCoordsB(e, false);
+  const fil = trouverFilProcheB(p.x, p.y);
+  if (fil) {
+    if (confirm('Supprimer ce fil ?')) {
+      branchement.fils = branchement.fils.filter(f => f.id !== fil.id);
+      if (branchement.filSelectionne === fil.id) branchement.filSelectionne = null;
+      updateConnexionsFilsBranchement();
+      drawBranchement();
+      jouerSon('erreur');
+    }
+  }
+});
+
 function getCanvasCoordsB(e, isTouch) {
   const rect = canvasB.getBoundingClientRect();
   const ratio = canvasB.width / canvasB.height;
@@ -2245,7 +2230,6 @@ function getCanvasCoordsB(e, isTouch) {
 }
 
 function handlePointerDownB(x, y) {
-  // Priorité 1 : poignée d'un fil sélectionné
   if (branchement.filSelectionne) {
     const fil = branchement.fils.find(f => f.id === branchement.filSelectionne);
     if (fil) {
@@ -2255,7 +2239,6 @@ function handlePointerDownB(x, y) {
       if (dB < 28) { branchement.poigneeEnDrag = { filId: fil.id, cote: 'B' }; return; }
     }
   }
-  // Priorité 2 : drag de l'oscilloscope
   if (branchement.oscilloscope) {
     const o = branchement.oscilloscope;
     if (Math.abs(x - o.x) < o.w/2 + 10 && Math.abs(y - o.y) < o.h/2 + 10) {
@@ -2266,7 +2249,6 @@ function handlePointerDownB(x, y) {
       return;
     }
   }
-  // Priorité 3 : sélection d'un fil
   const f = trouverFilProcheB(x, y);
   if (f) { branchement.filSelectionne = f.id; drawBranchement(); return; }
   branchement.filSelectionne = null;
@@ -2480,7 +2462,6 @@ function drawRecapCourbe() {
     ctx2.fillText((val * 1000).toFixed(0) + ' mA', mG - 6, mH + hauteur * i / 4);
   }
 
-  // Courbe
   ctx2.strokeStyle = '#a78bfa'; ctx2.lineWidth = 3;
   ctx2.shadowColor = '#a78bfa'; ctx2.shadowBlur = 10;
   ctx2.beginPath();
@@ -2493,7 +2474,6 @@ function drawRecapCourbe() {
   }
   ctx2.stroke(); ctx2.shadowBlur = 0;
 
-  // f0
   const f0 = calculerF0(L, C);
   if (f0 >= FREQ_MIN && f0 <= FREQ_MAX) {
     const xF0 = mG + largeur * (f0 - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
@@ -2505,7 +2485,6 @@ function drawRecapCourbe() {
     ctx2.fillText('f₀ = ' + f0.toFixed(0) + ' Hz', xF0, mH - 4);
   }
 
-  // Point de fonctionnement
   if (freqGBF >= FREQ_MIN && freqGBF <= FREQ_MAX) {
     const xFGBF = mG + largeur * (freqGBF - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
     const iGBF = calculerCourantAmplitude(freqGBF, R, L, C);
@@ -2522,7 +2501,6 @@ function drawRecapCourbe() {
     ctx2.beginPath(); ctx2.arc(xFGBF, yFGBF, 7, 0, Math.PI * 2); ctx2.fill(); ctx2.stroke();
   }
 
-  // Bande passante
   const Q = (1 / R) * Math.sqrt(L / (C * 1e-6));
   const deltaF = f0 / Q;
   const f1 = f0 - deltaF / 2, f2 = f0 + deltaF / 2;
@@ -3033,7 +3011,7 @@ window.addEventListener('load', () => {
     if (el) { el.addEventListener('input', majProgression); el.addEventListener('change', majProgression); }
   });
 
-  console.log('✅ Simulateur RLC forcé V2.0 — GBF = composant normal, oscillo seul appareil ajouté à l\'étape 3');
+  console.log('✅ Simulateur RLC forcé V2.1 — Suppression composants + conservation du montage');
 });
 
 if (!CanvasRenderingContext2D.prototype.roundRect) {
