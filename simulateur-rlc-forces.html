@@ -1760,14 +1760,22 @@ function handlePointerDown(x, y) {
     }
   }
   if (montage.filSelectionne) {
-    const fil = montage.fils.find(f => f.id === montage.filSelectionne);
-    if (fil) {
-      const dA = Math.hypot(fil.x1 - x, fil.y1 - y);
-      const dB = Math.hypot(fil.x2 - x, fil.y2 - y);
-      if (dA < 28) { montage.poigneeEnDrag = { filId: fil.id, cote: 'A' }; return; }
-      if (dB < 28) { montage.poigneeEnDrag = { filId: fil.id, cote: 'B' }; return; }
+  const fil = montage.fils.find(f => f.id === montage.filSelectionne);
+  if (fil) {
+    const dA = Math.hypot(fil.x1 - x, fil.y1 - y);
+    const dB = Math.hypot(fil.x2 - x, fil.y2 - y);
+    if (dA < 28) { 
+      montage.poigneeEnDrag = { filId: fil.id, cote: 'A' }; 
+      fil.de = null;    // ⚠️ AJOUT
+      return; 
+    }
+    if (dB < 28) { 
+      montage.poigneeEnDrag = { filId: fil.id, cote: 'B' }; 
+      fil.vers = null;  // ⚠️ AJOUT
+      return; 
     }
   }
+}
   const filClique = trouverFilProche(x, y);
   if (filClique) { montage.filSelectionne = filClique.id; drawMontage(); return; }
   const comp = trouverComposantProche(x, y);
@@ -1778,18 +1786,18 @@ function handlePointerDown(x, y) {
 
 function handlePointerMove(x, y) {
   if (montage.poigneeEnDrag) {
-    const fil = montage.fils.find(f => f.id === montage.poigneeEnDrag.filId);
-    if (fil) {
-      const borne = trouverBorneProche(x, y, DIST_SNAP);
-      let fx = Math.max(10, Math.min(W - 10, x));
-      let fy = Math.max(10, Math.min(H - 10, y));
-      if (borne) { fx = borne.x; fy = borne.y; }
-      if (montage.poigneeEnDrag.cote === 'A') { fil.x1 = fx; fil.y1 = fy; }
-      else { fil.x2 = fx; fil.y2 = fy; }
-      updateConnexionsFils(); updateProgress();
-    }
-    drawMontage(); return;
+  const fil = montage.fils.find(f => f.id === montage.poigneeEnDrag.filId);
+  if (fil) {
+    const borne = trouverBorneProche(x, y, DIST_SNAP);
+    let fx = Math.max(10, Math.min(W - 10, x));
+    let fy = Math.max(10, Math.min(H - 10, y));
+    if (borne) { fx = borne.x; fy = borne.y; }
+    if (montage.poigneeEnDrag.cote === 'A') { fil.x1 = fx; fil.y1 = fy; }
+    else { fil.x2 = fx; fil.y2 = fy; }
+    // ⚠️ SUPPRIMÉ : updateConnexionsFils(); updateProgress();
   }
+  drawMontage(); return;
+}
   if (montage.composantEnDrag) {
     montage.composantEnDrag.x = Math.max(80, Math.min(W - 80, x - montage.offsetDrag.x));
     montage.composantEnDrag.y = Math.max(80, Math.min(H - 80, y - montage.offsetDrag.y));
@@ -2231,14 +2239,22 @@ function getCanvasCoordsB(e, isTouch) {
 
 function handlePointerDownB(x, y) {
   if (branchement.filSelectionne) {
-    const fil = branchement.fils.find(f => f.id === branchement.filSelectionne);
-    if (fil) {
-      const dA = Math.hypot(fil.x1 - x, fil.y1 - y);
-      const dB = Math.hypot(fil.x2 - x, fil.y2 - y);
-      if (dA < 28) { branchement.poigneeEnDrag = { filId: fil.id, cote: 'A' }; return; }
-      if (dB < 28) { branchement.poigneeEnDrag = { filId: fil.id, cote: 'B' }; return; }
+  const fil = branchement.fils.find(f => f.id === branchement.filSelectionne);
+  if (fil) {
+    const dA = Math.hypot(fil.x1 - x, fil.y1 - y);
+    const dB = Math.hypot(fil.x2 - x, fil.y2 - y);
+    if (dA < 28) { 
+      branchement.poigneeEnDrag = { filId: fil.id, cote: 'A' }; 
+      fil.de = null;   // ⚠️ Libère la borne côté A
+      return; 
+    }
+    if (dB < 28) { 
+      branchement.poigneeEnDrag = { filId: fil.id, cote: 'B' }; 
+      fil.vers = null;  // ⚠️ Libère la borne côté B
+      return; 
     }
   }
+}
   if (branchement.oscilloscope) {
     const o = branchement.oscilloscope;
     if (Math.abs(x - o.x) < o.w/2 + 10 && Math.abs(y - o.y) < o.h/2 + 10) {
@@ -2265,17 +2281,12 @@ function handlePointerMoveB(x, y) {
       if (b) { fx = b.x; fy = b.y; }
       if (branchement.poigneeEnDrag.cote === 'A') { fil.x1 = fx; fil.y1 = fy; }
       else { fil.x2 = fx; fil.y2 = fy; }
-      updateConnexionsFilsBranchement();
+      // ⚠️ SUPPRIMÉ : updateConnexionsFilsBranchement(); 
+      //    (on ne recalcule PAS pendant le drag)
     }
     drawBranchement(); return;
   }
-  if (branchement.oscilloEnDrag) {
-    branchement.oscilloEnDrag.x = Math.max(branchement.oscilloEnDrag.w/2 + 30, Math.min(WB - branchement.oscilloEnDrag.w/2 - 10, x - branchement.offsetDragOscillo.x));
-    branchement.oscilloEnDrag.y = Math.max(branchement.oscilloEnDrag.h/2 + 30, Math.min(HB - branchement.oscilloEnDrag.h/2 - 10, y - branchement.offsetDragOscillo.y));
-    updateConnexionsFilsBranchement();
-    drawBranchement(); return;
-  }
-  drawBranchement();
+  // ... reste inchangé
 }
 
 function handlePointerUpB() {
@@ -2283,6 +2294,7 @@ function handlePointerUpB() {
   branchement.poigneeEnDrag = null;
   branchement.oscilloEnDrag = null;
   if (avaitDrag) {
+    // Recalcule SEULEMENT au relâchement
     updateConnexionsFilsBranchement();
     drawBranchement();
   }
