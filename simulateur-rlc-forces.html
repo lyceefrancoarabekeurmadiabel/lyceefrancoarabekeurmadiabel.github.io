@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TP RLC forcé — Oscillations électriques forcées | LFAKM</title>
 <link rel="icon" type="image/png" href="favicon.png">
-<meta name="manifest" href="manifest.json">
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0f766e">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -289,7 +289,6 @@
   .modal-content code { background: #f9f7f2; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 13px; color: var(--brass); }
   .modal-btn { margin-top: 18px; padding: 10px 20px; background: var(--gbf); color: #fff; border: none; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
   
-  /* Slider fréquence GBF */
   .freq-control { background: #fff; border: 2px solid var(--gbf); border-radius: 10px; padding: 15px 20px; margin-bottom: 20px; }
   .freq-control .ligne { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
   .freq-control label { font-size: 13px; font-weight: 700; color: var(--ink); }
@@ -682,7 +681,6 @@
           <p>Voici les grandeurs caractéristiques avec leurs formules et valeurs calculées.</p>
         </div>
 
-        <!-- Slider fréquence GBF -->
         <div class="freq-control">
           <div class="ligne">
             <label for="freqGBF">🔊 Fréquence du GBF :</label>
@@ -1187,7 +1185,7 @@
             </select>
             <button class="btn btn-gbf" style="padding:10px 18px;font-size:13px;" onclick="verifierExo3()">Vérifier</button>
           </div>
-          <div class="exercice-feedback" id="exo3fb"></div>
+          <div class="exercice-feedback" id="exo3-fb"></div>
         </div>
       </div>
 
@@ -1235,7 +1233,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') fermerModal(
 // ============================================================
 let choixRes = 'moyen';
 let R = 50, L = 0.1, C = 10;
-let freqGBF = 159; // Fréquence imposée par le GBF
+let freqGBF = 159;
 const Um = 6;
 const FREQ_MIN = 10, FREQ_MAX = 500;
 
@@ -1326,7 +1324,7 @@ function majRPersonnalise() {
 }
 
 // ============================================================
-//  FRÉQUENCE GBF (NOUVEAU)
+//  FRÉQUENCE GBF
 // ============================================================
 function majFrequenceGBF(val) {
   freqGBF = parseFloat(val) || 159;
@@ -1362,7 +1360,6 @@ function majAffichage() {
   const deltaF = f0 / Q;
   const w0 = 2 * Math.PI * f0;
   
-  // Calculs au point de fonctionnement (fréquence GBF)
   const imp = calculerImpedance(freqGBF, R, L, C);
   const iF = Um / imp.Z;
   const phiDeg = imp.phi * 180 / Math.PI;
@@ -1370,13 +1367,11 @@ function majAffichage() {
 
   const setTxt = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
 
-  // Fréquence GBF
   setTxt('valeurFreqGBF', freqGBF.toFixed(0) + ' Hz');
   setTxt('valeurOmegaGBF', '≈ ' + omegaGBF.toFixed(0) + ' rad/s');
   setTxt('valeurFGBF', freqGBF.toFixed(0) + ' Hz');
   setTxt('formOmegaGBF', omegaGBF.toFixed(0) + ' rad/s');
 
-  // Impédance et courant au point de fonctionnement
   setTxt('valeurZf', imp.Z.toFixed(1) + ' Ω');
   setTxt('formZf', imp.Z.toFixed(1) + ' Ω');
   setTxt('valeurIf', (iF * 1000).toFixed(0) + ' mA');
@@ -1384,7 +1379,6 @@ function majAffichage() {
   setTxt('valeurPhiF', phiDeg.toFixed(1) + '°');
   setTxt('formPhiF', phiDeg.toFixed(1) + '°');
 
-  // Grandeurs caractéristiques
   setTxt('valeurF0', f0.toFixed(1) + ' Hz');
   setTxt('valeurQ', Q.toFixed(1));
   setTxt('valeurDeltaF', deltaF.toFixed(1) + ' Hz');
@@ -2020,11 +2014,20 @@ let branchement = {
   gbfPos: false, oscilloPos: false
 };
 
+// ============================================================
+//  ⚠️ CORRECTION PRINCIPALE : CONSERVER LES CONNEXIONS DES FILS
+// ============================================================
 function initialiserBranchement() {
+  // Copie profonde des composants AVEC leurs positions/rotations
   branchement.composants = JSON.parse(JSON.stringify(montage.composants));
+  
+  // ⚠️ CORRECTION : on conserve les connexions (de/vers) des fils
+  // ainsi que les mêmes IDs de composants, pour que les fils restent attachés
   branchement.fils = (montage.fils || []).map(fil => ({
     id: 'fb' + (branchement.prochainIdFil++),
-    x1: fil.x1, y1: fil.y1, x2: fil.x2, y2: fil.y2, de: null, vers: null
+    x1: fil.x1, y1: fil.y1, x2: fil.x2, y2: fil.y2,
+    de: fil.de,   // ⚠️ CONSERVÉ (était null avant)
+    vers: fil.vers // ⚠️ CONSERVÉ (était null avant)
   }));
   
   if (!branchement.gbf) {
@@ -2049,6 +2052,7 @@ function initialiserBranchement() {
     }
   }
   
+  // Recalcule les connexions (mais les anciennes sont déjà bonnes)
   updateConnexionsFilsBranchement();
   drawBranchement();
   updateHintBranchement();
@@ -2089,6 +2093,17 @@ function getBorneByIdB(id) { return getToutesLesBornesB().find(b => b.id === id)
 function updateConnexionsFilsBranchement() {
   const bornes = getToutesLesBornesB();
   branchement.fils.forEach(fil => {
+    // ⚠️ CORRECTION : on ne réinitialise PAS de/vers si les bornes existent toujours
+    // On cherche juste la meilleure borne si la connexion actuelle est invalide
+    const borneDeExistante = fil.de ? bornes.find(b => b.id === fil.de) : null;
+    const borneVersExistante = fil.vers ? bornes.find(b => b.id === fil.vers) : null;
+    
+    if (borneDeExistante && borneVersExistante) {
+      // Connexion existante toujours valide → on la garde
+      return;
+    }
+    
+    // Sinon on recalcule
     fil.de = null; fil.vers = null;
     let mD = null, mDDist = DIST_CONNEXION;
     let mV = null, mVDist = DIST_CONNEXION;
@@ -2212,7 +2227,6 @@ function drawGBFB(o) {
   ctxB.textAlign = 'center';
   ctxB.fillText('+', o.x - o.w/2 - 14, o.y - o.h/4);
   ctxB.fillText('−', o.x - o.w/2 - 14, o.y + o.h/4);
-  // Poignée de drag
   if (branchement.gbfEnDrag) {
     ctxB.fillStyle = 'rgba(255,213,79,0.4)';
     ctxB.beginPath(); ctxB.arc(o.x, o.y, o.w/2 + 8, 0, Math.PI * 2); ctxB.fill();
@@ -2267,7 +2281,6 @@ function drawOscilloB(o) {
   ctxB.roundRect(o.x - o.w/2, o.y - o.h/2, o.w, o.h, 10); 
   ctxB.fill(); 
   ctxB.stroke();
-  // Écran compact
   ctxB.fillStyle = '#000'; ctxB.strokeStyle = '#4caf50'; ctxB.lineWidth = 2;
   ctxB.beginPath(); ctxB.rect(o.x - 20, o.y - 22, 70, 44); ctxB.fill(); ctxB.stroke();
   ctxB.strokeStyle = 'rgba(76, 175, 80, 0.4)'; ctxB.lineWidth = 1;
@@ -2278,7 +2291,6 @@ function drawOscilloB(o) {
   ctxB.fillStyle = '#4fc3f7'; ctxB.font = 'bold 9px monospace'; ctxB.textAlign = 'left';
   ctxB.fillText('Voie 1 (+)', o.x - o.w/2 + 6, o.y - o.h/4 - 2);
   ctxB.fillStyle = '#ffeb3b'; ctxB.fillText('Voie 2 (−)', o.x - o.w/2 + 6, o.y + o.h/4 + 2);
-  // Poignée de drag
   if (branchement.oscilloEnDrag) {
     ctxB.fillStyle = 'rgba(255,213,79,0.4)';
     ctxB.beginPath(); ctxB.arc(o.x, o.y, o.w/2 + 8, 0, Math.PI * 2); ctxB.fill();
@@ -2316,7 +2328,6 @@ function getCanvasCoordsB(e, isTouch) {
 }
 
 function handlePointerDownB(x, y) {
-  // 1. Priorité : poignée d'un fil sélectionné
   if (branchement.filSelectionne) {
     const fil = branchement.fils.find(f => f.id === branchement.filSelectionne);
     if (fil) {
@@ -2326,7 +2337,6 @@ function handlePointerDownB(x, y) {
       if (dB < 28) { branchement.poigneeEnDrag = { filId: fil.id, cote: 'B' }; return; }
     }
   }
-  // 2. Drag du GBF
   if (branchement.gbf) {
     const o = branchement.gbf;
     if (Math.abs(x - o.x) < o.w/2 + 10 && Math.abs(y - o.y) < o.h/2 + 10) {
@@ -2337,7 +2347,6 @@ function handlePointerDownB(x, y) {
       return;
     }
   }
-  // 3. Drag de l'oscilloscope
   if (branchement.oscilloscope) {
     const o = branchement.oscilloscope;
     if (Math.abs(x - o.x) < o.w/2 + 10 && Math.abs(y - o.y) < o.h/2 + 10) {
@@ -2348,7 +2357,6 @@ function handlePointerDownB(x, y) {
       return;
     }
   }
-  // 4. Sélection d'un fil
   const f = trouverFilProcheB(x, y);
   if (f) { branchement.filSelectionne = f.id; drawBranchement(); return; }
   branchement.filSelectionne = null;
@@ -2372,12 +2380,34 @@ function handlePointerMoveB(x, y) {
   if (branchement.gbfEnDrag) {
     branchement.gbfEnDrag.x = Math.max(branchement.gbfEnDrag.w/2 + 30, Math.min(WB - branchement.gbfEnDrag.w/2 - 10, x - branchement.offsetDragGbf.x));
     branchement.gbfEnDrag.y = Math.max(branchement.gbfEnDrag.h/2 + 30, Math.min(HB - branchement.gbfEnDrag.h/2 - 10, y - branchement.offsetDragGbf.y));
+    // Met à jour les fils connectés au GBF
+    branchement.fils.forEach(fil => {
+      if (fil.de === 'gbf-1' || fil.de === 'gbf-2') {
+        const borne = getBornesGBF().find(b => b.id === fil.de);
+        if (borne) { fil.x1 = borne.x; fil.y1 = borne.y; }
+      }
+      if (fil.vers === 'gbf-1' || fil.vers === 'gbf-2') {
+        const borne = getBornesGBF().find(b => b.id === fil.vers);
+        if (borne) { fil.x2 = borne.x; fil.y2 = borne.y; }
+      }
+    });
     updateConnexionsFilsBranchement();
     drawBranchement(); return;
   }
   if (branchement.oscilloEnDrag) {
     branchement.oscilloEnDrag.x = Math.max(branchement.oscilloEnDrag.w/2 + 30, Math.min(WB - branchement.oscilloEnDrag.w/2 - 10, x - branchement.offsetDragOscillo.x));
     branchement.oscilloEnDrag.y = Math.max(branchement.oscilloEnDrag.h/2 + 30, Math.min(HB - branchement.oscilloEnDrag.h/2 - 10, y - branchement.offsetDragOscillo.y));
+    // Met à jour les fils connectés à l'oscilloscope
+    branchement.fils.forEach(fil => {
+      if (fil.de === 'osc-1' || fil.de === 'osc-2') {
+        const borne = getBornesOscillo().find(b => b.id === fil.de);
+        if (borne) { fil.x1 = borne.x; fil.y1 = borne.y; }
+      }
+      if (fil.vers === 'osc-1' || fil.vers === 'osc-2') {
+        const borne = getBornesOscillo().find(b => b.id === fil.vers);
+        if (borne) { fil.x2 = borne.x; fil.y2 = borne.y; }
+      }
+    });
     updateConnexionsFilsBranchement();
     drawBranchement(); return;
   }
@@ -2551,9 +2581,6 @@ function initRecapEditable() {
   majAffichage();
 }
 
-// ============================================================
-//  COURBE i(f) avec marqueur du point de fonctionnement
-// ============================================================
 function drawRecapCourbe() {
   const canvas = document.getElementById('recapCourbe');
   if (!canvas) return;
@@ -2590,7 +2617,6 @@ function drawRecapCourbe() {
     ctx2.fillText((val * 1000).toFixed(0) + ' mA', mG - 6, y);
   }
 
-  // Courbe principale
   ctx2.strokeStyle = '#a78bfa'; ctx2.lineWidth = 3;
   ctx2.shadowColor = '#a78bfa'; ctx2.shadowBlur = 10;
   ctx2.beginPath();
@@ -2603,7 +2629,6 @@ function drawRecapCourbe() {
   }
   ctx2.stroke(); ctx2.shadowBlur = 0;
 
-  // Courbes de comparaison
   courbesComparaison.forEach(({ R: Rc, L: Lc, C: Cc, couleur: cc }) => {
     ctx2.strokeStyle = cc; ctx2.lineWidth = 2; ctx2.setLineDash([5, 4]);
     ctx2.beginPath();
@@ -2617,7 +2642,6 @@ function drawRecapCourbe() {
     ctx2.stroke(); ctx2.setLineDash([]);
   });
 
-  // Marquer f0
   const f0 = calculerF0(L, C);
   if (f0 >= FREQ_MIN && f0 <= FREQ_MAX) {
     const xF0 = mG + largeur * (f0 - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
@@ -2632,31 +2656,25 @@ function drawRecapCourbe() {
     ctx2.beginPath(); ctx2.arc(xF0, yMax, 6, 0, Math.PI * 2); ctx2.fill();
   }
 
-  // Marqueur du point de fonctionnement (fréquence GBF)
   if (freqGBF >= FREQ_MIN && freqGBF <= FREQ_MAX) {
     const xFGBF = mG + largeur * (freqGBF - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
     const iGBF = calculerCourantAmplitude(freqGBF, R, L, C);
     const yFGBF = mH + hauteur - (hauteur * iGBF / iMaxPlot);
-    // Ligne verticale
     ctx2.strokeStyle = '#e91e63'; ctx2.lineWidth = 2;
     ctx2.beginPath(); ctx2.moveTo(xFGBF, mH); ctx2.lineTo(xFGBF, mH + hauteur); ctx2.stroke();
-    // Halo
     const grad = ctx2.createRadialGradient(xFGBF, yFGBF, 2, xFGBF, yFGBF, 18);
     grad.addColorStop(0, 'rgba(233,30,99,0.9)');
     grad.addColorStop(1, 'rgba(233,30,99,0)');
     ctx2.fillStyle = grad;
     ctx2.beginPath(); ctx2.arc(xFGBF, yFGBF, 18, 0, Math.PI * 2); ctx2.fill();
-    // Point
     ctx2.fillStyle = '#e91e63';
     ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 2;
     ctx2.beginPath(); ctx2.arc(xFGBF, yFGBF, 7, 0, Math.PI * 2); ctx2.fill(); ctx2.stroke();
-    // Label
     ctx2.fillStyle = '#e91e63'; ctx2.font = 'bold 10px "Courier New", monospace';
     ctx2.textAlign = 'center'; ctx2.textBaseline = 'top';
     ctx2.fillText('f GBF', xFGBF, mH + hauteur + 22);
   }
 
-  // Bande passante
   const Q = (1 / R) * Math.sqrt(L / (C * 1e-6));
   const deltaF = f0 / Q;
   const f1 = f0 - deltaF / 2, f2 = f0 + deltaF / 2;
@@ -2679,7 +2697,6 @@ function drawRecapCourbe() {
   ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
   ctx2.fillText('i(f) [mA]', cw - 8, 8);
   
-  // Légende
   ctx2.fillStyle = '#e91e63'; ctx2.font = 'bold 10px "Courier New", monospace';
   ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
   ctx2.fillText('● f GBF = ' + freqGBF.toFixed(0) + ' Hz', cw - 8, 24);
@@ -2871,9 +2888,6 @@ function drawResonanceAnimee(canvas, progression) {
   });
 }
 
-// ============================================================
-//  DÉPHASAGE — ANIMATION PROGRESSIVE (NOUVEAU)
-// ============================================================
 let animPhaseRAF = null;
 
 function animerPhases() {
@@ -2919,7 +2933,6 @@ function drawPhaseAnimee(canvas, c, progression) {
   const nbPts = 400;
   const nMax = Math.floor(nbPts * progression);
 
-  // u(t)
   ctx2.strokeStyle = '#a78bfa'; ctx2.lineWidth = 2;
   ctx2.beginPath();
   for (let i = 0; i <= nMax; i++) {
@@ -2931,7 +2944,6 @@ function drawPhaseAnimee(canvas, c, progression) {
   }
   ctx2.stroke();
 
-  // i(t)
   const { Z, phi } = calculerImpedance(c.f, R, L, C);
   const imax = Um / Z;
   ctx2.strokeStyle = c.couleur; ctx2.lineWidth = 2;
@@ -2946,7 +2958,6 @@ function drawPhaseAnimee(canvas, c, progression) {
   }
   ctx2.stroke(); ctx2.shadowBlur = 0;
 
-  // Point en tête de tracé
   if (nMax > 0) {
     const tTete = 2 * T * nMax / nbPts;
     const uTete = Math.cos(2 * Math.PI * c.f * tTete);
@@ -2987,9 +2998,6 @@ function afficherPhases() {
   jouerSon('valide');
 }
 
-// ============================================================
-//  MESURE INTERACTIVE DE LA BANDE PASSANTE
-// ============================================================
 function initTInteractif() {
   const canvas = document.getElementById('recapCourbe');
   if (!canvas || canvas.dataset.tBound) return;
@@ -3353,7 +3361,6 @@ window.addEventListener('load', () => {
   updateBoutonSupprNoeud();
   majAffichage();
 
-  // Init slider fréquence GBF
   const slider = document.getElementById('freqGBF');
   if (slider) {
     slider.addEventListener('input', e => majFrequenceGBF(e.target.value));
@@ -3371,7 +3378,7 @@ window.addEventListener('load', () => {
     if (el) { el.addEventListener('input', majProgression); el.addEventListener('change', majProgression); }
   });
 
-  console.log('✅ Simulateur RLC forcé V1.3 — GBF+oscillo déplaçables, animation progressive, slider fréquence');
+  console.log('✅ Simulateur RLC forcé V1.4 — Fils et composants conservés au passage étape 2→3');
 });
 
 if (!CanvasRenderingContext2D.prototype.roundRect) {
