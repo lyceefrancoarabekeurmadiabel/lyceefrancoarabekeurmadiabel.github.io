@@ -35,10 +35,10 @@
   .step-item { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; position: relative; z-index: 1; flex: 1; transition: opacity 0.2s; min-width: 0; }
   .step-item.locked { cursor: not-allowed; opacity: 0.5; }
   .step-circle { width: 44px; height: 44px; border-radius: 50%; background: #fff; border: 3px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: var(--slate); transition: all 0.3s; flex-shrink: 0; }
-  .step-item.active .step-circle { border-color: var(--rlc); background: var(--rlc); color: #fff; box-shadow: 0 0 0 6px rgba(15, 118, 110, 0.15); }
+  .step-item.active .step-circle { border-color: var(--gbf); background: var(--gbf); color: #fff; box-shadow: 0 0 0 6px rgba(124, 58, 237, 0.15); }
   .step-item.done .step-circle { border-color: var(--success); background: var(--success); color: #fff; }
   .step-label { font-size: 11px; font-weight: 700; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; text-align: center; transition: color 0.2s; white-space: nowrap; }
-  .step-item.active .step-label { color: var(--rlc); }
+  .step-item.active .step-label { color: var(--gbf); }
   .step-item.done .step-label { color: var(--success); }
   @media (max-width: 700px) {
     .step-label { font-size: 9px; }
@@ -50,7 +50,7 @@
   .etape.active { display: block; animation: fadeIn 0.4s ease-out; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   .etape-header { text-align: center; margin-bottom: 30px; }
-  .etape-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--rlc); margin-bottom: 8px; }
+  .etape-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gbf); margin-bottom: 8px; }
   .etape-title { font-family: var(--serif); font-size: 32px; color: var(--ink); margin-bottom: 10px; }
   .etape-subtitle { font-size: 15px; color: var(--slate); max-width: 720px; margin: 0 auto; }
   .card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
@@ -106,9 +106,10 @@
   .toolbox-title { font-family: var(--serif); font-size: 16px; color: var(--ink); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid var(--line); display: flex; align-items: center; gap: 8px; }
   .toolbox-grid { display: flex; flex-direction: column; gap: 8px; }
   .outil-btn { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #f9f7f2; border: 2px solid var(--line); border-radius: 10px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 700; color: var(--ink); text-align: left; transition: all 0.15s; }
-  .outil-btn:hover { background: #fff; border-color: var(--gbf); color: var(--gbf); transform: translateX(3px); }
+  .outil-btn:hover:not(:disabled) { background: #fff; border-color: var(--gbf); color: var(--gbf); transform: translateX(3px); }
   .outil-btn.used { opacity: 0.5; cursor: not-allowed; }
   .outil-btn.used:hover { transform: none; border-color: var(--line); color: var(--ink); background: #f9f7f2; }
+  .outil-btn:disabled { cursor: not-allowed; }
   .outil-btn .icon { font-size: 22px; flex-shrink: 0; }
   .outil-btn.wire-btn { background: rgba(76, 175, 80, 0.1); border-color: rgba(76, 175, 80, 0.4); color: #2e7d32; }
   .outil-btn.wire-btn:hover { background: rgba(76, 175, 80, 0.2); border-color: #4caf50; }
@@ -124,7 +125,7 @@
   .schema-cible svg { width: 100%; max-width: 480px; height: auto; display: block; margin: 0 auto; }
   .canvas-montage { background: #000; border: 2px solid var(--gbf); border-radius: 12px; padding: 5px; position: relative; min-height: 500px; overflow: hidden; }
   .canvas-montage canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: default; max-width: 100%; }
-  .canvas-hint { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.85); color: var(--gbf-light); font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(124, 58, 237, 0.4); pointer-events: none; white-space: nowrap; max-width: 95%; }
+  .canvas-hint { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.85); color: var(--gbf-light); font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(124, 58, 237, 0.4); pointer-events: none; white-space: nowrap; max-width: 95%; transition: background 0.3s; }
   .montage-progress { display: flex; gap: 12px; justify-content: center; background: #fff; border: 2px solid var(--line); border-radius: 10px; padding: 12px 20px; flex-wrap: wrap; }
   .progress-item { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--ink); }
   .progress-item .count { background: var(--gbf); color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 800; font-family: 'Courier New', monospace; }
@@ -526,29 +527,49 @@
       <div class="montage-right">
         <div class="schema-cible">
           <h4>📐 Schéma à réaliser (RLC série avec GBF)</h4>
-          <svg viewBox="0 0 460 220" xmlns="http://www.w3.org/2000/svg">
-            <line x1="60" y1="60" x2="400" y2="60" stroke="#a78bfa" stroke-width="3"/>
-            <line x1="60" y1="180" x2="400" y2="180" stroke="#a78bfa" stroke-width="3"/>
-            <line x1="60" y1="60" x2="60" y2="100" stroke="#a78bfa" stroke-width="3"/>
-            <line x1="60" y1="140" x2="60" y2="180" stroke="#a78bfa" stroke-width="3"/>
+          <svg viewBox="0 0 460 240" xmlns="http://www.w3.org/2000/svg">
+            <!-- Boucle principale -->
+            <line x1="80" y1="60" x2="400" y2="60" stroke="#a78bfa" stroke-width="3"/>
+            <line x1="80" y1="200" x2="400" y2="200" stroke="#a78bfa" stroke-width="3"/>
+            <line x1="80" y1="60" x2="80" y2="90" stroke="#a78bfa" stroke-width="3"/>
+            <line x1="80" y1="150" x2="80" y2="200" stroke="#a78bfa" stroke-width="3"/>
             <line x1="400" y1="60" x2="400" y2="100" stroke="#a78bfa" stroke-width="3"/>
-            <line x1="400" y1="140" x2="400" y2="180" stroke="#a78bfa" stroke-width="3"/>
-            <circle cx="60" cy="120" r="22" fill="#fff" stroke="#7c3aed" stroke-width="2.5"/>
-            <path d="M 50 120 Q 60 105 70 120 Q 60 135 50 120" fill="none" stroke="#7c3aed" stroke-width="2"/>
-            <text x="60" y="88" text-anchor="middle" font-size="10" fill="#7c3aed" font-weight="bold">GBF ~</text>
-            <rect x="140" y="45" width="60" height="30" fill="#fff" stroke="#ffd54f" stroke-width="2" rx="4"/>
-            <path d="M 148 60 L 158 50 L 168 70 L 178 50 L 188 70 L 195 60" stroke="#ffd54f" stroke-width="2" fill="none"/>
-            <text x="170" y="35" text-anchor="middle" font-size="10" fill="#ffd54f" font-weight="bold">R</text>
-            <g stroke="#B87333" stroke-width="2.5" fill="none">
-              <path d="M 240 100 Q 250 90 260 105 Q 270 120 280 105"/>
-              <path d="M 240 140 Q 250 130 260 145 Q 270 160 280 140"/>
+            <line x1="400" y1="160" x2="400" y2="200" stroke="#a78bfa" stroke-width="3"/>
+            
+            <!-- GBF (générateur) -->
+            <g transform="translate(80, 120)">
+              <circle cx="0" cy="0" r="26" fill="#fff" stroke="#7c3aed" stroke-width="3"/>
+              <path d="M -15 0 Q -7.5 -12 0 0 Q 7.5 12 15 0" fill="none" stroke="#7c3aed" stroke-width="2.5"/>
+              <text x="-38" y="-8" text-anchor="middle" font-size="11" fill="#7c3aed" font-weight="bold">+</text>
+              <text x="-38" y="14" text-anchor="middle" font-size="11" fill="#7c3aed" font-weight="bold">−</text>
             </g>
-            <text x="260" y="85" text-anchor="middle" font-size="10" fill="#B87333" font-weight="bold">L</text>
-            <rect x="360" y="100" width="30" height="40" fill="#fff" stroke="#4fc3f7" stroke-width="2" rx="3"/>
-            <line x1="370" y1="110" x2="370" y2="130" stroke="#4fc3f7" stroke-width="3"/>
-            <line x1="380" y1="110" x2="380" y2="130" stroke="#4fc3f7" stroke-width="3"/>
-            <text x="375" y="90" text-anchor="middle" font-size="10" fill="#4fc3f7" font-weight="bold">C</text>
-            <text x="230" y="205" text-anchor="middle" font-size="10" fill="#a78bfa" font-weight="bold" font-style="italic">Boucle RLC série — régime forcé</text>
+            <text x="80" y="80" text-anchor="middle" font-size="11" fill="#7c3aed" font-weight="bold">GBF ~</text>
+            
+            <!-- Résistance -->
+            <rect x="150" y="45" width="70" height="30" fill="#fff" stroke="#ffd54f" stroke-width="2.5" rx="4"/>
+            <path d="M 160 60 L 170 50 L 180 70 L 190 50 L 200 70 L 210 60" stroke="#ffd54f" stroke-width="2.5" fill="none"/>
+            <text x="185" y="35" text-anchor="middle" font-size="12" fill="#b45309" font-weight="bold">R</text>
+            
+            <!-- Bobine -->
+            <g stroke="#B87333" stroke-width="3" fill="none">
+              <path d="M 250 120 Q 258 105 266 120 Q 274 135 282 120 Q 290 105 298 120 Q 306 135 314 120"/>
+              <path d="M 250 160 Q 258 145 266 160 Q 274 175 282 160 Q 290 145 298 160 Q 306 175 314 160"/>
+            </g>
+            <line x1="240" y1="140" x2="250" y2="140" stroke="#B87333" stroke-width="3"/>
+            <line x1="314" y1="140" x2="324" y2="140" stroke="#B87333" stroke-width="3"/>
+            <text x="282" y="105" text-anchor="middle" font-size="12" fill="#8B4513" font-weight="bold">L</text>
+            
+            <!-- Condensateur -->
+            <rect x="380" y="100" width="40" height="60" fill="#fff" stroke="#4fc3f7" stroke-width="2.5" rx="4"/>
+            <line x1="392" y1="112" x2="392" y2="148" stroke="#4fc3f7" stroke-width="3"/>
+            <line x1="408" y1="112" x2="408" y2="148" stroke="#4fc3f7" stroke-width="3"/>
+            <text x="400" y="90" text-anchor="middle" font-size="12" fill="#0288d1" font-weight="bold">C</text>
+            
+            <!-- Flèche de courant -->
+            <path d="M 220 40 L 240 40 L 235 34 M 240 40 L 235 46" stroke="#e91e63" stroke-width="2" fill="none"/>
+            <text x="255" y="42" font-size="10" fill="#e91e63" font-weight="bold" font-style="italic">i</text>
+            
+            <text x="240" y="225" text-anchor="middle" font-size="11" fill="#7c3aed" font-weight="bold" font-style="italic">Boucle RLC série — régime forcé</text>
           </svg>
         </div>
 
@@ -591,13 +612,13 @@
     </div>
 
     <div class="message-3a" style="background:linear-gradient(135deg,#ede9fe,#f5f3ff);border-left:5px solid var(--gbf);border-radius:8px;padding:15px 20px;margin-bottom:15px;font-size:14px;line-height:1.6;color:#5b21b6;">
-      <strong>🎯 Mission :</strong> place le GBF et l'oscilloscope sur le canvas.
+      <strong>🎯 Mission :</strong> branche les voies de l'oscilloscope sur le GBF et sur R.
       <div style="background:#fff;border-radius:6px;padding:10px 14px;margin-top:10px;font-family:'Courier New',monospace;font-size:13px;line-height:1.7;color:var(--ink);">
         <div><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-weight:700;margin-right:8px;background:#ffeb3b;color:#1a1a2e;">Voie 1 (+)</span> → borne <strong>+ du GBF</strong></div>
         <div style="margin-top:6px;"><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-weight:700;margin-right:8px;background:#4fc3f7;color:#1a1a2e;">Voie 2 (−)</span> → bornes de <strong>R</strong> (image de i)</div>
       </div>
       <div style="margin-top:10px;font-size:12px;opacity:0.85;">
-        💡 Clique sur <strong>« ➕ Ajouter un fil »</strong> pour brancher chaque voie.
+        💡 Le GBF et l'oscilloscope sont <strong>déjà posés</strong>. Branche les fils !
       </div>
     </div>
 
@@ -605,11 +626,11 @@
       <div class="appareil-zone" style="background:linear-gradient(135deg,#5b21b6,#7c3aed);border:2px solid #a78bfa;border-radius:12px;padding:15px;text-align:center;color:#fff;">
         <h4 style="font-family:var(--serif);font-size:14px;margin-bottom:12px;color:#fff;">🧰 Appareils</h4>
         <div style="display:flex;flex-direction:column;gap:10px;">
-          <button class="outil-btn gbf-btn" id="btn-gbf-3" onclick="poserAppareil('gbf')" style="justify-content:center;">
-            <span class="icon">🔊</span><span>Poser le GBF</span>
+          <button class="outil-btn gbf-btn" id="btn-gbf-3" disabled style="justify-content:center;opacity:0.7;cursor:default;">
+            <span class="icon">✅</span><span>GBF posé</span>
           </button>
-          <button class="outil-btn" id="btn-oscillo-3" onclick="poserAppareil('oscillo')" style="justify-content:center;">
-            <span class="icon">📺</span><span>Poser l'oscilloscope</span>
+          <button class="outil-btn" id="btn-oscillo-3" disabled style="justify-content:center;opacity:0.7;cursor:default;">
+            <span class="icon">✅</span><span>Oscilloscope posé</span>
           </button>
           <button class="outil-btn wire-btn" onclick="ajouterFilBranchement()" style="justify-content:center;">
             <span class="icon">🧵</span><span>➕ Ajouter un fil</span>
@@ -624,7 +645,7 @@
       <div class="montage-right">
         <div class="canvas-montage">
           <canvas id="canvasBranchement" width="900" height="600"></canvas>
-          <div class="canvas-hint" id="canvasHintBranchement">🔗 Ajoute le GBF et l'oscilloscope, puis branche les fils</div>
+          <div class="canvas-hint" id="canvasHintBranchement">🔗 Branche les fils puis clique sur « Vérifier »</div>
         </div>
         <div class="verif-message" id="verifBranchement"></div>
       </div>
@@ -1174,11 +1195,11 @@
 //  EXPLICATIONS
 // ============================================================
 const EXPLICATIONS = {
-  gbf: { title: '🔊 GBF — Générateur Basse Fréquence', content: `<p>Délivre une tension sinusoïdale <strong>u(t) = U_m·cos(2πft)</strong> avec f réglable.</p><p>C'est la <strong>source</strong> qui force le circuit à osciller à sa fréquence.</p>` },
-  condensateur: { title: '⚡ Condensateur (C)', content: `<p>Impédance : <code>Z_C = 1/(Cω)</code></p><p>Diminue quand f augmente.</p>` },
-  bobine: { title: '🌀 Bobine (L = 0,1 H)', content: `<p>Impédance : <code>Z_L = Lω</code></p><p>Augmente quand f augmente.</p>` },
-  resistance: { title: '📏 Résistance variable (R)', content: `<p>Dissipe l'énergie par effet Joule.</p><p>Contrôle l'<strong>acuité de la résonance</strong> : plus R est petite, plus Q est grand.</p>` },
-  oscillo: { title: '📺 Oscilloscope 2 voies', content: `<p>Voie 1 : tension du GBF u(t).</p><p>Voie 2 : tension aux bornes de R (image de i).</p>` }
+  gbf: { title: '🔊 GBF — Générateur Basse Fréquence', content: `<p>Délivre une tension sinusoïdale <strong>u(t) = U_m·cos(2πft)</strong> avec f réglable.</p><p>C'est la <strong>source</strong> qui force le circuit à osciller à sa fréquence.</p><p><strong>Branchement :</strong> en série avec le circuit RLC.</p>` },
+  condensateur: { title: '⚡ Condensateur (C)', content: `<p>Impédance : <code>Z_C = 1/(Cω)</code></p><p>Diminue quand f augmente. À haute fréquence, il se comporte comme un court-circuit.</p>` },
+  bobine: { title: '🌀 Bobine (L = 0,1 H)', content: `<p>Impédance : <code>Z_L = Lω</code></p><p>Augmente quand f augmente. À basse fréquence, elle se comporte comme un fil.</p>` },
+  resistance: { title: '📏 Résistance variable (R)', content: `<p>Dissipe l'énergie par effet Joule.</p><p>Contrôle l'<strong>acuité de la résonance</strong> : plus R est petite, plus Q est grand.</p><p><code>Q = (1/R)·√(L/C)</code></p>` },
+  oscillo: { title: '📺 Oscilloscope 2 voies', content: `<p>Voie 1 : tension du GBF u(t).</p><p>Voie 2 : tension aux bornes de R (image de i car U_R = R·i).</p><p>Il est branché <strong>en dérivation</strong> (voltmètre différentiel).</p>` }
 };
 
 function ouvrirModal(cle) {
@@ -1369,7 +1390,7 @@ let montage = {
 };
 
 const TAILLE = {
-  gbf: { w: 90, h: 90 },
+  gbf: { w: 110, h: 100 },
   condensateur: { w: 80, h: 90 },
   bobine: { w: 120, h: 80 },
   resistance: { w: 110, h: 40 }
@@ -1383,8 +1404,8 @@ function ajouterComposant(type) {
   if (exist) { alert('⚠️ Tu as déjà placé ce composant !'); return; }
   const index = montage.composants.length;
   const positionsParDefaut = [
-    { x: 200, y: 180 }, { x: 500, y: 180 },
-    { x: 200, y: 400 }, { x: 500, y: 400 }
+    { x: 150, y: 200 }, { x: 400, y: 200 },
+    { x: 650, y: 200 }, { x: 400, y: 400 }
   ];
   const pos = positionsParDefaut[index] || { x: 400, y: 300 };
   const composant = {
@@ -1584,19 +1605,58 @@ function drawPoigneeRotation(c) {
   ctx.fillText('⟳', hx, hy + 1); ctx.textBaseline = 'alphabetic';
 }
 
+// ============================================================
+//  🎨 GBF AMÉLIORÉ (rendu canvas)
+// ============================================================
 function drawGBF(cx, cy, w, h) {
-  ctx.fillStyle = '#1a1a2e'; ctx.strokeStyle = '#7c3aed'; ctx.lineWidth = 3;
-  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 10); ctx.fill(); ctx.stroke();
-  ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 2.5;
+  // Boîtier
+  ctx.fillStyle = '#1a1a2e'; 
+  ctx.strokeStyle = '#7c3aed'; 
+  ctx.lineWidth = 3;
+  ctx.beginPath(); 
+  ctx.roundRect(cx - w/2, cy - h/2, w, h, 12); 
+  ctx.fill(); 
+  ctx.stroke();
+  
+  // Halo intérieur
+  const grad = ctx.createRadialGradient(cx, cy, 5, cx, cy, w/2);
+  grad.addColorStop(0, 'rgba(124,58,237,0.15)');
+  grad.addColorStop(1, 'rgba(124,58,237,0)');
+  ctx.fillStyle = grad;
+  ctx.beginPath(); 
+  ctx.roundRect(cx - w/2 + 3, cy - h/2 + 3, w - 6, h - 6, 10); 
+  ctx.fill();
+  
+  // Symbole sinusoïdal — BIEN VISIBLE
+  ctx.strokeStyle = '#a78bfa'; 
+  ctx.lineWidth = 3;
+  ctx.shadowColor = '#a78bfa';
+  ctx.shadowBlur = 8;
   ctx.beginPath();
-  for (let i = -20; i <= 20; i++) {
+  const amplitude = 18;
+  const periode = 15;
+  for (let i = -30; i <= 30; i++) {
     const x = cx + i;
-    const y = cy - 15 * Math.sin(i * Math.PI / 12);
-    if (i === -20) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    const y = cy - amplitude * Math.sin(i * Math.PI / periode);
+    if (i === -30) ctx.moveTo(x, y); 
+    else ctx.lineTo(x, y);
   }
   ctx.stroke();
-  ctx.fillStyle = '#fff'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText('GBF ~', cx, cy + h/2 - 12);
+  ctx.shadowBlur = 0;
+  
+  // Label GBF
+  ctx.fillStyle = '#fff'; 
+  ctx.font = 'bold 13px monospace'; 
+  ctx.textAlign = 'center'; 
+  ctx.textBaseline = 'middle';
+  ctx.fillText('GBF ~', cx, cy + h/2 - 14);
+  
+  // Bornes + et −
+  ctx.fillStyle = '#a78bfa'; 
+  ctx.font = 'bold 14px Arial'; 
+  ctx.textAlign = 'center';
+  ctx.fillText('+', cx - w/2 - 14, cy - h/4);
+  ctx.fillText('−', cx - w/2 - 14, cy + h/4);
 }
 
 function drawCondensateur(cx, cy, w, h, valeur) {
@@ -1912,29 +1972,66 @@ let branchement = {
   gbfPos: false, oscilloPos: false
 };
 
+// ============================================================
+//  AUTO-POSE DU GBF ET DE L'OSCILLOSCOPE
+// ============================================================
 function initialiserBranchement() {
   branchement.composants = JSON.parse(JSON.stringify(montage.composants));
   branchement.fils = (montage.fils || []).map(fil => ({
     id: 'fb' + (branchement.prochainIdFil++),
     x1: fil.x1, y1: fil.y1, x2: fil.x2, y2: fil.y2, de: null, vers: null
   }));
+  
+  // Auto-poser le GBF s'il n'existe pas
+  if (!branchement.gbf) {
+    branchement.gbf = { id: 'gbf1', x: 130, y: 130, rotation: 0, w: 130, h: 110 };
+    branchement.gbfPos = true;
+    const btn = document.getElementById('btn-gbf-3');
+    if (btn) { 
+      btn.classList.add('used'); 
+      btn.disabled = true; 
+      btn.innerHTML = '<span class="icon">✅</span><span>GBF posé</span>';
+    }
+  }
+  
+  // Auto-poser l'oscilloscope s'il n'existe pas
+  if (!branchement.oscilloscope) {
+    branchement.oscilloscope = { id: 'osc', x: WB - 200, y: 180, rotation: 0, w: 180, h: 140 };
+    branchement.oscilloPos = true;
+    const btn = document.getElementById('btn-oscillo-3');
+    if (btn) { 
+      btn.classList.add('used'); 
+      btn.disabled = true; 
+      btn.innerHTML = '<span class="icon">✅</span><span>Oscilloscope posé</span>';
+    }
+  }
+  
+  updateConnexionsFilsBranchement();
   drawBranchement();
   updateHintBranchement();
 }
 
 function poserAppareil(type) {
   if (type === 'gbf' && !branchement.gbf) {
-    branchement.gbf = { id: 'gbf1', x: 100, y: 100, rotation: 0, w: 110, h: 90 };
+    branchement.gbf = { id: 'gbf1', x: 130, y: 130, rotation: 0, w: 130, h: 110 };
     branchement.gbfPos = true;
     const btn = document.getElementById('btn-gbf-3');
-    if (btn) btn.classList.add('used');
+    if (btn) { 
+      btn.classList.add('used'); 
+      btn.disabled = true;
+      btn.innerHTML = '<span class="icon">✅</span><span>GBF posé</span>';
+    }
     jouerSon('pose');
   }
   if (type === 'oscillo' && !branchement.oscilloscope) {
-    branchement.oscilloscope = { id: 'osc', x: WB - 180, y: 150, rotation: 0, w: 160, h: 130 };
+    branchement.oscilloscope = { id: 'osc', x: WB - 200, y: 180, rotation: 0, w: 180, h: 140 };
     branchement.oscilloPos = true;
     const btn = document.getElementById('btn-oscillo-3');
-    if (btn) btn.classList.add('used');
+    if (btn) { 
+      btn.classList.add('used'); 
+      btn.disabled = true;
+      btn.innerHTML = '<span class="icon">✅</span><span>Oscilloscope posé</span>';
+    }
     jouerSon('pose');
   }
   updateConnexionsFilsBranchement();
@@ -2046,21 +2143,72 @@ function drawFilB(fil) {
   ctxB.beginPath(); ctxB.arc(fil.x1, fil.y1, 7, 0, Math.PI * 2); ctxB.fill();
   ctxB.fillStyle = fil.vers ? '#4caf50' : '#888';
   ctxB.beginPath(); ctxB.arc(fil.x2, fil.y2, 7, 0, Math.PI * 2); ctxB.fill();
+  if (sel) {
+    const pulse = (Math.sin(Date.now() / 300) + 1) / 2;
+    drawPoigneeFilB(fil.x1, fil.y1, pulse);
+    drawPoigneeFilB(fil.x2, fil.y2, pulse);
+  }
 }
 
+function drawPoigneeFilB(x, y, pulse) {
+  const grad = ctxB.createRadialGradient(x, y, 2, x, y, 24 + pulse * 6);
+  grad.addColorStop(0, `rgba(255, 213, 79, ${0.5 + pulse * 0.4})`);
+  grad.addColorStop(1, 'rgba(255, 213, 79, 0)');
+  ctxB.fillStyle = grad; ctxB.beginPath(); ctxB.arc(x, y, 24 + pulse * 6, 0, Math.PI * 2); ctxB.fill();
+  ctxB.fillStyle = '#ffd54f'; ctxB.strokeStyle = '#fff'; ctxB.lineWidth = 2.5;
+  ctxB.beginPath(); ctxB.arc(x, y, 11, 0, Math.PI * 2); ctxB.fill(); ctxB.stroke();
+}
+
+// ============================================================
+//  🎨 GBF AMÉLIORÉ (version branchement)
+// ============================================================
 function drawGBFB(o) {
-  ctxB.fillStyle = '#1a1a2e'; ctxB.strokeStyle = '#7c3aed'; ctxB.lineWidth = 3;
-  ctxB.beginPath(); ctxB.roundRect(o.x - o.w/2, o.y - o.h/2, o.w, o.h, 10); ctxB.fill(); ctxB.stroke();
-  ctxB.strokeStyle = '#a78bfa'; ctxB.lineWidth = 2.5;
+  // Boîtier
+  ctxB.fillStyle = '#1a1a2e'; 
+  ctxB.strokeStyle = '#7c3aed'; 
+  ctxB.lineWidth = 3;
+  ctxB.beginPath(); 
+  ctxB.roundRect(o.x - o.w/2, o.y - o.h/2, o.w, o.h, 12); 
+  ctxB.fill(); 
+  ctxB.stroke();
+  
+  // Halo intérieur
+  const grad = ctxB.createRadialGradient(o.x, o.y, 5, o.x, o.y, o.w/2);
+  grad.addColorStop(0, 'rgba(124,58,237,0.15)');
+  grad.addColorStop(1, 'rgba(124,58,237,0)');
+  ctxB.fillStyle = grad;
+  ctxB.beginPath(); 
+  ctxB.roundRect(o.x - o.w/2 + 3, o.y - o.h/2 + 3, o.w - 6, o.h - 6, 10); 
+  ctxB.fill();
+  
+  // Symbole sinusoïdal
+  ctxB.strokeStyle = '#a78bfa'; 
+  ctxB.lineWidth = 3;
+  ctxB.shadowColor = '#a78bfa'; 
+  ctxB.shadowBlur = 8;
   ctxB.beginPath();
-  for (let i = -20; i <= 20; i++) {
+  for (let i = -35; i <= 35; i++) {
     const x = o.x + i;
-    const y = o.y - 15 * Math.sin(i * Math.PI / 12);
-    if (i === -20) ctxB.moveTo(x, y); else ctxB.lineTo(x, y);
+    const y = o.y - 22 * Math.sin(i * Math.PI / 17);
+    if (i === -35) ctxB.moveTo(x, y); 
+    else ctxB.lineTo(x, y);
   }
   ctxB.stroke();
-  ctxB.fillStyle = '#fff'; ctxB.font = 'bold 11px monospace'; ctxB.textAlign = 'center';
-  ctxB.fillText('GBF ~', o.x, o.y + o.h/2 - 10);
+  ctxB.shadowBlur = 0;
+  
+  // Label GBF
+  ctxB.fillStyle = '#fff'; 
+  ctxB.font = 'bold 13px monospace'; 
+  ctxB.textAlign = 'center'; 
+  ctxB.textBaseline = 'middle';
+  ctxB.fillText('GBF ~', o.x, o.y + o.h/2 - 16);
+  
+  // Bornes + et −
+  ctxB.fillStyle = '#a78bfa'; 
+  ctxB.font = 'bold 14px Arial'; 
+  ctxB.textAlign = 'center';
+  ctxB.fillText('+', o.x - o.w/2 - 14, o.y - o.h/4);
+  ctxB.fillText('−', o.x - o.w/2 - 14, o.y + o.h/4);
 }
 
 function drawCondensateurB(cx, cy, w, h, v) {
@@ -2107,7 +2255,11 @@ function drawOscilloB(o) {
   ctxB.fillStyle = '#0f766e'; ctxB.strokeStyle = '#5eead4'; ctxB.lineWidth = 3;
   ctxB.beginPath(); ctxB.roundRect(o.x - o.w/2, o.y - o.h/2, o.w, o.h, 10); ctxB.fill(); ctxB.stroke();
   ctxB.fillStyle = '#000'; ctxB.strokeStyle = '#4caf50'; ctxB.lineWidth = 2;
-  ctxB.beginPath(); ctxB.rect(o.x - 20, o.y - 25, 80, 50); ctxB.fill(); ctxB.stroke();
+  ctxB.beginPath(); ctxB.rect(o.x - 25, o.y - 30, 95, 60); ctxB.fill(); ctxB.stroke();
+  // Grille
+  ctxB.strokeStyle = 'rgba(76, 175, 80, 0.4)'; ctxB.lineWidth = 1;
+  for (let i = 1; i < 4; i++) { ctxB.beginPath(); ctxB.moveTo(o.x - 25 + i * 23.75, o.y - 30); ctxB.lineTo(o.x - 25 + i * 23.75, o.y + 30); ctxB.stroke(); }
+  for (let i = 1; i < 3; i++) { ctxB.beginPath(); ctxB.moveTo(o.x - 25, o.y - 30 + i * 20); ctxB.lineTo(o.x + 70, o.y - 30 + i * 20); ctxB.stroke(); }
   ctxB.fillStyle = '#fff'; ctxB.font = 'bold 11px monospace'; ctxB.textAlign = 'center'; ctxB.textBaseline = 'middle';
   ctxB.fillText('OSCILLO', o.x, o.y - o.h/2 + 15);
   ctxB.fillStyle = '#4fc3f7'; ctxB.font = 'bold 9px monospace'; ctxB.textAlign = 'left';
@@ -2202,15 +2354,33 @@ function trouverFilProcheB(x, y) {
   return best;
 }
 
+// ============================================================
+//  💬 MESSAGE D'ALERTE RENFORCÉ
+// ============================================================
 function updateHintBranchement() {
   const h = document.getElementById('canvasHintBranchement');
   if (!h) return;
-  if (!branchement.gbfPos || !branchement.oscilloPos) h.textContent = '🎛️ Pose le GBF et l\'oscilloscope';
-  else h.textContent = '🔗 Branche les fils puis clique sur « Vérifier »';
+  if (!branchement.gbfPos && !branchement.oscilloPos) {
+    h.textContent = '⚠️ Pose d\'abord le GBF (bouton violet) ET l\'oscilloscope';
+    h.style.background = 'rgba(217, 83, 79, 0.9)';
+    h.style.color = '#fff';
+  } else if (!branchement.gbfPos) {
+    h.textContent = '⚠️ Il manque le GBF — clique sur « Poser le GBF »';
+    h.style.background = 'rgba(217, 83, 79, 0.9)';
+    h.style.color = '#fff';
+  } else if (!branchement.oscilloPos) {
+    h.textContent = '⚠️ Il manque l\'oscilloscope — clique sur « Poser l\'oscilloscope »';
+    h.style.background = 'rgba(217, 83, 79, 0.9)';
+    h.style.color = '#fff';
+  } else {
+    h.textContent = '🔗 Branche les fils puis clique sur « Vérifier »';
+    h.style.background = 'rgba(0, 0, 0, 0.85)';
+    h.style.color = 'var(--gbf-light)';
+  }
 }
 
 // ============================================================
-//  VÉRIFICATION PRÉCISE DU BRANCHEMENT (CORRIGÉ)
+//  VÉRIFICATION PRÉCISE DU BRANCHEMENT
 // ============================================================
 function verifierBranchement() {
   const msg = document.getElementById('verifBranchement');
@@ -2293,9 +2463,6 @@ function changerSousOnglet(nom) {
 
 let courbesComparaison = [];
 
-// ============================================================
-//  INIT RECAP EDITABLE (CORRIGÉ — protection NaN)
-// ============================================================
 function initRecapEditable() {
   const iR = document.getElementById('inputR');
   const iL = document.getElementById('inputL');
@@ -2333,9 +2500,6 @@ function initRecapEditable() {
   majAffichage();
 }
 
-// ============================================================
-//  CALCULS PHYSIQUES RLC FORCÉ
-// ============================================================
 function calculerImpedance(f, R, L, C) {
   const omega = 2 * Math.PI * f;
   const C_farad = C * 1e-6;
@@ -2351,14 +2515,6 @@ function calculerCourantAmplitude(f, R, L, C) {
   return Um / Z;
 }
 
-function calculerCourantInstantane(t, f, R, L, C) {
-  const { Z, phi } = calculerImpedance(f, R, L, C);
-  return (Um / Z) * Math.cos(2 * Math.PI * f * t - phi);
-}
-
-// ============================================================
-//  COURBE DE RÉSONANCE i(f) — CORRIGÉE (échelle cohérente)
-// ============================================================
 function drawRecapCourbe() {
   const canvas = document.getElementById('recapCourbe');
   if (!canvas) return;
@@ -2379,10 +2535,8 @@ function drawRecapCourbe() {
   ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
   ctx2.stroke();
 
-  // Échelle cohérente : iMaxPlot basé sur Um/R (le courant max possible)
   const iMaxPlot = (Um / R) * 1.15;
 
-  // Grille axes
   ctx2.fillStyle = '#a78bfa'; ctx2.font = 'bold 10px "Courier New", monospace';
   ctx2.textAlign = 'center'; ctx2.textBaseline = 'top';
   for (let i = 0; i <= 5; i++) {
@@ -2397,7 +2551,6 @@ function drawRecapCourbe() {
     ctx2.fillText((val * 1000).toFixed(0) + ' mA', mG - 6, y);
   }
 
-  // Courbe i(f) principale
   ctx2.strokeStyle = '#a78bfa'; ctx2.lineWidth = 3;
   ctx2.shadowColor = '#a78bfa'; ctx2.shadowBlur = 10;
   ctx2.beginPath();
@@ -2410,7 +2563,6 @@ function drawRecapCourbe() {
   }
   ctx2.stroke(); ctx2.shadowBlur = 0;
 
-  // Courbes de comparaison
   courbesComparaison.forEach(({ R: Rc, L: Lc, C: Cc, couleur: cc }) => {
     ctx2.strokeStyle = cc; ctx2.lineWidth = 2; ctx2.setLineDash([5, 4]);
     ctx2.beginPath();
@@ -2424,7 +2576,6 @@ function drawRecapCourbe() {
     ctx2.stroke(); ctx2.setLineDash([]);
   });
 
-  // Marquer f0
   const f0 = calculerF0(L, C);
   if (f0 >= FREQ_MIN && f0 <= FREQ_MAX) {
     const xF0 = mG + largeur * (f0 - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
@@ -2439,7 +2590,6 @@ function drawRecapCourbe() {
     ctx2.beginPath(); ctx2.arc(xF0, yMax, 6, 0, Math.PI * 2); ctx2.fill();
   }
 
-  // Bande passante — CORRIGÉ : toujours affichée même si elle dépasse les bornes
   const Q = (1 / R) * Math.sqrt(L / (C * 1e-6));
   const deltaF = f0 / Q;
   const f1 = f0 - deltaF / 2, f2 = f0 + deltaF / 2;
@@ -2463,9 +2613,6 @@ function drawRecapCourbe() {
   ctx2.fillText('i(f) [mA]', cw - 8, 8);
 }
 
-// ============================================================
-//  COMPARAISON DE RÉSONANCE
-// ============================================================
 function ajouterCourbeComparaison() {
   const couleur = '#4fc3f7';
   courbesComparaison.push({ R, L, C, couleur });
@@ -2500,7 +2647,6 @@ function afficherResonance() {
   ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
   ctx2.stroke();
 
-  // Axes
   ctx2.fillStyle = '#a78bfa'; ctx2.font = 'bold 10px "Courier New", monospace';
   ctx2.textAlign = 'center'; ctx2.textBaseline = 'top';
   for (let i = 0; i <= 5; i++) {
@@ -2535,7 +2681,6 @@ function afficherResonance() {
     ctx2.stroke(); ctx2.shadowBlur = 0;
   });
 
-  // f0
   const f0 = calculerF0(L, C);
   if (f0 >= FREQ_MIN && f0 <= FREQ_MAX) {
     const xF0 = mG + largeur * (f0 - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
@@ -2547,7 +2692,6 @@ function afficherResonance() {
     ctx2.fillText('f₀ = ' + f0.toFixed(0) + ' Hz', xF0, mH - 4);
   }
 
-  // Légende
   ctx2.font = 'bold 11px "Courier New", monospace';
   ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
   courbes.forEach((c, i) => {
@@ -2558,9 +2702,6 @@ function afficherResonance() {
   jouerSon('valide');
 }
 
-// ============================================================
-//  ANIMATION DU TRACÉ DE RÉSONANCE (NOUVEAU)
-// ============================================================
 let animResonanceRAF = null;
 
 function animerResonance() {
@@ -2629,7 +2770,6 @@ function drawResonanceAnimee(canvas, progression) {
       if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
     }
     ctx2.stroke(); ctx2.shadowBlur = 0;
-    // Point en tête de tracé
     if (nMax > 0) {
       const fT = FREQ_MIN + (FREQ_MAX - FREQ_MIN) * nMax / 500;
       const imT = calculerCourantAmplitude(fT, g.R, L, C);
@@ -2659,9 +2799,6 @@ function drawResonanceAnimee(canvas, progression) {
   });
 }
 
-// ============================================================
-//  DÉPHASAGE
-// ============================================================
 function afficherPhases() {
   const f0 = calculerF0(L, C);
   const cas = [
@@ -2729,9 +2866,6 @@ function afficherPhases() {
   jouerSon('valide');
 }
 
-// ============================================================
-//  MESURE INTERACTIVE DE LA BANDE PASSANTE (NOUVEAU)
-// ============================================================
 function initTInteractif() {
   const canvas = document.getElementById('recapCourbe');
   if (!canvas || canvas.dataset.tBound) return;
@@ -2969,9 +3103,6 @@ function telechargerConclusion() {
   URL.revokeObjectURL(url);
 }
 
-// ============================================================
-//  CERTIFICAT — AVEC IMAGE DU MONTAGE (CORRIGÉ)
-// ============================================================
 function genererCertificat() {
   const nom = (document.getElementById('certificatNom').value || '').trim() || 'Élève';
   const date = new Date().toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
@@ -2980,7 +3111,6 @@ function genererCertificat() {
   const Q = (1 / R) * Math.sqrt(L / (C * 1e-6));
   const conclusion = document.getElementById('conclusionTexte')?.innerText || '—';
 
-  // Image du montage (CORRIGÉ — ajouté)
   let montageImg = '';
   try {
     const c = document.getElementById('canvasMontage');
@@ -3109,7 +3239,7 @@ window.addEventListener('load', () => {
     if (el) { el.addEventListener('input', majProgression); el.addEventListener('change', majProgression); }
   });
 
-  console.log('✅ Simulateur RLC forcé V1.1 — Corrections appliquées : vérif branchement précise, image certificat, échelle i(f), protection NaN, animation, nœuds');
+  console.log('✅ Simulateur RLC forcé V1.2 — GBF amélioré, auto-pose, schéma SVG corrigé');
 });
 
 if (!CanvasRenderingContext2D.prototype.roundRect) {
