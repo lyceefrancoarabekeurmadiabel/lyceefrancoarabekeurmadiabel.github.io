@@ -2468,7 +2468,7 @@ function changerSousOnglet(nom) {
   drawRecapCourbe(); 
   initRecapCourbeInteractif();  // ⚠️ NOUVEAU
 }
-    if (nom === 'resonance') { afficherResonance(); }
+    if (nom === 'phase') { initCourbesPhasesVides(); }
     if (nom === 'phase') { afficherPhases(); }
     if (nom === 'conclusion') { chargerConclusionDepuisStorage(); }
   }, 50);
@@ -2949,6 +2949,35 @@ function drawMarqueurCurseur(canvas, f, iVal) {
   jouerSon('valide');
 }
 
+// ============================================================
+//  INITIALISATION DES COURBES DE DÉPHASAGE (vides)
+// ============================================================
+function initCourbesPhasesVides() {
+  const cas = [
+    { canvas: 'courbeBasFreq', couleur: '#4fc3f7' },
+    { canvas: 'courbeResFreq', couleur: '#4caf50' },
+    { canvas: 'courbeHautFreq', couleur: '#f59e0b' }
+  ];
+  
+  cas.forEach(c => {
+    const canvas = document.getElementById(c.canvas);
+    if (!canvas) return;
+    const ctx2 = canvas.getContext('2d');
+    const cw = canvas.width, ch = canvas.height;
+    
+    // Fond noir
+    ctx2.fillStyle = '#000';
+    ctx2.fillRect(0, 0, cw, ch);
+    
+    // Message
+    ctx2.fillStyle = c.couleur;
+    ctx2.font = 'bold 14px "Courier New", monospace';
+    ctx2.textAlign = 'center';
+    ctx2.textBaseline = 'middle';
+    ctx2.fillText('▶ Clique sur « Afficher les 3 cas »', cw / 2, ch / 2);
+    ctx2.textBaseline = 'alphabetic';
+  });
+}
 function afficherPhases() {
   const f0 = calculerF0(L, C);
   const cas = [
@@ -3489,6 +3518,8 @@ window.addEventListener('load', () => {
   // ⚠️ AJOUT : Init de l'interactivité de la courbe i(f)
   setTimeout(() => initRecapCourbeInteractif(), 500);
 
+    // ⚠️ AJOUT : Initialise les courbes de déphasage vides au démarrage
+  setTimeout(() => initCourbesPhasesVides(), 300);
   console.log('✅ Simulateur RLC forcé V2.2 — Interactivité courbe i(f)');
 });
 
