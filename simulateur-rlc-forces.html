@@ -2238,28 +2238,96 @@ function getCanvasCoordsB(e, isTouch) {
 }
 
 function handlePointerDownB(x, y) {
-  console.log('CLIC:', x, y, 'OSC:', branchement.oscilloscope);
+  // ⚠️ PRIORITÉ 1 : Drag de l'oscilloscope
+  if (branchement.oscilloscope) {
+    const o = branchement.oscilloscope;
+    if (Math.abs(x - o.x) < o.w/2 + 5 && Math.abs(y - o.y) < o.h/2 + 5) {
+      branchement.oscilloEnDrag = o;
+      branchement.offsetDragOscillo = { x: x - o.x, y: y - o.y };
+      branchement.filSelectionne = null;
+      branchement.poigneeEnDrag = null;
+      canvasB.style.cursor = 'grabbing';
+      drawBranchement();
+      return;
+    }
+  }
   
+  // ⚠️ PRIORITÉ 2 : Poignée d'un fil sélectionné
   if (branchement.filSelectionne) {
     const fil = branchement.fils.find(f => f.id === branchement.filSelectionne);
     if (fil) {
       const dA = Math.hypot(fil.x1 - x, fil.y1 - y);
       const dB = Math.hypot(fil.x2 - x, fil.y2 - y);
-      if (dA < 28) { branchement.poigneeEnDrag = { filId: fil.id, cote: 'A' }; return; }
-      if (dB < 28) { branchement.poigneeEnDrag = { filId: fil.id, cote: 'B' }; return; }
+      if (dA < 28) { 
+        branchement.poigneeEnDrag = { filId: fil.id, cote: 'A' }; 
+        fil.de = null;   // libère la borne côté A
+        return; 
+      }
+      if (dB < 28) { 
+        branchement.poigneeEnDrag = { filId: fil.id, cote: 'B' }; 
+        fil.vers = null; // libère la borne côté B
+        return; 
+      }
     }
   }
-  // ... le reste de la fonction
+  
+  // PRIORITÉ 3 : Sélection d'un fil
+  const f = trouverFilProcheB(x, y);
+  if (f) { 
+    branchement.filSelectionne = f.id; 
+    drawBranchement(); 
+    return; 
+  }
+  
+  branchement.filSelectionne = null;
+  drawBranchement();
 }
 
 function handlePointerMoveB(x, y) {
-  // ... code existant pour poignée et drag ...
-  
-  if (branchement.oscilloEnDrag) {
-    // ... drag existant ...
+  // 1. Drag d'une poignée de fil
+  if (branchement.poigneeEnDrag) {
+    const fil = branchement.fils.find(f => f.id === branchement.poigneeEnDrag.filId);
+    if (fil) {
+      const b = trouverBorneProcheB(x, y, DIST_SNAP);
+      let fx = Math.max(10, Math.min(WB - 10, x));
+      let fy = Math.max(10, Math.min(HB - 10, y));
+      if (b) { fx = b.x; fy = b.y; }
+      if (branchement.poigneeEnDrag.cote === 'A') { fil.x1 = fx; fil.y1 = fy; }
+      else { fil.x2 = fx; fil.y2 = fy; }
+      // ⚠️ On NE recalcule PAS les connexions pendant le drag
+    }
+    drawBranchement();
+    return;
   }
   
-  // ⚠️ NOUVEAU : curseur "move" quand on survole l'oscilloscope
+  // 2. Drag de l'oscilloscope (⚠️ CE BLOC MANQUAIT)
+  if (branchement.oscilloEnDrag) {
+    branchement.oscilloEnDrag.x = Math.max(
+      branchement.oscilloEnDrag.w/2 + 10,
+      Math.min(WB - branchement.oscilloEnDrag.w/2 - 10, x - branchement.offsetDragOscillo.x)
+    );
+    branchement.oscilloEnDrag.y = Math.max(
+      branchement.oscilloEnDrag.h/2 + 10,
+      Math.min(HB - branchement.oscilloEnDrag.h/2 - 10, y - branchement.offsetDragOscillo.y)
+    );
+    
+    // ⚠️ Les fils connectés à l'oscilloscope le suivent
+    branchement.fils.forEach(fil => {
+      if (fil.de === 'osc-1' || fil.de === 'osc-2') {
+        const borne = getBornesOscillo().find(b => b.id === fil.de);
+        if (borne) { fil.x1 = borne.x; fil.y1 = borne.y; }
+      }
+      if (fil.vers === 'osc-1' || fil.vers === 'osc-2') {
+        const borne = getBornesOscillo().find(b => b.id === fil.vers);
+        if (borne) { fil.x2 = borne.x; fil.y2 = borne.y; }
+      }
+    });
+    
+    drawBranchement();
+    return;
+  }
+  
+  // 3. Curseur "move" quand on survole l'oscilloscope
   if (branchement.oscilloscope) {
     const o = branchement.oscilloscope;
     if (Math.abs(x - o.x) < o.w/2 + 5 && Math.abs(y - o.y) < o.h/2 + 5) {
