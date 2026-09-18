@@ -2978,71 +2978,132 @@ function initCourbesPhasesVides() {
     ctx2.textBaseline = 'alphabetic';
   });
 }
+let animPhaseRAF = null;
+
 function afficherPhases() {
+  if (animPhaseRAF) cancelAnimationFrame(animPhaseRAF);
+  
   const f0 = calculerF0(L, C);
   const cas = [
     { canvas: 'courbeBasFreq', f: f0 * 0.5, couleur: '#4fc3f7' },
     { canvas: 'courbeResFreq', f: f0,        couleur: '#4caf50' },
     { canvas: 'courbeHautFreq', f: f0 * 1.5, couleur: '#f59e0b' }
   ];
-
-  cas.forEach(c => {
-    const canvas = document.getElementById(c.canvas);
-    if (!canvas) return;
-    const ctx2 = canvas.getContext('2d');
-    const cw = canvas.width, ch = canvas.height;
-    const mG = 40, mD = 15, mH = 20, mB = 25;
-    const largeur = cw - mG - mD, hauteur = ch - mH - mB;
-
-    ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
-    ctx2.strokeStyle = 'rgba(124,58,237,0.15)';
-    for (let i = 0; i <= 10; i++) { const y = mH + hauteur * i / 10; ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
-    for (let i = 0; i <= 10; i++) { const x = mG + largeur * i / 10; ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
-    ctx2.strokeStyle = 'rgba(124,58,237,0.6)'; ctx2.lineWidth = 1.5;
-    ctx2.beginPath();
-    ctx2.moveTo(mG, mH + hauteur / 2); ctx2.lineTo(mG + largeur, mH + hauteur / 2);
-    ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
-    ctx2.stroke();
-
-    const T = 1 / c.f;
-    const nbPts = 400;
-    ctx2.strokeStyle = '#a78bfa'; ctx2.lineWidth = 2;
-    ctx2.beginPath();
-    for (let i = 0; i <= nbPts; i++) {
-      const t = 2 * T * i / nbPts;
-      const u = Math.cos(2 * Math.PI * c.f * t);
-      const x = mG + largeur * i / nbPts;
-      const y = mH + hauteur / 2 - (hauteur / 2.4) * u;
-      if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+  
+  const duree = 1500;
+  const startTime = performance.now();
+  
+  function animer(now) {
+    const elapsed = now - startTime;
+    const progression = Math.min(elapsed / duree, 1);
+    
+    cas.forEach(c => {
+      const canvas = document.getElementById(c.canvas);
+      if (canvas) drawPhaseAnimee(canvas, c, progression);
+    });
+    
+    if (progression < 1) {
+      animPhaseRAF = requestAnimationFrame(animer);
+    } else {
+      animPhaseRAF = null;
     }
-    ctx2.stroke();
-
-    const { Z, phi } = calculerImpedance(c.f, R, L, C);
-    const imax = Um / Z;
-    ctx2.strokeStyle = c.couleur; ctx2.lineWidth = 2;
-    ctx2.shadowColor = c.couleur; ctx2.shadowBlur = 6;
-    ctx2.beginPath();
-    for (let i = 0; i <= nbPts; i++) {
-      const t = 2 * T * i / nbPts;
-      const ii = imax * Math.cos(2 * Math.PI * c.f * t - phi);
-      const x = mG + largeur * i / nbPts;
-      const y = mH + hauteur / 2 - (hauteur / 2.4) * (ii / (Um / R));
-      if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
-    }
-    ctx2.stroke(); ctx2.shadowBlur = 0;
-
-    ctx2.fillStyle = '#a78bfa'; ctx2.font = 'bold 10px "Courier New", monospace';
-    ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
-    ctx2.fillText('u(t)', cw - 6, 6);
-    ctx2.fillStyle = c.couleur;
-    ctx2.fillText('i(t)', cw - 6, 20);
-
-    const phiDeg = phi * 180 / Math.PI;
-    ctx2.fillStyle = '#fff'; ctx2.font = 'bold 10px monospace';
-    ctx2.textAlign = 'left'; ctx2.textBaseline = 'top';
-    ctx2.fillText('φ = ' + phiDeg.toFixed(1) + '°', mG + 4, 6);
-  });
+  }
+  
+  animPhaseRAF = requestAnimationFrame(animer);
   jouerSon('valide');
+}
+
+function drawPhaseAnimee(canvas, c, progression) {
+  const ctx2 = canvas.getContext('2d');
+  const cw = canvas.width, ch = canvas.height;
+  const mG = 40, mD = 15, mH = 20, mB = 25;
+  const largeur = cw - mG - mD, hauteur = ch - mH - mB;
+  
+  ctx2.fillStyle = '#000'; 
+  ctx2.fillRect(0, 0, cw, ch);
+  
+  ctx2.strokeStyle = 'rgba(124,58,237,0.15)';
+  for (let i = 0; i <= 10; i++) { 
+    const y = mH + hauteur * i / 10; 
+    ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); 
+  }
+  for (let i = 0; i <= 10; i++) { 
+    const x = mG + largeur * i / 10; 
+    ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); 
+  }
+  
+  ctx2.strokeStyle = 'rgba(124,58,237,0.6)'; 
+  ctx2.lineWidth = 1.5;
+  ctx2.beginPath();
+  ctx2.moveTo(mG, mH + hauteur / 2); 
+  ctx2.lineTo(mG + largeur, mH + hauteur / 2);
+  ctx2.moveTo(mG, mH); 
+  ctx2.lineTo(mG, mH + hauteur);
+  ctx2.stroke();
+  
+  const T = 1 / c.f;
+  const nbPts = 400;
+  const nMax = Math.floor(nbPts * progression);
+  
+  ctx2.strokeStyle = '#a78bfa'; 
+  ctx2.lineWidth = 2;
+  ctx2.beginPath();
+  for (let i = 0; i <= nMax; i++) {
+    const t = 2 * T * i / nbPts;
+    const u = Math.cos(2 * Math.PI * c.f * t);
+    const x = mG + largeur * i / nbPts;
+    const y = mH + hauteur / 2 - (hauteur / 2.4) * u;
+    if (i === 0) ctx2.moveTo(x, y); 
+    else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke();
+  
+  const { Z, phi } = calculerImpedance(c.f, R, L, C);
+  const imax = Um / Z;
+  ctx2.strokeStyle = c.couleur; 
+  ctx2.lineWidth = 2;
+  ctx2.shadowColor = c.couleur; 
+  ctx2.shadowBlur = 6;
+  ctx2.beginPath();
+  for (let i = 0; i <= nMax; i++) {
+    const t = 2 * T * i / nbPts;
+    const ii = imax * Math.cos(2 * Math.PI * c.f * t - phi);
+    const x = mG + largeur * i / nbPts;
+    const y = mH + hauteur / 2 - (hauteur / 2.4) * (ii / (Um / R));
+    if (i === 0) ctx2.moveTo(x, y); 
+    else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke(); 
+  ctx2.shadowBlur = 0;
+  
+  if (nMax > 0 && progression < 1) {
+    const tTete = 2 * T * nMax / nbPts;
+    const uTete = Math.cos(2 * Math.PI * c.f * tTete);
+    const xTete = mG + largeur * nMax / nbPts;
+    const yTeteU = mH + hauteur / 2 - (hauteur / 2.4) * uTete;
+    ctx2.fillStyle = '#a78bfa';
+    ctx2.beginPath(); ctx2.arc(xTete, yTeteU, 5, 0, Math.PI * 2); ctx2.fill();
+    
+    const iTete = imax * Math.cos(2 * Math.PI * c.f * tTete - phi);
+    const yTeteI = mH + hauteur / 2 - (hauteur / 2.4) * (iTete / (Um / R));
+    ctx2.fillStyle = c.couleur;
+    ctx2.beginPath(); ctx2.arc(xTete, yTeteI, 5, 0, Math.PI * 2); ctx2.fill();
+  }
+  
+  ctx2.fillStyle = '#a78bfa'; 
+  ctx2.font = 'bold 10px "Courier New", monospace';
+  ctx2.textAlign = 'right'; 
+  ctx2.textBaseline = 'top';
+  ctx2.fillText('u(t)', cw - 6, 6);
+  ctx2.fillStyle = c.couleur;
+  ctx2.fillText('i(t)', cw - 6, 20);
+  
+  const phiDeg = phi * 180 / Math.PI;
+  ctx2.fillStyle = '#fff'; 
+  ctx2.font = 'bold 10px monospace';
+  ctx2.textAlign = 'left'; 
+  ctx2.textBaseline = 'top';
+  ctx2.fillText('φ = ' + phiDeg.toFixed(1) + '°', mG + 4, 6);
 }
 
 // ============================================================
