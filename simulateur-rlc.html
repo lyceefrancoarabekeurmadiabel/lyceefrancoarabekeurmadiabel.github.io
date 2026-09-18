@@ -2931,11 +2931,33 @@ function calculerUc(t, R, L, C, U0init) {
 }
 
 function calculerCourant(t, R, L, C, U0init) {
-  const dt = 1e-6;
-  const Uc1 = calculerUc(t, R, L, C, U0init);
-  const Uc2 = calculerUc(t + dt, R, L, C, U0init);
+  // Formule analytique exacte : i(t) = -C · dU_C/dt
+  // On utilise l'expression analytique de U_C selon le régime.
   const C_farad = C * 1e-6;
-  return -C_farad * (Uc2 - Uc1) / dt;
+  const omega0 = 1 / Math.sqrt(L * C_farad);
+  const Rc = 2 * Math.sqrt(L / C_farad);
+  const alpha = R / (2 * L);
+
+  if (R < Rc - 0.02 * Rc) {
+    // Pseudo-périodique : U_C = U0 · e^(-αt) · cos(ωt)
+    // → i(t) = -C·dU_C/dt = -C·U0·e^(-αt)·[-α·cos(ωt) - ω·sin(ωt)]
+    //       = C·U0·e^(-αt)·[α·cos(ωt) + ω·sin(ωt)]
+    const omega = Math.sqrt(omega0 * omega0 - alpha * alpha);
+    return C_farad * U0init * Math.exp(-alpha * t) * (alpha * Math.cos(omega * t) + omega * Math.sin(omega * t));
+  } else if (Math.abs(R - Rc) < 0.02 * Rc) {
+    // Critique : U_C = U0·(1 + αt)·e^(-αt)
+    // → i(t) = -C·dU_C/dt = C·U0·α²·t·e^(-αt)
+    return C_farad * U0init * alpha * alpha * t * Math.exp(-alpha * t);
+  } else {
+    // Apériodique : U_C = A·e^(r1·t) + B·e^(r2·t)
+    // → i(t) = -C·(A·r1·e^(r1·t) + B·r2·e^(r2·t))
+    const beta = Math.sqrt(alpha * alpha - omega0 * omega0);
+    const r1 = -alpha + beta;
+    const r2 = -alpha - beta;
+    const A = U0init * r2 / (r2 - r1);
+    const B = -U0init * r1 / (r2 - r1);
+    return -C_farad * (A * r1 * Math.exp(r1 * t) + B * r2 * Math.exp(r2 * t));
+  }
 }
 
 function calculerUr(t, R, L, C, U0init) {
@@ -2943,10 +2965,12 @@ function calculerUr(t, R, L, C, U0init) {
 }
 
 function calculerUl(t, R, L, C, U0init) {
-  const dt = 1e-6;
-  const i1 = calculerCourant(t, R, L, C, U0init);
-  const i2 = calculerCourant(t + dt, R, L, C, U0init);
-  return L * (i2 - i1) / dt;
+  // Loi des mailles : U_C + U_R + U_L = 0  →  U_L = -U_C - U_R
+  // Cette formule est exacte (pas de dérivation numérique) et garantit
+  // U_L(0) = -U_C(0) - U_R(0) = -U0 - 0 = -U0 (démarrage propre).
+  const Uc = calculerUc(t, R, L, C, U0init);
+  const Ur = calculerUr(t, R, L, C, U0init);
+  return -Uc - Ur;
 }
 
 function getCouleurLabelFunc(type) {
