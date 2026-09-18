@@ -1458,20 +1458,31 @@ function supprimerDernierComposant() {
 }
 
 function ajouterFil() {
-  const cx = W / 2 + (Math.random() - 0.5) * 250;
-  const cy = H / 2 + (Math.random() - 0.5) * 150;
-  const longueur = 200, angle = Math.random() * Math.PI;
+  // Position horizontale en bas de l'écran
+  // Les fils s'empilent de gauche à droite pour ne pas se superposer
+  const nbFils = montage.fils.length;
+  const margeGauche = 80;
+  const margeBas = 60;         // Distance depuis le bas du canvas
+  const espacementX = 40;      // Espacement horizontal entre les fils
+  const longueur = 180;
+  
+  // Position de départ (côté gauche du fil)
+  const x1 = margeGauche + (nbFils % 6) * espacementX + Math.floor(nbFils / 6) * 220;
+  const y1 = H - margeBas - Math.floor(nbFils / 6) * 30;
+  
   const fil = {
     id: 'f' + montage.prochainIdFil++,
-    x1: cx - Math.cos(angle) * longueur / 2, y1: cy - Math.sin(angle) * longueur / 2,
-    x2: cx + Math.cos(angle) * longueur / 2, y2: cy + Math.sin(angle) * longueur / 2,
+    x1: x1, y1: y1,
+    x2: x1 + longueur, y2: y1,   // Horizontal : y identiques
     de: null, vers: null
   };
+  
   montage.fils.push(fil);
   montage.filSelectionne = fil.id;
   updateConnexionsFils();
   jouerSon('pose');
-  drawMontage(); updateProgress();
+  drawMontage(); 
+  updateProgress();
 }
 
 function getBornes(composant) {
@@ -2026,16 +2037,28 @@ function updateConnexionsFilsBranchement() {
 }
 
 function ajouterFilBranchement() {
-  if (!branchement.oscilloPlace) { alert('⚠️ Pose d\'abord l\'oscilloscope.'); return; }
-  const cx = WB / 2 + (Math.random() - 0.5) * 200;
-  const cy = HB / 2 + (Math.random() - 0.5) * 100;
-  const longueur = 200, angle = Math.random() * Math.PI;
+  if (!branchement.oscilloPlace) { 
+    alert('⚠️ Pose d\'abord l\'oscilloscope.'); 
+    return; 
+  }
+  
+  // Les fils de branchement apparaissent aussi en bas, horizontaux
+  const nbFils = branchement.fils.length;
+  const margeGauche = 80;
+  const margeBas = 60;
+  const espacementX = 40;
+  const longueur = 180;
+  
+  const x1 = margeGauche + (nbFils % 6) * espacementX + Math.floor(nbFils / 6) * 220;
+  const y1 = HB - margeBas - Math.floor(nbFils / 6) * 30;
+  
   const fil = {
     id: 'fb' + branchement.prochainIdFil++,
-    x1: cx - Math.cos(angle) * longueur / 2, y1: cy - Math.sin(angle) * longueur / 2,
-    x2: cx + Math.cos(angle) * longueur / 2, y2: cy + Math.sin(angle) * longueur / 2,
+    x1: x1, y1: y1,
+    x2: x1 + longueur, y2: y1,   // Horizontal : même y
     de: null, vers: null
   };
+  
   branchement.fils.push(fil);
   branchement.filSelectionne = fil.id;
   jouerSon('pose');
