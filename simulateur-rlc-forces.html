@@ -494,6 +494,9 @@
           <button class="outil-btn danger" onclick="effacerTout()">
             <span class="icon">🗑</span><span>Tout effacer</span>
           </button>
+          <button class="outil-btn danger" onclick="supprimerDernierComposant()">
+  <span class="icon">✖</span><span>Supprimer le dernier composant</span>
+</button>
         </div>
         <div style="margin-top: 15px; padding: 10px; background: #f9f7f2; border-radius: 8px; font-size: 12px; color: var(--slate); line-height: 1.5;">
           <strong style="color: var(--ink);">💡 Comment faire :</strong><br>
@@ -1410,6 +1413,35 @@ function ajouterComposant(type) {
   drawMontage(); updateProgress(); updateCanvasHint();
 }
 
+function supprimerDernierComposant() {
+  if (montage.composants.length === 0) {
+    alert('Aucun composant à supprimer.');
+    return;
+  }
+  const dernier = montage.composants[montage.composants.length - 1];
+  if (!confirm(`Supprimer le dernier composant (${dernier.type}) ?`)) return;
+  
+  // Réactive le bouton de la toolbox
+  const btn = document.getElementById('btn-' + dernier.type);
+  if (btn) btn.classList.remove('used');
+  
+  // Supprime le composant
+  montage.composants = montage.composants.filter(c => c.id !== dernier.id);
+  
+  // Supprime les fils qui étaient connectés à ce composant
+  montage.fils = montage.fils.filter(f => {
+    if (f.de && f.de.startsWith(dernier.id + '-')) return false;
+    if (f.vers && f.vers.startsWith(dernier.id + '-')) return false;
+    return true;
+  });
+  
+  updateConnexionsFils();
+  drawMontage();
+  updateProgress();
+  updateCanvasHint();
+  jouerSon('erreur');
+}
+
 function ajouterFil() {
   const cx = W / 2 + (Math.random() - 0.5) * 250;
   const cy = H / 2 + (Math.random() - 0.5) * 150;
@@ -1660,6 +1692,51 @@ canvas.addEventListener('touchstart', e => { e.preventDefault(); const p = getCa
 canvas.addEventListener('touchmove', e => { e.preventDefault(); const p = getCanvasCoords(e, true); handlePointerMove(p.x, p.y); }, { passive: false });
 canvas.addEventListener('touchend', e => { e.preventDefault(); handlePointerUp(); });
 
+canvas.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  const p = getCanvasCoords(e, false);
+  
+  // 1. Priorité : supprimer un composant
+  const comp = trouverComposantProche(p.x, p.y);
+  if (comp) {
+    if (confirm(`Supprimer le ${comp.type} ?`)) {
+      const btn = document.getElementById('btn-' + comp.type);
+      if (btn) btn.classList.remove('used');
+      montage.composants = montage.composants.filter(c => c.id !== comp.id);
+      montage.fils = montage.fils.filter(f => {
+        if (f.de && f.de.startsWith(comp.id + '-')) return false;
+        if (f.vers && f.vers.startsWith(comp.id + '-')) return false;
+        return true;
+      });
+      updateConnexionsFils(); drawMontage(); updateProgress(); updateCanvasHint();
+      jouerSon('erreur');
+    }
+    return;
+  }
+  
+  // 2. Sinon : supprimer un fil
+  const fil = trouverFilProche(p.x, p.y);
+  if (fil) {
+    if (confirm('Supprimer ce fil ?')) {
+      montage.fils = montage.fils.filter(f => f.id !== fil.id);
+      if (montage.filSelectionne === fil.id) montage.filSelectionne = null;
+      updateConnexionsFils(); drawMontage(); updateProgress(); updateCanvasHint();
+    }
+  }
+});
+canvasB.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  const p = getCanvasCoordsB(e, false);
+  const fil = trouverFilProcheB(p.x, p.y);
+  if (fil) {
+    if (confirm('Supprimer ce fil ?')) {
+      branchement.fils = branchement.fils.filter(f => f.id !== fil.id);
+      if (branchement.filSelectionne === fil.id) branchement.filSelectionne = null;
+      updateConnexionsFilsBranchement();
+      drawBranchement();
+    }
+  }
+});
 canvas.addEventListener('contextmenu', e => {
   e.preventDefault();
   const p = getCanvasCoords(e, false);
