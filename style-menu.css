@@ -1,61 +1,26 @@
 /* ============================================================ */
-/*  🎨 NAVIGATION LFAKM — Version corrigée et uniforme          */
-/*  Remplace intégralement style-menu.css                        */
+/*  🎨 NAVIGATION — Corrections de symétrie du ruban             */
 /* ============================================================ */
-
-/* ---------- Variables (si non définies ailleurs) ---------- */
-:root {
-  --ink: #1B2A4A;
-  --ink-deep: #10192E;
-  --paper: #F7F5F0;
-  --brass: #A8853F;
-  --slate: #5B6472;
-  --line: rgba(27, 42, 74, 0.14);
-  --serif: 'Source Serif 4', Georgia, serif;
-  --sans: 'Inter', -apple-system, sans-serif;
-  --gov-purple: #6a4c93;
-}
-
-/* ============================================================ */
-/*  🧱 HEADER & LAYOUT                                          */
-/* ============================================================ */
-header {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  background: var(--paper);
-  border-bottom: 1px solid var(--line);
-  height: 84px;
-  display: flex;
-  align-items: center;
-  overflow: visible; /* Autorise les dropdowns à dépasser */
-}
 
 .nav-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: 1280px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px;
-  gap: 16px;
+  padding: 0 32px;
+  gap: 24px;
 }
 
-/* ============================================================ */
-/*  🏫 BRAND (logo + nom + tagline)                             */
-/* ============================================================ */
 .brand {
   display: flex;
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  color: var(--ink);
+  color: var(--ink, #1B2A4A);
   flex-shrink: 0;
-  width: 200px;
-  margin-right: 15px;
-  padding-right: 15px;
-  border-right: 1px solid rgba(27, 42, 74, 0.08);
+  max-width: 175px;
 }
 
 .brand-mark {
@@ -73,265 +38,120 @@ header {
   object-fit: contain;
 }
 
-.brand > div {
-  min-width: 0; /* Important pour text-overflow */
-}
-
 .brand-name {
-  font-family: var(--serif);
+  font-family: var(--serif, 'Source Serif 4', Georgia, serif);
   font-weight: 700;
-  font-size: 11.5px;
-  color: var(--ink);
+  font-size: 12px;
+  color: var(--ink, #1B2A4A);
   line-height: 1.25;
-  text-align: left;
-  white-space: normal;
+  text-align: center;
 }
 
 .brand-tag {
   font-size: 9px;
-  color: var(--slate);
-  text-align: left;
+  color: var(--slate, #5B6472);
+  text-align: center;
   margin-top: 2px;
   letter-spacing: 0.3px;
   white-space: nowrap;
 }
 
-/* ============================================================ */
-/*  🔗 NAVIGATION                                                */
-/* ============================================================ */
 nav {
   flex: 1;
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  min-width: 0;
-  margin-left: 10px;
 }
 
 nav ul {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   list-style: none;
   align-items: center;
   justify-content: flex-end;
-  flex-wrap: nowrap;
-  padding: 0;
-  margin: 0;
-  min-width: 0;
 }
 
 nav a {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--ink);
+  color: var(--ink, #1B2A4A);
   text-decoration: none;
   white-space: nowrap;
-  padding: 6px 4px;
-  display: inline-flex;
-  align-items: center;
-  transition: color 0.2s;
 }
 
 nav a:hover {
-  color: var(--brass);
+  color: var(--brass, #A8853F);
 }
 
-/* ============================================================ */
-/*  👤 PROFIL UTILISATEUR                                        */
-/* ============================================================ */
 .profile-info {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   line-height: 1.15;
-  font-size: 11px;
+  font-size: 12px;
   padding: 0 8px;
-  border-left: 1px solid var(--line);
-  border-right: 1px solid var(--line);
-  white-space: nowrap;
-  cursor: pointer;
+  border-left: 1px solid rgba(27, 42, 74, 0.14);
+  border-right: 1px solid rgba(27, 42, 74, 0.14);
 }
 
 .profile-name {
   font-weight: 700;
-  color: var(--brass);
-  font-size: 11.5px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 120px;
+  color: var(--brass, #A8853F);
+  font-size: 12px;
 }
 
 .profile-role {
-  font-size: 9.5px;
-  color: var(--slate);
+  font-size: 10px;
+  color: var(--slate, #5B6472);
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
 
 /* ============================================================ */
-/*  📞 CONTACT PROVISEUR (compact)                               */
+/*  MENU DÉROULANT OPTIQUE                                        */
 /* ============================================================ */
-.contact-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  line-height: 1.1;
-  font-size: 10.5px;
-  padding: 0 6px;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.contact-label {
-  font-weight: 600;
-  color: var(--ink);
-  font-size: 10.5px;
-  white-space: nowrap;
-}
-
-.contact-phone {
-  font-size: 10.5px;
-  color: var(--brass);
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-/* ============================================================ */
-/*  🔘 BOUTONS (Connexion / Déconnexion / Avis / etc.)           */
-/* ============================================================ */
-.nav-cta {
-  background: var(--ink-deep);
-  color: #fff !important;
-  padding: 8px 14px;
-  font-size: 12px;
-  font-weight: 600;
-  border-radius: 4px;
-  text-decoration: none;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-}
-
-.nav-cta:hover {
-  background: #1B2A4A;
-}
-
-.feedback-link {
-  background: var(--brass);
-  color: #fff !important;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 11px;
-  white-space: nowrap;
-  text-decoration: none;
-}
-
-.feedback-link:hover {
-  background: #96743a;
-  color: #fff !important;
-}
-
-/* ============================================================ */
-/*  📂 MENUS DÉROULANTS (Admin / Laboratoire / Optique)          */
-/* ============================================================ */
-.admin-item,
-.labo-item,
-.optique-item,
-.gov-item,
-.feedback-item {
-  display: none; /* Cachés par défaut, affichés par JS */
+.optique-item {
   position: relative;
-}
-
-/* Déclencheurs */
-.admin-trigger,
-.labo-trigger,
-.optique-trigger {
-  font-size: 12px;
-  font-weight: 700;
-  padding: 6px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  transition: background 0.2s;
-}
-
-.admin-trigger {
-  background: var(--brass);
-  color: #fff !important;
-}
-
-.admin-trigger:hover {
-  background: #96743a;
-}
-
-.labo-trigger {
-  color: var(--brass);
-}
-
-.labo-trigger:hover {
-  background: rgba(168, 133, 63, 0.15);
 }
 
 .optique-trigger {
   color: #4fc3f7;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  transition: background 0.2s;
 }
 
 .optique-trigger:hover {
   background: rgba(79, 195, 247, 0.15);
 }
 
-/* Menus déroulants */
-.admin-dropdown,
-.labo-dropdown,
 .optique-dropdown {
   display: none;
   position: absolute;
   top: 100%;
   right: 0;
   background: #ffffff;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(27, 42, 74, 0.14);
   border-radius: 6px;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
   min-width: 220px;
   z-index: 99999;
   padding: 6px 0;
-  margin-top: 0;
 }
 
-/* Affichage au survol */
-.admin-item:hover .admin-dropdown,
-.labo-item:hover .labo-dropdown,
-.optique-item:hover .optique-dropdown {
-  display: block;
-}
-
-/* Liens dans les dropdowns */
-.admin-dropdown a,
-.labo-dropdown a,
 .optique-dropdown a {
   display: block;
   padding: 10px 15px;
-  color: var(--ink);
+  color: #1B2A4A;
   font-size: 13px;
   text-decoration: none;
-  white-space: nowrap;
   transition: background 0.15s;
-}
-
-.admin-dropdown a:hover {
-  background: #f5f5f5;
-}
-
-.labo-dropdown a:hover {
-  background: #fdf8ee;
-  color: var(--brass);
+  white-space: nowrap;
 }
 
 .optique-dropdown a:hover {
@@ -339,62 +159,97 @@ nav a:hover {
   color: #4fc3f7;
 }
 
-/* Lien Gouvernement scolaire */
-.gov-item a {
-  color: var(--gov-purple) !important;
+.optique-item:hover .optique-dropdown {
+  display: block;
+}
+
+/* ============================================================ */
+/*  🔬 MENU DÉROULANT LABORATOIRE                                 */
+/* ============================================================ */
+.labo-item {
+  position: relative;
+  z-index: 1001;
+}
+
+.labo-trigger {
+  color: #A8853F;
   font-weight: 700;
-}
-
-/* ============================================================ */
-/*  🍔 MENU BURGER (mobile)                                      */
-/* ============================================================ */
-.menu-toggle {
-  display: none;
-  font-size: 28px;
   cursor: pointer;
-  background: none;
-  border: none;
-  color: var(--ink);
-  padding: 4px 8px;
-  flex-shrink: 0;
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.labo-trigger:hover {
+  background: rgba(168, 133, 63, 0.15);
+}
+
+.labo-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid rgba(27, 42, 74, 0.14);
+  border-radius: 6px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  min-width: 240px;
+  z-index: 99999;
+  padding: 8px 0;
+  margin-top: 0;
+  opacity: 1;
+  isolation: isolate;
+}
+
+.labo-dropdown a {
+  display: block;
+  padding: 10px 15px;
+  color: #1B2A4A;
+  font-size: 13px;
+  text-decoration: none;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.labo-dropdown a:hover {
+  background: #fdf8ee;
+  color: #A8853F;
+}
+
+.labo-item:hover .labo-dropdown {
+  display: block;
 }
 
 /* ============================================================ */
-/*  📱 RESPONSIVE                                                */
+/*  RENFORT Z-INDEX                                               */
+/* ============================================================ */
+nav, header, .nav-row, nav ul {
+  position: relative;
+}
+
+nav ul {
+  z-index: 1000;
+}
+
+/* ============================================================ */
+/*  RESPONSIVE                                                    */
 /* ============================================================ */
 @media (max-width: 1024px) {
   .nav-row {
     padding: 0 20px;
   }
 
-  .menu-toggle {
-    display: block;
-  }
-
-  nav ul {
-    display: none;
-    flex-direction: column;
-    position: absolute;
-    top: 84px;
-    left: 0;
-    width: 100%;
-    background: #fff;
-    padding: 20px;
-    border-bottom: 2px solid var(--line);
-    gap: 15px;
-    text-align: center;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    z-index: 999;
-  }
-
-  nav ul.show {
-    display: flex;
-  }
-
-  /* Dropdowns en mode statique */
-  .admin-dropdown,
-  .labo-dropdown,
   .optique-dropdown {
+    position: static;
+    box-shadow: none;
+    border: none;
+    background: #fff;
+  }
+
+  .labo-dropdown {
     position: static;
     box-shadow: none;
     border: none;
@@ -405,13 +260,11 @@ nav a:hover {
     width: 100%;
   }
 
-  .admin-item:hover .admin-dropdown,
   .labo-item:hover .labo-dropdown,
   .optique-item:hover .optique-dropdown {
     display: none;
   }
 
-  .admin-dropdown a,
   .labo-dropdown a,
   .optique-dropdown a {
     padding-left: 30px;
@@ -419,13 +272,11 @@ nav a:hover {
     border-bottom: 1px solid rgba(27, 42, 74, 0.08);
   }
 
-  .admin-dropdown a:last-child,
   .labo-dropdown a:last-child,
   .optique-dropdown a:last-child {
     border-bottom: none;
   }
 
-  .admin-trigger,
   .labo-trigger,
   .optique-trigger {
     display: block;
@@ -434,58 +285,4 @@ nav a:hover {
     padding: 12px;
     border-radius: 6px;
   }
-
-  /* Brand en mode mobile */
-  .brand {
-    width: auto;
-    margin-right: 10px;
-    border-right: none;
-    padding-right: 0;
-  }
-}
-/* ============================================================ */
-/*  🚨 CORRECTIF URGENT — Bloc logo/nom qui déborde               */
-/* ============================================================ */
-
-/* On limite strictement la largeur du conteneur du texte */
-.brand > div {
-  max-width: 130px;      /* Le texte ne peut pas dépasser cette largeur */
-  min-width: 0;
-  overflow: hidden;      /* Coupe tout débordement */
-}
-
-/* Le nom ne doit JAMAIS dépasser */
-.brand-name {
-  display: block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: normal;
-  word-break: break-word;
-  line-height: 1.2;
-}
-
-/* Le tagline aussi */
-.brand-tag {
-  display: block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* On s'assure que le bloc brand entier ne dépasse pas 200px */
-.brand {
-  width: 200px;
-  max-width: 200px;
-  overflow: hidden;
-}
-
-/* On force une marge de sécurité supplémentaire entre brand et nav */
-nav {
-  margin-left: 25px;   /* Augmenté de 10px à 25px */
-}
-
-nav ul {
-  padding-left: 0;
 }
