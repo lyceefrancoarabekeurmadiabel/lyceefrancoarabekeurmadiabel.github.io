@@ -1,7 +1,120 @@
 /* ============================================================ */
-/*  MENU DÉROULANT OPTIQUE (existant)                             */
+/*  🎨 NAVIGATION — Corrections de symétrie du ruban             */
 /* ============================================================ */
-.optique-item { position: relative; }
+
+.nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 24px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--ink, #1B2A4A);
+  flex-shrink: 0;
+  max-width: 175px;
+}
+
+.brand-mark {
+  width: 48px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.brand-name {
+  font-family: var(--serif, 'Source Serif 4', Georgia, serif);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--ink, #1B2A4A);
+  line-height: 1.25;
+  text-align: center;
+}
+
+.brand-tag {
+  font-size: 9px;
+  color: var(--slate, #5B6472);
+  text-align: center;
+  margin-top: 2px;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+nav {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+nav ul {
+  display: flex;
+  gap: 12px;
+  list-style: none;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+nav a {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink, #1B2A4A);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+nav a:hover {
+  color: var(--brass, #A8853F);
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.15;
+  font-size: 12px;
+  padding: 0 8px;
+  border-left: 1px solid rgba(27, 42, 74, 0.14);
+  border-right: 1px solid rgba(27, 42, 74, 0.14);
+}
+
+.profile-name {
+  font-weight: 700;
+  color: var(--brass, #A8853F);
+  font-size: 12px;
+}
+
+.profile-role {
+  font-size: 10px;
+  color: var(--slate, #5B6472);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* ============================================================ */
+/*  MENU DÉROULANT OPTIQUE                                        */
+/* ============================================================ */
+.optique-item {
+  position: relative;
+}
+
 .optique-trigger {
   color: #4fc3f7;
   font-weight: 700;
@@ -12,21 +125,25 @@
   font-size: 13px;
   transition: background 0.2s;
 }
-.optique-trigger:hover { background: rgba(79, 195, 247, 0.15); }
+
+.optique-trigger:hover {
+  background: rgba(79, 195, 247, 0.15);
+}
 
 .optique-dropdown {
   display: none;
   position: absolute;
   top: 100%;
   right: 0;
-  background: #fff;
-  border: 1px solid rgba(27,42,74,0.14);
+  background: #ffffff;
+  border: 1px solid rgba(27, 42, 74, 0.14);
   border-radius: 6px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
   min-width: 220px;
-  z-index: 100;
-  padding: 5px 0;
+  z-index: 99999;
+  padding: 6px 0;
 }
+
 .optique-dropdown a {
   display: block;
   padding: 10px 15px;
@@ -34,12 +151,16 @@
   font-size: 13px;
   text-decoration: none;
   transition: background 0.15s;
+  white-space: nowrap;
 }
-.optique-dropdown a:hover { background: #f0f9ff; color: #4fc3f7; }
-.optique-item:hover .optique-dropdown { display: block; }
 
-@media (max-width: 1024px) {
-  .optique-dropdown { position: static; box-shadow: none; border: none; }
+.optique-dropdown a:hover {
+  background: #f0f9ff;
+  color: #4fc3f7;
+}
+
+.optique-item:hover .optique-dropdown {
+  display: block;
 }
 
 /* ============================================================ */
@@ -61,6 +182,7 @@
   transition: background 0.2s;
   white-space: nowrap;
 }
+
 .labo-trigger:hover {
   background: rgba(168, 133, 63, 0.15);
 }
@@ -71,9 +193,9 @@
   top: 100%;
   right: 0;
   background: #ffffff;
-  border: 1px solid rgba(27,42,74,0.14);
+  border: 1px solid rgba(27, 42, 74, 0.14);
   border-radius: 6px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
   min-width: 240px;
   z-index: 99999;
   padding: 8px 0;
@@ -102,7 +224,7 @@
 }
 
 /* ============================================================ */
-/*  RENFORT Z-INDEX (au cas où d'autres éléments auraient un z-index élevé) */
+/*  RENFORT Z-INDEX                                               */
 /* ============================================================ */
 nav, header, .nav-row, nav ul {
   position: relative;
@@ -113,9 +235,20 @@ nav ul {
 }
 
 /* ============================================================ */
-/*  RESPONSIVE MOBILE                                             */
+/*  RESPONSIVE                                                    */
 /* ============================================================ */
 @media (max-width: 1024px) {
+  .nav-row {
+    padding: 0 20px;
+  }
+
+  .optique-dropdown {
+    position: static;
+    box-shadow: none;
+    border: none;
+    background: #fff;
+  }
+
   .labo-dropdown {
     position: static;
     box-shadow: none;
@@ -126,23 +259,26 @@ nav ul {
     min-width: 100%;
     width: 100%;
   }
-  
-  .labo-item:hover .labo-dropdown {
+
+  .labo-item:hover .labo-dropdown,
+  .optique-item:hover .optique-dropdown {
     display: none;
   }
-  
-  .labo-dropdown a {
+
+  .labo-dropdown a,
+  .optique-dropdown a {
     padding-left: 30px;
     font-size: 12px;
-    border-bottom: 1px solid rgba(27,42,74,0.08);
+    border-bottom: 1px solid rgba(27, 42, 74, 0.08);
   }
-  
-  .labo-dropdown a:last-child {
+
+  .labo-dropdown a:last-child,
+  .optique-dropdown a:last-child {
     border-bottom: none;
   }
-  
-  /* Le trigger devient un vrai bouton ouvrable au tap */
-  .labo-trigger {
+
+  .labo-trigger,
+  .optique-trigger {
     display: block;
     width: 100%;
     text-align: center;
