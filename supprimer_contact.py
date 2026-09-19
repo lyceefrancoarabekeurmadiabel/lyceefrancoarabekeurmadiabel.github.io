@@ -3,8 +3,7 @@
 """
 Supprime les blocs <li> "Contacter le Proviseur" et "feedback-item"
 UNIQUEMENT dans la balise <header>...</header> de chaque fichier HTML.
-
-Ne touche PAS au footer (où le lien "Contacter le Proviseur" doit rester).
+Ne touche PAS au footer.
 """
 
 import os
@@ -12,19 +11,12 @@ import re
 import glob
 
 # ============================================================
-#  REGEX — Approche robuste : on cherche dans la balise <header>
+#  REGEX ROBUSTES
 # ============================================================
 
-# Matche tout <li>...</li> qui contient "Contacter le Proviseur"
-# Le <a> peut être imbriqué et s'étaler sur plusieurs lignes
+# Matche tout <li> qui contient "Contacter le Proviseur"
 PATTERN_CONTACT = re.compile(
-    r'\s*<li\b[^>]*>\s*<a\b[^>]*showContact[^>]*>[\s\S]*?</a>\s*</li>',
-    re.DOTALL | re.IGNORECASE
-)
-
-# Fallback : matche un <li> qui contient juste le texte "Contacter le Proviseur"
-PATTERN_CONTACT_FALLBACK = re.compile(
-    r'\s*<li\b[^>]*>[\s\S]*?Contacter le Proviseur[\s\S]*?</li>',
+    r'\s*<li\b[^>]*class="contact-info"[^>]*>[\s\S]*?</li>',
     re.DOTALL | re.IGNORECASE
 )
 
@@ -56,15 +48,12 @@ def nettoyer_fichier(nom_fichier):
     # --- Suppression du <li> "Contacter le Proviseur" ---
     header_nouveau, nb_contact = PATTERN_CONTACT.subn('', header_nouveau)
 
-    # Si la première regex n'a rien trouvé, on essaie la fallback
-    if nb_contact == 0:
-        header_nouveau, nb_contact = PATTERN_CONTACT_FALLBACK.subn('', header_nouveau)
-
     # --- Suppression du <li class="feedback-item"> ---
     header_nouveau, nb_feedback = PATTERN_FEEDBACK.subn('', header_nouveau)
 
     # --- Nettoyage des lignes vides résiduelles ---
     header_nouveau = re.sub(r'\n\s*\n\s*\n', '\n\n', header_nouveau)
+    header_nouveau = re.sub(r'\s*</ul>', '\n      </ul>', header_nouveau)
 
     # --- Si rien n'a changé, on ne réécrit pas ---
     if header_nouveau == header_original:
@@ -88,7 +77,7 @@ def nettoyer_fichier(nom_fichier):
 
 def main():
     print("=" * 60)
-    print("  🧹 NETTOYAGE DU RUBAN — Suppression contacts + feedback")
+    print("  🧹 SUPPRESSION DU BOUTON 'CONTACTER LE PROVISEUR'")
     print("=" * 60 + "\n")
 
     fichiers = sorted(glob.glob('*.html'))
@@ -100,11 +89,8 @@ def main():
     print(f"📁 {len(fichiers)} fichier(s) HTML trouvé(s)\n")
 
     rapport = {
-        'ok': [],
-        'rien': [],
-        'pas_de_header': [],
-        'erreur_lecture': [],
-        'erreur_ecriture': [],
+        'ok': [], 'rien': [], 'pas_de_header': [],
+        'erreur_lecture': [], 'erreur_ecriture': [],
     }
 
     for fichier in fichiers:
@@ -113,8 +99,10 @@ def main():
         if statut == 'ok':
             rapport['ok'].append(fichier)
             print(f"✅ {fichier}")
-            print(f"   → {nb_c} bloc(s) 'Contacter le Proviseur' supprimé(s)")
-            print(f"   → {nb_f} bloc(s) 'feedback-item' supprimé(s)")
+            if nb_c > 0:
+                print(f"   → {nb_c} bloc(s) 'Contacter le Proviseur' supprimé(s)")
+            if nb_f > 0:
+                print(f"   → {nb_f} bloc(s) 'feedback-item' supprimé(s)")
         elif statut == 'rien':
             rapport['rien'].append(fichier)
             print(f"⏭️  {fichier} — rien à supprimer")
@@ -128,7 +116,6 @@ def main():
             rapport['erreur_ecriture'].append(fichier)
             print(f"❌ {fichier} — erreur écriture : {msg}")
 
-    # --- Rapport final ---
     print("\n" + "=" * 60)
     print("  📊 RAPPORT FINAL")
     print("=" * 60)
