@@ -567,6 +567,19 @@
 </head>
 <body>
 
+<script>
+  (function() {
+    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent)
+                     || window.innerWidth < 768;
+    const alreadyRedirected = sessionStorage.getItem('mobile_redirected_circuits-libre');
+    if (isMobile && !alreadyRedirected) {
+      sessionStorage.setItem('mobile_redirected_circuits-libre', '1');
+      window.location.replace('simulateur-circuits-libre-mobile.html');
+    }
+  })();
+</script>
+
+
 <div class="app">
 
   <div class="topbar">
