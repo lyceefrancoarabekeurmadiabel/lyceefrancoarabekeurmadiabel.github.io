@@ -1,18 +1,32 @@
 /* ============================================================ */
-/*  🎨 NAVIGATION — Corrections de symétrie du ruban             */
+/*  🎨 NAVIGATION — Version corrigée et uniforme                */
 /* ============================================================ */
+
+/* Barre de navigation principale */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--paper, #F7F5F0);
+  border-bottom: 1px solid var(--line, rgba(27,42,74,0.14));
+  height: 84px;
+  display: flex;
+  align-items: center;
+  overflow: visible !important; /* Autorise les dropdowns à dépasser */
+}
 
 .nav-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1280px; /* Légèrement augmenté pour respirer */
   margin: 0 auto;
-  padding: 0 32px;
-  gap: 24px;
+  padding: 0 24px;
+  gap: 16px;
 }
 
+/* Logo et nom de l'établissement */
 .brand {
   display: flex;
   align-items: center;
@@ -56,33 +70,143 @@
   white-space: nowrap;
 }
 
+/* Liste des liens */
 nav {
   flex: 1;
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  min-width: 0; /* Permet à la liste de se réduire si besoin */
 }
 
 nav ul {
   display: flex;
-  gap: 12px;
+  gap: 8px; /* Réduit de 18px à 8px */
   list-style: none;
   align-items: center;
   justify-content: flex-end;
+  flex-wrap: nowrap; /* Empêche le retour à la ligne intempestif */
+  padding: 0;
+  margin: 0;
 }
 
 nav a {
-  font-size: 13px;
+  font-size: 12px; /* Réduit de 13px à 12px */
   font-weight: 600;
   color: var(--ink, #1B2A4A);
   text-decoration: none;
   white-space: nowrap;
+  padding: 6px 4px; /* Ajoute un peu d'air horizontal */
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
 }
 
 nav a:hover {
   color: var(--brass, #A8853F);
 }
 
+/* Éléments conditionnels (Admin, Laboratoire, Gouvernement, etc.) */
+.admin-item,
+.labo-item,
+.optique-item,
+.gov-item,
+.feedback-item {
+  position: relative;
+  display: none; /* Par défaut caché, le JS les affiche */
+}
+
+/* Déclencheurs des menus déroulants */
+.admin-trigger,
+.labo-trigger,
+.optique-trigger {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.admin-trigger {
+  background: var(--brass, #A8853F);
+  color: #fff !important;
+}
+
+.labo-trigger {
+  color: var(--brass, #A8853F);
+}
+
+.optique-trigger {
+  color: #4fc3f7;
+}
+
+.admin-trigger:hover {
+  background: #96743a;
+}
+
+.labo-trigger:hover {
+  background: rgba(168, 133, 63, 0.15);
+}
+
+.optique-trigger:hover {
+  background: rgba(79, 195, 247, 0.15);
+}
+
+/* Menus déroulants */
+.admin-dropdown,
+.labo-dropdown,
+.optique-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid rgba(27,42,74,0.14);
+  border-radius: 6px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+  min-width: 220px;
+  z-index: 99999;
+  padding: 6px 0;
+  margin-top: 0;
+}
+
+/* Affichage au survol */
+.admin-item:hover .admin-dropdown,
+.labo-item:hover .labo-dropdown,
+.optique-item:hover .optique-dropdown {
+  display: block;
+}
+
+/* Liens dans les dropdowns */
+.admin-dropdown a,
+.labo-dropdown a,
+.optique-dropdown a {
+  display: block;
+  padding: 10px 15px;
+  color: #1B2A4A;
+  font-size: 13px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.admin-dropdown a:hover {
+  background: #f5f5f5;
+}
+
+.labo-dropdown a:hover {
+  background: #fdf8ee;
+  color: var(--brass, #A8853F);
+}
+
+.optique-dropdown a:hover {
+  background: #f0f9ff;
+  color: #4fc3f7;
+}
+
+/* Profil utilisateur */
 .profile-info {
   display: flex;
   flex-direction: column;
@@ -91,14 +215,18 @@ nav a:hover {
   line-height: 1.15;
   font-size: 12px;
   padding: 0 8px;
-  border-left: 1px solid rgba(27, 42, 74, 0.14);
-  border-right: 1px solid rgba(27, 42, 74, 0.14);
+  border-left: 1px solid rgba(27,42,74,0.14);
+  border-right: 1px solid rgba(27,42,74,0.14);
+  white-space: nowrap;
+  max-width: 140px;
 }
 
 .profile-name {
   font-weight: 700;
   color: var(--brass, #A8853F);
   font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .profile-role {
@@ -108,148 +236,121 @@ nav a:hover {
   letter-spacing: 0.4px;
 }
 
-/* ============================================================ */
-/*  MENU DÉROULANT OPTIQUE                                        */
-/* ============================================================ */
-.optique-item {
-  position: relative;
+/* Contact Proviseur — Version compacte */
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.1;
+  font-size: 11px;
+  padding: 0 8px;
+  text-decoration: none;
+  white-space: nowrap;
+  max-width: 150px;
 }
 
-.optique-trigger {
-  color: #4fc3f7;
+.contact-label {
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.contact-phone {
+  font-size: 11px;
+  color: var(--brass);
   font-weight: 700;
-  cursor: pointer;
-  display: inline-block;
-  padding: 6px 12px;
+}
+
+/* Bouton de connexion / déconnexion */
+.nav-cta {
+  background: var(--ink-deep, #10192E);
+  color: #fff !important;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
   border-radius: 4px;
-  font-size: 13px;
+  text-decoration: none;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: background 0.2s;
 }
 
-.optique-trigger:hover {
-  background: rgba(79, 195, 247, 0.15);
+.nav-cta:hover {
+  background: #1B2A4A;
 }
 
-.optique-dropdown {
-  display: none;
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background: #ffffff;
-  border: 1px solid rgba(27, 42, 74, 0.14);
-  border-radius: 6px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-  min-width: 220px;
-  z-index: 99999;
-  padding: 6px 0;
-}
-
-.optique-dropdown a {
-  display: block;
-  padding: 10px 15px;
-  color: #1B2A4A;
-  font-size: 13px;
-  text-decoration: none;
-  transition: background 0.15s;
-  white-space: nowrap;
-}
-
-.optique-dropdown a:hover {
-  background: #f0f9ff;
-  color: #4fc3f7;
-}
-
-.optique-item:hover .optique-dropdown {
-  display: block;
-}
-
-/* ============================================================ */
-/*  🔬 MENU DÉROULANT LABORATOIRE                                 */
-/* ============================================================ */
-.labo-item {
-  position: relative;
-  z-index: 1001;
-}
-
-.labo-trigger {
-  color: #A8853F;
-  font-weight: 700;
-  cursor: pointer;
-  display: inline-block;
-  padding: 6px 12px;
+/* Lien "Donner mon avis" (feedback) */
+.feedback-link {
+  background: var(--brass, #A8853F);
+  color: #fff !important;
+  padding: 4px 10px;
   border-radius: 4px;
-  font-size: 13px;
-  transition: background 0.2s;
+  font-size: 11px;
   white-space: nowrap;
-}
-
-.labo-trigger:hover {
-  background: rgba(168, 133, 63, 0.15);
-}
-
-.labo-dropdown {
-  display: none;
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background: #ffffff;
-  border: 1px solid rgba(27, 42, 74, 0.14);
-  border-radius: 6px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
-  min-width: 240px;
-  z-index: 99999;
-  padding: 8px 0;
-  margin-top: 0;
-  opacity: 1;
-  isolation: isolate;
-}
-
-.labo-dropdown a {
-  display: block;
-  padding: 10px 15px;
-  color: #1B2A4A;
-  font-size: 13px;
   text-decoration: none;
-  transition: background 0.15s;
-  white-space: nowrap;
 }
 
-.labo-dropdown a:hover {
-  background: #fdf8ee;
-  color: #A8853F;
+.feedback-link:hover {
+  background: #96743a;
 }
 
-.labo-item:hover .labo-dropdown {
-  display: block;
+/* Lien Gouvernement scolaire */
+.gov-item a {
+  color: var(--gov-purple, #6a4c93) !important;
+  font-weight: 700;
+}
+
+/* Bouton burger pour mobile */
+.menu-toggle {
+  display: none;
+  font-size: 28px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: var(--ink);
+  padding: 4px 8px;
 }
 
 /* ============================================================ */
-/*  RENFORT Z-INDEX                                               */
-/* ============================================================ */
-nav, header, .nav-row, nav ul {
-  position: relative;
-}
-
-nav ul {
-  z-index: 1000;
-}
-
-/* ============================================================ */
-/*  RESPONSIVE                                                    */
+/*  RESPONSIVE (Mobile)                                         */
 /* ============================================================ */
 @media (max-width: 1024px) {
   .nav-row {
     padding: 0 20px;
   }
 
-  .optique-dropdown {
-    position: static;
-    box-shadow: none;
-    border: none;
-    background: #fff;
+  .menu-toggle {
+    display: block;
   }
 
-  .labo-dropdown {
+  nav ul {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 84px;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    padding: 20px;
+    border-bottom: 2px solid var(--line);
+    gap: 15px;
+    text-align: center;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    z-index: 999;
+  }
+
+  nav ul.show {
+    display: flex;
+  }
+
+  .admin-dropdown,
+  .labo-dropdown,
+  .optique-dropdown {
     position: static;
     box-shadow: none;
     border: none;
@@ -260,23 +361,27 @@ nav ul {
     width: 100%;
   }
 
+  .admin-item:hover .admin-dropdown,
   .labo-item:hover .labo-dropdown,
   .optique-item:hover .optique-dropdown {
     display: none;
   }
 
+  .admin-dropdown a,
   .labo-dropdown a,
   .optique-dropdown a {
     padding-left: 30px;
     font-size: 12px;
-    border-bottom: 1px solid rgba(27, 42, 74, 0.08);
+    border-bottom: 1px solid rgba(27,42,74,0.08);
   }
 
+  .admin-dropdown a:last-child,
   .labo-dropdown a:last-child,
   .optique-dropdown a:last-child {
     border-bottom: none;
   }
 
+  .admin-trigger,
   .labo-trigger,
   .optique-trigger {
     display: block;
