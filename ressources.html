@@ -404,144 +404,159 @@
     };
 
     onAuthStateChanged(auth, async (user) => {
-        const contentArea = document.getElementById('content-area');
-        if (user) {
-            try {
-                const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
-                if (!snap.exists()) {
-                    contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⚠️ Votre compte n'est pas complet.</p>`;
-                    return;
-                }
-                profile = snap.data();
+    const contentArea = document.getElementById('content-area');
+    if (user) {
+        try {
+            const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+            if (!snap.exists()) {
+                contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⚠️ Votre compte n'est pas complet.</p>`;
+                return;
+            }
+            profile = snap.data();
 
-                if ((profile.role === 'professeur' || profile.role === 'intendant') && profile.statut === 'en_attente') {
-                    contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⏳ Votre compte est en attente de validation.</p>`;
-                    const userProfile = document.getElementById('user-profile');
-                    if (userProfile) {
-                        userProfile.style.display = "block";
-                        userProfile.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
-                    }
-                    const authLink = document.getElementById('auth-link');
-                    if (authLink) {
-                        authLink.textContent = "Déconnexion";
-                        authLink.onclick = () => signOut(auth).then(() => window.location.reload());
-                    }
-                    return;
+            if ((profile.role === 'professeur' || profile.role === 'intendant') && profile.statut === 'en_attente') {
+                contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⏳ Votre compte est en attente de validation.</p>`;
+                const userProfile = document.getElementById('user-profile');
+                if (userProfile) {
+                    userProfile.style.display = "block";
+                    userProfile.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
                 }
+                const authLink = document.getElementById('auth-link');
+                if (authLink) {
+                    authLink.textContent = "Déconnexion";
+                    authLink.onclick = () => signOut(auth).then(() => window.location.reload());
+                }
+                // ✅ Cacher la section labos si le compte est en attente
+                const labosSection = document.getElementById('labos-public-section');
+                if (labosSection) labosSection.style.display = 'none';
+                return;
+            }
 
-                const searchBar = document.getElementById('search-bar');
-                if (searchBar) searchBar.style.display = "";
-                
-                const userProfile2 = document.getElementById('user-profile');
-                if (userProfile2) {
-                    userProfile2.style.display = "block";
-                    userProfile2.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
+            const searchBar = document.getElementById('search-bar');
+            if (searchBar) searchBar.style.display = "";
+            
+            const userProfile2 = document.getElementById('user-profile');
+            if (userProfile2) {
+                userProfile2.style.display = "block";
+                userProfile2.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
+            }
+            
+            if (isAdmin(profile.role)) {
+                document.querySelectorAll('.admin-item').forEach(el => {
+                    if (el) el.style.display = "block";
+                });
+            }
+            // 🎓 Affichage du lien Gouvernement
+            if (isAdmin(profile.role) || profile.role === 'president' || profile.role === 'ministre_communication') {
+                document.querySelectorAll('.gov-item').forEach(el => {
+                    if (el) el.style.display = "block";
+                });
+            }
+            // AFFICHAGE DES LABOS SELON LA DISCIPLINE
+            if (isAdmin(profile.role)) {
+                document.querySelectorAll('.labo-pc-item, .labo-maths-item, .labo-svt-item').forEach(el => el.style.display = 'block');
+            } else if (profile.role === 'professeur') {
+                const mats = (profile.disciplines || []).map(m => m.toLowerCase());
+                if (mats.some(m => m.includes('physique') || m.includes('chimie') || m.includes('pc'))) {
+                    document.querySelectorAll('.labo-pc-item').forEach(el => el.style.display = 'block');
                 }
-                
-                if (isAdmin(profile.role)) {
-                    document.querySelectorAll('.admin-item').forEach(el => {
-                        if (el) el.style.display = "block";
-                    });
+                if (mats.some(m => m.includes('math'))) {
+                    document.querySelectorAll('.labo-maths-item').forEach(el => el.style.display = 'block');
                 }
-                // 🎓 Affichage du lien Gouvernement
-                if (isAdmin(profile.role) || profile.role === 'president' || profile.role === 'ministre_communication') {
-                    document.querySelectorAll('.gov-item').forEach(el => {
-                        if (el) el.style.display = "block";
-                    });
+                if (mats.some(m => m.includes('svt'))) {
+                    document.querySelectorAll('.labo-svt-item').forEach(el => el.style.display = 'block');
                 }
-                // AFFICHAGE DES LABOS SELON LA DISCIPLINE
-                if (isAdmin(profile.role)) {
-                    document.querySelectorAll('.labo-pc-item, .labo-maths-item, .labo-svt-item').forEach(el => el.style.display = 'block');
-                } else if (profile.role === 'professeur') {
-                    const mats = (profile.disciplines || []).map(m => m.toLowerCase());
-                    if (mats.some(m => m.includes('physique') || m.includes('chimie') || m.includes('pc'))) {
-                        document.querySelectorAll('.labo-pc-item').forEach(el => el.style.display = 'block');
-                    }
-                    if (mats.some(m => m.includes('math'))) {
-                        document.querySelectorAll('.labo-maths-item').forEach(el => el.style.display = 'block');
-                    }
-                    if (mats.some(m => m.includes('svt'))) {
-                        document.querySelectorAll('.labo-svt-item').forEach(el => el.style.display = 'block');
-                    }
-                                } else if (profile.role === 'eleve' || profile.role === 'president' || profile.role === 'ministre_communication') {
-                    document.querySelectorAll('.labo-pc-item, .labo-maths-item, .labo-svt-item').forEach(el => el.style.display = 'block');
-                }
-                
-                const authLink2 = document.getElementById('auth-link');
-                if (authLink2) {
-                    authLink2.textContent = "Déconnexion";
-                    authLink2.onclick = () => signOut(auth).then(() => window.location.reload());
-                }
+            } else if (profile.role === 'eleve' || profile.role === 'president' || profile.role === 'ministre_communication') {
+                document.querySelectorAll('.labo-pc-item, .labo-maths-item, .labo-svt-item').forEach(el => el.style.display = 'block');
+            }
+            
+            const authLink2 = document.getElementById('auth-link');
+            if (authLink2) {
+                authLink2.textContent = "Déconnexion";
+                authLink2.onclick = () => signOut(auth).then(() => window.location.reload());
+            }
 
-                const feedbackItems = document.querySelectorAll('.feedback-item');
-                if (feedbackItems.length > 0) {
-                    feedbackItems.forEach(el => {
-                        if (el) {
-                            el.style.display = 'block';
-                            const link = el.querySelector('a');
-                            if (link) {
-                                if (isAdmin(profile.role)) {
-                                    link.href = 'feedback.html#tab-dashboard';
-                                    link.textContent = '📊 Voir les retours';
-                                } else if (profile.role === 'professeur') {
-                                    link.href = 'feedback.html#tab-professeurs';
-                                    link.textContent = '📋 Donner mon avis (prof)';
-                                } else if (profile.role === 'eleve') {
-                                    link.href = 'feedback.html#tab-eleves';
-                                    link.textContent = '📋 Donner mon avis (élève)';
-                                }
+            const feedbackItems = document.querySelectorAll('.feedback-item');
+            if (feedbackItems.length > 0) {
+                feedbackItems.forEach(el => {
+                    if (el) {
+                        el.style.display = 'block';
+                        const link = el.querySelector('a');
+                        if (link) {
+                            if (isAdmin(profile.role)) {
+                                link.href = 'feedback.html#tab-dashboard';
+                                link.textContent = '📊 Voir les retours';
+                            } else if (profile.role === 'professeur') {
+                                link.href = 'feedback.html#tab-professeurs';
+                                link.textContent = '📋 Donner mon avis (prof)';
+                            } else if (profile.role === 'eleve') {
+                                link.href = 'feedback.html#tab-eleves';
+                                link.textContent = '📋 Donner mon avis (élève)';
                             }
                         }
-                    });
-                }
-
-                if (profile.role === 'professeur' || isAdmin(profile.role)) {
-                    const elevesSection = document.getElementById('eleves-section');
-                    if (elevesSection) elevesSection.style.display = 'block';
-                    chargerMesEleves();
-                }
-
-                if (profile.role === 'eleve') renderFicheFamille();
-                loadActusStrip();
-                loadDevoirsStrip();
-
-                buildUI();
-                applyLevelVisibility();
-                syncDocs();
-                syncDevoirs();
-            } catch (err) {
-                console.warn('Erreur de chargement du profil:', err.message);
-                if (contentArea) {
-                    contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⚠️ Erreur de chargement du profil. Veuillez rafraîchir la page.</p>`;
-                }
+                    }
+                });
             }
-        } else {
-            profile = null;
-            const searchBar2 = document.getElementById('search-bar');
-            if (searchBar2) searchBar2.style.display = "none";
-            
-            const contentArea2 = document.getElementById('content-area');
-            if (contentArea2) {
-                contentArea2.innerHTML =
-                    `<p style="text-align:center; padding:60px 20px; color:var(--slate);">
-                        🔒 Cet espace est réservé aux élèves, professeurs et personnel.<br><br>
-                        <a href="identification.html" style="color:var(--brass); font-weight:700;">Se connecter</a>
-                        ou
-                        <a href="inscription.html" style="color:var(--brass); font-weight:700;">créer un compte</a>
-                    </p>`;
+
+            if (profile.role === 'professeur' || isAdmin(profile.role)) {
+                const elevesSection = document.getElementById('eleves-section');
+                if (elevesSection) elevesSection.style.display = 'block';
+                chargerMesEleves();
             }
-            
-            document.querySelectorAll('.feedback-item').forEach(el => {
-                if (el) el.style.display = 'none';
-            });
-                      document.querySelectorAll('.gov-item').forEach(el => {
-                if (el) el.style.display = 'none';
-            });
-            document.querySelectorAll('.labo-pc-item, .labo-maths-item, .labo-svt-item').forEach(el => {
-                if (el) el.style.display = 'none';
-            });
+
+            if (profile.role === 'eleve') renderFicheFamille();
+            loadActusStrip();
+            loadDevoirsStrip();
+
+            buildUI();
+            applyLevelVisibility();
+            syncDocs();
+            syncDevoirs();
+
+            // ✅ AJOUT 1 : Afficher la section des laboratoires pour les utilisateurs connectés
+            const labosSection = document.getElementById('labos-public-section');
+            if (labosSection) labosSection.style.display = 'block';
+
+        } catch (err) {
+            console.warn('Erreur de chargement du profil:', err.message);
+            if (contentArea) {
+                contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⚠️ Erreur de chargement du profil. Veuillez rafraîchir la page.</p>`;
+            }
+            // ✅ En cas d'erreur, on cache la section par sécurité
+            const labosSection = document.getElementById('labos-public-section');
+            if (labosSection) labosSection.style.display = 'none';
         }
-    });
+    } else {
+        profile = null;
+        const searchBar2 = document.getElementById('search-bar');
+        if (searchBar2) searchBar2.style.display = "none";
+        
+        const contentArea2 = document.getElementById('content-area');
+        if (contentArea2) {
+            contentArea2.innerHTML =
+                `<p style="text-align:center; padding:60px 20px; color:var(--slate);">
+                    🔒 Cet espace est réservé aux élèves, professeurs et personnel.<br><br>
+                    <a href="identification.html" style="color:var(--brass); font-weight:700;">Se connecter</a>
+                    ou
+                    <a href="inscription.html" style="color:var(--brass); font-weight:700;">créer un compte</a>
+                </p>`;
+        }
+        
+        document.querySelectorAll('.feedback-item').forEach(el => {
+            if (el) el.style.display = 'none';
+        });
+        document.querySelectorAll('.gov-item').forEach(el => {
+            if (el) el.style.display = 'none';
+        });
+        document.querySelectorAll('.labo-pc-item, .labo-maths-item, .labo-svt-item').forEach(el => {
+            if (el) el.style.display = 'none';
+        });
+
+        // ✅ AJOUT 2 : Cacher la section des laboratoires pour les visiteurs
+        const labosSection = document.getElementById('labos-public-section');
+        if (labosSection) labosSection.style.display = 'none';
+    }
+});
 
     async function chargerMesEleves() {
         const accordeon = document.getElementById('eleves-accordeon');
