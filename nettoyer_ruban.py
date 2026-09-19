@@ -1,57 +1,150 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Supprime 'Contacter le Proviseur' et 'Voir les retours' du ruban
-dans tous les fichiers HTML du dossier.
+Supprime les blocs <li> "Contacter le Proviseur" et "feedback-item"
+UNIQUEMENT dans la balise <header>...</header> de chaque fichier HTML.
+
+Ne touche PAS au footer (où le lien "Contacter le Proviseur" doit rester).
 """
 
-import glob
+import os
 import re
+import glob
 
-# Regex qui matche le <li> "Contacter le Proviseur" (multi-ligne, avec ou sans style)
+# ============================================================
+#  REGEX — Approche robuste : on cherche dans la balise <header>
+# ============================================================
+
+# Matche tout <li>...</li> qui contient "Contacter le Proviseur"
+# Le <a> peut être imbriqué et s'étaler sur plusieurs lignes
 PATTERN_CONTACT = re.compile(
-    r'\s*<li>\s*<a[^>]*showContact[^>]*>.*?</a>\s*</li>',
-    re.DOTALL
+    r'\s*<li\b[^>]*>\s*<a\b[^>]*showContact[^>]*>[\s\S]*?</a>\s*</li>',
+    re.DOTALL | re.IGNORECASE
 )
 
-# Regex qui matche le <li class="feedback-item"> ... </li>
+# Fallback : matche un <li> qui contient juste le texte "Contacter le Proviseur"
+PATTERN_CONTACT_FALLBACK = re.compile(
+    r'\s*<li\b[^>]*>[\s\S]*?Contacter le Proviseur[\s\S]*?</li>',
+    re.DOTALL | re.IGNORECASE
+)
+
+# Matche <li class="feedback-item"> ... </li>
 PATTERN_FEEDBACK = re.compile(
-    r'\s*<li class="feedback-item">.*?</li>',
-    re.DOTALL
+    r'\s*<li\b[^>]*class="feedback-item"[^>]*>[\s\S]*?</li>',
+    re.DOTALL | re.IGNORECASE
 )
 
-fichiers = sorted(glob.glob('*.html'))
-total_modifs = 0
+# ============================================================
+#  FONCTION DE NETTOYAGE D'UN FICHIER
+# ============================================================
 
-for fichier in fichiers:
-    with open(fichier, 'r', encoding='utf-8') as f:
-        contenu = f.read()
-    
-    nouveau = contenu
-    nb_contact = 0
-    nb_feedback = 0
-    
-    # ⚠️ On ne supprime QUE dans la partie <header> ... </header>
-    # pour ne pas toucher au footer (où on veut garder le lien)
-    header_match = re.search(r'<header>.*?</header>', nouveau, re.DOTALL)
-    if header_match:
-        header_original = header_match.group(0)
-        header_nouveau = header_original
-        
-        header_nouveau, n1 = PATTERN_CONTACT.subn('', header_nouveau)
-        header_nouveau, n2 = PATTERN_FEEDBACK.subn('', header_nouveau)
-        
-        nouveau = nouveau.replace(header_original, header_nouveau)
-        nb_contact = n1
-        nb_feedback = n2
-    
-    if nb_contact > 0 or nb_feedback > 0:
-        with open(fichier, 'w', encoding='utf-8') as f:
-            f.write(nouveau)
-        total_modifs += 1
-        print(f"✅ {fichier} : {nb_contact} contact(s), {nb_feedback} feedback(s) supprimé(s)")
-    else:
-        print(f"⏭️  {fichier} : rien à supprimer")
+def nettoyer_fichier(nom_fichier):
+    try:
+        with open(nom_fichier, 'r', encoding='utf-8') as f:
+            contenu = f.read()
+    except Exception as e:
+        return ('erreur_lecture', str(e), 0, 0)
 
-print(f"\n📊 {total_modifs} fichier(s) modifié(s) au total.")
-print("💡 Teste dans le navigateur avec Ctrl+F5.")
+    # --- On isole le <header>...</header> ---
+    header_match = re.search(r'<header\b[^>]*>[\s\S]*?</header>', contenu, re.DOTALL | re.IGNORECASE)
+    if not header_match:
+        return ('pas_de_header', '', 0, 0)
+
+    header_original = header_match.group(0)
+    header_nouveau = header_original
+
+    # --- Suppression du <li> "Contacter le Proviseur" ---
+    header_nouveau, nb_contact = PATTERN_CONTACT.subn('', header_nouveau)
+
+    # Si la première regex n'a rien trouvé, on essaie la fallback
+    if nb_contact == 0:
+        header_nouveau, nb_contact = PATTERN_CONTACT_FALLBACK.subn('', header_nouveau)
+
+    # --- Suppression du <li class="feedback-item"> ---
+    header_nouveau, nb_feedback = PATTERN_FEEDBACK.subn('', header_nouveau)
+
+    # --- Nettoyage des lignes vides résiduelles ---
+    header_nouveau = re.sub(r'\n\s*\n\s*\n', '\n\n', header_nouveau)
+
+    # --- Si rien n'a changé, on ne réécrit pas ---
+    if header_nouveau == header_original:
+        return ('rien', '', 0, 0)
+
+    # --- Écriture du fichier modifié ---
+    nouveau_contenu = contenu.replace(header_original, header_nouveau)
+
+    try:
+        with open(nom_fichier, 'w', encoding='utf-8') as f:
+            f.write(nouveau_contenu)
+    except Exception as e:
+        return ('erreur_ecriture', str(e), 0, 0)
+
+    return ('ok', '', nb_contact, nb_feedback)
+
+
+# ============================================================
+#  EXÉCUTION SUR TOUS LES FICHIERS HTML
+# ============================================================
+
+def main():
+    print("=" * 60)
+    print("  🧹 NETTOYAGE DU RUBAN — Suppression contacts + feedback")
+    print("=" * 60 + "\n")
+
+    fichiers = sorted(glob.glob('*.html'))
+
+    if not fichiers:
+        print("❌ Aucun fichier .html trouvé dans ce dossier.")
+        return
+
+    print(f"📁 {len(fichiers)} fichier(s) HTML trouvé(s)\n")
+
+    rapport = {
+        'ok': [],
+        'rien': [],
+        'pas_de_header': [],
+        'erreur_lecture': [],
+        'erreur_ecriture': [],
+    }
+
+    for fichier in fichiers:
+        statut, msg, nb_c, nb_f = nettoyer_fichier(fichier)
+
+        if statut == 'ok':
+            rapport['ok'].append(fichier)
+            print(f"✅ {fichier}")
+            print(f"   → {nb_c} bloc(s) 'Contacter le Proviseur' supprimé(s)")
+            print(f"   → {nb_f} bloc(s) 'feedback-item' supprimé(s)")
+        elif statut == 'rien':
+            rapport['rien'].append(fichier)
+            print(f"⏭️  {fichier} — rien à supprimer")
+        elif statut == 'pas_de_header':
+            rapport['pas_de_header'].append(fichier)
+            print(f"⚠️  {fichier} — pas de <header> trouvé")
+        elif statut == 'erreur_lecture':
+            rapport['erreur_lecture'].append(fichier)
+            print(f"❌ {fichier} — erreur lecture : {msg}")
+        elif statut == 'erreur_ecriture':
+            rapport['erreur_ecriture'].append(fichier)
+            print(f"❌ {fichier} — erreur écriture : {msg}")
+
+    # --- Rapport final ---
+    print("\n" + "=" * 60)
+    print("  📊 RAPPORT FINAL")
+    print("=" * 60)
+    print(f"✅ Fichiers nettoyés     : {len(rapport['ok'])}")
+    print(f"⏭️  Rien à faire          : {len(rapport['rien'])}")
+    print(f"⚠️  Sans <header>         : {len(rapport['pas_de_header'])}")
+    print(f"❌ Erreurs               : {len(rapport['erreur_lecture']) + len(rapport['erreur_ecriture'])}")
+
+    if rapport['ok']:
+        print("\n📝 Fichiers modifiés :")
+        for f in rapport['ok']:
+            print(f"   ✨ {f}")
+
+    print("\n💡 Vérifie dans le navigateur avec Ctrl+F5.")
+    print("   Puis publie : git add . && git commit -m '...' && git push\n")
+
+
+if __name__ == '__main__':
+    main()
