@@ -1,18 +1,34 @@
 /* ============================================================ */
-/*  🎨 NAVIGATION — Version corrigée et uniforme                */
+/*  🎨 NAVIGATION LFAKM — Version corrigée et uniforme          */
+/*  Remplace intégralement style-menu.css                        */
 /* ============================================================ */
 
-/* Barre de navigation principale */
+/* ---------- Variables (si non définies ailleurs) ---------- */
+:root {
+  --ink: #1B2A4A;
+  --ink-deep: #10192E;
+  --paper: #F7F5F0;
+  --brass: #A8853F;
+  --slate: #5B6472;
+  --line: rgba(27, 42, 74, 0.14);
+  --serif: 'Source Serif 4', Georgia, serif;
+  --sans: 'Inter', -apple-system, sans-serif;
+  --gov-purple: #6a4c93;
+}
+
+/* ============================================================ */
+/*  🧱 HEADER & LAYOUT                                          */
+/* ============================================================ */
 header {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: var(--paper, #F7F5F0);
-  border-bottom: 1px solid var(--line, rgba(27,42,74,0.14));
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
   height: 84px;
   display: flex;
   align-items: center;
-  overflow: visible !important; /* Autorise les dropdowns à dépasser */
+  overflow: visible; /* Autorise les dropdowns à dépasser */
 }
 
 .nav-row {
@@ -20,21 +36,26 @@ header {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: 1280px; /* Légèrement augmenté pour respirer */
+  max-width: 1280px;
   margin: 0 auto;
   padding: 0 24px;
   gap: 16px;
 }
 
-/* Logo et nom de l'établissement */
+/* ============================================================ */
+/*  🏫 BRAND (logo + nom + tagline)                             */
+/* ============================================================ */
 .brand {
   display: flex;
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  color: var(--ink, #1B2A4A);
+  color: var(--ink);
   flex-shrink: 0;
-  max-width: 175px;
+  width: 200px;
+  margin-right: 15px;
+  padding-right: 15px;
+  border-right: 1px solid rgba(27, 42, 74, 0.08);
 }
 
 .brand-mark {
@@ -52,71 +73,181 @@ header {
   object-fit: contain;
 }
 
+.brand > div {
+  min-width: 0; /* Important pour text-overflow */
+}
+
 .brand-name {
-  font-family: var(--serif, 'Source Serif 4', Georgia, serif);
+  font-family: var(--serif);
   font-weight: 700;
-  font-size: 12px;
-  color: var(--ink, #1B2A4A);
+  font-size: 11.5px;
+  color: var(--ink);
   line-height: 1.25;
-  text-align: center;
+  text-align: left;
+  white-space: normal;
 }
 
 .brand-tag {
   font-size: 9px;
-  color: var(--slate, #5B6472);
-  text-align: center;
+  color: var(--slate);
+  text-align: left;
   margin-top: 2px;
   letter-spacing: 0.3px;
   white-space: nowrap;
 }
 
-/* Liste des liens */
+/* ============================================================ */
+/*  🔗 NAVIGATION                                                */
+/* ============================================================ */
 nav {
   flex: 1;
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  min-width: 0; /* Permet à la liste de se réduire si besoin */
+  min-width: 0;
+  margin-left: 10px;
 }
 
 nav ul {
   display: flex;
-  gap: 8px; /* Réduit de 18px à 8px */
+  gap: 8px;
   list-style: none;
   align-items: center;
   justify-content: flex-end;
-  flex-wrap: nowrap; /* Empêche le retour à la ligne intempestif */
+  flex-wrap: nowrap;
   padding: 0;
   margin: 0;
+  min-width: 0;
 }
 
 nav a {
-  font-size: 12px; /* Réduit de 13px à 12px */
+  font-size: 12px;
   font-weight: 600;
-  color: var(--ink, #1B2A4A);
+  color: var(--ink);
   text-decoration: none;
   white-space: nowrap;
-  padding: 6px 4px; /* Ajoute un peu d'air horizontal */
-  display: flex;
+  padding: 6px 4px;
+  display: inline-flex;
   align-items: center;
   transition: color 0.2s;
 }
 
 nav a:hover {
-  color: var(--brass, #A8853F);
+  color: var(--brass);
 }
 
-/* Éléments conditionnels (Admin, Laboratoire, Gouvernement, etc.) */
+/* ============================================================ */
+/*  👤 PROFIL UTILISATEUR                                        */
+/* ============================================================ */
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.15;
+  font-size: 11px;
+  padding: 0 8px;
+  border-left: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.profile-name {
+  font-weight: 700;
+  color: var(--brass);
+  font-size: 11.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.profile-role {
+  font-size: 9.5px;
+  color: var(--slate);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* ============================================================ */
+/*  📞 CONTACT PROVISEUR (compact)                               */
+/* ============================================================ */
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.1;
+  font-size: 10.5px;
+  padding: 0 6px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.contact-label {
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+
+.contact-phone {
+  font-size: 10.5px;
+  color: var(--brass);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ============================================================ */
+/*  🔘 BOUTONS (Connexion / Déconnexion / Avis / etc.)           */
+/* ============================================================ */
+.nav-cta {
+  background: var(--ink-deep);
+  color: #fff !important;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+  text-decoration: none;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.nav-cta:hover {
+  background: #1B2A4A;
+}
+
+.feedback-link {
+  background: var(--brass);
+  color: #fff !important;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.feedback-link:hover {
+  background: #96743a;
+  color: #fff !important;
+}
+
+/* ============================================================ */
+/*  📂 MENUS DÉROULANTS (Admin / Laboratoire / Optique)          */
+/* ============================================================ */
 .admin-item,
 .labo-item,
 .optique-item,
 .gov-item,
 .feedback-item {
+  display: none; /* Cachés par défaut, affichés par JS */
   position: relative;
-  display: none; /* Par défaut caché, le JS les affiche */
 }
 
-/* Déclencheurs des menus déroulants */
+/* Déclencheurs */
 .admin-trigger,
 .labo-trigger,
 .optique-trigger {
@@ -126,28 +257,30 @@ nav a:hover {
   border-radius: 4px;
   cursor: pointer;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
   transition: background 0.2s;
 }
 
 .admin-trigger {
-  background: var(--brass, #A8853F);
+  background: var(--brass);
   color: #fff !important;
-}
-
-.labo-trigger {
-  color: var(--brass, #A8853F);
-}
-
-.optique-trigger {
-  color: #4fc3f7;
 }
 
 .admin-trigger:hover {
   background: #96743a;
 }
 
+.labo-trigger {
+  color: var(--brass);
+}
+
 .labo-trigger:hover {
   background: rgba(168, 133, 63, 0.15);
+}
+
+.optique-trigger {
+  color: #4fc3f7;
 }
 
 .optique-trigger:hover {
@@ -163,9 +296,9 @@ nav a:hover {
   top: 100%;
   right: 0;
   background: #ffffff;
-  border: 1px solid rgba(27,42,74,0.14);
+  border: 1px solid var(--line);
   border-radius: 6px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
   min-width: 220px;
   z-index: 99999;
   padding: 6px 0;
@@ -185,7 +318,7 @@ nav a:hover {
 .optique-dropdown a {
   display: block;
   padding: 10px 15px;
-  color: #1B2A4A;
+  color: var(--ink);
   font-size: 13px;
   text-decoration: none;
   white-space: nowrap;
@@ -198,7 +331,7 @@ nav a:hover {
 
 .labo-dropdown a:hover {
   background: #fdf8ee;
-  color: var(--brass, #A8853F);
+  color: var(--brass);
 }
 
 .optique-dropdown a:hover {
@@ -206,106 +339,15 @@ nav a:hover {
   color: #4fc3f7;
 }
 
-/* Profil utilisateur */
-.profile-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  line-height: 1.15;
-  font-size: 12px;
-  padding: 0 8px;
-  border-left: 1px solid rgba(27,42,74,0.14);
-  border-right: 1px solid rgba(27,42,74,0.14);
-  white-space: nowrap;
-  max-width: 140px;
-}
-
-.profile-name {
-  font-weight: 700;
-  color: var(--brass, #A8853F);
-  font-size: 12px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.profile-role {
-  font-size: 10px;
-  color: var(--slate, #5B6472);
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-}
-
-/* Contact Proviseur — Version compacte */
-.contact-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  line-height: 1.1;
-  font-size: 11px;
-  padding: 0 8px;
-  text-decoration: none;
-  white-space: nowrap;
-  max-width: 150px;
-}
-
-.contact-label {
-  font-weight: 600;
-  color: var(--ink);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.contact-phone {
-  font-size: 11px;
-  color: var(--brass);
-  font-weight: 700;
-}
-
-/* Bouton de connexion / déconnexion */
-.nav-cta {
-  background: var(--ink-deep, #10192E);
-  color: #fff !important;
-  padding: 8px 14px;
-  font-size: 12px;
-  font-weight: 600;
-  border-radius: 4px;
-  text-decoration: none;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-}
-
-.nav-cta:hover {
-  background: #1B2A4A;
-}
-
-/* Lien "Donner mon avis" (feedback) */
-.feedback-link {
-  background: var(--brass, #A8853F);
-  color: #fff !important;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 11px;
-  white-space: nowrap;
-  text-decoration: none;
-}
-
-.feedback-link:hover {
-  background: #96743a;
-}
-
 /* Lien Gouvernement scolaire */
 .gov-item a {
-  color: var(--gov-purple, #6a4c93) !important;
+  color: var(--gov-purple) !important;
   font-weight: 700;
 }
 
-/* Bouton burger pour mobile */
+/* ============================================================ */
+/*  🍔 MENU BURGER (mobile)                                      */
+/* ============================================================ */
 .menu-toggle {
   display: none;
   font-size: 28px;
@@ -314,10 +356,11 @@ nav a:hover {
   border: none;
   color: var(--ink);
   padding: 4px 8px;
+  flex-shrink: 0;
 }
 
 /* ============================================================ */
-/*  RESPONSIVE (Mobile)                                         */
+/*  📱 RESPONSIVE                                                */
 /* ============================================================ */
 @media (max-width: 1024px) {
   .nav-row {
@@ -340,7 +383,7 @@ nav a:hover {
     border-bottom: 2px solid var(--line);
     gap: 15px;
     text-align: center;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     z-index: 999;
   }
 
@@ -348,6 +391,7 @@ nav a:hover {
     display: flex;
   }
 
+  /* Dropdowns en mode statique */
   .admin-dropdown,
   .labo-dropdown,
   .optique-dropdown {
@@ -372,7 +416,7 @@ nav a:hover {
   .optique-dropdown a {
     padding-left: 30px;
     font-size: 12px;
-    border-bottom: 1px solid rgba(27,42,74,0.08);
+    border-bottom: 1px solid rgba(27, 42, 74, 0.08);
   }
 
   .admin-dropdown a:last-child,
@@ -389,5 +433,13 @@ nav a:hover {
     text-align: center;
     padding: 12px;
     border-radius: 6px;
+  }
+
+  /* Brand en mode mobile */
+  .brand {
+    width: auto;
+    margin-right: 10px;
+    border-right: none;
+    padding-right: 0;
   }
 }
