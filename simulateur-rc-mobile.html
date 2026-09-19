@@ -2111,18 +2111,149 @@ function getCanvasCoords(e) {
 }
 
 /* Tap-tap : on sélectionne puis on place */
+/* ===== DRAG + TAP pour les fils et composants ===== */
+let dragState = {
+  type: null,      // 'fil-handle' | 'composant' | null
+  filId: null,
+  cote: null,      // 'A' ou 'B'
+  compId: null,
+  offsetX: 0,
+  offsetY: 0
+};
+
 canvas.addEventListener('touchstart', (e) => {
   e.preventDefault();
   const p = getCanvasCoords(e);
-  handleTap(p.x, p.y);
+  handleTouchStart(p.x, p.y);
 }, { passive: false });
 
-canvas.addEventListener('click', (e) => {
-  if (e.pointerType === 'mouse') {
-    const p = getCanvasCoords(e);
-    handleTap(p.x, p.y);
-  }
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  const p = getCanvasCoords(e);
+  handleTouchMove(p.x, p.y);
+}, { passive: false });
+
+canvas.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  handleTouchEnd();
 });
+
+canvas.addEventListener('touchcancel', (e) => {
+  handleTouchEnd();
+});
+
+/* Souris (pour tester sur PC) */
+canvas.addEventListener('mousedown', (e) => {
+  if (e.button !== 0) return;
+  const p = getCanvasCoords(e);
+  handleTouchStart(p.x, p.y);
+  canvas._mouseDown = true;
+});
+canvas.addEventListener('mousemove', (e) => {
+  if (!canvas._mouseDown) return;
+  const p = getCanvasCoords(e);
+  handleTouchMove(p.x, p.y);
+});
+canvas.addEventListener('mouseup', () => {
+  if (!canvas._mouseDown) return;
+  canvas._mouseDown = false;
+  handleTouchEnd();
+});
+canvas.addEventListener('mouseleave', () => {
+  if (!canvas._mouseDown) return;
+  canvas._mouseDown = false;
+  handleTouchEnd();
+});
+
+function handleTouchStart(x, y) {
+  // 1. PRIORITÉ : poignée d'un fil (glisser pour brancher)
+  // On cherche le fil le plus proche et on regarde si on touche son extrémité
+  let filTrouve = null, coteTrouve = null, distanceMin = 45;
+  for (const fil of montage.fils) {
+    const dA = Math.hypot(fil.x1 - x, fil.y1 - y);
+    const dB = Math.hypot(fil.x2 - x, fil.y2 - y);
+    if (dA < distanceMin) { distanceMin = dA; filTrouve = fil; coteTrouve = 'A'; }
+    if (dB < distanceMin) { distanceMin = dB; filTrouve = fil; coteTrouve = 'B'; }
+  }
+  if (filTrouve) {
+    dragState.type = 'fil-handle';
+    dragState.filId = filTrouve.id;
+    dragState.cote = coteTrouve;
+    montage.filSelectionne = filTrouve.id;
+    montage.composantSelectionne = null;
+    jouerSon('connect');
+    drawMontage();
+    return;
+  }
+
+  // 2. Composant (glisser pour déplacer)
+  const comp = trouverComposant(x, y);
+  if (comp) {
+    dragState.type = 'composant';
+    dragState.compId = comp.id;
+    dragState.offsetX = x - comp.x;
+    dragState.offsetY = y - comp.y;
+    montage.composantSelectionne = comp.id;
+    montage.filSelectionne = null;
+    jouerSon('connect');
+    drawMontage();
+    return;
+  }
+
+  // 3. Sinon tap simple (sélection/désélection)
+  handleTap(x, y);
+}
+
+function handleTouchMove(x, y) {
+  if (dragState.type === 'fil-handle') {
+    const fil = montage.fils.find(f => f.id === dragState.filId);
+    if (!fil) return;
+    // Snap à une borne proche (rayon 70px)
+    const borne = trouverBorneProche(x, y, 70);
+    let fx = Math.max(10, Math.min(W - 10, x));
+    let fy = Math.max(10, Math.min(H - 10, y));
+    if (borne) { fx = borne.x; fy = borne.y; }
+    if (dragState.cote === 'A') { fil.x1 = fx; fil.y1 = fy; }
+    else { fil.x2 = fx; fil.y2 = fy; }
+    updateConnexionsFils();
+    drawMontage();
+    updateProgress();
+    return;
+  }
+
+  if (dragState.type === 'composant') {
+    const comp = montage.composants.find(c => c.id === dragState.compId);
+    if (!comp) return;
+    comp.x = Math.max(80, Math.min(W - 80, x - dragState.offsetX));
+    comp.y = Math.max(80, Math.min(H - 80, y - dragState.offsetY));
+    updateConnexionsFils();
+    drawMontage();
+    return;
+  }
+}
+
+function handleTouchEnd() {
+  const avaitDrag = dragState.type !== null;
+  dragState.type = null;
+  dragState.filId = null;
+  dragState.cote = null;
+  dragState.compId = null;
+  if (avaitDrag) {
+    updateConnexionsFils();
+    updateProgress();
+    drawMontage();
+    updateCanvasHint();
+  }
+}
+
+function trouverBorneProche(x, y, maxD) {
+  let meilleur = null, minD = maxD;
+  getToutesLesBornes().forEach(b => {
+    const d = Math.hypot(b.x - x, b.y - y);
+    if (d < minD) { minD = d; meilleur = b; }
+  });
+  return meilleur;
+}
 
 function handleTap(x, y) {
   // 1. Tap sur un composant
