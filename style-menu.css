@@ -1,4 +1,6 @@
-/* Menu déroulant Optique */
+/* ============================================================ */
+/*  MENU DÉROULANT OPTIQUE (existant)                             */
+/* ============================================================ */
 .optique-item { position: relative; }
 .optique-trigger {
   color: #4fc3f7;
@@ -40,13 +42,16 @@
   .optique-dropdown { position: static; box-shadow: none; border: none; }
 }
 
+/* ============================================================ */
+/*  🔬 MENU DÉROULANT LABORATOIRE                                 */
+/* ============================================================ */
+.labo-item {
+  position: relative;
+  z-index: 1001;
+}
 
-/* ============================================================ */
-/* 🔬 Menu déroulant Laboratoire                                  */
-/* ============================================================ */
-.labo-item { position: relative; }
 .labo-trigger {
-  color: var(--brass, #A8853F);
+  color: #A8853F;
   font-weight: 700;
   cursor: pointer;
   display: inline-block;
@@ -54,8 +59,11 @@
   border-radius: 4px;
   font-size: 13px;
   transition: background 0.2s;
+  white-space: nowrap;
 }
-.labo-trigger:hover { background: rgba(168, 133, 63, 0.15); }
+.labo-trigger:hover {
+  background: rgba(168, 133, 63, 0.15);
+}
 
 .labo-dropdown {
   display: none;
@@ -73,6 +81,7 @@
   opacity: 1;
   isolation: isolate;
 }
+
 .labo-dropdown a {
   display: block;
   padding: 10px 15px;
@@ -82,21 +91,62 @@
   transition: background 0.15s;
   white-space: nowrap;
 }
-.labo-dropdown a:hover { background: #fdf8ee; color: var(--brass, #A8853F); }
-.labo-item:hover .labo-dropdown { display: block; }
 
-@media (max-width: 1024px) {
-  .labo-dropdown { position: static; box-shadow: none; border: none; }
+.labo-dropdown a:hover {
+  background: #fdf8ee;
+  color: #A8853F;
 }
-/* Force le menu au-dessus de tout */
+
+.labo-item:hover .labo-dropdown {
+  display: block;
+}
+
+/* ============================================================ */
+/*  RENFORT Z-INDEX (au cas où d'autres éléments auraient un z-index élevé) */
+/* ============================================================ */
 nav, header, .nav-row, nav ul {
   position: relative;
+}
+
+nav ul {
   z-index: 1000;
 }
-.labo-item {
-  position: relative;
-  z-index: 1001;
-}
-.labo-dropdown {
-  z-index: 99999 !important;
+
+/* ============================================================ */
+/*  RESPONSIVE MOBILE                                             */
+/* ============================================================ */
+@media (max-width: 1024px) {
+  .labo-dropdown {
+    position: static;
+    box-shadow: none;
+    border: none;
+    background: #fff;
+    margin-top: 0;
+    padding: 0;
+    min-width: 100%;
+    width: 100%;
+  }
+  
+  .labo-item:hover .labo-dropdown {
+    display: none;
+  }
+  
+  .labo-dropdown a {
+    padding-left: 30px;
+    font-size: 12px;
+    border-bottom: 1px solid rgba(27,42,74,0.08);
+  }
+  
+  .labo-dropdown a:last-child {
+    border-bottom: none;
+  }
+  
+  /* Le trigger devient un vrai bouton ouvrable au tap */
+  .labo-trigger {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 12px;
+    border-radius: 6px;
+  }
 }
