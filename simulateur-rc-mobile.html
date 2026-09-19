@@ -293,22 +293,27 @@
     touch-action: none;
     cursor: pointer;
   }
-  .canvas-hint {
-    position: absolute;
-    bottom: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.85);
-    color: #4fc3f7;
-    font-size: 10.5px;
+
+  /* ✅ NOUVEAU : message d'aide au-dessus du canvas */
+  .canvas-hint-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(79,195,247,0.12);
+    color: #0288d1;
+    font-size: 12.5px;
     font-weight: 700;
-    padding: 5px 12px;
-    border-radius: 16px;
-    border: 1px solid rgba(79,195,247,0.4);
-    pointer-events: none;
-    white-space: nowrap;
-    max-width: 95%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(79,195,247,0.35);
+    margin-bottom: 8px;
     text-align: center;
+    min-height: 40px;
+    line-height: 1.35;
+    transition: all 0.2s;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .toolbox-mobile {
@@ -1263,7 +1268,7 @@
     <div class="etape-header">
       <div class="etape-eyebrow">Étape 2 sur 4</div>
       <h1 class="etape-title">🛠️ Montage du circuit</h1>
-      <p class="etape-subtitle">Tape sur un composant pour l'ajouter. Tape à nouveau pour le tourner ou le supprimer.</p>
+      <p class="etape-subtitle">Tape sur un composant pour l'ajouter. Glisse les extrémités des fils vers les bornes pour les connecter.</p>
     </div>
 
     <div class="objectif-box">
@@ -1295,9 +1300,11 @@
       </button>
     </div>
 
+    <!-- ✅ MESSAGE AU-DESSUS DU CANVAS -->
+    <div class="canvas-hint-top" id="canvasHint">👆 Tape sur un composant pour l'ajouter</div>
+
     <div class="canvas-montage">
       <canvas id="canvasMontage" width="900" height="600"></canvas>
-      <div class="canvas-hint" id="canvasHint">👆 Tape sur un composant pour l'ajouter</div>
     </div>
 
     <div class="montage-progress">
@@ -1345,9 +1352,10 @@
       </button>
     </div>
 
+    <div class="canvas-hint-top" id="canvasHintBranchement">📺 Pose l'oscilloscope puis branche ses voies</div>
+
     <div class="canvas-montage">
       <canvas id="canvasBranchement" width="900" height="600"></canvas>
-      <div class="canvas-hint" id="canvasHintBranchement">📺 Pose l'oscilloscope puis branche ses voies</div>
     </div>
 
     <div class="verif-message" id="verifBranchement"></div>
@@ -1739,7 +1747,7 @@
             <input type="text" class="exercice-input" id="exo3-rep" placeholder="Ta réponse (ex : 5 kΩ)">
             <button class="btn btn-primary" onclick="verifierExo3()">Vérifier</button>
           </div>
-          <div class="exercice-feedback" id="exo3fb"></div>
+          <div class="exercice-feedback" id="exo3-fb"></div>
         </div>
       </div>
     </div>
@@ -1869,18 +1877,17 @@ function allerEtape(n) {
 function debloquerEtape(n) { if (!etapesDebloquees.includes(n)) etapesDebloquees.push(n); }
 
 /* ============================================================ */
-/*  MONTAGE (ÉTAPE 2) — TAP-TAP au lieu de drag                  */
+/*  MONTAGE (ÉTAPE 2) — DRAG + TAP                               */
 /* ============================================================ */
 const canvas = document.getElementById('canvasMontage');
 const ctx = canvas.getContext('2d');
 const W = canvas.width, H = canvas.height;
 
 let montage = {
-  composants: [], fils: [], noeuds: [],
+  composants: [], fils: [],
   composantSelectionne: null, filSelectionne: null,
-  prochainIdComp: 1, prochainIdFil: 1, prochainIdNoeud: 1,
-  interrupteurFerme: false,
-  tapEnAttente: null
+  prochainIdComp: 1, prochainIdFil: 1,
+  interrupteurFerme: false
 };
 
 const TAILLE = {
@@ -1912,7 +1919,7 @@ function ajouterComposant(type) {
 function ajouterFil() {
   const nb = montage.fils.length;
   const x1 = 80 + (nb % 5) * 150;
-  const y1 = H - 60 - Math.floor(nb / 5) * 40;
+  const y1 = H - 80 - Math.floor(nb / 5) * 50;
   const fil = {
     id: 'f' + montage.prochainIdFil++,
     x1, y1, x2: x1 + 150, y2: y1,
@@ -1932,8 +1939,8 @@ function getBornes(comp) {
   const cos = Math.cos(angle), sin = Math.sin(angle);
   const L = t.w;
   return [
-    { id: comp.id + '-L', composantId: comp.id, x: comp.x + (-L/2)*cos - 0*sin, y: comp.y + (-L/2)*sin + 0*cos },
-    { id: comp.id + '-R', composantId: comp.id, x: comp.x + ( L/2)*cos - 0*sin, y: comp.y + ( L/2)*sin + 0*cos }
+    { id: comp.id + '-L', composantId: comp.id, x: comp.x + (-L/2)*cos, y: comp.y + (-L/2)*sin },
+    { id: comp.id + '-R', composantId: comp.id, x: comp.x + ( L/2)*cos, y: comp.y + ( L/2)*sin }
   ];
 }
 
@@ -1991,9 +1998,9 @@ function drawFil(fil) {
   ctx.beginPath(); ctx.moveTo(fil.x1, fil.y1); ctx.lineTo(fil.x2, fil.y2); ctx.stroke();
   ctx.shadowBlur = 0;
   ctx.fillStyle = fil.de ? '#4caf50' : '#888';
-  ctx.beginPath(); ctx.arc(fil.x1, fil.y1, 10, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(fil.x1, fil.y1, 12, 0, Math.PI*2); ctx.fill();
   ctx.fillStyle = fil.vers ? '#4caf50' : '#888';
-  ctx.beginPath(); ctx.arc(fil.x2, fil.y2, 10, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(fil.x2, fil.y2, 12, 0, Math.PI*2); ctx.fill();
 }
 
 function drawComposant(c) {
@@ -2110,16 +2117,8 @@ function getCanvasCoords(e) {
   };
 }
 
-/* Tap-tap : on sélectionne puis on place */
-/* ===== DRAG + TAP pour les fils et composants ===== */
-let dragState = {
-  type: null,      // 'fil-handle' | 'composant' | null
-  filId: null,
-  cote: null,      // 'A' ou 'B'
-  compId: null,
-  offsetX: 0,
-  offsetY: 0
-};
+/* ===== DRAG + TAP ===== */
+let dragState = { type: null, filId: null, cote: null, compId: null, offsetX: 0, offsetY: 0 };
 
 canvas.addEventListener('touchstart', (e) => {
   e.preventDefault();
@@ -2138,11 +2137,9 @@ canvas.addEventListener('touchend', (e) => {
   handleTouchEnd();
 });
 
-canvas.addEventListener('touchcancel', (e) => {
-  handleTouchEnd();
-});
+canvas.addEventListener('touchcancel', (e) => { handleTouchEnd(); });
 
-/* Souris (pour tester sur PC) */
+/* Souris pour tester sur PC */
 canvas.addEventListener('mousedown', (e) => {
   if (e.button !== 0) return;
   const p = getCanvasCoords(e);
@@ -2166,14 +2163,13 @@ canvas.addEventListener('mouseleave', () => {
 });
 
 function handleTouchStart(x, y) {
-  // 1. PRIORITÉ : poignée d'un fil (glisser pour brancher)
-  // On cherche le fil le plus proche et on regarde si on touche son extrémité
-  let filTrouve = null, coteTrouve = null, distanceMin = 45;
+  /* 1. Poignée de fil */
+  let filTrouve = null, coteTrouve = null, dMin = 45;
   for (const fil of montage.fils) {
     const dA = Math.hypot(fil.x1 - x, fil.y1 - y);
     const dB = Math.hypot(fil.x2 - x, fil.y2 - y);
-    if (dA < distanceMin) { distanceMin = dA; filTrouve = fil; coteTrouve = 'A'; }
-    if (dB < distanceMin) { distanceMin = dB; filTrouve = fil; coteTrouve = 'B'; }
+    if (dA < dMin) { dMin = dA; filTrouve = fil; coteTrouve = 'A'; }
+    if (dB < dMin) { dMin = dB; filTrouve = fil; coteTrouve = 'B'; }
   }
   if (filTrouve) {
     dragState.type = 'fil-handle';
@@ -2186,7 +2182,7 @@ function handleTouchStart(x, y) {
     return;
   }
 
-  // 2. Composant (glisser pour déplacer)
+  /* 2. Composant */
   const comp = trouverComposant(x, y);
   if (comp) {
     dragState.type = 'composant';
@@ -2200,7 +2196,7 @@ function handleTouchStart(x, y) {
     return;
   }
 
-  // 3. Sinon tap simple (sélection/désélection)
+  /* 3. Tap simple */
   handleTap(x, y);
 }
 
@@ -2208,7 +2204,6 @@ function handleTouchMove(x, y) {
   if (dragState.type === 'fil-handle') {
     const fil = montage.fils.find(f => f.id === dragState.filId);
     if (!fil) return;
-    // Snap à une borne proche (rayon 70px)
     const borne = trouverBorneProche(x, y, 70);
     let fx = Math.max(10, Math.min(W - 10, x));
     let fy = Math.max(10, Math.min(H - 10, y));
@@ -2216,8 +2211,7 @@ function handleTouchMove(x, y) {
     if (dragState.cote === 'A') { fil.x1 = fx; fil.y1 = fy; }
     else { fil.x2 = fx; fil.y2 = fy; }
     updateConnexionsFils();
-    drawMontage();
-    updateProgress();
+    drawMontage(); updateProgress();
     return;
   }
 
@@ -2233,12 +2227,12 @@ function handleTouchMove(x, y) {
 }
 
 function handleTouchEnd() {
-  const avaitDrag = dragState.type !== null;
+  const avait = dragState.type !== null;
   dragState.type = null;
   dragState.filId = null;
   dragState.cote = null;
   dragState.compId = null;
-  if (avaitDrag) {
+  if (avait) {
     updateConnexionsFils();
     updateProgress();
     drawMontage();
@@ -2256,28 +2250,21 @@ function trouverBorneProche(x, y, maxD) {
 }
 
 function handleTap(x, y) {
-  // 1. Tap sur un composant
   const comp = trouverComposant(x, y);
   if (comp) {
-    // Double-tap sur interrupteur = basculer
-    if (comp.type === 'interrupteur') {
-      if (montage.composantSelectionne === comp.id) {
-        montage.interrupteurFerme = !montage.interrupteurFerme;
-        montage.composantSelectionne = null;
-        jouerSon('connect');
-        drawMontage();
-        return;
-      }
+    if (comp.type === 'interrupteur' && montage.composantSelectionne === comp.id) {
+      montage.interrupteurFerme = !montage.interrupteurFerme;
+      montage.composantSelectionne = null;
+      jouerSon('connect');
+      drawMontage();
+      return;
     }
-    // Sinon, sélectionner
     montage.composantSelectionne = montage.composantSelectionne === comp.id ? null : comp.id;
     montage.filSelectionne = null;
     jouerSon('connect');
     drawMontage();
     return;
   }
-
-  // 2. Tap sur un fil
   const fil = trouverFil(x, y);
   if (fil) {
     montage.filSelectionne = montage.filSelectionne === fil.id ? null : fil.id;
@@ -2286,8 +2273,6 @@ function handleTap(x, y) {
     drawMontage();
     return;
   }
-
-  // 3. Tap dans le vide = désélectionner
   montage.composantSelectionne = null;
   montage.filSelectionne = null;
   drawMontage();
@@ -2337,10 +2322,24 @@ function updateProgress() {
 
 function updateCanvasHint() {
   const h = document.getElementById('canvasHint');
-  if (montage.composants.length === 0) h.textContent = '👆 Tape sur un composant pour l\'ajouter';
-  else if (montage.composants.length < 4) h.textContent = `👆 Encore ${4 - montage.composants.length} composant(s)`;
-  else if (montage.fils.filter(f => f.de && f.vers).length < 4) h.textContent = '🔗 Ajoute et connecte les fils';
-  else h.textContent = '✅ Vérifie ton montage en bas';
+  if (!h) return;
+  /* Réinitialiser le style */
+  h.style.background = 'rgba(79,195,247,0.12)';
+  h.style.color = '#0288d1';
+  h.style.borderColor = 'rgba(79,195,247,0.35)';
+
+  if (montage.composants.length === 0) {
+    h.textContent = '👆 Tape sur un composant pour l\'ajouter';
+  } else if (montage.composants.length < 4) {
+    h.textContent = `👆 Encore ${4 - montage.composants.length} composant(s)`;
+  } else if (montage.fils.filter(f => f.de && f.vers).length < 4) {
+    h.textContent = '🔗 Glisse les poignées des fils vers les bornes';
+  } else {
+    h.textContent = '✅ Montage prêt — vérifie en bas';
+    h.style.background = 'rgba(76,175,80,0.15)';
+    h.style.color = '#2e7d32';
+    h.style.borderColor = 'rgba(76,175,80,0.4)';
+  }
 }
 
 function effacerTout() {
@@ -2399,9 +2398,10 @@ let branchement = {
   composants: [], fils: [],
   oscilloscope: null, oscilloPlace: false,
   prochainIdFil: 100,
-  filSelectionne: null,
-  tapBorneEnAttente: null
+  filSelectionne: null
 };
+
+let dragStateB = { type: null, filId: null, cote: null, oscEnDrag: false, offsetX: 0, offsetY: 0 };
 
 function initialiserBranchement() {
   if (branchement.composants.length === 0) {
@@ -2427,7 +2427,7 @@ function ajouterFilBranchement() {
   if (!branchement.oscilloPlace) { alert('⚠️ Pose d\'abord l\'oscilloscope.'); return; }
   const nb = branchement.fils.length;
   const x1 = 80 + (nb % 5) * 150;
-  const y1 = HB - 60 - Math.floor(nb / 5) * 40;
+  const y1 = HB - 80 - Math.floor(nb / 5) * 50;
   const fil = {
     id: 'fb' + branchement.prochainIdFil++,
     x1, y1, x2: x1 + 150, y2: y1,
@@ -2510,9 +2510,9 @@ function drawFilB(fil) {
   ctxB.lineWidth = 5; ctxB.lineCap = 'round';
   ctxB.beginPath(); ctxB.moveTo(fil.x1, fil.y1); ctxB.lineTo(fil.x2, fil.y2); ctxB.stroke();
   ctxB.fillStyle = fil.de ? '#4caf50' : '#888';
-  ctxB.beginPath(); ctxB.arc(fil.x1, fil.y1, 10, 0, Math.PI*2); ctxB.fill();
+  ctxB.beginPath(); ctxB.arc(fil.x1, fil.y1, 12, 0, Math.PI*2); ctxB.fill();
   ctxB.fillStyle = fil.vers ? '#4caf50' : '#888';
-  ctxB.beginPath(); ctxB.arc(fil.x2, fil.y2, 10, 0, Math.PI*2); ctxB.fill();
+  ctxB.beginPath(); ctxB.arc(fil.x2, fil.y2, 12, 0, Math.PI*2); ctxB.fill();
 }
 
 function drawOscillo(o) {
@@ -2553,36 +2553,138 @@ function getCanvasCoordsB(e) {
 canvasB.addEventListener('touchstart', (e) => {
   e.preventDefault();
   const p = getCanvasCoordsB(e);
-  handleTapB(p.x, p.y);
+  handleTouchStartB(p.x, p.y);
 }, { passive: false });
+canvasB.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  const p = getCanvasCoordsB(e);
+  handleTouchMoveB(p.x, p.y);
+}, { passive: false });
+canvasB.addEventListener('touchend', (e) => { e.preventDefault(); handleTouchEndB(); });
 
-canvasB.addEventListener('click', (e) => {
-  if (e.pointerType === 'mouse') {
-    const p = getCanvasCoordsB(e);
-    handleTapB(p.x, p.y);
-  }
+canvasB.addEventListener('mousedown', (e) => {
+  if (e.button !== 0) return;
+  const p = getCanvasCoordsB(e);
+  handleTouchStartB(p.x, p.y);
+  canvasB._mouseDown = true;
+});
+canvasB.addEventListener('mousemove', (e) => {
+  if (!canvasB._mouseDown) return;
+  const p = getCanvasCoordsB(e);
+  handleTouchMoveB(p.x, p.y);
+});
+canvasB.addEventListener('mouseup', () => {
+  if (!canvasB._mouseDown) return;
+  canvasB._mouseDown = false;
+  handleTouchEndB();
 });
 
-function handleTapB(x, y) {
-  // Tap sur un fil
-  for (const f of branchement.fils) {
-    const d = distancePointSegment(x, y, f.x1, f.y1, f.x2, f.y2);
-    if (d < 25) {
-      branchement.filSelectionne = branchement.filSelectionne === f.id ? null : f.id;
-      drawBranchement();
-      return;
-    }
+function handleTouchStartB(x, y) {
+  /* Fil */
+  let filTrouve = null, coteTrouve = null, dMin = 45;
+  for (const fil of branchement.fils) {
+    const dA = Math.hypot(fil.x1 - x, fil.y1 - y);
+    const dB = Math.hypot(fil.x2 - x, fil.y2 - y);
+    if (dA < dMin) { dMin = dA; filTrouve = fil; coteTrouve = 'A'; }
+    if (dB < dMin) { dMin = dB; filTrouve = fil; coteTrouve = 'B'; }
   }
-  // Sinon désélectionner
+  if (filTrouve) {
+    dragStateB.type = 'fil-handle';
+    dragStateB.filId = filTrouve.id;
+    dragStateB.cote = coteTrouve;
+    branchement.filSelectionne = filTrouve.id;
+    jouerSon('connect');
+    drawBranchement();
+    return;
+  }
+
+  /* Oscilloscope (drag) */
+  const o = branchement.oscilloscope;
+  if (o && Math.abs(x - o.x) < o.w/2 + 10 && Math.abs(y - o.y) < o.h/2 + 10) {
+    dragStateB.type = 'osc';
+    dragStateB.offsetX = x - o.x;
+    dragStateB.offsetY = y - o.y;
+    jouerSon('connect');
+    return;
+  }
+
   branchement.filSelectionne = null;
   drawBranchement();
+}
+
+function handleTouchMoveB(x, y) {
+  if (dragStateB.type === 'fil-handle') {
+    const fil = branchement.fils.find(f => f.id === dragStateB.filId);
+    if (!fil) return;
+    const borne = trouverBorneProcheB(x, y, 70);
+    let fx = Math.max(10, Math.min(WB - 10, x));
+    let fy = Math.max(10, Math.min(HB - 10, y));
+    if (borne) { fx = borne.x; fy = borne.y; }
+    if (dragStateB.cote === 'A') { fil.x1 = fx; fil.y1 = fy; }
+    else { fil.x2 = fx; fil.y2 = fy; }
+    updateConnexionsFilsB();
+    drawBranchement();
+    return;
+  }
+
+  if (dragStateB.type === 'osc') {
+    const o = branchement.oscilloscope;
+    if (!o) return;
+    o.x = Math.max(o.w/2 + 20, Math.min(WB - o.w/2 - 20, x - dragStateB.offsetX));
+    o.y = Math.max(o.h/2 + 20, Math.min(HB - o.h/2 - 20, y - dragStateB.offsetY));
+    /* Les fils connectés suivent */
+    branchement.fils.forEach(fil => {
+      if (fil.de === 'osc-1' || fil.de === 'osc-2') {
+        const b = getBornesOscillo().find(b => b.id === fil.de);
+        if (b) { fil.x1 = b.x; fil.y1 = b.y; }
+      }
+      if (fil.vers === 'osc-1' || fil.vers === 'osc-2') {
+        const b = getBornesOscillo().find(b => b.id === fil.vers);
+        if (b) { fil.x2 = b.x; fil.y2 = b.y; }
+      }
+    });
+    drawBranchement();
+  }
+}
+
+function handleTouchEndB() {
+  const avait = dragStateB.type !== null;
+  dragStateB.type = null;
+  dragStateB.filId = null;
+  dragStateB.cote = null;
+  if (avait) {
+    updateConnexionsFilsB();
+    drawBranchement();
+    updateHintBranchement();
+  }
+}
+
+function trouverBorneProcheB(x, y, maxD) {
+  let meilleur = null, minD = maxD;
+  getToutesLesBornesB().forEach(b => {
+    const d = Math.hypot(b.x - x, b.y - y);
+    if (d < minD) { minD = d; meilleur = b; }
+  });
+  return meilleur;
 }
 
 function updateHintBranchement() {
   const h = document.getElementById('canvasHintBranchement');
   if (!h) return;
-  if (!branchement.oscilloPlace) h.textContent = '📺 Pose l\'oscilloscope';
-  else h.textContent = '🔗 Ajoute et connecte les fils, puis vérifie';
+  h.style.background = 'rgba(79,195,247,0.12)';
+  h.style.color = '#0288d1';
+  h.style.borderColor = 'rgba(79,195,247,0.35)';
+
+  if (!branchement.oscilloPlace) {
+    h.textContent = '📺 Pose l\'oscilloscope avec le bouton ci-dessus';
+  } else if (branchement.fils.filter(f => f.de && f.vers).length < 2) {
+    h.textContent = '🔗 Glisse les fils vers les bornes de l\'oscilloscope et du condensateur';
+  } else {
+    h.textContent = '✅ Branchement effectué — clique sur Vérifier';
+    h.style.background = 'rgba(76,175,80,0.15)';
+    h.style.color = '#2e7d32';
+    h.style.borderColor = 'rgba(76,175,80,0.4)';
+  }
 }
 
 function verifierBranchement() {
@@ -2642,7 +2744,6 @@ function changerSousOnglet(nom) {
   if (nom === 'recap') setTimeout(() => { drawRecapCourbe(); initRecapEditable(); }, 50);
 }
 
-/* Récap */
 let courbesComparaison = [];
 
 function initRecapEditable() {
@@ -2686,7 +2787,6 @@ function drawRecapCourbe() {
   ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
   ctx2.stroke();
 
-  // Courbe principale
   const R = parseFloat(document.getElementById('inputR').value) || 1000;
   const C = parseFloat(document.getElementById('inputC').value) || 100;
   const T = R * C * 1e-6;
@@ -2702,7 +2802,6 @@ function drawRecapCourbe() {
   }
   ctx2.stroke(); ctx2.shadowBlur = 0;
 
-  // Courbes comparaison
   courbesComparaison.forEach(({ R: Rc, C: Cc, couleur }) => {
     const Tc = Rc * Cc * 1e-6;
     ctx2.strokeStyle = couleur; ctx2.lineWidth = 2; ctx2.setLineDash([5, 4]);
@@ -2739,7 +2838,6 @@ function reinitialiserComparaison() {
   drawRecapCourbe();
 }
 
-/* Courbes Charge/Décharge */
 function initCourbesVides() {
   ['courbeCharge', 'courbeDecharge'].forEach(id => {
     const c = document.getElementById(id);
@@ -2791,9 +2889,8 @@ function animerCourbe(type) {
   const T = 0.1, E = 9;
   const c1 = document.getElementById('courbeCharge');
   const c2 = document.getElementById('courbeDecharge');
-  if (type === 'charge') initCourbesVides();
-  if (type === 'decharge') initCourbesVides();
-  if (type === 'cycle') { initCourbesVides(); }
+  if (type === 'charge' || type === 'cycle') initCourbesVides();
+  if (type === 'decharge' || type === 'cycle') initCourbesVides();
 
   const tMax = 0.5;
   const start = performance.now();
@@ -2802,12 +2899,12 @@ function animerCourbe(type) {
     const elapsed = (now - start) / 1000;
     let t = elapsed * 0.3;
     if (t > tMax) t = tMax;
-    if (type === 'charge' || type === 'cycle') {
-      if (type === 'cycle' && elapsed > 2) t = tMax;
-      animerCourbeProgression('courbeCharge', 'charge', t, T, E);
+    if (type === 'charge' || (type === 'cycle' && elapsed <= 2)) {
+      animerCourbeProgression('courbeCharge', 'charge', Math.min(t, tMax), T, E);
     }
     if (type === 'decharge' || (type === 'cycle' && elapsed > 2)) {
-      animerCourbeProgression('courbeDecharge', 'decharge', type === 'cycle' ? Math.min(elapsed - 2, 0.5) * 0.3 : t, T, E);
+      const td = type === 'cycle' ? Math.min((elapsed - 2) * 0.3, tMax) : t;
+      animerCourbeProgression('courbeDecharge', 'decharge', td, T, E);
     }
     if (elapsed < (type === 'cycle' ? 4 : 2)) animRAF = requestAnimationFrame(anim);
   }
@@ -2839,7 +2936,6 @@ function animerCourbeProgression(canvasId, type, t, T, E) {
   ctx2.stroke(); ctx2.shadowBlur = 0;
 }
 
-/* Applications */
 function voirAnimationAppli(type) {
   const zone = document.getElementById('canvas-' + type);
   if (!zone) return;
@@ -2902,7 +2998,6 @@ function drawAppli(c, type, elapsed) {
   ctx2.stroke(); ctx2.shadowBlur = 0;
 }
 
-/* QCM */
 let qcmRep = { 1: null, 2: null, 3: null };
 let qcmVal = { 1: false, 2: false, 3: false };
 
@@ -2952,7 +3047,6 @@ function validerQCM(num) {
   }
 }
 
-/* Conclusion */
 const STORAGE_KEY = 'tp_rc_mobile_conclusion';
 
 function majProgression() {
@@ -2964,7 +3058,6 @@ function majProgression() {
   const pct = n / 5 * 100;
   document.getElementById('progressRemplissage').style.width = pct + '%';
   document.getElementById('progressTexte').textContent = n + '/5';
-  // Sauvegarde
   const data = {};
   for (let i = 1; i <= 5; i++) {
     const el = document.getElementById('concl-' + i);
@@ -2978,7 +3071,6 @@ function majProgression() {
   if (el) { el.addEventListener('input', majProgression); el.addEventListener('change', majProgression); }
 });
 
-// Charger
 try {
   const d = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
   for (let i = 1; i <= 5; i++) {
@@ -3155,7 +3247,6 @@ function genererCertificat() {
   jouerSon('jingle');
 }
 
-/* Exercices */
 function verifierExo1() {
   const r = document.getElementById('exo1-rep').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, '');
   const ok = ['100ms', '0.1s', '0,1s', '100'].some(x => r === x);
@@ -3189,7 +3280,6 @@ function verifierExo3() {
   if (ok) jouerSon('valide'); else jouerSon('erreur');
 }
 
-/* INIT */
 window.addEventListener('load', () => {
   allerEtape(2);
   drawMontage();
