@@ -299,6 +299,19 @@
   .modal-content code { background: #f9f7f2; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 13px; color: var(--brass); }
   .modal-btn { margin-top: 18px; padding: 10px 20px; background: var(--brass); color: #fff; border: none; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
 </style>
+<!-- 📱 Redirection automatique vers la version mobile -->
+<script>
+  (function() {
+    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent)
+                     || window.innerWidth < 768;
+    const alreadyRedirected = sessionStorage.getItem('mobile_redirected_rc');
+    
+    if (isMobile && !alreadyRedirected) {
+      sessionStorage.setItem('mobile_redirected_rc', '1');
+      window.location.replace('simulateur-rc-mobile.html');
+    }
+  })();
+</script>
 </head>
 <body>
 
