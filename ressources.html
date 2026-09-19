@@ -414,6 +414,9 @@
             }
             profile = snap.data();
 
+                // ✅ AFFICHER le menu déroulant "Laboratoire" du ruban (utilisateur connecté)
+                document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'block');
+
             if ((profile.role === 'professeur' || profile.role === 'intendant') && profile.statut === 'en_attente') {
                 contentArea.innerHTML = `<p style="text-align:center; padding:60px 20px; color:var(--slate);">⏳ Votre compte est en attente de validation.</p>`;
                 const userProfile = document.getElementById('user-profile');
@@ -528,6 +531,9 @@
         }
     } else {
         profile = null;
+
+        // ✅ CACHER le menu déroulant "Laboratoire" du ruban (visiteur non connecté)
+        document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'none');
         const searchBar2 = document.getElementById('search-bar');
         if (searchBar2) searchBar2.style.display = "none";
         
