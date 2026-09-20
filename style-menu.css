@@ -1,5 +1,5 @@
 /* ============================================================ */
-/*  🎨 NAVIGATION — Corrections de symétrie du ruban             */
+/*  🎨 NAVIGATION — Desktop (inchangé)                            */
 /* ============================================================ */
 
 .nav-row {
@@ -237,24 +237,25 @@ nav ul {
 }
 
 /* ============================================================ */
-/*  RESPONSIVE — MENU MOBILE : ☰ · TEXTE · LOGO                   */
+/*  RESPONSIVE — MENU MOBILE : ☰ · TEXTE CENTRÉ · LOGO            */
 /* ============================================================ */
 @media (max-width: 1024px) {
 
+  /* ===== CONTENEUR DU RUBAN ===== */
   .nav-row {
-    padding: 0 10px;
+    padding: 0 8px;
     gap: 4px;
     justify-content: space-between;
     align-items: center;
-    position: relative;
+    height: 84px;
   }
 
-  /* ===== 1. BURGER À GAUCHE ===== */
+  /* ===== 1. BURGER À GAUCHE (largeur fixe) ===== */
   .menu-toggle {
     order: 1;
     display: block;
     font-size: 24px;
-    padding: 6px 8px;
+    padding: 4px 8px;
     color: var(--ink, #1B2A4A);
     cursor: pointer;
     flex-shrink: 0;
@@ -262,71 +263,62 @@ nav ul {
     border: none;
     line-height: 1;
     margin: 0;
+    width: 44px;
+    text-align: center;
   }
 
-  /* ===== 2. TEXTE CENTRÉ ===== */
+  /* ===== 2. TEXTE CENTRÉ (prend tout l'espace entre burger et logo) ===== */
   .brand {
     order: 2;
     flex: 1;
     min-width: 0;
     display: flex;
     align-items: center;
-    justify-content: center;   /* ⬅️ CENTRAGE HORIZONTAL */
-    padding: 0 6px;
+    justify-content: center;
+    padding: 0 4px;
     overflow: hidden;
-    text-align: center;
+    max-width: none;
   }
 
-  /* Cache le logo qui est DANS le brand (l'ancien) */
-  .brand .brand-mark {
-    display: none;
-  }
-
-  /* Le conteneur texte prend tout l'espace */
   .brand > div:not(.brand-mark) {
     flex: 1;
     min-width: 0;
     overflow: hidden;
-    text-align: center;         /* ⬅️ CENTRAGE DU TEXTE */
+    text-align: center;
   }
 
-  /* ===== TEXTE CENTRÉ ===== */
+  /* ⚠️ Le texte s'adapte automatiquement sur 2 ou 3 lignes */
   .brand-name {
     font-family: var(--serif, 'Source Serif 4', Georgia, serif);
     font-weight: 700;
     font-size: 13px;
     color: var(--ink, #1B2A4A);
     line-height: 1.15;
-    text-align: center;         /* ⬅️ CENTRÉ */
+    text-align: center;
     white-space: normal;
-    word-break: break-word;
+    word-break: normal;
+    overflow-wrap: break-word;
     display: block;
-    max-height: 2.4em;
     overflow: hidden;
-  }
-
-  /* Neutralise les <br> pour laisser le texte se couper naturellement */
-  .brand-name br {
-    display: none;
   }
 
   .brand-tag {
     font-size: 9.5px;
     color: var(--slate, #5B6472);
-    text-align: center;         /* ⬅️ CENTRÉ */
+    text-align: center;
     white-space: nowrap;
-    margin-top: 1px;
+    margin-top: 2px;
     line-height: 1.1;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  /* ===== 3. LOGO À DROITE ===== */
+  /* ===== 3. LOGO À DROITE (largeur fixe = équilibre parfait) ===== */
   .nav-row > .brand-mark {
     order: 3;
     display: flex;
-    width: 42px;
-    height: 38px;
+    width: 44px;
+    height: 42px;
     flex-shrink: 0;
     align-items: center;
     justify-content: center;
@@ -458,80 +450,22 @@ nav ul {
 }
 
 /* ============================================================ */
-/*  Petit mobile (< 360px)                                        */
+/*  Petit mobile (< 380px) — Texte légèrement plus compact        */
 /* ============================================================ */
-@media (max-width: 360px) {
-  .nav-row {
-    padding: 0 6px;
-    gap: 2px;
+@media (max-width: 380px) {
+  .brand-name {
+    font-size: 12px;
+  }
+  .brand-tag {
+    font-size: 9px;
   }
   .menu-toggle {
     font-size: 22px;
-    padding: 4px 6px;
+    width: 40px;
   }
   .nav-row > .brand-mark {
-    width: 36px;
-    height: 32px;
-  }
-  .brand-name {
-    font-size: 11.5px;
-  }
-  .brand-tag {
-    font-size: 8.5px;
-  }
-}
-
-/* ============================================================ */
-/*  MOBILE ÉTROIT (< 480px) — texte encore plus compact           */
-/* ============================================================ */
-@media (max-width: 480px) {
-  .nav-row {
-    padding: 0 8px;
-    gap: 4px;
-  }
-  .menu-toggle {
-    font-size: 22px;
-    padding: 4px 6px;
-  }
-  .brand {
-    gap: 4px;
-    max-width: calc(100vw - 50px);
-  }
-  .brand-mark {
-    width: 34px;
-    height: 30px;
-  }
-  .brand-name {
-    font-size: 10.5px;
-    line-height: 1.1;
-    max-height: 2.4em;
-  }
-  .brand-tag {
-    font-size: 8px;
-  }
-}
-
-/* ============================================================ */
-/*  TRÈS PETIT MOBILE (< 360px)                                   */
-/* ============================================================ */
-@media (max-width: 360px) {
-  .nav-row {
-    padding: 0 6px;
-  }
-  .menu-toggle {
-    font-size: 20px;
-    padding: 3px 5px;
-  }
-  .brand-mark {
-    width: 28px;
-    height: 26px;
-  }
-  .brand-name {
-    font-size: 9.5px;
-    max-height: 2.2em;
-  }
-  .brand-tag {
-    font-size: 7.5px;
+    width: 40px;
+    height: 38px;
   }
 }
 
