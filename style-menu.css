@@ -165,7 +165,6 @@ nav a:hover {
 
 /* ============================================================ */
 /*  🔬 MENU DÉROULANT LABORATOIRE                                 */
-/*  ⚠️ Caché par défaut : affiché uniquement si connecté (JS)     */
 /* ============================================================ */
 .labo-item {
   display: none;
@@ -265,6 +264,8 @@ nav ul {
     margin: 0;
     width: 44px;
     text-align: left;
+    z-index: 10000;
+    position: relative;
   }
 
   /* ===== 2. TEXTE CENTRÉ ===== */
@@ -329,10 +330,15 @@ nav ul {
     object-fit: contain;
   }
 
-  /* ===== 4. NAV ===== */
+  /* ===== 4. NAV — REPLACÉ PAR UN TIROIR SIMPLE ===== */
   nav {
     order: 4;
     flex: 0;
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    pointer-events: auto;
   }
 
   /* ===== TIROIR LATÉRAL GAUCHE ===== */
@@ -358,8 +364,10 @@ nav ul {
     max-height: calc(100vh - 84px);
     overflow-y: auto;
     overflow-x: hidden;
-    z-index: 9999;
+    z-index: 99999;
+    pointer-events: auto;
   }
+
   nav ul.show {
     display: flex;
   }
@@ -457,21 +465,6 @@ nav ul {
     margin: 0 !important;
     padding: 0 16px !important;
     box-sizing: border-box !important;
-  }
-
-  /* Le nav ne prend AUCUNE place, mais reste cliquable */
-header nav {
-  position: absolute !important;
-  width: 0 !important;
-  height: 0 !important;
-  flex: 0 0 0 !important;
-  overflow: visible !important;
-  pointer-events: auto !important;    /* ← CHANGÉ : était "none" */
-}
-
-  /* Le tiroir reste cliquable */
-  header nav ul {
-    pointer-events: auto !important;
   }
 
   header .brand {
