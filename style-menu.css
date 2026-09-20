@@ -240,67 +240,96 @@ nav ul {
 /*  RESPONSIVE — MENU BURGER + TIROIR LATÉRAL DROIT               */
 /* ============================================================ */
 @media (max-width: 1024px) {
+
+  /* ===== CONTENEUR DU RUBAN ===== */
   .nav-row {
-    padding: 0 15px;
-    gap: 10px;
-    justify-content: space-between;
+    padding: 0 12px;
+    gap: 8px;
+    justify-content: flex-start;
+    align-items: center;
   }
 
-  /* Logo + nom à gauche */
-  .brand {
-    order: 1;
-    flex: 1;
-    min-width: 0;
-    max-width: calc(100vw - 100px);
-    overflow: hidden;
-  }
-  .brand-name {
-    font-size: 12px;
-  }
-  .brand-tag {
-    font-size: 9px;
-  }
-
-  /* Burger à droite, séparé du texte */
+  /* ===== 1. BURGER (À GAUCHE) ===== */
   .menu-toggle {
-    order: 2;
+    order: 1;
     display: block;
-    font-size: 28px;
-    padding: 4px 12px;
-    margin-left: 12px;
+    font-size: 26px;
+    padding: 6px 10px;
     color: var(--ink, #1B2A4A);
     cursor: pointer;
     flex-shrink: 0;
     background: none;
     border: none;
     line-height: 1;
+    margin: 0;
   }
 
+  /* ===== 2. BRAND : TEXTE PUIS LOGO ===== */
+  .brand {
+    order: 2;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+    max-width: calc(100vw - 60px);
+  }
+
+  /* Le contenu texte passe AVANT le logo */
+  .brand > div:not(.brand-mark) {
+    order: 1;
+    min-width: 0;
+  }
+
+  /* Le logo passe APRÈS le texte */
+  .brand-mark {
+    order: 2;
+    width: 44px;
+    height: 38px;
+    flex-shrink: 0;
+  }
+
+  .brand-name {
+    font-size: 12px;
+    text-align: left;
+    white-space: normal;
+    line-height: 1.2;
+  }
+
+  .brand-tag {
+    font-size: 9px;
+    text-align: left;
+    white-space: nowrap;
+    margin-top: 1px;
+  }
+
+  /* ===== 3. NAV (MENU DÉROULANT, CACHÉ) ===== */
   nav {
     order: 3;
     flex: 0;
     justify-content: flex-end;
   }
 
-  /* Tiroir latéral droit */
+  /* ===== TIROIR LATÉRAL GAUCHE ===== */
   nav ul {
     display: none;
     flex-direction: column;
     position: fixed;
     top: 84px;
-    right: 0;
-    left: auto;
+    left: 0;
+    right: auto;
     width: 300px;
     max-width: calc(100vw - 60px);
     box-sizing: border-box;
     background: #fff;
     padding: 15px 18px;
     border-bottom: none;
-    border-left: 2px solid var(--line, rgba(27,42,74,0.14));
-    border-bottom-left-radius: 12px;
+    border-right: 2px solid var(--line, rgba(27,42,74,0.14));
+    border-bottom-right-radius: 12px;
     gap: 8px;
     text-align: left;
-    box-shadow: -8px 12px 25px rgba(0,0,0,0.15);
+    box-shadow: 8px 12px 25px rgba(0,0,0,0.15);
     margin: 0;
     max-height: calc(100vh - 84px);
     overflow-y: auto;
