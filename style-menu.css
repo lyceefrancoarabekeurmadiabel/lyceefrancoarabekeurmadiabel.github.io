@@ -1,5 +1,5 @@
 /* ============================================================ */
-/*  🎨 NAVIGATION — Desktop (inchangé)                            */
+/*  🎨 NAVIGATION — Desktop                                       */
 /* ============================================================ */
 
 .nav-row {
@@ -240,7 +240,6 @@ nav ul {
 /* ============================================================ */
 @media (max-width: 1024px) {
 
-  /* ===== CONTENEUR : SYMÉTRIE STRICTE 16px / 16px ===== */
   .nav-row {
     padding: 0 16px;
     gap: 0;
@@ -330,15 +329,10 @@ nav ul {
     object-fit: contain;
   }
 
-  /* ===== 4. NAV — REPLACÉ PAR UN TIROIR SIMPLE ===== */
+  /* ===== 4. NAV ===== */
   nav {
     order: 4;
     flex: 0;
-    position: static;
-    width: auto;
-    height: auto;
-    overflow: visible;
-    pointer-events: auto;
   }
 
   /* ===== TIROIR LATÉRAL GAUCHE ===== */
@@ -365,9 +359,7 @@ nav ul {
     overflow-y: auto;
     overflow-x: hidden;
     z-index: 99999;
-    pointer-events: auto;
   }
-
   nav ul.show {
     display: flex;
   }
@@ -456,7 +448,7 @@ nav ul {
 }
 
 /* ============================================================ */
-/*  FORCE L'OVERRIDE DES STYLES INLINE de index.html              */
+/*  ✅ FORCE L'OVERRIDE — LE NAV GARDE SA PLACE MAIS RESTE CLiquable */
 /* ============================================================ */
 @media (max-width: 1024px) {
   header .wrap.nav-row {
@@ -465,6 +457,20 @@ nav ul {
     margin: 0 !important;
     padding: 0 16px !important;
     box-sizing: border-box !important;
+  }
+
+  /* ✅ CORRECTION : pointer-events: auto au lieu de "none" */
+  header nav {
+    position: absolute !important;
+    width: 0 !important;
+    height: 0 !important;
+    flex: 0 0 0 !important;
+    overflow: visible !important;
+    pointer-events: auto !important;
+  }
+
+  header nav ul {
+    pointer-events: auto !important;
   }
 
   header .brand {
@@ -487,7 +493,7 @@ nav ul {
 }
 
 /* ============================================================ */
-/*  Petit mobile (< 380px) — Ajustement taille                    */
+/*  Petit mobile (< 380px)                                        */
 /* ============================================================ */
 @media (max-width: 380px) {
   .brand-name {
