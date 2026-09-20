@@ -248,10 +248,9 @@ nav ul {
     justify-content: space-between;
     align-items: center;
     height: 84px;
-    max-width: 100%;
   }
 
-  /* ===== 1. BURGER À GAUCHE (16px du bord) ===== */
+  /* ===== 1. BURGER À GAUCHE ===== */
   .menu-toggle {
     order: 1;
     display: block;
@@ -273,7 +272,6 @@ nav ul {
     order: 2;
     flex: 1;
     min-width: 0;
-    width: auto;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -299,7 +297,6 @@ nav ul {
     overflow-wrap: break-word;
     display: block;
     overflow: hidden;
-    width: 100%;
   }
 
   .brand-tag {
@@ -313,7 +310,7 @@ nav ul {
     text-overflow: ellipsis;
   }
 
-  /* ===== 3. LOGO À DROITE (16px du bord) ===== */
+  /* ===== 3. LOGO À DROITE ===== */
   .nav-row > .brand-mark {
     order: 3;
     display: flex;
@@ -452,23 +449,31 @@ nav ul {
 
 /* ============================================================ */
 /*  FORCE L'OVERRIDE DES STYLES INLINE de index.html              */
-/*  (car index.html a un <style> qui redéfinit .brand)            */
+/*  (index.html a un <style> qui redéfinit .brand et .wrap)       */
 /* ============================================================ */
 @media (max-width: 1024px) {
-  .nav-row {
+  /* Neutralise le .wrap (max-width: 1100px + margin auto) 
+     UNIQUEMENT sur le header pour que la barre prenne toute la largeur */
+  header .wrap.nav-row {
     max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
     padding: 0 16px !important;
+    box-sizing: border-box !important;
   }
+
   .brand {
     width: auto !important;
     flex: 1 !important;
     min-width: 0 !important;
     max-width: none !important;
   }
+
   .brand-mark {
     width: 44px !important;
     height: 42px !important;
   }
+
   .nav-row > .brand-mark {
     margin-left: auto !important;
     margin-right: 0 !important;
