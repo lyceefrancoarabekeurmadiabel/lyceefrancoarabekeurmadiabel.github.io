@@ -248,6 +248,7 @@ nav ul {
     justify-content: space-between;
     align-items: center;
     height: 84px;
+    max-width: 100%;
   }
 
   /* ===== 1. BURGER À GAUCHE (16px du bord) ===== */
@@ -267,11 +268,12 @@ nav ul {
     text-align: left;
   }
 
-  /* ===== 2. TEXTE CENTRÉ (prend tout l'espace entre burger et logo) ===== */
+  /* ===== 2. TEXTE CENTRÉ ===== */
   .brand {
     order: 2;
     flex: 1;
     min-width: 0;
+    width: auto;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -297,6 +299,7 @@ nav ul {
     overflow-wrap: break-word;
     display: block;
     overflow: hidden;
+    width: 100%;
   }
 
   .brand-tag {
@@ -329,7 +332,7 @@ nav ul {
     object-fit: contain;
   }
 
-  /* ===== 4. NAV (caché, sert de tiroir) ===== */
+  /* ===== 4. NAV ===== */
   nav {
     order: 4;
     flex: 0;
@@ -448,42 +451,47 @@ nav ul {
 }
 
 /* ============================================================ */
-/*  Petit mobile (< 380px) — Ajustement taille                    */
+/*  FORCE L'OVERRIDE DES STYLES INLINE de index.html              */
+/*  (car index.html a un <style> qui redéfinit .brand)            */
 /* ============================================================ */
-@media (max-width: 380px) {
-  .brand-name {
-    font-size: 12px;
+@media (max-width: 1024px) {
+  .nav-row {
+    max-width: 100% !important;
+    padding: 0 16px !important;
   }
-  .brand-tag {
-    font-size: 9px;
+  .brand {
+    width: auto !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+    max-width: none !important;
   }
-  .menu-toggle {
-    font-size: 22px;
-    width: 40px;
+  .brand-mark {
+    width: 44px !important;
+    height: 42px !important;
   }
   .nav-row > .brand-mark {
-    width: 40px;
-    height: 38px;
+    margin-left: auto !important;
+    margin-right: 0 !important;
   }
 }
 
 /* ============================================================ */
-/*  Petit mobile (< 380px) — Texte légèrement plus compact        */
+/*  Petit mobile (< 380px) — Ajustement taille                    */
 /* ============================================================ */
 @media (max-width: 380px) {
   .brand-name {
-    font-size: 12px;
+    font-size: 12px !important;
   }
   .brand-tag {
-    font-size: 9px;
+    font-size: 9px !important;
   }
   .menu-toggle {
     font-size: 22px;
     width: 40px;
   }
   .nav-row > .brand-mark {
-    width: 40px;
-    height: 38px;
+    width: 40px !important;
+    height: 38px !important;
   }
 }
 
