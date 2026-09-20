@@ -224,8 +224,8 @@ nav ul { z-index: 1000; }
   header #burger-btn {
     order: 1 !important;
     display: block !important;
-    flex: 0 0 44px !important;
-    width: 44px !important;
+    flex: 0 0 40px !important;
+    width: 40px !important;
     height: 44px !important;
     font-size: 26px !important;
     line-height: 1 !important;
@@ -240,18 +240,8 @@ nav ul { z-index: 1000; }
     z-index: 10000 !important;
   }
 
-  /* ===== ESPACE FANTÔME À DROITE DU HEADER ===== */
-  /* Symétrique du burger pour un centrage parfait */
-  header .nav-row::after {
-    content: '' !important;
-    display: block !important;
-    flex: 0 0 44px !important;
-    width: 44px !important;
-    height: 1px !important;
-    order: 99 !important;
-  }
-
-  /* ===== 2. BLOC CENTRAL (logo + texte) — GROUPÉ AU CENTRE ===== */
+  /* ===== 2. BLOC CENTRAL (logo + texte) ===== */
+  /* Le bloc prend TOUT l'espace restant */
   header .brand {
     order: 2 !important;
     flex: 1 1 auto !important;
@@ -262,18 +252,18 @@ nav ul { z-index: 1000; }
     align-items: center !important;
     justify-content: center !important;
     gap: 8px !important;
-    padding: 0 8px !important;
+    padding: 0 4px !important;
     overflow: hidden !important;
     text-decoration: none !important;
   }
 
-  /* Le LOGO dans .brand — juste à gauche du texte */
+  /* Le LOGO dans .brand — à gauche du texte */
   header .brand > .brand-mark,
   header .brand .brand-mark {
     order: 1 !important;
-    flex: 0 0 38px !important;
-    width: 38px !important;
-    height: 36px !important;
+    flex: 0 0 36px !important;
+    width: 36px !important;
+    height: 34px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -290,7 +280,7 @@ nav ul { z-index: 1000; }
   /* Le bloc TEXTE dans .brand — centré */
   header .brand > div:not(.brand-mark) {
     order: 2 !important;
-    flex: 0 1 auto !important;
+    flex: 1 1 auto !important;
     min-width: 0 !important;
     overflow: hidden !important;
     text-align: center !important;
@@ -300,23 +290,24 @@ nav ul { z-index: 1000; }
     justify-content: center !important;
   }
 
+  /* ✅ TEXTE : s'adapte à l'écran, peut passer sur 2-3 lignes */
   header .brand .brand-name {
     font-family: var(--serif, 'Source Serif 4', Georgia, serif) !important;
     font-weight: 700 !important;
-    font-size: 13px !important;
+    font-size: clamp(11px, 3.4vw, 14px) !important;
     color: var(--ink, #1B2A4A) !important;
     line-height: 1.15 !important;
     text-align: center !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    white-space: normal !important;      /* ← AUTORISE le retour à la ligne */
+    overflow-wrap: break-word !important;
     display: block !important;
     margin: 0 !important;
     padding: 0 !important;
+    width: 100% !important;
   }
 
   header .brand .brand-tag {
-    font-size: 9.5px !important;
+    font-size: clamp(9px, 2.5vw, 10.5px) !important;
     color: var(--slate, #5B6472) !important;
     text-align: center !important;
     white-space: nowrap !important;
@@ -509,14 +500,54 @@ nav ul { z-index: 1000; }
 }
 
 /* ============================================================ */
-/*  Petit mobile (< 380px)                                        */
+/*  📱 Très petits écrans (< 380px) — Texte sur 2-3 lignes        */
 /* ============================================================ */
 @media (max-width: 380px) {
-  header .brand .brand-name { font-size: 11px !important; }
-  header .brand .brand-tag { font-size: 9px !important; }
-  header .menu-toggle, header #burger-btn { font-size: 24px !important; width: 40px !important; flex: 0 0 40px !important; }
-  header .brand > .brand-mark, header .nav-row > .brand-mark { width: 32px !important; height: 30px !important; flex: 0 0 32px !important; }
-  header .nav-row::after { flex: 0 0 40px !important; width: 40px !important; }
+  header .brand .brand-name {
+    font-size: 11px !important;
+    line-height: 1.15 !important;
+    white-space: normal !important;
+  }
+  header .brand .brand-tag {
+    font-size: 9px !important;
+  }
+  header .menu-toggle,
+  header #burger-btn {
+    font-size: 24px !important;
+    width: 36px !important;
+    flex: 0 0 36px !important;
+  }
+  header .brand > .brand-mark,
+  header .nav-row > .brand-mark {
+    width: 32px !important;
+    height: 30px !important;
+    flex: 0 0 32px !important;
+  }
+}
+
+/* ============================================================ */
+/*  📱 Très très petits écrans (< 320px)                          */
+/* ============================================================ */
+@media (max-width: 320px) {
+  header .brand .brand-name {
+    font-size: 10px !important;
+    line-height: 1.1 !important;
+  }
+  header .brand .brand-tag {
+    font-size: 8.5px !important;
+  }
+  header .menu-toggle,
+  header #burger-btn {
+    font-size: 22px !important;
+    width: 32px !important;
+    flex: 0 0 32px !important;
+  }
+  header .brand > .brand-mark,
+  header .nav-row > .brand-mark {
+    width: 28px !important;
+    height: 26px !important;
+    flex: 0 0 28px !important;
+  }
 }
 
 /* ============================================================ */
