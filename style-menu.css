@@ -241,20 +241,20 @@ nav ul {
 /* ============================================================ */
 @media (max-width: 1024px) {
 
-  /* ===== CONTENEUR DU RUBAN ===== */
   .nav-row {
-    padding: 0 12px;
-    gap: 8px;
+    padding: 0 10px;
+    gap: 6px;
     justify-content: flex-start;
     align-items: center;
+    height: 100%;
   }
 
-  /* ===== 1. BURGER (À GAUCHE) ===== */
+  /* ===== 1. BURGER ===== */
   .menu-toggle {
     order: 1;
     display: block;
-    font-size: 26px;
-    padding: 6px 10px;
+    font-size: 24px;
+    padding: 4px 8px;
     color: var(--ink, #1B2A4A);
     cursor: pointer;
     flex-shrink: 0;
@@ -264,47 +264,72 @@ nav ul {
     margin: 0;
   }
 
-  /* ===== 2. BRAND : TEXTE PUIS LOGO ===== */
+  /* ===== 2. BRAND : TEXTE + LOGO ===== */
   .brand {
     order: 2;
     flex: 1;
     min-width: 0;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     overflow: hidden;
     max-width: calc(100vw - 60px);
   }
 
-  /* Le contenu texte passe AVANT le logo */
+  /* Conteneur du texte (tout sauf le logo) */
   .brand > div:not(.brand-mark) {
     order: 1;
     min-width: 0;
+    flex: 1;
+    overflow: hidden;
   }
 
-  /* Le logo passe APRÈS le texte */
+  /* Logo à droite */
   .brand-mark {
     order: 2;
-    width: 44px;
-    height: 38px;
+    width: 40px;
+    height: 36px;
     flex-shrink: 0;
   }
 
+  /* ===== TEXTE : gestion du <br> ===== */
   .brand-name {
+    font-family: var(--serif, 'Source Serif 4', Georgia, serif);
+    font-weight: 700;
     font-size: 12px;
+    color: var(--ink, #1B2A4A);
+    line-height: 1.15;
     text-align: left;
     white-space: normal;
-    line-height: 1.2;
+    word-break: break-word;
+    /* Cache les <br> et force un retour à la ligne automatique */
+    display: block;
+    max-height: 2.6em;
+    overflow: hidden;
+  }
+
+  /* Neutralise les <br> pour laisser le texte se couper naturellement */
+  .brand-name br {
+    display: none;
+  }
+
+  .brand-name::after {
+    content: '';
+    display: inline;
   }
 
   .brand-tag {
     font-size: 9px;
+    color: var(--slate, #5B6472);
     text-align: left;
     white-space: nowrap;
     margin-top: 1px;
+    line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  /* ===== 3. NAV (MENU DÉROULANT, CACHÉ) ===== */
+  /* ===== 3. NAV ===== */
   nav {
     order: 3;
     flex: 0;
@@ -420,6 +445,60 @@ nav ul {
   .labo-dropdown a:hover,
   .optique-dropdown a:hover {
     background: #f0f0f0;
+  }
+}
+
+/* ============================================================ */
+/*  MOBILE ÉTROIT (< 480px) — texte encore plus compact           */
+/* ============================================================ */
+@media (max-width: 480px) {
+  .nav-row {
+    padding: 0 8px;
+    gap: 4px;
+  }
+  .menu-toggle {
+    font-size: 22px;
+    padding: 4px 6px;
+  }
+  .brand {
+    gap: 4px;
+    max-width: calc(100vw - 50px);
+  }
+  .brand-mark {
+    width: 34px;
+    height: 30px;
+  }
+  .brand-name {
+    font-size: 10.5px;
+    line-height: 1.1;
+    max-height: 2.4em;
+  }
+  .brand-tag {
+    font-size: 8px;
+  }
+}
+
+/* ============================================================ */
+/*  TRÈS PETIT MOBILE (< 360px)                                   */
+/* ============================================================ */
+@media (max-width: 360px) {
+  .nav-row {
+    padding: 0 6px;
+  }
+  .menu-toggle {
+    font-size: 20px;
+    padding: 3px 5px;
+  }
+  .brand-mark {
+    width: 28px;
+    height: 26px;
+  }
+  .brand-name {
+    font-size: 9.5px;
+    max-height: 2.2em;
+  }
+  .brand-tag {
+    font-size: 7.5px;
   }
 }
 
