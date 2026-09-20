@@ -219,7 +219,7 @@ nav ul { z-index: 1000; }
     box-sizing: border-box !important;
   }
 
-  /* ===== 1. BURGER À GAUCHE (FORCÉ) ===== */
+  /* ===== 1. BURGER À GAUCHE ===== */
   header .menu-toggle,
   header #burger-btn {
     order: 1 !important;
@@ -240,30 +240,40 @@ nav ul { z-index: 1000; }
     z-index: 10000 !important;
   }
 
-  /* ===== 2. BLOC CENTRAL (logo + texte) — FORCÉ ===== */
+  /* ===== ESPACE FANTÔME À DROITE DU HEADER ===== */
+  /* Symétrique du burger pour un centrage parfait */
+  header .nav-row::after {
+    content: '' !important;
+    display: block !important;
+    flex: 0 0 44px !important;
+    width: 44px !important;
+    height: 1px !important;
+    order: 99 !important;
+  }
+
+  /* ===== 2. BLOC CENTRAL (logo + texte) — GROUPÉ AU CENTRE ===== */
   header .brand {
     order: 2 !important;
     flex: 1 1 auto !important;
     min-width: 0 !important;
     max-width: none !important;
-    width: auto !important;
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 0 8px !important;
     gap: 8px !important;
+    padding: 0 8px !important;
     overflow: hidden !important;
     text-decoration: none !important;
   }
 
-  /* Le LOGO dans .brand */
+  /* Le LOGO dans .brand — juste à gauche du texte */
   header .brand > .brand-mark,
   header .brand .brand-mark {
     order: 1 !important;
-    flex: 0 0 36px !important;
-    width: 36px !important;
-    height: 34px !important;
+    flex: 0 0 38px !important;
+    width: 38px !important;
+    height: 36px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -277,10 +287,10 @@ nav ul { z-index: 1000; }
     object-fit: contain !important;
   }
 
-  /* Le bloc TEXTE dans .brand */
+  /* Le bloc TEXTE dans .brand — centré */
   header .brand > div:not(.brand-mark) {
     order: 2 !important;
-    flex: 1 1 auto !important;
+    flex: 0 1 auto !important;
     min-width: 0 !important;
     overflow: hidden !important;
     text-align: center !important;
@@ -297,8 +307,9 @@ nav ul { z-index: 1000; }
     color: var(--ink, #1B2A4A) !important;
     line-height: 1.15 !important;
     text-align: center !important;
-    white-space: normal !important;
-    overflow-wrap: break-word !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
     display: block !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -501,10 +512,11 @@ nav ul { z-index: 1000; }
 /*  Petit mobile (< 380px)                                        */
 /* ============================================================ */
 @media (max-width: 380px) {
-  header .brand .brand-name { font-size: 12px !important; }
+  header .brand .brand-name { font-size: 11px !important; }
   header .brand .brand-tag { font-size: 9px !important; }
   header .menu-toggle, header #burger-btn { font-size: 24px !important; width: 40px !important; flex: 0 0 40px !important; }
   header .brand > .brand-mark, header .nav-row > .brand-mark { width: 32px !important; height: 30px !important; flex: 0 0 32px !important; }
+  header .nav-row::after { flex: 0 0 40px !important; width: 40px !important; }
 }
 
 /* ============================================================ */
