@@ -367,6 +367,33 @@
             window.location.href = `profil-eleve.html?uid=${auth.currentUser.uid}`;
         }
     };
+<script>
+setTimeout(() => {
+  const navRow = document.querySelector('header .nav-row');
+  const brand = document.querySelector('header .brand');
+  const logo = document.querySelector('header .brand-mark');
+  const nav = document.querySelector('header nav');
+  
+  const info = {
+    'Largeur écran': window.innerWidth,
+    'Largeur nav-row': navRow ? navRow.offsetWidth : 'absent',
+    'Largeur brand (texte)': brand ? brand.offsetWidth : 'absent',
+    'Largeur logo': logo ? logo.offsetWidth : 'absent',
+    'Position gauche logo': logo ? Math.round(logo.getBoundingClientRect().left) : 'absent',
+    'Position droite logo': logo ? Math.round(logo.getBoundingClientRect().right) : 'absent',
+    'Largeur nav': nav ? nav.offsetWidth : 'absent'
+  };
+  
+  let html = '<div style="position:fixed;inset:20px;background:#fff;border:3px solid #1B2A4A;padding:20px;z-index:99999;font-family:monospace;font-size:13px;overflow:auto;border-radius:12px;">';
+  html += '<h3 style="margin-bottom:15px;color:#A8853F;">📊 Diagnostic (à m\'envoyer)</h3>';
+  for (const [key, val] of Object.entries(info)) {
+    html += `<div style="padding:6px 0;border-bottom:1px solid #eee;"><strong>${key}:</strong> ${val}</div>`;
+  }
+  html += '<button onclick="this.parentElement.remove()" style="margin-top:15px;padding:10px 20px;background:#1B2A4A;color:#fff;border:none;border-radius:6px;font-size:14px;">Fermer</button>';
+  html += '</div>';
+  
+  document.body.insertAdjacentHTML('beforeend', html);
+}, 1000);
 </script>
 </body>
 </html>

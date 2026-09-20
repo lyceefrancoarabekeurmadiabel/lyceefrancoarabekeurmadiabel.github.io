@@ -449,11 +449,8 @@ nav ul {
 
 /* ============================================================ */
 /*  FORCE L'OVERRIDE DES STYLES INLINE de index.html              */
-/*  (index.html a un <style> qui redéfinit .brand et .wrap)       */
 /* ============================================================ */
 @media (max-width: 1024px) {
-  /* Neutralise le .wrap (max-width: 1100px + margin auto) 
-     UNIQUEMENT sur le header pour que la barre prenne toute la largeur */
   header .wrap.nav-row {
     max-width: 100% !important;
     width: 100% !important;
@@ -462,21 +459,37 @@ nav ul {
     box-sizing: border-box !important;
   }
 
-  .brand {
+  /* ⚠️ Retirer le nav du flux flex : il ne doit prendre AUCUNE place */
+  header nav {
+    position: absolute !important;
+    width: 0 !important;
+    height: 0 !important;
+    flex: 0 0 0 !important;
+    pointer-events: none !important;
+    overflow: visible !important;
+  }
+
+  /* Le tiroir reste cliquable */
+  header nav ul {
+    pointer-events: auto !important;
+  }
+
+  header .brand {
     width: auto !important;
     flex: 1 !important;
     min-width: 0 !important;
     max-width: none !important;
   }
 
-  .brand-mark {
+  header .brand-mark {
     width: 44px !important;
     height: 42px !important;
   }
 
-  .nav-row > .brand-mark {
+  header .nav-row > .brand-mark {
     margin-left: auto !important;
     margin-right: 0 !important;
+    flex-shrink: 0 !important;
   }
 }
 
