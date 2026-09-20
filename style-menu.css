@@ -243,18 +243,18 @@ nav ul {
 
   .nav-row {
     padding: 0 10px;
-    gap: 6px;
-    justify-content: flex-start;
+    gap: 4px;
+    justify-content: space-between;
     align-items: center;
-    height: 100%;
+    position: relative;
   }
 
-  /* ===== 1. BURGER ===== */
+  /* ===== 1. BURGER À GAUCHE ===== */
   .menu-toggle {
     order: 1;
     display: block;
     font-size: 24px;
-    padding: 4px 8px;
+    padding: 6px 8px;
     color: var(--ink, #1B2A4A);
     cursor: pointer;
     flex-shrink: 0;
@@ -264,47 +264,44 @@ nav ul {
     margin: 0;
   }
 
-  /* ===== 2. BRAND : TEXTE + LOGO ===== */
+  /* ===== 2. TEXTE CENTRÉ ===== */
   .brand {
     order: 2;
     flex: 1;
     min-width: 0;
     display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;   /* ⬅️ CENTRAGE HORIZONTAL */
+    padding: 0 6px;
     overflow: hidden;
-    max-width: calc(100vw - 60px);
+    text-align: center;
   }
 
-  /* Conteneur du texte (tout sauf le logo) */
+  /* Cache le logo qui est DANS le brand (l'ancien) */
+  .brand .brand-mark {
+    display: none;
+  }
+
+  /* Le conteneur texte prend tout l'espace */
   .brand > div:not(.brand-mark) {
-    order: 1;
-    min-width: 0;
     flex: 1;
+    min-width: 0;
     overflow: hidden;
+    text-align: center;         /* ⬅️ CENTRAGE DU TEXTE */
   }
 
-  /* Logo à droite */
-  .brand-mark {
-    order: 2;
-    width: 40px;
-    height: 36px;
-    flex-shrink: 0;
-  }
-
-  /* ===== TEXTE : gestion du <br> ===== */
+  /* ===== TEXTE CENTRÉ ===== */
   .brand-name {
     font-family: var(--serif, 'Source Serif 4', Georgia, serif);
     font-weight: 700;
-    font-size: 12px;
+    font-size: 13px;
     color: var(--ink, #1B2A4A);
     line-height: 1.15;
-    text-align: left;
+    text-align: center;         /* ⬅️ CENTRÉ */
     white-space: normal;
     word-break: break-word;
-    /* Cache les <br> et force un retour à la ligne automatique */
     display: block;
-    max-height: 2.6em;
+    max-height: 2.4em;
     overflow: hidden;
   }
 
@@ -313,15 +310,10 @@ nav ul {
     display: none;
   }
 
-  .brand-name::after {
-    content: '';
-    display: inline;
-  }
-
   .brand-tag {
-    font-size: 9px;
+    font-size: 9.5px;
     color: var(--slate, #5B6472);
-    text-align: left;
+    text-align: center;         /* ⬅️ CENTRÉ */
     white-space: nowrap;
     margin-top: 1px;
     line-height: 1.1;
@@ -329,11 +321,28 @@ nav ul {
     text-overflow: ellipsis;
   }
 
-  /* ===== 3. NAV ===== */
-  nav {
+  /* ===== 3. LOGO À DROITE ===== */
+  .nav-row > .brand-mark {
     order: 3;
+    display: flex;
+    width: 42px;
+    height: 38px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+  }
+
+  .nav-row > .brand-mark img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  /* ===== 4. NAV (caché, utilisé pour le tiroir) ===== */
+  nav {
+    order: 4;
     flex: 0;
-    justify-content: flex-end;
   }
 
   /* ===== TIROIR LATÉRAL GAUCHE ===== */
@@ -445,6 +454,30 @@ nav ul {
   .labo-dropdown a:hover,
   .optique-dropdown a:hover {
     background: #f0f0f0;
+  }
+}
+
+/* ============================================================ */
+/*  Petit mobile (< 360px)                                        */
+/* ============================================================ */
+@media (max-width: 360px) {
+  .nav-row {
+    padding: 0 6px;
+    gap: 2px;
+  }
+  .menu-toggle {
+    font-size: 22px;
+    padding: 4px 6px;
+  }
+  .nav-row > .brand-mark {
+    width: 36px;
+    height: 32px;
+  }
+  .brand-name {
+    font-size: 11.5px;
+  }
+  .brand-tag {
+    font-size: 8.5px;
   }
 }
 
