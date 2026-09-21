@@ -3,1705 +3,3186 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Dosage Acido-Basique — Mobile | LFAKM</title>
+<title>Atelier de circuits — Mobile | LFAKM</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1B2A4A">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow-x: hidden; overflow-y: auto; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     color: #eee;
-    min-height: 100vh;
-    padding: 8px;
-    font-size: 14px;
-    overflow-x: hidden;
+    padding: 6px;
+    font-size: 13px;
+    touch-action: manipulation;
   }
-  .container {
-    max-width: 100%;
-    margin: 0 auto;
-    background: rgba(255,255,255,0.05);
-    border-radius: 12px;
-    padding: 12px;
-  }
-
-  /* TOP BAR */
-  .top-actions {
+  .app {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 100%;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 8px;
+  }
+  .topbar {
+    display: flex;
     align-items: center;
-    margin-bottom: 10px;
+    justify-content: space-between;
     gap: 8px;
   }
-  .btn-retour, .btn-pc {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 7px 12px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 0.75em;
-    font-weight: 700;
-  }
-  .btn-retour { background: rgba(168, 133, 63, 0.2); color: #ffd54f; border: 1px solid rgba(255, 213, 79, 0.4); }
-  .btn-pc { background: rgba(79, 195, 247, 0.15); color: #4fc3f7; border: 1px solid rgba(79, 195, 247, 0.4); }
-
-  h1 { text-align: center; color: #4fc3f7; font-size: 1.15em; margin-bottom: 4px; }
-  .subtitle { text-align: center; color: #aaa; font-size: 0.72em; margin-bottom: 12px; }
-
-  /* MODE SELECTOR */
-  .mode-selector {
-    background: linear-gradient(135deg, #6a4c93 0%, #9b59b6 100%);
-    padding: 10px 12px;
-    border-radius: 10px;
-    margin-bottom: 12px;
-  }
-  .mode-selector h3 {
-    font-size: 0.85em;
-    margin-bottom: 8px;
-    font-weight: 700;
-  }
-  .mode-buttons {
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
-  }
-  .mode-btn {
-    background: rgba(255,255,255,0.2);
-    color: #fff;
-    border: 2px solid rgba(255,255,255,0.3);
-    padding: 6px 10px;
-    border-radius: 6px;
-    font-size: 0.7em;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.2s;
-    flex: 1;
-    min-width: 70px;
-  }
-  .mode-btn.active {
-    background: #fff;
-    color: #6a4c93;
-    border-color: #fff;
-  }
-  .mode-btn.hidden { display: none; }
-
-  /* SECTIONS */
-  .section-title {
+  .topbar-title {
     color: #4fc3f7;
-    font-size: 0.72em;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin: 12px 0 8px;
-    padding-left: 8px;
-    border-left: 3px solid #4fc3f7;
+    font-size: 0.95em;
     font-weight: bold;
   }
-
-  /* CARTES */
-  .card {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(79,195,247,0.2);
-    border-radius: 10px;
-    padding: 12px;
-    margin-bottom: 10px;
-  }
-  .card h3 {
-    font-size: 0.85em;
-    color: #4fc3f7;
-    margin-bottom: 8px;
-    font-weight: 700;
-  }
-
-  /* CHAMPS */
-  .field { margin-bottom: 10px; }
-  .field label {
-    display: block;
-    font-size: 0.75em;
-    font-weight: 700;
-    color: #ccc;
-    margin-bottom: 5px;
-  }
-  .field input, .field select {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid rgba(79,195,247,0.3);
+  .btn-mini {
+    padding: 6px 10px;
     border-radius: 6px;
-    background: rgba(0,0,0,0.3);
-    color: #fff;
-    font-family: inherit;
-    font-size: 0.9em;
-  }
-  .field input:focus, .field select:focus {
-    outline: none;
-    border-color: #4fc3f7;
-    background: rgba(79,195,247,0.1);
-  }
-  .field .helper { font-size: 0.65em; color: #888; margin-top: 3px; }
-
-  .param-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-  .param-grid .field.full { grid-column: span 2; }
-
-  /* BOUTONS */
-  .btn {
-    padding: 10px 14px;
-    border: none;
-    border-radius: 8px;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 0.78em;
-    transition: all 0.2s;
-    margin-right: 5px;
-    margin-bottom: 5px;
-  }
-  .btn-primary { background: linear-gradient(135deg, #4fc3f7, #29b6f6); color: #16213e; }
-  .btn-primary:disabled { opacity: 0.5; }
-  .btn-secondary { background: rgba(255,255,255,0.1); color: #eee; border: 1px solid rgba(255,255,255,0.2); }
-  .btn-success { background: linear-gradient(135deg, #4caf50, #66bb6a); color: #fff; }
-  .btn-info { background: linear-gradient(135deg, #3498db, #2980b9); color: #fff; }
-  .btn-warning { background: linear-gradient(135deg, #f39c12, #e67e22); color: #fff; }
-  .btn-danger { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; }
-
-  .button-bar { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
-
-  /* INFO PANEL */
-  .info-panel {
-    background: rgba(79,195,247,0.08);
-    border-left: 4px solid #4fc3f7;
-    border-radius: 6px;
-    padding: 8px 10px;
-    margin-bottom: 10px;
-    font-size: 0.75em;
-  }
-  .info-panel .ligne {
-    display: flex;
-    justify-content: space-between;
-    padding: 3px 0;
-    border-bottom: 1px dashed rgba(255,255,255,0.08);
-  }
-  .info-panel .ligne:last-child { border-bottom: none; }
-  .info-panel .ligne strong { color: #4fc3f7; }
-
-  /* TABLEAU */
-  .table-wrapper {
-    max-height: 260px;
-    overflow-y: auto;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.1);
-    margin-bottom: 10px;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.78em;
-  }
-  th {
-    background: rgba(79,195,247,0.15);
-    color: #4fc3f7;
-    padding: 8px 6px;
-    text-align: left;
-    font-weight: 700;
-    position: sticky;
-    top: 0;
-    z-index: 2;
-  }
-  td {
-    padding: 6px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-  }
-  td input {
-    width: 100%;
-    padding: 5px 6px;
-    border: 1px solid rgba(79,195,247,0.2);
-    border-radius: 4px;
-    background: rgba(0,0,0,0.3);
-    color: #fff;
-    font-size: 0.95em;
-    font-family: monospace;
-  }
-  .pastille-couleur {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 2px solid #333;
-    vertical-align: middle;
-  }
-  .btn-del-row {
-    background: none;
-    border: none;
-    color: #f44336;
-    cursor: pointer;
-    font-size: 1em;
-    padding: 2px 6px;
-  }
-
-  /* CONTROLS VOLUME */
-  .vol-controls {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
-    margin-bottom: 8px;
-  }
-  .vol-btn {
-    padding: 10px 4px;
-    background: rgba(79,195,247,0.15);
-    border: 1px solid rgba(79,195,247,0.4);
-    color: #4fc3f7;
-    border-radius: 6px;
-    font-weight: 700;
-    font-size: 0.85em;
-    cursor: pointer;
-    font-family: inherit;
-  }
-  .vol-btn:active { background: rgba(79,195,247,0.3); }
-  .vol-libre {
-    display: flex;
-    gap: 5px;
-    margin-bottom: 8px;
-  }
-  .vol-libre input {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid rgba(79,195,247,0.3);
-    border-radius: 6px;
-    background: rgba(0,0,0,0.3);
-    color: #fff;
-    font-size: 0.9em;
-  }
-
-  /* COURBE */
-  .chart-wrapper {
-    background: #0a0a1a;
-    border-radius: 8px;
-    padding: 6px;
-    border: 1px solid rgba(79,195,247,0.3);
-    margin-bottom: 10px;
-    height: 260px;
-    position: relative;
-  }
-
-  /* ANIMATION COLORIMÉTRIQUE */
-  .anim-box {
-    background: #0a0a1a;
-    border-radius: 8px;
-    padding: 10px;
-    border: 1px solid rgba(79,195,247,0.3);
-    margin-bottom: 10px;
-    text-align: center;
-  }
-  .anim-box svg { max-width: 100%; height: auto; max-height: 220px; }
-
-  /* RESULT BOX */
-  .result-box {
-    background: linear-gradient(135deg, rgba(76,175,80,0.15), rgba(46,125,50,0.08));
-    border-left: 4px solid #4caf50;
-    border-radius: 8px;
-    padding: 12px;
-    margin-top: 10px;
-  }
-  .result-box h4 {
-    color: #81c784;
-    font-size: 0.85em;
-    margin-bottom: 8px;
-    font-weight: 700;
-  }
-  .result-row {
-    font-size: 0.78em;
-    margin: 4px 0;
-    display: flex;
-    justify-content: space-between;
-  }
-  .result-row strong { color: #4fc3f7; }
-
-  /* INFO PANEL */
-  .info-hint {
-    background: linear-gradient(90deg, rgba(255,193,7,0.15), rgba(255,193,7,0.05));
-    border-left: 4px solid #ffc107;
-    border-radius: 6px;
-    padding: 8px 10px;
     font-size: 0.72em;
-    color: #fff;
-    line-height: 1.5;
-    margin-bottom: 10px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid rgba(255, 213, 79, 0.4);
+    background: rgba(168, 133, 63, 0.2);
+    color: #ffd54f;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
   }
+  .btn-mini:active { background: rgba(168, 133, 63, 0.4); }
 
-  /* INDICATEUR */
-  .indic-select-row {
+  .status-strip {
+    background: linear-gradient(135deg, #6a4c93 0%, #9b59b6 100%);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 8px;
     display: flex;
+    justify-content: space-between;
     align-items: center;
     gap: 8px;
   }
-  .indic-select-row select { flex: 1; }
-  .indic-pastille {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: 2px solid #fff;
-    flex-shrink: 0;
-    box-shadow: 0 0 12px rgba(79,195,247,0.5);
+  .status-strip .ss-label {
+    font-size: 0.62em;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.85;
+    font-weight: 700;
+  }
+  .status-strip .ss-value {
+    font-size: 1em;
+    font-weight: 800;
+    font-family: 'Source Serif 4', Georgia, serif;
+  }
+  .status-strip .ss-mesures {
+    font-size: 0.72em;
+    text-align: right;
+    line-height: 1.3;
   }
 
-  /* MODAL */
+  .canvas-zone {
+    background: #000;
+    border-radius: 8px;
+    border: 2px solid #4fc3f7;
+    padding: 3px;
+    position: relative;
+    height: 45vh;
+    min-height: 260px;
+  }
+  .canvas-zone canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    cursor: pointer;
+  }
+  .zone-label {
+    position: absolute;
+    top: 5px;
+    left: 8px;
+    color: #4fc3f7;
+    font-size: 0.6em;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-weight: bold;
+    background: rgba(0,0,0,0.7);
+    padding: 2px 6px;
+    border-radius: 4px;
+    pointer-events: none;
+  }
+  .zone-info {
+    position: absolute;
+    bottom: 5px;
+    left: 8px;
+    color: #ffc107;
+    font-size: 0.65em;
+    font-weight: 600;
+    background: rgba(0,0,0,0.75);
+    padding: 3px 8px;
+    border-radius: 4px;
+    pointer-events: none;
+  }
+  .zone-tool {
+    position: absolute;
+    bottom: 5px;
+    right: 8px;
+    color: #4caf50;
+    font-size: 0.65em;
+    font-weight: 700;
+    background: rgba(0,0,0,0.75);
+    padding: 3px 8px;
+    border-radius: 4px;
+    pointer-events: none;
+    border: 1px solid rgba(76, 175, 80, 0.5);
+    max-width: 55%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tabs-mobile {
+    display: flex;
+    gap: 4px;
+    background: rgba(0,0,0,0.3);
+    padding: 4px;
+    border-radius: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs-mobile::-webkit-scrollbar { display: none; }
+  .tab-mobile {
+    flex: 1;
+    min-width: 70px;
+    padding: 10px 6px;
+    background: transparent;
+    border: none;
+    color: #888;
+    font-size: 0.75em;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .tab-mobile.active {
+    background: rgba(79, 195, 247, 0.2);
+    color: #4fc3f7;
+  }
+  .panneau {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .panneau.active { display: flex; }
+
+  .outils-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+  .outil-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 8px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    color: #ddd;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.72em;
+    font-weight: 600;
+    transition: all 0.15s;
+    text-align: left;
+  }
+  .outil-btn:active {
+    background: rgba(79, 195, 247, 0.25);
+    transform: scale(0.97);
+  }
+  .outil-btn .icon { font-size: 1.5em; flex-shrink: 0; }
+  .outil-btn.wire {
+    background: rgba(76, 175, 80, 0.15);
+    border-color: rgba(76, 175, 80, 0.4);
+    color: #81c784;
+  }
+  .outil-btn.noeud {
+    background: rgba(255, 213, 79, 0.15);
+    border-color: rgba(255, 213, 79, 0.4);
+    color: #ffd54f;
+  }
+  .outil-btn.danger {
+    border-color: rgba(244, 67, 54, 0.5);
+    color: #ff8a80;
+    grid-column: span 2;
+  }
+  .outil-btn.condensateur {
+    background: rgba(79, 195, 247, 0.15);
+    border-color: rgba(79, 195, 247, 0.4);
+    color: #4fc3f7;
+  }
+  .outil-btn.led {
+    background: rgba(255, 87, 34, 0.15);
+    border-color: rgba(255, 87, 34, 0.4);
+    color: #ff5722;
+  }
+  .outil-btn.fusible {
+    background: rgba(255, 193, 7, 0.15);
+    border-color: rgba(255, 193, 7, 0.4);
+    color: #ffc107;
+  }
+  .outil-btn.potentiometre {
+    background: rgba(156, 39, 176, 0.15);
+    border-color: rgba(156, 39, 176, 0.4);
+    color: #ce93d8;
+  }
+
+  .mesures-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .mesure-box {
+    background: #000;
+    border: 2px solid #4caf50;
+    border-radius: 8px;
+    padding: 8px;
+    text-align: center;
+    box-shadow: inset 0 0 8px rgba(76, 175, 80, 0.3);
+  }
+  .mesure-box.voltm {
+    border-color: #ff9800;
+    box-shadow: inset 0 0 8px rgba(255, 152, 0, 0.3);
+  }
+  .mesure-box.off { opacity: 0.4; }
+  .mesure-box .mb-title {
+    font-size: 0.6em;
+    color: #4caf50;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .mesure-box.voltm .mb-title { color: #ff9800; }
+  .mesure-box .mb-value {
+    font-family: 'Courier New', monospace;
+    font-size: 1.3em;
+    font-weight: 900;
+    color: #00ff00;
+    text-shadow: 0 0 8px #00ff00;
+    letter-spacing: 1px;
+    margin: 3px 0;
+  }
+  .mesure-box.voltm .mb-value {
+    color: #ffb74d;
+    text-shadow: 0 0 8px #ff9800;
+  }
+  .mesure-box.off .mb-value {
+    color: #666;
+    text-shadow: none;
+  }
+  .mesure-box .mb-unit {
+    font-size: 0.6em;
+    color: #888;
+  }
+  .mesure-box .mb-target {
+    font-size: 0.55em;
+    color: #4fc3f7;
+    margin-top: 2px;
+    font-style: italic;
+    min-height: 1em;
+  }
+
+  .select-mobile {
+    background: rgba(79, 195, 247, 0.08);
+    border: 1px solid rgba(79, 195, 247, 0.3);
+    border-radius: 6px;
+    padding: 6px 8px;
+  }
+  .select-mobile label {
+    display: block;
+    font-size: 0.6em;
+    color: #4fc3f7;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .select-mobile select {
+    width: 100%;
+    padding: 6px 8px;
+    background: #1a1a2e;
+    border: 1px solid rgba(79, 195, 247, 0.4);
+    border-radius: 5px;
+    color: #eee;
+    font-family: inherit;
+    font-size: 0.75em;
+  }
+
+  .table-wrapper {
+    max-height: 200px;
+    overflow-y: auto;
+    border-radius: 6px;
+    border: 1px solid rgba(79, 195, 247, 0.3);
+    background: rgba(0,0,0,0.3);
+  }
+  .measures-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.68em;
+  }
+  .measures-table thead {
+    position: sticky;
+    top: 0;
+    background: #1a1a2e;
+    z-index: 2;
+  }
+  .measures-table th {
+    padding: 5px 4px;
+    text-align: left;
+    color: #4fc3f7;
+    font-weight: 700;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(79, 195, 247, 0.3);
+  }
+  .measures-table td {
+    padding: 4px 4px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-family: 'Courier New', monospace;
+    font-size: 0.95em;
+  }
+  .measures-table tr:last-child td { border-bottom: none; }
+  .measures-table tr.total-row {
+    background: rgba(79, 195, 247, 0.1);
+    font-weight: 700;
+  }
+  .measures-table tr.total-row td {
+    color: #4fc3f7;
+    border-top: 2px solid rgba(79, 195, 247, 0.4);
+  }
+  .measures-table .comp-name {
+    color: #ffd54f;
+    font-family: inherit;
+    font-weight: 600;
+  }
+  .measures-table .empty-msg {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 12px;
+  }
+
+  .lois-panel {
+    background: rgba(79, 195, 247, 0.08);
+    border-left: 4px solid #4fc3f7;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 0.7em;
+    line-height: 1.5;
+  }
+  .lois-panel .loi-title {
+    color: #4fc3f7;
+    font-weight: 700;
+    margin-bottom: 3px;
+    font-size: 0.95em;
+  }
+  .lois-panel .loi-formule {
+    font-family: 'Courier New', monospace;
+    color: #ffd54f;
+    background: rgba(0,0,0,0.3);
+    padding: 2px 6px;
+    border-radius: 3px;
+    display: inline-block;
+    margin: 2px 0;
+    font-size: 0.95em;
+  }
+  .lois-panel .loi-calcul {
+    font-family: 'Courier New', monospace;
+    color: #00ff00;
+    font-size: 0.95em;
+    margin: 2px 0;
+  }
+  .lois-panel .loi-warning {
+    color: #ff8a80;
+    font-weight: 700;
+    font-size: 0.9em;
+    padding: 5px 8px;
+    background: rgba(244, 67, 54, 0.15);
+    border-left: 3px solid #f44336;
+    border-radius: 4px;
+    margin-top: 5px;
+  }
+
+  .action-bar {
+    position: sticky;
+    bottom: 0;
+    background: rgba(20, 20, 40, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(79, 195, 247, 0.3);
+    padding: 8px;
+    margin: 0 -8px -8px -8px;
+    border-radius: 0 0 10px 10px;
+    display: flex;
+    gap: 6px;
+    z-index: 100;
+  }
+  .btn-action {
+    flex: 1;
+    padding: 11px 8px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.78em;
+    font-family: inherit;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+  .btn-action:active:not(:disabled) { transform: scale(0.97); }
+  .btn-action:disabled { opacity: 0.5; }
+  .btn-animer {
+    background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+    color: #16213e;
+    box-shadow: 0 3px 10px rgba(79, 195, 247, 0.4);
+  }
+  .btn-animer.playing {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: #fff;
+  }
+  .btn-reset {
+    background: rgba(255,255,255,0.15);
+    color: #eee;
+    border: 1px solid rgba(255,255,255,0.2);
+    max-width: 70px;
+  }
+  .btn-formules {
+    background: rgba(255,255,255,0.15);
+    color: #eee;
+    border: 1px solid rgba(255,255,255,0.2);
+    max-width: 70px;
+  }
+
+  .status-line {
+    text-align: center;
+    font-size: 0.7em;
+    color: #aaa;
+    font-style: italic;
+    padding: 3px;
+    min-height: 1.4em;
+  }
+  .status-line.active { color: #4fc3f7; }
+
   .modal-overlay {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.85);
+    background: rgba(0,0,0,0.8);
     z-index: 3000;
     align-items: center;
     justify-content: center;
-    padding: 12px;
+    padding: 15px;
   }
   .modal-overlay.show { display: flex; }
   .modal-box {
     background: #1a1a2e;
     border: 1px solid rgba(79,195,247,0.4);
     border-radius: 12px;
-    padding: 16px;
+    padding: 18px;
     max-width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
     width: 100%;
-    max-width: 500px;
+    max-width: 420px;
+    max-height: 85vh;
+    overflow-y: auto;
   }
   .modal-box h3 {
     color: #4fc3f7;
     font-size: 1em;
     margin-bottom: 12px;
+    font-family: inherit;
   }
-
-  /* EXAMEN */
-  .examen-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(79,195,247,0.15);
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 0.78em;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .examen-header .timer {
-    font-size: 1.1em;
-    font-weight: 800;
-    color: #4fc3f7;
-    font-family: monospace;
-  }
-  .examen-header .timer.warning { color: #ffb74d; }
-  .examen-header .timer.danger { color: #ff5252; animation: pulse 0.8s infinite; }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
-
-  .progress-bar {
-    height: 6px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 3px;
-    overflow: hidden;
-    margin: 10px 0;
-  }
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #4fc3f7, #4caf50);
-    width: 0%;
-    transition: width 0.3s;
-  }
-
-  .examen-question {
-    background: rgba(79,195,247,0.08);
-    border-left: 4px solid #4fc3f7;
-    border-radius: 8px;
-    padding: 12px;
-    font-size: 0.82em;
-    line-height: 1.5;
-    margin-bottom: 12px;
-  }
-
-  .examen-radio-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-  .examen-radio-group label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px;
-    background: rgba(255,255,255,0.05);
-    border: 2px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.85em;
-    transition: all 0.2s;
-  }
-  .examen-radio-group label.selected {
-    background: rgba(79,195,247,0.2);
-    border-color: #4fc3f7;
-  }
-  .examen-reponse-input {
-    width: 100%;
-    padding: 12px;
-    border: 2px solid rgba(79,195,247,0.3);
-    border-radius: 8px;
+  .modal-box .formule-bloc {
     background: rgba(0,0,0,0.3);
-    color: #fff;
-    font-size: 1em;
-    font-family: monospace;
-  }
-
-  .examen-feedback {
-    padding: 10px;
+    padding: 12px;
     border-radius: 8px;
-    margin-top: 10px;
-    font-size: 0.8em;
+    margin-bottom: 12px;
+    border-left: 3px solid #ffd54f;
+  }
+  .modal-box .formule-bloc h4 {
+    color: #ffd54f;
+    font-size: 0.85em;
+    margin-bottom: 5px;
+  }
+  .modal-box .formule-bloc p {
+    color: #ccc;
+    font-size: 0.78em;
     line-height: 1.5;
   }
-  .examen-feedback.correct { background: rgba(76,175,80,0.2); border-left: 4px solid #4caf50; color: #a5d6a7; }
-  .examen-feedback.incorrect { background: rgba(244,67,54,0.2); border-left: 4px solid #f44336; color: #ef9a9a; }
-
-  .examen-resultat-final {
-    text-align: center;
-    padding: 20px 10px;
+  .modal-box .formule-bloc code {
+    font-family: 'Courier New', monospace;
+    color: #00ff00;
+    background: rgba(0,0,0,0.4);
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 0.95em;
   }
-  .examen-resultat-final .score {
-    font-size: 3em;
-    font-weight: 800;
-    background: linear-gradient(135deg, #4fc3f7, #4caf50);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .examen-resultat-final .label {
-    font-size: 0.9em;
-    color: #aaa;
-    margin-bottom: 15px;
-  }
-  .appreciation {
-    display: inline-block;
-    padding: 8px 20px;
-    border-radius: 20px;
+  .btn-fermer {
+    width: 100%;
+    padding: 11px;
+    background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+    color: #16213e;
+    border: none;
+    border-radius: 8px;
     font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
     font-size: 0.85em;
-    margin: 10px 0;
   }
-  .app-excellent { background: rgba(76,175,80,0.3); color: #81c784; }
-  .app-bien { background: rgba(79,195,247,0.3); color: #4fc3f7; }
-  .app-passable { background: rgba(255,193,7,0.3); color: #ffd54f; }
-  .app-faible { background: rgba(244,67,54,0.3); color: #ef9a9a; }
 
-  @media (max-width: 360px) {
-    h1 { font-size: 1em; }
-    .param-grid { grid-template-columns: 1fr; }
-    .param-grid .field.full { grid-column: span 1; }
-    .vol-controls { grid-template-columns: repeat(3, 1fr); }
+  .edit-raccourcis {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
   }
+  .edit-raccourcis button {
+    padding: 8px 12px;
+    background: rgba(79, 195, 247, 0.15);
+    color: #4fc3f7;
+    border: 1px solid rgba(79, 195, 247, 0.4);
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.75em;
+    font-weight: 700;
+  }
+  .edit-raccourcis button:active { background: rgba(79, 195, 247, 0.3); }
+  .edit-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid rgba(79, 195, 247, 0.4);
+    border-radius: 8px;
+    background: #0a0a1a;
+    color: #fff;
+    font-family: 'Courier New', monospace;
+    font-size: 1.2em;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+  .edit-input:focus { outline: none; border-color: #4fc3f7; }
+  .edit-helper {
+    font-size: 0.7em;
+    color: #888;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .edit-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .edit-actions button {
+    flex: 1;
+    padding: 11px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-family: inherit;
+    font-size: 0.85em;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-annuler { background: #333; color: #ccc; }
+  .btn-valider { background: linear-gradient(135deg, #4fc3f7, #29b6f6); color: #16213e; }
+
+  .selection-info {
+    background: rgba(255, 213, 79, 0.1);
+    border: 1px solid rgba(255, 213, 79, 0.4);
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 0.72em;
+    color: #ffd54f;
+    display: none;
+    text-align: center;
+  }
+  .selection-info.show { display: block; }
+  .selection-info strong { color: #fff; }
+  .selection-info .actions-selection {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    justify-content: center;
+  }
+  .selection-info .actions-selection button {
+    padding: 6px 12px;
+    background: rgba(255, 213, 79, 0.2);
+    color: #ffd54f;
+    border: 1px solid rgba(255, 213, 79, 0.4);
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: 0.9em;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .selection-info .actions-selection button:active {
+    background: rgba(255, 213, 79, 0.4);
+  }
+
+  @keyframes pulse-status {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+  .pulsing { animation: pulse-status 0.8s infinite; }
 </style>
 </head>
 <body>
 
-<div class="container">
+<div class="app">
 
-  <div class="top-actions">
-    <a href="labo-pc.html" class="btn-retour">← Labo PC</a>
-      <a href="index.html" class="btn-retour">🏠 Accueil</a>
-    <a href="simulateur-dosage.html" class="btn-pc">🖥️ PC</a>
-  </div>
-
-  <h1>🧪 Dosage Acido-Basique</h1>
-  <p class="subtitle">Simulateur conforme au programme sénégalais — 3ème à Tle</p>
-
-  <!-- MODE SELECTOR -->
-  <div class="mode-selector">
-    <h3>🎓 Mode d'utilisation</h3>
-    <div class="mode-buttons">
-      <button class="mode-btn" data-mode="initiation">🌱 Initiation</button>
-      <button class="mode-btn active" data-mode="standard">📘 Standard</button>
-      <button class="mode-btn" data-mode="expert">🔬 Expert</button>
-      <button class="mode-btn" data-mode="tp">🧪 TP</button>
-      <button class="mode-btn" id="btnModeEntrainement" style="background: rgba(52,152,219,0.4);">🎓 S'entraîner</button>
-      <button class="mode-btn hidden" id="btnModeEvaluation" style="background: rgba(217,83,79,0.4);">📝 Évaluation</button>
+  <div class="topbar">
+    <div class="topbar-title">⚡ Circuits — Mobile</div>
+    <div>
+      <a href="simulateur-circuits-libre.html" class="btn-mini">🖥️ PC</a>
     </div>
   </div>
 
-  <!-- PARAMÈTRES -->
-  <div class="card">
-    <h3>⚙️ Paramètres</h3>
-    <div class="param-grid">
-      <div class="field full">
-        <label>Méthode</label>
-        <select id="methode">
-          <option value="colorimetrique">🔬 Colorimétrique</option>
-          <option value="phmetrique">📊 pH-métrique</option>
-        </select>
-      </div>
-      <div class="field full">
-        <label>Substance titrée (bécher)</label>
-        <select id="substance-titree"></select>
-      </div>
-      <div class="field">
-        <label>Volume VA (mL)</label>
-        <input type="number" id="va" value="20" min="1" max="100" step="0.5">
-      </div>
-      <div class="field">
-        <label>Conc. CA (mol/L)</label>
-        <input type="number" id="ca" value="0.1" min="0.001" max="2" step="0.001">
-      </div>
-      <div class="field full">
-        <label>Solution titrante (burette)</label>
-        <select id="substance-titrante"></select>
-      </div>
-      <div class="field">
-        <label>Conc. CB (mol/L)</label>
-        <input type="number" id="cb" value="0.1" min="0.001" max="2" step="0.001">
-      </div>
-      <div class="field" id="fieldPka" style="display:none;">
-        <label>pKa</label>
-        <input type="number" id="pka" value="4.75" min="0" max="14" step="0.01">
-      </div>
-      <div class="field full">
-        <label>Indicateur coloré</label>
-        <div class="indic-select-row">
-          <select id="indicateur">
-            <option value="aucun">Aucun</option>
-            <option value="helianthine">Hélianthine (3,1-4,4)</option>
-            <option value="rmethyl">Rouge de méthyle (4,4-6,2)</option>
-            <option value="vbromocresol">Vert de bromocrésol (3,8-5,4)</option>
-            <option value="bbt" selected>Bleu de bromothymol (6,0-7,6)</option>
-            <option value="phenolphtaleine">Phénolphtaléine (8,2-10,0)</option>
-          </select>
-          <div class="indic-pastille" id="indicPastille" style="background: #f1c40f;"></div>
-        </div>
-      </div>
+  <div class="status-strip">
+    <div>
+      <div class="ss-label">Type de circuit</div>
+      <div class="ss-value" id="circuitTypeMobile">—</div>
     </div>
-    <div class="info-panel" id="infoPanel">
-      <div class="ligne"><span>Famille :</span> <strong id="infoFamille">-</strong></div>
-      <div class="ligne"><span>Force :</span> <strong id="infoForce">-</strong></div>
-      <div class="ligne"><span>Acidité :</span> <strong id="infoBasicite">-</strong></div>
-      <div class="ligne" id="lignePka"><span>pKa :</span> <strong id="infoPka">-</strong></div>
-      <div class="ligne" id="lignePkb"><span>pKb :</span> <strong id="infoPkb">-</strong></div>
+    <div class="ss-mesures" id="ssMesures">
+      <div>U = <span id="ssU">0.0</span> V</div>
+      <div>I = <span id="ssI">0</span> mA</div>
     </div>
   </div>
 
-  <!-- BOUTONS PRINCIPAUX -->
-  <div class="button-bar">
-    <button class="btn btn-primary" id="btnDemarrer">▶ Démarrer</button>
-    <button class="btn btn-secondary" id="btnReset">🔄 Reset</button>
-    <button class="btn btn-warning" id="btnExportPdf" style="display:none;">📄 PDF</button>
-    <button class="btn btn-success" id="btnSauvegarder" style="display:none;">💾 Sauvegarder</button>
+  <div class="canvas-zone">
+    <div class="zone-label">🔧 Zone de montage</div>
+    <canvas id="canvasCircuit" width="900" height="800"></canvas>
+    <div class="zone-info" id="zoneInfo">Aucun composant</div>
+    <div class="zone-tool" id="zoneTool" style="display:none;">〰️ Fil</div>
   </div>
 
-  <!-- AJOUTER DU VOLUME -->
-  <div class="card" id="cardVolume">
-    <h3>💧 Ajouter du titrant</h3>
-    <div class="vol-controls">
-      <button class="vol-btn" data-vol="0.5">+0,5</button>
-      <button class="vol-btn" data-vol="1">+1</button>
-      <button class="vol-btn" data-vol="2">+2</button>
-      <button class="vol-btn" data-vol="5">+5</button>
-    </div>
-    <div class="vol-libre">
-      <input type="number" id="volLibre" value="0.5" min="0.01" max="50" step="0.01">
-      <button class="btn btn-secondary" id="btnAjouterLibre" style="margin:0;">Ajouter</button>
+  <div class="selection-info" id="selectionInfo">
+    <div id="selectionText">Composant sélectionné</div>
+    <div class="actions-selection">
+      <button id="btnEditerSel">✎ Modifier</button>
+      <button id="btnSupprimerSel">🗑 Supprimer</button>
+      <button id="btnFermerSel">✕</button>
     </div>
   </div>
 
-  <!-- TABLEAU -->
-  <div class="section-title">📋 Tableau de valeurs</div>
-  <div class="table-wrapper">
-    <table id="tableMesures">
-      <thead>
-        <tr>
-          <th style="width:28%;">V (mL)</th>
-          <th style="width:28%;">pH</th>
-          <th style="width:34%;">Couleur</th>
-          <th style="width:10%;">—</th>
-        </tr>
-      </thead>
-      <tbody id="tbodyMesures">
-        <tr><td colspan="4" style="text-align:center; padding:20px; color:#888;">Démarre le dosage pour commencer</td></tr>
-      </tbody>
-    </table>
+  <div class="tabs-mobile">
+    <button class="tab-mobile active" data-tab="outils">🧰 Outils</button>
+    <button class="tab-mobile" data-tab="mesures">📊 Mesures</button>
+    <button class="tab-mobile" data-tab="lois">📚 Lois</button>
   </div>
 
-  <!-- VISUALISATION -->
-  <div class="section-title" id="titreViz">📊 Visualisation</div>
-
-  <div class="chart-wrapper" id="chartWrapper" style="display:none;">
-    <canvas id="chartCourbe"></canvas>
-  </div>
-
-  <div class="anim-box" id="animBox">
-    <svg viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg">
-      <line x1="250" y1="30" x2="250" y2="200" stroke="#555" stroke-width="5"/>
-      <line x1="20" y1="200" x2="280" y2="200" stroke="#555" stroke-width="5"/>
-      <rect x="130" y="20" width="22" height="120" fill="rgba(255,255,255,0.5)" stroke="#333" stroke-width="1.5" rx="2"/>
-      <rect x="132" y="22" width="18" height="116" fill="rgba(52, 152, 219, 0.5)" id="svgBurette"/>
-      <line x1="130" y1="40" x2="138" y2="40" stroke="#333" stroke-width="1"/>
-      <line x1="130" y1="70" x2="138" y2="70" stroke="#333" stroke-width="1"/>
-      <line x1="130" y1="100" x2="138" y2="100" stroke="#333" stroke-width="1"/>
-      <rect x="136" y="140" width="10" height="15" fill="#999" stroke="#333"/>
-      <line x1="141" y1="155" x2="141" y2="165" stroke="#333" stroke-width="2"/>
-      <rect x="85" y="170" width="112" height="30" fill="rgba(255,255,255,0.3)" stroke="#333" stroke-width="2" rx="2"/>
-      <rect x="87" y="180" width="108" height="18" fill="rgba(241, 196, 15, 0.7)" id="svgLiquid"/>
-      <text x="141" y="230" text-anchor="middle" font-size="11" font-weight="700" fill="#4fc3f7">
-        V = <tspan id="svgVolume">0.00</tspan> mL | pH = <tspan id="svgPh">-</tspan>
-      </text>
-    </svg>
-    <div id="animMessage" style="font-size:0.72em; color:#aaa; margin-top:6px; font-style:italic;">
-      Ajoute du titrant pour voir la couleur évoluer.
+  <div class="panneau active" id="panneau-outils">
+    <div class="outils-grid">
+      <button class="outil-btn wire" id="btnAddFil">
+        <span class="icon">〰️</span>
+        <span>Ajouter un fil</span>
+      </button>
+      <button class="outil-btn noeud" id="btnAddNoeud">
+        <span class="icon">⬤</span>
+        <span>Ajouter un nœud</span>
+      </button>
+      <button class="outil-btn" id="btnAddPile">
+        <span class="icon">🔋</span>
+        <span>Pile 12V</span>
+      </button>
+      <button class="outil-btn" id="btnAddPile6">
+        <span class="icon">🔋</span>
+        <span>Pile 6V</span>
+      </button>
+      <button class="outil-btn" id="btnAddResistance">
+        <span class="icon">📏</span>
+        <span>Résistance</span>
+      </button>
+      <button class="outil-btn" id="btnAddInterrupteur">
+        <span class="icon">🔘</span>
+        <span>Interrupteur</span>
+      </button>
+      <button class="outil-btn potentiometre" id="btnAddPotentiometre">
+        <span class="icon">🎛</span>
+        <span>Potentiomètre</span>
+      </button>
+      <button class="outil-btn fusible" id="btnAddFusible">
+        <span class="icon">🔌</span>
+        <span>Fusible</span>
+      </button>
+      <button class="outil-btn" id="btnAddLampe">
+        <span class="icon">💡</span>
+        <span>Lampe</span>
+      </button>
+      <button class="outil-btn" id="btnAddMoteur">
+        <span class="icon">⚙️</span>
+        <span>Moteur</span>
+      </button>
+      <button class="outil-btn" id="btnAddBuzzer">
+        <span class="icon">🔔</span>
+        <span>Sonnerie</span>
+      </button>
+      <button class="outil-btn led" id="btnAddLED">
+        <span class="icon">💡</span>
+        <span>LED</span>
+      </button>
+      <button class="outil-btn" id="btnAddDiode">
+        <span class="icon">▷|</span>
+        <span>Diode</span>
+      </button>
+      <button class="outil-btn condensateur" id="btnAddCondensateur">
+        <span class="icon">⚡</span>
+        <span>Condensateur</span>
+      </button>
+      <button class="outil-btn danger" id="btnClearAll">
+        <span class="icon">🗑</span>
+        <span>Tout effacer</span>
+      </button>
     </div>
   </div>
 
-  <!-- RÉSULTATS -->
-  <div class="result-box" id="resultBox" style="display:none;">
-    <h4>📐 Résultats</h4>
-    <div class="result-row"><span>🎯 Volume équivalent :</span> <strong id="resVeq">-</strong></div>
-    <div class="result-row"><span>🔵 Demi-équivalence :</span> <strong id="resVdemi">-</strong></div>
-    <div class="result-row"><span>📊 pH à l'équivalence :</span> <strong id="resPheq">-</strong></div>
-    <div class="result-row"><span>💧 pH à la demi-éq :</span> <strong id="resPhdemi">-</strong></div>
-  </div>
-
-  <!-- INFO -->
-  <div class="info-hint" id="infoHint">
-    👆 Choisis tes substances, puis clique sur <strong>Démarrer</strong> pour lancer le dosage.
-  </div>
-
-</div>
-
-<!-- MODAL CONFIGURATION ÉVALUATION -->
-<div class="modal-overlay" id="modalConfigEval">
-  <div class="modal-box">
-    <h3>📝 Configuration de l'évaluation</h3>
-    <div class="field">
-      <label>Nom</label>
-      <input type="text" id="evalNom" value="Évaluation dosage" placeholder="Ex: Contrôle n°2">
-    </div>
-    <div class="field">
-      <label>Durée (min)</label>
-      <select id="evalDuree">
-        <option value="5">5 min (rapide)</option>
-        <option value="10" selected>10 min</option>
-        <option value="15">15 min</option>
-        <option value="20">20 min</option>
+  <div class="panneau" id="panneau-mesures">
+    <div class="select-mobile">
+      <label>Ⓥ Voltmètre mesure :</label>
+      <select id="selectVoltmetreMobile">
+        <option value="pile">🔋 Pile</option>
       </select>
     </div>
-    <div class="field">
-      <label>Nombre de questions</label>
-      <select id="evalNbQuestions">
-        <option value="3">3 questions</option>
-        <option value="5" selected>5 questions</option>
-        <option value="8">8 questions</option>
+    <div class="mesures-grid">
+      <div class="mesure-box voltm off" id="mmVoltMobile">
+        <div class="mb-title">Ⓥ VOLTMÈTRE</div>
+        <div class="mb-value" id="mmVoltValMobile">0.00</div>
+        <div class="mb-unit">Volts (V)</div>
+        <div class="mb-target" id="mmVoltTargetMobile">En attente</div>
+      </div>
+      <div class="mesure-box off" id="mmAmpereMobile">
+        <div class="mb-title">Ⓐ AMPÈREMÈTRE</div>
+        <div class="mb-value" id="mmAmpereValMobile">0.000</div>
+        <div class="mb-unit">Ampères (A)</div>
+        <div class="mb-target" id="mmAmpereTargetMobile">En attente</div>
+      </div>
+    </div>
+    <div class="select-mobile">
+      <label>Ⓐ Ampèremètre mesure :</label>
+      <select id="selectAmperemetreMobile">
+        <option value="total">🔌 Courant total</option>
       </select>
     </div>
-    <div class="field">
-      <label>Difficulté</label>
-      <select id="evalDifficulte">
-        <option value="facile">🌱 Facile</option>
-        <option value="moyen" selected>📘 Moyen</option>
-        <option value="difficile">🔬 Difficile</option>
-      </select>
-    </div>
-    <div class="button-bar" style="margin-top:12px;">
-      <button class="btn btn-secondary" id="btnAnnulerEval">Annuler</button>
-      <button class="btn btn-primary" id="btnLancerEval">▶ Lancer</button>
+    <div class="table-wrapper">
+      <table class="measures-table">
+        <thead>
+          <tr>
+            <th>Composant</th>
+            <th>R (Ω)</th>
+            <th>U (V)</th>
+            <th>I (mA)</th>
+            <th>P (W)</th>
+          </tr>
+        </thead>
+        <tbody id="measuresBodyMobile">
+          <tr><td colspan="5" class="empty-msg">Aucune mesure</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
+
+  <div class="panneau" id="panneau-lois">
+    <div class="lois-panel" id="loisPanelMobile">
+      <div class="loi-warning">⚠️ Ajoute des composants pour commencer</div>
+    </div>
+  </div>
+
+  <div class="status-line" id="status">Appuie sur un bouton pour commencer</div>
+
+  <div class="action-bar">
+    <button class="btn-action btn-animer" id="btnAnimer" disabled>▶ Animer</button>
+    <button class="btn-action btn-reset" id="btnReset">🔄</button>
+    <button class="btn-action btn-formules" id="btnFormules">📐</button>
+  </div>
+
 </div>
 
-<!-- MODAL ÉVALUATION EN COURS -->
-<div class="modal-overlay" id="modalExamen">
+<div class="modal-overlay" id="modalFormules">
   <div class="modal-box">
-    <div class="examen-header">
-      <div>⏱️ <span class="timer" id="examenTimer">10:00</span></div>
-      <div>📝 <span id="examenNum">1</span>/<span id="examenTotal">5</span></div>
-      <div>🎯 <span id="examenScore">0</span></div>
+    <h3>📐 Formules à retenir</h3>
+    <div class="formule-bloc">
+      <h4>🔗 Circuit en SÉRIE</h4>
+      <p>
+        <strong>Loi des mailles :</strong> <code>U = U₁ + U₂ + U₃</code><br>
+        <strong>Résistance équivalente :</strong> <code>Req = R₁ + R₂ + R₃</code><br>
+        <strong>Intensité :</strong> <code>I = E / Req</code>
+      </p>
     </div>
-    <div class="progress-bar"><div class="progress-fill" id="examenProgress"></div></div>
-    <div id="examenContenu"></div>
+    <div class="formule-bloc">
+      <h4>🌿 Circuit en DÉRIVATION</h4>
+      <p>
+        <strong>Loi des nœuds :</strong> <code>I = I₁ + I₂ + I₃</code><br>
+        <strong>Résistance équivalente :</strong> <code>1/Req = 1/R₁ + 1/R₂</code><br>
+        <strong>Tension :</strong> <code>U = E</code>
+      </p>
+    </div>
+    <div class="formule-bloc">
+      <h4>🔀 Circuit MIXTE</h4>
+      <p>
+        <strong>Méthode :</strong> Identifier les blocs en parallèle → calculer R∥ → réduire en série → calculer Req.
+      </p>
+    </div>
+    <button class="btn-fermer" id="btnFermerFormules">Fermer</button>
   </div>
 </div>
 
-<!-- MODAL RÉSULTATS EXAMEN -->
-<div class="modal-overlay" id="modalResultatsExamen">
+<div class="modal-overlay" id="modalEditComposant">
   <div class="modal-box">
-    <div id="resultatsContenu"></div>
-  </div>
-</div>
-
-<!-- MODAL EXPORT PDF -->
-<div class="modal-overlay" id="modalExportPdf">
-  <div class="modal-box" style="text-align:center;">
-    <h3>📄 Rapport PDF</h3>
-    <p style="font-size:0.85em; color:#aaa; margin: 10px 0;">Le fichier a été téléchargé.</p>
-    <div style="background:rgba(79,195,247,0.1); border-radius:6px; padding:10px; margin:12px 0; font-size:0.78em; text-align:left;">
-      <strong>💡 Pour l'envoyer au prof :</strong><br>
-      1. Le PDF est dans tes "Téléchargements"<br>
-      2. Ouvre WhatsApp / Email<br>
-      3. Joins le PDF et envoie
+    <h3 id="editTitle">Modifier le composant</h3>
+    <div class="formule-bloc" style="border-left-color: #4fc3f7;">
+      <p style="margin-bottom: 10px; font-size: 0.85em; color: #ccc;" id="editDescription">
+        Choisissez une nouvelle valeur :
+      </p>
+      <div id="editRaccourcis" class="edit-raccourcis"></div>
+      <input type="number" class="edit-input" id="editValue" step="any">
+      <div class="edit-helper" id="editHelper">Plage : 1 à 10 000 Ω</div>
     </div>
-    <button class="btn btn-primary" id="btnFermerExportPdf" style="width:100%;">Compris</button>
+    <div class="edit-actions">
+      <button class="btn-annuler" id="btnAnnulerEdit">Annuler</button>
+      <button class="btn-valider" id="btnValiderEdit">✅ Valider</button>
+    </div>
   </div>
 </div>
 
 <script>
-    // ============================================================
-//  DONNÉES : SUBSTANCES & INDICATEURS
-// ============================================================
-const SUBSTANCES = [
-  { id:'hcl', nom:'Acide chlorhydrique', formule:'HCl', famille:'acide', force:'fort', n:1 },
-  { id:'hno3', nom:'Acide nitrique', formule:'HNO₃', famille:'acide', force:'fort', n:1 },
-  { id:'h2so4', nom:'Acide sulfurique', formule:'H₂SO₄', famille:'acide', force:'fort', n:2 },
-  { id:'ac_ethanoique', nom:'Acide éthanoïque', formule:'CH₃COOH', famille:'acide', force:'faible', n:1, pka:4.75 },
-  { id:'ac_methanoique', nom:'Acide méthanoïque', formule:'HCOOH', famille:'acide', force:'faible', n:1, pka:3.75 },
-  { id:'ac_lactique', nom:'Acide lactique', formule:'C₃H₆O₃', famille:'acide', force:'faible', n:1, pka:3.86 },
-  { id:'ac_benzoique', nom:'Acide benzoïque', formule:'C₆H₅COOH', famille:'acide', force:'faible', n:1, pka:4.20 },
-  { id:'nh4', nom:'Ion ammonium', formule:'NH₄⁺', famille:'acide', force:'faible', n:1, pka:9.25 },
-  { id:'naoh', nom:'Hydroxyde de sodium', formule:'NaOH', famille:'base', force:'fort', n:1 },
-  { id:'koh', nom:'Hydroxyde de potassium', formule:'KOH', famille:'base', force:'fort', n:1 },
-  { id:'caoh2', nom:'Hydroxyde de calcium', formule:'Ca(OH)₂', famille:'base', force:'fort', n:2 },
-  { id:'nh3', nom:'Ammoniac', formule:'NH₃', famille:'base', force:'faible', n:1, pka:9.25 },
-  { id:'methylamine', nom:'Méthylamine', formule:'CH₃NH₂', famille:'base', force:'faible', n:1, pka:10.62 },
-  { id:'triethylamine', nom:'Triéthylamine', formule:'(C₂H₅)₃N', famille:'base', force:'faible', n:1, pka:10.72 }
-];
-
-const INDICATEURS = [
-  { id:'helianthine', nom:'Hélianthine', zoneMin:3.1, zoneMax:4.4,
-    couleurAcide:'rgba(231,76,60,1)', couleurBasique:'rgba(241,196,15,1)' },
-  { id:'rmethyl', nom:'Rouge de méthyle', zoneMin:4.4, zoneMax:6.2,
-    couleurAcide:'rgba(231,76,60,1)', couleurBasique:'rgba(241,196,15,1)' },
-  { id:'vbromocresol', nom:'Vert de bromocrésol', zoneMin:3.8, zoneMax:5.4,
-    couleurAcide:'rgba(241,196,15,1)', couleurBasique:'rgba(52,152,219,1)' },
-  { id:'bbt', nom:'Bleu de bromothymol', zoneMin:6.0, zoneMax:7.6,
-    couleurAcide:'rgba(241,196,15,1)', couleurBasique:'rgba(52,152,219,1)' },
-  { id:'phenolphtaleine', nom:'Phénolphtaléine', zoneMin:8.2, zoneMax:10.0,
-    couleurAcide:'rgba(236,240,241,1)', couleurBasique:'rgba(233,30,99,1)' }
-];
-
 // ============================================================
 //  ÉTAT GLOBAL
 // ============================================================
-let modeActuel = 'standard';
-let substanceTitree = null;
-let substanceTitrante = null;
-let mesures = [];
-let started = false;
-let chart = null;
-let profile = null;
-let examen = { actif:false, questions:[], index:0, score:0, reponses:[], timer:null, tempsRestant:0, config:null };
-let pdfData = null;
+let atelier = {
+  composants: [],
+  fils: [],
+  noeuds: [],
+  filSelectionne: null,
+  composantSelectionne: null,
+  noeudSelectionne: null,
+  composantEnDrag: null,
+  noeudEnDrag: null,
+  offsetDrag: { x: 0, y: 0 },
+  poigneeEnDrag: null,
+  prochainIdComp: 1,
+  prochainIdFil: 1,
+  prochainIdNoeud: 1,
+  interrupteurFerme: false,
+  animation: { active: false, rafId: null, lastTime: 0 },
+  resultats: { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null, etapes: [] }
+};
+
+const canvas = document.getElementById('canvasCircuit');
+const ctx = canvas.getContext('2d');
+const W = canvas.width;
+const H = canvas.height;
+
+const TAILLE = {
+  pile: { w: 110, h: 55 },
+  resistance: { w: 110, h: 44 },
+  interrupteur: { w: 110, h: 55 },
+  lampe: { w: 90, h: 70 },
+  moteur: { w: 90, h: 70 },
+  buzzer: { w: 90, h: 70 },
+  diode: { w: 90, h: 60 },
+  condensateur: { w: 90, h: 60 },
+  led: { w: 90, h: 60 },
+  fusible: { w: 90, h: 50 },
+  potentiometre: { w: 110, h: 44 }
+};
+
+const COMPOSANTS_RESISTIFS = new Set(['resistance', 'lampe', 'moteur', 'buzzer', 'potentiometre', 'fusible']);
+const DIST_CONNEXION = 55;
+const DIST_SNAP = 60;
+
+let composantSurvole = null;
+let composantEnEdition = null;
+
+// ============================================================
+//  ONGLETS MOBILES
+// ============================================================
+document.querySelectorAll('.tab-mobile').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab-mobile').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panneau').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panneau-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ============================================================
+//  AJOUT DE COMPOSANTS
+// ============================================================
+document.getElementById('btnAddPile').addEventListener('click', () => ajouterComposant('pile', 12));
+document.getElementById('btnAddPile6').addEventListener('click', () => ajouterComposant('pile', 6));
+document.getElementById('btnAddResistance').addEventListener('click', () => ajouterComposant('resistance'));
+document.getElementById('btnAddInterrupteur').addEventListener('click', () => ajouterComposant('interrupteur'));
+document.getElementById('btnAddLampe').addEventListener('click', () => ajouterComposant('lampe'));
+document.getElementById('btnAddMoteur').addEventListener('click', () => ajouterComposant('moteur'));
+document.getElementById('btnAddBuzzer').addEventListener('click', () => ajouterComposant('buzzer'));
+document.getElementById('btnAddDiode').addEventListener('click', () => ajouterComposant('diode'));
+document.getElementById('btnAddFil').addEventListener('click', ajouterFilLibre);
+document.getElementById('btnAddNoeud').addEventListener('click', ajouterNoeud);
+document.getElementById('btnAddCondensateur').addEventListener('click', () => ajouterComposant('condensateur'));
+document.getElementById('btnAddLED').addEventListener('click', () => ajouterComposant('led'));
+document.getElementById('btnAddFusible').addEventListener('click', () => ajouterComposant('fusible'));
+document.getElementById('btnAddPotentiometre').addEventListener('click', () => ajouterComposant('potentiometre'));
+
+function ajouterComposant(type, tensionForcee) {
+  const index = atelier.composants.length;
+  const col = index % 2;
+  const row = Math.floor(index / 2);
+  const x = 180 + col * 480;
+  const y = 150 + row * 200;
+
+  const composant = {
+    id: 'c' + atelier.prochainIdComp++,
+    type: type,
+    x: x, y: y,
+    rotation: 0
+  };
+
+  switch (type) {
+    case 'pile': composant.tension = tensionForcee || 12; break;
+    case 'resistance': composant.valeur = 10; break;
+    case 'lampe': composant.valeur = 20; break;
+    case 'moteur': composant.valeur = 30; break;
+    case 'buzzer': composant.valeur = 40; break;
+    case 'condensateur': composant.capacite = 100; composant.charge = 0; break;
+    case 'led': composant.seuil = 1.8; composant.valeur = 20; break;
+    case 'fusible': composant.courantMax = 0.5; composant.valeur = 0.1; break;
+    case 'potentiometre': composant.valeur = 50; break;
+    case 'diode': composant.seuil = 0.7; composant.valeur = 0.1; break;
+  }
+
+  atelier.composants.push(composant);
+  drawCircuit();
+  updateZoneInfo();
+  updateSelectorsMobile();
+  analyserCircuit();
+  updateStatus(`✅ ${type} ajouté`);
+}
+
+function ajouterFilLibre() {
+  const cx = W / 2 + (Math.random() - 0.5) * 200;
+  const cy = H / 2 + (Math.random() - 0.5) * 150;
+  const longueur = 200;
+  const angle = Math.random() * Math.PI;
+
+  const fil = {
+    id: 'f' + atelier.prochainIdFil++,
+    x1: cx - Math.cos(angle) * longueur / 2,
+    y1: cy - Math.sin(angle) * longueur / 2,
+    x2: cx + Math.cos(angle) * longueur / 2,
+    y2: cy + Math.sin(angle) * longueur / 2,
+    de: null,
+    vers: null
+  };
+
+  atelier.fils.push(fil);
+  atelier.filSelectionne = fil.id;
+  atelier.composantSelectionne = null;
+  updateConnexionsFils();
+  drawCircuit();
+  updateZoneInfo();
+  updateZoneTool();
+  updateSelectionInfo();
+  analyserCircuit();
+  updateStatus('〰️ Fil ajouté — glisse les poignées');
+}
+
+function ajouterNoeud() {
+  const cx = W / 2 + (Math.random() - 0.5) * 300;
+  const cy = H / 2 + (Math.random() - 0.5) * 200;
+
+  const noeud = {
+    id: 'n' + atelier.prochainIdNoeud++,
+    x: cx,
+    y: cy
+  };
+
+  atelier.noeuds.push(noeud);
+  atelier.noeudSelectionne = noeud.id;
+  atelier.filSelectionne = null;
+  atelier.composantSelectionne = null;
+  drawCircuit();
+  updateZoneInfo();
+  updateSelectionInfo();
+  updateStatus('⬤ Nœud ajouté');
+}
+
+// ============================================================
+//  BORNES
+// ============================================================
+function getBornes(composant) {
+  const t = TAILLE[composant.type];
+  const rotation = composant.rotation || 0;
+  const bornes = [];
+  const bornesLocales = [
+    { id: composant.id + '-L', offsetX: -t.w / 2, offsetY: 0 },
+    { id: composant.id + '-R', offsetX: t.w / 2, offsetY: 0 }
+  ];
+  const angle = rotation * Math.PI / 180;
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  bornesLocales.forEach(bl => {
+    const rx = bl.offsetX * cos - bl.offsetY * sin;
+    const ry = bl.offsetX * sin + bl.offsetY * cos;
+    bornes.push({
+      id: bl.id,
+      composantId: composant.id,
+      x: composant.x + rx,
+      y: composant.y + ry
+    });
+  });
+  return bornes;
+}
+
+function getToutesLesBornes() {
+  const toutes = [];
+  atelier.composants.forEach(c => getBornes(c).forEach(b => toutes.push(b)));
+  atelier.noeuds.forEach(n => {
+    toutes.push({
+      id: n.id,
+      composantId: 'NOEUD_' + n.id,
+      x: n.x,
+      y: n.y,
+      estNoeud: true
+    });
+  });
+  return toutes;
+}
+
+function getBorneById(id) {
+  return getToutesLesBornes().find(b => b.id === id);
+}
+
+function updateConnexionsFils() {
+  const bornes = getToutesLesBornes();
+  atelier.fils.forEach(fil => {
+    fil.de = null;
+    fil.vers = null;
+
+    let meilleurDe = null, meilleurDeDist = DIST_CONNEXION;
+    let meilleurVers = null, meilleurVersDist = DIST_CONNEXION;
+
+    bornes.forEach(b => {
+      const d1 = Math.hypot(b.x - fil.x1, b.y - fil.y1);
+      if (d1 < meilleurDeDist) { meilleurDeDist = d1; meilleurDe = b.id; }
+      const d2 = Math.hypot(b.x - fil.x2, b.y - fil.y2);
+      if (d2 < meilleurVersDist) { meilleurVersDist = d2; meilleurVers = b.id; }
+    });
+
+    if (meilleurDe && meilleurVers) {
+      const b1 = getBorneById(meilleurDe);
+      const b2 = getBorneById(meilleurVers);
+      if (b1 && b2 && b1.composantId === b2.composantId && !b1.estNoeud && !b2.estNoeud) {
+        if (meilleurDeDist <= meilleurVersDist) meilleurVers = null;
+        else meilleurDe = null;
+      }
+    }
+
+    fil.de = meilleurDe;
+    fil.vers = meilleurVers;
+  });
+}
+
+function trouverBorneProcheDe(x, y, maxDist) {
+  let meilleure = null, minDist = maxDist;
+  getToutesLesBornes().forEach(b => {
+    const d = Math.hypot(b.x - x, b.y - y);
+    if (d < minDist) { minDist = d; meilleure = b; }
+  });
+  return meilleure;
+}
+
+// ============================================================
+//  DESSIN
+// ============================================================
+function drawCircuit() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0a0a1a';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = 'rgba(79,195,247,0.05)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 50) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 50) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+  atelier.fils.forEach(fil => drawFil(fil));
+  atelier.noeuds.forEach(n => drawNoeud(n));
+  atelier.composants.forEach(c => drawComposant(c));
+  atelier.composants.forEach(c => getBornes(c).forEach(b => drawBorne(b)));
+
+  if (atelier.animation.active && atelier.interrupteurFerme &&
+      atelier.resultats.type !== 'aucun' && atelier.resultats.type !== 'ouvert' &&
+      atelier.resultats.type !== 'erreur') {
+    drawElectrons();
+  }
+}
+
+function drawNoeud(noeud) {
+  const estSelectionne = atelier.noeudSelectionne === noeud.id;
+  const nbFils = atelier.fils.filter(f => f.de === noeud.id || f.vers === noeud.id).length;
+
+  const pulse = (Math.sin(Date.now() / 400) + 1) / 2;
+  const tailleHalo = 22 + nbFils * 4 + pulse * 6;
+  const grad = ctx.createRadialGradient(noeud.x, noeud.y, 2, noeud.x, noeud.y, tailleHalo);
+  grad.addColorStop(0, `rgba(255, 213, 79, ${0.5 + pulse * 0.3})`);
+  grad.addColorStop(1, 'rgba(255, 213, 79, 0)');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(noeud.x, noeud.y, tailleHalo, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = estSelectionne ? '#ffd54f' : '#ffb300';
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(noeud.x, noeud.y, 16, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  if (nbFils > 0) {
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 14px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(nbFils, noeud.x, noeud.y + 1);
+    ctx.textBaseline = 'alphabetic';
+  }
+}
+
+function drawFil(fil) {
+  const estSelectionne = atelier.filSelectionne === fil.id;
+  const estBranche = fil.de && fil.vers;
+
+  ctx.strokeStyle = estSelectionne ? '#ffd54f' : (estBranche ? '#4caf50' : '#4fc3f7');
+  ctx.lineWidth = estSelectionne ? 10 : 7;
+  ctx.lineCap = 'round';
+  ctx.shadowColor = estSelectionne ? '#ffd54f' : (estBranche ? '#4caf50' : '#4fc3f7');
+  ctx.shadowBlur = estSelectionne ? 18 : 10;
+  ctx.beginPath();
+  ctx.moveTo(fil.x1, fil.y1);
+  ctx.lineTo(fil.x2, fil.y2);
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  ctx.fillStyle = fil.de ? '#4caf50' : '#888';
+  ctx.beginPath(); ctx.arc(fil.x1, fil.y1, 9, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = fil.vers ? '#4caf50' : '#888';
+  ctx.beginPath(); ctx.arc(fil.x2, fil.y2, 9, 0, Math.PI * 2); ctx.fill();
+
+  if (estSelectionne) {
+    const pulse = (Math.sin(Date.now() / 300) + 1) / 2;
+    drawPoigneeFil(fil.x1, fil.y1, pulse);
+    drawPoigneeFil(fil.x2, fil.y2, pulse);
+  }
+}
+
+function drawPoigneeFil(x, y, pulse) {
+  const grad = ctx.createRadialGradient(x, y, 2, x, y, 32 + pulse * 10);
+  grad.addColorStop(0, `rgba(255, 213, 79, ${0.5 + pulse * 0.4})`);
+  grad.addColorStop(1, 'rgba(255, 213, 79, 0)');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(x, y, 32 + pulse * 10, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#ffd54f';
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(x, y, 16, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 18px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('✥', x, y + 1);
+  ctx.textBaseline = 'alphabetic';
+}
+
+function getMesuresComposant(compId) {
+  const r = atelier.resultats;
+  if (!r || !r.branches) return null;
+  const branche = r.branches.find(b => b.id === compId);
+  if (!branche) return null;
+  return {
+    R: branche.valeur,
+    U: branche.U,
+    I: branche.I,
+    P: branche.U * branche.I
+  };
+}
+
+function drawComposant(c) {
+  const t = TAILLE[c.type];
+  const estSelectionne = atelier.composantSelectionne === c.id;
+  const isDragging = atelier.composantEnDrag && atelier.composantEnDrag.id === c.id;
+
+  if (isDragging) { ctx.shadowColor = '#ffd54f'; ctx.shadowBlur = 25; }
+  else if (estSelectionne) { ctx.shadowColor = '#4fc3f7'; ctx.shadowBlur = 18; }
+
+  const mesures = getMesuresComposant(c.id);
+  const sousTension = mesures && mesures.I > 0.001 && atelier.interrupteurFerme;
+
+  if (sousTension && c.type !== 'interrupteur' && c.type !== 'pile') {
+    const grad = ctx.createRadialGradient(c.x, c.y, 5, c.x, c.y, 90);
+    grad.addColorStop(0, 'rgba(76, 175, 80, 0.3)');
+    grad.addColorStop(1, 'rgba(76, 175, 80, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, 90, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.save();
+  ctx.translate(c.x, c.y);
+  ctx.rotate((c.rotation || 0) * Math.PI / 180);
+  ctx.translate(-c.x, -c.y);
+
+  switch (c.type) {
+    case 'pile': drawPile(c.x, c.y, t.w, t.h, c.tension); break;
+    case 'resistance': drawResistance(c.x, c.y, t.w, t.h, c.valeur); break;
+    case 'interrupteur': drawInterrupteur(c.x, c.y, t.w, t.h); break;
+    case 'lampe': drawLampe(c.x, c.y, t.w, t.h, c.valeur, mesures); break;
+    case 'moteur': drawMoteur(c.x, c.y, t.w, t.h, c.valeur, mesures); break;
+    case 'buzzer': drawBuzzer(c.x, c.y, t.w, t.h, c.valeur, mesures); break;
+    case 'diode': drawDiode(c.x, c.y, t.w, t.h, mesures); break;
+    case 'condensateur': drawCondensateur(c.x, c.y, t.w, t.h, c.capacite, c.charge, mesures); break;
+    case 'led': drawLED(c.x, c.y, t.w, t.h, c.seuil, c.valeur, mesures); break;
+    case 'fusible': drawFusible(c.x, c.y, t.w, t.h, c.courantMax, c.valeur, mesures); break;
+    case 'potentiometre': drawPotentiometre(c.x, c.y, t.w, t.h, c.valeur); break;
+  }
+
+  ctx.restore();
+  ctx.shadowBlur = 0;
+
+  if (mesures && sousTension && COMPOSANTS_RESISTIFS.has(c.type)) {
+    drawEtiquetteMesures(c, mesures);
+  }
+
+  if (c.type === 'pile' || COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'condensateur' || c.type === 'led' || c.type === 'fusible' || c.type === 'potentiometre') {
+    drawIndicateurEditable(c);
+  }
+
+  drawPoigneeRotation(c);
+}
+
+function drawIndicateurEditable(c) {
+  const t = TAILLE[c.type];
+  const angle = (c.rotation || 0) * Math.PI / 180;
+  const offsetX = t.w / 2 - 10;
+  const offsetY = t.h / 2 - 10;
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  const ix = c.x + (offsetX * cos - offsetY * sin);
+  const iy = c.y + (offsetX * sin + offsetY * cos);
+
+  ctx.fillStyle = 'rgba(79, 195, 247, 0.9)';
+  ctx.font = 'bold 14px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('✎', ix, iy);
+  ctx.textBaseline = 'alphabetic';
+}
+
+function drawEtiquetteMesures(c, mesures) {
+  const t = TAILLE[c.type];
+  const rotation = c.rotation || 0;
+  const angle = rotation * Math.PI / 180;
+  const offsetY = t.h / 2 + 55;
+  const lx = c.x - offsetY * Math.sin(angle);
+  const ly = c.y + offsetY * Math.cos(angle);
+
+  const lignes = [
+    `U = ${mesures.U.toFixed(2)} V`,
+    `I = ${(mesures.I * 1000).toFixed(0)} mA`,
+    `P = ${mesures.P.toFixed(2)} W`
+  ];
+
+  ctx.font = 'bold 13px "Courier New", monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  const largeur = 130;
+  const hauteur = 60;
+  const boxX = lx - largeur / 2;
+  const boxY = ly - hauteur / 2;
+
+  ctx.fillStyle = 'rgba(10, 10, 26, 0.9)';
+  ctx.strokeStyle = 'rgba(76, 175, 80, 0.6)';
+  ctx.lineWidth = 2;
+  if (ctx.roundRect) {
+    ctx.beginPath();
+    ctx.roundRect(boxX, boxY, largeur, hauteur, 8);
+    ctx.fill();
+    ctx.stroke();
+  } else {
+    ctx.fillRect(boxX, boxY, largeur, hauteur);
+    ctx.strokeRect(boxX, boxY, largeur, hauteur);
+  }
+
+  ctx.fillStyle = '#4fc3f7';
+  lignes.forEach((ligne, i) => {
+    ctx.fillText(ligne, lx, boxY + 15 + i * 16);
+  });
+
+  ctx.textBaseline = 'alphabetic';
+}
+
+function drawPoigneeRotation(c) {
+  const t = TAILLE[c.type];
+  const angle = (c.rotation || 0) * Math.PI / 180;
+  const offsetY = -t.h / 2 - 28;
+  const hx = c.x + offsetY * Math.sin(angle);
+  const hy = c.y - offsetY * Math.cos(angle);
+
+  ctx.fillStyle = '#4fc3f7';
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(hx, hy, 12, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 14px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('⟳', hx, hy);
+  ctx.textBaseline = 'alphabetic';
+}
+
+// === Fonctions de dessin (identiques au PC, adaptées aux tailles mobiles) ===
+function drawPile(cx, cy, w, h, tension) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.roundRect(cx - w / 2, cy - h / 2, w, h, 10); ctx.fill(); ctx.stroke();
+
+  ctx.fillStyle = '#4caf50';
+  ctx.font = 'bold 30px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('−', cx - 35, cy);
+  ctx.fillStyle = '#f44336';
+  ctx.fillText('+', cx + 35, cy);
+
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 18px monospace';
+  ctx.fillText(tension + 'V', cx, cy + 1);
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#4fc3f7';
+  ctx.font = 'bold 14px monospace';
+  ctx.fillText('PILE', cx, cy - h / 2 - 10);
+}
+
+function drawResistance(cx, cy, w, h, valeur) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.roundRect(cx - w / 2, cy - h / 2, w, h, 8); ctx.fill(); ctx.stroke();
+
+  ctx.strokeStyle = '#ffd54f';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - w / 2 + 10, cy);
+  const seg = (w - 20) / 6;
+  for (let i = 0; i < 6; i++) ctx.lineTo(cx - w / 2 + 10 + seg * (i + 1), cy + (i % 2 === 0 ? -10 : 10));
+  ctx.stroke();
+
+  ctx.fillStyle = '#4fc3f7';
+  ctx.font = 'bold 17px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(valeur + 'Ω', cx, cy);
+
+  ctx.fillStyle = '#ffd54f';
+  ctx.font = 'bold 14px monospace';
+  ctx.fillText('R', cx, cy - h / 2 - 10);
+  ctx.textBaseline = 'alphabetic';
+}
+
+function drawWireLine(cx, cy, w) {
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - w / 2, cy);
+  ctx.lineTo(cx + w / 2, cy);
+  ctx.stroke();
+}
+
+function drawLampe(cx, cy, w, h, valeur, mesures) {
+  drawWireLine(cx, cy, w);
+
+  let brillance = 0;
+  if (mesures && atelier.interrupteurFerme) {
+    const U_nominal = 6;
+    brillance = Math.min(1, mesures.U / U_nominal);
+  }
+
+  if (brillance > 0.02) {
+    const taille = 35 + brillance * 35;
+    const g = ctx.createRadialGradient(cx, cy, 4, cx, cy, taille);
+    g.addColorStop(0, `rgba(255, 235, 59, ${brillance * 0.95})`);
+    g.addColorStop(0.5, `rgba(255, 200, 30, ${brillance * 0.6})`);
+    g.addColorStop(1, 'rgba(255, 235, 59, 0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(cx, cy, taille, 0, Math.PI * 2); ctx.fill();
+  }
+
+  const rCorps = Math.round(10 + brillance * 245);
+  const gCorps = Math.round(10 + brillance * 225);
+  const bCorps = Math.round(26 - brillance * 26);
+  ctx.fillStyle = `rgb(${rCorps}, ${gCorps}, ${bCorps})`;
+
+  ctx.strokeStyle = brillance > 0.1 ? '#ff9800' : '#fff';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 25, 0, Math.PI * 2);
+  ctx.fill(); ctx.stroke();
+
+  ctx.strokeStyle = brillance > 0.5 ? '#333' : '#fff';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(cx - 14, cy - 14); ctx.lineTo(cx + 14, cy + 14);
+  ctx.moveTo(cx + 14, cy - 14); ctx.lineTo(cx - 14, cy + 14);
+  ctx.stroke();
+
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 14px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('L', cx, cy - 38);
+  ctx.font = '13px monospace';
+  ctx.fillText(valeur + ' Ω', cx, cy + 48);
+}
+
+function drawMoteur(cx, cy, w, h, valeur, mesures) {
+  drawWireLine(cx, cy, w);
+
+  let vitesse = 0;
+  if (mesures && atelier.interrupteurFerme) {
+    const I_nominal = 0.3;
+    vitesse = Math.min(1, mesures.I / I_nominal);
+  }
+  const actif = vitesse > 0.02;
+
+  ctx.fillStyle = actif ? '#4caf50' : '#0a0a1a';
+  ctx.strokeStyle = actif ? '#81c784' : '#fff';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 25, 0, Math.PI * 2);
+  ctx.fill(); ctx.stroke();
+
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 24px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('M', cx, cy);
+  ctx.textBaseline = 'alphabetic';
+
+  if (actif) {
+    const angleBase = (Date.now() / (300 - vitesse * 250)) % (Math.PI * 2);
+    ctx.strokeStyle = '#4caf50';
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 8; i++) {
+      const a = angleBase + i * Math.PI / 4;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(a) * 30, cy + Math.sin(a) * 30);
+      ctx.lineTo(cx + Math.cos(a) * 38, cy + Math.sin(a) * 38);
+      ctx.stroke();
+    }
+  }
+
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 13px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('MOTEUR', cx, cy - 38);
+  ctx.font = '13px monospace';
+  ctx.fillText(valeur + ' Ω', cx, cy + 48);
+}
+
+function drawBuzzer(cx, cy, w, h, valeur, mesures) {
+  drawWireLine(cx, cy, w);
+  const actif = mesures && mesures.I > 0.001 && atelier.interrupteurFerme;
+
+  ctx.strokeStyle = actif ? '#ffc107' : '#fff';
+  ctx.fillStyle = actif ? '#ffc107' : '#0a0a1a';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 25, 0, Math.PI * 2);
+  ctx.fill(); ctx.stroke();
+
+  ctx.strokeStyle = actif ? '#333' : '#fff';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(cx - 12, cy - 7);
+  ctx.lineTo(cx + 6, cy - 7);
+  ctx.lineTo(cx + 14, cy - 16);
+  ctx.lineTo(cx + 14, cy + 16);
+  ctx.lineTo(cx + 6, cy + 7);
+  ctx.lineTo(cx - 12, cy + 7);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx + 9, cy, 16, -0.7, 0.7);
+  ctx.stroke();
+
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 13px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('SONNERIE', cx, cy - 38);
+  ctx.font = '13px monospace';
+  ctx.fillText(valeur + ' Ω', cx, cy + 48);
+}
+
+function drawDiode(cx, cy, w, h, mesures) {
+  drawWireLine(cx, cy, w);
+  const actif = mesures && mesures.I > 0.001 && atelier.interrupteurFerme;
+
+  ctx.strokeStyle = actif ? '#4caf50' : '#fff';
+  ctx.fillStyle = '#0a0a1a';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - 18, cy - 18);
+  ctx.lineTo(cx - 18, cy + 18);
+  ctx.lineTo(cx + 16, cy);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx + 16, cy - 20);
+  ctx.lineTo(cx + 16, cy + 20);
+  ctx.stroke();
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 13px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('DIODE', cx, cy - 38);
+}
+
+function drawCondensateur(cx, cy, w, h, capacite, charge, mesures) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 8); ctx.fill(); ctx.stroke();
+
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(cx - 15, cy - 18); ctx.lineTo(cx - 15, cy + 18);
+  ctx.moveTo(cx + 15, cy - 18); ctx.lineTo(cx + 15, cy + 18);
+  ctx.stroke();
+
+  if (charge > 0) {
+    ctx.fillStyle = `rgba(79, 195, 247, ${Math.min(charge / capacite, 1) * 0.6})`;
+    ctx.fillRect(cx - 15, cy - 18, 30, 36);
+  }
+
+  ctx.fillStyle = '#4fc3f7';
+  ctx.font = 'bold 14px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${capacite}µF`, cx, cy - h/2 - 10);
+}
+
+function drawLED(cx, cy, w, h, seuil, resistance, mesures) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#ff5722';
+  ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 8); ctx.fill(); ctx.stroke();
+
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - 18, cy - 18);
+  ctx.lineTo(cx - 18, cy + 18);
+  ctx.lineTo(cx + 18, cy);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx + 18, cy - 18);
+  ctx.lineTo(cx + 18, cy + 18);
+  ctx.stroke();
+
+  let allumee = false;
+  if (mesures && atelier.interrupteurFerme && mesures.I > 0.001) {
+    allumee = true;
+  }
+
+  if (allumee) {
+    const grad = ctx.createRadialGradient(cx, cy, 5, cx, cy, 50);
+    grad.addColorStop(0, 'rgba(255, 87, 34, 0.8)');
+    grad.addColorStop(1, 'rgba(255, 87, 34, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, 50, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = '#ff5722';
+  ctx.font = 'bold 14px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('LED', cx, cy - h/2 - 10);
+}
+
+function drawFusible(cx, cy, w, h, courantMax, resistance, mesures) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#ffc107';
+  ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 8); ctx.fill(); ctx.stroke();
+
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - w/2 + 15, cy);
+  ctx.lineTo(cx + w/2 - 15, cy);
+  ctx.stroke();
+
+  let fondu = false;
+  if (mesures && mesures.I > courantMax) {
+    fondu = true;
+  }
+
+  if (fondu) {
+    ctx.strokeStyle = '#d9534f';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(cx - 20, cy);
+    ctx.lineTo(cx + 20, cy);
+    ctx.stroke();
+    ctx.fillStyle = '#d9534f';
+    ctx.font = 'bold 14px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('FONDU', cx, cy + h/2 + 14);
+  }
+
+  ctx.fillStyle = '#ffc107';
+  ctx.font = 'bold 14px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${courantMax}A`, cx, cy - h/2 - 10);
+}
+
+function drawPotentiometre(cx, cy, w, h, valeur) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#9c27b0';
+  ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 8); ctx.fill(); ctx.stroke();
+
+  ctx.strokeStyle = '#ffd54f';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - w/2 + 15, cy);
+  const seg = (w - 30) / 6;
+  for (let i = 0; i < 6; i++) ctx.lineTo(cx - w/2 + 15 + seg * (i+1), cy + (i % 2 === 0 ? -10 : 10));
+  ctx.stroke();
+
+  ctx.strokeStyle = '#9c27b0';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 25);
+  ctx.lineTo(cx - 8, cy - 12);
+  ctx.lineTo(cx + 8, cy - 12);
+  ctx.closePath();
+  ctx.stroke();
+
+  ctx.fillStyle = '#9c27b0';
+  ctx.font = 'bold 14px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${valeur}Ω`, cx, cy);
+}
+
+function drawInterrupteur(cx, cy, w, h) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = atelier.interrupteurFerme ? '#4caf50' : '#666';
+  ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.roundRect(cx - w / 2, cy - h / 2, w, h, 10); ctx.fill(); ctx.stroke();
+
+  const bx1 = cx - w / 2 + 18;
+  const bx2 = cx + w / 2 - 18;
+
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(bx1, cy, 8, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(bx2, cy, 8, 0, Math.PI * 2); ctx.fill();
+
+  ctx.strokeStyle = atelier.interrupteurFerme ? '#4caf50' : '#f44336';
+  ctx.lineWidth = 5;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  if (atelier.interrupteurFerme) { ctx.moveTo(bx1, cy); ctx.lineTo(bx2, cy); }
+  else { ctx.moveTo(bx1, cy); ctx.lineTo(bx2, cy - 28); }
+  ctx.stroke();
+
+  ctx.fillStyle = atelier.interrupteurFerme ? '#4caf50' : '#f44336';
+  ctx.font = 'bold 13px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(atelier.interrupteurFerme ? '✓ FERMÉ' : '○ OUVERT', cx, cy + h / 2 + 18);
+  ctx.fillStyle = '#4fc3f7';
+  ctx.fillText('INTERRUPTEUR', cx, cy - h / 2 - 10);
+}
+
+function drawBorne(b) {
+  const estConnectee = atelier.fils.some(f => f.de === b.id || f.vers === b.id);
+
+  if (estConnectee) {
+    const grad = ctx.createRadialGradient(b.x, b.y, 2, b.x, b.y, 24);
+    grad.addColorStop(0, 'rgba(76, 175, 80, 0.6)');
+    grad.addColorStop(1, 'rgba(76, 175, 80, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(b.x, b.y, 24, 0, Math.PI * 2); ctx.fill();
+  } else {
+    const pulse = (Math.sin(Date.now() / 500) + 1) / 2;
+    const grad = ctx.createRadialGradient(b.x, b.y, 2, b.x, b.y, 18 + pulse * 8);
+    grad.addColorStop(0, `rgba(79, 195, 247, ${0.3 + pulse * 0.3})`);
+    grad.addColorStop(1, 'rgba(79, 195, 247, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(b.x, b.y, 18 + pulse * 8, 0, Math.PI * 2); ctx.fill();
+  }
+
+  ctx.fillStyle = estConnectee ? '#4caf50' : '#fff';
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.arc(b.x, b.y, 11, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+  ctx.fillStyle = '#000';
+  ctx.beginPath(); ctx.arc(b.x, b.y, 3.5, 0, Math.PI * 2); ctx.fill();
+}
+
+// ============================================================
+//  INTERACTIONS TACTILES
+// ============================================================
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const p = getCanvasCoords(e, true);
+  handlePointerDown(p.x, p.y);
+}, { passive: false });
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const p = getCanvasCoords(e, true);
+  handlePointerMove(p.x, p.y);
+}, { passive: false });
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  handlePointerUp();
+});
+canvas.addEventListener('touchcancel', e => {
+  handlePointerUp();
+});
+
+canvas.addEventListener('mousedown', e => { const p = getCanvasCoords(e, false); handlePointerDown(p.x, p.y); });
+canvas.addEventListener('mousemove', e => {
+  const p = getCanvasCoords(e, false);
+  handlePointerMove(p.x, p.y);
+});
+canvas.addEventListener('mouseup', handlePointerUp);
+
+let lastTapTime = 0;
+let lastTapPos = { x: 0, y: 0 };
+canvas.addEventListener('touchend', e => {
+  const now = Date.now();
+  const p = getCanvasCoords(e, true);
+  const dt = now - lastTapTime;
+  const dist = Math.hypot(p.x - lastTapPos.x, p.y - lastTapPos.y);
+
+  if (dt < 300 && dist < 30) {
+    const comp = trouverComposantProche(p.x, p.y);
+    if (comp) {
+      if (comp.type === 'interrupteur') {
+        atelier.interrupteurFerme = !atelier.interrupteurFerme;
+        drawCircuit();
+        analyserCircuit();
+        updateStatus(atelier.interrupteurFerme ? '🔘 FERMÉ' : '🔘 OUVERT');
+      } else if (comp.type === 'pile' || COMPOSANTS_RESISTIFS.has(comp.type) || comp.type === 'condensateur' || comp.type === 'led' || comp.type === 'fusible' || comp.type === 'potentiometre') {
+        ouvrirPanneauEdition(comp);
+      }
+    }
+  }
+  lastTapTime = now;
+  lastTapPos = p;
+}, { passive: true });
+
+function getCanvasCoords(e, isTouch) {
+  const rect = canvas.getBoundingClientRect();
+  const canvasRatio = canvas.width / canvas.height;
+  const rectRatio = rect.width / rect.height;
+  let renderWidth, renderHeight, offsetX, offsetY;
+  if (rectRatio > canvasRatio) {
+    renderHeight = rect.height;
+    renderWidth = renderHeight * canvasRatio;
+    offsetX = (rect.width - renderWidth) / 2;
+    offsetY = 0;
+  } else {
+    renderWidth = rect.width;
+    renderHeight = renderWidth / canvasRatio;
+    offsetX = 0;
+    offsetY = (rect.height - renderHeight) / 2;
+  }
+  let clientX, clientY;
+  if (isTouch) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+  else { clientX = e.clientX; clientY = e.clientY; }
+  return {
+    x: (clientX - rect.left - offsetX) * (canvas.width / renderWidth),
+    y: (clientY - rect.top - offsetY) * (canvas.height / renderHeight)
+  };
+}
+
+function handlePointerDown(x, y) {
+  if (atelier.filSelectionne) {
+    const fil = atelier.fils.find(f => f.id === atelier.filSelectionne);
+    if (fil) {
+      const dA = Math.hypot(fil.x1 - x, fil.y1 - y);
+      const dB = Math.hypot(fil.x2 - x, fil.y2 - y);
+      if (dA < 30) { atelier.poigneeEnDrag = { filId: fil.id, cote: 'A' }; return; }
+      if (dB < 30) { atelier.poigneeEnDrag = { filId: fil.id, cote: 'B' }; return; }
+    }
+  }
+
+  const noeudTouche = trouverNoeudProche(x, y);
+  if (noeudTouche) {
+    atelier.noeudEnDrag = noeudTouche;
+    atelier.noeudSelectionne = noeudTouche.id;
+    atelier.filSelectionne = null;
+    atelier.composantSelectionne = null;
+    atelier.offsetDrag = { x: x - noeudTouche.x, y: y - noeudTouche.y };
+    updateSelectionInfo();
+    drawCircuit();
+    return;
+  }
+
+  const filClique = trouverFilProche(x, y);
+  if (filClique) {
+    atelier.filSelectionne = filClique.id;
+    atelier.composantSelectionne = null;
+    atelier.noeudSelectionne = null;
+    updateZoneTool();
+    updateSelectionInfo();
+    drawCircuit();
+    updateStatus('〰️ Fil sélectionné');
+    return;
+  }
+
+  for (const c of atelier.composants) {
+    const t = TAILLE[c.type];
+    const angle = (c.rotation || 0) * Math.PI / 180;
+    const offsetY = -t.h / 2 - 28;
+    const hx = c.x + offsetY * Math.sin(angle);
+    const hy = c.y - offsetY * Math.cos(angle);
+    if (Math.hypot(hx - x, hy - y) < 25) {
+      c.rotation = ((c.rotation || 0) + 90) % 360;
+      updateConnexionsFils();
+      drawCircuit(); analyserCircuit();
+      return;
+    }
+  }
+
+  const comp = trouverComposantProche(x, y);
+  if (comp) {
+    atelier.composantEnDrag = comp;
+    atelier.composantSelectionne = comp.id;
+    atelier.filSelectionne = null;
+    atelier.noeudSelectionne = null;
+    atelier.offsetDrag = { x: x - comp.x, y: y - comp.y };
+    updateZoneTool();
+    updateSelectionInfo();
+    drawCircuit();
+    return;
+  }
+
+  atelier.filSelectionne = null;
+  atelier.composantSelectionne = null;
+  atelier.noeudSelectionne = null;
+  updateZoneTool();
+  updateSelectionInfo();
+  drawCircuit();
+}
+
+function handlePointerMove(x, y) {
+  if (atelier.poigneeEnDrag) {
+    const fil = atelier.fils.find(f => f.id === atelier.poigneeEnDrag.filId);
+    if (fil) {
+      const borneProche = trouverBorneProcheDe(x, y, DIST_SNAP);
+      let finalX = Math.max(10, Math.min(W - 10, x));
+      let finalY = Math.max(10, Math.min(H - 10, y));
+      if (borneProche) {
+        finalX = borneProche.x;
+        finalY = borneProche.y;
+      }
+      if (atelier.poigneeEnDrag.cote === 'A') {
+        fil.x1 = finalX; fil.y1 = finalY;
+      } else {
+        fil.x2 = finalX; fil.y2 = finalY;
+      }
+      updateConnexionsFils();
+    }
+    drawCircuit();
+    return;
+  }
+
+  if (atelier.noeudEnDrag) {
+    atelier.noeudEnDrag.x = Math.max(20, Math.min(W - 20, x - atelier.offsetDrag.x));
+    atelier.noeudEnDrag.y = Math.max(20, Math.min(H - 20, y - atelier.offsetDrag.y));
+    atelier.fils.forEach(fil => {
+      if (fil.de === atelier.noeudEnDrag.id) { fil.x1 = atelier.noeudEnDrag.x; fil.y1 = atelier.noeudEnDrag.y; }
+      if (fil.vers === atelier.noeudEnDrag.id) { fil.x2 = atelier.noeudEnDrag.x; fil.y2 = atelier.noeudEnDrag.y; }
+    });
+    drawCircuit();
+    return;
+  }
+
+  if (atelier.composantEnDrag) {
+    atelier.composantEnDrag.x = Math.max(80, Math.min(W - 80, x - atelier.offsetDrag.x));
+    atelier.composantEnDrag.y = Math.max(80, Math.min(H - 80, y - atelier.offsetDrag.y));
+    updateConnexionsFils();
+    drawCircuit();
+    return;
+  }
+}
+
+function handlePointerUp() {
+  const avaitDrag = atelier.composantEnDrag || atelier.poigneeEnDrag || atelier.noeudEnDrag;
+  atelier.composantEnDrag = null;
+  atelier.poigneeEnDrag = null;
+  atelier.noeudEnDrag = null;
+  if (avaitDrag) {
+    updateConnexionsFils();
+    drawCircuit();
+    updateSelectorsMobile();
+    analyserCircuit();
+  }
+}
+
+function trouverNoeudProche(x, y) {
+  let meilleur = null, minDist = 32;
+  atelier.noeuds.forEach(n => {
+    const d = Math.hypot(n.x - x, n.y - y);
+    if (d < minDist) { minDist = d; meilleur = n; }
+  });
+  return meilleur;
+}
+
+function trouverFilProche(x, y) {
+  let meilleur = null, minDist = 25;
+  atelier.fils.forEach(fil => {
+    const d = distancePointSegment(x, y, fil.x1, fil.y1, fil.x2, fil.y2);
+    if (d < minDist) { minDist = d; meilleur = fil; }
+  });
+  return meilleur;
+}
+
+function trouverComposantProche(x, y) {
+  for (let i = atelier.composants.length - 1; i >= 0; i--) {
+    const c = atelier.composants[i];
+    const t = TAILLE[c.type];
+    const rotation = c.rotation || 0;
+    const dx = x - c.x, dy = y - c.y;
+    const angle = -rotation * Math.PI / 180;
+    const cos = Math.cos(angle), sin = Math.sin(angle);
+    const localX = dx * cos - dy * sin;
+    const localY = dx * sin + dy * cos;
+    const w = (rotation % 180 === 0) ? t.w : t.h;
+    const h = (rotation % 180 === 0) ? t.h : t.w;
+    if (Math.abs(localX) < w / 2 && Math.abs(localY) < h / 2) return c;
+  }
+  return null;
+}
+
+function distancePointSegment(px, py, x1, y1, x2, y2) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len2 = dx * dx + dy * dy;
+  if (len2 === 0) return Math.hypot(px - x1, py - y1);
+  let t = ((px - x1) * dx + (py - y1) * dy) / len2;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+}
+
+// ============================================================
+//  PANNEAU D'ÉDITION
+// ============================================================
+function ouvrirPanneauEdition(comp) {
+  composantEnEdition = comp;
+
+  const titre = document.getElementById('editTitle');
+  const description = document.getElementById('editDescription');
+  const input = document.getElementById('editValue');
+  const helper = document.getElementById('editHelper');
+  const raccourcis = document.getElementById('editRaccourcis');
+
+  raccourcis.innerHTML = '';
+  input.value = '';
+
+  switch (comp.type) {
+    case 'pile':
+      titre.textContent = '🔋 Modifier la pile';
+      description.textContent = 'Choisissez la tension :';
+      input.value = comp.tension;
+      input.min = 1; input.max = 24; input.step = 0.5;
+      helper.textContent = 'Plage : 1 à 24 V';
+      [1.5, 3, 4.5, 6, 9, 12].forEach(v => {
+        const btn = document.createElement('button');
+        btn.textContent = `${v} V`;
+        btn.onclick = () => { input.value = v; };
+        raccourcis.appendChild(btn);
+      });
+      break;
+    case 'resistance':
+    case 'lampe':
+    case 'moteur':
+    case 'buzzer':
+    case 'potentiometre':
+      titre.textContent = `📏 Modifier ${comp.type}`;
+      description.textContent = 'Choisissez la résistance :';
+      input.value = comp.valeur;
+      input.min = 1; input.max = 10000; input.step = 1;
+      helper.textContent = 'Plage : 1 à 10 000 Ω';
+      [5, 10, 20, 50, 100, 220, 470, 1000].forEach(v => {
+        const btn = document.createElement('button');
+        btn.textContent = `${v} Ω`;
+        btn.onclick = () => { input.value = v; };
+        raccourcis.appendChild(btn);
+      });
+      break;
+    case 'condensateur':
+      titre.textContent = '⚡ Modifier le condensateur';
+      description.textContent = 'Choisissez la capacité :';
+      input.value = comp.capacite;
+      input.min = 1; input.max = 1000; input.step = 1;
+      helper.textContent = 'Plage : 1 à 1000 µF';
+      [10, 47, 100, 220, 470, 1000].forEach(v => {
+        const btn = document.createElement('button');
+        btn.textContent = `${v} µF`;
+        btn.onclick = () => { input.value = v; };
+        raccourcis.appendChild(btn);
+      });
+      break;
+    case 'led':
+      titre.textContent = '💡 Modifier la LED';
+      description.textContent = 'Choisissez la tension de seuil :';
+      input.value = comp.seuil;
+      input.min = 1.2; input.max = 3.5; input.step = 0.1;
+      helper.textContent = 'Plage : 1,2 à 3,5 V';
+      [1.6, 1.8, 2.0, 2.2, 3.2].forEach(v => {
+        const btn = document.createElement('button');
+        btn.textContent = `${v} V`;
+        btn.onclick = () => { input.value = v; };
+        raccourcis.appendChild(btn);
+      });
+      break;
+    case 'fusible':
+      titre.textContent = '🔌 Modifier le fusible';
+      description.textContent = 'Choisissez le courant maximal :';
+      input.value = comp.courantMax;
+      input.min = 0.05; input.max = 5; input.step = 0.05;
+      helper.textContent = 'Plage : 0,05 à 5 A';
+      [0.1, 0.2, 0.5, 1, 2, 5].forEach(v => {
+        const btn = document.createElement('button');
+        btn.textContent = `${v} A`;
+        btn.onclick = () => { input.value = v; };
+        raccourcis.appendChild(btn);
+      });
+      break;
+    default:
+      return;
+  }
+
+  document.getElementById('modalEditComposant').classList.add('show');
+  setTimeout(() => input.focus(), 100);
+}
+
+document.getElementById('btnAnnulerEdit').addEventListener('click', () => {
+  document.getElementById('modalEditComposant').classList.remove('show');
+  composantEnEdition = null;
+});
+
+document.getElementById('btnValiderEdit').addEventListener('click', () => {
+  if (!composantEnEdition) return;
+  const input = document.getElementById('editValue');
+  let valeur = parseFloat(input.value);
+  if (isNaN(valeur)) { alert('⚠️ Valeur invalide.'); return; }
+
+  switch (composantEnEdition.type) {
+    case 'pile':
+      composantEnEdition.tension = Math.max(1, Math.min(24, valeur));
+      break;
+    case 'resistance':
+    case 'lampe':
+    case 'moteur':
+    case 'buzzer':
+    case 'potentiometre':
+      composantEnEdition.valeur = Math.max(1, Math.min(10000, valeur));
+      break;
+    case 'condensateur':
+      composantEnEdition.capacite = Math.max(1, Math.min(1000, valeur));
+      break;
+    case 'led':
+      composantEnEdition.seuil = Math.max(1.2, Math.min(3.5, valeur));
+      break;
+    case 'fusible':
+      composantEnEdition.courantMax = Math.max(0.05, Math.min(5, valeur));
+      break;
+  }
+
+  document.getElementById('modalEditComposant').classList.remove('show');
+  composantEnEdition = null;
+  drawCircuit();
+  updateSelectorsMobile();
+  analyserCircuit();
+});
+
+document.getElementById('editValue').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('btnValiderEdit').click();
+  }
+});
+
+document.getElementById('modalEditComposant').addEventListener('click', e => {
+  if (e.target.id === 'modalEditComposant') {
+    e.target.classList.remove('show');
+    composantEnEdition = null;
+  }
+});
+
+// ============================================================
+//  SÉLECTION INFO
+// ============================================================
+function updateSelectionInfo() {
+  const info = document.getElementById('selectionInfo');
+  const text = document.getElementById('selectionText');
+
+  if (atelier.composantSelectionne) {
+    const c = atelier.composants.find(x => x.id === atelier.composantSelectionne);
+    if (c) {
+      const labels = {
+        pile: `🔋 Pile ${c.tension} V`,
+        resistance: `📏 Résistance ${c.valeur} Ω`,
+        interrupteur: `🔘 Interrupteur (${atelier.interrupteurFerme ? 'fermé' : 'ouvert'})`,
+        lampe: `💡 Lampe ${c.valeur} Ω`,
+        moteur: `⚙️ Moteur ${c.valeur} Ω`,
+        buzzer: `🔔 Sonnerie ${c.valeur} Ω`,
+        diode: `▷| Diode`,
+        condensateur: `⚡ Condensateur ${c.capacite} µF`,
+        led: `💡 LED (seuil ${c.seuil} V)`,
+        fusible: `🔌 Fusible ${c.courantMax} A`,
+        potentiometre: `🎛 Potentiomètre ${c.valeur} Ω`
+      };
+      text.innerHTML = `<strong>${labels[c.type] || c.type}</strong>`;
+      info.classList.add('show');
+      return;
+    }
+  }
+
+  if (atelier.filSelectionne) {
+    text.innerHTML = `<strong>〰️ Fil sélectionné</strong>`;
+    info.classList.add('show');
+    return;
+  }
+
+  if (atelier.noeudSelectionne) {
+    text.innerHTML = `<strong>⬤ Nœud sélectionné</strong>`;
+    info.classList.add('show');
+    return;
+  }
+
+  info.classList.remove('show');
+}
+
+document.getElementById('btnEditerSel').addEventListener('click', () => {
+  if (atelier.composantSelectionne) {
+    const c = atelier.composants.find(x => x.id === atelier.composantSelectionne);
+    if (c && (c.type === 'pile' || COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'condensateur' || c.type === 'led' || c.type === 'fusible' || c.type === 'potentiometre')) {
+      ouvrirPanneauEdition(c);
+    } else if (c && c.type === 'interrupteur') {
+      atelier.interrupteurFerme = !atelier.interrupteurFerme;
+      drawCircuit();
+      analyserCircuit();
+      updateSelectionInfo();
+    }
+  }
+});
+
+document.getElementById('btnSupprimerSel').addEventListener('click', () => {
+  if (atelier.composantSelectionne) {
+    supprimerComposant(atelier.composantSelectionne);
+    atelier.composantSelectionne = null;
+    updateSelectionInfo();
+    updateZoneInfo();
+    updateSelectorsMobile();
+    analyserCircuit();
+    updateStatus('🗑 Composant supprimé');
+  } else if (atelier.filSelectionne) {
+    atelier.fils = atelier.fils.filter(f => f.id !== atelier.filSelectionne);
+    atelier.filSelectionne = null;
+    updateConnexionsFils();
+    drawCircuit();
+    updateZoneInfo();
+    updateSelectionInfo();
+    analyserCircuit();
+    updateStatus('🗑 Fil supprimé');
+  } else if (atelier.noeudSelectionne) {
+    const id = atelier.noeudSelectionne;
+    atelier.fils.forEach(f => {
+      if (f.de === id) f.de = null;
+      if (f.vers === id) f.vers = null;
+    });
+    atelier.noeuds = atelier.noeuds.filter(n => n.id !== id);
+    atelier.noeudSelectionne = null;
+    updateConnexionsFils();
+    drawCircuit();
+    updateZoneInfo();
+    updateSelectionInfo();
+    analyserCircuit();
+    updateStatus('🗑 Nœud supprimé');
+  }
+});
+
+document.getElementById('btnFermerSel').addEventListener('click', () => {
+  atelier.filSelectionne = null;
+  atelier.composantSelectionne = null;
+  atelier.noeudSelectionne = null;
+  updateSelectionInfo();
+  updateZoneTool();
+  drawCircuit();
+});
+
+function supprimerComposant(compId) {
+  atelier.fils.forEach(f => {
+    const b1 = getBorneById(f.de);
+    const b2 = getBorneById(f.vers);
+    if (b1 && b1.composantId === compId) f.de = null;
+    if (b2 && b2.composantId === compId) f.vers = null;
+  });
+  atelier.composants = atelier.composants.filter(c => c.id !== compId);
+  updateConnexionsFils();
+  drawCircuit();
+  updateZoneInfo();
+  updateSelectorsMobile();
+  analyserCircuit();
+}
+
+// ============================================================
+//  TOUT EFFACER
+// ============================================================
+document.getElementById('btnClearAll').addEventListener('click', () => {
+  if (!confirm('Effacer tout le montage ?')) return;
+  atelier.composants = [];
+  atelier.fils = [];
+  atelier.noeuds = [];
+  atelier.filSelectionne = null;
+  atelier.composantSelectionne = null;
+  atelier.noeudSelectionne = null;
+  atelier.interrupteurFerme = false;
+  atelier.animation.active = false;
+  atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null, etapes: [] };
+  drawCircuit();
+  updateZoneInfo();
+  updateZoneTool();
+  updateSelectionInfo();
+  updateSelectorsMobile();
+  updateMesuresMobile();
+  updateStatus('Atelier vidé');
+});
+
+// ============================================================
+//  SÉLECTEURS MOBILES
+// ============================================================
+function updateSelectorsMobile() {
+  const selectVolt = document.getElementById('selectVoltmetreMobile');
+  const selectAmp = document.getElementById('selectAmperemetreMobile');
+
+  const valVolt = selectVolt.value;
+  const valAmp = selectAmp.value;
+
+  selectVolt.innerHTML = '<option value="pile">🔋 Pile (tension totale)</option>';
+  atelier.composants.forEach(c => {
+    if (COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led') {
+      const labels = {
+        resistance: '📏 Résistance',
+        lampe: '💡 Lampe',
+        moteur: '⚙️ Moteur',
+        buzzer: '🔔 Sonnerie',
+        diode: '▷| Diode',
+        led: '💡 LED',
+        potentiometre: '🎛 Potentiomètre',
+        fusible: '🔌 Fusible'
+      };
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = `${labels[c.type] || c.type} (${c.valeur || '—'} Ω)`;
+      selectVolt.appendChild(opt);
+    }
+  });
+
+  selectAmp.innerHTML = '<option value="total">🔌 Courant total</option>';
+  atelier.composants.forEach(c => {
+    if (COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led') {
+      const labels = {
+        resistance: '📏 Branche R',
+        lampe: '💡 Branche L',
+        moteur: '⚙️ Branche M',
+        buzzer: '🔔 Branche sonnerie',
+        diode: '▷| Branche diode',
+        led: '💡 Branche LED',
+        potentiometre: '🎛 Branche potentiomètre',
+        fusible: '🔌 Branche fusible'
+      };
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = labels[c.type] || c.type;
+      selectAmp.appendChild(opt);
+    }
+  });
+
+  if ([...selectVolt.options].some(o => o.value === valVolt)) selectVolt.value = valVolt;
+  if ([...selectAmp.options].some(o => o.value === valAmp)) selectAmp.value = valAmp;
+}
+
+// ============================================================
+//  ANALYSE DU CIRCUIT
+// ============================================================
+function analyserCircuit() {
+  atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null, etapes: [] };
+
+  const filsActifs = atelier.fils.filter(f => f.de && f.vers);
+  if (filsActifs.length < 2) {
+    atelier.resultats.type = 'aucun';
+    updateMesuresMobile();
+    return;
+  }
+
+  const piles = atelier.composants.filter(c => c.type === 'pile');
+  if (piles.length === 0) {
+    atelier.resultats.type = 'aucun';
+    updateMesuresMobile();
+    return;
+  }
+  if (piles.length > 1) {
+    atelier.resultats.type = 'erreur';
+    atelier.resultats.message = `${piles.length} piles détectées. Garde 1 seule pile.`;
+    updateMesuresMobile();
+    return;
+  }
+
+  const pile = piles[0];
+  const E = pile.tension;
+
+  const graphe = construireGraphe();
+  const departId = pile.id + '-R';
+  const arriveeId = pile.id + '-L';
+  const chemin = trouverCheminAvecResistance(graphe, departId, arriveeId);
+
+  if (!chemin) {
+    atelier.resultats.type = 'ouvert';
+    updateMesuresMobile();
+    return;
+  }
+
+  const interrupteurs = atelier.composants.filter(c => c.type === 'interrupteur');
+  const interrupteurDansChemin = chemin.some(id => {
+    const b = getBorneById(id);
+    return b && interrupteurs.some(i => i.id === b.composantId);
+  });
+  if (interrupteurDansChemin && !atelier.interrupteurFerme) {
+    atelier.resultats.type = 'ouvert';
+    updateMesuresMobile();
+    return;
+  }
+
+  const resistances = atelier.composants.filter(c => COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'led' || c.type === 'diode');
+  if (resistances.length === 0) {
+    atelier.resultats.type = 'court-circuit';
+    updateMesuresMobile();
+    return;
+  }
+
+  const typeDetecte = detecterType(chemin, resistances);
+  const analyse = analyserNodal(pile, resistances, E);
+
+  let Req = analyse.Req;
+  let I_total = Req > 0 ? E / Req : 0;
+  let branches = analyse.branches || [];
+  let etapes = [];
+
+  if (typeDetecte === 'serie') {
+    etapes.push({
+      titre: '🔗 SÉRIE',
+      formule: 'Req = ' + resistances.map(r => r.valeur || 0).join(' + '),
+      calcul: 'Req = ' + Req.toFixed(2) + ' Ω'
+    });
+  } else if (typeDetecte === 'derivation') {
+    etapes.push({
+      titre: '🌿 DÉRIVATION',
+      formule: '1/Req = ' + resistances.map(r => '1/' + (r.valeur || 1)).join(' + '),
+      calcul: 'Req = ' + Req.toFixed(2) + ' Ω'
+    });
+  } else {
+    etapes.push({
+      titre: '🔀 MIXTE',
+      formule: resistances.map(r => (r.valeur || 0) + ' Ω').join(', '),
+      calcul: 'Req = ' + Req.toFixed(2) + ' Ω'
+    });
+  }
+
+  etapes.push({
+    titre: '⚡ COURANT',
+    formule: 'I = E / Req',
+    calcul: 'I = ' + E + ' / ' + Req.toFixed(2) + ' = ' + I_total.toFixed(3) + ' A'
+  });
+
+  atelier.resultats = {
+    type: typeDetecte,
+    Req, I_total, U_pile: E, branches, chemin, etapes
+  };
+  updateMesuresMobile();
+}
+
+function detecterType(chemin, resistances) {
+  if (resistances.length === 0) return 'aucun';
+  if (resistances.length === 1) return 'serie';
+
+  const graphe = construireGraphe();
+  const noeudsEffectifs = {};
+  const toutesLesBornes = getToutesLesBornes();
+  toutesLesBornes.forEach(b => {
+    noeudsEffectifs[b.id] = trouverComposantConnexe(graphe, b.id);
+  });
+
+  const resistancesAvecNoeuds = resistances.map(r => {
+    const nL = noeudsEffectifs[r.id + '-L'] || r.id + '-L';
+    const nR = noeudsEffectifs[r.id + '-R'] || r.id + '-R';
+    return { id: r.id, nL, nR };
+  });
+
+  let nbPairesParalleles = 0;
+  for (let i = 0; i < resistancesAvecNoeuds.length; i++) {
+    for (let j = i + 1; j < resistancesAvecNoeuds.length; j++) {
+      const r1 = resistancesAvecNoeuds[i];
+      const r2 = resistancesAvecNoeuds[j];
+      if ((r1.nL === r2.nL && r1.nR === r2.nR) ||
+          (r1.nL === r2.nR && r1.nR === r2.nL)) {
+        nbPairesParalleles++;
+      }
+    }
+  }
+
+  if (nbPairesParalleles === 0) return 'serie';
+
+  const premierNoeudPair = resistancesAvecNoeuds[0];
+  let toutesDansMemeBloc = true;
+  for (let i = 1; i < resistancesAvecNoeuds.length; i++) {
+    const r = resistancesAvecNoeuds[i];
+    const memeNoeuds =
+      (r.nL === premierNoeudPair.nL && r.nR === premierNoeudPair.nR) ||
+      (r.nL === premierNoeudPair.nR && r.nR === premierNoeudPair.nL);
+    if (!memeNoeuds) {
+      toutesDansMemeBloc = false;
+      break;
+    }
+  }
+
+  if (toutesDansMemeBloc) return 'derivation';
+  return 'mixte';
+}
+
+function trouverComposantConnexe(graphe, departId) {
+  const grapheFils = {};
+  atelier.fils.forEach(f => {
+    if (!f.de || !f.vers) return;
+    if (!grapheFils[f.de]) grapheFils[f.de] = [];
+    if (!grapheFils[f.vers]) grapheFils[f.vers] = [];
+    grapheFils[f.de].push(f.vers);
+    grapheFils[f.vers].push(f.de);
+  });
+
+  const visited = new Set([departId]);
+  const queue = [departId];
+  let minimum = departId;
+
+  while (queue.length > 0) {
+    const current = queue.shift();
+    if (current < minimum) minimum = current;
+    const voisins = grapheFils[current] || [];
+    for (const v of voisins) {
+      if (!visited.has(v)) {
+        visited.add(v);
+        queue.push(v);
+      }
+    }
+  }
+  return minimum;
+}
+
+function analyserNodal(pile, resistances, E) {
+  const noeuds = {};
+  let nodeIndex = 0;
+
+  function getNodeIndex(id) {
+    if (noeuds[id] === undefined) noeuds[id] = nodeIndex++;
+    return noeuds[id];
+  }
+
+  const aretes = [];
+  const G_FIL = 1e6;
+
+  atelier.fils.forEach(f => {
+    if (!f.de || !f.vers) return;
+    aretes.push({ n1: getNodeIndex(f.de), n2: getNodeIndex(f.vers), G: G_FIL });
+  });
+
+  const resistancesBranches = [];
+  resistances.forEach(r => {
+    const leftId = r.id + '-L';
+    const rightId = r.id + '-R';
+    const G = 1 / valeurPositive(r.valeur, 1);
+    aretes.push({ n1: getNodeIndex(leftId), n2: getNodeIndex(rightId), G });
+    resistancesBranches.push({ id: r.id, valeur: r.valeur || 1, leftId, rightId });
+  });
+
+  atelier.composants.filter(c => c.type === 'interrupteur' && atelier.interrupteurFerme).forEach(i => {
+    aretes.push({
+      n1: getNodeIndex(i.id + '-L'),
+      n2: getNodeIndex(i.id + '-R'),
+      G: G_FIL
+    });
+  });
+
+  const nPileL = getNodeIndex(pile.id + '-L');
+  const nPileR = getNodeIndex(pile.id + '-R');
+  const N = nodeIndex;
+
+  const Gmat = Array.from({ length: N }, () => new Array(N).fill(0));
+  aretes.forEach(a => {
+    if (a.n1 === a.n2) return;
+    Gmat[a.n1][a.n1] += a.G;
+    Gmat[a.n2][a.n2] += a.G;
+    Gmat[a.n1][a.n2] -= a.G;
+    Gmat[a.n2][a.n1] -= a.G;
+  });
+
+  const refNode = nPileR;
+  const freeNodes = [];
+  for (let i = 0; i < N; i++) if (i !== refNode) freeNodes.push(i);
+
+  const M = freeNodes.length;
+  const A = Array.from({ length: M }, () => new Array(M).fill(0));
+  for (let i = 0; i < M; i++) {
+    for (let j = 0; j < M; j++) {
+      A[i][j] = Gmat[freeNodes[i]][freeNodes[j]];
+    }
+  }
+
+  const Ivec = new Array(M).fill(0);
+  const idxPileL = freeNodes.indexOf(nPileL);
+  if (idxPileL >= 0) Ivec[idxPileL] = 1;
+
+  const V = resoudreLineaire(A, Ivec);
+  if (!V) return { Req: 0, branches: [] };
+
+  const U_test = V[idxPileL] || 0;
+  let Req = U_test / 1;
+
+  const branches = resistancesBranches.map(b => {
+    const nL = noeuds[b.leftId];
+    const nR = noeuds[b.rightId];
+    const vL = nL === refNode ? 0 : (freeNodes.indexOf(nL) >= 0 ? V[freeNodes.indexOf(nL)] : 0);
+    const vR = nR === refNode ? 0 : (freeNodes.indexOf(nR) >= 0 ? V[freeNodes.indexOf(nR)] : 0);
+    const U_branche = Math.abs(vL - vR) * (pile.tension / Math.max(U_test, 1e-9));
+    const I_branche = U_branche / valeurPositive(b.valeur, 1);
+    return { id: b.id, valeur: b.valeur, I: I_branche, U: U_branche };
+  });
+
+  return { Req, branches };
+}
+
+function resoudreLineaire(A, b) {
+  const n = A.length;
+  if (n === 0) return [];
+  const M = A.map((row, i) => [...row, b[i]]);
+
+  for (let i = 0; i < n; i++) {
+    let maxRow = i;
+    for (let k = i + 1; k < n; k++) {
+      if (Math.abs(M[k][i]) > Math.abs(M[maxRow][i])) maxRow = k;
+    }
+    [M[i], M[maxRow]] = [M[maxRow], M[i]];
+    if (Math.abs(M[i][i]) < 1e-12) continue;
+
+    for (let k = i + 1; k < n; k++) {
+      const facteur = M[k][i] / M[i][i];
+      for (let j = i; j <= n; j++) M[k][j] -= facteur * M[i][j];
+    }
+  }
+
+  const x = new Array(n).fill(0);
+  for (let i = n - 1; i >= 0; i--) {
+    if (Math.abs(M[i][i]) < 1e-12) { x[i] = 0; continue; }
+    let somme = M[i][n];
+    for (let j = i + 1; j < n; j++) somme -= M[i][j] * x[j];
+    x[i] = somme / M[i][i];
+  }
+  return x;
+}
+
+function construireGraphe() {
+  const graphe = {};
+  atelier.fils.forEach(f => {
+    if (!f.de || !f.vers) return;
+    if (!graphe[f.de]) graphe[f.de] = [];
+    if (!graphe[f.vers]) graphe[f.vers] = [];
+    graphe[f.de].push(f.vers);
+    graphe[f.vers].push(f.de);
+  });
+  atelier.composants.forEach(c => {
+    const leftId = c.id + '-L', rightId = c.id + '-R';
+    if (!graphe[leftId]) graphe[leftId] = [];
+    if (!graphe[rightId]) graphe[rightId] = [];
+    if (c.type === 'pile' || COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led') {
+      graphe[leftId].push(rightId);
+      graphe[rightId].push(leftId);
+    } else if (c.type === 'interrupteur' && atelier.interrupteurFerme) {
+      graphe[leftId].push(rightId);
+      graphe[rightId].push(leftId);
+    }
+  });
+  atelier.noeuds.forEach(n => {
+    if (!graphe[n.id]) graphe[n.id] = [];
+  });
+  return graphe;
+}
+
+function trouverCheminAvecResistance(graphe, departId, arriveeId) {
+  if (!graphe[departId]) return null;
+
+  const resistancesIds = atelier.composants.filter(c => COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'led' || c.type === 'diode').map(c => c.id);
+  const chemins = [];
+
+  function dfs(id, chemin, visited, profondeur) {
+    if (profondeur > 25) return;
+    if (id === arriveeId && chemin.length > 2) {
+      const traverse = chemin.some(borneId => {
+        const b = getBorneById(borneId);
+        if (!b) return false;
+        return resistancesIds.includes(b.composantId);
+      });
+      if (traverse) chemins.push([...chemin]);
+      return;
+    }
+    const voisins = graphe[id] || [];
+    for (const v of voisins) {
+      if (!visited.has(v)) {
+        visited.add(v);
+        chemin.push(v);
+        dfs(v, chemin, visited, profondeur + 1);
+        chemin.pop();
+        visited.delete(v);
+      }
+    }
+  }
+  dfs(departId, [departId], new Set([departId]), 0);
+  if (chemins.length === 0) return null;
+  chemins.sort((a, b) => a.length - b.length);
+  return chemins[0];
+}
+
+function trouverTousLesChemins(graphe, departId, arriveeId, maxProfondeur) {
+  const chemins = [];
+
+  function dfs(id, chemin, visited, profondeur) {
+    if (profondeur > maxProfondeur) return;
+    if (id === arriveeId && chemin.length > 2) {
+      chemins.push([...chemin]);
+      return;
+    }
+    const voisins = graphe[id] || [];
+    for (const v of voisins) {
+      if (!visited.has(v)) {
+        visited.add(v);
+        chemin.push(v);
+        dfs(v, chemin, visited, profondeur + 1);
+        chemin.pop();
+        visited.delete(v);
+      }
+    }
+  }
+  dfs(departId, [departId], new Set([departId]), 0);
+  return chemins;
+}
+
+// ============================================================
+//  MISE À JOUR DES MESURES MOBILES
+// ============================================================
+function updateMesuresMobile() {
+  const r = atelier.resultats;
+  const typeLabel = {
+    'serie': '🔗 Série',
+    'derivation': '🌿 Dérivation',
+    'mixte': '🔀 Mixte',
+    'ouvert': '⚠️ Ouvert',
+    'court-circuit': '⚡ Court-circuit',
+    'erreur': '❌ Erreur',
+    'aucun': '—'
+  };
+
+  document.getElementById('circuitTypeMobile').textContent = typeLabel[r.type] || '—';
+
+  const mmAmpere = document.getElementById('mmAmpereMobile');
+  const selectAmp = document.getElementById('selectAmperemetreMobile');
+  const cibleAmp = selectAmp ? selectAmp.value : 'total';
+
+  if (r.type === 'aucun' || r.type === 'ouvert') {
+    mmAmpere.classList.add('off');
+    document.getElementById('mmAmpereValMobile').textContent = '0.000';
+    document.getElementById('mmAmpereTargetMobile').textContent = r.type === 'ouvert' ? 'Circuit ouvert' : 'En attente';
+  } else if (r.type === 'court-circuit') {
+    mmAmpere.classList.remove('off');
+    document.getElementById('mmAmpereValMobile').textContent = '∞';
+    document.getElementById('mmAmpereTargetMobile').textContent = '⚠️ Court-circuit';
+  } else {
+    mmAmpere.classList.remove('off');
+    let I_affiche = r.I_total;
+    let cibleLabel = 'Courant total';
+    if (cibleAmp !== 'total') {
+      const branche = (r.branches || []).find(b => b.id === cibleAmp);
+      if (branche) {
+        I_affiche = branche.I;
+        const comp = atelier.composants.find(c => c.id === cibleAmp);
+        cibleLabel = comp ? `Branche ${comp.type}` : 'Branche';
+      }
+    }
+    document.getElementById('mmAmpereValMobile').textContent = I_affiche.toFixed(3);
+    document.getElementById('mmAmpereTargetMobile').textContent = cibleLabel;
+  }
+
+  const mmVolt = document.getElementById('mmVoltMobile');
+  const selectVolt = document.getElementById('selectVoltmetreMobile');
+  const cibleVolt = selectVolt ? selectVolt.value : 'pile';
+
+  if (r.type === 'aucun') {
+    mmVolt.classList.add('off');
+    document.getElementById('mmVoltValMobile').textContent = '0.00';
+    document.getElementById('mmVoltTargetMobile').textContent = 'En attente';
+  } else {
+    mmVolt.classList.remove('off');
+    let U_affiche = 0;
+    let cibleLabel = 'Pile';
+    if (cibleVolt === 'pile') {
+      const pile = atelier.composants.find(c => c.type === 'pile');
+      U_affiche = pile ? pile.tension : 0;
+      cibleLabel = 'Aux bornes de la pile';
+    } else {
+      const branche = (r.branches || []).find(b => b.id === cibleVolt);
+      if (branche) {
+        U_affiche = branche.U;
+        const comp = atelier.composants.find(c => c.id === cibleVolt);
+        cibleLabel = comp ? `Aux bornes : ${comp.type}` : 'Aux bornes';
+      }
+    }
+    document.getElementById('mmVoltValMobile').textContent = U_affiche.toFixed(2);
+    document.getElementById('mmVoltTargetMobile').textContent = cibleLabel;
+  }
+
+  document.getElementById('ssU').textContent = (r.U_pile || 0).toFixed(1);
+  document.getElementById('ssI').textContent = ((r.I_total || 0) * 1000).toFixed(0);
+
+  genererTableauMesuresMobile();
+  genererLoisPanelMobile();
+  updateBoutonAnimer();
+}
+
+function genererTableauMesuresMobile() {
+  const tbody = document.getElementById('measuresBodyMobile');
+  if (!tbody) return;
+  const r = atelier.resultats;
+
+  if (r.type === 'aucun' || !r.branches || r.branches.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-msg">Aucune mesure</td></tr>';
+    return;
+  }
+
+  let html = '';
+  const labels = {
+    resistance: '📏 R',
+    lampe: '💡 Lampe',
+    moteur: '⚙️ Moteur',
+    buzzer: '🔔 Sonnerie',
+    diode: '▷| Diode',
+    led: '💡 LED',
+    potentiometre: '🎛 Potentiomètre',
+    fusible: '🔌 Fusible'
+  };
+
+  r.branches.forEach(b => {
+    const comp = atelier.composants.find(c => c.id === b.id);
+    if (!comp) return;
+    const nom = labels[comp.type] || comp.type;
+    const P = b.U * b.I;
+    html += `
+      <tr>
+        <td class="comp-name">${nom}</td>
+        <td>${(b.valeur || 0).toFixed(0)}</td>
+        <td>${b.U.toFixed(2)}</td>
+        <td>${(b.I * 1000).toFixed(0)}</td>
+        <td>${P.toFixed(2)}</td>
+      </tr>
+    `;
+  });
+
+  if (r.I_total > 0) {
+    const pile = atelier.composants.find(c => c.type === 'pile');
+    const E = pile ? pile.tension : 0;
+    const P_totale = E * r.I_total;
+    html += `
+      <tr class="total-row">
+        <td>⚡ Total</td>
+        <td>${r.Req.toFixed(0)}</td>
+        <td>${E.toFixed(2)}</td>
+        <td>${(r.I_total * 1000).toFixed(0)}</td>
+        <td>${P_totale.toFixed(2)}</td>
+      </tr>
+    `;
+  }
+
+  tbody.innerHTML = html;
+}
+
+function genererLoisPanelMobile() {
+  const panel = document.getElementById('loisPanelMobile');
+  const r = atelier.resultats;
+  let html = '';
+
+  if (r.type === 'aucun' || !r.chemin) {
+    html = `<div class="loi-warning">⚠️ Ajoute une pile, des fils et des résistances.</div>`;
+  } else if (r.type === 'ouvert') {
+    html = `<div class="loi-warning">⚠️ Circuit ouvert. Ferme l'interrupteur (double-tap).</div>`;
+  } else if (r.type === 'court-circuit') {
+    html = `<div class="loi-warning">⚡ COURT-CIRCUIT ! Aucune résistance.</div>`;
+  } else if (r.type === 'erreur') {
+    html = `<div class="loi-warning">❌ Trop de piles. Garde 1 seule pile.</div>`;
+  } else {
+    (r.etapes || []).forEach(etape => {
+      html += `
+        <div style="margin-top:6px;">
+          <div class="loi-title" style="font-size:0.85em;">${etape.titre}</div>
+          <div class="loi-formule">${etape.formule}</div>
+          <div class="loi-calcul">${etape.calcul}</div>
+        </div>
+      `;
+    });
+  }
+  panel.innerHTML = html;
+}
+
+function updateBoutonAnimer() {
+  const btn = document.getElementById('btnAnimer');
+  if (!btn) return;
+  const peutAnimer = atelier.interrupteurFerme &&
+    atelier.resultats.type !== 'aucun' &&
+    atelier.resultats.type !== 'ouvert' &&
+    atelier.resultats.type !== 'court-circuit' &&
+    atelier.resultats.type !== 'erreur' &&
+    atelier.resultats.chemin;
+  if (atelier.animation.active) {
+    btn.disabled = false;
+    btn.textContent = '⏸ Pause';
+    btn.classList.add('playing');
+  } else if (peutAnimer) {
+    btn.disabled = false;
+    btn.textContent = '▶ Animer';
+    btn.classList.remove('playing');
+  } else {
+    btn.disabled = true;
+    btn.textContent = '▶ Animer';
+    btn.classList.remove('playing');
+  }
+}
+
+// ============================================================
+//  ÉLECTRONS
+// ============================================================
+function drawElectrons() {
+  if (!atelier.interrupteurFerme) return;
+  if (atelier.resultats.type === 'aucun' ||
+      atelier.resultats.type === 'ouvert' ||
+      atelier.resultats.type === 'court-circuit' ||
+      atelier.resultats.type === 'erreur') return;
+
+  const pile = atelier.composants.find(c => c.type === 'pile');
+  if (!pile) return;
+
+  const graphe = construireGraphe();
+  const departId = pile.id + '-R';
+  const arriveeId = pile.id + '-L';
+  const tousChemins = trouverTousLesChemins(graphe, departId, arriveeId, 25);
+  if (tousChemins.length === 0) return;
+
+  const resistancesIds = atelier.composants
+    .filter(c => COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'led' || c.type === 'diode')
+    .map(c => c.id);
+
+  const cheminsValides = tousChemins.filter(chemin =>
+    chemin.some(borneId => {
+      const b = getBorneById(borneId);
+      return b && resistancesIds.includes(b.composantId);
+    })
+  );
+  if (cheminsValides.length === 0) return;
+
+  const cheminsUniques = [];
+  const signaturesVues = new Set();
+
+  cheminsValides.forEach(chemin => {
+    const resTraversees = chemin
+      .map(id => getBorneById(id))
+      .filter(b => b && resistancesIds.includes(b.composantId))
+      .map(b => b.composantId)
+      .sort()
+      .join(',');
+    if (!signaturesVues.has(resTraversees)) {
+      signaturesVues.add(resTraversees);
+      cheminsUniques.push(chemin);
+    }
+  });
+
+  const speed = 0.005;
+  const couleur = '#ffeb3b';
+  const timestamp = Date.now();
+
+  cheminsUniques.forEach((chemin, indexChemin) => {
+    if (chemin.length < 3) return;
+
+    const points = chemin.map(id => {
+      const b = getBorneById(id);
+      return b ? { x: b.x, y: b.y } : null;
+    }).filter(p => p);
+    if (points.length < 3) return;
+
+    let totalLen = 0;
+    const segments = [];
+    for (let i = 0; i < points.length - 1; i++) {
+      const p1 = points[i], p2 = points[i + 1];
+      const len = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+      segments.push({ p1, p2, len, start: totalLen });
+      totalLen += len;
+    }
+    if (totalLen === 0) return;
+
+    const nbElectrons = Math.max(5, Math.min(15, Math.round(totalLen / 100)));
+
+    for (let i = 0; i < nbElectrons; i++) {
+      const decalage = indexChemin * 0.15;
+      const t = ((timestamp / 1000 * speed * 5) + i / nbElectrons + decalage) % 1;
+      const d = t * totalLen;
+
+      let seg = segments[0];
+      for (const s of segments) {
+        if (d >= s.start && d < s.start + s.len) { seg = s; break; }
+      }
+      const tSeg = (d - seg.start) / seg.len;
+      const px = seg.p1.x + (seg.p2.x - seg.p1.x) * tSeg;
+      const py = seg.p1.y + (seg.p2.y - seg.p1.y) * tSeg;
+      const angle = Math.atan2(seg.p2.y - seg.p1.y, seg.p2.x - seg.p1.x);
+
+      const grad = ctx.createRadialGradient(px, py, 1, px, py, 28);
+      grad.addColorStop(0, couleur);
+      grad.addColorStop(1, 'rgba(255, 235, 59, 0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.arc(px, py, 28, 0, Math.PI * 2); ctx.fill();
+
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2.5;
+      ctx.fillStyle = couleur;
+      ctx.beginPath(); ctx.arc(px, py, 9, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+      ctx.save();
+      ctx.translate(px + Math.cos(angle) * 22, py + Math.sin(angle) * 22);
+      ctx.rotate(angle);
+      ctx.fillStyle = couleur;
+      ctx.beginPath();
+      ctx.moveTo(11, 0); ctx.lineTo(-7, -7); ctx.lineTo(-7, 7); ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+  });
+}
+
+// ============================================================
+//  ANIMATION
+// ============================================================
+function animate(timestamp) {
+  if (!timestamp) timestamp = performance.now();
+  if (timestamp - atelier.animation.lastTime > 33) {
+    drawCircuit();
+    atelier.animation.lastTime = timestamp;
+  }
+  if (atelier.animation.active) {
+    atelier.animation.rafId = requestAnimationFrame(animate);
+  }
+}
+
+// ============================================================
+//  BOUTONS
+// ============================================================
+document.getElementById('btnAnimer').addEventListener('click', () => {
+  if (atelier.animation.active) {
+    atelier.animation.active = false;
+    document.getElementById('btnAnimer').textContent = '▶ Animer';
+    document.getElementById('btnAnimer').classList.remove('playing');
+    updateStatus('Animation en pause');
+  } else {
+    if (!atelier.interrupteurFerme) {
+      const interrupteurs = atelier.composants.filter(c => c.type === 'interrupteur');
+      if (interrupteurs.length > 0) {
+        alert('⚠️ Double-tape sur l\'interrupteur pour le fermer.');
+        return;
+      }
+    }
+    if (atelier.resultats.type === 'aucun' || atelier.resultats.type === 'ouvert') {
+      alert('⚠️ Le circuit est ouvert ou incomplet.');
+      return;
+    }
+    atelier.animation.active = true;
+    document.getElementById('btnAnimer').textContent = '⏸ Pause';
+    document.getElementById('btnAnimer').classList.add('playing');
+    updateStatus('⚡ Électrons en mouvement');
+    animate();
+  }
+});
+
+document.getElementById('btnReset').addEventListener('click', () => {
+  if (!confirm('Tout réinitialiser ?')) return;
+  atelier.composants = [];
+  atelier.fils = [];
+  atelier.noeuds = [];
+  atelier.filSelectionne = null;
+  atelier.composantSelectionne = null;
+  atelier.noeudSelectionne = null;
+  atelier.interrupteurFerme = false;
+  atelier.animation.active = false;
+  atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null, etapes: [] };
+  drawCircuit();
+  updateZoneInfo();
+  updateZoneTool();
+  updateSelectionInfo();
+  updateSelectorsMobile();
+  updateMesuresMobile();
+  updateStatus('Atelier réinitialisé');
+});
+
+document.getElementById('btnFormules').addEventListener('click', () => {
+  document.getElementById('modalFormules').classList.add('show');
+});
+
+document.getElementById('btnFermerFormules').addEventListener('click', () => {
+  document.getElementById('modalFormules').classList.remove('show');
+});
+
+document.getElementById('modalFormules').addEventListener('click', e => {
+  if (e.target.id === 'modalFormules') e.target.classList.remove('show');
+});
+
+document.getElementById('selectVoltmetreMobile').addEventListener('change', () => updateMesuresMobile());
+document.getElementById('selectAmperemetreMobile').addEventListener('change', () => updateMesuresMobile());
 
 // ============================================================
 //  UTILITAIRES
 // ============================================================
-function escapeHtml(s) {
-  const d = document.createElement('div');
-  d.textContent = s ?? '';
-  return d.innerHTML;
+function updateStatus(msg) {
+  document.getElementById('status').textContent = msg;
+  document.getElementById('status').classList.add('active');
+  clearTimeout(window._statusTimeout);
+  window._statusTimeout = setTimeout(() => {
+    document.getElementById('status').classList.remove('active');
+  }, 2500);
 }
 
-function couleurIndicateur(ph, indId) {
-  const ind = INDICATEURS.find(i => i.id === indId);
-  if (!ind) return 'rgba(46,204,113,0.6)';
-  if (ph < ind.zoneMin) return ind.couleurAcide;
-  if (ph > ind.zoneMax) return ind.couleurBasique;
-  const t = (ph - ind.zoneMin) / (ind.zoneMax - ind.zoneMin);
-  return interpolerCouleur(ind.couleurAcide, ind.couleurBasique, t);
-}
-
-function interpolerCouleur(c1, c2, t) {
-  const p = (s) => {
-    const m = s.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-    return m ? [parseInt(m[1]), parseInt(m[2]), parseInt(m[3])] : [0,0,0];
-  };
-  const [r1,g1,b1] = p(c1), [r2,g2,b2] = p(c2);
-  return `rgba(${Math.round(r1+(r2-r1)*t)}, ${Math.round(g1+(g2-g1)*t)}, ${Math.round(b1+(b2-b1)*t)}, 1)`;
-}
-
-// ============================================================
-//  CALCUL DU pH
-// ============================================================
-function calculerPH(vBase, p) {
-  const sT = p.substanceTitree;
-  const sTr = p.substanceTitrante;
-  const va = p.va, ca = p.ca, cb = p.cb;
-
-  // Acide fort + Base forte
-  if (sT.force === 'fort' && sTr.force === 'fort') {
-    const nA = sT.n * va * ca / 1000;
-    const nB = sTr.n * vBase * cb / 1000;
-    const vT = (va + vBase) / 1000;
-    const veq = (sT.n * va * ca) / (sTr.n * cb);
-    if (vBase < veq - 0.001) {
-      if (sT.famille === 'acide') return -Math.log10(Math.max((nA - nB) / vT, 1e-14));
-      else return 14 + Math.log10(Math.max((nA - nB) / vT, 1e-14));
-    }
-    if (Math.abs(vBase - veq) < 0.05) return 7.0;
-    if (sT.famille === 'acide') return 14 + Math.log10(Math.max((nB - nA) / vT, 1e-14));
-    else return -Math.log10(Math.max((nB - nA) / vT, 1e-14));
-  }
-
-  // Acide faible + Base forte
-  if (sT.famille === 'acide' && sT.force === 'faible' && sTr.famille === 'base' && sTr.force === 'fort') {
-    const nA = va * ca / 1000;
-    const nB = vBase * cb / 1000;
-    const vT = (va + vBase) / 1000;
-    const veq = (va * ca) / cb;
-    const pka = p.pka;
-    if (vBase < veq - 0.001) {
-      const nAH = nA - nB;
-      if (nAH <= 0) return 7;
-      return pka + Math.log10(Math.max(nB, 1e-14) / nAH);
-    }
-    if (Math.abs(vBase - veq) < 0.05) {
-      const Kb = Math.pow(10, -14 + pka);
-      return 14 + Math.log10(Math.max(Math.sqrt(Kb * (nA / vT)), 1e-14));
-    }
-    return 14 + Math.log10(Math.max((nB - nA) / vT, 1e-14));
-  }
-
-  // Acide fort + Base faible
-  if (sT.famille === 'acide' && sT.force === 'fort' && sTr.famille === 'base' && sTr.force === 'faible') {
-    const nA = va * ca / 1000;
-    const nB = vBase * cb / 1000;
-    const vT = (va + vBase) / 1000;
-    const veq = (va * ca) / cb;
-    const pkaT = sTr.pka;
-    if (vBase < veq - 0.001) return -Math.log10(Math.max((nA - nB) / vT, 1e-14));
-    if (Math.abs(vBase - veq) < 0.05) {
-      const Ka = Math.pow(10, -pkaT);
-      return -Math.log10(Math.max(Math.sqrt(Ka * (nA / vT)), 1e-14));
-    }
-    return 14 - pkaT - Math.log10(Math.max((nB - nA) / Math.max(nA, 1e-14), 1e-14));
-  }
-
-  // Base faible + Acide fort
-  if (sT.famille === 'base' && sT.force === 'faible' && sTr.famille === 'acide' && sTr.force === 'fort') {
-    const nB = va * ca / 1000;
-    const nA = vBase * cb / 1000;
-    const vT = (va + vBase) / 1000;
-    const veq = (va * ca) / cb;
-    const pka = p.pka;
-    if (vBase < veq - 0.001) {
-      const nBrest = nB - nA;
-      if (nBrest <= 0) return 7;
-      return pka + Math.log10(Math.max(nBrest / Math.max(nA, 1e-14), 1e-14));
-    }
-    if (Math.abs(vBase - veq) < 0.05) {
-      const Ka = Math.pow(10, -pka);
-      return -Math.log10(Math.max(Math.sqrt(Ka * (nB / vT)), 1e-14));
-    }
-    return -Math.log10(Math.max((nA - nB) / vT, 1e-14));
-  }
-
-  return 7;
-}
-
-// ============================================================
-//  MENUS SUBSTANCES
-// ============================================================
-function construireMenuTitree() {
-  const sel = document.getElementById('substance-titree');
-  sel.innerHTML = '';
-  const groupes = {
-    'Acides forts': SUBSTANCES.filter(s => s.famille === 'acide' && s.force === 'fort'),
-    'Acides faibles': SUBSTANCES.filter(s => s.famille === 'acide' && s.force === 'faible'),
-    'Bases fortes': SUBSTANCES.filter(s => s.famille === 'base' && s.force === 'fort'),
-    'Bases faibles': SUBSTANCES.filter(s => s.famille === 'base' && s.force === 'faible')
-  };
-  Object.entries(groupes).forEach(([label, liste]) => {
-    const grp = document.createElement('optgroup');
-    grp.label = label;
-    liste.forEach(s => {
-      const opt = document.createElement('option');
-      opt.value = s.id;
-      opt.textContent = `${s.nom} (${s.formule})`;
-      grp.appendChild(opt);
-    });
-    sel.appendChild(grp);
-  });
-  sel.value = 'hcl';
-  sel.onchange = onSubstanceTitreeChange;
-}
-
-function construireMenuTitrante(familleTitree) {
-  const sel = document.getElementById('substance-titrante');
-  sel.innerHTML = '';
-  const familleTitrante = familleTitree === 'acide' ? 'base' : 'acide';
-  const liste = SUBSTANCES.filter(s => s.famille === familleTitrante);
-  const forts = liste.filter(s => s.force === 'fort');
-  const faibles = liste.filter(s => s.force === 'faible');
-  if (forts.length) {
-    const grp = document.createElement('optgroup');
-    grp.label = familleTitrante === 'base' ? 'Bases fortes' : 'Acides forts';
-    forts.forEach(s => {
-      const o = document.createElement('option');
-      o.value = s.id; o.textContent = `${s.nom} (${s.formule})`;
-      grp.appendChild(o);
-    });
-    sel.appendChild(grp);
-  }
-  if (faibles.length) {
-    const grp = document.createElement('optgroup');
-    grp.label = familleTitrante === 'base' ? 'Bases faibles' : 'Acides faibles';
-    faibles.forEach(s => {
-      const o = document.createElement('option');
-      o.value = s.id; o.textContent = `${s.nom} (${s.formule})`;
-      grp.appendChild(o);
-    });
-    sel.appendChild(grp);
-  }
-  sel.value = familleTitrante === 'base' ? 'naoh' : 'hcl';
-  sel.onchange = onSubstanceTitranteChange;
-}
-
-function onSubstanceTitreeChange() {
-  const val = document.getElementById('substance-titree').value;
-  substanceTitree = SUBSTANCES.find(s => s.id === val);
-  construireMenuTitrante(substanceTitree.famille);
-  onSubstanceTitranteChange();
-  majInfoPanel();
-  if (substanceTitree.pka !== undefined) {
-    document.getElementById('pka').value = substanceTitree.pka;
-  }
-  resetSimulation();
-}
-
-function onSubstanceTitranteChange() {
-  const val = document.getElementById('substance-titrante').value;
-  substanceTitrante = SUBSTANCES.find(s => s.id === val);
-  resetSimulation();
-}
-
-function majInfoPanel() {
-  if (!substanceTitree) return;
-  const s = substanceTitree;
-  document.getElementById('infoFamille').textContent = s.famille === 'acide' ? 'Acide' : 'Base';
-  document.getElementById('infoForce').textContent = s.force === 'fort' ? '🔴 Forte' : '🟢 Faible';
-  let basicite = '';
-  if (s.n === 1) basicite = s.famille === 'acide' ? 'Monoacide' : 'Monobase';
-  else if (s.n === 2) basicite = s.famille === 'acide' ? 'Diacide' : 'Dibase';
-  document.getElementById('infoBasicite').textContent = basicite;
-  if (s.force === 'faible' && s.pka !== undefined) {
-    document.getElementById('lignePka').style.display = 'flex';
-    document.getElementById('lignePkb').style.display = 'flex';
-    document.getElementById('infoPka').textContent = s.pka.toFixed(2);
-    document.getElementById('infoPkb').textContent = (14 - s.pka).toFixed(2);
+function updateZoneInfo() {
+  const n = atelier.composants.length;
+  const no = atelier.noeuds.length;
+  const f = atelier.fils.filter(x => x.de && x.vers).length;
+  const totalF = atelier.fils.length;
+  if (n === 0 && totalF === 0 && no === 0) {
+    document.getElementById('zoneInfo').textContent = 'Aucun élément';
   } else {
-    document.getElementById('lignePka').style.display = 'none';
-    document.getElementById('lignePkb').style.display = 'none';
+    document.getElementById('zoneInfo').textContent = `${n} comp. · ${no} nœud(s) · ${f}/${totalF} fil(s)`;
   }
 }
 
-// ============================================================
-//  SIMULATION
-// ============================================================
-function lireParametres() {
-  return {
-    substanceTitree,
-    substanceTitrante,
-    va: parseFloat(document.getElementById('va').value) || 20,
-    ca: parseFloat(document.getElementById('ca').value) || 0.1,
-    cb: parseFloat(document.getElementById('cb').value) || 0.1,
-    pka: parseFloat(document.getElementById('pka').value),
-    indicateur: document.getElementById('indicateur').value,
-    methode: document.getElementById('methode').value
+function updateZoneTool() {
+  const zone = document.getElementById('zoneTool');
+  if (atelier.filSelectionne) {
+    zone.style.display = 'block';
+    zone.textContent = '〰️ Fil — glisse les poignées';
+  } else if (atelier.noeudSelectionne) {
+    zone.style.display = 'block';
+    zone.textContent = '⬤ Nœud — déplace-le';
+  } else if (atelier.composantSelectionne) {
+    zone.style.display = 'block';
+    zone.textContent = '✎ Double-tap pour modifier';
+  } else {
+    zone.style.display = 'none';
+  }
+}
+
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    this.beginPath();
+    this.moveTo(x + r, y);
+    this.arcTo(x + w, y, x + w, y + h, r);
+    this.arcTo(x + w, y + h, x, y + h, r);
+    this.arcTo(x, y + h, x, y, r);
+    this.arcTo(x, y, x + w, y, r);
+    this.closePath();
+    return this;
   };
 }
 
-function resetSimulation() {
-  started = false;
-  mesures = [];
-  if (chart) { chart.destroy(); chart = null; }
-  document.getElementById('tbodyMesures').innerHTML =
-    '<tr><td colspan="4" style="text-align:center; padding:20px; color:#888;">Démarre le dosage pour commencer</td></tr>';
-  document.getElementById('resultBox').style.display = 'none';
-  document.getElementById('chartWrapper').style.display = 'none';
-  document.getElementById('btnDemarrer').disabled = false;
-  document.getElementById('btnDemarrer').textContent = '▶ Démarrer';
-  document.getElementById('btnExportPdf').style.display = 'none';
-  document.getElementById('svgVolume').textContent = '0.00';
-  document.getElementById('svgPh').textContent = '-';
-  document.getElementById('animMessage').textContent = 'Ajoute du titrant pour voir la couleur évoluer.';
-  majCouleurInitiale();
-  document.getElementById('infoHint').innerHTML = '👆 Clique sur <strong>Démarrer</strong> pour lancer le dosage.';
+function valeurPositive(v, fallback = 1) {
+  const n = Number(v);
+  return Number.isFinite(n) && n > 0 ? n : fallback;
 }
 
-function majCouleurInitiale() {
-  const ind = document.getElementById('indicateur').value;
-  const indObj = INDICATEURS.find(i => i.id === ind);
-  const couleur = indObj ? indObj.couleurAcide : 'rgba(241,196,15,0.7)';
-  document.getElementById('svgLiquid').setAttribute('fill', couleur.replace('1)', '0.7)'));
-  document.getElementById('indicPastille').style.background = couleur;
-}
-
-document.getElementById('btnDemarrer').addEventListener('click', () => {
-  started = true;
-  mesures = [];
-  document.getElementById('btnDemarrer').disabled = true;
-  document.getElementById('btnDemarrer').textContent = '✅ En cours';
-  document.getElementById('tbodyMesures').innerHTML = '';
-  document.getElementById('chartWrapper').style.display = 'block';
-  document.getElementById('infoHint').innerHTML = '💧 Ajoute du titrant avec les boutons ci-dessus.';
-  renderMesures();
+window.addEventListener('load', () => {
+  drawCircuit();
+  updateZoneInfo();
+  updateZoneTool();
+  updateSelectionInfo();
+  updateSelectorsMobile();
+  updateMesuresMobile();
+  updateStatus('Appuie sur un bouton pour ajouter un composant');
+  console.log('📱 Atelier circuits mobile chargé !');
 });
 
-document.getElementById('btnReset').addEventListener('click', resetSimulation);
-
-document.querySelectorAll('.vol-btn').forEach(btn => {
-  btn.addEventListener('click', () => ajouterVolume(parseFloat(btn.dataset.vol)));
-});
-
-document.getElementById('btnAjouterLibre').addEventListener('click', () => {
-  const v = parseFloat(document.getElementById('volLibre').value);
-  if (!isNaN(v) && v > 0) ajouterVolume(v);
-});
-
-function ajouterVolume(vol) {
-  if (!started) {
-    alert('Clique d\'abord sur "▶ Démarrer".');
-    return;
-  }
-  const p = lireParametres();
-  const veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
-  const dernierV = mesures.length > 0 ? mesures[mesures.length - 1].v : 0;
-  const nouveauV = dernierV + vol;
-  if (nouveauV > veq * 2.5) {
-    alert('Volume maximum atteint.');
-    return;
-  }
-  const ph = calculerPH(nouveauV, p);
-  mesures.push({ v: nouveauV, ph });
-  mesures.sort((a, b) => a.v - b.v);
-  renderMesures();
-  renderChart();
-  majAffichage(nouveauV, ph);
-  analyserResultats();
-}
-
-function renderMesures() {
-  const tbody = document.getElementById('tbodyMesures');
-  if (mesures.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:#888;">En attente...</td></tr>';
-    return;
-  }
-  tbody.innerHTML = '';
-  const ind = document.getElementById('indicateur').value;
-  mesures.forEach((m, idx) => {
-    const tr = document.createElement('tr');
-    const couleur = couleurIndicateur(m.ph, ind);
-    tr.innerHTML = `
-      <td>${m.v.toFixed(2)}</td>
-      <td>${m.ph.toFixed(2)}</td>
-      <td><span class="pastille-couleur" style="background:${couleur};"></span></td>
-      <td><button class="btn-del-row" data-idx="${idx}">✕</button></td>
-    `;
-    tbody.appendChild(tr);
-  });
-  tbody.querySelectorAll('.btn-del-row').forEach(b => {
-    b.addEventListener('click', () => {
-      mesures.splice(parseInt(b.dataset.idx), 1);
-      renderMesures();
-      renderChart();
-      analyserResultats();
-    });
-  });
-}
-
-function majAffichage(v, ph) {
-  document.getElementById('svgVolume').textContent = v.toFixed(2);
-  document.getElementById('svgPh').textContent = ph.toFixed(2);
-  const ind = document.getElementById('indicateur').value;
-  const couleur = couleurIndicateur(ph, ind);
-  document.getElementById('svgLiquid').setAttribute('fill', couleur.replace('1)', '0.7)'));
-  const p = lireParametres();
-  const veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
-  let msg = '';
-  if (v < veq * 0.5) msg = '🟡 Avant l\'équivalence : couleur initiale.';
-  else if (v < veq - 1) msg = '🟠 Approche de l\'équivalence...';
-  else if (Math.abs(v - veq) < 1) msg = '🎯 À l\'équivalence : virage !';
-  else msg = '🔵 Après l\'équivalence : couleur finale.';
-  document.getElementById('animMessage').textContent = msg;
-}
-
-document.getElementById('indicateur').addEventListener('change', () => {
-  majCouleurInitiale();
-  renderMesures();
-  if (mesures.length > 0) {
-    const derniere = mesures[mesures.length - 1];
-    majAffichage(derniere.v, derniere.ph);
-  }
-});
-
-document.getElementById('methode').addEventListener('change', () => {
-  const m = document.getElementById('methode').value;
-  if (m === 'phmetrique') {
-    document.getElementById('chartWrapper').style.display = 'block';
-    document.getElementById('animBox').style.display = 'none';
-  } else {
-    document.getElementById('animBox').style.display = 'block';
-    if (mesures.length < 2) document.getElementById('chartWrapper').style.display = 'none';
-  }
-});
-
-// ============================================================
-//  COURBE
-// ============================================================
-function renderChart() {
-  const canvas = document.getElementById('chartCourbe');
-  if (!canvas) return;
-  if (mesures.length < 2) {
-    if (chart) { chart.destroy(); chart = null; }
-    return;
-  }
-  document.getElementById('chartWrapper').style.display = 'block';
-  document.getElementById('animBox').style.display = 'none';
-
-  const points = mesures.map(m => ({ x: m.v, y: m.ph })).sort((a, b) => a.x - b.x);
-  const p = lireParametres();
-  const veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
-
-  if (chart) chart.destroy();
-  chart = new Chart(canvas.getContext('2d'), {
-    type: 'line',
-    data: {
-      datasets: [{
-        label: 'pH',
-        data: points,
-        borderColor: '#A8853F',
-        backgroundColor: 'rgba(168,133,63,0.15)',
-        tension: 0.2,
-        fill: true,
-        borderWidth: 2,
-        pointRadius: 4,
-        pointBackgroundColor: '#4fc3f7',
-        pointBorderColor: '#fff',
-        pointBorderWidth: 1.5
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      parsing: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => `V = ${ctx.parsed.x.toFixed(2)} mL, pH = ${ctx.parsed.y.toFixed(2)}`
-          }
-        }
-      },
-      scales: {
-        x: {
-          type: 'linear',
-          min: 0,
-          max: Math.max(veq * 2, mesures[mesures.length - 1].v * 1.1),
-          title: { display: true, text: 'V (mL)', color: '#aaa' },
-          ticks: { color: '#aaa' },
-          grid: { color: 'rgba(255,255,255,0.05)' }
-        },
-        y: {
-          min: 0, max: 14,
-          title: { display: true, text: 'pH', color: '#aaa' },
-          ticks: { color: '#aaa' },
-          grid: { color: 'rgba(255,255,255,0.05)' }
-        }
-      }
-    }
-  });
-}
-
-// ============================================================
-//  RÉSULTATS
-// ============================================================
-function analyserResultats() {
-  if (mesures.length < 2) return;
-  const p = lireParametres();
-  const points = mesures.map(m => ({ x: m.v, y: m.ph })).sort((a, b) => a.x - b.x);
-  let veq = (p.substanceTitree.n * p.va * p.ca) / (p.substanceTitrante.n * p.cb);
-  let vdemi = veq / 2;
-
-  let maxDelta = 0, indexMax = 0;
-  for (let i = 1; i < points.length; i++) {
-    const delta = Math.abs(points[i].y - points[i-1].y);
-    if (delta > maxDelta) { maxDelta = delta; indexMax = i; }
-  }
-  if (maxDelta > 0.5) {
-    veq = (points[indexMax].x + points[indexMax-1].x) / 2;
-    vdemi = veq / 2;
-  }
-
-  const pheq = calculerPH(veq, p);
-  const phdemi = calculerPH(vdemi, p);
-
-  document.getElementById('resVeq').textContent = veq.toFixed(2) + ' mL';
-  document.getElementById('resVdemi').textContent = vdemi.toFixed(2) + ' mL';
-  document.getElementById('resPheq').textContent = pheq.toFixed(2);
-  document.getElementById('resPhdemi').textContent = phdemi.toFixed(2);
-  document.getElementById('resultBox').style.display = 'block';
-  document.getElementById('btnExportPdf').style.display = 'inline-block';
-  document.getElementById('infoHint').innerHTML = '✅ Dosage terminé ! Tu peux exporter en PDF ou continuer à ajouter du volume.';
-}
-
-// ============================================================
-//  EXPORT PDF
-// ============================================================
-document.getElementById('btnExportPdf').addEventListener('click', () => {
-  if (mesures.length < 2) { alert('Fais d\'abord un dosage.'); return; }
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  const p = lireParametres();
-
-  doc.setFontSize(18);
-  doc.setTextColor(27,42,74);
-  doc.text('Rapport de Dosage — LFAKM', 105, 20, { align: 'center' });
-
-  doc.setFontSize(11);
-  doc.setTextColor(100);
-  doc.text(`Élève : ${profile ? profile.prenom + ' ' + profile.nom : 'Anonyme'}`, 20, 35);
-  doc.text(`Date : ${new Date().toLocaleDateString('fr-FR')}`, 150, 35);
-
-  doc.setFontSize(13);
-  doc.setTextColor(27,42,74);
-  doc.text('Paramètres', 20, 50);
-  doc.setFontSize(10);
-  doc.setTextColor(0);
-  doc.text(`Substance titrée : ${p.substanceTitree.nom} (${p.substanceTitree.formule})`, 20, 58);
-  doc.text(`Solution titrante : ${p.substanceTitrante.nom} (${p.substanceTitrante.formule})`, 20, 64);
-  doc.text(`VA = ${p.va} mL, CA = ${p.ca} mol/L, CB = ${p.cb} mol/L`, 20, 70);
-  doc.text(`Indicateur : ${p.indicateur}`, 20, 76);
-
-  doc.setFontSize(13);
-  doc.setTextColor(27,42,74);
-  doc.text('Tableau de mesures', 20, 90);
-  doc.setFontSize(9);
-  doc.setTextColor(0);
-  let y = 98;
-  mesures.forEach((m, i) => {
-    if (y > 280) { doc.addPage(); y = 20; }
-    doc.text(`${i+1}. V = ${m.v.toFixed(2)} mL  |  pH = ${m.ph.toFixed(2)}`, 20, y);
-    y += 5;
-  });
-
-  y += 10;
-  doc.setFontSize(13);
-  doc.setTextColor(27,42,74);
-  doc.text('Résultats', 20, y);
-  y += 8;
-  doc.setFontSize(10);
-  doc.setTextColor(0);
-  doc.text(`Volume équivalent : ${document.getElementById('resVeq').textContent}`, 20, y); y += 6;
-  doc.text(`Demi-équivalence : ${document.getElementById('resVdemi').textContent}`, 20, y); y += 6;
-  doc.text(`pH à l'équivalence : ${document.getElementById('resPheq').textContent}`, 20, y); y += 6;
-  doc.text(`pH à la demi-équivalence : ${document.getElementById('resPhdemi').textContent}`, 20, y);
-
-  const nomFichier = `Rapport_Dosage_${new Date().toISOString().slice(0,10)}.pdf`;
-  doc.save(nomFichier);
-
-  pdfData = { type:'Dosage', nomFichier };
-  document.getElementById('modalExportPdf').classList.add('show');
-});
-
-document.getElementById('btnFermerExportPdf').addEventListener('click', () => {
-  document.getElementById('modalExportPdf').classList.remove('show');
-});
-
-// ============================================================
-//  MODES
-// ============================================================
-document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const mode = btn.dataset.mode;
-    activerMode(mode);
-  });
-});
-
-function activerMode(mode) {
-  modeActuel = mode;
-  document.querySelectorAll('.mode-btn[data-mode]').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
-  const fieldPka = document.getElementById('fieldPka');
-  const methodeSelect = document.getElementById('methode');
-
-  if (mode === 'initiation' || mode === 'standard') {
-    methodeSelect.value = 'colorimetrique';
-    methodeSelect.disabled = true;
-    fieldPka.style.display = 'none';
-  } else if (mode === 'expert') {
-    methodeSelect.disabled = false;
-    fieldPka.style.display = 'block';
-  } else if (mode === 'tp') {
-    methodeSelect.value = 'phmetrique';
-    methodeSelect.disabled = false;
-    fieldPka.style.display = 'none';
-  }
-  resetSimulation();
-}
-
-// ============================================================
-//  ÉVALUATION
-// ============================================================
-document.getElementById('btnModeEntrainement').addEventListener('click', () => {
-  lancerExamen({
-    type: 'entrainement',
-    nom: 'Entraînement',
-    nbQuestions: 5,
-    duree: 999,
-    difficulte: 'moyen'
-  });
-});
-
-document.getElementById('btnModeEvaluation').addEventListener('click', () => {
-  document.getElementById('modalConfigEval').classList.add('show');
-});
-
-document.getElementById('btnAnnulerEval').addEventListener('click', () => {
-  document.getElementById('modalConfigEval').classList.remove('show');
-});
-
-document.getElementById('btnLancerEval').addEventListener('click', () => {
-  const nom = document.getElementById('evalNom').value.trim() || 'Évaluation';
-  const duree = parseInt(document.getElementById('evalDuree').value);
-  const nbQ = parseInt(document.getElementById('evalNbQuestions').value);
-  const diff = document.getElementById('evalDifficulte').value;
-
-  document.getElementById('modalConfigEval').classList.remove('show');
-  lancerExamen({ type: 'evaluation', nom, nbQuestions: nbQ, duree, difficulte: diff });
-});
-
-function genererQuestion(difficulte) {
-  const sub = SUBSTANCES[Math.floor(Math.random() * SUBSTANCES.length)];
-  const titrante = sub.famille === 'acide'
-    ? SUBSTANCES.filter(s => s.famille === 'base' && s.force === 'fort')[0]
-    : SUBSTANCES.filter(s => s.famille === 'acide' && s.force === 'fort')[0];
-
-  let va, ca, cb;
-  if (difficulte === 'facile') {
-    va = [10, 20, 25][Math.floor(Math.random() * 3)];
-    ca = [0.1, 0.05][Math.floor(Math.random() * 2)];
-    cb = [0.1, 0.05][Math.floor(Math.random() * 2)];
-  } else if (difficulte === 'moyen') {
-    va = Math.round((10 + Math.random() * 20) * 10) / 10;
-    ca = Math.round((0.02 + Math.random() * 0.18) * 1000) / 1000;
-    cb = Math.round((0.02 + Math.random() * 0.18) * 1000) / 1000;
-  } else {
-    va = Math.round((5 + Math.random() * 45) * 10) / 10;
-    ca = Math.round((0.005 + Math.random() * 0.5) * 1000) / 1000;
-    cb = Math.round((0.005 + Math.random() * 0.5) * 1000) / 1000;
-  }
-  const p = { substanceTitree: sub, substanceTitrante: titrante, va, ca, cb, pka: sub.pka };
-  const veqTheo = (sub.n * va * ca) / (titrante.n * cb);
-
-  const types = ['A', 'B', 'C'];
-  const type = types[Math.floor(Math.random() * types.length)];
-
-  if (type === 'A') {
-    const veq = Math.round(veqTheo * 100) / 100;
-    const vraieCA = (cb * veq * titrante.n) / (va * sub.n);
-    return {
-      enonce: `On dose ${va.toFixed(1)} mL d'une solution de ${sub.nom} (${sub.formule}) par une solution de ${titrante.nom} à ${cb.toFixed(3)} mol/L. L'équivalence est obtenue pour Veq = ${veq.toFixed(2)} mL.<br><br>Calculer la concentration CA.`,
-      consigne: 'Réponse en mol/L (3 décimales)',
-      reponse: vraieCA.toFixed(3),
-      unite: 'mol/L',
-      tolerance: 0.005,
-      explication: `À l'équivalence : n × CA × VA = m × CB × Veq<br>CA = (${titrante.n} × ${cb.toFixed(3)} × ${veq.toFixed(2)}) / (${sub.n} × ${va.toFixed(1)}) = ${vraieCA.toFixed(3)} mol/L`
-    };
-  } else if (type === 'B') {
-    const vraieVeq = veqTheo;
-    return {
-      enonce: `On dose ${va.toFixed(1)} mL d'une solution de ${sub.nom} (${sub.formule}) de concentration CA = ${ca.toFixed(3)} mol/L par une solution de ${titrante.nom} à ${cb.toFixed(3)} mol/L.<br><br>Calculer le volume équivalent Veq.`,
-      consigne: 'Réponse en mL (2 décimales)',
-      reponse: vraieVeq.toFixed(2),
-      unite: 'mL',
-      tolerance: 0.1,
-      explication: `Veq = (${sub.n} × ${ca.toFixed(3)} × ${va.toFixed(1)}) / (${titrante.n} × ${cb.toFixed(3)}) = ${vraieVeq.toFixed(2)} mL`
-    };
-  } else {
-    const veq = veqTheo;
-    const pheq = calculerPH(veq, p);
-    let bonInd;
-    if (pheq < 4.4) bonInd = 'helianthine';
-    else if (pheq < 7.6) bonInd = 'bbt';
-    else bonInd = 'phenolphtaleine';
-    const indObj = INDICATEURS.find(i => i.id === bonInd);
-    return {
-      enonce: `Dosage entre ${sub.nom} et ${titrante.nom}. Le pH à l'équivalence est de ${pheq.toFixed(2)}.<br><br>Quel indicateur est le plus adapté ?`,
-      consigne: 'Choisis un indicateur',
-      options: INDICATEURS.map(i => ({ value: i.id, label: `${i.nom} (zone ${i.zoneMin}-${i.zoneMax})` })),
-      reponse: bonInd,
-      tolerance: 0,
-      explication: `Le pH à l'équivalence est ${pheq.toFixed(2)}. L'indicateur adapté est ${indObj.nom} (zone ${indObj.zoneMin}-${indObj.zoneMax}).`
-    };
-  }
-}
-
-function lancerExamen(config) {
-  examen.questions = [];
-  for (let i = 0; i < config.nbQuestions; i++) {
-    examen.questions.push(genererQuestion(config.difficulte));
-  }
-  examen.actif = true;
-  examen.index = 0;
-  examen.score = 0;
-  examen.reponses = [];
-  examen.tempsRestant = config.duree * 60;
-  examen.config = config;
-
-  document.getElementById('examenTotal').textContent = examen.questions.length;
-  document.getElementById('examenScore').textContent = '0';
-
-  if (config.type === 'evaluation' && config.duree < 900) {
-    document.getElementById('examenTimer').parentElement.parentElement.style.display = 'block';
-    demarrerTimer();
-  } else {
-    document.getElementById('examenTimer').parentElement.parentElement.style.display = 'none';
-  }
-
-  document.getElementById('modalExamen').classList.add('show');
-  afficherQuestion();
-}
-
-function demarrerTimer() {
-  if (examen.timer) clearInterval(examen.timer);
-  examen.timer = setInterval(() => {
-    examen.tempsRestant--;
-    majTimer();
-    if (examen.tempsRestant <= 0) {
-      clearInterval(examen.timer);
-      terminerExamen(true);
-    }
-  }, 1000);
-  majTimer();
-}
-
-function majTimer() {
-  const t = document.getElementById('examenTimer');
-  const min = Math.floor(examen.tempsRestant / 60);
-  const sec = examen.tempsRestant % 60;
-  t.textContent = `${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
-  t.classList.remove('warning', 'danger');
-  if (examen.tempsRestant <= 60) t.classList.add('danger');
-  else if (examen.tempsRestant <= 120) t.classList.add('warning');
-}
-
-function afficherQuestion() {
-  if (examen.index >= examen.questions.length) {
-    terminerExamen(false);
-    return;
-  }
-  const q = examen.questions[examen.index];
-  document.getElementById('examenNum').textContent = examen.index + 1;
-  document.getElementById('examenProgress').style.width = ((examen.index) / examen.questions.length * 100) + '%';
-
-  let html = `<div class="examen-question"><strong>📝</strong> ${q.enonce}<br><br><em style="color:#4fc3f7;">💡 ${q.consigne}</em></div>`;
-
-  if (q.options) {
-    html += `<div class="examen-radio-group" id="radioGroup">`;
-    q.options.forEach(o => {
-      html += `<label data-value="${o.value}"><input type="radio" name="rep" value="${o.value}"> ${o.label}</label>`;
-    });
-    html += `</div>`;
-  } else {
-    html += `<input type="number" class="examen-reponse-input" id="reponseInput" step="0.001" placeholder="Ta réponse...">
-             <div style="font-size:0.75em; color:#aaa; margin-top:4px;">${q.unite}</div>`;
-  }
-  html += `<div id="feedbackZone"></div>`;
-  html += `<div class="button-bar" style="margin-top:12px;">
-             <button class="btn btn-primary" id="btnValiderRep" style="width:100%;">✅ Valider</button>
-           </div>`;
-
-  document.getElementById('examenContenu').innerHTML = html;
-
-  document.querySelectorAll('#radioGroup label').forEach(l => {
-    l.addEventListener('click', () => {
-      document.querySelectorAll('#radioGroup label').forEach(x => x.classList.remove('selected'));
-      l.classList.add('selected');
-    });
-  });
-
-  document.getElementById('btnValiderRep').addEventListener('click', validerReponse);
-}
-
-function validerReponse() {
-  const q = examen.questions[examen.index];
-  let repDonnee = null;
-  let correct = false;
-
-  if (q.options) {
-    const sel = document.querySelector('#radioGroup label.selected');
-    if (!sel) { alert('Choisis une réponse.'); return; }
-    repDonnee = sel.dataset.value;
-    correct = repDonnee === q.reponse;
-  } else {
-    const input = document.getElementById('reponseInput');
-    repDonnee = input.value.trim();
-    if (!repDonnee) { alert('Saisis une réponse.'); return; }
-    const val = parseFloat(repDonnee);
-    const vraie = parseFloat(q.reponse);
-    correct = Math.abs(val - vraie) <= q.tolerance;
-  }
-
-  if (correct) examen.score++;
-  document.getElementById('examenScore').textContent = examen.score;
-  examen.reponses.push({ question: q, repDonnee, correct });
-
-  const fb = document.getElementById('feedbackZone');
-  const cls = correct ? 'correct' : 'incorrect';
-  const titre = correct ? '✅ Bonne réponse !' : '❌ Réponse incorrecte';
-  let repAffichee = q.options ? (q.options.find(o => o.value === q.reponse)?.label || q.reponse) : q.reponse + ' ' + (q.unite || '');
-  let repDonneeAffichee = q.options ? (q.options.find(o => o.value === repDonnee)?.label || repDonnee) : repDonnee + ' ' + (q.unite || '');
-
-  fb.innerHTML = `<div class="examen-feedback ${cls}">
-    <strong>${titre}</strong><br>
-    Ta réponse : ${repDonneeAffichee}<br>
-    Bonne réponse : <strong>${repAffichee}</strong><br><br>
-    <em>${q.explication}</em>
-  </div>`;
-
-  const btnNext = document.getElementById('btnValiderRep');
-  btnNext.textContent = examen.index < examen.questions.length - 1 ? '➡ Suivant' : '🏁 Voir résultats';
-  btnNext.onclick = () => {
-    examen.index++;
-    afficherQuestion();
-  };
-}
-
-function terminerExamen(parTemps) {
-  if (examen.timer) clearInterval(examen.timer);
-  examen.actif = false;
-  document.getElementById('modalExamen').classList.remove('show');
-
-  const total = examen.questions.length;
-  const score = examen.score;
-  const noteSur20 = Math.round((score / total) * 20 * 10) / 10;
-  const pct = Math.round((score / total) * 100);
-
-  let appreciation = '', classeApp = '';
-  if (pct >= 90) { appreciation = '🏆 Excellent !'; classeApp = 'app-excellent'; }
-  else if (pct >= 70) { appreciation = '👍 Bien'; classeApp = 'app-bien'; }
-  else if (pct >= 50) { appreciation = '📖 Passable'; classeApp = 'app-passable'; }
-  else { appreciation = '⚠️ À revoir'; classeApp = 'app-faible'; }
-
-  let html = `
-    <div class="examen-resultat-final">
-      <div style="font-size:1.1em; color:#4fc3f7; margin-bottom:10px;">
-        ${parTemps ? '⏱ Temps écoulé' : '🎉 Terminé'}
-      </div>
-      <div class="score">${noteSur20}/20</div>
-      <div class="label">${score}/${total} bonnes réponses (${pct}%)</div>
-      <div class="appreciation ${classeApp}">${appreciation}</div>
-    </div>
-  `;
-
-  html += `<div style="max-height:200px; overflow-y:auto; background:rgba(255,255,255,0.05); border-radius:8px; padding:10px; margin-top:12px; font-size:0.78em;">`;
-  examen.reponses.forEach((r, i) => {
-    const icone = r.correct ? '✅' : '❌';
-    html += `<div style="padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
-      <strong>${icone} Q${i+1}</strong> — ${r.correct ? 'Correct' : 'Incorrect'}
-    </div>`;
-  });
-  html += `</div>`;
-
-  html += `<div class="button-bar" style="margin-top:12px;">
-             <button class="btn btn-secondary" id="btnFermerResultats" style="width:100%;">Fermer</button>
-           </div>`;
-
-  document.getElementById('resultatsContenu').innerHTML = html;
-  document.getElementById('modalResultatsExamen').classList.add('show');
-  document.getElementById('btnFermerResultats').addEventListener('click', () => {
-    document.getElementById('modalResultatsExamen').classList.remove('show');
-  });
-}
-
-// ============================================================
-//  AUTH (Firebase) — chargement différé
-// ============================================================
-async function initAuth() {
-  try {
-    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
-    const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
-    const { getFirestore, doc, getDoc, setDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
-      authDomain: "lfakm-87dec.firebaseapp.com",
-      projectId: "lfakm-87dec",
-      storageBucket: "lfakm-87dec.firebasestorage.app",
-      messagingSenderId: "739517262614",
-      appId: "1:739517262614:web:14abd3538427960c527e37"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
-        if (snap.exists()) {
-          profile = snap.data();
-          const isAdmin = ['admin','proviseur','censeur'].includes(profile.role);
-          const isProf = profile.role === 'professeur';
-          if (isAdmin || isProf) {
-            document.getElementById('btnModeEvaluation').classList.remove('hidden');
-          }
-          if (profile.role === 'eleve') {
-            document.getElementById('btnSauvegarder').style.display = 'inline-block';
-            document.getElementById('btnSauvegarder').onclick = async () => {
-              if (mesures.length < 3) { alert('Fais au moins 3 mesures.'); return; }
-              const nom = prompt('Nom du dosage :', `Dosage ${substanceTitree.nom}`);
-              if (!nom) return;
-              try {
-                await setDoc(doc(db, 'utilisateurs', user.uid, 'dosages', Date.now().toString()), {
-                  nom,
-                  date: new Date().toISOString(),
-                  substanceTitree: { nom: substanceTitree.nom, formule: substanceTitree.formule },
-                  substanceTitrante: { nom: substanceTitrante.nom, formule: substanceTitrante.formule },
-                  va: parseFloat(document.getElementById('va').value),
-                  ca: parseFloat(document.getElementById('ca').value),
-                  cb: parseFloat(document.getElementById('cb').value),
-                  mesures,
-                  veq: document.getElementById('resVeq').textContent,
-                  pheq: document.getElementById('resPheq').textContent,
-                  note: null
-                });
-                alert('✅ Dosage sauvegardé !');
-              } catch (e) { alert('❌ Erreur : ' + e.message); }
-            };
-          }
-        }
-      }
-    });
-  } catch (err) {
-    console.warn('Firebase non chargé :', err.message);
-  }
-}
-
-// ============================================================
-//  INITIALISATION
-// ============================================================
-construireMenuTitree();
-activerMode('standard');
-majCouleurInitiale();
-initAuth();
-
-// Service worker pour mode hors-réseau
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('service-worker.js')
-      .then(() => console.log('✅ Service worker OK — site disponible hors-réseau'))
-      .catch(err => console.warn('Service worker non enregistré :', err));
+      .then(() => console.log('✅ Service worker OK'))
+      .catch(err => console.warn('SW non enregistré (facultatif) :', err));
   });
 }
+
+document.querySelectorAll('button').forEach(btn => {
+  if (!btn.getAttribute('type')) btn.setAttribute('type', 'button');
+});
+
+// Empêcher le zoom sur double-tap accidentel
+let lastTouchEnd = 0;
+document.addEventListener('touchend', e => {
+  const now = Date.now();
+  if (now - lastTouchEnd <= 300) {
+    if (e.target !== canvas) {
+      e.preventDefault();
+    }
+  }
+  lastTouchEnd = now;
+}, false);
 </script>
 
 </body>
