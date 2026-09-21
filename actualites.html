@@ -371,5 +371,23 @@
     if (!estOuvert) dropdown.classList.add('show');
   });
 </script>
+<script>
+  // ✅ Ouvre/ferme les sous-menus (Admin, Laboratoire, Optique) en accordéon sur mobile
+  document.addEventListener('click', function(e) {
+    if (window.innerWidth > 1024) return;
+    const trigger = e.target.closest('.admin-trigger, .labo-trigger, .optique-trigger');
+    if (!trigger) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const item = trigger.closest('.admin-item, .labo-item, .optique-item');
+    if (!item) return;
+    const dropdown = item.querySelector('.admin-dropdown, .labo-dropdown, .optique-dropdown');
+    if (!dropdown) return;
+    const estOuvert = dropdown.classList.contains('show');
+    document.querySelectorAll('.admin-dropdown.show, .labo-dropdown.show, .optique-dropdown.show')
+      .forEach(function(d) { d.classList.remove('show'); });
+    if (!estOuvert) dropdown.classList.add('show');
+  });
+</script>
 </body>
 </html>
