@@ -53,7 +53,6 @@
   }
   .btn-mini:active { background: rgba(168, 133, 63, 0.4); }
 
-  /* 🆕 Bandeau de statut compact */
   .status-strip {
     background: linear-gradient(135deg, #6a4c93 0%, #9b59b6 100%);
     color: #fff;
@@ -82,15 +81,14 @@
     line-height: 1.3;
   }
 
-  /* Canvas */
   .canvas-zone {
     background: #000;
     border-radius: 8px;
     border: 2px solid #4fc3f7;
     padding: 3px;
     position: relative;
-    height: 45vh;
-    min-height: 260px;
+    height: 42vh;
+    min-height: 240px;
   }
   .canvas-zone canvas {
     display: block;
@@ -143,7 +141,6 @@
     white-space: nowrap;
   }
 
-  /* Onglets bas */
   .tabs-mobile {
     display: flex;
     gap: 4px;
@@ -180,7 +177,6 @@
   }
   .panneau.active { display: flex; }
 
-  /* Grille de boutons outils */
   .outils-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -222,8 +218,22 @@
     color: #ff8a80;
     grid-column: span 2;
   }
+  .outil-btn.new-comp {
+    background: rgba(0, 188, 212, 0.12);
+    border-color: rgba(0, 188, 212, 0.35);
+  }
 
-  /* Mesures */
+  .section-title {
+    font-size: 0.68em;
+    color: #4fc3f7;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    padding: 4px 2px 0;
+    border-bottom: 1px solid rgba(79,195,247,0.2);
+    margin-top: 4px;
+  }
+
   .mesures-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -278,7 +288,6 @@
     min-height: 1em;
   }
 
-  /* Sélecteur de cible */
   .select-mobile {
     background: rgba(79, 195, 247, 0.08);
     border: 1px solid rgba(79, 195, 247, 0.3);
@@ -305,7 +314,6 @@
     font-size: 0.75em;
   }
 
-  /* Tableau compact */
   .table-wrapper {
     max-height: 200px;
     overflow-y: auto;
@@ -360,7 +368,6 @@
     padding: 12px;
   }
 
-  /* Lois */
   .lois-panel {
     background: rgba(79, 195, 247, 0.08);
     border-left: 4px solid #4fc3f7;
@@ -402,7 +409,7 @@
     margin-top: 5px;
   }
 
-  /* Barre d'action fixe en bas */
+  /* 🆕 Barre d'action avec bouton interrupteur */
   .action-bar {
     position: sticky;
     bottom: 0;
@@ -415,9 +422,11 @@
     display: flex;
     gap: 6px;
     z-index: 100;
+    flex-wrap: wrap;
   }
   .btn-action {
     flex: 1;
+    min-width: 70px;
     padding: 11px 8px;
     border: none;
     border-radius: 8px;
@@ -442,20 +451,34 @@
     background: linear-gradient(135deg, #ff9800, #f57c00);
     color: #fff;
   }
+  /* 🆕 Bouton interrupteur */
+  .btn-interrupteur {
+    background: linear-gradient(135deg, #f44336, #d32f2f);
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(244, 67, 54, 0.4);
+  }
+  .btn-interrupteur.ferme {
+    background: linear-gradient(135deg, #4caf50, #388e3c);
+    box-shadow: 0 3px 10px rgba(76, 175, 80, 0.4);
+  }
+  .btn-interrupteur.ouvert {
+    background: linear-gradient(135deg, #f44336, #d32f2f);
+  }
   .btn-reset {
     background: rgba(255,255,255,0.15);
     color: #eee;
     border: 1px solid rgba(255,255,255,0.2);
-    max-width: 70px;
+    max-width: 60px;
+    flex: 0 0 auto;
   }
   .btn-formules {
     background: rgba(255,255,255,0.15);
     color: #eee;
     border: 1px solid rgba(255,255,255,0.2);
-    max-width: 70px;
+    max-width: 60px;
+    flex: 0 0 auto;
   }
 
-  /* Statut */
   .status-line {
     text-align: center;
     font-size: 0.7em;
@@ -466,7 +489,6 @@
   }
   .status-line.active { color: #4fc3f7; }
 
-  /* Modal */
   .modal-overlay {
     display: none;
     position: fixed;
@@ -599,7 +621,6 @@
     color: #16213e;
   }
 
-  /* Indicateur du composant sélectionné */
   .selection-info {
     background: rgba(255, 213, 79, 0.1);
     border: 1px solid rgba(255, 213, 79, 0.4);
@@ -633,7 +654,6 @@
     background: rgba(255, 213, 79, 0.4);
   }
 
-  /* Animation de pillule */
   @keyframes pulse-status {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.6; }
@@ -650,7 +670,6 @@
     <a href="simulateur-circuits-libre.html" class="btn-mini">🖥️ PC</a>
   </div>
 
-  <!-- Bandeau de statut compact -->
   <div class="status-strip">
     <div>
       <div class="ss-label">Type de circuit</div>
@@ -662,7 +681,6 @@
     </div>
   </div>
 
-  <!-- Zone canvas -->
   <div class="canvas-zone">
     <div class="zone-label">🔧 Zone de montage</div>
     <canvas id="canvasCircuit" width="900" height="800"></canvas>
@@ -670,7 +688,6 @@
     <div class="zone-tool" id="zoneTool" style="display:none;">〰️ Fil</div>
   </div>
 
-  <!-- Info du composant sélectionné -->
   <div class="selection-info" id="selectionInfo">
     <div id="selectionText">Composant sélectionné</div>
     <div class="actions-selection">
@@ -680,7 +697,6 @@
     </div>
   </div>
 
-  <!-- Onglets -->
   <div class="tabs-mobile">
     <button class="tab-mobile active" data-tab="outils">🧰 Outils</button>
     <button class="tab-mobile" data-tab="mesures">📊 Mesures</button>
@@ -689,6 +705,7 @@
 
   <!-- Panneau Outils -->
   <div class="panneau active" id="panneau-outils">
+    <div class="section-title">🔌 Connexions</div>
     <div class="outils-grid">
       <button class="outil-btn wire" id="btnAddFil">
         <span class="icon">〰️</span>
@@ -698,6 +715,10 @@
         <span class="icon">⬤</span>
         <span>Ajouter un nœud</span>
       </button>
+    </div>
+
+    <div class="section-title">🔋 Sources</div>
+    <div class="outils-grid">
       <button class="outil-btn" id="btnAddPile">
         <span class="icon">🔋</span>
         <span>Pile 12V</span>
@@ -706,6 +727,10 @@
         <span class="icon">🔋</span>
         <span>Pile 6V</span>
       </button>
+    </div>
+
+    <div class="section-title">📏 Commandes</div>
+    <div class="outils-grid">
       <button class="outil-btn" id="btnAddResistance">
         <span class="icon">📏</span>
         <span>Résistance</span>
@@ -714,6 +739,18 @@
         <span class="icon">🔘</span>
         <span>Interrupteur</span>
       </button>
+      <button class="outil-btn" id="btnAddPotentiometre">
+        <span class="icon">🎛</span>
+        <span>Potentiomètre</span>
+      </button>
+      <button class="outil-btn" id="btnAddFusible">
+        <span class="icon">🔌</span>
+        <span>Fusible</span>
+      </button>
+    </div>
+
+    <div class="section-title">⚙️ Récepteurs</div>
+    <div class="outils-grid">
       <button class="outil-btn" id="btnAddLampe">
         <span class="icon">💡</span>
         <span>Lampe</span>
@@ -726,10 +763,41 @@
         <span class="icon">🔔</span>
         <span>Sonnerie</span>
       </button>
+      <button class="outil-btn" id="btnAddLED">
+        <span class="icon">💡</span>
+        <span>LED</span>
+      </button>
       <button class="outil-btn" id="btnAddDiode">
         <span class="icon">▷|</span>
         <span>Diode</span>
       </button>
+      <button class="outil-btn" id="btnAddCondensateur">
+        <span class="icon">⚡</span>
+        <span>Condensateur</span>
+      </button>
+    </div>
+
+    <div class="section-title">🔬 Nouveaux composants</div>
+    <div class="outils-grid">
+      <button class="outil-btn new-comp" id="btnAddElectrolyseur">
+        <span class="icon">⚗️</span>
+        <span>Électrolyseur</span>
+      </button>
+      <button class="outil-btn new-comp" id="btnAddChauffante">
+        <span class="icon">🔥</span>
+        <span>Résistance chauffante</span>
+      </button>
+      <button class="outil-btn new-comp" id="btnAddBobine">
+        <span class="icon">🌀</span>
+        <span>Bobine</span>
+      </button>
+      <button class="outil-btn new-comp" id="btnAddCondensateurPolarise">
+        <span class="icon">⚡+</span>
+        <span>Condensateur polarisé</span>
+      </button>
+    </div>
+
+    <div class="outils-grid" style="margin-top: 8px;">
       <button class="outil-btn danger" id="btnClearAll">
         <span class="icon">🗑</span>
         <span>Tout effacer</span>
@@ -790,12 +858,14 @@
     </div>
   </div>
 
-  <!-- Statut -->
   <div class="status-line" id="status">Appuie sur un bouton pour commencer</div>
 
-  <!-- Barre d'action fixe -->
+  <!-- 🆕 Barre d'action avec bouton interrupteur intégré -->
   <div class="action-bar">
     <button class="btn-action btn-animer" id="btnAnimer" disabled>▶ Animer</button>
+    <button class="btn-action btn-interrupteur" id="btnInterrupteur" style="display: none;">
+      🔘 Fermer
+    </button>
     <button class="btn-action btn-reset" id="btnReset">🔄</button>
     <button class="btn-action btn-formules" id="btnFormules">📐</button>
   </div>
@@ -826,6 +896,15 @@
       <h4>🔀 Circuit MIXTE</h4>
       <p>
         <strong>Méthode :</strong> Identifier les blocs en parallèle → calculer R∥ → réduire en série → calculer Req.
+      </p>
+    </div>
+    <div class="formule-bloc">
+      <h4>🔬 Composants spéciaux</h4>
+      <p>
+        <strong>Électrolyseur :</strong> <code>U = E₀ + r·I</code><br>
+        <strong>Résistance chauffante :</strong> <code>P = U·I = R·I²</code><br>
+        <strong>Bobine (en continu) :</strong> <code>U = r·I</code><br>
+        <strong>Condensateur polarisé :</strong> bloque le courant continu
       </p>
     </div>
     <button class="btn-fermer" id="btnFermerFormules">Fermer</button>
@@ -879,6 +958,9 @@ const ctx = canvas.getContext('2d');
 const W = canvas.width;
 const H = canvas.height;
 
+// ============================================================
+//  TAILLES DES COMPOSANTS
+// ============================================================
 const TAILLE = {
   pile: { w: 110, h: 55 },
   resistance: { w: 110, h: 44 },
@@ -886,10 +968,22 @@ const TAILLE = {
   lampe: { w: 90, h: 70 },
   moteur: { w: 90, h: 70 },
   buzzer: { w: 90, h: 70 },
-  diode: { w: 90, h: 60 }
+  diode: { w: 90, h: 60 },
+  condensateur: { w: 90, h: 65 },
+  led: { w: 90, h: 65 },
+  fusible: { w: 90, h: 55 },
+  potentiometre: { w: 110, h: 55 },
+  electrolyseur: { w: 110, h: 75 },
+  chauffante: { w: 110, h: 60 },
+  bobine: { w: 110, h: 60 },
+  condensateurPolarise: { w: 100, h: 75 }
 };
 
-const COMPOSANTS_RESISTIFS = new Set(['resistance', 'lampe', 'moteur', 'buzzer']);
+const COMPOSANTS_RESISTIFS = new Set([
+  'resistance', 'lampe', 'moteur', 'buzzer', 'potentiometre', 'fusible',
+  'chauffante', 'bobine', 'electrolyseur'
+]);
+
 const DIST_CONNEXION = 55;
 const DIST_SNAP = 60;
 
@@ -921,30 +1015,54 @@ document.getElementById('btnAddBuzzer').addEventListener('click', () => ajouterC
 document.getElementById('btnAddDiode').addEventListener('click', () => ajouterComposant('diode'));
 document.getElementById('btnAddFil').addEventListener('click', ajouterFilLibre);
 document.getElementById('btnAddNoeud').addEventListener('click', ajouterNoeud);
+document.getElementById('btnAddCondensateur').addEventListener('click', () => ajouterComposant('condensateur'));
+document.getElementById('btnAddLED').addEventListener('click', () => ajouterComposant('led'));
+document.getElementById('btnAddFusible').addEventListener('click', () => ajouterComposant('fusible'));
+document.getElementById('btnAddPotentiometre').addEventListener('click', () => ajouterComposant('potentiometre'));
+// Nouveaux
+document.getElementById('btnAddElectrolyseur').addEventListener('click', () => ajouterComposant('electrolyseur'));
+document.getElementById('btnAddChauffante').addEventListener('click', () => ajouterComposant('chauffante'));
+document.getElementById('btnAddBobine').addEventListener('click', () => ajouterComposant('bobine'));
+document.getElementById('btnAddCondensateurPolarise').addEventListener('click', () => ajouterComposant('condensateurPolarise'));
 
 function ajouterComposant(type, tensionForcee) {
   const index = atelier.composants.length;
   const col = index % 2;
   const row = Math.floor(index / 2);
-  const x = 180 + col * 480;
-  const y = 150 + row * 200;
+  const x = 200 + col * 500;
+  const y = 180 + row * 220;
 
   const composant = {
     id: 'c' + atelier.prochainIdComp++,
     type: type,
     x: x, y: y,
     rotation: 0,
-    valeur: type === 'resistance' ? 10 :
-      type === 'lampe' ? 20 :
-      type === 'moteur' ? 30 :
-      type === 'buzzer' ? 40 : null,
-    tension: type === 'pile' ? (tensionForcee || 12) : null
+    valeur: 10,
+    tension: 12
   };
+
+  switch (type) {
+    case 'pile': composant.tension = tensionForcee || 12; break;
+    case 'resistance': composant.valeur = 10; break;
+    case 'lampe': composant.valeur = 20; break;
+    case 'moteur': composant.valeur = 30; break;
+    case 'buzzer': composant.valeur = 40; break;
+    case 'condensateur': composant.capacite = 100; composant.charge = 0; break;
+    case 'led': composant.seuil = 1.8; composant.valeur = 20; break;
+    case 'fusible': composant.courantMax = 0.5; composant.valeur = 0.1; break;
+    case 'potentiometre': composant.valeur = 50; break;
+    case 'diode': composant.seuil = 0.7; composant.valeur = 0.1; break;
+    case 'electrolyseur': composant.seuil = 1.5; composant.valeur = 5; break;
+    case 'chauffante': composant.valeur = 15; break;
+    case 'bobine': composant.valeur = 8; break;
+    case 'condensateurPolarise': composant.capacite = 470; composant.charge = 0; break;
+  }
 
   atelier.composants.push(composant);
   drawCircuit();
   updateZoneInfo();
   updateSelectorsMobile();
+  updateInterrupteurButton();
   analyserCircuit();
   updateStatus(`✅ ${type} ajouté`);
 }
@@ -1002,6 +1120,7 @@ function ajouterNoeud() {
 // ============================================================
 function getBornes(composant) {
   const t = TAILLE[composant.type];
+  if (!t) return [];
   const rotation = composant.rotation || 0;
   const bornes = [];
   const bornesLocales = [
@@ -1095,6 +1214,7 @@ function drawCircuit() {
   for (let x = 0; x < W; x += 50) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
   for (let y = 0; y < H; y += 50) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
 
+  // Fils dessinés EN PREMIER (arrière-plan) avec courbe
   atelier.fils.forEach(fil => drawFil(fil));
   atelier.noeuds.forEach(n => drawNoeud(n));
   atelier.composants.forEach(c => drawComposant(c));
@@ -1139,18 +1259,30 @@ function drawNoeud(noeud) {
   }
 }
 
+// ============================================================
+//  DESSIN DES FILS AVEC COURBE (anti-chevauchement)
+// ============================================================
 function drawFil(fil) {
   const estSelectionne = atelier.filSelectionne === fil.id;
   const estBranche = fil.de && fil.vers;
+
+  // Point de contrôle décalé vers le bas pour éviter les composants
+  const midX = (fil.x1 + fil.x2) / 2;
+  const midY = (fil.y1 + fil.y2) / 2;
+  const decalageY = Math.max(35, Math.abs(fil.x2 - fil.x1) * 0.18);
+  const ctrlX = midX;
+  const ctrlY = midY + decalageY;
 
   ctx.strokeStyle = estSelectionne ? '#ffd54f' : (estBranche ? '#4caf50' : '#4fc3f7');
   ctx.lineWidth = estSelectionne ? 10 : 7;
   ctx.lineCap = 'round';
   ctx.shadowColor = estSelectionne ? '#ffd54f' : (estBranche ? '#4caf50' : '#4fc3f7');
   ctx.shadowBlur = estSelectionne ? 18 : 10;
+  
+  // Courbe quadratique
   ctx.beginPath();
   ctx.moveTo(fil.x1, fil.y1);
-  ctx.lineTo(fil.x2, fil.y2);
+  ctx.quadraticCurveTo(ctrlX, ctrlY, fil.x2, fil.y2);
   ctx.stroke();
   ctx.shadowBlur = 0;
 
@@ -1206,6 +1338,7 @@ function getMesuresComposant(compId) {
 
 function drawComposant(c) {
   const t = TAILLE[c.type];
+  if (!t) return;
   const estSelectionne = atelier.composantSelectionne === c.id;
   const isDragging = atelier.composantEnDrag && atelier.composantEnDrag.id === c.id;
 
@@ -1237,6 +1370,14 @@ function drawComposant(c) {
   else if (c.type === 'moteur') drawMoteur(c.x, c.y, t.w, t.h, c.valeur, mesures);
   else if (c.type === 'buzzer') drawBuzzer(c.x, c.y, t.w, t.h, c.valeur, mesures);
   else if (c.type === 'diode') drawDiode(c.x, c.y, t.w, t.h, mesures);
+  else if (c.type === 'condensateur') drawCondensateur(c.x, c.y, t.w, t.h, c.capacite, c.charge, mesures);
+  else if (c.type === 'led') drawLED(c.x, c.y, t.w, t.h, c.seuil, c.valeur, mesures);
+  else if (c.type === 'fusible') drawFusible(c.x, c.y, t.w, t.h, c.courantMax, c.valeur, mesures);
+  else if (c.type === 'potentiometre') drawPotentiometre(c.x, c.y, t.w, t.h, c.valeur);
+  else if (c.type === 'electrolyseur') drawElectrolyseur(c.x, c.y, t.w, t.h, c.seuil, c.valeur, mesures);
+  else if (c.type === 'chauffante') drawChauffante(c.x, c.y, t.w, t.h, c.valeur, mesures);
+  else if (c.type === 'bobine') drawBobine(c.x, c.y, t.w, t.h, c.valeur, mesures);
+  else if (c.type === 'condensateurPolarise') drawCondensateurPolarise(c.x, c.y, t.w, t.h, c.capacite, c.charge, mesures);
 
   ctx.restore();
   ctx.shadowBlur = 0;
@@ -1245,7 +1386,9 @@ function drawComposant(c) {
     drawEtiquetteMesures(c, mesures);
   }
 
-  if (c.type === 'pile' || COMPOSANTS_RESISTIFS.has(c.type)) {
+  if (c.type === 'pile' || COMPOSANTS_RESISTIFS.has(c.type) ||
+      c.type === 'condensateur' || c.type === 'condensateurPolarise' ||
+      c.type === 'led' || c.type === 'fusible' || c.type === 'potentiometre') {
     drawIndicateurEditable(c);
   }
 
@@ -1254,6 +1397,7 @@ function drawComposant(c) {
 
 function drawEtiquetteMesures(c, mesures) {
   const t = TAILLE[c.type];
+  if (!t) return;
   const rotation = c.rotation || 0;
   const angle = rotation * Math.PI / 180;
   const offsetY = t.h / 2 + 55;
@@ -1298,6 +1442,7 @@ function drawEtiquetteMesures(c, mesures) {
 
 function drawIndicateurEditable(c) {
   const t = TAILLE[c.type];
+  if (!t) return;
   const angle = (c.rotation || 0) * Math.PI / 180;
   const offsetX = t.w / 2 - 10;
   const offsetY = t.h / 2 - 10;
@@ -1316,6 +1461,7 @@ function drawIndicateurEditable(c) {
 
 function drawPoigneeRotation(c) {
   const t = TAILLE[c.type];
+  if (!t) return;
   const angle = (c.rotation || 0) * Math.PI / 180;
   const offsetY = -t.h / 2 - 28;
   const hx = c.x + offsetY * Math.sin(angle);
@@ -1337,6 +1483,9 @@ function drawPoigneeRotation(c) {
   ctx.textBaseline = 'alphabetic';
 }
 
+// ============================================================
+//  DESSINS DES COMPOSANTS (existants)
+// ============================================================
 function drawPile(cx, cy, w, h, tension) {
   ctx.fillStyle = '#1a1a2e';
   ctx.strokeStyle = '#4fc3f7';
@@ -1542,6 +1691,136 @@ function drawDiode(cx, cy, w, h, mesures) {
   ctx.fillText('DIODE', cx, cy - 38);
 }
 
+function drawCondensateur(cx, cy, w, h, capacite, charge, mesures) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 8); ctx.fill(); ctx.stroke();
+
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(cx - 15, cy - 18); ctx.lineTo(cx - 15, cy + 18);
+  ctx.moveTo(cx + 15, cy - 18); ctx.lineTo(cx + 15, cy + 18);
+  ctx.stroke();
+
+  if (charge > 0) {
+    ctx.fillStyle = `rgba(79, 195, 247, ${Math.min(charge / capacite, 1) * 0.6})`;
+    ctx.fillRect(cx - 15, cy - 18, 30, 36);
+  }
+
+  ctx.fillStyle = '#4fc3f7';
+  ctx.font = 'bold 13px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${capacite}µF`, cx, cy - h/2 - 10);
+}
+
+function drawLED(cx, cy, w, h, seuil, resistance, mesures) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#ff5722';
+  ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 8); ctx.fill(); ctx.stroke();
+
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - 18, cy - 18);
+  ctx.lineTo(cx - 18, cy + 18);
+  ctx.lineTo(cx + 18, cy);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx + 18, cy - 18);
+  ctx.lineTo(cx + 18, cy + 18);
+  ctx.stroke();
+
+  let allumee = false;
+  if (mesures && atelier.interrupteurFerme && mesures.I > 0.001) {
+    allumee = true;
+  }
+
+  if (allumee) {
+    const grad = ctx.createRadialGradient(cx, cy, 5, cx, cy, 50);
+    grad.addColorStop(0, 'rgba(255, 87, 34, 0.85)');
+    grad.addColorStop(1, 'rgba(255, 87, 34, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, 50, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = '#ff5722';
+  ctx.font = 'bold 13px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('LED', cx, cy - h/2 - 10);
+}
+
+function drawFusible(cx, cy, w, h, courantMax, resistance, mesures) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#ffc107';
+  ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 8); ctx.fill(); ctx.stroke();
+
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - w/2 + 15, cy);
+  ctx.lineTo(cx + w/2 - 15, cy);
+  ctx.stroke();
+
+  let fondu = false;
+  if (mesures && mesures.I > courantMax) {
+    fondu = true;
+  }
+
+  if (fondu) {
+    ctx.strokeStyle = '#d9534f';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(cx - 20, cy);
+    ctx.lineTo(cx + 20, cy);
+    ctx.stroke();
+    ctx.fillStyle = '#d9534f';
+    ctx.font = 'bold 13px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('FONDU', cx, cy + h/2 + 14);
+  }
+
+  ctx.fillStyle = '#ffc107';
+  ctx.font = 'bold 13px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${courantMax}A`, cx, cy - h/2 - 10);
+}
+
+function drawPotentiometre(cx, cy, w, h, valeur) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#9c27b0';
+  ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 8); ctx.fill(); ctx.stroke();
+
+  ctx.strokeStyle = '#ffd54f';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - w/2 + 15, cy);
+  const seg = (w - 30) / 6;
+  for (let i = 0; i < 6; i++) ctx.lineTo(cx - w/2 + 15 + seg * (i+1), cy + (i % 2 === 0 ? -10 : 10));
+  ctx.stroke();
+
+  ctx.strokeStyle = '#9c27b0';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 25);
+  ctx.lineTo(cx - 7, cy - 12);
+  ctx.lineTo(cx + 7, cy - 12);
+  ctx.closePath();
+  ctx.stroke();
+
+  ctx.fillStyle = '#9c27b0';
+  ctx.font = 'bold 13px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${valeur}Ω`, cx, cy);
+}
+
 function drawInterrupteur(cx, cy, w, h) {
   ctx.fillStyle = '#1a1a2e';
   ctx.strokeStyle = atelier.interrupteurFerme ? '#4caf50' : '#666';
@@ -1569,6 +1848,169 @@ function drawInterrupteur(cx, cy, w, h) {
   ctx.fillText(atelier.interrupteurFerme ? '✓ FERMÉ' : '○ OUVERT', cx, cy + h / 2 + 18);
   ctx.fillStyle = '#4fc3f7';
   ctx.fillText('INTERRUPTEUR', cx, cy - h / 2 - 10);
+}
+
+// ============================================================
+//  NOUVEAUX COMPOSANTS
+// ============================================================
+function drawElectrolyseur(cx, cy, w, h, seuil, valeur, mesures) {
+  drawWireLine(cx, cy, w);
+
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#00bcd4';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.roundRect(cx - w/2 + 15, cy - h/2 + 5, w - 30, h - 10, 8);
+  ctx.fill(); ctx.stroke();
+
+  // Électrodes
+  ctx.strokeStyle = '#4dd0e1';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(cx - 15, cy - h/2 + 12);
+  ctx.lineTo(cx - 15, cy + h/2 - 12);
+  ctx.moveTo(cx + 15, cy - h/2 + 12);
+  ctx.lineTo(cx + 15, cy + h/2 - 12);
+  ctx.stroke();
+
+  const actif = mesures && mesures.I > 0.001 && atelier.interrupteurFerme;
+  if (actif) {
+    const t = Date.now() / 300;
+    for (let i = 0; i < 6; i++) {
+      const bx = cx - 15 + (i % 2 === 0 ? 0 : 30);
+      const by = cy + h/2 - 20 - ((t * 25 + i * 15) % 55);
+      ctx.fillStyle = 'rgba(77, 208, 225, 0.7)';
+      ctx.beginPath();
+      ctx.arc(bx + Math.sin(t + i) * 4, by, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    const grad = ctx.createRadialGradient(cx, cy, 5, cx, cy, 60);
+    grad.addColorStop(0, 'rgba(0, 188, 212, 0.35)');
+    grad.addColorStop(1, 'rgba(0, 188, 212, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, 60, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = '#4dd0e1';
+  ctx.font = 'bold 13px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('ÉLECTROLYSEUR', cx, cy - h/2 - 10);
+  ctx.font = '12px monospace';
+  ctx.fillText(`seuil ${seuil}V`, cx, cy + h/2 + 16);
+}
+
+function drawChauffante(cx, cy, w, h, valeur, mesures) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#ff5722';
+  ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 8); ctx.fill(); ctx.stroke();
+
+  ctx.strokeStyle = '#ff7043';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - w/2 + 15, cy);
+  const seg = (w - 30) / 6;
+  for (let i = 0; i < 6; i++) ctx.lineTo(cx - w/2 + 15 + seg * (i+1), cy + (i % 2 === 0 ? -10 : 10));
+  ctx.stroke();
+
+  const actif = mesures && mesures.I > 0.001 && atelier.interrupteurFerme;
+  if (actif) {
+    const t = Date.now() / 200;
+    for (let i = 0; i < 4; i++) {
+      const hx = cx - 20 + i * 14;
+      const hy = cy - h/2 - 8 - ((t + i * 12) % 25);
+      ctx.strokeStyle = `rgba(255, 87, 34, ${0.8 - i * 0.18})`;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(hx, hy);
+      ctx.quadraticCurveTo(hx + 5, hy - 8, hx, hy - 15);
+      ctx.stroke();
+    }
+  }
+
+  ctx.fillStyle = '#ff7043';
+  ctx.font = 'bold 13px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('CHAUFFANTE', cx, cy - h/2 - 10);
+  ctx.font = '12px monospace';
+  ctx.fillText(valeur + ' Ω', cx, cy + h/2 + 16);
+}
+
+function drawBobine(cx, cy, w, h, valeur, mesures) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#8bc34a';
+  ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 8); ctx.fill(); ctx.stroke();
+
+  ctx.strokeStyle = '#aed581';
+  ctx.lineWidth = 3;
+  const nbSpires = 5;
+  const espace = (w - 30) / nbSpires;
+  for (let i = 0; i < nbSpires; i++) {
+    const sx = cx - w/2 + 15 + i * espace;
+    ctx.beginPath();
+    ctx.arc(sx + espace/2, cy, espace/2 - 3, 0, Math.PI, false);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(sx + espace/2, cy, espace/2 - 3, Math.PI, Math.PI * 2, false);
+    ctx.stroke();
+  }
+
+  const actif = mesures && mesures.I > 0.001 && atelier.interrupteurFerme;
+  if (actif) {
+    const grad = ctx.createRadialGradient(cx, cy, 5, cx, cy, 55);
+    grad.addColorStop(0, 'rgba(139, 195, 74, 0.35)');
+    grad.addColorStop(1, 'rgba(139, 195, 74, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, 55, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = '#aed581';
+  ctx.font = 'bold 13px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('BOBINE', cx, cy - h/2 - 10);
+  ctx.font = '12px monospace';
+  ctx.fillText(valeur + ' Ω', cx, cy + h/2 + 16);
+}
+
+function drawCondensateurPolarise(cx, cy, w, h, capacite, charge, mesures) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#009688';
+  ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 8); ctx.fill(); ctx.stroke();
+
+  ctx.strokeStyle = '#4db6ac';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(cx - 15, cy - 18);
+  ctx.lineTo(cx - 15, cy + 18);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(cx + 15, cy - 18);
+  ctx.quadraticCurveTo(cx + 8, cy, cx + 15, cy + 18);
+  ctx.stroke();
+
+  ctx.fillStyle = '#f44336';
+  ctx.font = 'bold 18px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('+', cx - 28, cy - 22);
+  ctx.textBaseline = 'alphabetic';
+
+  if (charge > 0) {
+    ctx.fillStyle = `rgba(0, 150, 136, ${Math.min(charge / capacite, 1) * 0.6})`;
+    ctx.fillRect(cx - 15, cy - 18, 30, 36);
+  }
+
+  ctx.fillStyle = '#4db6ac';
+  ctx.font = 'bold 13px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${capacite}µF`, cx, cy - h/2 - 10);
 }
 
 function drawBorne(b) {
@@ -1619,7 +2061,6 @@ canvas.addEventListener('touchcancel', e => {
   handlePointerUp();
 });
 
-// Support souris aussi (utile pour tester sur PC)
 canvas.addEventListener('mousedown', e => { const p = getCanvasCoords(e, false); handlePointerDown(p.x, p.y); });
 canvas.addEventListener('mousemove', e => {
   const p = getCanvasCoords(e, false);
@@ -1637,15 +2078,17 @@ canvas.addEventListener('touchend', e => {
   const dist = Math.hypot(p.x - lastTapPos.x, p.y - lastTapPos.y);
 
   if (dt < 300 && dist < 30) {
-    // Double-tap
     const comp = trouverComposantProche(p.x, p.y);
     if (comp) {
       if (comp.type === 'interrupteur') {
         atelier.interrupteurFerme = !atelier.interrupteurFerme;
         drawCircuit();
         analyserCircuit();
+        updateInterrupteurButton();
         updateStatus(atelier.interrupteurFerme ? '🔘 FERMÉ' : '🔘 OUVERT');
-      } else if (comp.type === 'pile' || COMPOSANTS_RESISTIFS.has(comp.type)) {
+      } else if (comp.type === 'pile' || COMPOSANTS_RESISTIFS.has(comp.type) ||
+                 comp.type === 'condensateur' || comp.type === 'condensateurPolarise' ||
+                 comp.type === 'led' || comp.type === 'fusible') {
         ouvrirPanneauEdition(comp);
       }
     }
@@ -1680,7 +2123,6 @@ function getCanvasCoords(e, isTouch) {
 }
 
 function handlePointerDown(x, y) {
-  // Priorité : poignée de fil
   if (atelier.filSelectionne) {
     const fil = atelier.fils.find(f => f.id === atelier.filSelectionne);
     if (fil) {
@@ -1691,7 +2133,6 @@ function handlePointerDown(x, y) {
     }
   }
 
-  // Nœud
   const noeudTouche = trouverNoeudProche(x, y);
   if (noeudTouche) {
     atelier.noeudEnDrag = noeudTouche;
@@ -1704,7 +2145,6 @@ function handlePointerDown(x, y) {
     return;
   }
 
-  // Fil
   const filClique = trouverFilProche(x, y);
   if (filClique) {
     atelier.filSelectionne = filClique.id;
@@ -1717,9 +2157,9 @@ function handlePointerDown(x, y) {
     return;
   }
 
-  // Poignée de rotation
   for (const c of atelier.composants) {
     const t = TAILLE[c.type];
+    if (!t) continue;
     const angle = (c.rotation || 0) * Math.PI / 180;
     const offsetY = -t.h / 2 - 28;
     const hx = c.x + offsetY * Math.sin(angle);
@@ -1732,7 +2172,6 @@ function handlePointerDown(x, y) {
     }
   }
 
-  // Composant
   const comp = trouverComposantProche(x, y);
   if (comp) {
     atelier.composantEnDrag = comp;
@@ -1746,7 +2185,6 @@ function handlePointerDown(x, y) {
     return;
   }
 
-  // Vide
   atelier.filSelectionne = null;
   atelier.composantSelectionne = null;
   atelier.noeudSelectionne = null;
@@ -1832,6 +2270,7 @@ function trouverComposantProche(x, y) {
   for (let i = atelier.composants.length - 1; i >= 0; i--) {
     const c = atelier.composants[i];
     const t = TAILLE[c.type];
+    if (!t) continue;
     const rotation = c.rotation || 0;
     const dx = x - c.x, dy = y - c.y;
     const angle = -rotation * Math.PI / 180;
@@ -1855,7 +2294,7 @@ function distancePointSegment(px, py, x1, y1, x2, y2) {
 }
 
 // ============================================================
-//  INFO SÉLECTION (bandeau mobile)
+//  INFO SÉLECTION
 // ============================================================
 function updateSelectionInfo() {
   const info = document.getElementById('selectionInfo');
@@ -1871,7 +2310,15 @@ function updateSelectionInfo() {
         lampe: `💡 Lampe ${c.valeur} Ω`,
         moteur: `⚙️ Moteur ${c.valeur} Ω`,
         buzzer: `🔔 Sonnerie ${c.valeur} Ω`,
-        diode: `▷| Diode`
+        diode: `▷| Diode`,
+        condensateur: `⚡ Condensateur ${c.capacite}µF`,
+        led: `💡 LED`,
+        fusible: `🔌 Fusible ${c.courantMax}A`,
+        potentiometre: `🎛 Potentiomètre ${c.valeur}Ω`,
+        electrolyseur: `⚗️ Électrolyseur (seuil ${c.seuil}V)`,
+        chauffante: `🔥 Chauffante ${c.valeur} Ω`,
+        bobine: `🌀 Bobine ${c.valeur} Ω`,
+        condensateurPolarise: `⚡+ Condensateur polarisé ${c.capacite}µF`
       };
       text.innerHTML = `<strong>${labels[c.type] || c.type}</strong>`;
       info.classList.add('show');
@@ -1897,16 +2344,17 @@ function updateSelectionInfo() {
 document.getElementById('btnEditerSel').addEventListener('click', () => {
   if (atelier.composantSelectionne) {
     const c = atelier.composants.find(x => x.id === atelier.composantSelectionne);
-    if (c && (c.type === 'pile' || COMPOSANTS_RESISTIFS.has(c.type))) {
+    if (c && (c.type === 'pile' || COMPOSANTS_RESISTIFS.has(c.type) ||
+        c.type === 'condensateur' || c.type === 'condensateurPolarise' ||
+        c.type === 'led' || c.type === 'fusible' || c.type === 'electrolyseur')) {
       ouvrirPanneauEdition(c);
     } else if (c && c.type === 'interrupteur') {
       atelier.interrupteurFerme = !atelier.interrupteurFerme;
       drawCircuit();
       analyserCircuit();
+      updateInterrupteurButton();
       updateSelectionInfo();
     }
-  } else if (atelier.filSelectionne) {
-    // Rien à éditer sur un fil
   }
 });
 
@@ -1917,6 +2365,7 @@ document.getElementById('btnSupprimerSel').addEventListener('click', () => {
     updateSelectionInfo();
     updateZoneInfo();
     updateSelectorsMobile();
+    updateInterrupteurButton();
     analyserCircuit();
     updateStatus('🗑 Composant supprimé');
   } else if (atelier.filSelectionne) {
@@ -1966,8 +2415,43 @@ function supprimerComposant(compId) {
   drawCircuit();
   updateZoneInfo();
   updateSelectorsMobile();
+  updateInterrupteurButton();
   analyserCircuit();
 }
+
+// ============================================================
+//  🆕 BOUTON INTERRUPTEUR
+// ============================================================
+function updateInterrupteurButton() {
+  const btn = document.getElementById('btnInterrupteur');
+  if (!btn) return;
+  const interrupteurs = atelier.composants.filter(c => c.type === 'interrupteur');
+  if (interrupteurs.length === 0) {
+    btn.style.display = 'none';
+    return;
+  }
+  btn.style.display = 'flex';
+  if (atelier.interrupteurFerme) {
+    btn.textContent = '🔘 Ouvrir';
+    btn.classList.add('ferme');
+    btn.classList.remove('ouvert');
+  } else {
+    btn.textContent = '🔘 Fermer';
+    btn.classList.add('ouvert');
+    btn.classList.remove('ferme');
+  }
+}
+
+document.getElementById('btnInterrupteur').addEventListener('click', () => {
+  const interrupteurs = atelier.composants.filter(c => c.type === 'interrupteur');
+  if (interrupteurs.length === 0) return;
+  atelier.interrupteurFerme = !atelier.interrupteurFerme;
+  drawCircuit();
+  analyserCircuit();
+  updateInterrupteurButton();
+  updateSelectionInfo();
+  updateStatus(atelier.interrupteurFerme ? '🔘 Interrupteur FERMÉ' : '🔘 Interrupteur OUVERT');
+});
 
 // ============================================================
 //  TOUT EFFACER
@@ -1988,6 +2472,7 @@ document.getElementById('btnClearAll').addEventListener('click', () => {
   updateZoneTool();
   updateSelectionInfo();
   updateSelectorsMobile();
+  updateInterrupteurButton();
   updateMesuresMobile();
   updateStatus('Atelier vidé');
 });
@@ -2004,13 +2489,19 @@ function updateSelectorsMobile() {
 
   selectVolt.innerHTML = '<option value="pile">🔋 Pile (tension totale)</option>';
   atelier.composants.forEach(c => {
-    if (COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode') {
+    if (COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led') {
       const labels = {
         resistance: '📏 Résistance',
         lampe: '💡 Lampe',
         moteur: '⚙️ Moteur',
         buzzer: '🔔 Sonnerie',
-        diode: '▷| Diode'
+        diode: '▷| Diode',
+        led: '💡 LED',
+        potentiometre: '🎛 Potentiomètre',
+        fusible: '🔌 Fusible',
+        chauffante: '🔥 Chauffante',
+        bobine: '🌀 Bobine',
+        electrolyseur: '⚗️ Électrolyseur'
       };
       const opt = document.createElement('option');
       opt.value = c.id;
@@ -2021,13 +2512,19 @@ function updateSelectorsMobile() {
 
   selectAmp.innerHTML = '<option value="total">🔌 Courant total</option>';
   atelier.composants.forEach(c => {
-    if (COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode') {
+    if (COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led') {
       const labels = {
         resistance: '📏 Branche R',
         lampe: '💡 Branche L',
         moteur: '⚙️ Branche M',
         buzzer: '🔔 Branche sonnerie',
-        diode: '▷| Branche diode'
+        diode: '▷| Branche diode',
+        led: '💡 Branche LED',
+        potentiometre: '🎛 Branche potentiomètre',
+        fusible: '🔌 Branche fusible',
+        chauffante: '🔥 Branche chauffante',
+        bobine: '🌀 Branche bobine',
+        electrolyseur: '⚗️ Branche électrolyseur'
       };
       const opt = document.createElement('option');
       opt.value = c.id;
@@ -2091,7 +2588,9 @@ function analyserCircuit() {
     return;
   }
 
-  const resistances = atelier.composants.filter(c => COMPOSANTS_RESISTIFS.has(c.type));
+  const resistances = atelier.composants.filter(c =>
+    COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led'
+  );
   if (resistances.length === 0) {
     atelier.resultats.type = 'court-circuit';
     updateMesuresMobile();
@@ -2131,6 +2630,15 @@ function analyserCircuit() {
     formule: 'I = E / Req',
     calcul: 'I = ' + E + ' / ' + Req.toFixed(2) + ' = ' + I_total.toFixed(3) + ' A'
   });
+
+  const electrolyseur = resistances.find(r => r.type === 'electrolyseur');
+  if (electrolyseur) {
+    etapes.push({
+      titre: '⚗️ ÉLECTROLYSEUR',
+      formule: 'U = E₀ + r·I',
+      calcul: `U = ${electrolyseur.seuil} + ${electrolyseur.valeur}×${I_total.toFixed(3)} = ${(electrolyseur.seuil + electrolyseur.valeur * I_total).toFixed(2)} V`
+    });
+  }
 
   atelier.resultats = {
     type: typeDetecte,
@@ -2236,9 +2744,13 @@ function analyserNodal(pile, resistances, E) {
   resistances.forEach(r => {
     const leftId = r.id + '-L';
     const rightId = r.id + '-R';
-    const G = 1 / valeurPositive(r.valeur, 1);
+    let R = valeurPositive(r.valeur, 1);
+    if (r.type === 'electrolyseur') {
+      R = r.valeur;
+    }
+    const G = 1 / R;
     aretes.push({ n1: getNodeIndex(leftId), n2: getNodeIndex(rightId), G });
-    resistancesBranches.push({ id: r.id, valeur: r.valeur, leftId, rightId });
+    resistancesBranches.push({ id: r.id, valeur: R, leftId, rightId, type: r.type, seuil: r.seuil });
   });
 
   atelier.composants.filter(c => c.type === 'interrupteur' && atelier.interrupteurFerme).forEach(i => {
@@ -2289,8 +2801,17 @@ function analyserNodal(pile, resistances, E) {
     const nR = noeuds[b.rightId];
     const vL = nL === refNode ? 0 : (freeNodes.indexOf(nL) >= 0 ? V[freeNodes.indexOf(nL)] : 0);
     const vR = nR === refNode ? 0 : (freeNodes.indexOf(nR) >= 0 ? V[freeNodes.indexOf(nR)] : 0);
-    const U_branche = Math.abs(vL - vR) * (pile.tension / Math.max(U_test, 1e-9));
-    const I_branche = U_branche / valeurPositive(b.valeur, 1);
+    let U_branche = Math.abs(vL - vR) * (pile.tension / Math.max(U_test, 1e-9));
+    let I_branche = U_branche / valeurPositive(b.valeur, 1);
+    
+    if (b.type === 'electrolyseur' && b.seuil) {
+      if (U_branche > b.seuil) {
+        I_branche = (U_branche - b.seuil) / valeurPositive(b.valeur, 1);
+      } else {
+        I_branche = 0;
+      }
+    }
+    
     return { id: b.id, valeur: b.valeur, I: I_branche, U: U_branche };
   });
 
@@ -2339,7 +2860,8 @@ function construireGraphe() {
     const leftId = c.id + '-L', rightId = c.id + '-R';
     if (!graphe[leftId]) graphe[leftId] = [];
     if (!graphe[rightId]) graphe[rightId] = [];
-    if (c.type === 'pile' || COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode') {
+    if (c.type === 'pile' || COMPOSANTS_RESISTIFS.has(c.type) ||
+        c.type === 'diode' || c.type === 'led') {
       graphe[leftId].push(rightId);
       graphe[rightId].push(leftId);
     } else if (c.type === 'interrupteur' && atelier.interrupteurFerme) {
@@ -2355,7 +2877,9 @@ function construireGraphe() {
 
 function trouverCheminAvecResistance(graphe, departId, arriveeId) {
   if (!graphe[departId]) return null;
-  const resistancesIds = atelier.composants.filter(c => COMPOSANTS_RESISTIFS.has(c.type)).map(c => c.id);
+  const resistancesIds = atelier.composants.filter(c =>
+    COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led'
+  ).map(c => c.id);
   const chemins = [];
 
   function dfs(id, chemin, visited, profondeur) {
@@ -2410,7 +2934,7 @@ function trouverTousLesChemins(graphe, departId, arriveeId, maxProfondeur) {
 }
 
 // ============================================================
-//  MISE À JOUR DES MESURES MOBILES
+//  MISE À JOUR DES MESURES
 // ============================================================
 function updateMesuresMobile() {
   const r = atelier.resultats;
@@ -2482,7 +3006,6 @@ function updateMesuresMobile() {
     document.getElementById('mmVoltTargetMobile').textContent = cibleLabel;
   }
 
-  // Bandeau supérieur
   document.getElementById('ssU').textContent = (r.U_pile || 0).toFixed(1);
   document.getElementById('ssI').textContent = ((r.I_total || 0) * 1000).toFixed(0);
 
@@ -2507,7 +3030,13 @@ function genererTableauMesuresMobile() {
     lampe: '💡 Lampe',
     moteur: '⚙️ Moteur',
     buzzer: '🔔 Sonnerie',
-    diode: '▷| Diode'
+    diode: '▷| Diode',
+    led: '💡 LED',
+    potentiometre: '🎛 Pot.',
+    fusible: '🔌 Fusible',
+    chauffante: '🔥 Chauff.',
+    bobine: '🌀 Bobine',
+    electrolyseur: '⚗️ Électro.'
   };
 
   r.branches.forEach(b => {
@@ -2552,7 +3081,7 @@ function genererLoisPanelMobile() {
   if (r.type === 'aucun' || !r.chemin) {
     html = `<div class="loi-warning">⚠️ Ajoute une pile, des fils et des résistances.</div>`;
   } else if (r.type === 'ouvert') {
-    html = `<div class="loi-warning">⚠️ Circuit ouvert. Ferme l'interrupteur (double-tap).</div>`;
+    html = `<div class="loi-warning">⚠️ Circuit ouvert. Appuie sur le bouton 🔘 Fermer.</div>`;
   } else if (r.type === 'court-circuit') {
     html = `<div class="loi-warning">⚡ COURT-CIRCUIT ! Aucune résistance.</div>`;
   } else if (r.type === 'erreur') {
@@ -2615,7 +3144,7 @@ function drawElectrons() {
   if (tousChemins.length === 0) return;
 
   const resistancesIds = atelier.composants
-    .filter(c => COMPOSANTS_RESISTIFS.has(c.type))
+    .filter(c => COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led')
     .map(c => c.id);
 
   const cheminsValides = tousChemins.filter(chemin =>
@@ -2731,7 +3260,7 @@ document.getElementById('btnAnimer').addEventListener('click', () => {
     if (!atelier.interrupteurFerme) {
       const interrupteurs = atelier.composants.filter(c => c.type === 'interrupteur');
       if (interrupteurs.length > 0) {
-        alert('⚠️ Double-tape sur l\'interrupteur pour le fermer.');
+        alert('⚠️ Appuie sur le bouton 🔘 Fermer pour fermer l\'interrupteur.');
         return;
       }
     }
@@ -2763,6 +3292,7 @@ document.getElementById('btnReset').addEventListener('click', () => {
   updateZoneTool();
   updateSelectionInfo();
   updateSelectorsMobile();
+  updateInterrupteurButton();
   updateMesuresMobile();
   updateStatus('Atelier réinitialisé');
 });
@@ -2817,9 +3347,14 @@ function ouvrirPanneauEdition(comp) {
       resistance: '📏 Modifier la résistance',
       lampe: '💡 Modifier la lampe',
       moteur: '⚙️ Modifier le moteur',
-      buzzer: '🔔 Modifier la sonnerie'
+      buzzer: '🔔 Modifier la sonnerie',
+      potentiometre: '🎛 Modifier le potentiomètre',
+      fusible: '🔌 Modifier le fusible',
+      chauffante: '🔥 Modifier la résistance chauffante',
+      bobine: '🌀 Modifier la bobine',
+      electrolyseur: '⚗️ Modifier l\'électrolyseur'
     };
-    titre.textContent = labels[comp.type];
+    titre.textContent = labels[comp.type] || 'Modifier';
     description.textContent = 'Choisissez la valeur :';
     input.value = comp.valeur;
     input.min = 1;
@@ -2831,6 +3366,66 @@ function ouvrirPanneauEdition(comp) {
       btn.className = 'raccourci-btn';
       btn.style.cssText = 'background: rgba(255, 213, 79, 0.15); color: #ffd54f; border-color: rgba(255, 213, 79, 0.4);';
       btn.textContent = `${v} Ω`;
+      btn.onclick = () => { input.value = v; };
+      raccourcis.appendChild(btn);
+    });
+  } else if (comp.type === 'condensateur' || comp.type === 'condensateurPolarise') {
+    titre.textContent = '⚡ Modifier le condensateur';
+    description.textContent = 'Choisissez la capacité :';
+    input.value = comp.capacite;
+    input.min = 1;
+    input.max = 1000;
+    input.step = 1;
+    helper.textContent = 'Plage : 1 à 1000 µF';
+    [10, 47, 100, 220, 470, 1000].forEach(v => {
+      const btn = document.createElement('button');
+      btn.className = 'raccourci-btn';
+      btn.textContent = `${v} µF`;
+      btn.onclick = () => { input.value = v; };
+      raccourcis.appendChild(btn);
+    });
+  } else if (comp.type === 'led') {
+    titre.textContent = '💡 Modifier la LED';
+    description.textContent = 'Choisissez la tension de seuil :';
+    input.value = comp.seuil;
+    input.min = 1.2;
+    input.max = 3.5;
+    input.step = 0.1;
+    helper.textContent = 'Plage : 1,2 à 3,5 V';
+    [1.6, 1.8, 2.0, 2.2, 3.2].forEach(v => {
+      const btn = document.createElement('button');
+      btn.className = 'raccourci-btn';
+      btn.textContent = `${v} V`;
+      btn.onclick = () => { input.value = v; };
+      raccourcis.appendChild(btn);
+    });
+  } else if (comp.type === 'fusible') {
+    titre.textContent = '🔌 Modifier le fusible';
+    description.textContent = 'Choisissez le courant max :';
+    input.value = comp.courantMax;
+    input.min = 0.05;
+    input.max = 5;
+    input.step = 0.05;
+    helper.textContent = 'Plage : 0,05 à 5 A';
+    [0.1, 0.2, 0.5, 1, 2, 5].forEach(v => {
+      const btn = document.createElement('button');
+      btn.className = 'raccourci-btn';
+      btn.textContent = `${v} A`;
+      btn.onclick = () => { input.value = v; };
+      raccourcis.appendChild(btn);
+    });
+  } else if (comp.type === 'electrolyseur') {
+    titre.textContent = '⚗️ Modifier l\'électrolyseur';
+    description.textContent = 'Choisissez la tension de seuil :';
+    input.value = comp.seuil;
+    input.min = 0.5;
+    input.max = 5;
+    input.step = 0.1;
+    helper.textContent = 'Plage : 0,5 à 5 V';
+    [1.0, 1.5, 2.0, 2.5, 3.0].forEach(v => {
+      const btn = document.createElement('button');
+      btn.className = 'raccourci-btn';
+      btn.textContent = `${v} V`;
       btn.onclick = () => { input.value = v; };
       raccourcis.appendChild(btn);
     });
@@ -2864,6 +3459,22 @@ document.getElementById('btnValiderEdit').addEventListener('click', () => {
     valeur = Math.max(1, Math.min(10000, valeur));
     composantEnEdition.valeur = valeur;
     updateStatus(`📏 ${composantEnEdition.type} : ${valeur} Ω`);
+  } else if (composantEnEdition.type === 'condensateur' || composantEnEdition.type === 'condensateurPolarise') {
+    valeur = Math.max(1, Math.min(1000, valeur));
+    composantEnEdition.capacite = valeur;
+    updateStatus(`⚡ Condensateur : ${valeur} µF`);
+  } else if (composantEnEdition.type === 'led') {
+    valeur = Math.max(1.2, Math.min(3.5, valeur));
+    composantEnEdition.seuil = valeur;
+    updateStatus(`💡 LED seuil : ${valeur} V`);
+  } else if (composantEnEdition.type === 'fusible') {
+    valeur = Math.max(0.05, Math.min(5, valeur));
+    composantEnEdition.courantMax = valeur;
+    updateStatus(`🔌 Fusible : ${valeur} A`);
+  } else if (composantEnEdition.type === 'electrolyseur') {
+    valeur = Math.max(0.5, Math.min(5, valeur));
+    composantEnEdition.seuil = valeur;
+    updateStatus(`⚗️ Électrolyseur seuil : ${valeur} V`);
   }
 
   document.getElementById('modalEditComposant').classList.remove('show');
@@ -2955,6 +3566,7 @@ window.addEventListener('load', () => {
   updateZoneTool();
   updateSelectionInfo();
   updateSelectorsMobile();
+  updateInterrupteurButton();
   updateMesuresMobile();
   updateStatus('Appuie sur un bouton pour ajouter un composant');
   console.log('📱 Atelier circuits mobile chargé !');
@@ -2977,7 +3589,6 @@ let lastTouchEnd = 0;
 document.addEventListener('touchend', e => {
   const now = Date.now();
   if (now - lastTouchEnd <= 300) {
-    // Ne pas bloquer si on est sur le canvas (pour le double-tap d'édition)
     if (e.target !== canvas) {
       e.preventDefault();
     }
