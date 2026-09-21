@@ -351,6 +351,80 @@
   .modal-content p { margin-bottom: 8px; }
   .modal-content code { background: #f9f7f2; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 13px; color: var(--brass); }
   .modal-btn { margin-top: 18px; padding: 10px 20px; background: var(--brass); color: #fff; border: none; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+
+  /* ✅ Boutons ÉTABLISSEMENT / RUPTURE */
+  .mode-courbe-btns {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    justify-content: center;
+  }
+  .mode-courbe-btn {
+    flex: 1;
+    max-width: 240px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: 2px solid var(--line);
+    background: #fff;
+    color: var(--slate);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .mode-courbe-btn.active {
+    background: var(--brass);
+    color: #fff;
+    border-color: var(--brass);
+    box-shadow: 0 4px 12px rgba(168, 133, 63, 0.3);
+  }
+  .mode-courbe-btn:hover:not(.active) {
+    background: #f9f7f2;
+    border-color: var(--brass);
+    color: var(--brass);
+  }
+
+  /* ✅ Deux courbes côte à côte */
+  .courbes-duo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 700px) {
+    .courbes-duo { grid-template-columns: 1fr; }
+  }
+  .courbe-duo-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .courbe-duo-label {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--ink);
+    text-align: center;
+    padding: 8px;
+    border-radius: 6px;
+    background: #f9f7f2;
+  }
+  #labelUR { color: #ffeb3b; background: rgba(255, 235, 59, 0.15); }
+  #labelUL { color: #4fc3f7; background: rgba(79, 195, 247, 0.1); }
+  .courbe-duo-formule {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--slate);
+    text-align: center;
+    padding: 8px;
+    background: #f9f7f2;
+    border-radius: 6px;
+    border-left: 3px solid var(--brass);
+    line-height: 1.4;
+  }
+  .courbe-duo-item:last-child .recap-courbe {
+    border-color: #4fc3f7;
+  }
 </style>
 </head>
 <body>
@@ -386,8 +460,7 @@
 </div>
 
 <div class="main-content">
-    
-  <!-- ===== ÉTAPE 1 ===== -->
+    <!-- ===== ÉTAPE 1 ===== -->
   <section class="etape" id="etape-1">
     <div class="etape-header">
       <div class="etape-eyebrow">Étape 1 sur 4</div>
@@ -553,7 +626,6 @@
             <text x="200" y="35" text-anchor="middle" font-size="10" fill="#ffd54f" font-weight="bold">R = 100 Ω</text>
             <line x1="320" y1="100" x2="360" y2="100" stroke="#4fc3f7" stroke-width="3"/>
             <line x1="320" y1="140" x2="360" y2="140" stroke="#4fc3f7" stroke-width="3"/>
-            <!-- Bobine spirales dans le schéma -->
             <g stroke="#B87333" stroke-width="2.5" fill="none">
               <path d="M 320 100 Q 326 94 332 100 Q 338 106 344 100 Q 350 94 356 100"/>
               <path d="M 320 140 Q 326 134 332 140 Q 338 146 344 140 Q 350 134 356 140"/>
@@ -592,8 +664,7 @@
       <button class="btn btn-primary" onclick="verifierMontage()">✅ Vérifier mon montage</button>
     </div>
   </section>
-
-  <!-- ===== ÉTAPE 3 : BRANCHER L'OSCILLOSCOPE ===== -->
+    <!-- ===== ÉTAPE 3 : BRANCHER L'OSCILLOSCOPE ===== -->
   <section class="etape" id="etape-3">
     <div class="etape-header">
       <div class="etape-eyebrow">Étape 3 sur 4</div>
@@ -604,7 +675,6 @@
       </p>
     </div>
 
-    <!-- Sélecteur U_R / U_L -->
     <div class="selecteur-mesure">
       <span class="label">🎯 Je veux mesurer :</span>
       <label class="radio-btn actif" id="radioUR" onclick="choisirMesure('UR')">
@@ -661,22 +731,18 @@
         <div class="schema-cible">
           <h4>📐 Schéma du branchement</h4>
           <svg viewBox="0 0 400 240" xmlns="http://www.w3.org/2000/svg" style="width: 100%; max-width: 100%; height: auto;">
-            <!-- Circuit RL -->
             <line x1="40" y1="80" x2="280" y2="80" stroke="#4fc3f7" stroke-width="3"/>
             <line x1="40" y1="200" x2="280" y2="200" stroke="#4fc3f7" stroke-width="3"/>
             <line x1="40" y1="80" x2="40" y2="110" stroke="#4fc3f7" stroke-width="3"/>
             <line x1="40" y1="150" x2="40" y2="200" stroke="#4fc3f7" stroke-width="3"/>
             <line x1="280" y1="80" x2="280" y2="120" stroke="#4fc3f7" stroke-width="3"/>
             <line x1="280" y1="160" x2="280" y2="200" stroke="#4fc3f7" stroke-width="3"/>
-            <!-- Pile -->
             <rect x="25" y="110" width="30" height="40" fill="#fff" stroke="#4caf50" stroke-width="2" rx="3"/>
             <text x="40" y="126" text-anchor="middle" font-size="12" fill="#4caf50" font-weight="bold">+</text>
             <text x="40" y="144" text-anchor="middle" font-size="12" fill="#f44336" font-weight="bold">−</text>
-            <!-- Résistance -->
             <rect x="120" y="65" width="100" height="30" fill="#fff" stroke="#ffd54f" stroke-width="2" rx="4"/>
             <path d="M 130 80 L 142 70 L 154 90 L 166 70 L 178 90 L 190 70 L 202 80" stroke="#ffd54f" stroke-width="2" fill="none"/>
             <text x="170" y="55" text-anchor="middle" font-size="10" fill="#ffd54f" font-weight="bold">R = 100 Ω</text>
-            <!-- Bobine -->
             <line x1="260" y1="120" x2="300" y2="120" stroke="#4fc3f7" stroke-width="3"/>
             <line x1="260" y1="160" x2="300" y2="160" stroke="#4fc3f7" stroke-width="3"/>
             <g stroke="#B87333" stroke-width="2.5" fill="none">
@@ -684,17 +750,14 @@
               <path d="M 260 160 Q 266 154 272 160 Q 278 166 284 160 Q 290 154 296 160 Q 300 164 304 160"/>
             </g>
             <text x="282" y="105" text-anchor="middle" font-size="9" fill="#B87333" font-weight="bold">L</text>
-            <!-- Oscilloscope -->
             <rect x="320" y="30" width="70" height="90" fill="#0d47a1" stroke="#4fc3f7" stroke-width="2" rx="6"/>
             <text x="355" y="48" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">OSCILLO</text>
             <text x="355" y="68" text-anchor="middle" font-size="8" fill="#4fc3f7">Voie 1 (+)</text>
             <text x="355" y="82" text-anchor="middle" font-size="8" fill="#ffeb3b">Voie 2 (−)</text>
             <circle cx="325" cy="68" r="3" fill="#4fc3f7"/>
             <circle cx="325" cy="85" r="3" fill="#ffeb3b"/>
-            <!-- Fils vers R (par défaut) -->
             <line id="lienVoie1" x1="325" y1="68" x2="120" y2="80" stroke="#4fc3f7" stroke-width="2" stroke-dasharray="4,4"/>
             <line id="lienVoie2" x1="325" y1="85" x2="220" y2="80" stroke="#ffeb3b" stroke-width="2" stroke-dasharray="4,4"/>
-            <!-- Cadre jaune autour du composant mesuré -->
             <rect id="cadreMesure" x="115" y="60" width="110" height="40" fill="none" stroke="#ff9800" stroke-width="2.5" stroke-dasharray="6,3" rx="6"/>
           </svg>
         </div>
@@ -795,16 +858,40 @@
         </div>
 
         <h4 style="font-family: var(--serif); font-size: 16px; color: var(--ink); margin-bottom: 12px;">
-          📈 Courbe du courant i(t) observée
+          📈 Courbes observées
         </h4>
-        <div class="recap-courbe">
-          <canvas id="recapCourbe" width="800" height="300"></canvas>
+
+        <!-- ✅ Boutons ÉTABLISSEMENT / RUPTURE -->
+        <div class="mode-courbe-btns">
+          <button class="mode-courbe-btn active" id="btnModeCharge" onclick="changerModeCourbe('charge')">
+            🔋 ÉTABLISSEMENT
+          </button>
+          <button class="mode-courbe-btn" id="btnModeDecharge" onclick="changerModeCourbe('decharge')">
+            ⚡ RUPTURE
+          </button>
+        </div>
+
+        <!-- ✅ Deux courbes côte à côte -->
+        <div class="courbes-duo">
+          <div class="courbe-duo-item">
+            <div class="courbe-duo-label" id="labelUR">🟡 U_R(t) — image du courant i(t)</div>
+            <div class="recap-courbe">
+              <canvas id="recapCourbeUR" width="400" height="260"></canvas>
+            </div>
+            <div class="courbe-duo-formule" id="formuleUR">U_R(t) = E · (1 − e^(−t/τ))</div>
+          </div>
+          <div class="courbe-duo-item">
+            <div class="courbe-duo-label" id="labelUL">🔵 U_L(t) — tension aux bornes de la bobine</div>
+            <div class="recap-courbe">
+              <canvas id="recapCourbeUL" width="400" height="260"></canvas>
+            </div>
+            <div class="courbe-duo-formule" id="formuleUL">U_L(t) = E · e^(−t/τ)</div>
+          </div>
         </div>
 
         <div class="tau-interactif-banner show" id="tauBanner">
           <div class="titre">📊 Mesure interactive de τ</div>
-          <div>👆 <strong>Clique sur la courbe jaune</strong> pour placer le marqueur à <strong>63 % de I_max</strong>.
-          Une ligne verticale te donnera la valeur de τ sur l'axe du temps.</div>
+          <div>👆 <strong>Clique sur la courbe U_R(t)</strong> pour placer le marqueur à <strong>63 % de E</strong> (établissement) ou <strong>37 % de E</strong> (rupture).</div>
           <div class="tau-resultat" id="tauResultat"></div>
         </div>
 
@@ -835,7 +922,6 @@
           <p>Sélectionne la grandeur à observer, puis lance l'animation.</p>
         </div>
 
-        <!-- Sélecteur U_R / U_L pour les courbes -->
         <div class="selecteur-mesure" style="justify-content:center;">
           <span class="label">📺 Grandeur observée :</span>
           <label class="radio-btn actif" id="radioCourbeUR" onclick="choisirCourbe('UR')">
@@ -904,8 +990,7 @@
           • <strong>Loi des mailles</strong> : à tout instant, <strong>U_R(t) + U_L(t) = E</strong>.
         </div>
       </div>
-
-      <!-- Onglet 4.3 : Applications -->
+            <!-- Onglet 4.3 : Applications -->
       <div class="sous-onglet-contenu" id="sous-applis">
         <div class="recap-header">
           <h3>🌍 Applications dans la vie courante</h3>
@@ -1673,15 +1758,10 @@ function drawResistance(cx, cy, w, h, valeur) {
   ctx.fillText(valeur, cx, cy); ctx.textBaseline = 'alphabetic';
 }
 
-// ============================================================
-//  🌀 BOBINE 3D — DESSIN RÉALISTE
-// ============================================================
 function drawBobine(cx, cy, w, h, valeur) {
-  // Corps principal du composant
   ctx.fillStyle = '#1a1a2e'; ctx.strokeStyle = '#B87333'; ctx.lineWidth = 3;
   ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 10); ctx.fill(); ctx.stroke();
 
-  // Noyau ferromagnétique (cylindre gris) qui traverse
   const noyauW = w - 30;
   const noyauH = 18;
   const gradNoyau = ctx.createLinearGradient(cx - noyauW/2, cy, cx + noyauW/2, cy);
@@ -1695,28 +1775,24 @@ function drawBobine(cx, cy, w, h, valeur) {
   ctx.fill();
   ctx.strokeStyle = '#2a323e'; ctx.lineWidth = 1.5; ctx.stroke();
 
-  // Spires (ellipses cuivre) — illusion 3D
   const nbSpires = 10;
   const espacement = noyauW / nbSpires;
-  const spireRx = espacement / 2 + 1;   // rayon horizontal
-  const spireRy = 26;                    // rayon vertical (plus grand = plus de volume)
-  const pulse = (Math.sin(Date.now() / 800) + 1) / 2; // léger "respire"
+  const spireRx = espacement / 2 + 1;
+  const spireRy = 26;
+  const pulse = (Math.sin(Date.now() / 800) + 1) / 2;
   const ryVar = spireRy + pulse * 1.5;
 
   for (let i = 0; i < nbSpires; i++) {
     const x = cx - noyauW/2 + espacement * (i + 0.5);
-    // Dégradé radial pour donner du volume
     const gradSpire = ctx.createRadialGradient(x - spireRx * 0.4, cy - ryVar * 0.3, 1, x, cy, spireRx * 1.4);
-    gradSpire.addColorStop(0, '#F5B072');   // cuivre clair (reflet)
-    gradSpire.addColorStop(0.5, '#B87333'); // cuivre moyen
-    gradSpire.addColorStop(1, '#6B3E1A');   // cuivre foncé (ombre)
+    gradSpire.addColorStop(0, '#F5B072');
+    gradSpire.addColorStop(0.5, '#B87333');
+    gradSpire.addColorStop(1, '#6B3E1A');
     ctx.strokeStyle = gradSpire;
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.ellipse(x, cy, spireRx, ryVar, 0, 0, Math.PI * 2);
     ctx.stroke();
-
-    // Petit reflet brillant sur la partie haute
     ctx.strokeStyle = 'rgba(255, 220, 180, 0.5)';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
@@ -1724,7 +1800,6 @@ function drawBobine(cx, cy, w, h, valeur) {
     ctx.stroke();
   }
 
-  // Bornes (fils qui sortent à gauche et à droite du noyau)
   ctx.strokeStyle = '#B87333'; ctx.lineWidth = 3; ctx.lineCap = 'round';
   ctx.beginPath();
   ctx.moveTo(cx - w/2, cy - 8);
@@ -1733,7 +1808,6 @@ function drawBobine(cx, cy, w, h, valeur) {
   ctx.lineTo(cx + noyauW/2, cy + 4);
   ctx.stroke();
 
-  // Étiquette valeur
   ctx.fillStyle = '#fff'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText(valeur, cx, cy + h/2 - 10); ctx.textBaseline = 'alphabetic';
 }
@@ -2089,7 +2163,7 @@ const ctxB = canvasB.getContext('2d');
 const WB = canvasB.width;
 const HB = canvasB.height;
 
-let mesureChoisie = 'UR'; // 'UR' ou 'UL'
+let mesureChoisie = 'UR';
 
 let branchement = {
   composants: [], oscilloscope: null, fils: [],
@@ -2114,7 +2188,6 @@ function choisirMesure(type) {
   document.getElementById('objectifPlus').textContent = type === 'UR' ? '+ de R' : '+ de L';
   document.getElementById('objectifMoins').textContent = type === 'UR' ? '− de R' : '− de L';
 
-  // Déplacer le cadre jaune et les fils dans le schéma SVG
   const cadre = document.getElementById('cadreMesure');
   const lien1 = document.getElementById('lienVoie1');
   const lien2 = document.getElementById('lienVoie2');
@@ -2571,7 +2644,6 @@ function verifierBranchement() {
   }
   checks.push({ ok: true, txt: 'Les 2 voies de l\'oscilloscope sont connectées' });
 
-  // Composant cible selon mesure choisie
   const typeCible = mesureChoisie === 'UR' ? 'resistance' : 'bobine';
   const cible = branchement.composants.find(c => c.type === typeCible);
   if (!cible) {
@@ -2648,8 +2720,8 @@ function initRecapEditable() {
   const inputL = document.getElementById('inputL');
   if (!inputR || !inputL) return;
   if (!inputR.dataset.bound) {
-    inputR.addEventListener('input', majTau);
-    inputL.addEventListener('input', majTau);
+    inputR.addEventListener('input', () => { majTau(); drawRecapCourbe(); });
+    inputL.addEventListener('input', () => { majTau(); drawRecapCourbe(); });
     inputR.dataset.bound = '1';
   }
   majTau();
@@ -2658,7 +2730,7 @@ function initRecapEditable() {
 function majTau() {
   const R = parseFloat(document.getElementById('inputR').value) || 100;
   const L = parseFloat(document.getElementById('inputL').value) || 1;
-  const tau = L / R;  // en secondes
+  const tau = L / R;
   const tauMs = tau * 1000;
   const el = document.getElementById('valeurTau');
   if (el) el.textContent = tauMs >= 1000 ? (tauMs / 1000).toFixed(2) + ' s' : tauMs.toFixed(1) + ' ms';
@@ -2685,66 +2757,294 @@ function reinitialiserComparaison() {
   drawRecapCourbe();
 }
 
+// ============================================================
+//  📊 COURBES RÉCAP — Mode ÉTABLISSEMENT / RUPTURE
+// ============================================================
+let modeCourbe = 'charge';
+
+window.changerModeCourbe = function(mode) {
+  modeCourbe = mode;
+  document.getElementById('btnModeCharge').classList.toggle('active', mode === 'charge');
+  document.getElementById('btnModeDecharge').classList.toggle('active', mode === 'decharge');
+
+  const formuleUR = document.getElementById('formuleUR');
+  const formuleUL = document.getElementById('formuleUL');
+
+  if (mode === 'charge') {
+    formuleUR.innerHTML = 'U_R(t) = E · (1 − e^(−t/τ))';
+    formuleUL.innerHTML = 'U_L(t) = E · e^(−t/τ)';
+  } else {
+    formuleUR.innerHTML = 'U_R(t) = E · e^(−t/τ)';
+    formuleUL.innerHTML = 'U_L(t) = −E · e^(−t/τ)';
+  }
+
+  jouerSon('connect');
+  drawRecapCourbe();
+};
+
 function drawRecapCourbe() {
-  const canvas = document.getElementById('recapCourbe');
-  if (!canvas) return;
-  const ctx2 = canvas.getContext('2d');
-  const cw = canvas.width, ch = canvas.height;
-  drawCourbeRL(ctx2, cw, ch, 'charge');
-  const mG = 50, mD = 20, mH = 30, mB = 35;
+  const R = parseFloat(document.getElementById('inputR')?.value) || 100;
+  const L = parseFloat(document.getElementById('inputL')?.value) || 1;
+  const E = 6;
+  const T = L / R;
+  const tMax = Math.min(0.1, 6 * T);
+
+  drawCourbeUR('recapCourbeUR', R, L, E, T, tMax, modeCourbe);
+  drawCourbeUL('recapCourbeUL', R, L, E, T, tMax, modeCourbe);
+
+  courbesComparaison.forEach(({ R, L, couleur }) => {
+    const Tcomp = L / R;
+    drawCourbeComparaisonUR('recapCourbeUR', R, L, E, Tcomp, tMax, couleur);
+  });
+}
+
+function drawCourbeUR(canvasId, R, L, E, T, tMax, mode) {
+  const c = document.getElementById(canvasId);
+  if (!c) return;
+  const ctx2 = c.getContext('2d');
+  const cw = c.width, ch = c.height;
+  const mG = 40, mD = 10, mH = 20, mB = 30;
   const largeur = cw - mG - mD;
   const hauteur = ch - mH - mB;
-  const E = 6;
-  const tMax = 0.05; // 50 ms
-  const Umax = E * 1.1;
-  courbesComparaison.forEach(({ R, L, couleur }) => {
-    const tau = L / R;
-    ctx2.strokeStyle = couleur;
-    ctx2.lineWidth = 2.5;
-    ctx2.setLineDash([6, 4]);
-    ctx2.shadowColor = couleur;
-    ctx2.shadowBlur = 8;
+  const Umax = E * 1.15;
+
+  ctx2.fillStyle = '#000';
+  ctx2.fillRect(0, 0, cw, ch);
+
+  ctx2.strokeStyle = 'rgba(255, 235, 59, 0.15)';
+  ctx2.lineWidth = 1;
+  for (let i = 0; i <= 5; i++) {
+    const y = mH + hauteur * i / 5;
+    ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke();
+  }
+  for (let i = 0; i <= 5; i++) {
+    const x = mG + largeur * i / 5;
+    ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke();
+  }
+
+  ctx2.strokeStyle = 'rgba(255, 235, 59, 0.7)';
+  ctx2.lineWidth = 1.5;
+  ctx2.beginPath();
+  ctx2.moveTo(mG, mH + hauteur); ctx2.lineTo(mG + largeur, mH + hauteur);
+  ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
+  ctx2.stroke();
+
+  ctx2.fillStyle = '#ffeb3b';
+  ctx2.font = 'bold 9px "Courier New", monospace';
+  ctx2.textAlign = 'right';
+  ctx2.textBaseline = 'middle';
+  for (let i = 0; i <= 4; i++) {
+    const v = Umax * (1 - i / 4);
+    const y = mH + hauteur * i / 4;
+    ctx2.fillText(v.toFixed(1), mG - 3, y);
+  }
+
+  ctx2.textAlign = 'center';
+  ctx2.textBaseline = 'top';
+  for (let i = 0; i <= 4; i++) {
+    const t = tMax * i / 4 * 1000;
+    ctx2.fillText(t.toFixed(0), mG + largeur * i / 4, mH + hauteur + 4);
+  }
+
+  ctx2.fillStyle = '#ffeb3b';
+  ctx2.font = 'bold 9px "Courier New", monospace';
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
+  ctx2.fillText('V', cw - 4, 4);
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'bottom';
+  ctx2.fillText('ms', mG + largeur, ch - 4);
+
+  ctx2.strokeStyle = '#ffeb3b';
+  ctx2.lineWidth = 2.5;
+  ctx2.shadowColor = '#ffeb3b';
+  ctx2.shadowBlur = 8;
+  ctx2.beginPath();
+  for (let i = 0; i <= 300; i++) {
+    const t = tMax * i / 300;
+    let U;
+    if (mode === 'charge') U = E * (1 - Math.exp(-t / T));
+    else U = E * Math.exp(-t / T);
+    const x = mG + largeur * t / tMax;
+    const y = mH + hauteur - hauteur * U / Umax;
+    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke();
+  ctx2.shadowBlur = 0;
+
+  if (T < tMax) {
+    const xTau = mG + largeur * T / tMax;
+    const U_tau = mode === 'charge' ? E * 0.632 : E * 0.368;
+    const yTau = mH + hauteur - hauteur * U_tau / Umax;
+
+    ctx2.strokeStyle = '#ff9800';
+    ctx2.lineWidth = 1.5;
+    ctx2.setLineDash([4, 4]);
     ctx2.beginPath();
-    for (let i = 0; i <= 200; i++) {
-      const t = tMax * i / 200;
-      const U = E * (1 - Math.exp(-t / tau));
-      const x = mG + largeur * t / tMax;
-      const y = mH + hauteur - hauteur * U / Umax;
-      if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
-    }
+    ctx2.moveTo(xTau, mH); ctx2.lineTo(xTau, mH + hauteur);
+    ctx2.stroke();
+    ctx2.beginPath();
+    ctx2.moveTo(mG, yTau); ctx2.lineTo(xTau, yTau);
     ctx2.stroke();
     ctx2.setLineDash([]);
-    ctx2.shadowBlur = 0;
-  });
+
+    ctx2.fillStyle = '#ff9800';
+    ctx2.beginPath(); ctx2.arc(xTau, yTau, 5, 0, Math.PI * 2); ctx2.fill();
+    ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 2; ctx2.stroke();
+  }
+}
+
+function drawCourbeUL(canvasId, R, L, E, T, tMax, mode) {
+  const c = document.getElementById(canvasId);
+  if (!c) return;
+  const ctx2 = c.getContext('2d');
+  const cw = c.width, ch = c.height;
+  const mG = 40, mD = 10, mH = 20, mB = 30;
+  const largeur = cw - mG - mD;
+  const hauteur = ch - mH - mB;
+  const Umax = E * 1.15;
+  const Umin = -E * 1.15;
+  const amplitude = Umax - Umin;
+
+  ctx2.fillStyle = '#000';
+  ctx2.fillRect(0, 0, cw, ch);
+
+  ctx2.strokeStyle = 'rgba(79, 195, 247, 0.15)';
+  ctx2.lineWidth = 1;
+  for (let i = 0; i <= 5; i++) {
+    const y = mH + hauteur * i / 5;
+    ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke();
+  }
+  for (let i = 0; i <= 5; i++) {
+    const x = mG + largeur * i / 5;
+    ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke();
+  }
+
+  const yZero = mH + hauteur * Umax / amplitude;
+
+  ctx2.strokeStyle = 'rgba(79, 195, 247, 0.7)';
+  ctx2.lineWidth = 1.5;
+  ctx2.beginPath();
+  ctx2.moveTo(mG, yZero); ctx2.lineTo(mG + largeur, yZero);
+  ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
+  ctx2.stroke();
+
+  ctx2.fillStyle = '#4fc3f7';
+  ctx2.font = 'bold 9px "Courier New", monospace';
+  ctx2.textAlign = 'right';
+  ctx2.textBaseline = 'middle';
+  for (let i = 0; i <= 4; i++) {
+    const v = Umax - amplitude * i / 4;
+    const y = mH + hauteur * i / 4;
+    ctx2.fillText(v.toFixed(1), mG - 3, y);
+  }
+
+  ctx2.textAlign = 'center';
+  ctx2.textBaseline = 'top';
+  for (let i = 0; i <= 4; i++) {
+    const t = tMax * i / 4 * 1000;
+    ctx2.fillText(t.toFixed(0), mG + largeur * i / 4, mH + hauteur + 4);
+  }
+
+  ctx2.fillStyle = '#4fc3f7';
+  ctx2.font = 'bold 9px "Courier New", monospace';
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
+  ctx2.fillText('V', cw - 4, 4);
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'bottom';
+  ctx2.fillText('ms', mG + largeur, ch - 4);
+
+  ctx2.strokeStyle = '#4fc3f7';
+  ctx2.lineWidth = 2.5;
+  ctx2.shadowColor = '#4fc3f7';
+  ctx2.shadowBlur = 8;
+  ctx2.beginPath();
+  for (let i = 0; i <= 300; i++) {
+    const t = tMax * i / 300;
+    let U;
+    if (mode === 'charge') U = E * Math.exp(-t / T);
+    else U = -E * Math.exp(-t / T);
+    const x = mG + largeur * t / tMax;
+    const y = mH + hauteur - hauteur * (U - Umin) / amplitude;
+    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke();
+  ctx2.shadowBlur = 0;
+
+  if (T < tMax) {
+    const xTau = mG + largeur * T / tMax;
+    const U_tau = mode === 'charge' ? E * 0.368 : -E * 0.368;
+    const yTau = mH + hauteur - hauteur * (U_tau - Umin) / amplitude;
+
+    ctx2.strokeStyle = '#ff9800';
+    ctx2.lineWidth = 1.5;
+    ctx2.setLineDash([4, 4]);
+    ctx2.beginPath();
+    ctx2.moveTo(xTau, mH); ctx2.lineTo(xTau, mH + hauteur);
+    ctx2.stroke();
+    ctx2.beginPath();
+    ctx2.moveTo(mG, yTau); ctx2.lineTo(xTau, yTau);
+    ctx2.stroke();
+    ctx2.setLineDash([]);
+
+    ctx2.fillStyle = '#ff9800';
+    ctx2.beginPath(); ctx2.arc(xTau, yTau, 5, 0, Math.PI * 2); ctx2.fill();
+    ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 2; ctx2.stroke();
+  }
+}
+
+function drawCourbeComparaisonUR(canvasId, R, L, E, T, tMax, couleur) {
+  const c = document.getElementById(canvasId);
+  if (!c) return;
+  const ctx2 = c.getContext('2d');
+  const cw = c.width, ch = c.height;
+  const mG = 40, mD = 10, mH = 20, mB = 30;
+  const largeur = cw - mG - mD;
+  const hauteur = ch - mH - mB;
+  const Umax = E * 1.15;
+
+  ctx2.strokeStyle = couleur;
+  ctx2.lineWidth = 2;
+  ctx2.setLineDash([6, 4]);
+  ctx2.shadowColor = couleur;
+  ctx2.shadowBlur = 6;
+  ctx2.beginPath();
+  for (let i = 0; i <= 300; i++) {
+    const t = tMax * i / 300;
+    const U = E * (1 - Math.exp(-t / T));
+    const x = mG + largeur * t / tMax;
+    const y = mH + hauteur - hauteur * U / Umax;
+    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke();
+  ctx2.setLineDash([]);
+  ctx2.shadowBlur = 0;
 }
 
 // ============================================================
 //  📊 MESURE INTERACTIVE DE τ
 // ============================================================
 function initTauInteractif() {
-  const canvas = document.getElementById('recapCourbe');
+  const canvas = document.getElementById('recapCourbeUR');
   if (!canvas || canvas.dataset.tauBound) return;
   canvas.dataset.tauBound = '1';
 
   canvas.addEventListener('click', (e) => {
     const rect = canvas.getBoundingClientRect();
     const cw = canvas.width, ch = canvas.height;
-    const scaleX = cw / rect.width;
-    const scaleY = ch / rect.height;
-    const xClic = (e.clientX - rect.left) * scaleX;
-    const yClic = (e.clientY - rect.top) * scaleY;
+    const xClic = (e.clientX - rect.left) * (cw / rect.width);
+    const yClic = (e.clientY - rect.top) * (ch / rect.height);
 
-    const mG = 50, mD = 20, mH = 30, mB = 35;
+    const mG = 40, mD = 10, mH = 20, mB = 30;
     const largeur = cw - mG - mD;
     const hauteur = ch - mH - mB;
-    const E = 6, tMax = 0.05, T = 0.01, Umax = E * 1.1;
+    const E = 6, tMax = 0.1, T = 0.01, Umax = E * 1.15;
 
     if (xClic < mG || xClic > mG + largeur || yClic < mH || yClic > mH + hauteur) return;
 
     let meilleurT = 0, meilleureDist = Infinity;
     for (let i = 0; i <= 200; i++) {
       const t = tMax * i / 200;
-      const U = E * (1 - Math.exp(-t / T));
+      let U;
+      if (modeCourbe === 'charge') U = E * (1 - Math.exp(-t / T));
+      else U = E * Math.exp(-t / T);
       const x = mG + largeur * t / tMax;
       const y = mH + hauteur - hauteur * U / Umax;
       const d = Math.hypot(x - xClic, y - yClic);
@@ -2752,26 +3052,19 @@ function initTauInteractif() {
     }
 
     const xTau = mG + largeur * T / tMax;
-    const yTau = mH + hauteur - hauteur * (E * 0.632) / Umax;
+    const U_tau = modeCourbe === 'charge' ? E * 0.632 : E * 0.368;
+    const yTau = mH + hauteur - hauteur * U_tau / Umax;
 
     drawRecapCourbe();
     const ctx2 = canvas.getContext('2d');
 
     ctx2.strokeStyle = '#ff9800'; ctx2.lineWidth = 2; ctx2.setLineDash([6, 4]);
     ctx2.beginPath(); ctx2.moveTo(xTau, mH); ctx2.lineTo(xTau, mH + hauteur); ctx2.stroke();
-    ctx2.setLineDash([]);
-
-    ctx2.strokeStyle = 'rgba(255,152,0,0.6)'; ctx2.lineWidth = 1.5; ctx2.setLineDash([4, 4]);
     ctx2.beginPath(); ctx2.moveTo(mG, yTau); ctx2.lineTo(xTau, yTau); ctx2.stroke();
     ctx2.setLineDash([]);
 
     ctx2.fillStyle = '#ff9800'; ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 3;
-    ctx2.beginPath(); ctx2.arc(xTau, yTau, 9, 0, Math.PI * 2); ctx2.fill(); ctx2.stroke();
-
-    ctx2.fillStyle = '#fff'; ctx2.font = 'bold 12px "Courier New", monospace'; ctx2.textAlign = 'left';
-    ctx2.fillText('63 % de I_max', xTau + 15, yTau - 10);
-    ctx2.fillStyle = '#ff9800'; ctx2.font = 'bold 13px "Courier New", monospace'; ctx2.textAlign = 'center';
-    ctx2.fillText('τ = ' + (T * 1000).toFixed(1) + ' ms', xTau, mH + hauteur + 20);
+    ctx2.beginPath(); ctx2.arc(xTau, yTau, 7, 0, Math.PI * 2); ctx2.fill(); ctx2.stroke();
 
     const res = document.getElementById('tauResultat');
     if (res) {
@@ -2780,7 +3073,7 @@ function initTauInteractif() {
       const reussi = ecart < 0.003;
       res.innerHTML = `📌 Tu as cliqué à t ≈ <strong>${(meilleurT * 1000).toFixed(1)} ms</strong> — ` +
         (reussi ? `🎯 Bravo ! Tu es tout près de <strong>τ = ${(T * 1000).toFixed(1)} ms</strong> !`
-                : `Regarde le marqueur orange : τ est à <strong>${(T * 1000).toFixed(1)} ms</strong> (63 % de I_max).`);
+                : `Regarde le marqueur orange : τ est à <strong>10 ms</strong> (${modeCourbe === 'charge' ? '63 %' : '37 %'} de I_max).`);
     }
     jouerSon('connect');
   });
@@ -2804,14 +3097,14 @@ function initCourbeVideSpecifique(id) {
 }
 
 // ============================================================
-//  COURBES RL : U_R et U_L
+//  COURBES RL : U_R et U_L (Onglet Établissement vs Rupture)
 // ============================================================
 function drawCourbeRL(ctx2, cw, ch, type, grandeur = 'UR') {
   const mG = 50, mD = 20, mH = 30, mB = 35;
   const largeur = cw - mG - mD;
   const hauteur = ch - mH - mB;
   const E = 6;
-  const tMax = 0.05; // 50 ms
+  const tMax = 0.05;
   const Umax = E * 1.1;
   const Umin = -E * 0.6;
   const amplitude = Umax - Umin;
@@ -2821,15 +3114,13 @@ function drawCourbeRL(ctx2, cw, ch, type, grandeur = 'UR') {
   for (let i = 0; i <= 10; i++) { const y = mH + (hauteur * i / 10); ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
   for (let i = 0; i <= 10; i++) { const x = mG + (largeur * i / 10); ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
 
-  // Axe y = 0 (décalé si U_L peut être négatif)
   const yZero = mH + hauteur - hauteur * (-Umin) / amplitude;
   ctx2.strokeStyle = 'rgba(76, 175, 80, 0.6)'; ctx2.lineWidth = 1.5;
   ctx2.beginPath();
-  ctx2.moveTo(mG, yZero); ctx2.lineTo(mG + largeur, yZero); // axe X (y=0)
-  ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur); // axe Y
+  ctx2.moveTo(mG, yZero); ctx2.lineTo(mG + largeur, yZero);
+  ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
   ctx2.stroke();
 
-  // Graduations X
   ctx2.fillStyle = '#4caf50'; ctx2.font = 'bold 10px "Courier New", monospace';
   ctx2.textAlign = 'center'; ctx2.textBaseline = 'top';
   for (let i = 0; i <= 5; i++) {
@@ -2838,7 +3129,6 @@ function drawCourbeRL(ctx2, cw, ch, type, grandeur = 'UR') {
     ctx2.fillText((t * 1000).toFixed(0) + ' ms', x, mH + hauteur + 6);
   }
 
-  // Graduations Y
   ctx2.textAlign = 'right'; ctx2.textBaseline = 'middle';
   for (let i = 0; i <= 5; i++) {
     const u = Umax - (Umax - Umin) * i / 5;
@@ -2846,7 +3136,6 @@ function drawCourbeRL(ctx2, cw, ch, type, grandeur = 'UR') {
     ctx2.fillText(u.toFixed(1) + ' V', mG - 6, y);
   }
 
-  // Marqueurs τ
   ctx2.setLineDash([3, 3]); ctx2.strokeStyle = 'rgba(255, 213, 79, 0.4)'; ctx2.lineWidth = 1;
   for (let k = 1; k <= 5; k++) {
     const tK = k * 0.01;
@@ -2860,7 +3149,6 @@ function drawCourbeRL(ctx2, cw, ch, type, grandeur = 'UR') {
   }
   ctx2.setLineDash([]);
 
-  // Tracer la courbe
   ctx2.strokeStyle = type === 'charge' ? '#ffeb3b' : '#ff9800';
   ctx2.lineWidth = 3;
   ctx2.shadowColor = type === 'charge' ? '#ffeb3b' : '#ff9800';
@@ -2873,7 +3161,7 @@ function drawCourbeRL(ctx2, cw, ch, type, grandeur = 'UR') {
     if (grandeur === 'UR') {
       if (type === 'charge') U = E * (1 - Math.exp(-t / T));
       else U = E * Math.exp(-t / T);
-    } else { // UL
+    } else {
       if (type === 'charge') U = E * Math.exp(-t / T);
       else U = -E * Math.exp(-t / T);
     }
@@ -2999,11 +3287,9 @@ function afficherLoiMailles() {
   const Umax = E * 1.2;
 
   ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
-  // Grille
   ctx2.strokeStyle = 'rgba(76, 175, 80, 0.15)'; ctx2.lineWidth = 1;
   for (let i = 0; i <= 10; i++) { const y = mH + (hauteur * i / 10); ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
   for (let i = 0; i <= 10; i++) { const x = mG + (largeur * i / 10); ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
-  // Axes
   ctx2.strokeStyle = 'rgba(76, 175, 80, 0.6)'; ctx2.lineWidth = 1.5;
   ctx2.beginPath(); ctx2.moveTo(mG, mH + hauteur); ctx2.lineTo(mG + largeur, mH + hauteur);
   ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur); ctx2.stroke();
@@ -3011,7 +3297,6 @@ function afficherLoiMailles() {
   const gradX = (t) => mG + largeur * t / tMax;
   const gradY = (u) => mH + hauteur - hauteur * u / Umax;
 
-  // U_R en jaune
   ctx2.strokeStyle = '#ffeb3b'; ctx2.lineWidth = 3;
   ctx2.beginPath();
   for (let i = 0; i <= 200; i++) {
@@ -3022,7 +3307,6 @@ function afficherLoiMailles() {
   }
   ctx2.stroke();
 
-  // U_L en bleu
   ctx2.strokeStyle = '#4fc3f7'; ctx2.lineWidth = 3;
   ctx2.beginPath();
   for (let i = 0; i <= 200; i++) {
@@ -3033,26 +3317,23 @@ function afficherLoiMailles() {
   }
   ctx2.stroke();
 
-  // U_R + U_L en pointillé blanc
   ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 2.5; ctx2.setLineDash([8, 5]);
   ctx2.beginPath();
   for (let i = 0; i <= 200; i++) {
     const t = tMax * i / 200;
-    const U = E; // = E constant
+    const U = E;
     const x = gradX(t), y = gradY(U);
     if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
   }
   ctx2.stroke();
   ctx2.setLineDash([]);
 
-  // Légende
   ctx2.font = 'bold 11px "Courier New", monospace';
   ctx2.textAlign = 'left'; ctx2.textBaseline = 'top';
   ctx2.fillStyle = '#ffeb3b'; ctx2.fillText('U_R(t)', mG + 10, mH + 5);
   ctx2.fillStyle = '#4fc3f7'; ctx2.fillText('U_L(t)', mG + 10, mH + 22);
   ctx2.fillStyle = '#fff'; ctx2.fillText('U_R + U_L = E = 6 V', mG + 10, mH + 39);
 
-  // Graduations X et Y
   ctx2.fillStyle = '#4caf50'; ctx2.textAlign = 'center';
   for (let i = 0; i <= 5; i++) {
     const x = mG + largeur * i / 5;
@@ -3119,8 +3400,7 @@ function drawAppliRL(canvas, type, elapsed) {
     } else if (type === 'freinage') {
       U = E * Math.exp(-t / 0.02);
     } else {
-      U = E * Math.sin(2 * Math.PI * t / 0.02) * (1 - Math.exp(-t / 0.01));
-      U = Math.abs(U);
+      U = Math.abs(E * Math.sin(2 * Math.PI * t / 0.02) * (1 - Math.exp(-t / 0.01)));
     }
     const x = mG + (largeur * t / tMax);
     const y = mH + hauteur - (hauteur * U / Umax);
@@ -3453,7 +3733,7 @@ function genererCertificat() {
         <div class="case"><div class="lab">Date</div><div class="val">${date}</div></div>
         <div class="case"><div class="lab">Relation vérifiée</div><div class="val">τ = L / R</div></div>
       </div>
-            ${montageImg ? '<div class="montage-zone"><h3>📸 Montage réalisé</h3><img src="' + montageImg + '" alt="Montage"></div>' : ''}
+      ${montageImg ? '<div class="montage-zone"><h3>📸 Montage réalisé</h3><img src="' + montageImg + '" alt="Montage"></div>' : ''}
       <div class="conclusion-bloc">
         <h3>📝 Conclusion de l'élève</h3>
         <div>${conclusion.replace(/</g, '&lt;').substring(0, 800)}</div>
@@ -3558,7 +3838,7 @@ window.addEventListener('load', () => {
     }
   });
 
-  console.log('✅ Simulateur RL V6.4 — bobine 3D, U_R/U_L, loi des mailles, certificat, sons, exercices');
+  console.log('✅ Simulateur RL V7.0 — Boutons ÉTABLISSEMENT/RUPTURE + 2 courbes simultanées');
 });
 
 if (!CanvasRenderingContext2D.prototype.roundRect) {

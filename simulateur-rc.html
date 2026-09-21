@@ -298,6 +298,80 @@
   .modal-content p { margin-bottom: 8px; }
   .modal-content code { background: #f9f7f2; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 13px; color: var(--brass); }
   .modal-btn { margin-top: 18px; padding: 10px 20px; background: var(--brass); color: #fff; border: none; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+
+  /* ✅ Boutons Charge / Décharge */
+  .mode-courbe-btns {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    justify-content: center;
+  }
+  .mode-courbe-btn {
+    flex: 1;
+    max-width: 220px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: 2px solid var(--line);
+    background: #fff;
+    color: var(--slate);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .mode-courbe-btn.active {
+    background: var(--brass);
+    color: #fff;
+    border-color: var(--brass);
+    box-shadow: 0 4px 12px rgba(168, 133, 63, 0.3);
+  }
+  .mode-courbe-btn:hover:not(.active) {
+    background: #f9f7f2;
+    border-color: var(--brass);
+    color: var(--brass);
+  }
+
+  /* ✅ Deux courbes côte à côte */
+  .courbes-duo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 700px) {
+    .courbes-duo { grid-template-columns: 1fr; }
+  }
+  .courbe-duo-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .courbe-duo-label {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--ink);
+    text-align: center;
+    padding: 8px;
+    border-radius: 6px;
+    background: #f9f7f2;
+  }
+  #labelUC { color: #4fc3f7; background: rgba(79, 195, 247, 0.1); }
+  #labelI  { color: #e91e63; background: rgba(233, 30, 99, 0.1); }
+  .courbe-duo-formule {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--slate);
+    text-align: center;
+    padding: 8px;
+    background: #f9f7f2;
+    border-radius: 6px;
+    border-left: 3px solid var(--brass);
+    line-height: 1.4;
+  }
+  .courbe-duo-item:last-child .recap-courbe {
+    border-color: #e91e63;
+  }
 </style>
 <!-- 📱 Redirection automatique vers la version mobile -->
 <script>
@@ -346,8 +420,7 @@
 </div>
 
 <div class="main-content">
-  
-  <!-- ===== ÉTAPE 1 ===== -->
+    <!-- ===== ÉTAPE 1 ===== -->
   <section class="etape" id="etape-1">
     <div class="etape-header">
       <div class="etape-eyebrow">Étape 1 sur 4</div>
@@ -546,8 +619,7 @@
       <button class="btn btn-primary" onclick="verifierMontage()">✅ Vérifier mon montage</button>
     </div>
   </section>
-
-  <!-- ===== ÉTAPE 3 : BRANCHER L'OSCILLOSCOPE ===== -->
+    <!-- ===== ÉTAPE 3 : BRANCHER L'OSCILLOSCOPE ===== -->
   <section class="etape" id="etape-3">
     <div class="etape-header">
       <div class="etape-eyebrow">Étape 3 sur 4</div>
@@ -724,16 +796,40 @@
         </div>
 
         <h4 style="font-family: var(--serif); font-size: 16px; color: var(--ink); margin-bottom: 12px;">
-          📈 Courbe de charge observée
+          📈 Courbes observées
         </h4>
-        <div class="recap-courbe">
-          <canvas id="recapCourbe" width="800" height="300"></canvas>
+
+        <!-- ✅ Boutons Charge / Décharge -->
+        <div class="mode-courbe-btns">
+          <button class="mode-courbe-btn active" id="btnModeCharge" onclick="changerModeCourbe('charge')">
+            🔋 CHARGE
+          </button>
+          <button class="mode-courbe-btn" id="btnModeDecharge" onclick="changerModeCourbe('decharge')">
+            ⚡ DÉCHARGE
+          </button>
+        </div>
+
+        <!-- ✅ Deux courbes côte à côte -->
+        <div class="courbes-duo">
+          <div class="courbe-duo-item">
+            <div class="courbe-duo-label" id="labelUC">🔵 U_C(t) — Tension</div>
+            <div class="recap-courbe">
+              <canvas id="recapCourbeUC" width="400" height="260"></canvas>
+            </div>
+            <div class="courbe-duo-formule" id="formuleUC">U_C(t) = E · (1 − e^(−t/τ))</div>
+          </div>
+          <div class="courbe-duo-item">
+            <div class="courbe-duo-label" id="labelI">⚡ i(t) — Courant</div>
+            <div class="recap-courbe">
+              <canvas id="recapCourbeI" width="400" height="260"></canvas>
+            </div>
+            <div class="courbe-duo-formule" id="formuleI">i(t) = (E/R) · e^(−t/τ)</div>
+          </div>
         </div>
 
         <div class="tau-interactif-banner show" id="tauBanner">
           <div class="titre">📊 Mesure interactive de τ</div>
-          <div>👆 <strong>Clique sur la courbe jaune</strong> pour placer le marqueur à <strong>63 % de E</strong>.
-          Une ligne verticale te donnera la valeur de τ sur l'axe du temps.</div>
+          <div>👆 <strong>Clique sur la courbe U_C(t)</strong> pour placer le marqueur à <strong>63 % de E</strong> (charge) ou <strong>37 % de E</strong> (décharge).</div>
           <div class="tau-resultat" id="tauResultat"></div>
         </div>
 
@@ -814,8 +910,7 @@
           • À t = τ : charge → U_C = 63% de E ; décharge → U_C = 37% de E.
         </div>
       </div>
-
-      <!-- Onglet 4.3 : Applications -->
+            <!-- Onglet 4.3 : Applications -->
       <div class="sous-onglet-contenu" id="sous-applis">
         <div class="recap-header">
           <h3>🌍 Applications dans la vie courante</h3>
@@ -2420,8 +2515,8 @@ function initRecapEditable() {
   const inputC = document.getElementById('inputC');
   if (!inputR || !inputC) return;
   if (!inputR.dataset.bound) {
-    inputR.addEventListener('input', majTau);
-    inputC.addEventListener('input', majTau);
+    inputR.addEventListener('input', () => { majTau(); drawRecapCourbe(); });
+    inputC.addEventListener('input', () => { majTau(); drawRecapCourbe(); });
     inputR.dataset.bound = '1';
   }
   majTau();
@@ -2457,71 +2552,288 @@ function reinitialiserComparaison() {
   drawRecapCourbe();
 }
 
+// ============================================================
+//  📊 COURBES RÉCAP — Mode CHARGE / DÉCHARGE
+// ============================================================
+let modeCourbe = 'charge';
+
+window.changerModeCourbe = function(mode) {
+  modeCourbe = mode;
+  document.getElementById('btnModeCharge').classList.toggle('active', mode === 'charge');
+  document.getElementById('btnModeDecharge').classList.toggle('active', mode === 'decharge');
+
+  const formuleUC = document.getElementById('formuleUC');
+  const formuleI = document.getElementById('formuleI');
+
+  if (mode === 'charge') {
+    formuleUC.innerHTML = 'U_C(t) = E · (1 − e^(−t/τ))';
+    formuleI.innerHTML = 'i(t) = (E/R) · e^(−t/τ)';
+  } else {
+    formuleUC.innerHTML = 'U_C(t) = E · e^(−t/τ)';
+    formuleI.innerHTML = 'i(t) = (E/R) · e^(−t/τ)';
+  }
+
+  jouerSon('connect');
+  drawRecapCourbe();
+};
+
 function drawRecapCourbe() {
-  const canvas = document.getElementById('recapCourbe');
-  if (!canvas) return;
-  const ctx2 = canvas.getContext('2d');
-  const cw = canvas.width, ch = canvas.height;
-  drawCourbeTheorique(ctx2, cw, ch, 'charge');
-  const mG = 50, mD = 20, mH = 30, mB = 35;
+  const R = parseFloat(document.getElementById('inputR')?.value) || 1000;
+  const C = parseFloat(document.getElementById('inputC')?.value) || 100;
+  const E = 9;
+  const T = R * C * 1e-6;
+  const tMax = Math.min(0.5, 6 * T);
+  const Imax = E / R;
+
+  drawCourbeUC('recapCourbeUC', R, C, E, T, tMax, modeCourbe);
+  drawCourbeI('recapCourbeI', R, C, E, T, tMax, Imax, modeCourbe);
+
+  courbesComparaison.forEach(({ R, C, couleur }) => {
+    const Tcomp = R * C * 1e-6;
+    drawCourbeComparaisonUC('recapCourbeUC', R, C, E, Tcomp, tMax, couleur);
+  });
+}
+
+function drawCourbeUC(canvasId, R, C, E, T, tMax, mode) {
+  const c = document.getElementById(canvasId);
+  if (!c) return;
+  const ctx2 = c.getContext('2d');
+  const cw = c.width, ch = c.height;
+  const mG = 40, mD = 10, mH = 20, mB = 30;
   const largeur = cw - mG - mD;
   const hauteur = ch - mH - mB;
-  const E = 9, tMax = 0.5, Umax = E * 1.1;
-  courbesComparaison.forEach(({ R, C, couleur }) => {
-    const tau = R * C * 1e-6;
-    ctx2.strokeStyle = couleur;
-    ctx2.lineWidth = 2.5;
-    ctx2.setLineDash([6, 4]);
-    ctx2.shadowColor = couleur;
-    ctx2.shadowBlur = 8;
+  const Umax = E * 1.15;
+
+  ctx2.fillStyle = '#000';
+  ctx2.fillRect(0, 0, cw, ch);
+
+  ctx2.strokeStyle = 'rgba(79, 195, 247, 0.15)';
+  ctx2.lineWidth = 1;
+  for (let i = 0; i <= 5; i++) {
+    const y = mH + hauteur * i / 5;
+    ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke();
+  }
+  for (let i = 0; i <= 5; i++) {
+    const x = mG + largeur * i / 5;
+    ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke();
+  }
+
+  ctx2.strokeStyle = 'rgba(79, 195, 247, 0.7)';
+  ctx2.lineWidth = 1.5;
+  ctx2.beginPath();
+  ctx2.moveTo(mG, mH + hauteur); ctx2.lineTo(mG + largeur, mH + hauteur);
+  ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
+  ctx2.stroke();
+
+  ctx2.fillStyle = '#4fc3f7';
+  ctx2.font = 'bold 9px "Courier New", monospace';
+  ctx2.textAlign = 'right';
+  ctx2.textBaseline = 'middle';
+  for (let i = 0; i <= 4; i++) {
+    const v = Umax * (1 - i / 4);
+    const y = mH + hauteur * i / 4;
+    ctx2.fillText(v.toFixed(1), mG - 3, y);
+  }
+
+  ctx2.textAlign = 'center';
+  ctx2.textBaseline = 'top';
+  for (let i = 0; i <= 4; i++) {
+    const t = tMax * i / 4 * 1000;
+    ctx2.fillText(t.toFixed(0), mG + largeur * i / 4, mH + hauteur + 4);
+  }
+
+  ctx2.fillStyle = '#4fc3f7';
+  ctx2.font = 'bold 9px "Courier New", monospace';
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
+  ctx2.fillText('V', cw - 4, 4);
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'bottom';
+  ctx2.fillText('ms', mG + largeur, ch - 4);
+
+  ctx2.strokeStyle = '#4fc3f7';
+  ctx2.lineWidth = 2.5;
+  ctx2.shadowColor = '#4fc3f7';
+  ctx2.shadowBlur = 8;
+  ctx2.beginPath();
+  for (let i = 0; i <= 300; i++) {
+    const t = tMax * i / 300;
+    let U;
+    if (mode === 'charge') U = E * (1 - Math.exp(-t / T));
+    else U = E * Math.exp(-t / T);
+    const x = mG + largeur * t / tMax;
+    const y = mH + hauteur - hauteur * U / Umax;
+    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke();
+  ctx2.shadowBlur = 0;
+
+  if (T < tMax) {
+    const xTau = mG + largeur * T / tMax;
+    const U_tau = mode === 'charge' ? E * 0.632 : E * 0.368;
+    const yTau = mH + hauteur - hauteur * U_tau / Umax;
+
+    ctx2.strokeStyle = '#ff9800';
+    ctx2.lineWidth = 1.5;
+    ctx2.setLineDash([4, 4]);
     ctx2.beginPath();
-    for (let i = 0; i <= 200; i++) {
-      const t = tMax * i / 200;
-      const U = E * (1 - Math.exp(-t / tau));
-      const x = mG + largeur * t / tMax;
-      const y = mH + hauteur - hauteur * U / Umax;
-      if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
-    }
+    ctx2.moveTo(xTau, mH); ctx2.lineTo(xTau, mH + hauteur);
+    ctx2.stroke();
+    ctx2.beginPath();
+    ctx2.moveTo(mG, yTau); ctx2.lineTo(xTau, yTau);
     ctx2.stroke();
     ctx2.setLineDash([]);
-    ctx2.shadowBlur = 0;
-    const xTau = mG + largeur * Math.min(tau, tMax) / tMax;
-    if (tau <= tMax) {
-      ctx2.fillStyle = couleur;
-      ctx2.beginPath();
-      ctx2.arc(xTau, mH + hauteur - hauteur * 0.63, 5, 0, Math.PI * 2);
-      ctx2.fill();
-    }
-  });
+
+    ctx2.fillStyle = '#ff9800';
+    ctx2.beginPath(); ctx2.arc(xTau, yTau, 5, 0, Math.PI * 2); ctx2.fill();
+    ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 2; ctx2.stroke();
+  }
+}
+
+function drawCourbeI(canvasId, R, C, E, T, tMax, Imax, mode) {
+  const c = document.getElementById(canvasId);
+  if (!c) return;
+  const ctx2 = c.getContext('2d');
+  const cw = c.width, ch = c.height;
+  const mG = 40, mD = 10, mH = 20, mB = 30;
+  const largeur = cw - mG - mD;
+  const hauteur = ch - mH - mB;
+  const Iplot = Imax * 1.15;
+
+  ctx2.fillStyle = '#000';
+  ctx2.fillRect(0, 0, cw, ch);
+
+  ctx2.strokeStyle = 'rgba(233, 30, 99, 0.15)';
+  ctx2.lineWidth = 1;
+  for (let i = 0; i <= 5; i++) {
+    const y = mH + hauteur * i / 5;
+    ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke();
+  }
+  for (let i = 0; i <= 5; i++) {
+    const x = mG + largeur * i / 5;
+    ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke();
+  }
+
+  ctx2.strokeStyle = 'rgba(233, 30, 99, 0.7)';
+  ctx2.lineWidth = 1.5;
+  ctx2.beginPath();
+  ctx2.moveTo(mG, mH + hauteur); ctx2.lineTo(mG + largeur, mH + hauteur);
+  ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
+  ctx2.stroke();
+
+  ctx2.fillStyle = '#e91e63';
+  ctx2.font = 'bold 9px "Courier New", monospace';
+  ctx2.textAlign = 'right';
+  ctx2.textBaseline = 'middle';
+  for (let i = 0; i <= 4; i++) {
+    const v = (Iplot * (1 - i / 4)) * 1000;
+    const y = mH + hauteur * i / 4;
+    ctx2.fillText(v.toFixed(1), mG - 3, y);
+  }
+
+  ctx2.textAlign = 'center'; ctx2.textBaseline = 'top';
+  for (let i = 0; i <= 4; i++) {
+    const t = tMax * i / 4 * 1000;
+    ctx2.fillText(t.toFixed(0), mG + largeur * i / 4, mH + hauteur + 4);
+  }
+
+  ctx2.fillStyle = '#e91e63';
+  ctx2.font = 'bold 9px "Courier New", monospace';
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
+  ctx2.fillText('mA', cw - 4, 4);
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'bottom';
+  ctx2.fillText('ms', mG + largeur, ch - 4);
+
+  ctx2.strokeStyle = '#e91e63';
+  ctx2.lineWidth = 2.5;
+  ctx2.shadowColor = '#e91e63';
+  ctx2.shadowBlur = 8;
+  ctx2.beginPath();
+  for (let i = 0; i <= 300; i++) {
+    const t = tMax * i / 300;
+    const I = Imax * Math.exp(-t / T);
+    const x = mG + largeur * t / tMax;
+    const y = mH + hauteur - hauteur * I / Iplot;
+    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke();
+  ctx2.shadowBlur = 0;
+
+  if (T < tMax) {
+    const xTau = mG + largeur * T / tMax;
+    const I_tau = Imax * 0.368;
+    const yTau = mH + hauteur - hauteur * I_tau / Iplot;
+
+    ctx2.strokeStyle = '#ff9800';
+    ctx2.lineWidth = 1.5;
+    ctx2.setLineDash([4, 4]);
+    ctx2.beginPath();
+    ctx2.moveTo(xTau, mH); ctx2.lineTo(xTau, mH + hauteur);
+    ctx2.stroke();
+    ctx2.beginPath();
+    ctx2.moveTo(mG, yTau); ctx2.lineTo(xTau, yTau);
+    ctx2.stroke();
+    ctx2.setLineDash([]);
+
+    ctx2.fillStyle = '#ff9800';
+    ctx2.beginPath(); ctx2.arc(xTau, yTau, 5, 0, Math.PI * 2); ctx2.fill();
+    ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 2; ctx2.stroke();
+  }
+}
+
+function drawCourbeComparaisonUC(canvasId, R, C, E, T, tMax, couleur) {
+  const c = document.getElementById(canvasId);
+  if (!c) return;
+  const ctx2 = c.getContext('2d');
+  const cw = c.width, ch = c.height;
+  const mG = 40, mD = 10, mH = 20, mB = 30;
+  const largeur = cw - mG - mD;
+  const hauteur = ch - mH - mB;
+  const Umax = E * 1.15;
+
+  ctx2.strokeStyle = couleur;
+  ctx2.lineWidth = 2;
+  ctx2.setLineDash([6, 4]);
+  ctx2.shadowColor = couleur;
+  ctx2.shadowBlur = 6;
+  ctx2.beginPath();
+  for (let i = 0; i <= 300; i++) {
+    const t = tMax * i / 300;
+    const U = E * (1 - Math.exp(-t / T));
+    const x = mG + largeur * t / tMax;
+    const y = mH + hauteur - hauteur * U / Umax;
+    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke();
+  ctx2.setLineDash([]);
+  ctx2.shadowBlur = 0;
 }
 
 // ============================================================
 //  📊 MESURE INTERACTIVE DE τ
 // ============================================================
 function initTauInteractif() {
-  const canvas = document.getElementById('recapCourbe');
+  const canvas = document.getElementById('recapCourbeUC');
   if (!canvas || canvas.dataset.tauBound) return;
   canvas.dataset.tauBound = '1';
 
   canvas.addEventListener('click', (e) => {
     const rect = canvas.getBoundingClientRect();
     const cw = canvas.width, ch = canvas.height;
-    const scaleX = cw / rect.width;
-    const scaleY = ch / rect.height;
-    const xClic = (e.clientX - rect.left) * scaleX;
-    const yClic = (e.clientY - rect.top) * scaleY;
+    const xClic = (e.clientX - rect.left) * (cw / rect.width);
+    const yClic = (e.clientY - rect.top) * (ch / rect.height);
 
-    const mG = 50, mD = 20, mH = 30, mB = 35;
+    const mG = 40, mD = 10, mH = 20, mB = 30;
     const largeur = cw - mG - mD;
     const hauteur = ch - mH - mB;
-    const E = 9, tMax = 0.5, T = 0.1, Umax = E * 1.1;
+    const E = 9, tMax = 0.5, T = 0.1, Umax = E * 1.15;
 
     if (xClic < mG || xClic > mG + largeur || yClic < mH || yClic > mH + hauteur) return;
 
     let meilleurT = 0, meilleureDist = Infinity;
     for (let i = 0; i <= 200; i++) {
       const t = tMax * i / 200;
-      const U = E * (1 - Math.exp(-t / T));
+      let U;
+      if (modeCourbe === 'charge') U = E * (1 - Math.exp(-t / T));
+      else U = E * Math.exp(-t / T);
       const x = mG + largeur * t / tMax;
       const y = mH + hauteur - hauteur * U / Umax;
       const d = Math.hypot(x - xClic, y - yClic);
@@ -2529,26 +2841,19 @@ function initTauInteractif() {
     }
 
     const xTau = mG + largeur * T / tMax;
-    const yTau = mH + hauteur - hauteur * (E * 0.632) / Umax;
+    const U_tau = modeCourbe === 'charge' ? E * 0.632 : E * 0.368;
+    const yTau = mH + hauteur - hauteur * U_tau / Umax;
 
     drawRecapCourbe();
     const ctx2 = canvas.getContext('2d');
 
     ctx2.strokeStyle = '#ff9800'; ctx2.lineWidth = 2; ctx2.setLineDash([6, 4]);
     ctx2.beginPath(); ctx2.moveTo(xTau, mH); ctx2.lineTo(xTau, mH + hauteur); ctx2.stroke();
-    ctx2.setLineDash([]);
-
-    ctx2.strokeStyle = 'rgba(255,152,0,0.6)'; ctx2.lineWidth = 1.5; ctx2.setLineDash([4, 4]);
     ctx2.beginPath(); ctx2.moveTo(mG, yTau); ctx2.lineTo(xTau, yTau); ctx2.stroke();
     ctx2.setLineDash([]);
 
     ctx2.fillStyle = '#ff9800'; ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 3;
-    ctx2.beginPath(); ctx2.arc(xTau, yTau, 9, 0, Math.PI * 2); ctx2.fill(); ctx2.stroke();
-
-    ctx2.fillStyle = '#fff'; ctx2.font = 'bold 12px "Courier New", monospace'; ctx2.textAlign = 'left';
-    ctx2.fillText('63 % de E', xTau + 15, yTau - 10);
-    ctx2.fillStyle = '#ff9800'; ctx2.font = 'bold 13px "Courier New", monospace'; ctx2.textAlign = 'center';
-    ctx2.fillText('τ = ' + (T * 1000).toFixed(0) + ' ms', xTau, mH + hauteur + 20);
+    ctx2.beginPath(); ctx2.arc(xTau, yTau, 7, 0, Math.PI * 2); ctx2.fill(); ctx2.stroke();
 
     const res = document.getElementById('tauResultat');
     if (res) {
@@ -2557,7 +2862,7 @@ function initTauInteractif() {
       const reussi = ecart < 0.03;
       res.innerHTML = `📌 Tu as cliqué à t ≈ <strong>${(meilleurT * 1000).toFixed(0)} ms</strong> — ` +
         (reussi ? `🎯 Bravo ! Tu es tout près de <strong>τ = ${(T * 1000).toFixed(0)} ms</strong> !`
-                : `Regarde le marqueur orange : τ est à <strong>100 ms</strong> (63 % de E).`);
+                : `Regarde le marqueur orange : τ est à <strong>100 ms</strong> (${modeCourbe === 'charge' ? '63 %' : '37 %'} de E).`);
     }
     jouerSon('connect');
   });
@@ -2807,6 +3112,9 @@ function drawAppli(canvas, type, elapsed) {
   ctx2.fillText('U_C(t)', cw - 8, 8);
 }
 
+// ============================================================
+//  QCM
+// ============================================================
 let qcmReponses = { 1: null, 2: null, 3: null };
 let qcmValides = { 1: false, 2: false, 3: false };
 
@@ -3107,7 +3415,7 @@ function genererCertificat() {
         <div class="case"><div class="lab">Date</div><div class="val">${date}</div></div>
         <div class="case"><div class="lab">Relation vérifiée</div><div class="val">τ = R × C</div></div>
       </div>
-            ${montageImg ? '<div class="montage-zone"><h3>📸 Montage réalisé</h3><img src="' + montageImg + '" alt="Montage"></div>' : ''}
+      ${montageImg ? '<div class="montage-zone"><h3>📸 Montage réalisé</h3><img src="' + montageImg + '" alt="Montage"></div>' : ''}
       <div class="conclusion-bloc">
         <h3>📝 Conclusion de l'élève</h3>
         <div>${conclusion.replace(/</g, '&lt;').substring(0, 800)}</div>
@@ -3198,14 +3506,12 @@ window.addEventListener('load', () => {
   updateBoutonSupprNoeud();
   initTauInteractif();
 
-  // Initialisation du bouton son
   const btnSon = document.getElementById('sonToggle');
   if (btnSon) {
     btnSon.textContent = sonActif ? '🔊' : '🔇';
     btnSon.classList.toggle('off', !sonActif);
   }
 
-  // Bind des champs de conclusion
   ['concl-1','concl-2','concl-3','concl-4','concl-5'].forEach(id => {
     const el = document.getElementById(id);
     if (el) {
@@ -3214,7 +3520,7 @@ window.addEventListener('load', () => {
     }
   });
 
-  console.log('✅ Simulateur RC V6.4 — τ interactif, certificat, sons et exercices');
+  console.log('✅ Simulateur RC V7.0 — Boutons CHARGE/DÉCHARGE + 2 courbes simultanées');
 });
 
 if (!CanvasRenderingContext2D.prototype.roundRect) {
