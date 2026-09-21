@@ -2108,6 +2108,24 @@ canvas.addEventListener('mouseleave', () => {
 });
 
 function handleTouchStart(x, y) {
+  // ✅ NOUVEAU : Détecte le tap sur la poignée de rotation ⟳ en PRIORITÉ
+  for (const c of montage.composants) {
+    const t = TAILLE[c.type];
+    if (!t) continue;
+    const angle = (c.rotation || 0) * Math.PI / 180;
+    const offsetY = -t.h / 2 - 25;
+    const hx = c.x + offsetY * Math.sin(angle);
+    const hy = c.y - offsetY * Math.cos(angle);
+    if (Math.hypot(hx - x, hy - y) < 22) {
+      c.rotation = ((c.rotation || 0) + 90) % 360;
+      updateConnexionsFils();
+      drawMontage();
+      jouerSon('connect');
+      return;
+    }
+  }
+
+  // Détection des poignées de fils (existant)
   let filTrouve = null, coteTrouve = null, distanceMin = 45;
   for (const fil of montage.fils) {
     const dA = Math.hypot(fil.x1 - x, fil.y1 - y);
@@ -2125,6 +2143,8 @@ function handleTouchStart(x, y) {
     drawMontage();
     return;
   }
+
+  // Détection des composants (existant)
   const comp = trouverComposant(x, y);
   if (comp) {
     dragState.type = 'composant';
@@ -2137,6 +2157,8 @@ function handleTouchStart(x, y) {
     drawMontage();
     return;
   }
+
+  // Sinon tap normal (existant)
   handleTap(x, y);
 }
 
