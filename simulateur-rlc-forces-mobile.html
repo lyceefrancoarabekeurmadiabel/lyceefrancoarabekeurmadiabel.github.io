@@ -599,7 +599,18 @@
           </div>
         </div>
 
-        <h4 style="font-family: var(--serif); font-size: 14px; color: var(--ink); margin: 10px 0;">🎯 Courbe de résonance i(f)</h4>
+                <h4 style="font-family: var(--serif); font-size: 14px; color: var(--ink); margin: 10px 0;">🎯 Courbe de résonance i(f)</h4>
+
+        <div class="recap-compare-controls">
+          <button class="btn-courbe charge" onclick="ajouterCourbeComparaison()">➕ Comparer</button>
+          <button class="btn-courbe cycle" onclick="reinitialiserComparaison()">↺ Réinitialiser</button>
+        </div>
+
+        <div class="recap-legende" id="recapLegende" style="display:none;">
+          <span class="legende-item"><span class="legende-trait" style="background:#a78bfa;"></span> Courbe actuelle</span>
+          <span class="legende-item"><span class="legende-trait" style="background:#4fc3f7;"></span> <span id="legendeCourante">Courbe comparée</span></span>
+        </div>
+
         <div class="recap-courbe">
           <canvas id="recapCourbe" width="800" height="320"></canvas>
         </div>
@@ -1862,8 +1873,13 @@ function drawRecapCourbe() {
   ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
   ctx2.stroke();
 
-  const iMaxPlot = (Um / R) * 1.15;
+  // Calcule l'échelle max en tenant compte des courbes comparées
+  let iMaxPlot = (Um / R) * 1.15;
+  courbesComparaison.forEach(c => {
+    iMaxPlot = Math.max(iMaxPlot, (Um / c.R) * 1.15);
+  });
 
+  // Axes
   ctx2.fillStyle = '#a78bfa'; ctx2.font = 'bold 9px "Courier New", monospace';
   ctx2.textAlign = 'center'; ctx2.textBaseline = 'top';
   for (let i = 0; i <= 5; i++) {
@@ -1876,8 +1892,31 @@ function drawRecapCourbe() {
     ctx2.fillText((val * 1000).toFixed(0) + 'mA', mG - 4, mH + hauteur * i / 4);
   }
 
-  ctx2.strokeStyle = '#a78bfa'; ctx2.lineWidth = 3;
-  ctx2.shadowColor = '#a78bfa'; ctx2.shadowBlur = 10;
+  // === Courbes de comparaison (en pointillé) ===
+  courbesComparaison.forEach(c => {
+    ctx2.strokeStyle = c.couleur;
+    ctx2.lineWidth = 2;
+    ctx2.setLineDash([5, 4]);
+    ctx2.shadowColor = c.couleur;
+    ctx2.shadowBlur = 6;
+    ctx2.beginPath();
+    for (let i = 0; i <= 400; i++) {
+      const f = FREQ_MIN + (FREQ_MAX - FREQ_MIN) * i / 400;
+      const im = calculerCourantAmplitude(f, c.R, c.L, c.C);
+      const x = mG + largeur * i / 400;
+      const y = mH + hauteur - (hauteur * im / iMaxPlot);
+      if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+    }
+    ctx2.stroke();
+    ctx2.setLineDash([]);
+    ctx2.shadowBlur = 0;
+  });
+
+  // === Courbe actuelle (en plein) ===
+  ctx2.strokeStyle = '#a78bfa';
+  ctx2.lineWidth = 3;
+  ctx2.shadowColor = '#a78bfa';
+  ctx2.shadowBlur = 10;
   ctx2.beginPath();
   for (let i = 0; i <= 400; i++) {
     const f = FREQ_MIN + (FREQ_MAX - FREQ_MIN) * i / 400;
@@ -1888,6 +1927,7 @@ function drawRecapCourbe() {
   }
   ctx2.stroke(); ctx2.shadowBlur = 0;
 
+  // f₀
   const f0 = calculerF0(L, C);
   if (f0 >= FREQ_MIN && f0 <= FREQ_MAX) {
     const xF0 = mG + largeur * (f0 - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
@@ -1899,6 +1939,7 @@ function drawRecapCourbe() {
     ctx2.fillText('f₀ = ' + f0.toFixed(0), xF0, mH - 2);
   }
 
+  // Marqueur GBF
   if (freqGBF >= FREQ_MIN && freqGBF <= FREQ_MAX) {
     const xF = mG + largeur * (freqGBF - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
     const iGBF = calculerCourantAmplitude(freqGBF, R, L, C);
@@ -1912,6 +1953,31 @@ function drawRecapCourbe() {
   ctx2.fillStyle = '#a78bfa'; ctx2.font = 'bold 10px "Courier New", monospace';
   ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
   ctx2.fillText('i(f) [mA]', cw - 6, 6);
+}
+
+// ============================================================
+//  COMPARAISON DE COURBES i(f)
+// ============================================================
+let courbesComparaison = [];
+
+function ajouterCourbeComparaison() {
+  const couleurs = ['#4fc3f7', '#f59e0b', '#e91e63', '#10b981', '#06b6d4'];
+  const couleur = couleurs[courbesComparaison.length % couleurs.length];
+  courbesComparaison.push({ R, L, C, couleur });
+  
+  document.getElementById('recapLegende').style.display = 'flex';
+  document.getElementById('legendeCourante').textContent = 
+    `R=${R}Ω, L=${L}H, C=${C}µF`;
+  
+  drawRecapCourbe();
+  jouerSon('pose');
+}
+
+function reinitialiserComparaison() {
+  courbesComparaison = [];
+  document.getElementById('recapLegende').style.display = 'none';
+  drawRecapCourbe();
+  jouerSon('connect');
 }
 
 function afficherResonance() {
