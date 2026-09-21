@@ -2486,7 +2486,7 @@ function getCanvasCoordsB(e) {
   return { x: (cx - rect.left - ox) * (canvasB.width / rw), y: (cy - rect.top - oy) * (canvasB.height / rh) };
 }
 
-let dragStateB = { type: null, filId: null, cote: null };
+let dragStateB = { type: null, filId: null, cote: null, offsetX: 0, offsetY: 0 };
 
 canvasB.addEventListener('touchstart', (e) => {
   e.preventDefault();
@@ -2523,6 +2523,18 @@ canvasB.addEventListener('mouseleave', () => {
 });
 
 function handleTouchStartB(x, y) {
+   // ✅ NOUVEAU : Détecte le tap sur l'oscilloscope en PRIORITÉ
+  if (branchement.oscilloscope) {
+    const o = branchement.oscilloscope;
+    if (Math.abs(x - o.x) < o.w/2 + 10 && Math.abs(y - o.y) < o.h/2 + 10) {
+      dragStateB.type = 'oscilloscope';
+      dragStateB.offsetX = x - o.x;
+      dragStateB.offsetY = y - o.y;
+      canvasB.style.cursor = 'grabbing';
+      drawBranchement();
+      return;
+    }
+  }
   let filTrouve = null, coteTrouve = null, distanceMin = 45;
   for (const fil of branchement.fils) {
     const dA = Math.hypot(fil.x1 - x, fil.y1 - y);
@@ -2551,6 +2563,27 @@ function handleTouchStartB(x, y) {
 }
 
 function handleTouchMoveB(x, y) {
+  // ✅ NOUVEAU : Drag de l'oscilloscope
+  if (dragStateB.type === 'oscilloscope' && branchement.oscilloscope) {
+    const o = branchement.oscilloscope;
+    o.x = Math.max(o.w/2 + 10, Math.min(WB - o.w/2 - 10, x - dragStateB.offsetX));
+    o.y = Math.max(o.h/2 + 10, Math.min(HB - o.h/2 - 10, y - dragStateB.offsetY));
+    
+    // Les fils connectés à l'oscilloscope le suivent
+    branchement.fils.forEach(fil => {
+      if (fil.de === 'osc-1' || fil.de === 'osc-2') {
+        const borne = getBornesOscillo().find(b => b.id === fil.de);
+        if (borne) { fil.x1 = borne.x; fil.y1 = borne.y; }
+      }
+      if (fil.vers === 'osc-1' || fil.vers === 'osc-2') {
+        const borne = getBornesOscillo().find(b => b.id === fil.vers);
+        if (borne) { fil.x2 = borne.x; fil.y2 = borne.y; }
+      }
+    });
+    
+    drawBranchement();
+    return;
+  }
   if (dragStateB.type === 'fil-handle') {
     const fil = branchement.fils.find(f => f.id === dragStateB.filId);
     if (!fil) return;
@@ -2567,12 +2600,20 @@ function handleTouchMoveB(x, y) {
 }
 
 function handleTouchEndB() {
+  // ✅ NOUVEAU : Remet le curseur à l'état normal si on vient de bouger l'oscilloscope
+  if (dragStateB.type === 'oscilloscope') {
+    canvasB.style.cursor = 'default';
+  }
+  
   const avaitDrag = dragStateB.type !== null;
   dragStateB.type = null;
   dragStateB.filId = null;
   dragStateB.cote = null;
+  dragStateB.offsetX = 0;   // ✅ NOUVEAU
+  dragStateB.offsetY = 0;   // ✅ NOUVEAU
+  
   if (avaitDrag) {
-    updateConnexionsFilsB();
+    updateConnexionsFilsBranchement();
     drawBranchement();
     updateHintBranchement();
   }
