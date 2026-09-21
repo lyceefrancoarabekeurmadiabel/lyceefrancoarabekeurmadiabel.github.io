@@ -1,22 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Ajoute le script JS de gestion des sous-menus (accordéon mobile)
-à toutes les pages HTML qui ont un burger, AVANT </body>.
+Ajoute le script JS des sous-menus (Admin, Laboratoire, Optique)
+à toutes les pages HTML qui ont un burger.
 
 Usage : python ajouter_script_sous_menus.py
 """
 
 import os
 import glob
-import re
 
-# ============================================================
-#  LE SCRIPT À INSÉRER
-# ============================================================
-SCRIPT_A_INSERER = '''<script>
-  // ✅ Ouvre/ferme les sous-menus en accordéon sur mobile
-  document.addEventListener('click', (e) => {
+SCRIPT = '''<script>
+  // ✅ Ouvre/ferme les sous-menus (Admin, Laboratoire, Optique) en accordéon sur mobile
+  document.addEventListener('click', function(e) {
     if (window.innerWidth > 1024) return;
     const trigger = e.target.closest('.admin-trigger, .labo-trigger, .optique-trigger');
     if (!trigger) return;
@@ -27,16 +23,15 @@ SCRIPT_A_INSERER = '''<script>
     const dropdown = item.querySelector('.admin-dropdown, .labo-dropdown, .optique-dropdown');
     if (!dropdown) return;
     const estOuvert = dropdown.classList.contains('show');
-    document.querySelectorAll('.admin-dropdown.show, .labo-dropdown.show, .optique-dropdown.show').forEach(d => d.classList.remove('show'));
+    document.querySelectorAll('.admin-dropdown.show, .labo-dropdown.show, .optique-dropdown.show')
+      .forEach(function(d) { d.classList.remove('show'); });
     if (!estOuvert) dropdown.classList.add('show');
   });
 </script>
 '''
 
-# Marqueur unique pour détecter si le script est déjà présent
-MARQUEUR = 'Ouvre/ferme les sous-menus en accordéon'
+MARQUEUR = 'Ouvre/ferme les sous-menus (Admin, Laboratoire, Optique)'
 
-# Fichiers à ignorer (pages sans burger, pages admin, etc.)
 FICHIERS_IGNORES = [
     'admin-gestion.html',
     'admin-ine.html',
@@ -45,94 +40,66 @@ FICHIERS_IGNORES = [
     'test_assistant.html',
     'identification.html',
     'inscription.html',
-    'profil-eleve.html',  # à retirer de cette liste si vous voulez l'inclure
 ]
 
 
-def traiter_fichier(chemin):
-    """Traite un fichier HTML : ajoute le script si nécessaire."""
-    
+def traiter(chemin):
     try:
         with open(chemin, 'r', encoding='utf-8') as f:
             contenu = f.read()
     except Exception as e:
-        return f"❌ {chemin} — Erreur de lecture : {e}"
-    
-    # 1. Vérifier si la page a un burger
+        return f"❌ {chemin} — Erreur lecture : {e}"
+
     if 'burger-btn' not in contenu and 'menu-toggle' not in contenu:
-        return f"⏭️  {chemin} — pas de burger, ignoré"
-    
-    # 2. Vérifier si le script est déjà présent
+        return f"⏭️  {chemin} — pas de burger"
+
     if MARQUEUR in contenu:
         return f"⏭️  {chemin} — script déjà présent"
-    
-    # 3. Vérifier si </body> existe
+
     if '</body>' not in contenu:
-        return f"⚠️  {chemin} — pas de </body>, ignoré"
-    
-    # 4. Insérer le script juste avant </body>
-    nouveau_contenu = contenu.replace(
-        '</body>',
-        SCRIPT_A_INSERER + '</body>',
-        1  # remplacer seulement le premier
-    )
-    
-    # 5. Écrire le fichier
+        return f"⚠️  {chemin} — pas de </body>"
+
+    nouveau = contenu.replace('</body>', SCRIPT + '</body>', 1)
+
     try:
         with open(chemin, 'w', encoding='utf-8') as f:
-            f.write(nouveau_contenu)
+            f.write(nouveau)
         return f"✅ {chemin} — script ajouté"
     except Exception as e:
-        return f"❌ {chemin} — Erreur d'écriture : {e}"
+        return f"❌ {chemin} — Erreur écriture : {e}"
 
 
 def main():
-    print("=" * 65)
-    print("  🔧 AJOUT DU SCRIPT SOUS-MENUS")
-    print("  (accordéon mobile pour Admin / Laboratoire / Optique)")
-    print("=" * 65 + "\n")
-    
-    # Récupérer tous les fichiers HTML
+    print("=" * 60)
+    print("  🔧 AJOUT DU SCRIPT SOUS-MENUS MOBILES")
+    print("  (Admin, Laboratoire, Optique)")
+    print("=" * 60 + "\n")
+
     fichiers = sorted(glob.glob('*.html'))
-    
-    # Filtrer les fichiers ignorés
     fichiers = [f for f in fichiers if f not in FICHIERS_IGNORES]
-    
-    if not fichiers:
-        print("❌ Aucun fichier HTML à traiter.")
-        return
-    
+
     print(f"📁 {len(fichiers)} fichier(s) HTML trouvé(s)\n")
-    
-    # Compteurs
+
     ajoutes = 0
     ignores = 0
     erreurs = 0
-    
-    # Traiter chaque fichier
-    for fichier in fichiers:
-        resultat = traiter_fichier(fichier)
-        print(resultat)
-        
-        if resultat.startswith('✅'):
-            ajoutes += 1
-        elif resultat.startswith('⏭️') or resultat.startswith('⚠️'):
-            ignores += 1
-        else:
-            erreurs += 1
-    
-    # Rapport final
-    print("\n" + "=" * 65)
-    print("  📊 RAPPORT FINAL")
-    print("=" * 65)
-    print(f"✅ Modifiés    : {ajoutes}")
-    print(f"⏭️  Ignorés     : {ignores}")
-    print(f"❌ Erreurs     : {erreurs}")
-    print("=" * 65)
+
+    for f in fichiers:
+        r = traiter(f)
+        print(r)
+        if r.startswith('✅'): ajoutes += 1
+        elif r.startswith('⏭️') or r.startswith('⚠️'): ignores += 1
+        else: erreurs += 1
+
+    print("\n" + "=" * 60)
+    print(f"✅ Modifiés : {ajoutes}")
+    print(f"⏭️  Ignorés  : {ignores}")
+    print(f"❌ Erreurs  : {erreurs}")
+    print("=" * 60)
     print("\n💡 Prochaines étapes :")
-    print("   1. Vérifiez dans VS Code (Ctrl+F : 'accordéon')")
-    print("   2. Testez sur votre téléphone (Ctrl+F5)")
-    print("   3. Publiez : git add . && git commit -m '...' && git push\n")
+    print("   1. Publiez : git add . && git commit -m '...' && git push")
+    print("   2. Testez sur téléphone (rafraîchir la page)")
+    print("   3. Ouvrez le burger ☰ → tapez sur Admin ou Laboratoire\n")
 
 
 if __name__ == '__main__':
