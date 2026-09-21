@@ -1968,6 +1968,35 @@ function drawComposant(ctx2, c) {
   else if (c.type === 'condensateur') drawCondensateur(ctx2, c.x, c.y, t.w, t.h, c.valeur);
   else if (c.type === 'interrupteur') drawInterrupteur(ctx2, c.x, c.y, t.w, t.h);
   ctx2.restore();
+  
+  // ✅ NOUVEAU : dessine la poignée de rotation ⟳
+  drawPoigneeRotation(ctx2, c);
+}
+
+function drawPoigneeRotation(ctx2, c) {
+  const t = TAILLE[c.type];
+  if (!t) return;
+  const angle = (c.rotation || 0) * Math.PI / 180;
+  const offsetY = -t.h / 2 - 25;
+  const hx = c.x + offsetY * Math.sin(angle);
+  const hy = c.y - offsetY * Math.cos(angle);
+  
+  // Halo bleu clair
+  ctx2.fillStyle = '#4fc3f7';
+  ctx2.strokeStyle = '#fff';
+  ctx2.lineWidth = 2;
+  ctx2.beginPath();
+  ctx2.arc(hx, hy, 12, 0, Math.PI * 2);
+  ctx2.fill();
+  ctx2.stroke();
+  
+  // Symbole ⟳ au centre
+  ctx2.fillStyle = '#fff';
+  ctx2.font = 'bold 14px Arial';
+  ctx2.textAlign = 'center';
+  ctx2.textBaseline = 'middle';
+  ctx2.fillText('⟳', hx, hy + 1);
+  ctx2.textBaseline = 'alphabetic';
 }
 
 function drawSelection(c) {
