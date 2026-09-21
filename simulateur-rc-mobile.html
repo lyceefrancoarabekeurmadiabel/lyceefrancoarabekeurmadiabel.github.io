@@ -1127,6 +1127,103 @@
     width: 100%;
     min-height: var(--touch-size);
   }
+/* ✅ Boutons Charge / Décharge */
+.mode-courbe-btns {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.mode-courbe-btn {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 2px solid var(--line);
+  background: #fff;
+  color: var(--slate);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: var(--touch-size);
+}
+
+.mode-courbe-btn.active {
+  background: var(--brass);
+  color: #fff;
+  border-color: var(--brass);
+  box-shadow: 0 4px 12px rgba(168, 133, 63, 0.3);
+}
+
+.mode-courbe-btn:active:not(.active) {
+  background: #f9f7f2;
+  transform: scale(0.97);
+}
+
+/* ✅ Deux courbes côte à côte */
+.courbes-duo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+@media (max-width: 500px) {
+  .courbes-duo {
+    grid-template-columns: 1fr;
+  }
+}
+
+.courbe-duo-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.courbe-duo-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: center;
+  padding: 6px;
+  border-radius: 6px;
+  background: #f9f7f2;
+}
+
+#labelUC { color: #4fc3f7; background: rgba(79, 195, 247, 0.1); }
+#labelI { color: #e91e63; background: rgba(233, 30, 99, 0.1); }
+
+.courbe-duo-formule {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: var(--slate);
+  text-align: center;
+  padding: 8px;
+  background: #f9f7f2;
+  border-radius: 6px;
+  border-left: 3px solid var(--brass);
+  line-height: 1.4;
+}
+
+.recap-courbe {
+  background: #000;
+  border-radius: 10px;
+  border: 2px solid #4fc3f7;
+  padding: 4px;
+}
+
+.courbe-duo-item:last-child .recap-courbe {
+  border-color: #e91e63;
+}
+
+.recap-courbe canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 240px;
+  touch-action: none;
+}
 </style>
 </head>
 <body>
@@ -1400,10 +1497,35 @@
           <span class="legende-item"><span class="legende-trait" style="background:#4fc3f7;"></span> <span id="legendeCourante">Nouvelle courbe</span></span>
         </div>
 
-        <h4 style="font-family: var(--serif); font-size: 14px; color: var(--ink); margin-bottom: 10px;">📈 Courbe de charge observée</h4>
-        <div class="recap-courbe">
-          <canvas id="recapCourbe" width="800" height="300"></canvas>
-        </div>
+        <h4 style="font-family: var(--serif); font-size: 14px; color: var(--ink); margin-bottom: 10px;">📈 Courbes observées</h4>
+
+<!-- ✅ Boutons Charge / Décharge -->
+<div class="mode-courbe-btns">
+  <button class="mode-courbe-btn active" id="btnModeCharge" onclick="changerModeCourbe('charge')">
+    🔋 CHARGE
+  </button>
+  <button class="mode-courbe-btn" id="btnModeDecharge" onclick="changerModeCourbe('decharge')">
+    ⚡ DÉCHARGE
+  </button>
+</div>
+
+<!-- ✅ Deux courbes côte à côte -->
+<div class="courbes-duo">
+  <div class="courbe-duo-item">
+    <div class="courbe-duo-label" id="labelUC">🔵 U_C(t) — Tension</div>
+    <div class="recap-courbe">
+      <canvas id="recapCourbeUC" width="400" height="260"></canvas>
+    </div>
+    <div class="courbe-duo-formule" id="formuleUC">U_C(t) = E · (1 − e^(−t/τ))</div>
+  </div>
+  <div class="courbe-duo-item">
+    <div class="courbe-duo-label" id="labelI">⚡ i(t) — Courant</div>
+    <div class="recap-courbe">
+      <canvas id="recapCourbeI" width="400" height="260"></canvas>
+    </div>
+    <div class="courbe-duo-formule" id="formuleI">i(t) = (E/R) · e^(−t/τ)</div>
+  </div>
+</div>
 
         <div class="tau-interactif-banner show">
           <div class="titre">📊 Mesure interactive de τ</div>
@@ -2718,64 +2840,267 @@ function majTau() {
 }
 
 function drawRecapCourbe() {
-  const c = document.getElementById('recapCourbe');
+  // ✅ Mode actif : 'charge' ou 'decharge'
+let modeCourbe = 'charge';
+
+// ✅ Change le mode (appelé par les boutons)
+window.changerModeCourbe = function(mode) {
+  modeCourbe = mode;
+  document.getElementById('btnModeCharge').classList.toggle('active', mode === 'charge');
+  document.getElementById('btnModeDecharge').classList.toggle('active', mode === 'decharge');
+  
+  // Met à jour les formules
+  const formuleUC = document.getElementById('formuleUC');
+  const formuleI = document.getElementById('formuleI');
+  
+  if (mode === 'charge') {
+    formuleUC.innerHTML = 'U_C(t) = E · (1 − e^(−t/τ))';
+    formuleI.innerHTML = 'i(t) = (E/R) · e^(−t/τ)';
+  } else {
+    formuleUC.innerHTML = 'U_C(t) = E · e^(−t/τ)';
+    formuleI.innerHTML = 'i(t) = (E/R) · e^(−t/τ)';
+  }
+  
+  jouerSon('connect');
+  drawRecapCourbe();
+};
+
+// ✅ Dessine les 2 courbes
+function drawRecapCourbe() {
+  const R = parseFloat(document.getElementById('inputR').value) || 1000;
+  const C = parseFloat(document.getElementById('inputC').value) || 100;
+  const E = 9;
+  const T = R * C * 1e-6; // τ en secondes
+  const tMax = Math.min(0.5, 6 * T); // 6τ ou 0.5s max
+  const Imax = E / R; // courant max en A
+  
+  // ===== COURBE U_C(t) =====
+  drawCourbeUC('recapCourbeUC', R, C, E, T, tMax, modeCourbe);
+  
+  // ===== COURBE i(t) =====
+  drawCourbeI('recapCourbeI', R, C, E, T, tMax, Imax, modeCourbe);
+}
+
+// ✅ Dessine U_C(t)
+function drawCourbeUC(canvasId, R, C, E, T, tMax, mode) {
+  const c = document.getElementById(canvasId);
   if (!c) return;
   const ctx2 = c.getContext('2d');
   const cw = c.width, ch = c.height;
-  const mG = 50, mD = 20, mH = 30, mB = 35;
+  const mG = 40, mD = 10, mH = 20, mB = 30;
   const largeur = cw - mG - mD;
   const hauteur = ch - mH - mB;
-  const E = 9, tMax = 0.5, Umax = E * 1.1;
-  ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
-  ctx2.strokeStyle = 'rgba(76,175,80,0.15)'; ctx2.lineWidth = 1;
-  for (let i = 0; i <= 10; i++) { const y = mH + hauteur * i / 10; ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
-  for (let i = 0; i <= 10; i++) { const x = mG + largeur * i / 10; ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
-  ctx2.strokeStyle = 'rgba(76,175,80,0.6)'; ctx2.lineWidth = 1.5;
+  const Umax = E * 1.15;
+  
+  // Fond noir
+  ctx2.fillStyle = '#000';
+  ctx2.fillRect(0, 0, cw, ch);
+  
+  // Grille
+  ctx2.strokeStyle = 'rgba(79, 195, 247, 0.15)';
+  ctx2.lineWidth = 1;
+  for (let i = 0; i <= 5; i++) {
+    const y = mH + hauteur * i / 5;
+    ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke();
+  }
+  for (let i = 0; i <= 5; i++) {
+    const x = mG + largeur * i / 5;
+    ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke();
+  }
+  
+  // Axes
+  ctx2.strokeStyle = 'rgba(79, 195, 247, 0.7)';
+  ctx2.lineWidth = 1.5;
   ctx2.beginPath();
   ctx2.moveTo(mG, mH + hauteur); ctx2.lineTo(mG + largeur, mH + hauteur);
   ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
   ctx2.stroke();
-
-  // Labels axes
-  ctx2.fillStyle = '#4caf50'; ctx2.font = 'bold 10px "Courier New", monospace';
-  ctx2.textAlign = 'right'; ctx2.textBaseline = 'middle';
-  for (let i = 0; i <= 5; i++) {
-    const u = Umax * (1 - i / 5);
-    ctx2.fillText(u.toFixed(1) + ' V', mG - 4, mH + hauteur * i / 5);
+  
+  // Labels Y
+  ctx2.fillStyle = '#4fc3f7';
+  ctx2.font = 'bold 9px "Courier New", monospace';
+  ctx2.textAlign = 'right';
+  ctx2.textBaseline = 'middle';
+  for (let i = 0; i <= 4; i++) {
+    const v = Umax * (1 - i / 4);
+    const y = mH + hauteur * i / 4;
+    ctx2.fillText(v.toFixed(1), mG - 3, y);
   }
-  ctx2.textAlign = 'center'; ctx2.textBaseline = 'top';
-  for (let i = 0; i <= 5; i++) {
-    ctx2.fillText((tMax * i / 5 * 1000).toFixed(0) + ' ms', mG + largeur * i / 5, mH + hauteur + 6);
+  
+  // Labels X
+  ctx2.textAlign = 'center';
+  ctx2.textBaseline = 'top';
+  for (let i = 0; i <= 4; i++) {
+    const t = tMax * i / 4 * 1000;
+    ctx2.fillText(t.toFixed(0), mG + largeur * i / 4, mH + hauteur + 4);
   }
-
-  const R = parseFloat(document.getElementById('inputR').value) || 1000;
-  const C = parseFloat(document.getElementById('inputC').value) || 100;
-  const T = R * C * 1e-6;
-  ctx2.strokeStyle = '#ffeb3b'; ctx2.lineWidth = 3;
-  ctx2.shadowColor = '#ffeb3b'; ctx2.shadowBlur = 10;
+  
+  // Unité
+  ctx2.fillStyle = '#4fc3f7';
+  ctx2.font = 'bold 9px "Courier New", monospace';
+  ctx2.textAlign = 'right';
+  ctx2.textBaseline = 'top';
+  ctx2.fillText('V', cw - 4, 4);
+  ctx2.textAlign = 'right';
+  ctx2.textBaseline = 'bottom';
+  ctx2.fillText('ms', mG + largeur, ch - 4);
+  
+  // Courbe U_C
+  ctx2.strokeStyle = '#4fc3f7';
+  ctx2.lineWidth = 2.5;
+  ctx2.shadowColor = '#4fc3f7';
+  ctx2.shadowBlur = 8;
   ctx2.beginPath();
-  for (let i = 0; i <= 400; i++) {
-    const t = tMax * i / 400;
-    const U = E * (1 - Math.exp(-t / T));
+  for (let i = 0; i <= 300; i++) {
+    const t = tMax * i / 300;
+    let U;
+    if (mode === 'charge') U = E * (1 - Math.exp(-t / T));
+    else U = E * Math.exp(-t / T);
     const x = mG + largeur * t / tMax;
     const y = mH + hauteur - hauteur * U / Umax;
     if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
   }
-  ctx2.stroke(); ctx2.shadowBlur = 0;
-
-  courbesComparaison.forEach(({ R: Rc, C: Cc, couleur }) => {
-    const Tc = Rc * Cc * 1e-6;
-    ctx2.strokeStyle = couleur; ctx2.lineWidth = 2; ctx2.setLineDash([5, 4]);
+  ctx2.stroke();
+  ctx2.shadowBlur = 0;
+  
+  // Marqueur τ (63% ou 37%)
+  const T_tau = T;
+  if (T_tau < tMax) {
+    const xTau = mG + largeur * T_tau / tMax;
+    const U_tau = mode === 'charge' ? E * 0.632 : E * 0.368;
+    const yTau = mH + hauteur - hauteur * U_tau / Umax;
+    
+    ctx2.strokeStyle = '#ff9800';
+    ctx2.lineWidth = 1.5;
+    ctx2.setLineDash([4, 4]);
     ctx2.beginPath();
-    for (let i = 0; i <= 400; i++) {
-      const t = tMax * i / 400;
-      const U = E * (1 - Math.exp(-t / Tc));
-      const x = mG + largeur * t / tMax;
-      const y = mH + hauteur - hauteur * U / Umax;
-      if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
-    }
-    ctx2.stroke(); ctx2.setLineDash([]);
-  });
+    ctx2.moveTo(xTau, mH);
+    ctx2.lineTo(xTau, mH + hauteur);
+    ctx2.stroke();
+    ctx2.beginPath();
+    ctx2.moveTo(mG, yTau);
+    ctx2.lineTo(xTau, yTau);
+    ctx2.stroke();
+    ctx2.setLineDash([]);
+    
+    ctx2.fillStyle = '#ff9800';
+    ctx2.beginPath();
+    ctx2.arc(xTau, yTau, 5, 0, Math.PI * 2);
+    ctx2.fill();
+    ctx2.strokeStyle = '#fff';
+    ctx2.lineWidth = 2;
+    ctx2.stroke();
+  }
+}
+
+// ✅ Dessine i(t)
+function drawCourbeI(canvasId, R, C, E, T, tMax, Imax, mode) {
+  const c = document.getElementById(canvasId);
+  if (!c) return;
+  const ctx2 = c.getContext('2d');
+  const cw = c.width, ch = c.height;
+  const mG = 40, mD = 10, mH = 20, mB = 30;
+  const largeur = cw - mG - mD;
+  const hauteur = ch - mH - mB;
+  const Imin = -Imax * 0.15;
+  const Iplot = Imax * 1.15;
+  
+  // Fond noir
+  ctx2.fillStyle = '#000';
+  ctx2.fillRect(0, 0, cw, ch);
+  
+  // Grille
+  ctx2.strokeStyle = 'rgba(233, 30, 99, 0.15)';
+  ctx2.lineWidth = 1;
+  for (let i = 0; i <= 5; i++) {
+    const y = mH + hauteur * i / 5;
+    ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke();
+  }
+  for (let i = 0; i <= 5; i++) {
+    const x = mG + largeur * i / 5;
+    ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke();
+  }
+  
+  // Axes
+  ctx2.strokeStyle = 'rgba(233, 30, 99, 0.7)';
+  ctx2.lineWidth = 1.5;
+  ctx2.beginPath();
+  ctx2.moveTo(mG, mH + hauteur); ctx2.lineTo(mG + largeur, mH + hauteur);
+  ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
+  ctx2.stroke();
+  
+  // Labels Y (en mA pour lisibilité)
+  ctx2.fillStyle = '#e91e63';
+  ctx2.font = 'bold 9px "Courier New", monospace';
+  ctx2.textAlign = 'right';
+  ctx2.textBaseline = 'middle';
+  for (let i = 0; i <= 4; i++) {
+    const v = (Iplot * (1 - i / 4)) * 1000;
+    const y = mH + hauteur * i / 4;
+    ctx2.fillText(v.toFixed(1), mG - 3, y);
+  }
+  
+  // Labels X
+  ctx2.textAlign = 'center';
+  ctx2.textBaseline = 'top';
+  for (let i = 0; i <= 4; i++) {
+    const t = tMax * i / 4 * 1000;
+    ctx2.fillText(t.toFixed(0), mG + largeur * i / 4, mH + hauteur + 4);
+  }
+  
+  // Unité
+  ctx2.fillStyle = '#e91e63';
+  ctx2.font = 'bold 9px "Courier New", monospace';
+  ctx2.textAlign = 'right';
+  ctx2.textBaseline = 'top';
+  ctx2.fillText('mA', cw - 4, 4);
+  ctx2.textAlign = 'right';
+  ctx2.textBaseline = 'bottom';
+  ctx2.fillText('ms', mG + largeur, ch - 4);
+  
+  // Courbe i(t)
+  ctx2.strokeStyle = '#e91e63';
+  ctx2.lineWidth = 2.5;
+  ctx2.shadowColor = '#e91e63';
+  ctx2.shadowBlur = 8;
+  ctx2.beginPath();
+  for (let i = 0; i <= 300; i++) {
+    const t = tMax * i / 300;
+    const I = Imax * Math.exp(-t / T);
+    const x = mG + largeur * t / tMax;
+    const y = mH + hauteur - hauteur * I / Iplot;
+    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke();
+  ctx2.shadowBlur = 0;
+  
+  // Marqueur τ
+  if (T < tMax) {
+    const xTau = mG + largeur * T / tMax;
+    const I_tau = Imax * 0.368;
+    const yTau = mH + hauteur - hauteur * I_tau / Iplot;
+    
+    ctx2.strokeStyle = '#ff9800';
+    ctx2.lineWidth = 1.5;
+    ctx2.setLineDash([4, 4]);
+    ctx2.beginPath();
+    ctx2.moveTo(xTau, mH);
+    ctx2.lineTo(xTau, mH + hauteur);
+    ctx2.stroke();
+    ctx2.beginPath();
+    ctx2.moveTo(mG, yTau);
+    ctx2.lineTo(xTau, yTau);
+    ctx2.stroke();
+    ctx2.setLineDash([]);
+    
+    ctx2.fillStyle = '#ff9800';
+    ctx2.beginPath();
+    ctx2.arc(xTau, yTau, 5, 0, Math.PI * 2);
+    ctx2.fill();
+    ctx2.strokeStyle = '#fff';
+    ctx2.lineWidth = 2;
+    ctx2.stroke();
+  }
 }
 
 function ajouterCourbeComparaison() {
