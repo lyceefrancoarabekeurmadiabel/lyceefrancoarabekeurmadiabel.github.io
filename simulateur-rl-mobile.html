@@ -1475,6 +1475,316 @@
       <button class="btn btn-primary" onclick="verifierBranchement()">✅ Vérifier le branchement</button>
     </div>
   </section>
+    <!-- ===== ÉTAPE 4 : ANALYSE ===== -->
+  <section class="etape" id="etape-4">
+    <div class="etape-header">
+      <div class="etape-eyebrow">Étape 4 sur 4</div>
+      <h1 class="etape-title">🎓 Analyse & Conclusion</h1>
+      <p class="etape-subtitle">Comprendre le comportement de la bobine lors de l'établissement et de la rupture du courant.</p>
+    </div>
+
+    <div class="analyse-layout">
+      <div class="sous-onglets">
+        <button class="sous-onglet active" data-sous="recap" onclick="changerSousOnglet('recap')">📊 Récap</button>
+        <button class="sous-onglet" data-sous="charge" onclick="changerSousOnglet('charge')">📈 Courbes</button>
+        <button class="sous-onglet" data-sous="applis" onclick="changerSousOnglet('applis')">🌍 Applications</button>
+        <button class="sous-onglet" data-sous="qcm" onclick="changerSousOnglet('qcm')">🛡️ Questions</button>
+        <button class="sous-onglet" data-sous="conclusion" onclick="changerSousOnglet('conclusion')">✍️ Conclusion</button>
+        <button class="sous-onglet" data-sous="exercices" onclick="changerSousOnglet('exercices')">🧮 Exercices</button>
+      </div>
+
+      <div class="sous-onglet-contenu active" id="sous-recap">
+        <div class="recap-header">
+          <h3>📊 Récapitulatif</h3>
+          <p>Modifie R et L pour comparer les courbes.</p>
+        </div>
+        <div class="recap-grid">
+          <div class="recap-card">
+            <span class="recap-icon">🔋</span>
+            <div class="recap-label">Tension E</div>
+            <div class="recap-value">6.0 V</div>
+          </div>
+          <div class="recap-card recap-card-editable">
+            <span class="recap-icon">📏</span>
+            <div class="recap-label">Résistance R</div>
+            <input type="number" id="inputR" class="recap-input" value="100" min="10" max="1000" step="10">
+            <span class="recap-unit">Ω</span>
+          </div>
+          <div class="recap-card recap-card-editable">
+            <span class="recap-icon">🌀</span>
+            <div class="recap-label">Bobine L</div>
+            <input type="number" id="inputL" class="recap-input" value="1" min="0.1" max="10" step="0.1">
+            <span class="recap-unit">H</span>
+          </div>
+          <div class="recap-card recap-card-editable">
+            <span class="recap-icon">⏱️</span>
+            <div class="recap-label">Constante τ</div>
+            <div class="recap-value" id="valeurTau">10 ms</div>
+          </div>
+        </div>
+        <div class="recap-compare-controls">
+          <button class="btn-courbe charge" onclick="ajouterCourbeComparaison()">➕ Comparer</button>
+          <button class="btn-courbe cycle" onclick="reinitialiserComparaison()">↺ Réinitialiser</button>
+        </div>
+        <div class="recap-legende" id="recapLegende" style="display:none;">
+          <span class="legende-item"><span class="legende-trait" style="background:#ffeb3b;"></span> Courbe initiale</span>
+          <span class="legende-item"><span class="legende-trait" style="background:#4fc3f7;"></span> <span id="legendeCourante">Nouvelle courbe</span></span>
+        </div>
+        <h4 style="font-family: var(--serif); font-size: 14px; color: var(--ink); margin-bottom: 10px;">📈 Courbes observées</h4>
+        <div class="mode-courbe-btns">
+          <button class="mode-courbe-btn active" id="btnModeCharge" onclick="changerModeCourbe('charge')">🔋 ÉTABLISSEMENT</button>
+          <button class="mode-courbe-btn" id="btnModeDecharge" onclick="changerModeCourbe('decharge')">⚡ RUPTURE</button>
+        </div>
+        <div class="courbes-duo">
+          <div class="courbe-duo-item">
+            <div class="courbe-duo-label" id="labelUR">🟡 U_R(t) — image du courant</div>
+            <div class="recap-courbe"><canvas id="recapCourbeUR" width="400" height="260"></canvas></div>
+            <div class="courbe-duo-formule" id="formuleUR">U_R(t) = E · (1 − e^(−t/τ))</div>
+          </div>
+          <div class="courbe-duo-item">
+            <div class="courbe-duo-label" id="labelUL">🔵 U_L(t) — tension bobine</div>
+            <div class="recap-courbe"><canvas id="recapCourbeUL" width="400" height="260"></canvas></div>
+            <div class="courbe-duo-formule" id="formuleUL">U_L(t) = E · e^(−t/τ)</div>
+          </div>
+        </div>
+        <div class="tau-interactif-banner show">
+          <div class="titre">📊 Mesure interactive de τ</div>
+          <div>👆 <strong>Tape sur U_R(t)</strong> pour placer le marqueur à <strong>63 % de E</strong>.</div>
+          <div class="tau-resultat" id="tauResultat"></div>
+        </div>
+        <div class="recap-valeurs">
+          <div class="recap-valeur-item"><div class="label">i à t = τ</div><div class="value">63 % de I_max</div></div>
+          <div class="recap-valeur-item"><div class="label">i à t = 5τ</div><div class="value">99 % de I_max</div></div>
+        </div>
+      </div>
+
+      <div class="sous-onglet-contenu" id="sous-charge">
+        <div class="recap-header">
+          <h3>📈 Établissement vs Rupture</h3>
+          <p>Sélectionne la grandeur, puis lance l'animation.</p>
+        </div>
+        <div class="selecteur-mesure">
+          <span class="label">📺 Grandeur observée :</span>
+          <label class="radio-btn actif" id="radioCourbeUR" onclick="choisirCourbe('UR')">
+            <input type="radio" name="courbe" value="UR" checked>
+            <span class="radio-dot"></span>
+            <span>U<sub>R</sub> (courant)</span>
+          </label>
+          <label class="radio-btn" id="radioCourbeUL" onclick="choisirCourbe('UL')">
+            <input type="radio" name="courbe" value="UL">
+            <span class="radio-dot"></span>
+            <span>U<sub>L</sub> (bobine)</span>
+          </label>
+        </div>
+        <div class="charge-decharge-grid">
+          <div>
+            <div class="courbe-box">
+              <h4 id="titreCharge">🔋 ÉTABLISSEMENT</h4>
+              <canvas id="courbeCharge" width="500" height="280"></canvas>
+            </div>
+            <div class="courbe-formule" id="formuleCharge">U_R(t) = E · (1 − e^(−t/τ))</div>
+            <div style="font-size: 12.5px; color: var(--slate); margin-top: 6px; text-align: center;" id="descCharge">K <strong>fermé</strong> → i monte</div>
+          </div>
+          <div>
+            <div class="courbe-box decharge">
+              <h4 id="titreDecharge">⚡ RUPTURE</h4>
+              <canvas id="courbeDecharge" width="500" height="280"></canvas>
+            </div>
+            <div class="courbe-formule" id="formuleDecharge">U_R(t) = E · e^(−t/τ)</div>
+            <div style="font-size: 12.5px; color: var(--slate); margin-top: 6px; text-align: center;" id="descDecharge">K <strong>ouvert</strong> → i redescend</div>
+          </div>
+        </div>
+        <div class="courbe-controls">
+          <button class="btn-courbe charge" onclick="animerCourbe('charge')">🔋 Animer ÉTABLISSEMENT</button>
+          <button class="btn-courbe decharge" onclick="animerCourbe('decharge')">⚡ Animer RUPTURE</button>
+          <button class="btn-courbe cycle" onclick="animerCourbe('cycle')">🔄 Cycle complet</button>
+          <button class="btn-courbe maille" onclick="afficherLoiMailles()">∑ Vérifier la loi des mailles</button>
+        </div>
+        <div class="info-encadre">
+          <strong>💡 À retenir :</strong><br>
+          • Établissement → i monte vers I_max.<br>
+          • Rupture → i redescend vers 0.<br>
+          • Vitesse dépend de τ = L / R.<br>
+          • Loi des mailles : U_R + U_L = E.
+        </div>
+      </div>
+
+      <div class="sous-onglet-contenu" id="sous-applis">
+        <div class="recap-header">
+          <h3>🌍 Applications</h3>
+          <p>La bobine RL est partout !</p>
+        </div>
+        <div class="applis-grid">
+          <div class="appli-card">
+            <div class="appli-header"><span class="appli-icon">🧲</span><div><div class="appli-title">Électroaimant</div><div class="appli-subtitle">Champ magnétique</div></div></div>
+            <div class="appli-desc">La bobine crée un <strong>champ magnétique</strong> qui monte progressivement.</div>
+            <button class="appli-btn" onclick="voirAnimationAppli('electroaimant')">▶ Voir l'animation</button>
+            <div class="appli-canvas-zone" id="canvas-electroaimant"><canvas id="animElectroaimant" width="400" height="180"></canvas></div>
+          </div>
+          <div class="appli-card">
+            <div class="appli-header"><span class="appli-icon">🔔</span><div><div class="appli-title">Relais</div><div class="appli-subtitle">Temps de réponse</div></div></div>
+            <div class="appli-desc">Le relais comporte une bobine qui attire un contact.</div>
+            <button class="appli-btn" onclick="voirAnimationAppli('relais')">▶ Voir l'animation</button>
+            <div class="appli-canvas-zone" id="canvas-relais"><canvas id="animRelais" width="400" height="180"></canvas></div>
+          </div>
+          <div class="appli-card">
+            <div class="appli-header"><span class="appli-icon">🚆</span><div><div class="appli-title">Freinage TGV</div><div class="appli-subtitle">Freinage progressif</div></div></div>
+            <div class="appli-desc">Les inductances s'opposent aux variations brutales.</div>
+            <button class="appli-btn" onclick="voirAnimationAppli('freinage')">▶ Voir l'animation</button>
+            <div class="appli-canvas-zone" id="canvas-freinage"><canvas id="animFreinage" width="400" height="180"></canvas></div>
+          </div>
+          <div class="appli-card">
+            <div class="appli-header"><span class="appli-icon">⚡</span><div><div class="appli-title">Transformateur</div><div class="appli-subtitle">Deux bobines couplées</div></div></div>
+            <div class="appli-desc">Deux bobines couplées modifient la tension alternative.</div>
+            <button class="appli-btn" onclick="voirAnimationAppli('transformateur')">▶ Voir l'animation</button>
+            <div class="appli-canvas-zone" id="canvas-transformateur"><canvas id="animTransformateur" width="400" height="180"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sous-onglet-contenu" id="sous-qcm">
+        <div class="qcm-header"><h3>🛡️ Questions</h3><p>Réponds aux 3 questions.</p></div>
+        <div class="qcm-item" id="qcm-1">
+          <div class="qcm-question-num">Question 1 / 3</div>
+          <div class="qcm-question-texte">Pourquoi mesurer U_R pour observer le courant ?</div>
+          <div class="qcm-options">
+            <button class="qcm-option" data-q="1" data-value="a"><span class="qcm-lettre">A</span><span>R plus facile à mesurer</span></button>
+            <button class="qcm-option" data-q="1" data-value="b" data-correct="1"><span class="qcm-lettre">B</span><span>U_R = R·i, proportionnelle au courant</span></button>
+            <button class="qcm-option" data-q="1" data-value="c"><span class="qcm-lettre">C</span><span>La bobine ne supporte pas l'oscillo</span></button>
+          </div>
+          <button class="qcm-btn-valider" onclick="validerQCM(1)" disabled>Valider</button>
+          <div class="qcm-feedback" id="feedback-1"></div>
+        </div>
+        <div class="qcm-item" id="qcm-2">
+          <div class="qcm-question-num">Question 2 / 3</div>
+          <div class="qcm-question-texte">τ pour L = 2 H et R = 200 Ω ?</div>
+          <div class="qcm-options">
+            <button class="qcm-option" data-q="2" data-value="a"><span class="qcm-lettre">A</span><span>τ = 400 s</span></button>
+            <button class="qcm-option" data-q="2" data-value="b" data-correct="1"><span class="qcm-lettre">B</span><span>τ = 10 ms</span></button>
+            <button class="qcm-option" data-q="2" data-value="c"><span class="qcm-lettre">C</span><span>τ = 100 s</span></button>
+          </div>
+          <button class="qcm-btn-valider" onclick="validerQCM(2)" disabled>Valider</button>
+          <div class="qcm-feedback" id="feedback-2"></div>
+        </div>
+        <div class="qcm-item" id="qcm-3">
+          <div class="qcm-question-num">Question 3 / 3</div>
+          <div class="qcm-question-texte">τ évolue comment si R augmente (L constant) ?</div>
+          <div class="qcm-options">
+            <button class="qcm-option" data-q="3" data-value="a"><span class="qcm-lettre">A</span><span>τ augmente</span></button>
+            <button class="qcm-option" data-q="3" data-value="b" data-correct="1"><span class="qcm-lettre">B</span><span>τ diminue (τ = L / R)</span></button>
+            <button class="qcm-option" data-q="3" data-value="c"><span class="qcm-lettre">C</span><span>τ ne change pas</span></button>
+          </div>
+          <button class="qcm-btn-valider" onclick="validerQCM(3)" disabled>Valider</button>
+          <div class="qcm-feedback" id="feedback-3"></div>
+        </div>
+      </div>
+
+      <div class="sous-onglet-contenu" id="sous-conclusion">
+        <div class="recap-header"><h3>✍️ Ma conclusion</h3><p>Rédige ta conclusion.</p></div>
+        <div class="conclusion-progress">
+          <span style="font-size: 12px; font-weight: 700;">Progression :</span>
+          <div class="progress-barre"><div class="progress-remplissage" id="progressRemplissage"></div></div>
+          <div class="progress-texte" id="progressTexte">0/5</div>
+        </div>
+        <div class="conclusion-bilan">
+          <span class="bilan-icon">🎯</span>
+          <div><div class="bilan-label">Objectif</div><div class="bilan-text">Déterminer <strong>τ</strong> et vérifier <strong>τ = L / R</strong>.</div></div>
+        </div>
+        <div class="conclusion-form">
+          <div class="conclusion-champ">
+            <label for="concl-1"><span class="champ-num">1</span> Valeur théorique de τ ?</label>
+            <div class="champ-indice">💡 τ = L / R</div>
+            <input type="text" id="concl-1" placeholder="Ta réponse…">
+            <div class="champ-feedback" id="fb-1"></div>
+          </div>
+          <div class="conclusion-champ">
+            <label for="concl-2"><span class="champ-num">2</span> i à t = τ (établissement) ?</label>
+            <div class="champ-indice">💡 i(τ) ≈ 0,63 × I_max</div>
+            <input type="text" id="concl-2" placeholder="Ta réponse…">
+            <div class="champ-feedback" id="fb-2"></div>
+          </div>
+          <div class="conclusion-champ">
+            <label for="concl-3"><span class="champ-num">3</span> i à t = τ (rupture) ?</label>
+            <div class="champ-indice">💡 i(τ) ≈ 0,37 × I_max</div>
+            <input type="text" id="concl-3" placeholder="Ta réponse…">
+            <div class="champ-feedback" id="fb-3"></div>
+          </div>
+          <div class="conclusion-champ">
+            <label for="concl-4"><span class="champ-num">4</span> Plus τ est grand, plus c'est…</label>
+            <select id="concl-4">
+              <option value="">— Choisis —</option>
+              <option value="lent">lent</option>
+              <option value="rapide">rapide</option>
+              <option value="instantanee">instantané</option>
+            </select>
+            <div class="champ-feedback" id="fb-4"></div>
+          </div>
+          <div class="conclusion-champ">
+            <label for="concl-5"><span class="champ-num">5</span> Une application du circuit RL ?</label>
+            <input type="text" id="concl-5" placeholder="Ta réponse…">
+            <div class="champ-feedback" id="fb-5"></div>
+          </div>
+          <div class="conclusion-actions">
+            <button class="btn btn-primary" onclick="verifierConclusion()">✅ Vérifier ma conclusion</button>
+            <button class="btn btn-secondary" onclick="reinitialiserConclusion()">↺ Recommencer</button>
+          </div>
+          <div class="conclusion-resultat" id="conclusionResultat"></div>
+        </div>
+        <div class="conclusion-finale" id="conclusionFinale">
+          <h4>📝 Ta conclusion rédigée</h4>
+          <div class="conclusion-texte" id="conclusionTexte"></div>
+          <div class="conclusion-finale-actions">
+            <button class="btn btn-primary" onclick="imprimerConclusion()">🖨️ Imprimer</button>
+            <button class="btn btn-secondary" onclick="telechargerConclusion()">💾 Télécharger</button>
+          </div>
+        </div>
+        <div class="certificat-zone">
+          <h3>🎓 Certificat de réussite</h3>
+          <p>Saisis ton nom pour générer ton certificat.</p>
+          <input type="text" class="certificat-nom" id="certificatNom" placeholder="Ton nom et prénom" maxlength="60">
+          <button class="btn btn-primary" onclick="genererCertificat()">🎓 Générer mon certificat</button>
+        </div>
+      </div>
+
+      <div class="sous-onglet-contenu" id="sous-exercices">
+        <div class="recap-header"><h3>🧮 Exercices guidés</h3><p>3 exercices progressifs.</p></div>
+        <div class="exercice-card" id="exo-1">
+          <div class="exercice-entete"><div class="exercice-num">1</div><div class="exercice-titre">Calculer τ</div></div>
+          <div class="exercice-enonce">L = 2 H, R = 200 Ω. Quelle est τ ?</div>
+          <ul class="exercice-etapes"><li>Formule : <strong>τ = L / R</strong></li><li>L = 2 H, R = 200 Ω</li></ul>
+          <div class="exercice-input-zone">
+            <input type="text" class="exercice-input" id="exo1-rep" placeholder="Ta réponse (ex : 10 ms)">
+            <button class="btn btn-primary" onclick="verifierExo1()">Vérifier</button>
+          </div>
+          <div class="exercice-feedback" id="exo1-fb"></div>
+        </div>
+        <div class="exercice-card" id="exo-2">
+          <div class="exercice-entete"><div class="exercice-num">2</div><div class="exercice-titre">i(τ) à l'établissement</div></div>
+          <div class="exercice-enonce">E = 12 V, R = 200 Ω. Quelle est i à t = τ ?</div>
+          <ul class="exercice-etapes"><li>I_max = E / R = 0,06 A</li><li>i(τ) ≈ 0,63 × I_max</li></ul>
+          <div class="exercice-input-zone">
+            <input type="text" class="exercice-input" id="exo2-rep" placeholder="Ta réponse (ex : 0,038 A)">
+            <button class="btn btn-primary" onclick="verifierExo2()">Vérifier</button>
+          </div>
+          <div class="exercice-feedback" id="exo2-fb"></div>
+        </div>
+        <div class="exercice-card" id="exo-3">
+          <div class="exercice-entete"><div class="exercice-num">3</div><div class="exercice-titre">Énergie stockée</div></div>
+          <div class="exercice-enonce">L = 0,5 H, i = 3 A. Énergie magnétique ?</div>
+          <ul class="exercice-etapes"><li>Formule : <strong>E_mag = ½ · L · i²</strong></li></ul>
+          <div class="exercice-input-zone">
+            <input type="text" class="exercice-input" id="exo3-rep" placeholder="Ta réponse (ex : 2,25 J)">
+            <button class="btn btn-primary" onclick="verifierExo3()">Vérifier</button>
+          </div>
+          <div class="exercice-feedback" id="exo3-fb"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="allerEtape(3)">← Étape précédente</button>
+    </div>
+  </section>
   <script>
 // ============================================================
 //  EXPLICATIONS
