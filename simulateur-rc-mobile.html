@@ -2332,10 +2332,18 @@ let branchement = {
 };
 
 function initialiserBranchement() {
-  if (branchement.composants.length === 0) {
-    branchement.composants = JSON.parse(JSON.stringify(montage.composants));
-    branchement.fils = [];
-  }
+  // ✅ Copie les composants (toujours, pour être à jour)
+  branchement.composants = JSON.parse(JSON.stringify(montage.composants));
+  
+  // ✅ Copie les fils du montage vers le branchement
+  branchement.fils = (montage.fils || []).map(fil => ({
+    id: 'fb' + (branchement.prochainIdFil++),
+    x1: fil.x1, y1: fil.y1,
+    x2: fil.x2, y2: fil.y2,
+    de: fil.de,
+    vers: fil.vers
+  }));
+  
   drawBranchement();
   updateHintBranchement();
 }
