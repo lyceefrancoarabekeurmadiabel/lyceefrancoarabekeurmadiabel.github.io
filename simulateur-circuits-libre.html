@@ -593,6 +593,28 @@
     font-family: inherit;
   }
   .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+    /* 🆕 Bouton interrupteur */
+  .btn-interrupteur {
+    padding: 7px 12px;
+    border: 1px solid rgba(244, 67, 54, 0.4);
+    background: rgba(244, 67, 54, 0.2);
+    color: #ff8a80;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.78em;
+    font-family: inherit;
+    transition: all 0.2s;
+    display: none;
+    white-space: nowrap;
+  }
+  .btn-interrupteur:hover { background: rgba(244, 67, 54, 0.35); }
+  .btn-interrupteur.ferme {
+    border-color: rgba(76, 175, 80, 0.4);
+    background: rgba(76, 175, 80, 0.2);
+    color: #a5d6a7;
+  }
+  .btn-interrupteur.ferme:hover { background: rgba(76, 175, 80, 0.35); }
   .status-inline {
     flex: 1;
     text-align: center;
@@ -898,8 +920,9 @@
       </div>
   </div>
 
-  <div class="action-bar">
+    <div class="action-bar">
     <button class="btn-play" id="btnAnimer" disabled>▶ Animer les électrons</button>
+    <button class="btn-interrupteur" id="btnInterrupteur">🔘 Fermer</button>
     <button class="btn-secondary" id="btnReset">🔄 Reset</button>
     <button class="btn-secondary" id="btnFormules">📐 Formules</button>
     <div class="status-inline" id="status">Clique sur « Ajouter un fil » pour commencer</div>
@@ -1074,10 +1097,11 @@ function ajouterComposant(type, tensionForcee) {
     case 'condensateurPolarise': composant.capacite = 470; composant.charge = 0; break;
   }
 
-  atelier.composants.push(composant);
+   atelier.composants.push(composant);
   drawCircuit();
   updateZoneInfo();
   updateSelectors();
+  updateBoutonInterrupteur();
   analyserCircuit();
 }
 
@@ -2199,6 +2223,7 @@ function supprimerComposant(compId) {
   drawCircuit();
   updateZoneInfo();
   updateSelectors();
+  updateBoutonInterrupteur();
   analyserCircuit();
 }
 
@@ -2454,7 +2479,7 @@ document.getElementById('btnClearAll').addEventListener('click', () => {
   atelier.interrupteurFerme = false;
   atelier.animation.active = false;
   atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null, etapes: [] };
-  drawCircuit(); updateZoneInfo(); updateZoneTool(); updateSelectors(); updateMesures();
+  drawCircuit(); updateZoneInfo(); updateZoneTool(); updateSelectors(); updateBoutonInterrupteur(); updateMesures();
   updateStatus('Atelier vidé');
 });
 
@@ -3252,6 +3277,36 @@ document.getElementById('btnAnimer').addEventListener('click', () => {
   }
 });
 
+// ============================================================
+//  🆕 BOUTON INTERRUPTEUR
+// ============================================================
+function updateBoutonInterrupteur() {
+  const btn = document.getElementById('btnInterrupteur');
+  if (!btn) return;
+  const nbInterrupteurs = atelier.composants.filter(c => c.type === 'interrupteur').length;
+  if (nbInterrupteurs === 0) {
+    btn.style.display = 'none';
+    return;
+  }
+  btn.style.display = 'inline-block';
+  if (atelier.interrupteurFerme) {
+    btn.textContent = '🔘 Ouvrir';
+    btn.classList.add('ferme');
+  } else {
+    btn.textContent = '🔘 Fermer';
+    btn.classList.remove('ferme');
+  }
+}
+
+document.getElementById('btnInterrupteur').addEventListener('click', () => {
+  const nbInterrupteurs = atelier.composants.filter(c => c.type === 'interrupteur').length;
+  if (nbInterrupteurs === 0) return;
+  atelier.interrupteurFerme = !atelier.interrupteurFerme;
+  drawCircuit();
+  analyserCircuit();
+  updateBoutonInterrupteur();
+  updateStatus(atelier.interrupteurFerme ? '🔘 Interrupteur FERMÉ' : '🔘 Interrupteur OUVERT');
+});
 document.getElementById('btnReset').addEventListener('click', () => {
   if (!confirm('Tout réinitialiser ?')) return;
   atelier.composants = [];
@@ -3263,7 +3318,7 @@ document.getElementById('btnReset').addEventListener('click', () => {
   atelier.interrupteurFerme = false;
   atelier.animation.active = false;
   atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null, etapes: [] };
-  drawCircuit(); updateZoneInfo(); updateZoneTool(); updateSelectors(); updateMesures();
+  drawCircuit(); updateZoneInfo(); updateZoneTool(); updateSelectors(); updateBoutonInterrupteur(); updateMesures();
   updateStatus('Atelier réinitialisé');
 });
 
@@ -3342,9 +3397,10 @@ window.addEventListener('load', () => {
   updateZoneInfo();
   updateZoneTool();
   updateSelectors();
+  updateBoutonInterrupteur();  // 🆕
   updateMesures();
   updateStatus('Clique sur « Ajouter un fil » pour commencer');
-  console.log('✅ Atelier de circuits (fils en bas) chargé !');
+  console.log('✅ Atelier de circuits chargé !');
 });
 
 if ('serviceWorker' in navigator) {
