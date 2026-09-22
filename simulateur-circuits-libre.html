@@ -920,14 +920,13 @@ function ajouterFilLibre() {
   const espacementX = 40;
   const longueur = 180;
   
-  // Calcul de la position : en bas de l'écran, en ligne horizontale
   const x1 = margeGauche + (nbFils % 6) * espacementX + Math.floor(nbFils / 6) * 220;
   const y1 = H - margeBas - Math.floor(nbFils / 6) * 30;
   
   const fil = {
     id: 'f' + atelier.prochainIdFil++,
     x1: x1, y1: y1,
-    x2: x1 + longueur, y2: y1,
+    x2: x1 + longueur, y2: y1,   // ⚠️ y2 = y1 → HORIZONTAL
     de: null,
     vers: null
   };
@@ -1086,23 +1085,28 @@ function drawFil(fil) {
   const estSelectionne = atelier.filSelectionne === fil.id;
   const estBranche = fil.de && fil.vers;
 
-  // 🆕 Point de contrôle décalé vers le bas pour éviter les composants
-  const midX = (fil.x1 + fil.x2) / 2;
-  const midY = (fil.y1 + fil.y2) / 2;
-  const decalageY = Math.max(25, Math.abs(fil.x2 - fil.x1) * 0.12);
-  const ctrlX = midX;
-  const ctrlY = midY + decalageY;
-
   ctx.strokeStyle = estSelectionne ? '#ffd54f' : (estBranche ? '#4caf50' : '#4fc3f7');
   ctx.lineWidth = estSelectionne ? 7 : 5;
   ctx.lineCap = 'round';
   ctx.shadowColor = estSelectionne ? '#ffd54f' : (estBranche ? '#4caf50' : '#4fc3f7');
   ctx.shadowBlur = estSelectionne ? 15 : 8;
-  
-  // Tracé courbe (quadratique) au lieu de ligne droite
+
   ctx.beginPath();
   ctx.moveTo(fil.x1, fil.y1);
-  ctx.quadraticCurveTo(ctrlX, ctrlY, fil.x2, fil.y2);
+
+  // 🆕 Courbe UNIQUEMENT si le fil est branché des 2 côtés
+  if (estBranche) {
+    const midX = (fil.x1 + fil.x2) / 2;
+    const midY = (fil.y1 + fil.y2) / 2;
+    const decalageY = Math.max(25, Math.abs(fil.x2 - fil.x1) * 0.12);
+    const ctrlX = midX;
+    const ctrlY = midY + decalageY;
+    ctx.quadraticCurveTo(ctrlX, ctrlY, fil.x2, fil.y2);
+  } else {
+    // ✅ Fil non branché : DROIT
+    ctx.lineTo(fil.x2, fil.y2);
+  }
+
   ctx.stroke();
   ctx.shadowBlur = 0;
 

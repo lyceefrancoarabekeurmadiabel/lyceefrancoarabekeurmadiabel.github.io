@@ -1074,14 +1074,14 @@ function ajouterFilLibre() {
   const espacementX = 50;
   const longueur = 200;
   
-  // Position en bas de l'écran, en ligne horizontale
+  // 📍 Position en bas de l'écran, en ligne horizontale
   const x1 = margeGauche + (nbFils % 5) * espacementX + Math.floor(nbFils / 5) * 280;
   const y1 = H - margeBas - Math.floor(nbFils / 5) * 40;
   
   const fil = {
     id: 'f' + atelier.prochainIdFil++,
     x1: x1, y1: y1,
-    x2: x1 + longueur, y2: y1,
+    x2: x1 + longueur, y2: y1,   // ⚠️ y2 = y1 → HORIZONTAL
     de: null,
     vers: null
   };
@@ -1269,26 +1269,32 @@ function drawFil(fil) {
   const estSelectionne = atelier.filSelectionne === fil.id;
   const estBranche = fil.de && fil.vers;
 
-  // Point de contrôle décalé vers le bas pour éviter les composants
-  const midX = (fil.x1 + fil.x2) / 2;
-  const midY = (fil.y1 + fil.y2) / 2;
-  const decalageY = Math.max(30, Math.abs(fil.x2 - fil.x1) * 0.15);
-  const ctrlX = midX;
-  const ctrlY = midY + decalageY;
-
   ctx.strokeStyle = estSelectionne ? '#ffd54f' : (estBranche ? '#4caf50' : '#4fc3f7');
   ctx.lineWidth = estSelectionne ? 10 : 7;
   ctx.lineCap = 'round';
   ctx.shadowColor = estSelectionne ? '#ffd54f' : (estBranche ? '#4caf50' : '#4fc3f7');
   ctx.shadowBlur = estSelectionne ? 18 : 10;
-  
-  // Tracé courbe
+
   ctx.beginPath();
   ctx.moveTo(fil.x1, fil.y1);
-  ctx.quadraticCurveTo(ctrlX, ctrlY, fil.x2, fil.y2);
+
+  // 🆕 Courbe UNIQUEMENT si le fil est branché des 2 côtés
+  if (estBranche) {
+    const midX = (fil.x1 + fil.x2) / 2;
+    const midY = (fil.y1 + fil.y2) / 2;
+    const decalageY = Math.max(30, Math.abs(fil.x2 - fil.x1) * 0.15);
+    const ctrlX = midX;
+    const ctrlY = midY + decalageY;
+    ctx.quadraticCurveTo(ctrlX, ctrlY, fil.x2, fil.y2);
+  } else {
+    // ✅ Fil non branché : DROIT
+    ctx.lineTo(fil.x2, fil.y2);
+  }
+
   ctx.stroke();
   ctx.shadowBlur = 0;
 
+  // Points aux extrémités
   ctx.fillStyle = fil.de ? '#4caf50' : '#888';
   ctx.beginPath(); ctx.arc(fil.x1, fil.y1, 9, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = fil.vers ? '#4caf50' : '#888';
