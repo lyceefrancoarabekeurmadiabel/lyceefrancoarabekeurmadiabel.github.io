@@ -132,6 +132,36 @@
     border-color: #ffb300;
     color: #ffe082;
   }
+    .tool-btn.condensateur-btn { background: rgba(79, 195, 247, 0.15); border-color: rgba(79, 195, 247, 0.4); color: #4fc3f7; }
+  .tool-btn.condensateur-btn:hover { background: rgba(79, 195, 247, 0.3); }
+  .tool-btn.led-btn { background: rgba(255, 87, 34, 0.15); border-color: rgba(255, 87, 34, 0.4); color: #ff5722; }
+  .tool-btn.led-btn:hover { background: rgba(255, 87, 34, 0.3); }
+  .tool-btn.fusible-btn { background: rgba(255, 193, 7, 0.15); border-color: rgba(255, 193, 7, 0.4); color: #ffc107; }
+  .tool-btn.fusible-btn:hover { background: rgba(255, 193, 7, 0.3); }
+  .tool-btn.potentiometre-btn { background: rgba(156, 39, 176, 0.15); border-color: rgba(156, 39, 176, 0.4); color: #ce93d8; }
+  .tool-btn.potentiometre-btn:hover { background: rgba(156, 39, 176, 0.3); }
+  .tool-btn.electrolyseur-btn { background: rgba(0, 188, 212, 0.15); border-color: rgba(0, 188, 212, 0.4); color: #4dd0e1; }
+  .tool-btn.electrolyseur-btn:hover { background: rgba(0, 188, 212, 0.3); }
+  .tool-btn.chauffante-btn { background: rgba(255, 87, 34, 0.15); border-color: rgba(255, 87, 34, 0.4); color: #ff7043; }
+  .tool-btn.chauffante-btn:hover { background: rgba(255, 87, 34, 0.3); }
+  .tool-btn.bobine-btn { background: rgba(139, 195, 74, 0.15); border-color: rgba(139, 195, 74, 0.4); color: #aed581; }
+  .tool-btn.bobine-btn:hover { background: rgba(139, 195, 74, 0.3); }
+  .tool-btn.condo-pol-btn { background: rgba(0, 150, 136, 0.15); border-color: rgba(0, 150, 136, 0.4); color: #4db6ac; }
+  .tool-btn.condo-pol-btn:hover { background: rgba(0, 150, 136, 0.3); }
+  
+  /* 🆕 Encadré explicatif */
+  .info-encadre {
+    background: rgba(79, 195, 247, 0.08);
+    border-left: 4px solid #4fc3f7;
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-top: 8px;
+    font-size: 0.68em;
+    line-height: 1.5;
+    color: #ccc;
+  }
+  .info-encadre strong { color: #4fc3f7; display: block; margin-bottom: 3px; }
+  .info-encadre em { color: #ffd54f; font-style: normal; font-weight: 700; }
   .tool-btn.danger {
     border-color: rgba(244, 67, 54, 0.5);
     color: #ff8a80;
@@ -724,9 +754,42 @@
         <span class="icon">🔔</span>
         <span>Sonnerie</span>
       </button>
-      <button class="tool-btn" id="btnAddDiode">
+            <button class="tool-btn" id="btnAddDiode">
         <span class="icon">▷|</span>
         <span>Diode</span>
+      </button>
+      <button class="tool-btn condensateur-btn" id="btnAddCondensateur">
+        <span class="icon">⚡</span>
+        <span>Condensateur</span>
+      </button>
+      <button class="tool-btn led-btn" id="btnAddLED">
+        <span class="icon">💡</span>
+        <span>LED</span>
+      </button>
+      <button class="tool-btn fusible-btn" id="btnAddFusible">
+        <span class="icon">🔌</span>
+        <span>Fusible</span>
+      </button>
+      <button class="tool-btn potentiometre-btn" id="btnAddPotentiometre">
+        <span class="icon">🎛</span>
+        <span>Potentiomètre</span>
+      </button>
+      <div class="tool-subtitle">🔬 Nouveaux composants</div>
+      <button class="tool-btn electrolyseur-btn" id="btnAddElectrolyseur">
+        <span class="icon">⚗️</span>
+        <span>Électrolyseur</span>
+      </button>
+      <button class="tool-btn chauffante-btn" id="btnAddChauffante">
+        <span class="icon">🔥</span>
+        <span>Chauffante</span>
+      </button>
+      <button class="tool-btn bobine-btn" id="btnAddBobine">
+        <span class="icon">🌀</span>
+        <span>Bobine</span>
+      </button>
+      <button class="tool-btn condo-pol-btn" id="btnAddCondensateurPolarise">
+        <span class="icon">⚡+</span>
+        <span>Condensateur polarisé</span>
       </button>
       <div class="panel-title" style="margin-top: 6px;">🎛 Actions</div>
       <button class="tool-btn danger" id="btnClearAll">
@@ -822,6 +885,14 @@
 
       <div class="bascule-content" id="bascule-lois">
         <div class="lois-panel" id="loisPanel">
+                <!-- 🆕 Explication sur la diode -->
+      <div class="info-encadre">
+        <strong>▷| Comportement de la diode</strong>
+        La diode est un composant <em>polarisé</em> : elle laisse passer le courant <em>dans un seul sens</em>.<br><br>
+        • <strong>Polarisation directe</strong> (borne + sur l'anode) : la diode laisse passer le courant dès que la tension dépasse son <em>seuil</em> (~0,7 V).<br>
+        • <strong>Polarisation inverse</strong> (borne − sur l'anode) : la diode <em>bloque</em> le courant. Le circuit est ouvert.<br><br>
+        💡 <strong>Astuce :</strong> si vous fermez le générateur et que rien ne se passe, essayez de <em>retourner la diode</em> (double-clic → rotation 90°).
+      </div>
           <div class="loi-warning">⚠️ Ajoute des composants pour commencer</div>
         </div>
       </div>
@@ -933,10 +1004,22 @@ const TAILLE = {
   lampe: { w: 70, h: 50 },
   moteur: { w: 70, h: 50 },
   buzzer: { w: 70, h: 50 },
-  diode: { w: 70, h: 44 }
+  diode: { w: 70, h: 44 },
+  condensateur: { w: 70, h: 50 },
+  led: { w: 70, h: 50 },
+  fusible: { w: 70, h: 40 },
+  potentiometre: { w: 80, h: 40 },
+  electrolyseur: { w: 80, h: 55 },
+  chauffante: { w: 80, h: 45 },
+  bobine: { w: 80, h: 45 },
+  condensateurPolarise: { w: 75, h: 55 }
 };
 
-const COMPOSANTS_RESISTIFS = new Set(['resistance', 'lampe', 'moteur', 'buzzer']);
+// 🆕 Composants qui se comportent comme des résistances
+const COMPOSANTS_RESISTIFS = new Set([
+  'resistance', 'lampe', 'moteur', 'buzzer',
+  'potentiometre', 'fusible', 'chauffante', 'bobine', 'electrolyseur'
+]);
 const DIST_CONNEXION = 40;
 const DIST_SNAP = 45;
 
@@ -953,6 +1036,14 @@ document.getElementById('btnAddLampe').addEventListener('click', () => ajouterCo
 document.getElementById('btnAddMoteur').addEventListener('click', () => ajouterComposant('moteur'));
 document.getElementById('btnAddBuzzer').addEventListener('click', () => ajouterComposant('buzzer'));
 document.getElementById('btnAddDiode').addEventListener('click', () => ajouterComposant('diode'));
+document.getElementById('btnAddCondensateur').addEventListener('click', () => ajouterComposant('condensateur'));
+document.getElementById('btnAddLED').addEventListener('click', () => ajouterComposant('led'));
+document.getElementById('btnAddFusible').addEventListener('click', () => ajouterComposant('fusible'));
+document.getElementById('btnAddPotentiometre').addEventListener('click', () => ajouterComposant('potentiometre'));
+document.getElementById('btnAddElectrolyseur').addEventListener('click', () => ajouterComposant('electrolyseur'));
+document.getElementById('btnAddChauffante').addEventListener('click', () => ajouterComposant('chauffante'));
+document.getElementById('btnAddBobine').addEventListener('click', () => ajouterComposant('bobine'));
+document.getElementById('btnAddCondensateurPolarise').addEventListener('click', () => ajouterComposant('condensateurPolarise'));
 document.getElementById('btnAddFil').addEventListener('click', ajouterFilLibre);
 document.getElementById('btnAddNoeud').addEventListener('click', ajouterNoeud);
 
@@ -967,13 +1058,25 @@ function ajouterComposant(type, tensionForcee) {
     id: 'c' + atelier.prochainIdComp++,
     type: type,
     x: x, y: y,
-    rotation: 0,
-    valeur: type === 'resistance' ? 10 :
-      type === 'lampe' ? 20 :
-      type === 'moteur' ? 30 :
-      type === 'buzzer' ? 40 : null,
-    tension: type === 'pile' ? (tensionForcee || 12) : null
+    rotation: 0
   };
+
+  switch (type) {
+    case 'pile': composant.tension = tensionForcee || 12; break;
+    case 'resistance': composant.valeur = 10; break;
+    case 'lampe': composant.valeur = 20; break;
+    case 'moteur': composant.valeur = 30; break;
+    case 'buzzer': composant.valeur = 40; break;
+    case 'diode': composant.seuil = 0.7; composant.valeur = 0.1; break;
+    case 'condensateur': composant.capacite = 100; composant.charge = 0; break;
+    case 'led': composant.seuil = 1.8; composant.valeur = 20; break;
+    case 'fusible': composant.courantMax = 0.5; composant.valeur = 0.1; break;
+    case 'potentiometre': composant.valeur = 50; break;
+    case 'electrolyseur': composant.seuil = 1.5; composant.valeur = 5; break;
+    case 'chauffante': composant.valeur = 15; break;
+    case 'bobine': composant.valeur = 8; break;
+    case 'condensateurPolarise': composant.capacite = 470; composant.charge = 0; break;
+  }
 
   atelier.composants.push(composant);
   drawCircuit();
@@ -1278,6 +1381,14 @@ function drawComposant(c) {
   else if (c.type === 'moteur') drawMoteur(c.x, c.y, t.w, t.h, c.valeur, mesures);
   else if (c.type === 'buzzer') drawBuzzer(c.x, c.y, t.w, t.h, c.valeur, mesures);
   else if (c.type === 'diode') drawDiode(c.x, c.y, t.w, t.h, mesures);
+  else if (c.type === 'condensateur') drawCondensateur(c.x, c.y, t.w, t.h, c.capacite, c.charge);
+  else if (c.type === 'led') drawLED(c.x, c.y, t.w, t.h, c.seuil, c.valeur, mesures);
+  else if (c.type === 'fusible') drawFusible(c.x, c.y, t.w, t.h, c.courantMax, c.valeur, mesures);
+  else if (c.type === 'potentiometre') drawPotentiometre(c.x, c.y, t.w, t.h, c.valeur);
+  else if (c.type === 'electrolyseur') drawElectrolyseur(c.x, c.y, t.w, t.h, c.seuil, c.valeur, mesures);
+  else if (c.type === 'chauffante') drawChauffante(c.x, c.y, t.w, t.h, c.valeur, mesures);
+  else if (c.type === 'bobine') drawBobine(c.x, c.y, t.w, t.h, c.valeur, mesures);
+  else if (c.type === 'condensateurPolarise') drawCondensateurPolarise(c.x, c.y, t.w, t.h, c.capacite, c.charge);
 
   ctx.restore();
   ctx.shadowBlur = 0;
@@ -1580,6 +1691,214 @@ function drawDiode(cx, cy, w, h, mesures) {
   ctx.textAlign = 'center';
   ctx.fillText('DIODE', cx, cy - 27);
 }
+
+function drawCondensateur(cx, cy, w, h, capacite, charge) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 6); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - 12, cy - 15); ctx.lineTo(cx - 12, cy + 15);
+  ctx.moveTo(cx + 12, cy - 15); ctx.lineTo(cx + 12, cy + 15);
+  ctx.stroke();
+  if (charge > 0) {
+    ctx.fillStyle = `rgba(79, 195, 247, ${Math.min(charge / capacite, 1) * 0.6})`;
+    ctx.fillRect(cx - 12, cy - 15, 24, 30);
+  }
+  ctx.fillStyle = '#4fc3f7';
+  ctx.font = 'bold 11px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${capacite}µF`, cx, cy - h/2 - 8);
+}
+
+function drawLED(cx, cy, w, h, seuil, resistance, mesures) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#ff5722';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 6); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(cx - 15, cy - 15); ctx.lineTo(cx - 15, cy + 15);
+  ctx.lineTo(cx + 15, cy); ctx.closePath(); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx + 15, cy - 15); ctx.lineTo(cx + 15, cy + 15);
+  ctx.stroke();
+  const allumee = mesures && atelier.interrupteurFerme && mesures.I > 0.001;
+  if (allumee) {
+    const grad = ctx.createRadialGradient(cx, cy, 5, cx, cy, 40);
+    grad.addColorStop(0, 'rgba(255, 87, 34, 0.8)');
+    grad.addColorStop(1, 'rgba(255, 87, 34, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(cx, cy, 40, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.fillStyle = '#ff5722';
+  ctx.font = 'bold 11px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('LED', cx, cy - h/2 - 8);
+}
+
+function drawFusible(cx, cy, w, h, courantMax, resistance, mesures) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#ffc107';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 6); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx - w/2 + 10, cy); ctx.lineTo(cx + w/2 - 10, cy);
+  ctx.stroke();
+  const fondu = mesures && mesures.I > courantMax;
+  if (fondu) {
+    ctx.strokeStyle = '#d9534f';
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(cx - 15, cy); ctx.lineTo(cx + 15, cy); ctx.stroke();
+    ctx.fillStyle = '#d9534f';
+    ctx.font = 'bold 11px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('FONDU', cx, cy + h/2 + 12);
+  }
+  ctx.fillStyle = '#ffc107';
+  ctx.font = 'bold 11px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${courantMax}A`, cx, cy - h/2 - 8);
+}
+
+function drawPotentiometre(cx, cy, w, h, valeur) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#9c27b0';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 6); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = '#ffd54f';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx - w/2 + 10, cy);
+  const seg = (w - 20) / 6;
+  for (let i = 0; i < 6; i++) ctx.lineTo(cx - w/2 + 10 + seg * (i+1), cy + (i % 2 === 0 ? -8 : 8));
+  ctx.stroke();
+  ctx.strokeStyle = '#9c27b0';
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 20);
+  ctx.lineTo(cx - 5, cy - 10);
+  ctx.lineTo(cx + 5, cy - 10);
+  ctx.closePath(); ctx.stroke();
+  ctx.fillStyle = '#9c27b0';
+  ctx.font = 'bold 11px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${valeur}Ω`, cx, cy);
+}
+
+function drawElectrolyseur(cx, cy, w, h, seuil, valeur, mesures) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#00bcd4';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.roundRect(cx - w/2 + 10, cy - h/2 + 5, w - 20, h - 10, 6); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = '#4dd0e1';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - 12, cy - h/2 + 10); ctx.lineTo(cx - 12, cy + h/2 - 10);
+  ctx.moveTo(cx + 12, cy - h/2 + 10); ctx.lineTo(cx + 12, cy + h/2 - 10);
+  ctx.stroke();
+  const actif = mesures && mesures.I > 0.001 && atelier.interrupteurFerme;
+  if (actif) {
+    const t = Date.now() / 300;
+    for (let i = 0; i < 5; i++) {
+      const bx = cx - 12 + (i % 2 === 0 ? 0 : 24);
+      const by = cy + h/2 - 15 - ((t * 20 + i * 12) % 40);
+      ctx.fillStyle = 'rgba(77, 208, 225, 0.6)';
+      ctx.beginPath(); ctx.arc(bx + Math.sin(t + i) * 3, by, 2.5, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  ctx.fillStyle = '#4dd0e1';
+  ctx.font = 'bold 10px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('ÉLECTROLYSEUR', cx, cy - h/2 - 8);
+}
+
+function drawChauffante(cx, cy, w, h, valeur, mesures) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#ff5722';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 6); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = '#ff7043';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(cx - w/2 + 10, cy);
+  const seg = (w - 20) / 6;
+  for (let i = 0; i < 6; i++) ctx.lineTo(cx - w/2 + 10 + seg * (i+1), cy + (i % 2 === 0 ? -8 : 8));
+  ctx.stroke();
+  const actif = mesures && mesures.I > 0.001 && atelier.interrupteurFerme;
+  if (actif) {
+    const t = Date.now() / 200;
+    for (let i = 0; i < 4; i++) {
+      const hx = cx - 15 + i * 10;
+      const hy = cy - h/2 - 5 - ((t + i * 10) % 20);
+      ctx.strokeStyle = `rgba(255, 87, 34, ${0.7 - i * 0.15})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(hx, hy);
+      ctx.quadraticCurveTo(hx + 4, hy - 6, hx, hy - 12);
+      ctx.stroke();
+    }
+  }
+  ctx.fillStyle = '#ff7043';
+  ctx.font = 'bold 10px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('CHAUFFANTE', cx, cy - h/2 - 8);
+}
+
+function drawBobine(cx, cy, w, h, valeur, mesures) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#8bc34a';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 6); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = '#aed581';
+  ctx.lineWidth = 2.5;
+  const nbSpires = 5;
+  const espace = (w - 20) / nbSpires;
+  for (let i = 0; i < nbSpires; i++) {
+    const sx = cx - w/2 + 10 + i * espace;
+    ctx.beginPath(); ctx.arc(sx + espace/2, cy, espace/2 - 2, 0, Math.PI, false); ctx.stroke();
+    ctx.beginPath(); ctx.arc(sx + espace/2, cy, espace/2 - 2, Math.PI, Math.PI * 2, false); ctx.stroke();
+  }
+  ctx.fillStyle = '#aed581';
+  ctx.font = 'bold 10px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('BOBINE', cx, cy - h/2 - 8);
+}
+
+function drawCondensateurPolarise(cx, cy, w, h, capacite, charge) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.strokeStyle = '#009688';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 6); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = '#4db6ac';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - 12, cy - 15); ctx.lineTo(cx - 12, cy + 15);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx + 12, cy - 15);
+  ctx.quadraticCurveTo(cx + 8, cy, cx + 12, cy + 15);
+  ctx.stroke();
+  ctx.fillStyle = '#f44336';
+  ctx.font = 'bold 14px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('+', cx - 22, cy - 20);
+  ctx.textBaseline = 'alphabetic';
+  if (charge > 0) {
+    ctx.fillStyle = `rgba(0, 150, 136, ${Math.min(charge / capacite, 1) * 0.6})`;
+    ctx.fillRect(cx - 12, cy - 15, 24, 30);
+  }
+  ctx.fillStyle = '#4db6ac';
+  ctx.font = 'bold 10px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${capacite}µF`, cx, cy - h/2 - 8);
+}
+
 
 function drawInterrupteur(cx, cy, w, h) {
   ctx.fillStyle = '#1a1a2e';
@@ -2378,6 +2697,15 @@ function analyserNodal(pile, resistances, E) {
     });
   });
 
+  // 🆕 Condensateurs : laissent passer le courant en transitoire
+  atelier.composants.filter(c => c.type === 'condensateur' || c.type === 'condensateurPolarise').forEach(c => {
+    aretes.push({
+      n1: getNodeIndex(c.id + '-L'),
+      n2: getNodeIndex(c.id + '-R'),
+      G: G_FIL
+    });
+  });
+
   const nPileL = getNodeIndex(pile.id + '-L');
   const nPileR = getNodeIndex(pile.id + '-R');
   const N = nodeIndex;
@@ -2468,7 +2796,9 @@ function construireGraphe() {
     const leftId = c.id + '-L', rightId = c.id + '-R';
     if (!graphe[leftId]) graphe[leftId] = [];
     if (!graphe[rightId]) graphe[rightId] = [];
-    if (c.type === 'pile' || COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode') {
+        if (c.type === 'pile' || COMPOSANTS_RESISTIFS.has(c.type) || 
+        c.type === 'diode' || c.type === 'led' ||
+        c.type === 'condensateur' || c.type === 'condensateurPolarise') {
       graphe[leftId].push(rightId);
       graphe[rightId].push(leftId);
     } else if (c.type === 'interrupteur' && atelier.interrupteurFerme) {
