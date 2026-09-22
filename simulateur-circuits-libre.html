@@ -1048,16 +1048,12 @@ document.getElementById('btnAddFil').addEventListener('click', ajouterFilLibre);
 document.getElementById('btnAddNoeud').addEventListener('click', ajouterNoeud);
 
 function ajouterComposant(type, tensionForcee) {
-  const index = atelier.composants.length;
-  const col = index % 3;
-  const row = Math.floor(index / 3);
-  const x = 200 + col * 250;
-  const y = 150 + row * 180;
-
+  const pos = trouverPositionLibre();
+  
   const composant = {
     id: 'c' + atelier.prochainIdComp++,
     type: type,
-    x: x, y: y,
+    x: pos.x, y: pos.y,
     rotation: 0
   };
 
@@ -1083,6 +1079,37 @@ function ajouterComposant(type, tensionForcee) {
   updateZoneInfo();
   updateSelectors();
   analyserCircuit();
+}
+
+// 🆕 Trouve une position libre sur la grille
+function trouverPositionLibre() {
+  const margeX = 120;
+  const margeY = 100;
+  const espacementX = 180;
+  const espacementY = 130;
+  const cols = Math.floor((W - 2 * margeX) / espacementX);
+  const rows = Math.floor((H - margeY - 80) / espacementY);
+  
+  // Parcourir la grille et trouver la première case libre
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const x = margeX + col * espacementX;
+      const y = margeY + row * espacementY;
+      
+      const occupe = atelier.composants.some(c => 
+        Math.abs(c.x - x) < espacementX * 0.6 && 
+        Math.abs(c.y - y) < espacementY * 0.6
+      );
+      
+      if (!occupe) return { x, y };
+    }
+  }
+  
+  // Si la grille est pleine, position aléatoire
+  return {
+    x: margeX + Math.random() * (W - 2 * margeX),
+    y: margeY + Math.random() * (H - 2 * margeY - 60)
+  };
 }
 
 // 🆕 FILS EN BAS DE L'ÉCRAN, HORIZONTAUX
