@@ -480,6 +480,24 @@
     font-size: 0.78em;
     font-family: inherit;
   }
+    .btn-son {
+    padding: 7px 12px;
+    border: 1px solid rgba(76, 175, 80, 0.4);
+    background: rgba(76, 175, 80, 0.2);
+    color: #a5d6a7;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.78em;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .btn-son:hover { background: rgba(76, 175, 80, 0.35); }
+  .btn-son.muet {
+    border-color: rgba(244, 67, 54, 0.4);
+    background: rgba(244, 67, 54, 0.15);
+    color: #ff8a80;
+  }
   .btn-secondary:hover { background: rgba(255,255,255,0.2); }
   .status-inline {
     flex: 1;
@@ -768,10 +786,11 @@
     </div>
   </div>
 
-  <div class="action-bar">
+   <div class="action-bar">
     <button class="btn-play" id="btnAnimer" disabled>▶ Animer les électrons</button>
     <button class="btn-secondary" id="btnReset">🔄 Reset</button>
     <button class="btn-secondary" id="btnFormules">📐 Formules</button>
+    <button class="btn-son" id="btnSon" title="Activer/désactiver le son">🔊 Son</button>
     <div class="status-inline" id="status">Clique sur « Ajouter un fil » pour commencer</div>
   </div>
 
@@ -895,6 +914,108 @@ const DIST_CONNEXION = 40;
 const DIST_SNAP = 45;
 
 let composantSurvole = null;
+
+// ============================================================
+//  🔊 AUDIO — Son de cloche pour la sonnerie
+// ============================================================
+let audioCtx = null;
+let sonnerieEnCours = null;
+let audioActif = true;
+
+function initAudio() {
+  if (!audioCtx) {
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (e) {
+      console.warn('Audio non supporté :', e);
+      audioActif = false;
+    }
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+}
+
+function jouerSonnerie() {
+  if (!audioActif) return;
+  initAudio();
+  if (!audioCtx || sonnerieEnCours) return;
+
+  const t = audioCtx.currentTime;
+  const frequences = [
+    { freq: 880, gain: 0.15 },
+    { freq: 1760, gain: 0.08 },
+    { freq: 2640, gain: 0.05 },
+    { freq: 3520, gain: 0.03 }
+  ];
+  const oscillateurs = [];
+  const masterGain = audioCtx.createGain();
+  masterGain.connect(audioCtx.destination);
+  masterGain.gain.setValueAtTime(0, t);
+  masterGain.gain.linearRampToValueAtTime(1, t + 0.01);
+
+  frequences.forEach(({ freq, gain: g }) => {
+    const osc = audioCtx.createOscillator();
+    const oscGain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, t);
+    const lfo = audioCtx.createOscillator();
+    const lfoGain = audioCtx.createGain();
+    lfo.frequency.setValueAtTime(6 + Math.random() * 2, t);
+    lfoGain.gain.setValueAtTime(2, t);
+    lfo.connect(lfoGain);
+    lfoGain.connect(osc.frequency);
+    lfo.start(t);
+    oscGain.gain.setValueAtTime(g, t);
+    osc.connect(oscGain);
+    oscGain.connect(masterGain);
+    osc.start(t);
+    oscillateurs.push({ osc, lfo });
+  });
+
+  sonnerieEnCours = { oscillateurs, masterGain, startTime: t };
+}
+
+function arreterSonnerie() {
+  if (!sonnerieEnCours || !audioCtx) return;
+  const t = audioCtx.currentTime;
+  sonnerieEnCours.masterGain.gain.cancelScheduledValues(t);
+  sonnerieEnCours.masterGain.gain.setValueAtTime(sonnerieEnCours.masterGain.gain.value, t);
+  sonnerieEnCours.masterGain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+  const sonnerie = sonnerieEnCours;
+  setTimeout(() => {
+    sonnerie.oscillateurs.forEach(({ osc, lfo }) => {
+      try { osc.stop(); lfo.stop(); } catch (e) {}
+    });
+  }, 250);
+  sonnerieEnCours = null;
+}
+
+function majSonnerie() {
+  const buzzer = atelier.composants.find(c => c.type === 'buzzer');
+  if (!buzzer) { arreterSonnerie(); return; }
+  const mesures = getMesuresComposant(buzzer.id);
+  const alimentee = mesures && mesures.I > 0.001 && atelier.interrupteurFerme;
+  if (alimentee && !sonnerieEnCours) jouerSonnerie();
+  else if (!alimentee && sonnerieEnCours) arreterSonnerie();
+}
+
+function jouerNoteConfirmation() {
+  if (!audioActif) return;
+  initAudio();
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.frequency.setValueAtTime(660, t);
+  osc.frequency.linearRampToValueAtTime(880, t + 0.08);
+  gain.gain.setValueAtTime(0.1, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+  osc.start(t);
+  osc.stop(t + 0.13);
+}
 
 // ============================================================
 //  AJOUT DE COMPOSANTS
@@ -2350,8 +2471,9 @@ function analyserCircuit() {
 
   const filsActifs = atelier.fils.filter(f => f.de && f.vers);
   if (filsActifs.length < 2) {
-    atelier.resultats.type = 'aucun';
+        atelier.resultats.type = 'aucun';
     updateMesures();
+    majSonnerie();
     return;
   }
 
@@ -2377,8 +2499,9 @@ function analyserCircuit() {
   const chemin = trouverCheminAvecResistance(graphe, departId, arriveeId);
 
   if (!chemin) {
-    atelier.resultats.type = 'ouvert';
+        atelier.resultats.type = 'ouvert';
     updateMesures();
+    majSonnerie();
     return;
   }
 
@@ -2395,8 +2518,9 @@ function analyserCircuit() {
 
   const resistances = atelier.composants.filter(c => COMPOSANTS_RESISTIFS.has(c.type));
   if (resistances.length === 0) {
-    atelier.resultats.type = 'court-circuit';
+        atelier.resultats.type = 'court-circuit';
     updateMesures();
+    majSonnerie();
     return;
   }
 
@@ -2436,11 +2560,12 @@ function analyserCircuit() {
     calcul: 'I = ' + E + ' / ' + Req.toFixed(2) + ' = ' + I_total.toFixed(3) + ' A'
   });
 
-  atelier.resultats = {
+   atelier.resultats = {
     type: typeDetecte,
     Req, I_total, U_pile: E, branches, chemin, etapes
   };
   updateMesures();
+  majSonnerie();
 }
 
 // 🆕 DÉTECTION CORRIGÉE : analyse topologique
@@ -3136,6 +3261,22 @@ document.getElementById('modalFormules').addEventListener('click', e => {
   if (e.target.id === 'modalFormules') e.target.classList.remove('show');
 });
 
+// 🔊 Bouton son
+document.getElementById('btnSon').addEventListener('click', () => {
+  audioActif = !audioActif;
+  const btn = document.getElementById('btnSon');
+  if (audioActif) {
+    btn.textContent = '🔊 Son';
+    btn.classList.remove('muet');
+    initAudio();
+    jouerNoteConfirmation();
+  } else {
+    btn.textContent = '🔇 Muet';
+    btn.classList.add('muet');
+    arreterSonnerie();
+  }
+  updateStatus(audioActif ? '🔊 Son activé' : '🔇 Son coupé');
+});
 document.getElementById('selectVoltmetre').addEventListener('change', () => updateMesures());
 document.getElementById('selectAmperemetre').addEventListener('change', () => updateMesures());
 
