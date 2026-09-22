@@ -314,58 +314,62 @@
     font-size: 0.75em;
   }
 
+  /* 🆕 TABLEAU DES MESURES AGRANDI */
   .table-wrapper {
-    max-height: 200px;
+    max-height: 280px;
     overflow-y: auto;
-    border-radius: 6px;
-    border: 1px solid rgba(79, 195, 247, 0.3);
-    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    border: 1px solid rgba(79, 195, 247, 0.4);
+    background: rgba(0,0,0,0.4);
   }
   .measures-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.68em;
+    font-size: 0.85em;
   }
   .measures-table thead {
     position: sticky;
     top: 0;
     background: #1a1a2e;
     z-index: 2;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
   }
   .measures-table th {
-    padding: 5px 4px;
+    padding: 10px 8px;
     text-align: left;
     color: #4fc3f7;
-    font-weight: 700;
-    font-size: 0.9em;
+    font-weight: 800;
+    font-size: 0.95em;
     text-transform: uppercase;
-    border-bottom: 1px solid rgba(79, 195, 247, 0.3);
+    border-bottom: 2px solid rgba(79, 195, 247, 0.5);
   }
   .measures-table td {
-    padding: 4px 4px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding: 9px 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
     font-family: 'Courier New', monospace;
-    font-size: 0.95em;
+    font-size: 1em;
+    font-weight: 600;
   }
   .measures-table tr:last-child td { border-bottom: none; }
   .measures-table tr.total-row {
-    background: rgba(79, 195, 247, 0.1);
+    background: rgba(79, 195, 247, 0.12);
     font-weight: 700;
   }
   .measures-table tr.total-row td {
     color: #4fc3f7;
-    border-top: 2px solid rgba(79, 195, 247, 0.4);
+    border-top: 2px solid rgba(79, 195, 247, 0.5);
   }
   .measures-table .comp-name {
     color: #ffd54f;
     font-family: inherit;
-    font-weight: 600;
+    font-weight: 700;
   }
   .measures-table .empty-msg {
     text-align: center;
     color: #888;
     font-style: italic;
-    padding: 12px;
+    padding: 20px;
+    font-size: 0.9em;
   }
 
   .lois-panel {
@@ -409,7 +413,6 @@
     margin-top: 5px;
   }
 
-  /* 🆕 Barre d'action avec bouton interrupteur */
   .action-bar {
     position: sticky;
     bottom: 0;
@@ -426,8 +429,8 @@
   }
   .btn-action {
     flex: 1;
-    min-width: 70px;
-    padding: 11px 8px;
+    min-width: 60px;
+    padding: 11px 6px;
     border: none;
     border-radius: 8px;
     font-weight: bold;
@@ -451,7 +454,6 @@
     background: linear-gradient(135deg, #ff9800, #f57c00);
     color: #fff;
   }
-  /* 🆕 Bouton interrupteur */
   .btn-interrupteur {
     background: linear-gradient(135deg, #f44336, #d32f2f);
     color: #fff;
@@ -461,22 +463,31 @@
     background: linear-gradient(135deg, #4caf50, #388e3c);
     box-shadow: 0 3px 10px rgba(76, 175, 80, 0.4);
   }
-  .btn-interrupteur.ouvert {
-    background: linear-gradient(135deg, #f44336, #d32f2f);
-  }
   .btn-reset {
     background: rgba(255,255,255,0.15);
     color: #eee;
     border: 1px solid rgba(255,255,255,0.2);
-    max-width: 60px;
+    max-width: 50px;
     flex: 0 0 auto;
   }
   .btn-formules {
     background: rgba(255,255,255,0.15);
     color: #eee;
     border: 1px solid rgba(255,255,255,0.2);
-    max-width: 60px;
+    max-width: 50px;
     flex: 0 0 auto;
+  }
+  .btn-son {
+    background: rgba(76, 175, 80, 0.2);
+    color: #a5d6a7;
+    border: 1px solid rgba(76, 175, 80, 0.4);
+    max-width: 50px;
+    flex: 0 0 auto;
+  }
+  .btn-son.muet {
+    background: rgba(244, 67, 54, 0.15);
+    color: #ff8a80;
+    border-color: rgba(244, 67, 54, 0.4);
   }
 
   .status-line {
@@ -860,12 +871,13 @@
 
   <div class="status-line" id="status">Appuie sur un bouton pour commencer</div>
 
-  <!-- 🆕 Barre d'action avec bouton interrupteur intégré -->
+  <!-- Barre d'action -->
   <div class="action-bar">
     <button class="btn-action btn-animer" id="btnAnimer" disabled>▶ Animer</button>
     <button class="btn-action btn-interrupteur" id="btnInterrupteur" style="display: none;">
       🔘 Fermer
     </button>
+    <button class="btn-action btn-son" id="btnSon" title="Son">🔊</button>
     <button class="btn-action btn-reset" id="btnReset">🔄</button>
     <button class="btn-action btn-formules" id="btnFormules">📐</button>
   </div>
@@ -958,9 +970,6 @@ const ctx = canvas.getContext('2d');
 const W = canvas.width;
 const H = canvas.height;
 
-// ============================================================
-//  TAILLES DES COMPOSANTS
-// ============================================================
 const TAILLE = {
   pile: { w: 110, h: 55 },
   resistance: { w: 110, h: 44 },
@@ -991,6 +1000,127 @@ let composantSurvole = null;
 let composantEnEdition = null;
 
 // ============================================================
+//  🔊 AUDIO — Son de cloche pour la sonnerie (buzzer)
+// ============================================================
+let audioCtx = null;
+let sonnerieEnCours = null;
+let audioActif = true;
+
+function initAudio() {
+  if (!audioCtx) {
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (e) {
+      console.warn('Audio non supporté :', e);
+      audioActif = false;
+    }
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+}
+
+function jouerSonnerie() {
+  if (!audioActif) return;
+  initAudio();
+  if (!audioCtx) return;
+  if (sonnerieEnCours) return;
+
+  const t = audioCtx.currentTime;
+
+  const frequences = [
+    { freq: 880, gain: 0.15 },
+    { freq: 1760, gain: 0.08 },
+    { freq: 2640, gain: 0.05 },
+    { freq: 3520, gain: 0.03 }
+  ];
+
+  const oscillateurs = [];
+  const masterGain = audioCtx.createGain();
+  masterGain.connect(audioCtx.destination);
+  masterGain.gain.setValueAtTime(0, t);
+  masterGain.gain.linearRampToValueAtTime(1, t + 0.01);
+
+  frequences.forEach(({ freq, gain: g }) => {
+    const osc = audioCtx.createOscillator();
+    const oscGain = audioCtx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, t);
+
+    const lfo = audioCtx.createOscillator();
+    const lfoGain = audioCtx.createGain();
+    lfo.frequency.setValueAtTime(6 + Math.random() * 2, t);
+    lfoGain.gain.setValueAtTime(2, t);
+    lfo.connect(lfoGain);
+    lfoGain.connect(osc.frequency);
+    lfo.start(t);
+
+    oscGain.gain.setValueAtTime(g, t);
+    osc.connect(oscGain);
+    oscGain.connect(masterGain);
+
+    osc.start(t);
+    oscillateurs.push({ osc, lfo });
+  });
+
+  sonnerieEnCours = { oscillateurs, masterGain, startTime: t };
+}
+
+function arreterSonnerie() {
+  if (!sonnerieEnCours || !audioCtx) return;
+  const t = audioCtx.currentTime;
+
+  sonnerieEnCours.masterGain.gain.cancelScheduledValues(t);
+  sonnerieEnCours.masterGain.gain.setValueAtTime(
+    sonnerieEnCours.masterGain.gain.value, t
+  );
+  sonnerieEnCours.masterGain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+
+  const sonnerie = sonnerieEnCours;
+  setTimeout(() => {
+    sonnerie.oscillateurs.forEach(({ osc, lfo }) => {
+      try { osc.stop(); lfo.stop(); } catch (e) {}
+    });
+  }, 250);
+  sonnerieEnCours = null;
+}
+
+function majSonnerie() {
+  const buzzer = atelier.composants.find(c => c.type === 'buzzer');
+  if (!buzzer) {
+    arreterSonnerie();
+    return;
+  }
+
+  const mesures = getMesuresComposant(buzzer.id);
+  const alimentee = mesures && mesures.I > 0.001 && atelier.interrupteurFerme;
+
+  if (alimentee && !sonnerieEnCours) {
+    jouerSonnerie();
+  } else if (!alimentee && sonnerieEnCours) {
+    arreterSonnerie();
+  }
+}
+
+function jouerNoteConfirmation() {
+  if (!audioActif) return;
+  initAudio();
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.frequency.setValueAtTime(660, t);
+  osc.frequency.linearRampToValueAtTime(880, t + 0.08);
+  gain.gain.setValueAtTime(0.1, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+  osc.start(t);
+  osc.stop(t + 0.13);
+}
+
+// ============================================================
 //  ONGLETS MOBILES
 // ============================================================
 document.querySelectorAll('.tab-mobile').forEach(tab => {
@@ -1019,7 +1149,6 @@ document.getElementById('btnAddCondensateur').addEventListener('click', () => aj
 document.getElementById('btnAddLED').addEventListener('click', () => ajouterComposant('led'));
 document.getElementById('btnAddFusible').addEventListener('click', () => ajouterComposant('fusible'));
 document.getElementById('btnAddPotentiometre').addEventListener('click', () => ajouterComposant('potentiometre'));
-// Nouveaux
 document.getElementById('btnAddElectrolyseur').addEventListener('click', () => ajouterComposant('electrolyseur'));
 document.getElementById('btnAddChauffante').addEventListener('click', () => ajouterComposant('chauffante'));
 document.getElementById('btnAddBobine').addEventListener('click', () => ajouterComposant('bobine'));
@@ -1067,6 +1196,7 @@ function ajouterComposant(type, tensionForcee) {
   updateStatus(`✅ ${type} ajouté`);
 }
 
+// 🆕 FILS EN BAS DE L'ÉCRAN, HORIZONTAUX
 function ajouterFilLibre() {
   const nbFils = atelier.fils.length;
   const margeGauche = 80;
@@ -1217,7 +1347,6 @@ function drawCircuit() {
   for (let x = 0; x < W; x += 50) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
   for (let y = 0; y < H; y += 50) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
 
-  // Fils dessinés EN PREMIER (arrière-plan) avec courbe
   atelier.fils.forEach(fil => drawFil(fil));
   atelier.noeuds.forEach(n => drawNoeud(n));
   atelier.composants.forEach(c => drawComposant(c));
@@ -1262,9 +1391,7 @@ function drawNoeud(noeud) {
   }
 }
 
-// ============================================================
-//  DESSIN DES FILS AVEC COURBE (anti-chevauchement)
-// ============================================================
+// 🆕 DRAW FIL — DROIT si non branché, COURBE si branché
 function drawFil(fil) {
   const estSelectionne = atelier.filSelectionne === fil.id;
   const estBranche = fil.de && fil.vers;
@@ -1278,7 +1405,7 @@ function drawFil(fil) {
   ctx.beginPath();
   ctx.moveTo(fil.x1, fil.y1);
 
-  // 🆕 Courbe UNIQUEMENT si le fil est branché des 2 côtés
+  // Courbe UNIQUEMENT si le fil est branché des 2 côtés
   if (estBranche) {
     const midX = (fil.x1 + fil.x2) / 2;
     const midY = (fil.y1 + fil.y2) / 2;
@@ -1287,14 +1414,13 @@ function drawFil(fil) {
     const ctrlY = midY + decalageY;
     ctx.quadraticCurveTo(ctrlX, ctrlY, fil.x2, fil.y2);
   } else {
-    // ✅ Fil non branché : DROIT
+    // Fil non branché : DROIT
     ctx.lineTo(fil.x2, fil.y2);
   }
 
   ctx.stroke();
   ctx.shadowBlur = 0;
 
-  // Points aux extrémités
   ctx.fillStyle = fil.de ? '#4caf50' : '#888';
   ctx.beginPath(); ctx.arc(fil.x1, fil.y1, 9, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = fil.vers ? '#4caf50' : '#888';
@@ -1493,7 +1619,7 @@ function drawPoigneeRotation(c) {
 }
 
 // ============================================================
-//  DESSINS DES COMPOSANTS (existants)
+//  DESSINS DES COMPOSANTS
 // ============================================================
 function drawPile(cx, cy, w, h, tension) {
   ctx.fillStyle = '#1a1a2e';
@@ -1668,6 +1794,19 @@ function drawBuzzer(cx, cy, w, h, valeur, mesures) {
   ctx.beginPath();
   ctx.arc(cx + 9, cy, 16, -0.7, 0.7);
   ctx.stroke();
+
+  // 🆕 Indicateur sonore visuel
+  if (actif) {
+    for (let i = 1; i <= 3; i++) {
+      const r = 30 + i * 8;
+      const alpha = 1 - i * 0.25;
+      ctx.strokeStyle = `rgba(255, 193, 7, ${alpha})`;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(cx + 9, cy, r, -0.5, 0.5);
+      ctx.stroke();
+    }
+  }
 
   ctx.fillStyle = '#fff';
   ctx.font = 'bold 13px monospace';
@@ -1859,9 +1998,6 @@ function drawInterrupteur(cx, cy, w, h) {
   ctx.fillText('INTERRUPTEUR', cx, cy - h / 2 - 10);
 }
 
-// ============================================================
-//  NOUVEAUX COMPOSANTS
-// ============================================================
 function drawElectrolyseur(cx, cy, w, h, seuil, valeur, mesures) {
   drawWireLine(cx, cy, w);
 
@@ -1872,7 +2008,6 @@ function drawElectrolyseur(cx, cy, w, h, seuil, valeur, mesures) {
   ctx.roundRect(cx - w/2 + 15, cy - h/2 + 5, w - 30, h - 10, 8);
   ctx.fill(); ctx.stroke();
 
-  // Électrodes
   ctx.strokeStyle = '#4dd0e1';
   ctx.lineWidth = 4;
   ctx.beginPath();
@@ -2429,7 +2564,7 @@ function supprimerComposant(compId) {
 }
 
 // ============================================================
-//  🆕 BOUTON INTERRUPTEUR
+//  BOUTON INTERRUPTEUR
 // ============================================================
 function updateInterrupteurButton() {
   const btn = document.getElementById('btnInterrupteur');
@@ -2443,10 +2578,8 @@ function updateInterrupteurButton() {
   if (atelier.interrupteurFerme) {
     btn.textContent = '🔘 Ouvrir';
     btn.classList.add('ferme');
-    btn.classList.remove('ouvert');
   } else {
     btn.textContent = '🔘 Fermer';
-    btn.classList.add('ouvert');
     btn.classList.remove('ferme');
   }
 }
@@ -2476,6 +2609,7 @@ document.getElementById('btnClearAll').addEventListener('click', () => {
   atelier.interrupteurFerme = false;
   atelier.animation.active = false;
   atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null, etapes: [] };
+  arreterSonnerie();
   drawCircuit();
   updateZoneInfo();
   updateZoneTool();
@@ -2556,6 +2690,7 @@ function analyserCircuit() {
   if (filsActifs.length < 2) {
     atelier.resultats.type = 'aucun';
     updateMesuresMobile();
+    majSonnerie();
     return;
   }
 
@@ -2563,12 +2698,14 @@ function analyserCircuit() {
   if (piles.length === 0) {
     atelier.resultats.type = 'aucun';
     updateMesuresMobile();
+    majSonnerie();
     return;
   }
   if (piles.length > 1) {
     atelier.resultats.type = 'erreur';
     atelier.resultats.message = `${piles.length} piles détectées. Garde 1 seule pile.`;
     updateMesuresMobile();
+    majSonnerie();
     return;
   }
 
@@ -2583,6 +2720,7 @@ function analyserCircuit() {
   if (!chemin) {
     atelier.resultats.type = 'ouvert';
     updateMesuresMobile();
+    majSonnerie();
     return;
   }
 
@@ -2594,6 +2732,7 @@ function analyserCircuit() {
   if (interrupteurDansChemin && !atelier.interrupteurFerme) {
     atelier.resultats.type = 'ouvert';
     updateMesuresMobile();
+    majSonnerie();
     return;
   }
 
@@ -2603,6 +2742,7 @@ function analyserCircuit() {
   if (resistances.length === 0) {
     atelier.resultats.type = 'court-circuit';
     updateMesuresMobile();
+    majSonnerie();
     return;
   }
 
@@ -2654,6 +2794,7 @@ function analyserCircuit() {
     Req, I_total, U_pile: E, branches, chemin, etapes
   };
   updateMesuresMobile();
+  majSonnerie();
 }
 
 function detecterType(chemin, resistances) {
@@ -3296,6 +3437,7 @@ document.getElementById('btnReset').addEventListener('click', () => {
   atelier.interrupteurFerme = false;
   atelier.animation.active = false;
   atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null, etapes: [] };
+  arreterSonnerie();
   drawCircuit();
   updateZoneInfo();
   updateZoneTool();
@@ -3316,6 +3458,23 @@ document.getElementById('btnFermerFormules').addEventListener('click', () => {
 
 document.getElementById('modalFormules').addEventListener('click', e => {
   if (e.target.id === 'modalFormules') e.target.classList.remove('show');
+});
+
+// 🆕 BOUTON SON
+document.getElementById('btnSon').addEventListener('click', () => {
+  audioActif = !audioActif;
+  const btn = document.getElementById('btnSon');
+  if (audioActif) {
+    btn.textContent = '🔊';
+    btn.classList.remove('muet');
+    initAudio();
+    jouerNoteConfirmation();
+  } else {
+    btn.textContent = '🔇';
+    btn.classList.add('muet');
+    arreterSonnerie();
+  }
+  updateStatus(audioActif ? '🔊 Son activé' : '🔇 Son coupé');
 });
 
 document.getElementById('selectVoltmetreMobile').addEventListener('change', () => updateMesuresMobile());
@@ -3578,7 +3737,11 @@ window.addEventListener('load', () => {
   updateInterrupteurButton();
   updateMesuresMobile();
   updateStatus('Appuie sur un bouton pour ajouter un composant');
-  console.log('📱 Atelier circuits mobile chargé !');
+  console.log('📱 Atelier circuits mobile chargé (fils en bas + son de cloche) !');
+  
+  // Initialiser l'audio au premier tap
+  document.body.addEventListener('touchstart', initAudio, { once: true });
+  document.body.addEventListener('click', initAudio, { once: true });
 });
 
 if ('serviceWorker' in navigator) {
