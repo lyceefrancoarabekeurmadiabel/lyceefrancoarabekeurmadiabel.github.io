@@ -1189,10 +1189,36 @@ function ajouterFilLibre() {
   const fil = {
     id: 'f' + atelier.prochainIdFil++,
     x1: x1, y1: y1,
-    x2: x1 + longueur, y2: y1,   // ⚠️ y2 = y1 → HORIZONTAL
+    x2: x1 + longueur, y2: y1,
     de: null,
     vers: null
   };
+
+  atelier.fils.push(fil);
+  atelier.filSelectionne = fil.id;
+  updateConnexionsFils();
+  drawCircuit();
+  updateZoneInfo();
+  updateZoneTool();
+  analyserCircuit();
+  updateStatus('〰️ Fil ajouté — glisse les poignées');
+}
+
+function ajouterNoeud() {
+  const cx = W / 2 + (Math.random() - 0.5) * 300;
+  const cy = H / 2 + (Math.random() - 0.5) * 200;
+
+  const noeud = {
+    id: 'n' + atelier.prochainIdNoeud++,
+    x: cx,
+    y: cy
+  };
+
+  atelier.noeuds.push(noeud);
+  drawCircuit();
+  updateZoneInfo();
+  updateStatus('⬤ Nœud ajouté');
+}
 
 function ajouterNoeud() {
   const cx = magnetiser(W / 2 + (Math.random() - 0.5) * 300);
