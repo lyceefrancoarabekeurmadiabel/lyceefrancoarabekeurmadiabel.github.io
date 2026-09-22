@@ -663,9 +663,7 @@
         <span class="icon">🔔</span>
         <span>Sonnerie</span>
       </button>
-            <button class="tool-btn" id="btnAddDiode">
-        <span class="icon">▷|</span>
-        <span>Diode</span>
+                <!-- Diode et LED retirées : composants non-linéaires incompatibles avec ce modèle -->
       </button>
       <button class="tool-btn condensateur-btn" id="btnAddCondensateur">
         <span class="icon">⚡</span>
@@ -895,9 +893,7 @@ const TAILLE = {
   lampe: { w: 70, h: 50 },
   moteur: { w: 70, h: 50 },
   buzzer: { w: 70, h: 50 },
-  diode: { w: 70, h: 44 },
   condensateur: { w: 70, h: 50 },
-  led: { w: 70, h: 50 },
   fusible: { w: 70, h: 40 },
   potentiometre: { w: 80, h: 40 },
   electrolyseur: { w: 80, h: 55 },
@@ -1027,8 +1023,7 @@ document.getElementById('btnAddInterrupteur').addEventListener('click', () => aj
 document.getElementById('btnAddLampe').addEventListener('click', () => ajouterComposant('lampe'));
 document.getElementById('btnAddMoteur').addEventListener('click', () => ajouterComposant('moteur'));
 document.getElementById('btnAddBuzzer').addEventListener('click', () => ajouterComposant('buzzer'));
-document.getElementById('btnAddDiode').addEventListener('click', () => ajouterComposant('diode'));
-document.getElementById('btnAddCondensateur').addEventListener('click', () => ajouterComposant('condensateur'));
+// Diode et LED retirées du simulateur
 document.getElementById('btnAddLED').addEventListener('click', () => ajouterComposant('led'));
 document.getElementById('btnAddFusible').addEventListener('click', () => ajouterComposant('fusible'));
 document.getElementById('btnAddPotentiometre').addEventListener('click', () => ajouterComposant('potentiometre'));
@@ -1059,9 +1054,7 @@ function ajouterComposant(type, tensionForcee) {
     case 'lampe': composant.valeur = 20; break;
     case 'moteur': composant.valeur = 30; break;
     case 'buzzer': composant.valeur = 40; break;
-    case 'diode': composant.seuil = 0.7; composant.valeur = 0.1; break;
     case 'condensateur': composant.capacite = 100; composant.charge = 0; break;
-    case 'led': composant.seuil = 1.8; composant.valeur = 20; break;
     case 'fusible': composant.courantMax = 0.5; composant.valeur = 0.1; break;
     case 'potentiometre': composant.valeur = 50; break;
     case 'electrolyseur': composant.seuil = 1.5; composant.valeur = 5; break;
@@ -1368,9 +1361,7 @@ function drawComposant(c) {
   else if (c.type === 'lampe') drawLampe(c.x, c.y, t.w, t.h, c.valeur, mesures);
   else if (c.type === 'moteur') drawMoteur(c.x, c.y, t.w, t.h, c.valeur, mesures);
   else if (c.type === 'buzzer') drawBuzzer(c.x, c.y, t.w, t.h, c.valeur, mesures);
-  else if (c.type === 'diode') drawDiode(c.x, c.y, t.w, t.h, mesures);
   else if (c.type === 'condensateur') drawCondensateur(c.x, c.y, t.w, t.h, c.capacite, c.charge);
-  else if (c.type === 'led') drawLED(c.x, c.y, t.w, t.h, c.seuil, c.valeur, mesures);
   else if (c.type === 'fusible') drawFusible(c.x, c.y, t.w, t.h, c.courantMax, c.valeur, mesures);
   else if (c.type === 'potentiometre') drawPotentiometre(c.x, c.y, t.w, t.h, c.valeur);
   else if (c.type === 'electrolyseur') drawElectrolyseur(c.x, c.y, t.w, t.h, c.seuil, c.valeur, mesures);
@@ -1660,29 +1651,6 @@ function drawBuzzer(cx, cy, w, h, valeur, mesures) {
   ctx.fillText(valeur + ' Ω', cx, cy + 34);
 }
 
-function drawDiode(cx, cy, w, h, mesures) {
-  drawWireLine(cx, cy, w);
-  const actif = mesures && mesures.I > 0.001 && atelier.interrupteurFerme;
-
-  ctx.strokeStyle = actif ? '#4caf50' : '#fff';
-  ctx.fillStyle = '#0a0a1a';
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  ctx.moveTo(cx - 13, cy - 13);
-  ctx.lineTo(cx - 13, cy + 13);
-  ctx.lineTo(cx + 12, cy);
-  ctx.closePath();
-  ctx.fill(); ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(cx + 12, cy - 15);
-  ctx.lineTo(cx + 12, cy + 15);
-  ctx.stroke();
-  ctx.fillStyle = '#fff';
-  ctx.font = 'bold 10px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('DIODE', cx, cy - 27);
-}
-
 function drawInterrupteur(cx, cy, w, h) {
   ctx.fillStyle = '#1a1a2e';
   ctx.strokeStyle = atelier.interrupteurFerme ? '#4caf50' : '#666';
@@ -1731,33 +1699,6 @@ function drawCondensateur(cx, cy, w, h, capacite, charge) {
   ctx.font = 'bold 11px monospace';
   ctx.textAlign = 'center';
   ctx.fillText(`${capacite}µF`, cx, cy - h/2 - 8);
-}
-
-function drawLED(cx, cy, w, h, seuil, resistance, mesures) {
-  ctx.fillStyle = '#1a1a2e';
-  ctx.strokeStyle = '#ff5722';
-  ctx.lineWidth = 3;
-  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 6); ctx.fill(); ctx.stroke();
-  ctx.strokeStyle = '#fff';
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  ctx.moveTo(cx - 15, cy - 15); ctx.lineTo(cx - 15, cy + 15);
-  ctx.lineTo(cx + 15, cy); ctx.closePath(); ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(cx + 15, cy - 15); ctx.lineTo(cx + 15, cy + 15);
-  ctx.stroke();
-  const allumee = mesures && atelier.interrupteurFerme && mesures.I > 0.001;
-  if (allumee) {
-    const grad = ctx.createRadialGradient(cx, cy, 5, cx, cy, 40);
-    grad.addColorStop(0, 'rgba(255, 87, 34, 0.8)');
-    grad.addColorStop(1, 'rgba(255, 87, 34, 0)');
-    ctx.fillStyle = grad;
-    ctx.beginPath(); ctx.arc(cx, cy, 40, 0, Math.PI * 2); ctx.fill();
-  }
-  ctx.fillStyle = '#ff5722';
-  ctx.font = 'bold 11px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('LED', cx, cy - h/2 - 8);
 }
 
 function drawFusible(cx, cy, w, h, courantMax, resistance, mesures) {
@@ -2427,13 +2368,12 @@ function updateSelectors() {
 
   selectVolt.innerHTML = '<option value="pile">🔋 Pile (tension totale)</option>';
   atelier.composants.forEach(c => {
-    if (COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode') {
+    if (COMPOSANTS_RESISTIFS.has(c.type)) {
       const labels = {
         resistance: '📏 Résistance',
         lampe: '💡 Lampe',
         moteur: '⚙️ Moteur',
-        buzzer: '🔔 Sonnerie',
-        diode: '▷| Diode'
+        buzzer: '🔔 Sonnerie','
       };
       const opt = document.createElement('option');
       opt.value = c.id;
@@ -2807,10 +2747,8 @@ function construireGraphe() {
     if (!graphe[leftId]) graphe[leftId] = [];
     if (!graphe[rightId]) graphe[rightId] = [];
     // ✅ La pile est incluse + nouveaux composants qui laissent passer
-    if (c.type === 'pile' ||
+        if (c.type === 'pile' ||
         COMPOSANTS_RESISTIFS.has(c.type) ||
-        c.type === 'diode' ||
-        c.type === 'led' ||
         c.type === 'condensateur' ||
         c.type === 'condensateurPolarise') {
       graphe[leftId].push(rightId);
@@ -2829,7 +2767,9 @@ function construireGraphe() {
 function trouverCheminAvecResistance(graphe, departId, arriveeId) {
   if (!graphe[departId]) return null;
 
-  const resistancesIds = atelier.composants.filter(c => COMPOSANTS_RESISTIFS.has(c.type)).map(c => c.id);
+    const resistancesIds = atelier.composants.filter(c =>
+    COMPOSANTS_RESISTIFS.has(c.type)
+  ).map(c => c.id);
   const chemins = [];
 
   function dfs(id, chemin, visited, profondeur) {
@@ -2992,7 +2932,6 @@ function genererTableauMesures() {
     lampe: '💡 Lampe',
     moteur: '⚙️ Moteur',
     buzzer: '🔔 Sonnerie',
-    diode: '▷| Diode'
   };
 
   r.branches.forEach(b => {
