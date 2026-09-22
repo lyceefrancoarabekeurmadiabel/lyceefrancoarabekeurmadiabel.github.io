@@ -855,8 +855,9 @@
     <button class="btn-secondary" id="btnReset">🔄 Reset</button>
     <button class="btn-secondary" id="btnFormules">📐 Formules</button>
     <button class="btn-son" id="btnSon" title="Activer/désactiver le son">🔊 Son</button>
+    <button class="btn-secondary" id="btnGrille" title="Activer/désactiver la grille magnétique">🧲 Grille</button>
     <div class="status-inline" id="status">Clique sur « Ajouter un fil » pour commencer</div>
-  </div>
+</div>
 
 </div>
 
@@ -922,6 +923,13 @@
 </div>
 
 <script>
+// ============================================================
+//  🧲 GRILLE MAGNÉTIQUE
+// ============================================================
+let grilleMagnétique = {
+  active: true,
+  taille: 20  // Alignement tous les 20 pixels
+};
 // ============================================================
 //  ÉTAT GLOBAL
 // ============================================================
@@ -1125,8 +1133,9 @@ function ajouterComposant(type, tensionForcee) {
   const index = atelier.composants.length;
   const col = index % 3;
   const row = Math.floor(index / 3);
-  const x = 200 + col * 250;
-  const y = 150 + row * 180;
+  // Coordonnées déjà alignées sur la grille
+const x = magnetiser(200 + col * 250);
+const y = magnetiser(150 + row * 180);
 
   const composant = {
     id: 'c' + atelier.prochainIdComp++,
@@ -1298,10 +1307,16 @@ function drawCircuit() {
   ctx.fillStyle = '#0a0a1a';
   ctx.fillRect(0, 0, W, H);
 
-  ctx.strokeStyle = 'rgba(79,195,247,0.05)';
-  ctx.lineWidth = 1;
-  for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
-  for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+  // 🧲 Grille visuelle alignée sur la grille magnétique
+const pas = grilleMagnétique.taille;
+ctx.strokeStyle = 'rgba(79,195,247,0.05)';
+ctx.lineWidth = 1;
+for (let x = 0; x < W; x += pas) { 
+  ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); 
+}
+for (let y = 0; y < H; y += pas) { 
+  ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); 
+}
 
   atelier.fils.forEach(fil => drawFil(fil));
   atelier.noeuds.forEach(n => drawNoeud(n));
@@ -2552,6 +2567,12 @@ function handlePointerDown(x, y) {
   drawCircuit();
 }
 
+// 🧲 Arrondit une coordonnée à la grille la plus proche
+function magnetiser(valeur) {
+  if (!grilleMagnétique.active) return valeur;
+  const t = grilleMagnétique.taille;
+  return Math.round(valeur / t) * t;
+}
 function handlePointerMove(x, y) {
   if (atelier.poigneeEnDrag) {
     const fil = atelier.fils.find(f => f.id === atelier.poigneeEnDrag.filId);
@@ -2575,23 +2596,27 @@ function handlePointerMove(x, y) {
   }
 
   if (atelier.noeudEnDrag) {
-    atelier.noeudEnDrag.x = Math.max(20, Math.min(W - 20, x - atelier.offsetDrag.x));
-    atelier.noeudEnDrag.y = Math.max(20, Math.min(H - 20, y - atelier.offsetDrag.y));
-    atelier.fils.forEach(fil => {
-      if (fil.de === atelier.noeudEnDrag.id) { fil.x1 = atelier.noeudEnDrag.x; fil.y1 = atelier.noeudEnDrag.y; }
-      if (fil.vers === atelier.noeudEnDrag.id) { fil.x2 = atelier.noeudEnDrag.x; fil.y2 = atelier.noeudEnDrag.y; }
-    });
-    drawCircuit();
-    return;
-  }
+  let newX = magnetiser(x - atelier.offsetDrag.x);
+  let newY = magnetiser(y - atelier.offsetDrag.y);
+  atelier.noeudEnDrag.x = Math.max(20, Math.min(W - 20, newX));
+  atelier.noeudEnDrag.y = Math.max(20, Math.min(H - 20, newY));
+  // ...
+}
 
   if (atelier.composantEnDrag) {
-    atelier.composantEnDrag.x = Math.max(60, Math.min(W - 60, x - atelier.offsetDrag.x));
-    atelier.composantEnDrag.y = Math.max(60, Math.min(H - 60, y - atelier.offsetDrag.y));
-    updateConnexionsFils();
-    drawCircuit();
-    return;
-  }
+  let newX = x - atelier.offsetDrag.x;
+  let newY = y - atelier.offsetDrag.y;
+  
+  // 🧲 Magnétisation
+  newX = magnetiser(newX);
+  newY = magnetiser(newY);
+  
+  atelier.composantEnDrag.x = Math.max(60, Math.min(W - 60, newX));
+  atelier.composantEnDrag.y = Math.max(60, Math.min(H - 60, newY));
+  updateConnexionsFils();
+  drawCircuit();
+  return;
+}
 
   drawCircuit();
 }
@@ -3642,6 +3667,21 @@ document.addEventListener('keydown', e => {
     updateZoneTool();
     drawCircuit();
   }
+});
+// 🧲 Bouton grille magnétique
+document.getElementById('btnGrille').addEventListener('click', () => {
+  grilleMagnétique.active = !grilleMagnétique.active;
+  const btn = document.getElementById('btnGrille');
+  if (grilleMagnétique.active) {
+    btn.classList.remove('inactive');
+    btn.textContent = '🧲 Grille';
+    updateStatus('🧲 Grille magnétique ACTIVÉE');
+  } else {
+    btn.classList.add('inactive');
+    btn.textContent = '🧲 Inactif';
+    updateStatus('🧲 Grille magnétique DÉSACTIVÉE');
+  }
+  drawCircuit();  // Redessiner avec/sans la grille visuelle
 });
 </script>
 
