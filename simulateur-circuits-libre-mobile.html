@@ -81,6 +81,36 @@
     line-height: 1.3;
   }
 
+  /* 🆕 Barre d'info AU-DESSUS du canvas (ne bloque plus les taps) */
+  .info-bar-mobile {
+    display: flex;
+    gap: 6px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 2px;
+    font-size: 0.72em;
+    font-weight: 700;
+    min-height: 24px;
+  }
+  .info-badge {
+    background: rgba(0,0,0,0.7);
+    color: #ffc107;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    font-family: 'Courier New', monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60%;
+  }
+  .info-tool {
+    color: #4caf50;
+    border-color: rgba(76, 175, 80, 0.5);
+    max-width: 40%;
+    text-align: right;
+  }
+
   .canvas-zone {
     background: #000;
     border-radius: 8px;
@@ -111,37 +141,6 @@
     border-radius: 4px;
     pointer-events: none;
   }
-  /* 🆕 Barre d'info au-dessus du canvas — ne bloque plus les taps */
-.info-bar-mobile {
-  display: flex;
-  gap: 6px;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 2px;
-  font-size: 0.72em;
-  font-weight: 700;
-  min-height: 24px;
-}
-
-.info-badge {
-  background: rgba(0,0,0,0.7);
-  color: #ffc107;
-  padding: 4px 10px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 193, 7, 0.3);
-  font-family: 'Courier New', monospace;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 60%;
-}
-
-.info-tool {
-  color: #4caf50;
-  border-color: rgba(76, 175, 80, 0.5);
-  max-width: 40%;
-  text-align: right;
-}
 
   .tabs-mobile {
     display: flex;
@@ -236,16 +235,17 @@
     margin-top: 4px;
   }
 
-  .mesures-grid {
+  .mesures-grid-compact {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 6px;
+    margin-bottom: 8px;
   }
   .mesure-box {
     background: #000;
     border: 2px solid #4caf50;
     border-radius: 8px;
-    padding: 8px;
+    padding: 6px 4px;
     text-align: center;
     box-shadow: inset 0 0 8px rgba(76, 175, 80, 0.3);
   }
@@ -255,7 +255,7 @@
   }
   .mesure-box.off { opacity: 0.4; }
   .mesure-box .mb-title {
-    font-size: 0.6em;
+    font-size: 0.55em;
     color: #4caf50;
     font-weight: 700;
     letter-spacing: 1px;
@@ -263,12 +263,12 @@
   .mesure-box.voltm .mb-title { color: #ff9800; }
   .mesure-box .mb-value {
     font-family: 'Courier New', monospace;
-    font-size: 1.3em;
+    font-size: 1.15em;
     font-weight: 900;
     color: #00ff00;
     text-shadow: 0 0 8px #00ff00;
     letter-spacing: 1px;
-    margin: 3px 0;
+    margin: 2px 0;
   }
   .mesure-box.voltm .mb-value {
     color: #ffb74d;
@@ -279,46 +279,100 @@
     text-shadow: none;
   }
   .mesure-box .mb-unit {
-    font-size: 0.6em;
+    font-size: 0.55em;
     color: #888;
   }
   .mesure-box .mb-target {
-    font-size: 0.55em;
+    font-size: 0.5em;
     color: #4fc3f7;
     margin-top: 2px;
     font-style: italic;
     min-height: 1em;
+    line-height: 1.1;
   }
 
-  .select-mobile {
+  /* Sélecteur compact en ligne */
+  .select-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     background: rgba(79, 195, 247, 0.08);
     border: 1px solid rgba(79, 195, 247, 0.3);
     border-radius: 6px;
-    padding: 6px 8px;
-  }
-  .select-mobile label {
-    display: block;
-    font-size: 0.6em;
-    color: #4fc3f7;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 700;
+    padding: 5px 8px;
     margin-bottom: 4px;
   }
-  .select-mobile select {
-    width: 100%;
-    padding: 6px 8px;
+  .select-row label {
+    font-size: 0.65em;
+    color: #4fc3f7;
+    text-transform: uppercase;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .select-row select {
+    flex: 1;
+    padding: 5px 6px;
     background: #1a1a2e;
     border: 1px solid rgba(79, 195, 247, 0.4);
-    border-radius: 5px;
+    border-radius: 4px;
     color: #eee;
     font-family: inherit;
-    font-size: 0.75em;
+    font-size: 0.72em;
+    min-width: 0;
   }
 
-  /* 🆕 TABLEAU DES MESURES AGRANDI */
+  /* Bascule Tableau ↔ Lois */
+  .bascule-container {
+    display: flex;
+    gap: 4px;
+    background: rgba(0,0,0,0.3);
+    padding: 4px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .bascule-btn {
+    flex: 1;
+    padding: 9px 10px;
+    background: transparent;
+    border: none;
+    color: #888;
+    font-family: inherit;
+    font-size: 0.72em;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+  .bascule-btn.active {
+    background: rgba(79, 195, 247, 0.2);
+    color: #4fc3f7;
+    box-shadow: 0 0 0 1px rgba(79, 195, 247, 0.4);
+  }
+  .bascule-btn:active {
+    transform: scale(0.97);
+  }
+  .bascule-content {
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .bascule-content.active {
+    display: flex;
+    animation: fadeInBascule 0.25s ease-out;
+  }
+  @keyframes fadeInBascule {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Tableau des mesures */
   .table-wrapper {
-    max-height: 280px;
+    max-height: 320px;
     overflow-y: auto;
     border-radius: 8px;
     border: 1px solid rgba(79, 195, 247, 0.4);
@@ -374,6 +428,7 @@
     font-size: 0.9em;
   }
 
+  /* Lois */
   .lois-panel {
     background: rgba(79, 195, 247, 0.08);
     border-left: 4px solid #4fc3f7;
@@ -431,13 +486,13 @@
   }
   .btn-action {
     flex: 1;
-    min-width: 60px;
+    min-width: 55px;
     padding: 11px 6px;
     border: none;
     border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
-    font-size: 0.78em;
+    font-size: 0.75em;
     font-family: inherit;
     white-space: nowrap;
     display: flex;
@@ -490,6 +545,19 @@
     background: rgba(244, 67, 54, 0.15);
     color: #ff8a80;
     border-color: rgba(244, 67, 54, 0.4);
+  }
+  /* 🆕 Bouton grille */
+  .btn-grille {
+    background: rgba(79, 195, 247, 0.2);
+    color: #4fc3f7;
+    border: 1px solid rgba(79, 195, 247, 0.4);
+    max-width: 50px;
+    flex: 0 0 auto;
+  }
+  .btn-grille.inactive {
+    background: rgba(255,255,255,0.08);
+    color: #666;
+    border-color: rgba(255,255,255,0.15);
   }
 
   .status-line {
@@ -694,16 +762,16 @@
     </div>
   </div>
 
-  <!-- 🆕 Barre d'info AU-DESSUS du canvas (ne bloque plus les taps) -->
-<div class="info-bar-mobile">
-  <span class="info-badge" id="zoneInfo">Aucun composant</span>
-  <span class="info-badge info-tool" id="zoneTool" style="display:none;">〰️ Fil</span>
-</div>
+  <!-- 🆕 Barre d'info AU-DESSUS du canvas -->
+  <div class="info-bar-mobile">
+    <span class="info-badge" id="zoneInfo">Aucun composant</span>
+    <span class="info-badge info-tool" id="zoneTool" style="display:none;">〰️ Fil</span>
+  </div>
 
-<div class="canvas-zone">
-  <div class="zone-label">🔧 Zone de montage</div>
-  <canvas id="canvasCircuit" width="900" height="800"></canvas>
-</div>
+  <div class="canvas-zone">
+    <div class="zone-label">🔧 Zone de montage</div>
+    <canvas id="canvasCircuit" width="900" height="800"></canvas>
+  </div>
 
   <div class="selection-info" id="selectionInfo">
     <div id="selectionText">Composant sélectionné</div>
@@ -717,7 +785,6 @@
   <div class="tabs-mobile">
     <button class="tab-mobile active" data-tab="outils">🧰 Outils</button>
     <button class="tab-mobile" data-tab="mesures">📊 Mesures</button>
-    <button class="tab-mobile" data-tab="lois">📚 Lois</button>
   </div>
 
   <!-- Panneau Outils -->
@@ -824,13 +891,23 @@
 
   <!-- Panneau Mesures -->
   <div class="panneau" id="panneau-mesures">
-    <div class="select-mobile">
-      <label>Ⓥ Voltmètre mesure :</label>
+    
+    <!-- Sélecteurs compacts -->
+    <div class="select-row">
+      <label>Ⓥ Volt :</label>
       <select id="selectVoltmetreMobile">
-        <option value="pile">🔋 Pile</option>
+        <option value="pile">🔋 Pile (tension totale)</option>
       </select>
     </div>
-    <div class="mesures-grid">
+    <div class="select-row">
+      <label>Ⓐ Amp :</label>
+      <select id="selectAmperemetreMobile">
+        <option value="total">🔌 Courant total</option>
+      </select>
+    </div>
+
+    <!-- Multimètres côte à côte -->
+    <div class="mesures-grid-compact">
       <div class="mesure-box voltm off" id="mmVoltMobile">
         <div class="mb-title">Ⓥ VOLTMÈTRE</div>
         <div class="mb-value" id="mmVoltValMobile">0.00</div>
@@ -844,35 +921,44 @@
         <div class="mb-target" id="mmAmpereTargetMobile">En attente</div>
       </div>
     </div>
-    <div class="select-mobile">
-      <label>Ⓐ Ampèremètre mesure :</label>
-      <select id="selectAmperemetreMobile">
-        <option value="total">🔌 Courant total</option>
-      </select>
-    </div>
-    <div class="table-wrapper">
-      <table class="measures-table">
-        <thead>
-          <tr>
-            <th>Composant</th>
-            <th>R (Ω)</th>
-            <th>U (V)</th>
-            <th>I (mA)</th>
-            <th>P (W)</th>
-          </tr>
-        </thead>
-        <tbody id="measuresBodyMobile">
-          <tr><td colspan="5" class="empty-msg">Aucune mesure</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
 
-  <!-- Panneau Lois -->
-  <div class="panneau" id="panneau-lois">
-    <div class="lois-panel" id="loisPanelMobile">
-      <div class="loi-warning">⚠️ Ajoute des composants pour commencer</div>
+    <!-- Bascule Tableau ↔ Lois -->
+    <div class="bascule-container">
+      <button class="bascule-btn active" data-bascule="tableau" onclick="basculerMesureLois('tableau')">
+        📋 Tableau
+      </button>
+      <button class="bascule-btn" data-bascule="lois" onclick="basculerMesureLois('lois')">
+        📚 Lois
+      </button>
     </div>
+
+    <!-- Contenu : Tableau -->
+    <div class="bascule-content active" id="bascule-tableau">
+      <div class="table-wrapper">
+        <table class="measures-table">
+          <thead>
+            <tr>
+              <th>Composant</th>
+              <th>R (Ω)</th>
+              <th>U (V)</th>
+              <th>I (mA)</th>
+              <th>P (W)</th>
+            </tr>
+          </thead>
+          <tbody id="measuresBodyMobile">
+            <tr><td colspan="5" class="empty-msg">Aucune mesure</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Contenu : Lois -->
+    <div class="bascule-content" id="bascule-lois">
+      <div class="lois-panel" id="loisPanelMobile">
+        <div class="loi-warning">⚠️ Ajoute des composants pour commencer</div>
+      </div>
+    </div>
+
   </div>
 
   <div class="status-line" id="status">Appuie sur un bouton pour commencer</div>
@@ -883,6 +969,7 @@
     <button class="btn-action btn-interrupteur" id="btnInterrupteur" style="display: none;">
       🔘 Fermer
     </button>
+    <button class="btn-action btn-grille" id="btnGrille" title="Grille magnétique">🧲</button>
     <button class="btn-action btn-son" id="btnSon" title="Son">🔊</button>
     <button class="btn-action btn-reset" id="btnReset">🔄</button>
     <button class="btn-action btn-formules" id="btnFormules">📐</button>
@@ -970,6 +1057,51 @@ let atelier = {
   animation: { active: false, rafId: null, lastTime: 0 },
   resultats: { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null, etapes: [] }
 };
+
+// ============================================================
+//  🧲 GRILLE MAGNÉTIQUE + SNAP ENTRE COMPOSANTS
+// ============================================================
+let grilleMagnétique = {
+  active: true,
+  taille: 20,          // Alignement tous les 20 pixels
+  snapDistance: 25     // Distance max pour le snap entre composants
+};
+
+// 🧲 Arrondit une coordonnée à la grille la plus proche
+function magnetiser(valeur) {
+  if (!grilleMagnétique.active) return valeur;
+  const t = grilleMagnétique.taille;
+  return Math.round(valeur / t) * t;
+}
+
+// 🧲 Snap automatique entre composants (alignement entre eux)
+function magnetiserVersComposants(x, y, composantEnCours) {
+  if (!grilleMagnétique.active) return { x, y };
+  
+  const SNAP = grilleMagnétique.snapDistance;
+  let bestX = x, bestY = y;
+  let minDistX = SNAP, minDistY = SNAP;
+  
+  atelier.composants.forEach(c => {
+    if (c === composantEnCours) return;
+    
+    // Snap vertical : même X (alignement en colonne)
+    const dx = Math.abs(c.x - x);
+    if (dx < minDistX && Math.abs(c.y - y) < 200) {
+      minDistX = dx;
+      bestX = c.x;
+    }
+    
+    // Snap horizontal : même Y (alignement en ligne)
+    const dy = Math.abs(c.y - y);
+    if (dy < minDistY && Math.abs(c.x - x) < 200) {
+      minDistY = dy;
+      bestY = c.y;
+    }
+  });
+  
+  return { x: bestX, y: bestY };
+}
 
 const canvas = document.getElementById('canvasCircuit');
 const ctx = canvas.getContext('2d');
@@ -1127,6 +1259,21 @@ function jouerNoteConfirmation() {
 }
 
 // ============================================================
+//  🆕 BASCULE TABLEAU ↔ LOIS
+// ============================================================
+function basculerMesureLois(choix) {
+  document.querySelectorAll('.bascule-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.bascule === choix);
+  });
+  document.querySelectorAll('.bascule-content').forEach(content => {
+    content.classList.toggle('active', content.id === 'bascule-' + choix);
+  });
+  if (typeof jouerNoteConfirmation === 'function' && audioActif) {
+    jouerNoteConfirmation();
+  }
+}
+
+// ============================================================
 //  ONGLETS MOBILES
 // ============================================================
 document.querySelectorAll('.tab-mobile').forEach(tab => {
@@ -1164,8 +1311,10 @@ function ajouterComposant(type, tensionForcee) {
   const index = atelier.composants.length;
   const col = index % 2;
   const row = Math.floor(index / 2);
-  const x = 200 + col * 500;
-  const y = 180 + row * 220;
+  
+  // 🧲 Position initiale alignée sur la grille
+  const x = magnetiser(200 + col * 500);
+  const y = magnetiser(180 + row * 220);
 
   const composant = {
     id: 'c' + atelier.prochainIdComp++,
@@ -1202,7 +1351,7 @@ function ajouterComposant(type, tensionForcee) {
   updateStatus(`✅ ${type} ajouté`);
 }
 
-// 🆕 FILS EN BAS DE L'ÉCRAN, HORIZONTAUX
+// FILS EN BAS DE L'ÉCRAN, HORIZONTAUX
 function ajouterFilLibre() {
   const nbFils = atelier.fils.length;
   const margeGauche = 80;
@@ -1210,14 +1359,13 @@ function ajouterFilLibre() {
   const espacementX = 50;
   const longueur = 200;
   
-  // 📍 Position en bas de l'écran, en ligne horizontale
   const x1 = margeGauche + (nbFils % 5) * espacementX + Math.floor(nbFils / 5) * 280;
   const y1 = H - margeBas - Math.floor(nbFils / 5) * 40;
   
   const fil = {
     id: 'f' + atelier.prochainIdFil++,
     x1: x1, y1: y1,
-    x2: x1 + longueur, y2: y1,   // ⚠️ y2 = y1 → HORIZONTAL
+    x2: x1 + longueur, y2: y1,
     de: null,
     vers: null
   };
@@ -1235,8 +1383,8 @@ function ajouterFilLibre() {
 }
 
 function ajouterNoeud() {
-  const cx = W / 2 + (Math.random() - 0.5) * 300;
-  const cy = H / 2 + (Math.random() - 0.5) * 200;
+  const cx = magnetiser(W / 2 + (Math.random() - 0.5) * 300);
+  const cy = magnetiser(H / 2 + (Math.random() - 0.5) * 200);
 
   const noeud = {
     id: 'n' + atelier.prochainIdNoeud++,
@@ -1348,10 +1496,37 @@ function drawCircuit() {
   ctx.fillStyle = '#0a0a1a';
   ctx.fillRect(0, 0, W, H);
 
-  ctx.strokeStyle = 'rgba(79,195,247,0.05)';
-  ctx.lineWidth = 1;
-  for (let x = 0; x < W; x += 50) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
-  for (let y = 0; y < H; y += 50) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+  // 🧲 Grille magnétique : lignes fines + lignes principales
+  if (grilleMagnétique.active) {
+    const pas = grilleMagnétique.taille;
+    // Lignes fines (20 px) — sauf les multiples de 100
+    ctx.strokeStyle = 'rgba(79,195,247,0.04)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < W; x += pas) {
+      if (x % 100 !== 0) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      }
+    }
+    for (let y = 0; y < H; y += pas) {
+      if (y % 100 !== 0) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+    }
+    // Lignes principales (100 px)
+    ctx.strokeStyle = 'rgba(79,195,247,0.12)';
+    for (let x = 0; x < W; x += 100) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = 0; y < H; y += 100) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+  } else {
+    // Grille par défaut (40 px) si désactivée
+    ctx.strokeStyle = 'rgba(79,195,247,0.05)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+    for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+  }
 
   atelier.fils.forEach(fil => drawFil(fil));
   atelier.noeuds.forEach(n => drawNoeud(n));
@@ -1397,7 +1572,7 @@ function drawNoeud(noeud) {
   }
 }
 
-// 🆕 DRAW FIL — DROIT si non branché, COURBE si branché
+// DRAW FIL — DROIT si non branché, COURBE si branché
 function drawFil(fil) {
   const estSelectionne = atelier.filSelectionne === fil.id;
   const estBranche = fil.de && fil.vers;
@@ -1411,7 +1586,6 @@ function drawFil(fil) {
   ctx.beginPath();
   ctx.moveTo(fil.x1, fil.y1);
 
-  // Courbe UNIQUEMENT si le fil est branché des 2 côtés
   if (estBranche) {
     const midX = (fil.x1 + fil.x2) / 2;
     const midY = (fil.y1 + fil.y2) / 2;
@@ -1420,7 +1594,6 @@ function drawFil(fil) {
     const ctrlY = midY + decalageY;
     ctx.quadraticCurveTo(ctrlX, ctrlY, fil.x2, fil.y2);
   } else {
-    // Fil non branché : DROIT
     ctx.lineTo(fil.x2, fil.y2);
   }
 
@@ -1801,7 +1974,6 @@ function drawBuzzer(cx, cy, w, h, valeur, mesures) {
   ctx.arc(cx + 9, cy, 16, -0.7, 0.7);
   ctx.stroke();
 
-  // 🆕 Indicateur sonore visuel
   if (actif) {
     for (let i = 1; i <= 3; i++) {
       const r = 30 + i * 8;
@@ -2366,8 +2538,11 @@ function handlePointerMove(x, y) {
   }
 
   if (atelier.noeudEnDrag) {
-    atelier.noeudEnDrag.x = Math.max(20, Math.min(W - 20, x - atelier.offsetDrag.x));
-    atelier.noeudEnDrag.y = Math.max(20, Math.min(H - 20, y - atelier.offsetDrag.y));
+    // 🧲 Magnétisation du nœud
+    let newX = magnetiser(x - atelier.offsetDrag.x);
+    let newY = magnetiser(y - atelier.offsetDrag.y);
+    atelier.noeudEnDrag.x = Math.max(20, Math.min(W - 20, newX));
+    atelier.noeudEnDrag.y = Math.max(20, Math.min(H - 20, newY));
     atelier.fils.forEach(fil => {
       if (fil.de === atelier.noeudEnDrag.id) { fil.x1 = atelier.noeudEnDrag.x; fil.y1 = atelier.noeudEnDrag.y; }
       if (fil.vers === atelier.noeudEnDrag.id) { fil.x2 = atelier.noeudEnDrag.x; fil.y2 = atelier.noeudEnDrag.y; }
@@ -2377,8 +2552,20 @@ function handlePointerMove(x, y) {
   }
 
   if (atelier.composantEnDrag) {
-    atelier.composantEnDrag.x = Math.max(80, Math.min(W - 80, x - atelier.offsetDrag.x));
-    atelier.composantEnDrag.y = Math.max(80, Math.min(H - 80, y - atelier.offsetDrag.y));
+    let newX = x - atelier.offsetDrag.x;
+    let newY = y - atelier.offsetDrag.y;
+    
+    // 🧲 1. Magnétisation grille
+    newX = magnetiser(newX);
+    newY = magnetiser(newY);
+    
+    // 🧲 2. Magnétisation vers composants proches (snap)
+    const snap = magnetiserVersComposants(newX, newY, atelier.composantEnDrag);
+    newX = snap.x;
+    newY = snap.y;
+    
+    atelier.composantEnDrag.x = Math.max(80, Math.min(W - 80, newX));
+    atelier.composantEnDrag.y = Math.max(80, Math.min(H - 80, newY));
     updateConnexionsFils();
     drawCircuit();
     return;
@@ -3483,6 +3670,23 @@ document.getElementById('btnSon').addEventListener('click', () => {
   updateStatus(audioActif ? '🔊 Son activé' : '🔇 Son coupé');
 });
 
+// 🆕 BOUTON GRILLE MAGNÉTIQUE
+document.getElementById('btnGrille').addEventListener('click', () => {
+  grilleMagnétique.active = !grilleMagnétique.active;
+  const btn = document.getElementById('btnGrille');
+  if (grilleMagnétique.active) {
+    btn.classList.remove('inactive');
+    btn.textContent = '🧲';
+    updateStatus('🧲 Grille magnétique ACTIVÉE');
+  } else {
+    btn.classList.add('inactive');
+    btn.textContent = '🧲';
+    updateStatus('🧲 Grille magnétique DÉSACTIVÉE');
+  }
+  drawCircuit();
+  jouerNoteConfirmation();
+});
+
 document.getElementById('selectVoltmetreMobile').addEventListener('change', () => updateMesuresMobile());
 document.getElementById('selectAmperemetreMobile').addEventListener('change', () => updateMesuresMobile());
 
@@ -3702,13 +3906,13 @@ function updateZoneTool() {
   const zone = document.getElementById('zoneTool');
   if (atelier.filSelectionne) {
     zone.style.display = 'block';
-    zone.textContent = '〰️ Fil — glisse les poignées';
+    zone.textContent = '〰️ Fil';
   } else if (atelier.noeudSelectionne) {
     zone.style.display = 'block';
-    zone.textContent = '⬤ Nœud — déplace-le';
+    zone.textContent = '⬤ Nœud';
   } else if (atelier.composantSelectionne) {
     zone.style.display = 'block';
-    zone.textContent = '✎ Double-tap pour modifier';
+    zone.textContent = '✎ Modifier';
   } else {
     zone.style.display = 'none';
   }
@@ -3743,7 +3947,7 @@ window.addEventListener('load', () => {
   updateInterrupteurButton();
   updateMesuresMobile();
   updateStatus('Appuie sur un bouton pour ajouter un composant');
-  console.log('📱 Atelier circuits mobile chargé (fils en bas + son de cloche) !');
+  console.log('📱 Atelier circuits mobile chargé (grille + snap + son de cloche) !');
   
   // Initialiser l'audio au premier tap
   document.body.addEventListener('touchstart', initAudio, { once: true });
