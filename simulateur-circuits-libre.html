@@ -3089,7 +3089,9 @@ function construireGraphe() {
     const leftId = c.id + '-L', rightId = c.id + '-R';
     if (!graphe[leftId]) graphe[leftId] = [];
     if (!graphe[rightId]) graphe[rightId] = [];
-    if (c.type === 'pile' || COMPOSANTS_RESISTIFS.has(c.type) ||
+    
+    // ⚠️ La pile n'est PAS ajoutée comme arête directe
+    if (COMPOSANTS_RESISTIFS.has(c.type) ||
         c.type === 'diode' || c.type === 'led') {
       graphe[leftId].push(rightId);
       graphe[rightId].push(leftId);
