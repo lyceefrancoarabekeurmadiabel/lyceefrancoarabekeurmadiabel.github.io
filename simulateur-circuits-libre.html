@@ -3110,21 +3110,37 @@ function trouverCheminAvecResistance(graphe, departId, arriveeId) {
   const resistancesIds = atelier.composants.filter(c =>
     COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'led' || c.type === 'diode'
   ).map(c => c.id);
+  const pileId = atelier.composants.find(c => c.type === 'pile')?.id;
   const chemins = [];
 
   function dfs(id, chemin, visited, profondeur) {
-    if (profondeur > 25) return;
+    if (profondeur > 30) return;  // 🆕 Un peu plus profond
+    
     if (id === arriveeId && chemin.length > 2) {
-      const traverse = chemin.some(borneId => {
+      // Vérifier qu'il y a au moins UNE résistance dans le chemin
+      const aResistance = chemin.some(borneId => {
         const b = getBorneById(borneId);
         if (!b) return false;
         return resistancesIds.includes(b.composantId);
       });
-      if (traverse) chemins.push([...chemin]);
+      // 🆕 Vérifier que le chemin ne passe PAS par la pile
+      const traversePile = chemin.some(borneId => {
+        const b = getBorneById(borneId);
+        return b && b.composantId === pileId;
+      });
+      
+      if (aResistance && !traversePile) {
+        chemins.push([...chemin]);
+      }
       return;
     }
+    
     const voisins = graphe[id] || [];
     for (const v of voisins) {
+      // 🆕 Ne pas entrer dans les bornes de la pile
+      const bVoisin = getBorneById(v);
+      if (bVoisin && bVoisin.composantId === pileId) continue;
+      
       if (!visited.has(v)) {
         visited.add(v);
         chemin.push(v);
