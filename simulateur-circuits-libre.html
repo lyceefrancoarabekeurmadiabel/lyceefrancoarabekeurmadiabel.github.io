@@ -173,18 +173,21 @@
     border-radius: 4px;
     pointer-events: none;
   }
-  .zone-info {
+    .zone-info {
     position: absolute;
-    bottom: 5px;
-    left: 8px;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
     color: #ffc107;
     font-size: 0.68em;
     font-weight: 600;
-    background: rgba(0,0,0,0.7);
-    padding: 3px 8px;
+    background: rgba(0,0,0,0.85);
+    padding: 3px 10px;
     border-radius: 4px;
     z-index: 2;
     pointer-events: none;
+    white-space: nowrap;
+    border: 1px solid rgba(255, 193, 7, 0.3);
   }
   .zone-tool {
     position: absolute;
@@ -1130,29 +1133,23 @@ function ajouterComposant(type, tensionForcee) {
 }
 
 function ajouterFilLibre() {
-  const cx = W / 2 + (Math.random() - 0.5) * 200;
-  const cy = H / 2 + (Math.random() - 0.5) * 150;
-  const longueur = 150;
-  const angle = Math.random() * Math.PI;
-
+  const nbFils = atelier.fils.length;
+  const margeGauche = 80;
+  const margeBas = 60;
+  const espacementX = 40;
+  const longueur = 180;
+  
+  // 📍 Position en bas de l'écran, horizontal
+  const x1 = margeGauche + (nbFils % 6) * espacementX + Math.floor(nbFils / 6) * 220;
+  const y1 = H - margeBas - Math.floor(nbFils / 6) * 30;
+  
   const fil = {
     id: 'f' + atelier.prochainIdFil++,
-    x1: cx - Math.cos(angle) * longueur / 2,
-    y1: cy - Math.sin(angle) * longueur / 2,
-    x2: cx + Math.cos(angle) * longueur / 2,
-    y2: cy + Math.sin(angle) * longueur / 2,
-    de: null, vers: null
+    x1: x1, y1: y1,
+    x2: x1 + longueur, y2: y1,   // ⚠️ y2 = y1 → HORIZONTAL
+    de: null,
+    vers: null
   };
-
-  atelier.fils.push(fil);
-  atelier.filSelectionne = fil.id;
-  updateConnexionsFils();
-  drawCircuit();
-  updateZoneInfo();
-  updateZoneTool();
-  analyserCircuit();
-  updateStatus('〰️ Fil ajouté — glisse les poignées');
-}
 
 function ajouterNoeud() {
   const cx = magnetiser(W / 2 + (Math.random() - 0.5) * 300);
