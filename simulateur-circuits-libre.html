@@ -436,15 +436,48 @@
   }
       .action-bar {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     flex-shrink: 0;
-    padding: 8px 12px;
-    background: rgba(0,0,0,0.3);
+    padding: 6px 10px;
+    background: rgba(0,0,0,0.25);
     border-radius: 8px;
     align-items: center;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(79, 195, 247, 0.3) transparent;
   }
+  
+  .action-bar::-webkit-scrollbar {
+    height: 4px;
+  }
+  .action-bar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .action-bar::-webkit-scrollbar-thumb {
+    background: rgba(79, 195, 247, 0.3);
+    border-radius: 2px;
+  }
+  
+  /* Les boutons ne se rétrécissent jamais */
+  .action-bar > button {
+    flex-shrink: 0;
+  }
+  
+  .status-inline {
+    flex: 1;
+    text-align: right;
+    font-size: 0.72em;
+    color: #aaa;
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 150px;
+    padding-left: 10px;
+  }
+  .status-inline.active { color: #4fc3f7; }
     .status-inline {
     flex: 1;
     text-align: center;
