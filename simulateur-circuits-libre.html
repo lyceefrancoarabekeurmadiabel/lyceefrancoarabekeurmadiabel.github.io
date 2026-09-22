@@ -241,42 +241,128 @@
     line-height: 1.4;
     text-align: left;
   }
-  .measure-selector {
-    background: rgba(79, 195, 247, 0.08);
-    border: 1px solid rgba(79, 195, 247, 0.3);
-    border-radius: 6px;
-    padding: 6px 8px;
-  }
-  .measure-selector label {
-    display: block;
-    font-size: 0.62em;
-    color: #4fc3f7;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
-  .measure-selector select {
-    width: 100%;
-    padding: 5px 6px;
-    background: #1a1a2e;
-    border: 1px solid rgba(79, 195, 247, 0.4);
-    border-radius: 4px;
-    color: #eee;
-    font-family: inherit;
-    font-size: 0.75em;
-    cursor: pointer;
-  }
-  .measure-selector select:focus { outline: none; border-color: #4fc3f7; box-shadow: 0 0 0 2px rgba(79, 195, 247, 0.2); }
-  .multimeter {
-    background: #000;
-    border: 2px solid #4caf50;
-    border-radius: 8px;
-    padding: 7px;
-    text-align: center;
-    box-shadow: inset 0 0 10px rgba(76, 175, 80, 0.3);
-    transition: opacity 0.3s;
-  }
+  /* 🆕 Sélecteur compact en ligne */
+.select-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(79, 195, 247, 0.08);
+  border: 1px solid rgba(79, 195, 247, 0.3);
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+.select-row label {
+  font-size: 0.68em;
+  color: #4fc3f7;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.select-row select {
+  flex: 1;
+  padding: 5px 8px;
+  background: #1a1a2e;
+  border: 1px solid rgba(79, 195, 247, 0.4);
+  border-radius: 4px;
+  color: #eee;
+  font-family: inherit;
+  font-size: 0.78em;
+  cursor: pointer;
+  min-width: 0;
+}
+.select-row select:focus {
+  outline: none;
+  border-color: #4fc3f7;
+  box-shadow: 0 0 0 2px rgba(79, 195, 247, 0.2);
+}
+
+/* 🆕 Multimètres côte à côte */
+.multimeters-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.multimeters-row .multimeter {
+  padding: 8px 6px;
+}
+.multimeters-row .multimeter .mm-title {
+  font-size: 0.58em;
+}
+.multimeters-row .multimeter .mm-value {
+  font-size: 1.25em;
+}
+.multimeters-row .multimeter .mm-unit {
+  font-size: 0.6em;
+}
+.multimeters-row .multimeter .mm-target {
+  font-size: 0.55em;
+  min-height: 1.2em;
+  line-height: 1.1;
+}
+
+/* 🆕 Bouton bascule Tableau ↔ Lois */
+.bascule-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(0,0,0,0.3);
+  padding: 4px;
+  border-radius: 8px;
+}
+.bascule-tab {
+  flex: 1;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: #888;
+  font-family: inherit;
+  font-size: 0.74em;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.bascule-tab:hover {
+  color: #4fc3f7;
+  background: rgba(79, 195, 247, 0.08);
+}
+.bascule-tab.active {
+  background: rgba(79, 195, 247, 0.2);
+  color: #4fc3f7;
+  box-shadow: 0 0 0 1px rgba(79, 195, 247, 0.4);
+}
+.bascule-tab:active {
+  transform: scale(0.98);
+}
+
+/* 🆕 Conteneur bascule */
+.bascule-content {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+.bascule-content.active {
+  display: flex;
+  animation: fadeInBascule 0.25s ease-out;
+}
+@keyframes fadeInBascule {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Ajuster la hauteur du tableau pour occuper l'espace */
+.table-wrapper {
+  max-height: 340px;   /* 🆕 idem que votre version actuelle */
+  overflow-y: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(79, 195, 247, 0.4);
+  background: rgba(0,0,0,0.4);
+}
   .multimeter.off { opacity: 0.4; border-color: #555; box-shadow: none; }
   .multimeter.off .mm-value { color: #666; text-shadow: none; }
   .multimeter.voltm { border-color: #ff9800; box-shadow: inset 0 0 10px rgba(255, 152, 0, 0.3); }
@@ -688,63 +774,80 @@
     </div>
 
     <div class="side-zone">
-      <div class="panel-title">🔍 Circuit détecté</div>
-      <div class="circuit-type" id="circuitTypeBox">
-        <div class="ct-label">Type de circuit</div>
-        <div class="ct-value" id="circuitTypeValue">—</div>
-      </div>
+  <div class="panel-title">🔍 Circuit détecté</div>
+  <div class="circuit-type" id="circuitTypeBox">
+    <div class="ct-label">Type de circuit</div>
+    <div class="ct-value" id="circuitTypeValue">—</div>
+  </div>
 
-      <div class="measure-selector">
-        <label>Ⓥ Voltmètre mesure :</label>
-        <select id="selectVoltmetre">
-          <option value="pile">🔋 Pile (tension totale)</option>
-        </select>
-      </div>
+  <!-- 🆕 Sélecteur compact en ligne -->
+  <div class="select-row">
+    <label>Ⓥ Volt :</label>
+    <select id="selectVoltmetre">
+      <option value="pile">🔋 Pile (tension totale)</option>
+    </select>
+  </div>
 
-      <div class="multimeter voltm off" id="mmVolt">
-        <div class="mm-title">Ⓥ VOLTMÈTRE</div>
-        <div class="mm-value" id="mmVoltVal">0.00</div>
-        <div class="mm-unit">Volts (V)</div>
-        <div class="mm-target" id="mmVoltTarget">En attente</div>
-      </div>
+  <div class="select-row">
+    <label>Ⓐ Amp :</label>
+    <select id="selectAmperemetre">
+      <option value="total">🔌 Courant total</option>
+    </select>
+  </div>
 
-      <div class="measure-selector">
-        <label>Ⓐ Ampèremètre mesure :</label>
-        <select id="selectAmperemetre">
-          <option value="total">🔌 Courant total</option>
-        </select>
-      </div>
-
-      <div class="multimeter off" id="mmAmpere">
-        <div class="mm-title">Ⓐ AMPÈREMÈTRE</div>
-        <div class="mm-value" id="mmAmpereVal">0.000</div>
-        <div class="mm-unit">Ampères (A)</div>
-        <div class="mm-target" id="mmAmpereTarget">En attente</div>
-      </div>
-
-      <div class="panel-title">📋 Tableau des mesures</div>
-      <div class="table-wrapper">
-        <table class="measures-table">
-          <thead>
-            <tr>
-              <th>Composant</th>
-              <th>R (Ω)</th>
-              <th>U (V)</th>
-              <th>I (mA)</th>
-              <th>P (W)</th>
-            </tr>
-          </thead>
-          <tbody id="measuresBody">
-            <tr><td colspan="5" class="empty-msg">Aucune mesure disponible</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="panel-title">📚 Lois appliquées</div>
-      <div class="lois-panel" id="loisPanel">
-        <div class="loi-warning">⚠️ Ajoute des composants pour commencer</div>
-      </div>
+  <!-- 🆕 Multimètres côte à côte -->
+  <div class="multimeters-row">
+    <div class="multimeter voltm off" id="mmVolt">
+      <div class="mm-title">Ⓥ VOLTMÈTRE</div>
+      <div class="mm-value" id="mmVoltVal">0.00</div>
+      <div class="mm-unit">Volts (V)</div>
+      <div class="mm-target" id="mmVoltTarget">En attente</div>
     </div>
+    <div class="multimeter off" id="mmAmpere">
+      <div class="mm-title">Ⓐ AMPÈREMÈTRE</div>
+      <div class="mm-value" id="mmAmpereVal">0.000</div>
+      <div class="mm-unit">Ampères (A)</div>
+      <div class="mm-target" id="mmAmpereTarget">En attente</div>
+    </div>
+  </div>
+
+  <!-- 🆕 Bascule Tableau ↔ Lois -->
+  <div class="bascule-tabs">
+    <button class="bascule-tab active" data-bascule="tableau" onclick="basculerMesureLois('tableau')">
+      📋 Tableau
+    </button>
+    <button class="bascule-tab" data-bascule="lois" onclick="basculerMesureLois('lois')">
+      📚 Lois
+    </button>
+  </div>
+
+  <!-- 🆕 Contenu : Tableau -->
+  <div class="bascule-content active" id="bascule-tableau">
+    <div class="table-wrapper">
+      <table class="measures-table">
+        <thead>
+          <tr>
+            <th>Composant</th>
+            <th>R (Ω)</th>
+            <th>U (V)</th>
+            <th>I (mA)</th>
+            <th>P (W)</th>
+          </tr>
+        </thead>
+        <tbody id="measuresBody">
+          <tr><td colspan="5" class="empty-msg">Aucune mesure disponible</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 🆕 Contenu : Lois -->
+  <div class="bascule-content" id="bascule-lois">
+    <div class="lois-panel" id="loisPanel">
+      <div class="loi-warning">⚠️ Ajoute des composants pour commencer</div>
+    </div>
+  </div>
+</div>
   </div>
 
   <div class="action-bar">
@@ -3125,6 +3228,24 @@ function updateMesures() {
   genererTableauMesures();
   genererLoisPanel();
   updateBoutonAnimer();
+}
+
+// ============================================================
+//  🆕 BASCULE TABLEAU ↔ LOIS (PC)
+// ============================================================
+function basculerMesureLois(choix) {
+  // Mettre à jour les boutons actifs
+  document.querySelectorAll('.bascule-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.bascule === choix);
+  });
+  // Afficher le contenu correspondant
+  document.querySelectorAll('.bascule-content').forEach(content => {
+    content.classList.toggle('active', content.id === 'bascule-' + choix);
+  });
+  // Petit feedback audio (optionnel)
+  if (typeof jouerNoteConfirmation === 'function' && audioActif) {
+    jouerNoteConfirmation();
+  }
 }
 
 function genererTableauMesures() {
