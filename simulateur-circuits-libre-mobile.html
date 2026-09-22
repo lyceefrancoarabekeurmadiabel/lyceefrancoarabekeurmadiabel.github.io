@@ -1068,17 +1068,20 @@ function ajouterComposant(type, tensionForcee) {
 }
 
 function ajouterFilLibre() {
-  const cx = W / 2 + (Math.random() - 0.5) * 200;
-  const cy = H / 2 + (Math.random() - 0.5) * 150;
+  const nbFils = atelier.fils.length;
+  const margeGauche = 80;
+  const margeBas = 60;
+  const espacementX = 50;
   const longueur = 200;
-  const angle = Math.random() * Math.PI;
-
+  
+  // Position en bas de l'écran, en ligne horizontale
+  const x1 = margeGauche + (nbFils % 5) * espacementX + Math.floor(nbFils / 5) * 280;
+  const y1 = H - margeBas - Math.floor(nbFils / 5) * 40;
+  
   const fil = {
     id: 'f' + atelier.prochainIdFil++,
-    x1: cx - Math.cos(angle) * longueur / 2,
-    y1: cy - Math.sin(angle) * longueur / 2,
-    x2: cx + Math.cos(angle) * longueur / 2,
-    y2: cy + Math.sin(angle) * longueur / 2,
+    x1: x1, y1: y1,
+    x2: x1 + longueur, y2: y1,
     de: null,
     vers: null
   };
@@ -1092,7 +1095,7 @@ function ajouterFilLibre() {
   updateZoneTool();
   updateSelectionInfo();
   analyserCircuit();
-  updateStatus('〰️ Fil ajouté — glisse les poignées');
+  updateStatus('〰️ Fil ajouté en bas — glisse les poignées');
 }
 
 function ajouterNoeud() {
@@ -1269,7 +1272,7 @@ function drawFil(fil) {
   // Point de contrôle décalé vers le bas pour éviter les composants
   const midX = (fil.x1 + fil.x2) / 2;
   const midY = (fil.y1 + fil.y2) / 2;
-  const decalageY = Math.max(35, Math.abs(fil.x2 - fil.x1) * 0.18);
+  const decalageY = Math.max(30, Math.abs(fil.x2 - fil.x1) * 0.15);
   const ctrlX = midX;
   const ctrlY = midY + decalageY;
 
@@ -1279,7 +1282,7 @@ function drawFil(fil) {
   ctx.shadowColor = estSelectionne ? '#ffd54f' : (estBranche ? '#4caf50' : '#4fc3f7');
   ctx.shadowBlur = estSelectionne ? 18 : 10;
   
-  // Courbe quadratique
+  // Tracé courbe
   ctx.beginPath();
   ctx.moveTo(fil.x1, fil.y1);
   ctx.quadraticCurveTo(ctrlX, ctrlY, fil.x2, fil.y2);

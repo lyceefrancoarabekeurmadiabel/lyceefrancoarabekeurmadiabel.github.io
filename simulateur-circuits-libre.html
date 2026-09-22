@@ -914,17 +914,20 @@ function ajouterComposant(type, tensionForcee) {
 }
 
 function ajouterFilLibre() {
-  const cx = W / 2 + (Math.random() - 0.5) * 200;
-  const cy = H / 2 + (Math.random() - 0.5) * 150;
-  const longueur = 150;
-  const angle = Math.random() * Math.PI;
-
+  const nbFils = atelier.fils.length;
+  const margeGauche = 80;
+  const margeBas = 60;
+  const espacementX = 40;
+  const longueur = 180;
+  
+  // Calcul de la position : en bas de l'écran, en ligne horizontale
+  const x1 = margeGauche + (nbFils % 6) * espacementX + Math.floor(nbFils / 6) * 220;
+  const y1 = H - margeBas - Math.floor(nbFils / 6) * 30;
+  
   const fil = {
     id: 'f' + atelier.prochainIdFil++,
-    x1: cx - Math.cos(angle) * longueur / 2,
-    y1: cy - Math.sin(angle) * longueur / 2,
-    x2: cx + Math.cos(angle) * longueur / 2,
-    y2: cy + Math.sin(angle) * longueur / 2,
+    x1: x1, y1: y1,
+    x2: x1 + longueur, y2: y1,
     de: null,
     vers: null
   };
@@ -936,7 +939,7 @@ function ajouterFilLibre() {
   updateZoneInfo();
   updateZoneTool();
   analyserCircuit();
-  updateStatus('〰️ Fil ajouté — glisse les poignées pour le brancher');
+  updateStatus('〰️ Fil ajouté en bas — glisse les poignées pour le brancher');
 }
 
 function ajouterNoeud() {
@@ -1083,15 +1086,10 @@ function drawFil(fil) {
   const estSelectionne = atelier.filSelectionne === fil.id;
   const estBranche = fil.de && fil.vers;
 
-  // Calcul d'un point de contrôle pour faire passer le fil "sous" les composants
-  // On décale le point milieu vers le bas
+  // 🆕 Point de contrôle décalé vers le bas pour éviter les composants
   const midX = (fil.x1 + fil.x2) / 2;
   const midY = (fil.y1 + fil.y2) / 2;
-  
-  // Décalage vers le bas pour éviter les composants
-  const decalageY = Math.max(30, Math.abs(fil.x2 - fil.x1) * 0.15);
-  
-  // Point de contrôle de la courbe de Bézier
+  const decalageY = Math.max(25, Math.abs(fil.x2 - fil.x1) * 0.12);
   const ctrlX = midX;
   const ctrlY = midY + decalageY;
 
@@ -1108,7 +1106,6 @@ function drawFil(fil) {
   ctx.stroke();
   ctx.shadowBlur = 0;
 
-  // Points de connexion aux extrémités
   const couleurA = fil.de ? '#4caf50' : '#888';
   const couleurB = fil.vers ? '#4caf50' : '#888';
   ctx.fillStyle = couleurA;
