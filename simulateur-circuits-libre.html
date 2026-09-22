@@ -341,6 +341,81 @@
     margin-top: 3px;
     font-style: italic;
   }
+    /* 🆕 Multimètres côte à côte */
+  .multimeters-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .multimeters-row .multimeter {
+    padding: 8px 6px;
+  }
+  .multimeters-row .multimeter .mm-title {
+    font-size: 0.58em;
+  }
+  .multimeters-row .multimeter .mm-value {
+    font-size: 1.25em;
+  }
+  .multimeters-row .multimeter .mm-unit {
+    font-size: 0.6em;
+  }
+  .multimeters-row .multimeter .mm-target {
+    font-size: 0.55em;
+    min-height: 1.1em;
+    line-height: 1.1;
+  }
+
+  /* 🆕 Bascule Tableau ↔ Lois */
+  .bascule-tabs {
+    display: flex;
+    gap: 4px;
+    background: rgba(0,0,0,0.3);
+    padding: 4px;
+    border-radius: 8px;
+    margin-top: 4px;
+  }
+  .bascule-tab {
+    flex: 1;
+    padding: 8px 10px;
+    background: transparent;
+    border: none;
+    color: #888;
+    font-family: inherit;
+    font-size: 0.74em;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+  .bascule-tab:hover {
+    color: #4fc3f7;
+    background: rgba(79, 195, 247, 0.08);
+  }
+  .bascule-tab.active {
+    background: rgba(79, 195, 247, 0.2);
+    color: #4fc3f7;
+    box-shadow: 0 0 0 1px rgba(79, 195, 247, 0.4);
+  }
+  .bascule-tab:active { transform: scale(0.98); }
+
+  .bascule-content {
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .bascule-content.active {
+    display: flex;
+    animation: fadeInBascule 0.25s ease-out;
+  }
+  @keyframes fadeInBascule {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
   .table-wrapper {
     max-height: 140px;
     overflow-y: auto;
@@ -670,18 +745,11 @@
         <div class="ct-value" id="circuitTypeValue">—</div>
       </div>
 
-      <div class="measure-selector">
+            <div class="measure-selector">
         <label>Ⓥ Voltmètre mesure :</label>
         <select id="selectVoltmetre">
           <option value="pile">🔋 Pile (tension totale)</option>
         </select>
-      </div>
-
-      <div class="multimeter voltm off" id="mmVolt">
-        <div class="mm-title">Ⓥ VOLTMÈTRE</div>
-        <div class="mm-value" id="mmVoltVal">0.00</div>
-        <div class="mm-unit">Volts (V)</div>
-        <div class="mm-target" id="mmVoltTarget">En attente</div>
       </div>
 
       <div class="measure-selector">
@@ -691,36 +759,56 @@
         </select>
       </div>
 
-      <div class="multimeter off" id="mmAmpere">
-        <div class="mm-title">Ⓐ AMPÈREMÈTRE</div>
-        <div class="mm-value" id="mmAmpereVal">0.000</div>
-        <div class="mm-unit">Ampères (A)</div>
-        <div class="mm-target" id="mmAmpereTarget">En attente</div>
+      <!-- 🆕 Multimètres côte à côte -->
+      <div class="multimeters-row">
+        <div class="multimeter voltm off" id="mmVolt">
+          <div class="mm-title">Ⓥ VOLTMÈTRE</div>
+          <div class="mm-value" id="mmVoltVal">0.00</div>
+          <div class="mm-unit">Volts (V)</div>
+          <div class="mm-target" id="mmVoltTarget">En attente</div>
+        </div>
+        <div class="multimeter off" id="mmAmpere">
+          <div class="mm-title">Ⓐ AMPÈREMÈTRE</div>
+          <div class="mm-value" id="mmAmpereVal">0.000</div>
+          <div class="mm-unit">Ampères (A)</div>
+          <div class="mm-target" id="mmAmpereTarget">En attente</div>
+        </div>
       </div>
 
-      <div class="panel-title">📋 Tableau des mesures</div>
-      <div class="table-wrapper">
-        <table class="measures-table">
-          <thead>
-            <tr>
-              <th>Composant</th>
-              <th>R (Ω)</th>
-              <th>U (V)</th>
-              <th>I (mA)</th>
-              <th>P (W)</th>
-            </tr>
-          </thead>
-          <tbody id="measuresBody">
-            <tr><td colspan="5" class="empty-msg">Aucune mesure disponible</td></tr>
-          </tbody>
-        </table>
+      <!-- 🆕 Bascule Tableau ↔ Lois -->
+      <div class="bascule-tabs">
+        <button class="bascule-tab active" data-bascule="tableau" onclick="basculerMesureLois('tableau')">
+          📋 Tableau
+        </button>
+        <button class="bascule-tab" data-bascule="lois" onclick="basculerMesureLois('lois')">
+          📚 Lois
+        </button>
       </div>
 
-      <div class="panel-title">📚 Lois appliquées</div>
-      <div class="lois-panel" id="loisPanel">
-        <div class="loi-warning">⚠️ Ajoute des composants pour commencer</div>
+      <div class="bascule-content active" id="bascule-tableau">
+        <div class="table-wrapper">
+          <table class="measures-table">
+            <thead>
+              <tr>
+                <th>Composant</th>
+                <th>R (Ω)</th>
+                <th>U (V)</th>
+                <th>I (mA)</th>
+                <th>P (W)</th>
+              </tr>
+            </thead>
+            <tbody id="measuresBody">
+              <tr><td colspan="5" class="empty-msg">Aucune mesure disponible</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+
+      <div class="bascule-content" id="bascule-lois">
+        <div class="lois-panel" id="loisPanel">
+          <div class="loi-warning">⚠️ Ajoute des composants pour commencer</div>
+        </div>
+      </div>
   </div>
 
   <div class="action-bar">
@@ -2525,6 +2613,18 @@ function updateMesures() {
   genererTableauMesures();
   genererLoisPanel();
   updateBoutonAnimer();
+}
+
+// ============================================================
+//  🆕 BASCULE TABLEAU ↔ LOIS
+// ============================================================
+function basculerMesureLois(choix) {
+  document.querySelectorAll('.bascule-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.bascule === choix);
+  });
+  document.querySelectorAll('.bascule-content').forEach(content => {
+    content.classList.toggle('active', content.id === 'bascule-' + choix);
+  });
 }
 
 function genererTableauMesures() {
