@@ -10,12 +10,12 @@ const CACHE_NAME = 'lfakm-cache-v2';
 
 const urlsToCache = [
   'index.html',
-  'pc/ressources.html',
+  'ressources.html',
   'identification.html',
   'inscription.html',
   'actualites.html',
   'historique.html',
-  'assets/manifest.json',
+  'manifest.json',
   'icons/icon-192.png',
   'icons/icon-512.png'
 ];

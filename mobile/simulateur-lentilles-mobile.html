@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Lentilles minces — Mobile | LFAKM</title>
+<link rel="stylesheet" href="../assets/style-menu.css">
+ <link rel="icon" type="image/png" href="../assets/favicon.png">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #eee;
+    min-height: 100vh;
+    padding: 8px;
+    font-size: 14px;
+    overflow-x: hidden;
+  }
+  .container {
+    max-width: 100%;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 12px;
+  }
+  .top-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 8px;
+  }
+  .btn-retour, .btn-pc {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.75em;
+    font-weight: 700;
+  }
+  .btn-retour { background: rgba(168, 133, 63, 0.2); color: #ffd54f; border: 1px solid rgba(255, 213, 79, 0.4); }
+  .btn-pc { background: rgba(79, 195, 247, 0.15); color: #4fc3f7; border: 1px solid rgba(79, 195, 247, 0.4); }
+
+  h1 { text-align: center; color: #4fc3f7; font-size: 1.2em; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #aaa; font-size: 0.75em; margin-bottom: 12px; }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 10px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    padding: 3px;
+  }
+  .tab {
+    flex: 1;
+    padding: 10px 6px;
+    background: transparent;
+    border: none;
+    color: #888;
+    font-size: 0.78em;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    font-family: inherit;
+  }
+  .tab.active { background: rgba(79, 195, 247, 0.2); color: #4fc3f7; }
+
+  .canvas-wrapper {
+    background: #000;
+    border-radius: 8px;
+    padding: 4px;
+    margin-bottom: 10px;
+    border: 2px solid #4fc3f7;
+    overflow: hidden;
+  }
+  .canvas-wrapper canvas { display: block; width: 100%; height: auto; touch-action: none; }
+
+  .section-title {
+    color: #4fc3f7;
+    font-size: 0.72em;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: 12px 0 6px;
+    padding-left: 6px;
+    border-left: 3px solid #4fc3f7;
+    font-weight: bold;
+  }
+
+  .button-bar { display: flex; gap: 6px; margin: 10px 0 6px; flex-wrap: wrap; }
+  .btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 12px 8px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.82em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-family: inherit;
+  }
+  .btn-start {
+    background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+    color: #16213e;
+    box-shadow: 0 3px 10px rgba(79, 195, 247, 0.4);
+  }
+  .btn-start:disabled { opacity: 0.5; }
+  .btn-reset { background: rgba(255,255,255,0.1); color: #eee; border: 1px solid rgba(255,255,255,0.2); }
+
+  .status {
+    text-align: center;
+    font-size: 0.75em;
+    color: #aaa;
+    margin: 6px 0;
+    min-height: 18px;
+    font-style: italic;
+  }
+  .status.active { color: #4fc3f7; }
+
+  .controls { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .control-group {
+    background: rgba(255,255,255,0.05);
+    padding: 10px;
+    border-radius: 8px;
+    border-left: 3px solid #4fc3f7;
+  }
+  .control-group label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 0.78em;
+    color: #ccc;
+  }
+  .control-group .value {
+    color: #4fc3f7;
+    font-weight: bold;
+    font-family: monospace;
+  }
+  input[type="range"] { width: 100%; height: 28px; accent-color: #4fc3f7; cursor: pointer; }
+
+  .info-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(79, 195, 247, 0.08);
+    border-radius: 8px;
+    border: 1px solid rgba(79, 195, 247, 0.3);
+  }
+  .info-item { text-align: center; }
+  .info-item .label {
+    font-size: 0.62em;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+  }
+  .info-item .val {
+    font-size: 0.95em;
+    color: #4fc3f7;
+    font-weight: bold;
+    font-family: monospace;
+    margin-top: 2px;
+  }
+
+  /* ===== TEXTE EXPLICATIF ===== */
+  .observ-strip {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: linear-gradient(90deg, rgba(255,193,7,0.15), rgba(255,193,7,0.05));
+    border-left: 4px solid #ffc107;
+    border-radius: 6px;
+    font-size: 0.78em;
+    color: #fff;
+    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .observ-strip .icon { font-size: 1.1em; flex-shrink: 0; margin-top: 1px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="top-actions">
+    <a href="../pc/labo-pc.html" class="btn-retour">← Labo PC</a>
+      <a href="index.html" class="btn-retour">🏠 Accueil</a>
+    <a href="../pc/simulateur-lentilles.html" class="btn-pc">🖥️ Version PC</a>
+  </div>
+
+  <h1>🔭 Lentilles minces</h1>
+  <p class="subtitle">Banc d'optique — Rayons & construction</p>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="convergente">🔍 Convergente</button>
+    <button class="tab" data-tab="divergente">🔍 Divergente</button>
+  </div>
+
+  <div class="canvas-wrapper">
+    <canvas id="bancCanvas" width="800" height="500"></canvas>
+  </div>
+
+  <div class="button-bar">
+    <button class="btn btn-start" id="startBtn" onclick="startAnimation()">▶ Animer</button>
+    <button class="btn btn-reset" onclick="resetAll()">🔄 Reset</button>
+  </div>
+  <p class="status" id="status">Déplacez l'objet et observez l'image</p>
+
+  <div class="section-title">Paramètres</div>
+
+  <div class="controls">
+    <div class="control-group">
+      <label>Distance focale f' <span class="value" id="fVal">+100 mm</span></label>
+      <input type="range" id="focale" min="-200" max="200" value="100" step="5">
+    </div>
+    <div class="control-group">
+      <label>Position objet <span class="value" id="oVal">-250 mm</span></label>
+      <input type="range" id="objPos" min="-450" max="-10" value="-250" step="5">
+    </div>
+    <div class="control-group">
+      <label>Hauteur objet <span class="value" id="hVal">30 mm</span></label>
+      <input type="range" id="objH" min="10" max="60" value="30" step="1">
+    </div>
+    <div class="control-group">
+      <label>Rayons affichés <span class="value" id="rayVal">Les 3</span></label>
+      <input type="range" id="rayType" min="1" max="3" value="3" step="1">
+    </div>
+  </div>
+
+  <div class="info-panel">
+    <div class="info-item">
+      <div class="label">Position image</div>
+      <div class="val" id="imgPos">— mm</div>
+    </div>
+    <div class="info-item">
+      <div class="label">Hauteur image</div>
+      <div class="val" id="imgH">— mm</div>
+    </div>
+    <div class="info-item">
+      <div class="label">Grandissement γ</div>
+      <div class="val" id="grand">— </div>
+    </div>
+    <div class="info-item">
+      <div class="label">Nature</div>
+      <div class="val" id="nature">—</div>
+    </div>
+  </div>
+
+  <!-- 💡 TEXTE EXPLICATIF DYNAMIQUE -->
+  <div class="observ-strip">
+    <span class="icon">💡</span>
+    <span id="observTxt">Déplacez l'objet ou changez la distance focale pour observer l'effet sur l'image.</span>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+//  LENTILLES MINCES — MOBILE (v2 corrigée)
+// ============================================================
+const canvas = document.getElementById('bancCanvas');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+const AXE_Y = H / 2;
+const CENTRE_X = W / 2;
+const PX_PAR_MM = 0.7;
+
+let etat = {
+  type: 'convergente',
+  focale: 100,
+  objPos: -250,
+  objH: 30,
+  rayType: 3,
+  animation: { running: false, progress: 0, startTime: 0, duration: 2000, rafId: null }
+};
+
+function calculerImage() {
+  const f = etat.type === 'convergente' ? etat.focale : -Math.abs(etat.focale);
+  const OA = etat.objPos;
+  const AB = etat.objH;
+  const denom = (1 / f) + (1 / OA);
+  if (Math.abs(denom) < 1e-9) {
+    return { OA_prime: null, AB_prime: null, gamma: null, nature: 'Image à l\'infini' };
+  }
+  const OA_prime = 1 / denom;
+  const gamma = OA_prime / OA;
+  const AB_prime = gamma * AB;
+  let nature = OA_prime > 0 ? 'Réelle' : 'Virtuelle';
+  nature += gamma < 0 ? ' · Renversée' : ' · Droite';
+  return { OA_prime, AB_prime, gamma, nature };
+}
+
+function mmToPx(mm) { return mm * PX_PAR_MM; }
+function xCanvas(x_mm) { return CENTRE_X + mmToPx(x_mm); }
+function yCanvas(y_mm) { return AXE_Y - mmToPx(y_mm); }
+
+function drawBanc(progress) {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0a0a1a';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = 'rgba(79,195,247,0.06)';
+  for (let x = 0; x < W; x += 40) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let y = 0; y < H; y += 40) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6, 5]);
+  ctx.beginPath();
+  ctx.moveTo(0, AXE_Y);
+  ctx.lineTo(W, AXE_Y);
+  ctx.stroke();
+    ctx.setLineDash([]);
+
+  // Graduations pour mobile (moins de valeurs pour ne pas surcharger)
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.font = 'bold 11px monospace';
+  ctx.textAlign = 'center';
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+  ctx.lineWidth = 1.5;
+
+  for (let mm = -600; mm <= 600; mm += 200) {  // pas de 200 en mobile
+    const px = xCanvas(mm);
+    if (px < 20 || px > W - 20) continue;
+
+    ctx.beginPath();
+    ctx.moveTo(px, AXE_Y - 5);
+    ctx.lineTo(px, AXE_Y + 5);
+    ctx.stroke();
+
+    if (mm !== 0) {
+      const texte = `${mm}`;
+      const largeurTexte = ctx.measureText(texte).width;
+      ctx.fillStyle = 'rgba(10,10,26,0.85)';
+      ctx.fillRect(px - largeurTexte/2 - 2, AXE_Y + 8, largeurTexte + 4, 16);
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.fillText(texte, px, AXE_Y + 20);
+    }
+  }
+
+  drawLentille();
+  const f = etat.type === 'convergente' ? etat.focale : -Math.abs(etat.focale);
+  drawFoyer(-f, 'F');
+  drawFoyer(f, 'F\'');
+  drawCentreO();
+
+  drawObjet(xCanvas(etat.objPos), AXE_Y, yCanvas(etat.objH));
+
+  const img = calculerImage();
+  drawRayons(progress, img);
+
+  if (progress > 0.7) {
+    drawImage(img, Math.min(1, (progress - 0.7) / 0.3));
+  }
+}
+
+function drawLentille() {
+  const x = CENTRE_X;
+  const h = 160;
+  const isConv = etat.type === 'convergente';
+  const couleur = isConv ? '#4fc3f7' : '#ff9800';
+
+  ctx.beginPath();
+  if (isConv) {
+    ctx.moveTo(x - 5, AXE_Y - h/2);
+    ctx.quadraticCurveTo(x + 15, AXE_Y, x - 5, AXE_Y + h/2);
+    ctx.lineTo(x + 5, AXE_Y + h/2);
+    ctx.quadraticCurveTo(x - 15, AXE_Y, x + 5, AXE_Y - h/2);
+  } else {
+    ctx.moveTo(x - 12, AXE_Y - h/2);
+    ctx.quadraticCurveTo(x - 2, AXE_Y, x - 12, AXE_Y + h/2);
+    ctx.lineTo(x + 12, AXE_Y + h/2);
+    ctx.quadraticCurveTo(x + 2, AXE_Y, x + 12, AXE_Y - h/2);
+  }
+  ctx.closePath();
+  ctx.fillStyle = isConv ? 'rgba(79,195,247,0.15)' : 'rgba(255,152,0,0.15)';
+  ctx.fill();
+  ctx.strokeStyle = couleur;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.fillStyle = couleur;
+  ctx.font = 'bold 10px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(isConv ? 'CONVERGENTE' : 'DIVERGENTE', x, 15);
+}
+
+function drawFoyer(x_mm, label) {
+  const px = xCanvas(x_mm);
+  if (px < 10 || px > W - 10) return;
+  ctx.beginPath();
+  ctx.arc(px, AXE_Y, 4, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffd54f';
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+  ctx.fillStyle = '#ffd54f';
+  ctx.font = 'bold 11px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(label, px, AXE_Y - 10);
+}
+
+function drawCentreO() {
+  ctx.beginPath();
+  ctx.arc(CENTRE_X, AXE_Y, 3, 0, Math.PI * 2);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 10px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('O', CENTRE_X, AXE_Y - 8);
+}
+
+function drawObjet(xStart, yBase, yTop) {
+  const grad = ctx.createLinearGradient(0, yBase, 0, yTop);
+  grad.addColorStop(0, '#4caf50');
+  grad.addColorStop(1, '#8bc34a');
+  ctx.strokeStyle = grad;
+  ctx.fillStyle = grad;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(xStart, yBase);
+  ctx.lineTo(xStart, yTop);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(xStart, yTop);
+  ctx.lineTo(xStart - 6, yTop + 10);
+  ctx.lineTo(xStart + 6, yTop + 10);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#8bc34a';
+  ctx.font = 'bold 10px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('A', xStart, yBase + 14);
+  ctx.fillText('B', xStart, yTop - 4);
+}
+
+function drawImage(img, progress) {
+  if (!img.OA_prime || !isFinite(img.OA_prime)) return;
+  
+  const xA = xCanvas(img.OA_prime);
+  const yBase = AXE_Y;
+  const yTopFull = yCanvas(img.AB_prime);
+  const yTop = yBase + (yTopFull - yBase) * progress;
+  
+  const isVirtuelle = img.OA_prime < 0;
+  const couleur = isVirtuelle ? '#9c27b0' : '#ff5722';
+  
+  // 🆕 DEBUG dans la console pour comprendre
+  console.log('🔍 drawImage →', {
+    OA_prime: img.OA_prime.toFixed(1),
+    AB_prime: img.AB_prime.toFixed(1),
+    gamma: img.gamma.toFixed(2),
+    xA: xA.toFixed(0),
+    CENTRE_X: CENTRE_X,
+    side: xA > CENTRE_X ? 'DROITE ✅' : 'GAUCHE ⚠️'
+  });
+  
+  // Ligne verticale de l'image
+  ctx.strokeStyle = couleur;
+  ctx.fillStyle = couleur;
+  ctx.lineWidth = 3;
+  ctx.setLineDash(isVirtuelle ? [5, 3] : []);
+  ctx.beginPath();
+  ctx.moveTo(xA, yBase);
+  ctx.lineTo(xA, yTop);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  
+  // Pointe de la flèche (en haut de l'image)
+  ctx.beginPath();
+  ctx.moveTo(xA, yTop);
+  ctx.lineTo(xA - 6, yTop + (yTop > yBase ? 10 : -10));
+  ctx.lineTo(xA + 6, yTop + (yTop > yBase ? 10 : -10));
+  ctx.closePath();
+  ctx.fill();
+  
+  // Marqueurs A' et B'
+  ctx.fillStyle = couleur;
+  ctx.font = 'bold 12px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText("A'", xA, yBase + 18);
+  ctx.fillText("B'", xA, yTop > yBase ? yTop + 22 : yTop - 8);
+  
+  // 🆕 Cercle de mise en évidence autour de A' et B'
+  ctx.strokeStyle = couleur;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(xA, yBase, 5, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(xA, yTop, 5, 0, Math.PI * 2);
+  ctx.stroke();
+}
+
+// ============================================================
+//  RAYONS — v2 CORRIGÉE
+// ============================================================
+function drawRayons(progress, img) {
+  const objX = xCanvas(etat.objPos);
+  const objY = yCanvas(etat.objH);
+  const maxX = W - 5;
+
+  if (etat.rayType >= 1) drawRayon1(objX, objY, progress, maxX);
+  if (etat.rayType >= 2) drawRayon2(objX, objY, progress, maxX);
+  if (etat.rayType >= 3) drawRayon3(objX, objY, progress, maxX);
+}
+
+function drawRayon1(xObj, yObjTop, progress, maxX) {
+  const xLentille = CENTRE_X;
+  const yLentille = yObjTop;
+  drawSegment({ x: xObj, y: yObjTop }, { x: xLentille, y: yLentille }, progress, 0, 0.5, '#f44336');
+
+  const f = etat.type === 'convergente' ? etat.focale : -Math.abs(etat.focale);
+  const xFp = xCanvas(f);
+  const dx = xFp - xLentille;
+  const dy = AXE_Y - yLentille;
+
+  let p3;
+  if (Math.abs(dx) > 1) {
+    const t = (maxX - xLentille) / dx;
+    p3 = { x: maxX, y: yLentille + dy * t };
+  } else {
+    p3 = { x: maxX, y: yLentille };
+  }
+  drawSegment({ x: xLentille, y: yLentille }, p3, progress, 0.5, 1, '#f44336');
+
+  if (etat.type === 'divergente') {
+    ctx.strokeStyle = 'rgba(244,67,54,0.35)';
+    ctx.setLineDash([5, 4]);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(xLentille, yLentille);
+    ctx.lineTo(xFp, AXE_Y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+function drawRayon2(xObj, yObjTop, progress, maxX) {
+  const xLentille = CENTRE_X;
+  const yLentille = AXE_Y;
+  drawSegment({ x: xObj, y: yObjTop }, { x: xLentille, y: yLentille }, progress, 0, 0.5, '#2196f3');
+
+  const dx = xLentille - xObj;
+  const dy = yLentille - yObjTop;
+  let p3;
+  if (Math.abs(dx) > 1) {
+    const t = (maxX - xLentille) / dx;
+    p3 = { x: maxX, y: yLentille + dy * t };
+  } else {
+    p3 = { x: maxX, y: yLentille };
+  }
+  drawSegment({ x: xLentille, y: yLentille }, p3, progress, 0.5, 1, '#2196f3');
+}
+
+function drawRayon3(xObj, yObjTop, progress, maxX) {
+  const xLentille = CENTRE_X;
+  const f = etat.type === 'convergente' ? etat.focale : -Math.abs(etat.focale);
+
+  let xCible;
+  if (etat.type === 'convergente') {
+    xCible = xCanvas(-Math.abs(f));
+  } else {
+    xCible = xCanvas(Math.abs(f));
+  }
+
+  const x1 = xObj, y1 = yObjTop;
+  const x2 = xCible, y2 = AXE_Y;
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+
+  let yLentille;
+  if (Math.abs(dx) > 0.001) {
+    const t = (xLentille - x1) / dx;
+    yLentille = y1 + dy * t;
+  } else {
+    yLentille = yObjTop;
+  }
+
+  drawSegment({ x: xObj, y: yObjTop }, { x: xLentille, y: yLentille }, progress, 0, 0.5, '#9c27b0');
+  drawSegment({ x: xLentille, y: yLentille }, { x: maxX, y: yLentille }, progress, 0.5, 1, '#9c27b0');
+
+  if (etat.type === 'divergente') {
+    ctx.strokeStyle = 'rgba(156,39,176,0.35)';
+    ctx.setLineDash([5, 4]);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(xLentille, yLentille);
+    ctx.lineTo(xCanvas(-Math.abs(f)), AXE_Y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+function drawSegment(p1, p2, globalProgress, tStart, tEnd, couleur) {
+  const tLocal = Math.max(0, Math.min(1, (globalProgress - tStart) / (tEnd - tStart)));
+  if (tLocal <= 0) return;
+  const x = p1.x + (p2.x - p1.x) * tLocal;
+  const y = p1.y + (p2.y - p1.y) * tLocal;
+  ctx.strokeStyle = couleur;
+  ctx.lineWidth = 1.8;
+  ctx.shadowColor = couleur;
+  ctx.shadowBlur = 6;
+  ctx.beginPath();
+  ctx.moveTo(p1.x, p1.y);
+  ctx.lineTo(x, y);
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+  if (tLocal > 0.05) {
+    const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+    ctx.fillStyle = couleur;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x - 8 * Math.cos(angle - 0.4), y - 8 * Math.sin(angle - 0.4));
+    ctx.lineTo(x - 8 * Math.cos(angle + 0.4), y - 8 * Math.sin(angle + 0.4));
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
+// ============================================================
+//  TEXTE EXPLICATIF DYNAMIQUE
+// ============================================================
+function genererExplication() {
+  const img = calculerImage();
+  const f = etat.type === 'convergente' ? etat.focale : -Math.abs(etat.focale);
+  const distF = Math.abs(f);
+  const distObj = Math.abs(etat.objPos);
+
+  if (img.OA_prime === null || !isFinite(img.OA_prime)) {
+    return "⚠️ Objet au foyer F : les rayons sortent parallèles, l'image se forme à l'infini.";
+  }
+
+  if (etat.type === 'convergente') {
+    if (distObj > 2 * distF + 5) {
+      return `📷 Objet très éloigné (OA > 2f) : image réelle, renversée et plus petite (γ = ${img.gamma.toFixed(2)}). → Appareil photo.`;
+    } else if (Math.abs(distObj - 2 * distF) <= 5) {
+      return `📐 Objet à 2f : image réelle, renversée, même taille (γ = ${img.gamma.toFixed(2)}).`;
+    } else if (distObj > distF + 5 && distObj < 2 * distF - 5) {
+      return `🎬 Objet entre f et 2f : image réelle, renversée et agrandie (γ = ${img.gamma.toFixed(2)}). → Projecteur.`;
+    } else if (distObj < distF - 5) {
+      return `🔍 Objet entre O et F : image virtuelle, droite et agrandie (γ = ${img.gamma.toFixed(2)}). → Loupe.`;
+    }
+  } else {
+    return `🔎 Lentille divergente : l'image est toujours virtuelle, droite et plus petite (γ = ${img.gamma.toFixed(2)}).`;
+  }
+  return "Déplacez l'objet pour observer les différents cas.";
+}
+
+function updateInfos() {
+  const img = calculerImage();
+  if (img.OA_prime === null) {
+    document.getElementById('imgPos').textContent = '∞';
+    document.getElementById('imgH').textContent = '∞';
+    document.getElementById('grand').textContent = '∞';
+    document.getElementById('nature').textContent = 'Image à l\'infini';
+  } else {
+    document.getElementById('imgPos').textContent = img.OA_prime.toFixed(0) + ' mm';
+    document.getElementById('imgH').textContent = img.AB_prime.toFixed(1) + ' mm';
+    document.getElementById('grand').textContent = img.gamma.toFixed(2);
+    document.getElementById('nature').textContent = img.nature;
+  }
+  document.getElementById('fVal').textContent =
+    (etat.type === 'convergente' ? '+' : '−') + Math.abs(etat.focale) + ' mm';
+  document.getElementById('oVal').textContent = etat.objPos + ' mm';
+  document.getElementById('hVal').textContent = etat.objH + ' mm';
+  const rayLabels = { 1: 'Parallèle', 2: '+ O', 3: 'Les 3' };
+  document.getElementById('rayVal').textContent = rayLabels[etat.rayType] || '3';
+
+  document.getElementById('observTxt').textContent = genererExplication();
+}
+
+function startAnimation() {
+  if (etat.animation.running) return;
+  etat.animation.running = true;
+  etat.animation.progress = 0;
+  etat.animation.startTime = performance.now();
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('status').textContent = '💡 Propagation...';
+  document.getElementById('status').classList.add('active');
+
+  function animate(now) {
+    const elapsed = now - etat.animation.startTime;
+    const p = Math.min(1, elapsed / etat.animation.duration);
+    etat.animation.progress = p;
+    drawBanc(p);
+    if (p < 0.5) document.getElementById('status').textContent = '💡 Rayons vers la lentille...';
+    else if (p < 0.9) document.getElementById('status').textContent = '🌊 Convergence...';
+    else document.getElementById('status').textContent = '✅ Image formée !';
+    if (p < 1) etat.animation.rafId = requestAnimationFrame(animate);
+    else {
+      etat.animation.running = false;
+      document.getElementById('startBtn').disabled = false;
+      document.getElementById('startBtn').innerHTML = '▶ Rejouer';
+    }
+  }
+  etat.animation.rafId = requestAnimationFrame(animate);
+}
+
+function resetAll() {
+  if (etat.animation.rafId) cancelAnimationFrame(etat.animation.rafId);
+  etat.animation.running = false;
+  etat.animation.progress = 1;
+  etat.focale = 100;
+  etat.objPos = -250;
+  etat.objH = 30;
+  etat.rayType = 3;
+  document.getElementById('focale').value = 100;
+  document.getElementById('objPos').value = -250;
+  document.getElementById('objH').value = 30;
+  document.getElementById('rayType').value = 3;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('startBtn').innerHTML = '▶ Animer';
+  document.getElementById('status').textContent = 'Déplacez l\'objet et observez l\'image';
+  document.getElementById('status').classList.remove('active');
+  updateInfos();
+  drawBanc(1);
+}
+
+document.getElementById('focale').addEventListener('input', (e) => {
+  etat.focale = parseFloat(e.target.value) || 5;
+  updateInfos();
+  drawBanc(1);
+});
+document.getElementById('objPos').addEventListener('input', (e) => {
+  etat.objPos = parseFloat(e.target.value);
+  updateInfos();
+  drawBanc(1);
+});
+document.getElementById('objH').addEventListener('input', (e) => {
+  etat.objH = parseFloat(e.target.value);
+  updateInfos();
+  drawBanc(1);
+});
+document.getElementById('rayType').addEventListener('input', (e) => {
+  etat.rayType = parseInt(e.target.value);
+  updateInfos();
+  drawBanc(1);
+});
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    etat.type = tab.dataset.tab;
+    updateInfos();
+    drawBanc(1);
+  });
+});
+
+window.addEventListener('load', () => {
+  etat.animation.progress = 1;
+  updateInfos();
+  drawBanc(1);
+});
+</script>
+
+</body>
+</html>

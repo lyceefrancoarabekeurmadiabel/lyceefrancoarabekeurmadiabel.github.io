@@ -1,0 +1,3470 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>TP RL — Mobile | LFAKM</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="manifest" href="../assets/manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
+    --slate: #5B6472; --line: rgba(27,42,74,0.14);
+    --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --success: #2e7d32; --warning: #f39c12; --danger: #d9534f; --info: #3498db;
+    --copper: #B87333; --copper-light: #E8A05C;
+    --touch-size: 48px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { overflow-x: hidden; max-width: 100vw; }
+  body {
+    font-family: var(--sans);
+    background: var(--paper);
+    color: #1a1a1a;
+    line-height: 1.55;
+    min-height: 100vh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .top-nav {
+    background: var(--ink-deep);
+    color: #fff;
+    padding: 10px 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .top-nav .title {
+    font-family: var(--serif);
+    font-size: 14px;
+    font-weight: 700;
+    color: #4fc3f7;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .top-nav .nav-links { display: flex; gap: 6px; flex-shrink: 0; }
+  .top-nav .nav-links a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.1);
+    white-space: nowrap;
+  }
+  .top-nav .nav-links a.pc { background: rgba(79,195,247,0.2); color: #4fc3f7; }
+  .top-nav .son-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    font-size: 16px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .top-nav .son-btn.off { opacity: 0.4; }
+  .steps-bar {
+    background: #fff;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    z-index: 99;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .steps-bar::-webkit-scrollbar { display: none; }
+  .steps-container {
+    display: flex;
+    gap: 12px;
+    min-width: max-content;
+    padding-bottom: 4px;
+  }
+  .step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+  }
+  .step-item.active, .step-item.done { opacity: 1; }
+  .step-circle {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--slate);
+  }
+  .step-item.active .step-circle {
+    border-color: var(--brass);
+    background: var(--brass);
+    color: #fff;
+    box-shadow: 0 0 0 4px rgba(168,133,63,0.15);
+  }
+  .step-item.done .step-circle {
+    border-color: var(--success);
+    background: var(--success);
+    color: #fff;
+  }
+  .step-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--slate);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .step-item.active .step-label { color: var(--brass); }
+  .step-item.done .step-label { color: var(--success); }
+  .main-content {
+    padding: 15px 12px 40px;
+    max-width: 100%;
+  }
+  .etape { display: none; }
+  .etape.active { display: block; animation: fadeIn 0.3s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .etape-header { text-align: center; margin-bottom: 20px; }
+  .etape-eyebrow {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--brass); margin-bottom: 6px;
+  }
+  .etape-title {
+    font-family: var(--serif); font-size: 22px; color: var(--ink);
+    margin-bottom: 8px; line-height: 1.2;
+  }
+  .etape-subtitle { font-size: 13px; color: var(--slate); }
+  .card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .card-title {
+    font-family: var(--serif); font-size: 16px; color: var(--ink);
+    margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+  }
+  .card-title .icon { font-size: 20px; }
+  .card-subtitle { font-size: 12px; color: var(--slate); margin-bottom: 12px; }
+  .objectif-box {
+    background: linear-gradient(135deg, #fff8e1 0%, #fffbf0 100%);
+    border-left: 4px solid var(--brass);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 15px;
+  }
+  .objectif-box .label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1.2px; color: var(--brass); margin-bottom: 5px;
+  }
+  .objectif-box .text { font-size: 13.5px; color: var(--ink); line-height: 1.5; }
+  .composants-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .composant-card {
+    background: #f9f7f2;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .composant-card:active {
+    border-color: var(--brass);
+    background: #fff;
+    transform: scale(0.97);
+  }
+  .composant-card .symbol { font-size: 36px; margin-bottom: 6px; line-height: 1; }
+  .composant-card .name { font-weight: 700; font-size: 12.5px; color: var(--ink); margin-bottom: 3px; }
+  .composant-card .value { font-size: 11px; color: var(--brass); font-weight: 700; font-family: 'Courier New', monospace; }
+  .composant-card .click-hint {
+    position: absolute; top: 5px; right: 7px;
+    font-size: 10px; color: var(--slate); opacity: 0.5;
+  }
+  .notions-list { list-style: none; padding: 0; }
+  .notions-list li {
+    padding: 10px 12px 10px 38px;
+    background: #f9f7f2;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    line-height: 1.5;
+    position: relative;
+    color: var(--ink);
+  }
+  .notions-list li::before {
+    content: '✓';
+    position: absolute; left: 12px; top: 10px;
+    color: var(--brass); font-weight: 800; font-size: 16px;
+  }
+  .notions-list li strong { color: var(--brass); font-family: 'Courier New', monospace; }
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .btn {
+    padding: 14px 20px;
+    border-radius: 10px;
+    border: none;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    min-height: var(--touch-size);
+  }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn:active:not(:disabled) { transform: scale(0.97); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--brass) 0%, #8e6f33 100%);
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(168, 133, 63, 0.3);
+  }
+  .btn-secondary {
+    background: #fff;
+    color: var(--ink);
+    border: 2px solid var(--line);
+  }
+  .canvas-montage {
+    background: #000;
+    border: 2px solid #4fc3f7;
+    border-radius: 12px;
+    padding: 3px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .canvas-montage canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    touch-action: none;
+    cursor: pointer;
+  }
+  .canvas-hint-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(79,195,247,0.12);
+    color: #0288d1;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(79,195,247,0.35);
+    margin-bottom: 8px;
+    text-align: center;
+    min-height: 40px;
+    line-height: 1.35;
+    transition: all 0.2s;
+  }
+  .toolbox-mobile {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .outil-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 10px;
+    background: #f9f7f2;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+    text-align: left;
+    transition: all 0.15s;
+    min-height: var(--touch-size);
+  }
+  .outil-btn:active:not(.used) {
+    background: #fff;
+    border-color: var(--brass);
+    transform: scale(0.97);
+  }
+  .outil-btn.used { opacity: 0.4; cursor: not-allowed; }
+  .outil-btn .icon { font-size: 20px; flex-shrink: 0; }
+  .outil-btn.wire-btn {
+    background: rgba(76, 175, 80, 0.1);
+    border-color: rgba(76, 175, 80, 0.4);
+    color: #2e7d32;
+  }
+  .outil-btn.danger {
+    background: #fff5f5;
+    border-color: rgba(217, 83, 79, 0.4);
+    color: #d9534f;
+  }
+  .montage-progress {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    background: #fff;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+    flex-wrap: wrap;
+    font-size: 12px;
+  }
+  .progress-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .progress-item .count {
+    background: var(--brass);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 800;
+    font-family: 'Courier New', monospace;
+  }
+  .progress-item.done .count { background: var(--success); }
+  .verif-message {
+    border-radius: 10px;
+    padding: 12px 15px;
+    font-size: 13px;
+    line-height: 1.55;
+    display: none;
+    margin-top: 12px;
+  }
+  .verif-message.show { display: block; }
+  .verif-message.success { background: #e8f5e9; border-left: 4px solid var(--success); color: #1b5e20; }
+  .verif-message.error { background: #ffebee; border-left: 4px solid var(--danger); color: #b71c1c; }
+  .verif-message ul { margin: 6px 0 0 0; padding: 0; list-style: none; }
+  .verif-message li { margin-bottom: 4px; padding-left: 18px; position: relative; font-size: 12.5px; }
+  .verif-message li::before { position: absolute; left: 0; font-weight: 700; }
+  .verif-message li.ok::before { content: '✅'; }
+  .verif-message li.ko::before { content: '❌'; }
+
+  /* ✅ Bouton interrupteur */
+  .interrupteur-control {
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
+    margin-bottom: 8px;
+  }
+  .btn-interrupteur {
+    padding: 14px 28px;
+    border-radius: 10px;
+    border: 2px solid #4fc3f7;
+    background: #f0f9ff;
+    color: #0288d1;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-interrupteur.ferme { background: #e8f5e9; border-color: #4caf50; color: #2e7d32; }
+  .btn-interrupteur.ouvert { background: #fff5f5; border-color: #f44336; color: #c62828; }
+
+  /* Sélecteur U_R / U_L */
+  .selecteur-mesure {
+    background: #fff;
+    border: 2px solid #ff9800;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .selecteur-mesure .label {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .radio-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: #f9f7f2;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    transition: all 0.15s;
+    min-height: var(--touch-size);
+  }
+  .radio-btn.actif { background: #fff8e1; border-color: #ff9800; color: #E65100; }
+  .radio-btn input { display: none; }
+  .radio-btn .radio-dot {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid var(--line);
+    background: #fff;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .radio-btn.actif .radio-dot { border-color: #ff9800; }
+  .radio-btn.actif .radio-dot::after {
+    content: '';
+    position: absolute; inset: 2px;
+    border-radius: 50%;
+    background: #ff9800;
+  }
+
+  .analyse-layout {
+    background: #fff;
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .sous-onglets {
+    display: flex;
+    background: #f9f7f2;
+    border-bottom: 2px solid var(--line);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .sous-onglets::-webkit-scrollbar { display: none; }
+  .sous-onglet {
+    flex-shrink: 0;
+    padding: 12px 14px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--slate);
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    min-height: var(--touch-size);
+  }
+  .sous-onglet.active {
+    color: var(--brass);
+    border-bottom-color: var(--brass);
+    background: #fff;
+  }
+  .sous-onglet-contenu { display: none; padding: 15px; }
+  .sous-onglet-contenu.active { display: block; animation: fadeIn 0.3s ease-out; }
+  .recap-header { text-align: center; margin-bottom: 18px; }
+  .recap-header h3 { font-family: var(--serif); font-size: 18px; color: var(--ink); margin-bottom: 6px; }
+  .recap-header p { font-size: 12.5px; color: var(--slate); }
+  .recap-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .recap-card {
+    background: linear-gradient(135deg, #f0f8ff 0%, #e8f4fd 100%);
+    border: 2px solid #4fc3f7;
+    border-radius: 10px;
+    padding: 12px 10px;
+    text-align: center;
+  }
+  .recap-card .recap-icon { font-size: 24px; margin-bottom: 4px; display: block; }
+  .recap-card .recap-label {
+    font-size: 9.5px; text-transform: uppercase; color: var(--slate);
+    letter-spacing: 0.8px; font-weight: 700; margin-bottom: 3px;
+  }
+  .recap-card .recap-value {
+    font-family: 'Courier New', monospace; font-size: 15px;
+    font-weight: 800; color: var(--ink);
+  }
+  .recap-card-editable { padding-bottom: 12px; }
+  .recap-input {
+    width: 80px;
+    padding: 6px;
+    margin-top: 3px;
+    border: 2px solid #4fc3f7;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--ink);
+    text-align: center;
+    background: #fff;
+  }
+  .recap-unit { font-family: 'Courier New', monospace; font-size: 11px; color: var(--slate); font-weight: 700; }
+  .recap-compare-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .recap-legende {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-size: 11.5px;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .legende-item { display: inline-flex; align-items: center; gap: 5px; }
+  .legende-trait { width: 18px; height: 3px; border-radius: 2px; display: inline-block; }
+  .recap-courbe {
+    background: #000;
+    border-radius: 10px;
+    border: 2px solid #4caf50;
+    padding: 6px;
+    margin-bottom: 15px;
+  }
+  .recap-courbe canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 260px;
+    touch-action: none;
+  }
+  .recap-valeurs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .recap-valeur-item {
+    background: #f9f7f2;
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+    border-left: 3px solid var(--brass);
+  }
+  .recap-valeur-item .label {
+    font-size: 10px; color: var(--slate); text-transform: uppercase;
+    letter-spacing: 0.4px; margin-bottom: 3px;
+  }
+  .recap-valeur-item .value {
+    font-family: 'Courier New', monospace; font-size: 13px;
+    font-weight: 800; color: var(--brass);
+  }
+  .tau-interactif-banner {
+    background: linear-gradient(135deg, #fff8e1 0%, #fffbf0 100%);
+    border-left: 4px solid #ff9800;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin: 12px 0;
+    font-size: 12.5px;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  .tau-interactif-banner .titre {
+    font-weight: 800; color: #ff9800; margin-bottom: 4px;
+  }
+  .tau-resultat {
+    background: #fff;
+    border: 2px solid #ff9800;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-top: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #E65100;
+    display: none;
+  }
+  .tau-resultat.show { display: block; }
+
+  /* Boutons Charge / Décharge */
+  .mode-courbe-btns {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .mode-courbe-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 2px solid var(--line);
+    background: #fff;
+    color: var(--slate);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: var(--touch-size);
+  }
+  .mode-courbe-btn.active {
+    background: var(--brass);
+    color: #fff;
+    border-color: var(--brass);
+    box-shadow: 0 4px 12px rgba(168, 133, 63, 0.3);
+  }
+  .mode-courbe-btn:active:not(.active) {
+    background: #f9f7f2;
+    transform: scale(0.97);
+  }
+
+  /* Deux courbes côte à côte */
+  .courbes-duo {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  .courbe-duo-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .courbe-duo-label {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--ink);
+    text-align: center;
+    padding: 6px;
+    border-radius: 6px;
+    background: #f9f7f2;
+  }
+  #labelUR { color: #ffeb3b; background: rgba(255, 235, 59, 0.15); }
+  #labelUL { color: #4fc3f7; background: rgba(79, 195, 247, 0.1); }
+  .courbe-duo-formule {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: var(--slate);
+    text-align: center;
+    padding: 8px;
+    background: #f9f7f2;
+    border-radius: 6px;
+    border-left: 3px solid var(--brass);
+    line-height: 1.4;
+  }
+  .courbe-duo-item:last-child .recap-courbe {
+    border-color: #4fc3f7;
+  }
+
+  .charge-decharge-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 15px;
+  }
+  .courbe-box {
+    background: #000;
+    border-radius: 10px;
+    padding: 8px;
+    border: 2px solid #4caf50;
+  }
+  .courbe-box.decharge { border-color: #ff9800; }
+  .courbe-box h4 {
+    color: #4caf50;
+    font-family: var(--serif);
+    font-size: 14px;
+    margin-bottom: 6px;
+    text-align: center;
+  }
+  .courbe-box.decharge h4 { color: #ff9800; }
+  .courbe-box canvas {
+    display: block; width: 100%; height: auto;
+    max-height: 220px; touch-action: none;
+  }
+  .courbe-formule {
+    background: #f9f7f2;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-top: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--ink);
+    text-align: center;
+    border-left: 3px solid var(--brass);
+  }
+  .courbe-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 15px;
+  }
+  .btn-courbe {
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: none;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+    min-height: var(--touch-size);
+    transition: all 0.15s;
+  }
+  .btn-courbe:active { transform: scale(0.97); }
+  .btn-courbe.charge { background: linear-gradient(135deg, #4caf50, #66bb6a); color: #fff; }
+  .btn-courbe.decharge { background: linear-gradient(135deg, #ff9800, #f57c00); color: #fff; }
+  .btn-courbe.cycle { background: linear-gradient(135deg, #1976d2, #42a5f5); color: #fff; }
+  .btn-courbe.maille { background: linear-gradient(135deg, #6a4c93, #9c27b0); color: #fff; }
+  .info-encadre {
+    background: linear-gradient(135deg, #fff8e1 0%, #fffbf0 100%);
+    border-left: 4px solid var(--brass);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--ink);
+    margin-top: 12px;
+  }
+  .info-encadre strong { color: var(--brass); }
+
+  .applis-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .appli-card {
+    background: #fff;
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .appli-header { display: flex; align-items: center; gap: 10px; }
+  .appli-icon {
+    font-size: 28px; width: 48px; height: 48px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #fff8e1 0%, #ffe082 100%);
+  }
+  .appli-title { font-family: var(--serif); font-size: 15px; color: var(--ink); font-weight: 700; }
+  .appli-subtitle { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.4px; }
+  .appli-desc { font-size: 13px; color: var(--ink); line-height: 1.55; }
+  .appli-desc strong { color: var(--brass); }
+  .appli-btn {
+    padding: 10px 14px;
+    background: linear-gradient(135deg, var(--brass), #8e6f33);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    min-height: var(--touch-size);
+  }
+  .appli-canvas-zone {
+    background: #000;
+    border-radius: 8px;
+    padding: 6px;
+    display: none;
+  }
+  .appli-canvas-zone.show { display: block; }
+  .appli-canvas-zone canvas { display: block; width: 100%; height: auto; max-height: 150px; }
+
+  .qcm-header { text-align: center; margin-bottom: 18px; }
+  .qcm-header h3 { font-family: var(--serif); font-size: 18px; color: var(--ink); margin-bottom: 6px; }
+  .qcm-header p { font-size: 12.5px; color: var(--slate); }
+  .qcm-item {
+    background: #fff;
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 14px;
+  }
+  .qcm-item.correct { border-color: var(--success); background: #f1f8f3; }
+  .qcm-item.incorrect { border-color: var(--danger); background: #fdf2f2; }
+  .qcm-question-num {
+    display: inline-block;
+    background: var(--brass);
+    color: #fff;
+    font-weight: 800;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 16px;
+    margin-bottom: 10px;
+  }
+  .qcm-question-texte {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 12px;
+    line-height: 1.45;
+  }
+  .qcm-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .qcm-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: #f9f7f2;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--ink);
+    text-align: left;
+    transition: all 0.15s;
+    width: 100%;
+    min-height: var(--touch-size);
+  }
+  .qcm-option:active:not(:disabled) {
+    background: #fff;
+    border-color: var(--brass);
+  }
+  .qcm-option.selected {
+    background: #fff8e1;
+    border-color: var(--brass);
+    font-weight: 700;
+  }
+  .qcm-option.correct {
+    background: #e8f5e9;
+    border-color: var(--success);
+    font-weight: 700;
+  }
+  .qcm-option.incorrect {
+    background: #ffebee;
+    border-color: var(--danger);
+  }
+  .qcm-option:disabled { cursor: not-allowed; }
+  .qcm-option .qcm-lettre {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid var(--line);
+    font-weight: 800;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .qcm-option.selected .qcm-lettre { background: var(--brass); color: #fff; border-color: var(--brass); }
+  .qcm-option.correct .qcm-lettre { background: var(--success); color: #fff; border-color: var(--success); }
+  .qcm-option.incorrect .qcm-lettre { background: var(--danger); color: #fff; border-color: var(--danger); }
+  .qcm-feedback {
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12.5px;
+    line-height: 1.55;
+    display: none;
+  }
+  .qcm-feedback.show { display: block; }
+  .qcm-feedback.success { background: #e8f5e9; border-left: 4px solid var(--success); color: #1b5e20; }
+  .qcm-feedback.error { background: #ffebee; border-left: 4px solid var(--danger); color: #b71c1c; }
+  .qcm-btn-valider {
+    padding: 12px 18px;
+    background: linear-gradient(135deg, var(--brass), #8e6f33);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    min-height: var(--touch-size);
+  }
+  .qcm-btn-valider:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .conclusion-bilan {
+    background: linear-gradient(135deg, #fff8e1 0%, #fffbf0 100%);
+    border-left: 4px solid var(--brass);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 15px;
+    display: flex;
+    gap: 10px;
+  }
+  .bilan-icon { font-size: 24px; flex-shrink: 0; }
+  .bilan-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--brass); margin-bottom: 3px;
+  }
+  .bilan-text { font-size: 12.5px; color: var(--ink); line-height: 1.5; }
+  .conclusion-progress {
+    background: #f9f7f2;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .progress-barre {
+    flex: 1;
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-remplissage {
+    height: 100%;
+    background: linear-gradient(90deg, var(--brass), #d4a94a);
+    width: 0%;
+    transition: width 0.4s ease;
+    border-radius: 4px;
+  }
+  .progress-texte {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--brass);
+    min-width: 40px;
+    text-align: right;
+  }
+  .conclusion-form {
+    background: #fff;
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    padding: 15px;
+  }
+  .conclusion-champ { margin-bottom: 18px; }
+  .conclusion-champ label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+    cursor: pointer;
+    line-height: 1.4;
+  }
+  .champ-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--brass);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .champ-indice {
+    font-size: 11.5px;
+    color: var(--slate);
+    font-style: italic;
+    margin: 0 0 8px 34px;
+    line-height: 1.4;
+  }
+  .conclusion-champ input,
+  .conclusion-champ select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--ink);
+    background: #f9f7f2;
+    min-height: var(--touch-size);
+  }
+  .conclusion-champ input:focus,
+  .conclusion-champ select:focus {
+    outline: none;
+    border-color: var(--brass);
+    background: #fff;
+  }
+  .conclusion-champ input.correct,
+  .conclusion-champ select.correct {
+    border-color: var(--success);
+    background: #f1f8f3;
+  }
+  .conclusion-champ input.incorrect,
+  .conclusion-champ select.incorrect {
+    border-color: var(--danger);
+    background: #fdf2f2;
+  }
+  .champ-feedback {
+    font-size: 12px;
+    margin-top: 6px;
+    line-height: 1.45;
+    display: none;
+    padding: 8px 10px;
+    border-radius: 6px;
+  }
+  .champ-feedback.show { display: block; }
+  .champ-feedback.success { background: #e8f5e9; color: #1b5e20; border-left: 3px solid var(--success); }
+  .champ-feedback.error { background: #ffebee; color: #b71c1c; border-left: 3px solid var(--danger); }
+  .conclusion-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .conclusion-resultat {
+    margin-top: 15px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+    display: none;
+  }
+  .conclusion-resultat.show { display: block; }
+  .conclusion-resultat.success { background: #e8f5e9; border-left: 4px solid var(--success); color: #1b5e20; }
+  .conclusion-resultat.partiel { background: #fff8e1; border-left: 4px solid var(--warning); color: #7a5a00; }
+  .conclusion-finale {
+    display: none;
+    margin-top: 18px;
+    background: #fff;
+    border: 2px solid var(--success);
+    border-radius: 12px;
+    padding: 15px;
+  }
+  .conclusion-finale.show { display: block; }
+  .conclusion-finale h4 {
+    font-family: var(--serif);
+    font-size: 16px;
+    color: var(--ink);
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--line);
+  }
+  .conclusion-texte {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #f9f7f2;
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 12px;
+    white-space: pre-line;
+  }
+  .conclusion-texte strong { color: var(--brass); }
+  .conclusion-finale-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .certificat-zone {
+    background: linear-gradient(135deg, #f0f8ff 0%, #e8f4fd 100%);
+    border: 3px solid var(--brass);
+    border-radius: 12px;
+    padding: 18px;
+    margin-top: 18px;
+    text-align: center;
+  }
+  .certificat-zone h3 {
+    font-family: var(--serif);
+    font-size: 17px;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .certificat-zone p { font-size: 12.5px; color: var(--slate); margin-bottom: 12px; }
+  .certificat-nom {
+    padding: 12px 14px;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    width: 100%;
+    max-width: 280px;
+    margin: 6px auto 12px;
+    display: block;
+    text-align: center;
+    background: #fff;
+    min-height: var(--touch-size);
+  }
+  .exercice-card {
+    background: #fff;
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  .exercice-card.reussi { border-color: var(--success); background: #f1f8f3; }
+  .exercice-card.echoue { border-color: var(--danger); background: #fdf2f2; }
+  .exercice-entete {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .exercice-num {
+    background: var(--brass);
+    color: #fff;
+    font-weight: 800;
+    font-size: 14px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .exercice-titre {
+    font-family: var(--serif);
+    font-size: 15px;
+    color: var(--ink);
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .exercice-enonce {
+    background: #f9f7f2;
+    border-left: 3px solid var(--brass);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  .exercice-etapes {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 12px;
+  }
+  .exercice-etapes li {
+    padding: 8px 10px 8px 32px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin-bottom: 5px;
+    font-size: 12.5px;
+    line-height: 1.45;
+    position: relative;
+    color: var(--ink);
+  }
+  .exercice-etapes li::before {
+    content: '→';
+    position: absolute;
+    left: 12px;
+    color: var(--brass);
+    font-weight: 800;
+  }
+  .exercice-input-zone {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .exercice-input {
+    padding: 12px 14px;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    background: #fff;
+    min-height: var(--touch-size);
+  }
+  .exercice-feedback {
+    margin-top: 8px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    line-height: 1.45;
+    display: none;
+  }
+  .exercice-feedback.show { display: block; }
+  .exercice-feedback.success { background: #e8f5e9; color: #1b5e20; border-left: 3px solid var(--success); }
+  .exercice-feedback.error { background: #ffebee; color: #b71c1c; border-left: 3px solid var(--danger); }
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 400px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  .modal-box h3 {
+    font-family: var(--serif);
+    font-size: 17px;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .modal-content { font-size: 13px; line-height: 1.55; color: var(--ink); }
+  .modal-content p { margin-bottom: 8px; }
+  .modal-content code {
+    background: #f9f7f2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--brass);
+  }
+  .modal-btn {
+    margin-top: 14px;
+    padding: 12px 20px;
+    background: var(--brass);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    min-height: var(--touch-size);
+  }
+</style>
+</head>
+<body>
+
+<div class="top-nav">
+  <div class="title">🌀 TP RL — Mobile</div>
+  <div class="nav-links">
+    <button class="son-btn" id="sonToggle" onclick="toggleSon()" title="Sons">🔊</button>
+    <a href="../pc/labo-pc.html">← Labo</a>
+    <a href="../pc/simulateur-rl.html" class="pc">🖥️ PC</a>
+  </div>
+</div>
+
+<div class="steps-bar">
+  <div class="steps-container">
+    <div class="step-item" data-step="1" onclick="allerEtape(1)">
+      <div class="step-circle">1</div>
+      <div class="step-label">Matériel</div>
+    </div>
+    <div class="step-item active" data-step="2" onclick="allerEtape(2)">
+      <div class="step-circle">2</div>
+      <div class="step-label">Montage</div>
+    </div>
+    <div class="step-item locked" data-step="3" onclick="allerEtape(3)">
+      <div class="step-circle">3</div>
+      <div class="step-label">Mesures</div>
+    </div>
+    <div class="step-item locked" data-step="4" onclick="allerEtape(4)">
+      <div class="step-circle">4</div>
+      <div class="step-label">Analyse</div>
+    </div>
+  </div>
+</div>
+
+<div class="main-content">
+      <!-- ===== ÉTAPE 1 : MATÉRIEL ===== -->
+  <section class="etape" id="etape-1">
+    <div class="etape-header">
+      <div class="etape-eyebrow">Étape 1 sur 4</div>
+      <h1 class="etape-title">📦 Présentation du matériel</h1>
+      <p class="etape-subtitle">Avant de manipuler, découvrons les composants du circuit RL.</p>
+    </div>
+
+    <div class="objectif-box">
+      <div class="label">🎯 Objectif du TP</div>
+      <div class="text">
+        Déterminer <strong>expérimentalement</strong> la constante de temps
+        <strong>τ</strong> d'un circuit RL, puis vérifier la relation
+        <strong>τ = L / R</strong>.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">🔧</span> Composants du circuit</div>
+      <div class="card-subtitle">Tape sur un composant pour découvrir son rôle.</div>
+      <div class="composants-grid">
+        <div class="composant-card" onclick="ouvrirModal('pile')">
+          <span class="click-hint">👆</span><span class="symbol">🔋</span>
+          <div class="name">Pile</div><div class="value">6 V</div>
+        </div>
+        <div class="composant-card" onclick="ouvrirModal('resistance')">
+          <span class="click-hint">👆</span><span class="symbol">📏</span>
+          <div class="name">Résistance</div><div class="value">100 Ω</div>
+        </div>
+        <div class="composant-card" onclick="ouvrirModal('bobine')">
+          <span class="click-hint">👆</span><span class="symbol">🌀</span>
+          <div class="name">Bobine</div><div class="value">1 H</div>
+        </div>
+        <div class="composant-card" onclick="ouvrirModal('interrupteur')">
+          <span class="click-hint">👆</span><span class="symbol">🔘</span>
+          <div class="name">Interrupteur</div><div class="value">K</div>
+        </div>
+        <div class="composant-card" onclick="ouvrirModal('fils')">
+          <span class="click-hint">👆</span><span class="symbol">🧵</span>
+          <div class="name">Fils</div><div class="value">× 4 min.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">📺</span> L'oscilloscope</div>
+      <div class="card-subtitle">L'appareil qui trace la courbe i(t) ou U_L(t)</div>
+      <div style="background: rgba(79,195,247,0.08); border-left: 4px solid #4fc3f7; border-radius: 6px; padding: 12px; font-size: 13px; line-height: 1.55;">
+        <p style="margin-bottom: 8px;"><strong>📌 Rôle :</strong> Affiche en temps réel l'évolution d'une tension.</p>
+        <p style="margin-bottom: 8px;"><strong>📌 Ses 2 voies :</strong></p>
+        <p style="margin: 0; padding-left: 12px;">• <strong>Voie 1 (+)</strong> : borne + du composant à mesurer<br>
+        • <strong>Voie 2 (−)</strong> : borne − du composant à mesurer</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">📚</span> Notions à connaître</div>
+      <ul class="notions-list">
+        <li>Une bobine <strong>stocke de l'énergie</strong> dans un <strong>champ magnétique</strong>.</li>
+        <li>Loi des mailles : <strong>E = U_R + U_L = R·i + L·(di/dt)</strong></li>
+        <li>Établissement : <strong>i(t) = (E/R)·(1 − e^(−t/τ))</strong></li>
+        <li>Rupture : <strong>i(t) = (E/R)·e^(−t/τ)</strong></li>
+        <li>La <strong>constante de temps</strong> : <strong>τ = L / R</strong></li>
+        <li>À <strong>t = τ</strong> : i atteint <strong>63 % de I_max</strong> (étab.) ou <strong>37 %</strong> (rupture).</li>
+      </ul>
+    </div>
+
+    <div class="actions">
+      <a href="../pc/labo-pc.html" class="btn btn-secondary">← Retour au Labo</a>
+      <button class="btn btn-primary" onclick="allerEtape(2)">➡️ Passer au montage</button>
+    </div>
+  </section>
+
+  <!-- ===== ÉTAPE 2 : MONTAGE ===== -->
+  <section class="etape active" id="etape-2">
+    <div class="etape-header">
+      <div class="etape-eyebrow">Étape 2 sur 4</div>
+      <h1 class="etape-title">🛠️ Montage du circuit</h1>
+      <p class="etape-subtitle">Ajoute les composants. Glisse les extrémités des fils pour les brancher aux bornes.</p>
+    </div>
+
+    <div class="objectif-box">
+      <div class="label">🎯 Mission</div>
+      <div class="text">
+        Place les <strong>4 composants</strong> et connecte-les avec au moins
+        <strong>4 fils</strong> pour former un circuit RL fermé.
+      </div>
+    </div>
+
+    <div class="toolbox-mobile">
+      <button class="outil-btn" id="btn-pile" onclick="ajouterComposant('pile')">
+        <span class="icon">🔋</span><span>Pile (6 V)</span>
+      </button>
+      <button class="outil-btn" id="btn-resistance" onclick="ajouterComposant('resistance')">
+        <span class="icon">📏</span><span>Résistance (100 Ω)</span>
+      </button>
+      <button class="outil-btn" id="btn-bobine" onclick="ajouterComposant('bobine')">
+        <span class="icon">🌀</span><span>Bobine (1 H)</span>
+      </button>
+      <button class="outil-btn" id="btn-interrupteur" onclick="ajouterComposant('interrupteur')">
+        <span class="icon">🔘</span><span>Interrupteur</span>
+      </button>
+      <button class="outil-btn wire-btn" onclick="ajouterFil()">
+        <span class="icon">🧵</span><span>➕ Ajouter un fil</span>
+      </button>
+      <button class="outil-btn danger" onclick="effacerTout()">
+        <span class="icon">🗑</span><span>Tout effacer</span>
+      </button>
+    </div>
+
+    <div class="canvas-hint-top" id="canvasHint">👆 Tape sur un composant pour l'ajouter</div>
+    <div class="canvas-montage">
+      <canvas id="canvasMontage" width="900" height="600"></canvas>
+    </div>
+
+    <div class="interrupteur-control" id="interrupteurControl" style="display:none;">
+      <button class="btn-interrupteur" id="btnInterrupteur" onclick="toggleInterrupteur()">
+        <span id="etatInterrupteur">🔘 K ouvert</span>
+      </button>
+    </div>
+
+    <div class="montage-progress">
+      <div class="progress-item" id="progComposants">
+        🔧 Composants <span class="count" id="countComposants">0/4</span>
+      </div>
+      <div class="progress-item" id="progFils">
+        🧵 Fils connectés <span class="count" id="countFils">0/4</span>
+      </div>
+    </div>
+
+    <div class="verif-message" id="verifMessage"></div>
+
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="allerEtape(1)">← Étape précédente</button>
+      <button class="btn btn-primary" onclick="verifierMontage()">✅ Vérifier mon montage</button>
+    </div>
+  </section>
+    <!-- ===== ÉTAPE 3 : BRANCHEMENT ===== -->
+  <section class="etape" id="etape-3">
+    <div class="etape-header">
+      <div class="etape-eyebrow">Étape 3 sur 4</div>
+      <h1 class="etape-title">📺 Brancher l'oscilloscope</h1>
+      <p class="etape-subtitle">Branche les 2 voies de l'oscilloscope sur le composant à étudier.</p>
+    </div>
+
+    <div class="selecteur-mesure">
+      <span class="label">🎯 Je veux mesurer :</span>
+      <label class="radio-btn actif" id="radioUR" onclick="choisirMesure('UR')">
+        <input type="radio" name="mesure" value="UR" checked>
+        <span class="radio-dot"></span>
+        <span>U<sub>R</sub> — image du courant i(t)</span>
+      </label>
+      <label class="radio-btn" id="radioUL" onclick="choisirMesure('UL')">
+        <input type="radio" name="mesure" value="UL">
+        <span class="radio-dot"></span>
+        <span>U<sub>L</sub> — tension aux bornes de la bobine</span>
+      </label>
+    </div>
+
+    <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 4px solid #1976d2; border-radius: 8px; padding: 14px; margin-bottom: 12px; font-size: 13px; line-height: 1.55; color: #0d47a1;">
+      <strong>🎯 Mission :</strong> <span id="missionTexte">branche les 2 voies aux bornes de <strong>la résistance R</strong>.</span>
+      <div style="background: #fff; border-radius: 6px; padding: 10px 12px; margin-top: 10px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.7; color: var(--ink);">
+        <div><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-weight:700;margin-right:6px;background:#4fc3f7;color:#1a1a2e;">Voie 1 (+)</span> → borne <strong id="ciblePlus">+ de R</strong></div>
+        <div style="margin-top:5px;"><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-weight:700;margin-right:6px;background:#ffeb3b;color:#1a1a2e;">Voie 2 (−)</span> → borne <strong id="cibleMoins">− de R</strong></div>
+      </div>
+    </div>
+
+    <div class="toolbox-mobile" style="grid-template-columns: 1fr 1fr;">
+      <button class="outil-btn" id="btn-oscillo" onclick="poserOscilloscope()">
+        <span class="icon">📺</span><span>Poser l'oscilloscope</span>
+      </button>
+      <button class="outil-btn wire-btn" onclick="ajouterFilBranchement()">
+        <span class="icon">🧵</span><span>➕ Ajouter un fil</span>
+      </button>
+    </div>
+
+    <div class="canvas-hint-top" id="canvasHintBranchement">📺 Pose l'oscilloscope puis branche ses voies</div>
+    <div class="canvas-montage">
+      <canvas id="canvasBranchement" width="900" height="600"></canvas>
+    </div>
+
+    <div class="verif-message" id="verifBranchement"></div>
+
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="allerEtape(2)">← Étape précédente</button>
+      <button class="btn btn-primary" onclick="verifierBranchement()">✅ Vérifier le branchement</button>
+    </div>
+  </section>
+    <!-- ===== ÉTAPE 4 : ANALYSE ===== -->
+  <section class="etape" id="etape-4">
+    <div class="etape-header">
+      <div class="etape-eyebrow">Étape 4 sur 4</div>
+      <h1 class="etape-title">🎓 Analyse & Conclusion</h1>
+      <p class="etape-subtitle">Comprendre le comportement de la bobine lors de l'établissement et de la rupture du courant.</p>
+    </div>
+
+    <div class="analyse-layout">
+      <div class="sous-onglets">
+        <button class="sous-onglet active" data-sous="recap" onclick="changerSousOnglet('recap')">📊 Récap</button>
+        <button class="sous-onglet" data-sous="charge" onclick="changerSousOnglet('charge')">📈 Courbes</button>
+        <button class="sous-onglet" data-sous="applis" onclick="changerSousOnglet('applis')">🌍 Applications</button>
+        <button class="sous-onglet" data-sous="qcm" onclick="changerSousOnglet('qcm')">🛡️ Questions</button>
+        <button class="sous-onglet" data-sous="conclusion" onclick="changerSousOnglet('conclusion')">✍️ Conclusion</button>
+        <button class="sous-onglet" data-sous="exercices" onclick="changerSousOnglet('exercices')">🧮 Exercices</button>
+      </div>
+
+      <div class="sous-onglet-contenu active" id="sous-recap">
+        <div class="recap-header">
+          <h3>📊 Récapitulatif</h3>
+          <p>Modifie R et L pour comparer les courbes.</p>
+        </div>
+        <div class="recap-grid">
+          <div class="recap-card">
+            <span class="recap-icon">🔋</span>
+            <div class="recap-label">Tension E</div>
+            <div class="recap-value">6.0 V</div>
+          </div>
+          <div class="recap-card recap-card-editable">
+            <span class="recap-icon">📏</span>
+            <div class="recap-label">Résistance R</div>
+            <input type="number" id="inputR" class="recap-input" value="100" min="10" max="1000" step="10">
+            <span class="recap-unit">Ω</span>
+          </div>
+          <div class="recap-card recap-card-editable">
+            <span class="recap-icon">🌀</span>
+            <div class="recap-label">Bobine L</div>
+            <input type="number" id="inputL" class="recap-input" value="1" min="0.1" max="10" step="0.1">
+            <span class="recap-unit">H</span>
+          </div>
+          <div class="recap-card recap-card-editable">
+            <span class="recap-icon">⏱️</span>
+            <div class="recap-label">Constante τ</div>
+            <div class="recap-value" id="valeurTau">10 ms</div>
+          </div>
+        </div>
+        <div class="recap-compare-controls">
+          <button class="btn-courbe charge" onclick="ajouterCourbeComparaison()">➕ Comparer</button>
+          <button class="btn-courbe cycle" onclick="reinitialiserComparaison()">↺ Réinitialiser</button>
+        </div>
+        <div class="recap-legende" id="recapLegende" style="display:none;">
+          <span class="legende-item"><span class="legende-trait" style="background:#ffeb3b;"></span> Courbe initiale</span>
+          <span class="legende-item"><span class="legende-trait" style="background:#4fc3f7;"></span> <span id="legendeCourante">Nouvelle courbe</span></span>
+        </div>
+        <h4 style="font-family: var(--serif); font-size: 14px; color: var(--ink); margin-bottom: 10px;">📈 Courbes observées</h4>
+        <div class="mode-courbe-btns">
+          <button class="mode-courbe-btn active" id="btnModeCharge" onclick="changerModeCourbe('charge')">🔋 ÉTABLISSEMENT</button>
+          <button class="mode-courbe-btn" id="btnModeDecharge" onclick="changerModeCourbe('decharge')">⚡ RUPTURE</button>
+        </div>
+        <div class="courbes-duo">
+          <div class="courbe-duo-item">
+            <div class="courbe-duo-label" id="labelUR">🟡 U_R(t) — image du courant</div>
+            <div class="recap-courbe"><canvas id="recapCourbeUR" width="400" height="260"></canvas></div>
+            <div class="courbe-duo-formule" id="formuleUR">U_R(t) = E · (1 − e^(−t/τ))</div>
+          </div>
+          <div class="courbe-duo-item">
+            <div class="courbe-duo-label" id="labelUL">🔵 U_L(t) — tension bobine</div>
+            <div class="recap-courbe"><canvas id="recapCourbeUL" width="400" height="260"></canvas></div>
+            <div class="courbe-duo-formule" id="formuleUL">U_L(t) = E · e^(−t/τ)</div>
+          </div>
+        </div>
+        <div class="tau-interactif-banner show">
+          <div class="titre">📊 Mesure interactive de τ</div>
+          <div>👆 <strong>Tape sur U_R(t)</strong> pour placer le marqueur à <strong>63 % de E</strong>.</div>
+          <div class="tau-resultat" id="tauResultat"></div>
+        </div>
+        <div class="recap-valeurs">
+          <div class="recap-valeur-item"><div class="label">i à t = τ</div><div class="value">63 % de I_max</div></div>
+          <div class="recap-valeur-item"><div class="label">i à t = 5τ</div><div class="value">99 % de I_max</div></div>
+        </div>
+      </div>
+
+      <div class="sous-onglet-contenu" id="sous-charge">
+        <div class="recap-header">
+          <h3>📈 Établissement vs Rupture</h3>
+          <p>Sélectionne la grandeur, puis lance l'animation.</p>
+        </div>
+        <div class="selecteur-mesure">
+          <span class="label">📺 Grandeur observée :</span>
+          <label class="radio-btn actif" id="radioCourbeUR" onclick="choisirCourbe('UR')">
+            <input type="radio" name="courbe" value="UR" checked>
+            <span class="radio-dot"></span>
+            <span>U<sub>R</sub> (courant)</span>
+          </label>
+          <label class="radio-btn" id="radioCourbeUL" onclick="choisirCourbe('UL')">
+            <input type="radio" name="courbe" value="UL">
+            <span class="radio-dot"></span>
+            <span>U<sub>L</sub> (bobine)</span>
+          </label>
+        </div>
+        <div class="charge-decharge-grid">
+          <div>
+            <div class="courbe-box">
+              <h4 id="titreCharge">🔋 ÉTABLISSEMENT</h4>
+              <canvas id="courbeCharge" width="500" height="280"></canvas>
+            </div>
+            <div class="courbe-formule" id="formuleCharge">U_R(t) = E · (1 − e^(−t/τ))</div>
+            <div style="font-size: 12.5px; color: var(--slate); margin-top: 6px; text-align: center;" id="descCharge">K <strong>fermé</strong> → i monte</div>
+          </div>
+          <div>
+            <div class="courbe-box decharge">
+              <h4 id="titreDecharge">⚡ RUPTURE</h4>
+              <canvas id="courbeDecharge" width="500" height="280"></canvas>
+            </div>
+            <div class="courbe-formule" id="formuleDecharge">U_R(t) = E · e^(−t/τ)</div>
+            <div style="font-size: 12.5px; color: var(--slate); margin-top: 6px; text-align: center;" id="descDecharge">K <strong>ouvert</strong> → i redescend</div>
+          </div>
+        </div>
+        <div class="courbe-controls">
+          <button class="btn-courbe charge" onclick="animerCourbe('charge')">🔋 Animer ÉTABLISSEMENT</button>
+          <button class="btn-courbe decharge" onclick="animerCourbe('decharge')">⚡ Animer RUPTURE</button>
+          <button class="btn-courbe cycle" onclick="animerCourbe('cycle')">🔄 Cycle complet</button>
+          <button class="btn-courbe maille" onclick="afficherLoiMailles()">∑ Vérifier la loi des mailles</button>
+        </div>
+        <div class="info-encadre">
+          <strong>💡 À retenir :</strong><br>
+          • Établissement → i monte vers I_max.<br>
+          • Rupture → i redescend vers 0.<br>
+          • Vitesse dépend de τ = L / R.<br>
+          • Loi des mailles : U_R + U_L = E.
+        </div>
+      </div>
+
+      <div class="sous-onglet-contenu" id="sous-applis">
+        <div class="recap-header">
+          <h3>🌍 Applications</h3>
+          <p>La bobine RL est partout !</p>
+        </div>
+        <div class="applis-grid">
+          <div class="appli-card">
+            <div class="appli-header"><span class="appli-icon">🧲</span><div><div class="appli-title">Électroaimant</div><div class="appli-subtitle">Champ magnétique</div></div></div>
+            <div class="appli-desc">La bobine crée un <strong>champ magnétique</strong> qui monte progressivement.</div>
+            <button class="appli-btn" onclick="voirAnimationAppli('electroaimant')">▶ Voir l'animation</button>
+            <div class="appli-canvas-zone" id="canvas-electroaimant"><canvas id="animElectroaimant" width="400" height="180"></canvas></div>
+          </div>
+          <div class="appli-card">
+            <div class="appli-header"><span class="appli-icon">🔔</span><div><div class="appli-title">Relais</div><div class="appli-subtitle">Temps de réponse</div></div></div>
+            <div class="appli-desc">Le relais comporte une bobine qui attire un contact.</div>
+            <button class="appli-btn" onclick="voirAnimationAppli('relais')">▶ Voir l'animation</button>
+            <div class="appli-canvas-zone" id="canvas-relais"><canvas id="animRelais" width="400" height="180"></canvas></div>
+          </div>
+          <div class="appli-card">
+            <div class="appli-header"><span class="appli-icon">🚆</span><div><div class="appli-title">Freinage TGV</div><div class="appli-subtitle">Freinage progressif</div></div></div>
+            <div class="appli-desc">Les inductances s'opposent aux variations brutales.</div>
+            <button class="appli-btn" onclick="voirAnimationAppli('freinage')">▶ Voir l'animation</button>
+            <div class="appli-canvas-zone" id="canvas-freinage"><canvas id="animFreinage" width="400" height="180"></canvas></div>
+          </div>
+          <div class="appli-card">
+            <div class="appli-header"><span class="appli-icon">⚡</span><div><div class="appli-title">Transformateur</div><div class="appli-subtitle">Deux bobines couplées</div></div></div>
+            <div class="appli-desc">Deux bobines couplées modifient la tension alternative.</div>
+            <button class="appli-btn" onclick="voirAnimationAppli('transformateur')">▶ Voir l'animation</button>
+            <div class="appli-canvas-zone" id="canvas-transformateur"><canvas id="animTransformateur" width="400" height="180"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sous-onglet-contenu" id="sous-qcm">
+        <div class="qcm-header"><h3>🛡️ Questions</h3><p>Réponds aux 3 questions.</p></div>
+        <div class="qcm-item" id="qcm-1">
+          <div class="qcm-question-num">Question 1 / 3</div>
+          <div class="qcm-question-texte">Pourquoi mesurer U_R pour observer le courant ?</div>
+          <div class="qcm-options">
+            <button class="qcm-option" data-q="1" data-value="a"><span class="qcm-lettre">A</span><span>R plus facile à mesurer</span></button>
+            <button class="qcm-option" data-q="1" data-value="b" data-correct="1"><span class="qcm-lettre">B</span><span>U_R = R·i, proportionnelle au courant</span></button>
+            <button class="qcm-option" data-q="1" data-value="c"><span class="qcm-lettre">C</span><span>La bobine ne supporte pas l'oscillo</span></button>
+          </div>
+          <button class="qcm-btn-valider" onclick="validerQCM(1)" disabled>Valider</button>
+          <div class="qcm-feedback" id="feedback-1"></div>
+        </div>
+        <div class="qcm-item" id="qcm-2">
+          <div class="qcm-question-num">Question 2 / 3</div>
+          <div class="qcm-question-texte">τ pour L = 2 H et R = 200 Ω ?</div>
+          <div class="qcm-options">
+            <button class="qcm-option" data-q="2" data-value="a"><span class="qcm-lettre">A</span><span>τ = 400 s</span></button>
+            <button class="qcm-option" data-q="2" data-value="b" data-correct="1"><span class="qcm-lettre">B</span><span>τ = 10 ms</span></button>
+            <button class="qcm-option" data-q="2" data-value="c"><span class="qcm-lettre">C</span><span>τ = 100 s</span></button>
+          </div>
+          <button class="qcm-btn-valider" onclick="validerQCM(2)" disabled>Valider</button>
+          <div class="qcm-feedback" id="feedback-2"></div>
+        </div>
+        <div class="qcm-item" id="qcm-3">
+          <div class="qcm-question-num">Question 3 / 3</div>
+          <div class="qcm-question-texte">τ évolue comment si R augmente (L constant) ?</div>
+          <div class="qcm-options">
+            <button class="qcm-option" data-q="3" data-value="a"><span class="qcm-lettre">A</span><span>τ augmente</span></button>
+            <button class="qcm-option" data-q="3" data-value="b" data-correct="1"><span class="qcm-lettre">B</span><span>τ diminue (τ = L / R)</span></button>
+            <button class="qcm-option" data-q="3" data-value="c"><span class="qcm-lettre">C</span><span>τ ne change pas</span></button>
+          </div>
+          <button class="qcm-btn-valider" onclick="validerQCM(3)" disabled>Valider</button>
+          <div class="qcm-feedback" id="feedback-3"></div>
+        </div>
+      </div>
+
+      <div class="sous-onglet-contenu" id="sous-conclusion">
+        <div class="recap-header"><h3>✍️ Ma conclusion</h3><p>Rédige ta conclusion.</p></div>
+        <div class="conclusion-progress">
+          <span style="font-size: 12px; font-weight: 700;">Progression :</span>
+          <div class="progress-barre"><div class="progress-remplissage" id="progressRemplissage"></div></div>
+          <div class="progress-texte" id="progressTexte">0/5</div>
+        </div>
+        <div class="conclusion-bilan">
+          <span class="bilan-icon">🎯</span>
+          <div><div class="bilan-label">Objectif</div><div class="bilan-text">Déterminer <strong>τ</strong> et vérifier <strong>τ = L / R</strong>.</div></div>
+        </div>
+        <div class="conclusion-form">
+          <div class="conclusion-champ">
+            <label for="concl-1"><span class="champ-num">1</span> Valeur théorique de τ ?</label>
+            <div class="champ-indice">💡 τ = L / R</div>
+            <input type="text" id="concl-1" placeholder="Ta réponse…">
+            <div class="champ-feedback" id="fb-1"></div>
+          </div>
+          <div class="conclusion-champ">
+            <label for="concl-2"><span class="champ-num">2</span> i à t = τ (établissement) ?</label>
+            <div class="champ-indice">💡 i(τ) ≈ 0,63 × I_max</div>
+            <input type="text" id="concl-2" placeholder="Ta réponse…">
+            <div class="champ-feedback" id="fb-2"></div>
+          </div>
+          <div class="conclusion-champ">
+            <label for="concl-3"><span class="champ-num">3</span> i à t = τ (rupture) ?</label>
+            <div class="champ-indice">💡 i(τ) ≈ 0,37 × I_max</div>
+            <input type="text" id="concl-3" placeholder="Ta réponse…">
+            <div class="champ-feedback" id="fb-3"></div>
+          </div>
+          <div class="conclusion-champ">
+            <label for="concl-4"><span class="champ-num">4</span> Plus τ est grand, plus c'est…</label>
+            <select id="concl-4">
+              <option value="">— Choisis —</option>
+              <option value="lent">lent</option>
+              <option value="rapide">rapide</option>
+              <option value="instantanee">instantané</option>
+            </select>
+            <div class="champ-feedback" id="fb-4"></div>
+          </div>
+          <div class="conclusion-champ">
+            <label for="concl-5"><span class="champ-num">5</span> Une application du circuit RL ?</label>
+            <input type="text" id="concl-5" placeholder="Ta réponse…">
+            <div class="champ-feedback" id="fb-5"></div>
+          </div>
+          <div class="conclusion-actions">
+            <button class="btn btn-primary" onclick="verifierConclusion()">✅ Vérifier ma conclusion</button>
+            <button class="btn btn-secondary" onclick="reinitialiserConclusion()">↺ Recommencer</button>
+          </div>
+          <div class="conclusion-resultat" id="conclusionResultat"></div>
+        </div>
+        <div class="conclusion-finale" id="conclusionFinale">
+          <h4>📝 Ta conclusion rédigée</h4>
+          <div class="conclusion-texte" id="conclusionTexte"></div>
+          <div class="conclusion-finale-actions">
+            <button class="btn btn-primary" onclick="imprimerConclusion()">🖨️ Imprimer</button>
+            <button class="btn btn-secondary" onclick="telechargerConclusion()">💾 Télécharger</button>
+          </div>
+        </div>
+        <div class="certificat-zone">
+          <h3>🎓 Certificat de réussite</h3>
+          <p>Saisis ton nom pour générer ton certificat.</p>
+          <input type="text" class="certificat-nom" id="certificatNom" placeholder="Ton nom et prénom" maxlength="60">
+          <button class="btn btn-primary" onclick="genererCertificat()">🎓 Générer mon certificat</button>
+        </div>
+      </div>
+
+      <div class="sous-onglet-contenu" id="sous-exercices">
+        <div class="recap-header"><h3>🧮 Exercices guidés</h3><p>3 exercices progressifs.</p></div>
+        <div class="exercice-card" id="exo-1">
+          <div class="exercice-entete"><div class="exercice-num">1</div><div class="exercice-titre">Calculer τ</div></div>
+          <div class="exercice-enonce">L = 2 H, R = 200 Ω. Quelle est τ ?</div>
+          <ul class="exercice-etapes"><li>Formule : <strong>τ = L / R</strong></li><li>L = 2 H, R = 200 Ω</li></ul>
+          <div class="exercice-input-zone">
+            <input type="text" class="exercice-input" id="exo1-rep" placeholder="Ta réponse (ex : 10 ms)">
+            <button class="btn btn-primary" onclick="verifierExo1()">Vérifier</button>
+          </div>
+          <div class="exercice-feedback" id="exo1-fb"></div>
+        </div>
+        <div class="exercice-card" id="exo-2">
+          <div class="exercice-entete"><div class="exercice-num">2</div><div class="exercice-titre">i(τ) à l'établissement</div></div>
+          <div class="exercice-enonce">E = 12 V, R = 200 Ω. Quelle est i à t = τ ?</div>
+          <ul class="exercice-etapes"><li>I_max = E / R = 0,06 A</li><li>i(τ) ≈ 0,63 × I_max</li></ul>
+          <div class="exercice-input-zone">
+            <input type="text" class="exercice-input" id="exo2-rep" placeholder="Ta réponse (ex : 0,038 A)">
+            <button class="btn btn-primary" onclick="verifierExo2()">Vérifier</button>
+          </div>
+          <div class="exercice-feedback" id="exo2-fb"></div>
+        </div>
+        <div class="exercice-card" id="exo-3">
+          <div class="exercice-entete"><div class="exercice-num">3</div><div class="exercice-titre">Énergie stockée</div></div>
+          <div class="exercice-enonce">L = 0,5 H, i = 3 A. Énergie magnétique ?</div>
+          <ul class="exercice-etapes"><li>Formule : <strong>E_mag = ½ · L · i²</strong></li></ul>
+          <div class="exercice-input-zone">
+            <input type="text" class="exercice-input" id="exo3-rep" placeholder="Ta réponse (ex : 2,25 J)">
+            <button class="btn btn-primary" onclick="verifierExo3()">Vérifier</button>
+          </div>
+          <div class="exercice-feedback" id="exo3-fb"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="allerEtape(3)">← Étape précédente</button>
+    </div>
+  </section>
+  <script>
+// ============================================================
+//  EXPLICATIONS
+// ============================================================
+const EXPLICATIONS = {
+  pile: { title: '🔋 Pile (E = 6 V)', content: `<p>Fournit la tension pour faire circuler le courant dans la bobine.</p><p><code>6 V</code>.</p>` },
+  resistance: { title: '📏 Résistance (R = 100 Ω)', content: `<p>Limite le courant et fixe τ = L/R.</p><p><code>100 Ω</code>.</p>` },
+  bobine: { title: '🌀 Bobine (L = 1 H)', content: `<p>Stocke l'énergie dans un champ magnétique.</p><p><code>1 H = 1 henry</code>.</p>` },
+  interrupteur: { title: '🔘 Interrupteur (K)', content: `<p>Ouvre ou ferme le circuit.</p><p>Fermé → établissement ; ouvert → rupture.</p>` },
+  fils: { title: '🧵 Fils', content: `<p>Relient les composants. <strong>4 fils minimum</strong>.</p>` }
+};
+
+function ouvrirModal(cle) {
+  const exp = EXPLICATIONS[cle];
+  if (!exp) return;
+  document.getElementById('modalTitle').innerHTML = exp.title;
+  document.getElementById('modalContent').innerHTML = exp.content;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function fermerModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+
+// ============================================================
+//  SON
+// ============================================================
+let sonActif = localStorage.getItem('tp_rl_mobile_son') !== 'false';
+let audioCtx = null;
+
+function initAudio() {
+  if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
+}
+function jouerSon(type) {
+  if (!sonActif) return;
+  initAudio();
+  if (!audioCtx) return;
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const t = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  const sons = {
+    pose:    { freq: 520, dur: 0.08, type: 'sine',     vol: 0.12, sweep: 120 },
+    connect: { freq: 660, dur: 0.10, type: 'triangle', vol: 0.10, sweep: 180 },
+    valide:  { freq: 880, dur: 0.18, type: 'sine',     vol: 0.14, sweep: 220 },
+    erreur:  { freq: 220, dur: 0.20, type: 'square',   vol: 0.08, sweep: -60 },
+    jingle:  { freq: 660, dur: 0.5,  type: 'sine',     vol: 0.12, sweep: 440 }
+  };
+  const s = sons[type] || sons.pose;
+  osc.type = s.type;
+  osc.frequency.setValueAtTime(s.freq, t);
+  osc.frequency.linearRampToValueAtTime(s.freq + s.sweep, t + s.dur);
+  gain.gain.setValueAtTime(s.vol, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + s.dur);
+  osc.start(t); osc.stop(t + s.dur);
+  if (type === 'jingle') {
+    setTimeout(() => jouerNote(880, 0.12, 'sine', 0.10), 120);
+    setTimeout(() => jouerNote(1100, 0.20, 'sine', 0.10), 240);
+  }
+}
+function jouerNote(freq, dur, type, vol) {
+  if (!sonActif || !audioCtx) return;
+  const t = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.type = type; osc.frequency.setValueAtTime(freq, t);
+  gain.gain.setValueAtTime(vol, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  osc.start(t); osc.stop(t + dur);
+}
+function toggleSon() {
+  sonActif = !sonActif;
+  localStorage.setItem('tp_rl_mobile_son', sonActif);
+  const btn = document.getElementById('sonToggle');
+  if (btn) { btn.textContent = sonActif ? '🔊' : '🔇'; btn.classList.toggle('off', !sonActif); }
+  if (sonActif) jouerSon('valide');
+}
+
+// ============================================================
+//  NAVIGATION
+// ============================================================
+let etapeActuelle = 2;
+let etapesDebloquees = [1, 2];
+
+function allerEtape(n) {
+  if (!etapesDebloquees.includes(n)) { alert('🔒 Valide d\'abord cette étape.'); return; }
+  document.querySelectorAll('.etape').forEach(e => e.classList.remove('active'));
+  const cible = document.getElementById('etape-' + n);
+  if (cible) cible.classList.add('active');
+  document.querySelectorAll('.step-item').forEach(item => {
+    const step = parseInt(item.dataset.step);
+    item.classList.remove('active', 'done', 'locked');
+    if (step === n) item.classList.add('active');
+    else if (step < n) item.classList.add('done');
+    if (!etapesDebloquees.includes(step)) item.classList.add('locked');
+  });
+  etapeActuelle = n;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (n === 3) setTimeout(() => initialiserBranchement(), 100);
+  if (n === 4) setTimeout(() => { drawRecapCourbe(); initRecapEditable(); }, 100);
+}
+function debloquerEtape(n) { if (!etapesDebloquees.includes(n)) etapesDebloquees.push(n); }
+
+// ============================================================
+//  MONTAGE (ÉTAPE 2)
+// ============================================================
+const canvas = document.getElementById('canvasMontage');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+let montage = {
+  composants: [], fils: [], noeuds: [],
+  composantSelectionne: null, filSelectionne: null,
+  prochainIdComp: 1, prochainIdFil: 1,
+  interrupteurFerme: false
+};
+
+const TAILLE = {
+  pile: { w: 90, h: 90 },
+  resistance: { w: 110, h: 40 },
+  bobine: { w: 120, h: 80 },
+  interrupteur: { w: 90, h: 50 }
+};
+const DIST_CONNEXION = 55;
+
+function ajouterComposant(type) {
+  const exist = montage.composants.find(c => c.type === type);
+  if (exist) { alert('⚠️ Composant déjà placé !'); return; }
+  const index = montage.composants.length;
+  const positions = [{ x: 200, y: 150 }, { x: 500, y: 150 }, { x: 200, y: 400 }, { x: 500, y: 400 }];
+  const pos = positions[index] || { x: 300, y: 300 };
+  const comp = {
+    id: 'c' + montage.prochainIdComp++,
+    type, x: pos.x, y: pos.y, rotation: 0,
+    valeur: type === 'pile' ? '6 V' : type === 'resistance' ? '100 Ω' : type === 'bobine' ? '1 H' : 'K'
+  };
+  montage.composants.push(comp);
+  const btn = document.getElementById('btn-' + type);
+  if (btn) btn.classList.add('used');
+  jouerSon('pose');
+  drawMontage(); updateProgress(); updateCanvasHint();
+}
+
+function ajouterFil() {
+  const nb = montage.fils.length;
+  const x1 = 80 + (nb % 5) * 150;
+  const y1 = H - 60 - Math.floor(nb / 5) * 40;
+  const fil = {
+    id: 'f' + montage.prochainIdFil++,
+    x1, y1, x2: x1 + 150, y2: y1,
+    de: null, vers: null
+  };
+  montage.fils.push(fil);
+  montage.filSelectionne = fil.id;
+  updateConnexionsFils();
+  jouerSon('pose');
+  drawMontage(); updateProgress();
+}
+
+function getBornes(comp) {
+  const t = TAILLE[comp.type];
+  if (!t) return [];
+  const angle = ((comp.rotation || 0) % 360) * Math.PI / 180;
+  const cos = Math.cos(angle), sin = Math.sin(angle);
+  const L = t.w;
+  return [
+    { id: comp.id + '-L', composantId: comp.id, x: comp.x + (-L/2)*cos - 0*sin, y: comp.y + (-L/2)*sin + 0*cos },
+    { id: comp.id + '-R', composantId: comp.id, x: comp.x + ( L/2)*cos - 0*sin, y: comp.y + ( L/2)*sin + 0*cos }
+  ];
+}
+
+function getToutesLesBornes() {
+  const t = [];
+  montage.composants.forEach(c => getBornes(c).forEach(b => t.push(b)));
+  return t;
+}
+function getBorneById(id) { return getToutesLesBornes().find(b => b.id === id); }
+
+function updateConnexionsFils() {
+  const bornes = getToutesLesBornes();
+  montage.fils.forEach(fil => {
+    fil.de = null; fil.vers = null;
+    let mD = null, mDD = DIST_CONNEXION, mV = null, mVD = DIST_CONNEXION;
+    bornes.forEach(b => {
+      const d1 = Math.hypot(b.x - fil.x1, b.y - fil.y1);
+      if (d1 < mDD) { mDD = d1; mD = b.id; }
+      const d2 = Math.hypot(b.x - fil.x2, b.y - fil.y2);
+      if (d2 < mVD) { mVD = d2; mV = b.id; }
+    });
+    if (mD && mV) {
+      const b1 = getBorneById(mD), b2 = getBorneById(mV);
+      if (b1 && b2 && b1.composantId === b2.composantId) {
+        if (mDD <= mVD) mV = null; else mD = null;
+      }
+    }
+    fil.de = mD; fil.vers = mV;
+  });
+}
+
+function drawMontage() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0a0a1a'; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = 'rgba(79,195,247,0.05)'; ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+  montage.fils.forEach(f => drawFil(f));
+  montage.composants.forEach(c => drawComposant(ctx, c));
+  montage.composants.forEach(c => getBornes(c).forEach(b => drawBorne(b)));
+  if (montage.composantSelectionne) {
+    const c = montage.composants.find(x => x.id === montage.composantSelectionne);
+    if (c) drawSelection(c);
+  }
+}
+
+function drawFil(fil) {
+  const sel = montage.filSelectionne === fil.id;
+  const br = fil.de && fil.vers;
+  ctx.strokeStyle = sel ? '#ffd54f' : (br ? '#4caf50' : '#4fc3f7');
+  ctx.lineWidth = sel ? 8 : 5;
+  ctx.lineCap = 'round';
+  ctx.shadowColor = ctx.strokeStyle;
+  ctx.shadowBlur = sel ? 12 : 6;
+  ctx.beginPath(); ctx.moveTo(fil.x1, fil.y1); ctx.lineTo(fil.x2, fil.y2); ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = fil.de ? '#4caf50' : '#888';
+  ctx.beginPath(); ctx.arc(fil.x1, fil.y1, 10, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = fil.vers ? '#4caf50' : '#888';
+  ctx.beginPath(); ctx.arc(fil.x2, fil.y2, 10, 0, Math.PI*2); ctx.fill();
+}
+
+function drawComposant(ctx2, c) {
+  const t = TAILLE[c.type];
+  ctx2.save();
+  ctx2.translate(c.x, c.y);
+  ctx2.rotate((c.rotation || 0) * Math.PI / 180);
+  ctx2.translate(-c.x, -c.y);
+  if (c.type === 'pile') drawPile(ctx2, c.x, c.y, t.w, t.h, c.valeur);
+  else if (c.type === 'resistance') drawResistance(ctx2, c.x, c.y, t.w, t.h, c.valeur);
+  else if (c.type === 'bobine') drawBobine(ctx2, c.x, c.y, t.w, t.h, c.valeur);
+  else if (c.type === 'interrupteur') drawInterrupteur(ctx2, c.x, c.y, t.w, t.h);
+  ctx2.restore();
+  drawPoigneeRotation(ctx2, c);
+}
+
+function drawPoigneeRotation(ctx2, c) {
+  const t = TAILLE[c.type];
+  if (!t) return;
+  const angle = (c.rotation || 0) * Math.PI / 180;
+  const offsetY = -t.h / 2 - 25;
+  const hx = c.x + offsetY * Math.sin(angle);
+  const hy = c.y - offsetY * Math.cos(angle);
+  ctx2.fillStyle = '#4fc3f7';
+  ctx2.strokeStyle = '#fff';
+  ctx2.lineWidth = 2;
+  ctx2.beginPath();
+  ctx2.arc(hx, hy, 12, 0, Math.PI * 2);
+  ctx2.fill();
+  ctx2.stroke();
+  ctx2.fillStyle = '#fff';
+  ctx2.font = 'bold 14px Arial';
+  ctx2.textAlign = 'center';
+  ctx2.textBaseline = 'middle';
+  ctx2.fillText('⟳', hx, hy + 1);
+  ctx2.textBaseline = 'alphabetic';
+}
+
+function drawPile(ctx2, cx, cy, w, h, val) {
+  ctx2.fillStyle = '#1a1a2e'; ctx2.strokeStyle = '#4caf50'; ctx2.lineWidth = 3;
+  ctx2.beginPath(); ctx2.roundRect(cx - w/2, cy - h/2, w, h, 8); ctx2.fill(); ctx2.stroke();
+  ctx2.fillStyle = '#4caf50'; ctx2.font = 'bold 24px Arial'; ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+  ctx2.fillText('+', cx, cy - 20);
+  ctx2.fillStyle = '#f44336'; ctx2.fillText('−', cx, cy + 20);
+  ctx2.fillStyle = '#fff'; ctx2.font = 'bold 13px monospace'; ctx2.fillText(val, cx, cy + 1);
+  ctx2.textBaseline = 'alphabetic';
+}
+
+function drawResistance(ctx2, cx, cy, w, h, val) {
+  ctx2.fillStyle = '#1a1a2e'; ctx2.strokeStyle = '#ffd54f'; ctx2.lineWidth = 3;
+  ctx2.beginPath(); ctx2.roundRect(cx - w/2, cy - h/2, w, h, 6); ctx2.fill(); ctx2.stroke();
+  ctx2.strokeStyle = '#ffd54f'; ctx2.lineWidth = 2;
+  ctx2.beginPath(); ctx2.moveTo(cx - w/2 + 10, cy);
+  const seg = (w - 20) / 6;
+  for (let i = 0; i < 6; i++) ctx2.lineTo(cx - w/2 + 10 + seg * (i+1), cy + (i % 2 === 0 ? -8 : 8));
+  ctx2.stroke();
+  ctx2.fillStyle = '#fff'; ctx2.font = 'bold 12px monospace'; ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+  ctx2.fillText(val, cx, cy);
+  ctx2.textBaseline = 'alphabetic';
+}
+
+function drawBobine(ctx2, cx, cy, w, h, val) {
+  ctx2.fillStyle = '#1a1a2e'; ctx2.strokeStyle = '#B87333'; ctx2.lineWidth = 3;
+  ctx2.beginPath(); ctx2.roundRect(cx - w/2, cy - h/2, w, h, 10); ctx2.fill(); ctx2.stroke();
+
+  const noyauW = w - 30, noyauH = 18;
+  const gradNoyau = ctx2.createLinearGradient(cx - noyauW/2, cy, cx + noyauW/2, cy);
+  gradNoyau.addColorStop(0, '#3a4250');
+  gradNoyau.addColorStop(0.4, '#8a92a0');
+  gradNoyau.addColorStop(0.6, '#b8bfcc');
+  gradNoyau.addColorStop(1, '#3a4250');
+  ctx2.fillStyle = gradNoyau;
+  ctx2.beginPath();
+  ctx2.roundRect(cx - noyauW/2, cy - noyauH/2, noyauW, noyauH, noyauH/2);
+  ctx2.fill();
+  ctx2.strokeStyle = '#2a323e'; ctx2.lineWidth = 1.5; ctx2.stroke();
+
+  const nbSpires = 10;
+  const espacement = noyauW / nbSpires;
+  const spireRx = espacement / 2 + 1;
+  const spireRy = 26;
+  const pulse = (Math.sin(Date.now() / 800) + 1) / 2;
+  const ryVar = spireRy + pulse * 1.5;
+
+  for (let i = 0; i < nbSpires; i++) {
+    const x = cx - noyauW/2 + espacement * (i + 0.5);
+    const gradSpire = ctx2.createRadialGradient(x - spireRx * 0.4, cy - ryVar * 0.3, 1, x, cy, spireRx * 1.4);
+    gradSpire.addColorStop(0, '#F5B072');
+    gradSpire.addColorStop(0.5, '#B87333');
+    gradSpire.addColorStop(1, '#6B3E1A');
+    ctx2.strokeStyle = gradSpire;
+    ctx2.lineWidth = 3;
+    ctx2.beginPath();
+    ctx2.ellipse(x, cy, spireRx, ryVar, 0, 0, Math.PI * 2);
+    ctx2.stroke();
+    ctx2.strokeStyle = 'rgba(255, 220, 180, 0.5)';
+    ctx2.lineWidth = 1.5;
+    ctx2.beginPath();
+    ctx2.ellipse(x, cy - 3, spireRx * 0.7, ryVar * 0.8, 0, Math.PI * 1.15, Math.PI * 1.85);
+    ctx2.stroke();
+  }
+
+  ctx2.strokeStyle = '#B87333'; ctx2.lineWidth = 3; ctx2.lineCap = 'round';
+  ctx2.beginPath();
+  ctx2.moveTo(cx - w/2, cy - 8);
+  ctx2.lineTo(cx - noyauW/2, cy - 4);
+  ctx2.moveTo(cx + w/2, cy + 8);
+  ctx2.lineTo(cx + noyauW/2, cy + 4);
+  ctx2.stroke();
+
+  ctx2.fillStyle = '#fff'; ctx2.font = 'bold 12px monospace'; ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+  ctx2.fillText(val, cx, cy + h/2 - 10); ctx2.textBaseline = 'alphabetic';
+}
+
+function drawInterrupteur(ctx2, cx, cy, w, h) {
+  const f = montage.interrupteurFerme;
+  ctx2.fillStyle = '#1a1a2e'; ctx2.strokeStyle = f ? '#4caf50' : '#4fc3f7'; ctx2.lineWidth = 3;
+  ctx2.beginPath(); ctx2.roundRect(cx - w/2, cy - h/2, w, h, 8); ctx2.fill(); ctx2.stroke();
+  const bx1 = cx - w/2 + 15, bx2 = cx + w/2 - 15;
+  ctx2.fillStyle = '#fff';
+  ctx2.beginPath(); ctx2.arc(bx1, cy, 6, 0, Math.PI*2); ctx2.fill();
+  ctx2.beginPath(); ctx2.arc(bx2, cy, 6, 0, Math.PI*2); ctx2.fill();
+  ctx2.strokeStyle = f ? '#4caf50' : '#f44336'; ctx2.lineWidth = 4; ctx2.lineCap = 'round';
+  ctx2.beginPath(); ctx2.moveTo(bx1, cy);
+  if (f) ctx2.lineTo(bx2, cy); else ctx2.lineTo(bx2, cy - 22);
+  ctx2.stroke();
+  ctx2.fillStyle = f ? '#4caf50' : '#4fc3f7'; ctx2.font = 'bold 10px monospace'; ctx2.textAlign = 'center';
+  ctx2.fillText(f ? 'K FERMÉ' : 'K OUVERT', cx, cy - h/2 - 10);
+}
+
+function drawBorne(b) {
+  const connectee = montage.fils.some(f => f.de === b.id || f.vers === b.id);
+  if (connectee) {
+    const g = ctx.createRadialGradient(b.x, b.y, 2, b.x, b.y, 18);
+    g.addColorStop(0, 'rgba(76,175,80,0.6)'); g.addColorStop(1, 'rgba(76,175,80,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(b.x, b.y, 18, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.fillStyle = connectee ? '#4caf50' : '#fff';
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(b.x, b.y, 12, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+}
+
+function drawSelection(c) {
+  const t = TAILLE[c.type];
+  const angle = (c.rotation || 0) * Math.PI / 180;
+  ctx.save();
+  ctx.translate(c.x, c.y);
+  ctx.rotate(angle);
+  ctx.strokeStyle = '#ffd54f';
+  ctx.lineWidth = 3;
+  ctx.setLineDash([8, 6]);
+  const w = (c.rotation % 180 === 0) ? t.w : t.h;
+  const h = (c.rotation % 180 === 0) ? t.h : t.w;
+  ctx.strokeRect(-w/2 - 10, -h/2 - 10, w + 20, h + 20);
+  ctx.restore();
+  ctx.setLineDash([]);
+}
+
+function getCanvasCoords(e) {
+  const rect = canvas.getBoundingClientRect();
+  const canvasRatio = canvas.width / canvas.height;
+  const rectRatio = rect.width / rect.height;
+  let rw, rh, ox, oy;
+  if (rectRatio > canvasRatio) {
+    rh = rect.height; rw = rh * canvasRatio;
+    ox = (rect.width - rw) / 2; oy = 0;
+  } else {
+    rw = rect.width; rh = rw / canvasRatio;
+    ox = 0; oy = (rect.height - rh) / 2;
+  }
+  let cx, cy;
+  if (e.touches) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
+  else { cx = e.clientX; cy = e.clientY; }
+  return {
+    x: (cx - rect.left - ox) * (canvas.width / rw),
+    y: (cy - rect.top - oy) * (canvas.height / rh)
+  };
+}
+
+let dragState = { type: null, filId: null, cote: null, compId: null, offsetX: 0, offsetY: 0 };
+
+canvas.addEventListener('touchstart', (e) => { e.preventDefault(); const p = getCanvasCoords(e); handleTouchStart(p.x, p.y); }, { passive: false });
+canvas.addEventListener('touchmove', (e) => { e.preventDefault(); const p = getCanvasCoords(e); handleTouchMove(p.x, p.y); }, { passive: false });
+canvas.addEventListener('touchend', (e) => { e.preventDefault(); handleTouchEnd(); });
+canvas.addEventListener('mousedown', (e) => { if (e.button !== 0) return; const p = getCanvasCoords(e); handleTouchStart(p.x, p.y); canvas._mouseDown = true; });
+canvas.addEventListener('mousemove', (e) => { if (!canvas._mouseDown) return; const p = getCanvasCoords(e); handleTouchMove(p.x, p.y); });
+canvas.addEventListener('mouseup', () => { if (!canvas._mouseDown) return; canvas._mouseDown = false; handleTouchEnd(); });
+canvas.addEventListener('mouseleave', () => { if (!canvas._mouseDown) return; canvas._mouseDown = false; handleTouchEnd(); });
+
+function handleTouchStart(x, y) {
+  for (const c of montage.composants) {
+    const t = TAILLE[c.type];
+    if (!t) continue;
+    const angle = (c.rotation || 0) * Math.PI / 180;
+    const offsetY = -t.h / 2 - 25;
+    const hx = c.x + offsetY * Math.sin(angle);
+    const hy = c.y - offsetY * Math.cos(angle);
+    if (Math.hypot(hx - x, hy - y) < 22) {
+      c.rotation = ((c.rotation || 0) + 90) % 360;
+      updateConnexionsFils(); drawMontage(); jouerSon('connect');
+      return;
+    }
+  }
+  let filTrouve = null, coteTrouve = null, distanceMin = 45;
+  for (const fil of montage.fils) {
+    const dA = Math.hypot(fil.x1 - x, fil.y1 - y);
+    const dB = Math.hypot(fil.x2 - x, fil.y2 - y);
+    if (dA < distanceMin) { distanceMin = dA; filTrouve = fil; coteTrouve = 'A'; }
+    if (dB < distanceMin) { distanceMin = dB; filTrouve = fil; coteTrouve = 'B'; }
+  }
+  if (filTrouve) {
+    dragState.type = 'fil-handle';
+    dragState.filId = filTrouve.id;
+    dragState.cote = coteTrouve;
+    montage.filSelectionne = filTrouve.id;
+    montage.composantSelectionne = null;
+    jouerSon('connect'); drawMontage();
+    return;
+  }
+  const comp = trouverComposant(x, y);
+  if (comp) {
+    dragState.type = 'composant';
+    dragState.compId = comp.id;
+    dragState.offsetX = x - comp.x;
+    dragState.offsetY = y - comp.y;
+    montage.composantSelectionne = comp.id;
+    montage.filSelectionne = null;
+    jouerSon('connect'); drawMontage();
+    return;
+  }
+  handleTap(x, y);
+}
+
+function handleTouchMove(x, y) {
+  if (dragState.type === 'fil-handle') {
+    const fil = montage.fils.find(f => f.id === dragState.filId);
+    if (!fil) return;
+    const borne = trouverBorneProche(x, y, 70);
+    let fx = Math.max(10, Math.min(W - 10, x));
+    let fy = Math.max(10, Math.min(H - 10, y));
+    if (borne) { fx = borne.x; fy = borne.y; }
+    if (dragState.cote === 'A') { fil.x1 = fx; fil.y1 = fy; }
+    else { fil.x2 = fx; fil.y2 = fy; }
+    updateConnexionsFils(); drawMontage(); updateProgress();
+    return;
+  }
+  if (dragState.type === 'composant') {
+    const comp = montage.composants.find(c => c.id === dragState.compId);
+    if (!comp) return;
+    comp.x = Math.max(80, Math.min(W - 80, x - dragState.offsetX));
+    comp.y = Math.max(80, Math.min(H - 80, y - dragState.offsetY));
+    updateConnexionsFils(); drawMontage();
+    return;
+  }
+}
+
+function handleTouchEnd() {
+  const avaitDrag = dragState.type !== null;
+  dragState.type = null; dragState.filId = null; dragState.cote = null; dragState.compId = null;
+  if (avaitDrag) { updateConnexionsFils(); updateProgress(); drawMontage(); updateCanvasHint(); }
+}
+
+function trouverBorneProche(x, y, maxD) {
+  let meilleur = null, minD = maxD;
+  getToutesLesBornes().forEach(b => {
+    const d = Math.hypot(b.x - x, b.y - y);
+    if (d < minD) { minD = d; meilleur = b; }
+  });
+  return meilleur;
+}
+
+function handleTap(x, y) {
+  const comp = trouverComposant(x, y);
+  if (comp) {
+    if (comp.type === 'interrupteur') {
+      if (montage.composantSelectionne === comp.id) {
+        montage.interrupteurFerme = !montage.interrupteurFerme;
+        montage.composantSelectionne = null;
+        jouerSon('connect'); drawMontage(); majBoutonInterrupteur();
+        return;
+      }
+    }
+    montage.composantSelectionne = montage.composantSelectionne === comp.id ? null : comp.id;
+    montage.filSelectionne = null;
+    jouerSon('connect'); drawMontage();
+    return;
+  }
+  const fil = trouverFil(x, y);
+  if (fil) {
+    montage.filSelectionne = montage.filSelectionne === fil.id ? null : fil.id;
+    montage.composantSelectionne = null;
+    jouerSon('connect'); drawMontage();
+    return;
+  }
+  montage.composantSelectionne = null;
+  montage.filSelectionne = null;
+  drawMontage();
+}
+
+function trouverComposant(x, y) {
+  for (let i = montage.composants.length - 1; i >= 0; i--) {
+    const c = montage.composants[i];
+    const t = TAILLE[c.type];
+    const dx = x - c.x, dy = y - c.y;
+    const angle = -(c.rotation || 0) * Math.PI / 180;
+    const cos = Math.cos(angle), sin = Math.sin(angle);
+    const lx = dx * cos - dy * sin;
+    const ly = dx * sin + dy * cos;
+    const w = (c.rotation % 180 === 0) ? t.w : t.h;
+    const h = (c.rotation % 180 === 0) ? t.h : t.w;
+    if (Math.abs(lx) < w/2 + 15 && Math.abs(ly) < h/2 + 15) return c;
+  }
+  return null;
+}
+
+function trouverFil(x, y) {
+  for (const f of montage.fils) {
+    const d = distancePointSegment(x, y, f.x1, f.y1, f.x2, f.y2);
+    if (d < 25) return f;
+  }
+  return null;
+}
+
+function distancePointSegment(px, py, x1, y1, x2, y2) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len2 = dx * dx + dy * dy;
+  if (len2 === 0) return Math.hypot(px - x1, py - y1);
+  let t = ((px - x1) * dx + (py - y1) * dy) / len2;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+}
+
+function updateProgress() {
+  const nbC = montage.composants.length;
+  const nbF = montage.fils.filter(f => f.de && f.vers).length;
+  document.getElementById('countComposants').textContent = `${nbC}/4`;
+  document.getElementById('countFils').textContent = `${nbF}/4`;
+  document.getElementById('progComposants').classList.toggle('done', nbC === 4);
+  document.getElementById('progFils').classList.toggle('done', nbF >= 4);
+  majBoutonInterrupteur();
+}
+
+function majBoutonInterrupteur() {
+  const zone = document.getElementById('interrupteurControl');
+  const btn = document.getElementById('btnInterrupteur');
+  const etat = document.getElementById('etatInterrupteur');
+  if (!zone || !btn || !etat) return;
+  const interrupteurExiste = montage.composants.some(c => c.type === 'interrupteur');
+  if (!interrupteurExiste) { zone.style.display = 'none'; return; }
+  zone.style.display = 'flex';
+  if (montage.interrupteurFerme) {
+    btn.classList.add('ferme'); btn.classList.remove('ouvert');
+    etat.textContent = '🔒 K fermé ✓';
+  } else {
+    btn.classList.add('ouvert'); btn.classList.remove('ferme');
+    etat.textContent = '🔓 K ouvert';
+  }
+}
+
+window.toggleInterrupteur = function() {
+  montage.interrupteurFerme = !montage.interrupteurFerme;
+  jouerSon('connect'); drawMontage(); updateProgress(); majBoutonInterrupteur(); updateCanvasHint();
+};
+
+function updateCanvasHint() {
+  const h = document.getElementById('canvasHint');
+  if (!h) return;
+  if (montage.composants.length === 0) h.textContent = '👆 Tape sur un composant pour l\'ajouter';
+  else if (montage.composants.length < 4) h.textContent = `👆 Encore ${4 - montage.composants.length} composant(s)`;
+  else if (montage.fils.filter(f => f.de && f.vers).length < 4) h.textContent = '🔗 Glisse les fils vers les bornes';
+  else h.textContent = '✅ Vérifie ton montage en bas';
+}
+
+function effacerTout() {
+  if (!confirm('Effacer tout ?')) return;
+  montage.composants = []; montage.fils = [];
+  montage.composantSelectionne = null; montage.filSelectionne = null;
+  montage.prochainIdComp = 1; montage.prochainIdFil = 1;
+  montage.interrupteurFerme = false;
+  document.querySelectorAll('.outil-btn').forEach(b => b.classList.remove('used'));
+  drawMontage(); updateProgress(); updateCanvasHint();
+  document.getElementById('verifMessage').classList.remove('show');
+}
+
+function verifierMontage() {
+  const msg = document.getElementById('verifMessage');
+  const checks = [];
+  let toutOK = true;
+  const attendus = ['pile', 'resistance', 'bobine', 'interrupteur'];
+  const presents = montage.composants.map(c => c.type);
+  const compOK = attendus.every(t => presents.includes(t));
+
+  if (compOK) checks.push({ ok: true, txt: 'Les 4 composants sont présents' });
+  else {
+    const manquants = attendus.filter(t => !presents.includes(t));
+    checks.push({ ok: false, txt: `Manquants : ${manquants.join(', ')}` });
+    toutOK = false;
+  }
+
+  const fils = montage.fils.filter(f => f.de && f.vers).length;
+  if (fils >= 4) checks.push({ ok: true, txt: `Fils connectés (${fils})` });
+  else { checks.push({ ok: false, txt: `Il manque ${4 - fils} fil(s)` }); toutOK = false; }
+
+  if (compOK && fils >= 4) {
+    if (!montage.interrupteurFerme) {
+      checks.push({ ok: false, txt: "⚠️ L'interrupteur K est OUVERT. Ferme-le avec le bouton 🔘." });
+      toutOK = false;
+    } else {
+      checks.push({ ok: true, txt: "🔒 Interrupteur K fermé" });
+    }
+  }
+
+  msg.classList.remove('success', 'error');
+  msg.classList.add('show', toutOK ? 'success' : 'error');
+  let html = toutOK ? `<strong>🎉 Montage validé !</strong><ul>` : `<strong>⚠️ Presque ! Vérifie :</strong><ul>`;
+  checks.forEach(c => html += `<li class="${c.ok ? 'ok' : 'ko'}">${c.txt}</li>`);
+  html += '</ul>';
+  if (toutOK) {
+    html += `<div style="margin-top: 12px; text-align: center;">
+      <button class="btn btn-primary" onclick="debloquerEtape(3); allerEtape(3);">➡️ Passer au branchement</button>
+    </div>`;
+    debloquerEtape(3);
+    jouerSon('valide');
+  } else jouerSon('erreur');
+  msg.innerHTML = html;
+}
+
+// ============================================================
+//  BRANCHEMENT (ÉTAPE 3)
+// ============================================================
+const canvasB = document.getElementById('canvasBranchement');
+const ctxB = canvasB.getContext('2d');
+const WB = canvasB.width, HB = canvasB.height;
+
+let mesureChoisie = 'UR';
+
+let branchement = {
+  composants: [], fils: [],
+  oscilloscope: null, oscilloPlace: false,
+  prochainIdFil: 100,
+  filSelectionne: null
+};
+
+function choisirMesure(type) {
+  mesureChoisie = type;
+  document.getElementById('radioUR').classList.toggle('actif', type === 'UR');
+  document.getElementById('radioUL').classList.toggle('actif', type === 'UL');
+  document.getElementById('radioUR').querySelector('input').checked = (type === 'UR');
+  document.getElementById('radioUL').querySelector('input').checked = (type === 'UL');
+
+  const cible = type === 'UR' ? 'la résistance R' : 'la bobine L';
+  const ciblePlus = type === 'UR' ? '+ de R' : '+ de L';
+  const cibleMoins = type === 'UR' ? '− de R' : '− de L';
+  document.getElementById('missionTexte').innerHTML = `branche les 2 voies aux bornes de <strong>${cible}</strong>.`;
+  document.getElementById('ciblePlus').textContent = ciblePlus;
+  document.getElementById('cibleMoins').textContent = cibleMoins;
+
+  drawBranchement();
+  jouerSon('connect');
+}
+
+function initialiserBranchement() {
+  branchement.composants = JSON.parse(JSON.stringify(montage.composants));
+  branchement.fils = (montage.fils || []).map(fil => ({
+    id: 'fb' + (branchement.prochainIdFil++),
+    x1: fil.x1, y1: fil.y1, x2: fil.x2, y2: fil.y2,
+    de: fil.de, vers: fil.vers
+  }));
+  if (!branchement.oscilloscope) {
+    branchement.oscilloscope = { id: 'osc', x: WB - 180, y: 150, w: 160, h: 120, rotation: 0 };
+    branchement.oscilloPlace = true;
+  }
+  drawBranchement();
+  updateHintBranchement();
+}
+
+function poserOscilloscope() {
+  if (branchement.oscilloscope) return;
+  branchement.oscilloscope = { id: 'osc', x: WB - 180, y: 150, w: 160, h: 120, rotation: 0 };
+  branchement.oscilloPlace = true;
+  const btn = document.getElementById('btn-oscillo');
+  if (btn) { btn.classList.add('used'); btn.disabled = true; btn.innerHTML = '<span class="icon">✅</span><span>Oscilloscope posé</span>'; }
+  jouerSon('pose');
+  drawBranchement(); updateHintBranchement();
+}
+
+function ajouterFilBranchement() {
+  if (!branchement.oscilloPlace) { alert('⚠️ Pose d\'abord l\'oscilloscope.'); return; }
+  const nb = branchement.fils.length;
+  const x1 = 80 + (nb % 5) * 150;
+  const y1 = HB - 60 - Math.floor(nb / 5) * 40;
+  const fil = {
+    id: 'fb' + branchement.prochainIdFil++,
+    x1, y1, x2: x1 + 150, y2: y1,
+    de: null, vers: null
+  };
+  branchement.fils.push(fil);
+  branchement.filSelectionne = fil.id;
+  jouerSon('pose');
+  updateConnexionsFilsB();
+  drawBranchement();
+}
+
+function getBornesOscillo() {
+  if (!branchement.oscilloscope) return [];
+  const o = branchement.oscilloscope;
+  return [
+    { id: 'osc-1', composantId: 'osc', x: o.x - o.w/2, y: o.y - o.h/4 },
+    { id: 'osc-2', composantId: 'osc', x: o.x - o.w/2, y: o.y + o.h/4 }
+  ];
+}
+
+function getToutesLesBornesB() {
+  const t = [];
+  branchement.composants.forEach(c => getBornes(c).forEach(b => t.push(b)));
+  getBornesOscillo().forEach(b => t.push(b));
+  return t;
+}
+function getBorneByIdB(id) { return getToutesLesBornesB().find(b => b.id === id); }
+
+function updateConnexionsFilsB() {
+  const bornes = getToutesLesBornesB();
+  branchement.fils.forEach(fil => {
+    fil.de = null; fil.vers = null;
+    let mD = null, mDD = DIST_CONNEXION, mV = null, mVD = DIST_CONNEXION;
+    bornes.forEach(b => {
+      const d1 = Math.hypot(b.x - fil.x1, b.y - fil.y1);
+      if (d1 < mDD) { mDD = d1; mD = b.id; }
+      const d2 = Math.hypot(b.x - fil.x2, b.y - fil.y2);
+      if (d2 < mVD) { mVD = d2; mV = b.id; }
+    });
+    if (mD && mV) {
+      const b1 = getBorneByIdB(mD), b2 = getBorneByIdB(mV);
+      if (b1 && b2 && b1.composantId === b2.composantId) {
+        if (mDD <= mVD) mV = null; else mD = null;
+      }
+    }
+    fil.de = mD; fil.vers = mV;
+  });
+}
+
+function drawBranchement() {
+  ctxB.clearRect(0, 0, WB, HB);
+  ctxB.fillStyle = '#0a0a1a'; ctxB.fillRect(0, 0, WB, HB);
+  ctxB.strokeStyle = 'rgba(79,195,247,0.05)'; ctxB.lineWidth = 1;
+  for (let x = 0; x < WB; x += 40) { ctxB.beginPath(); ctxB.moveTo(x, 0); ctxB.lineTo(x, HB); ctxB.stroke(); }
+  for (let y = 0; y < HB; y += 40) { ctxB.beginPath(); ctxB.moveTo(0, y); ctxB.lineTo(WB, y); ctxB.stroke(); }
+  branchement.fils.forEach(f => drawFilB(f));
+  branchement.composants.forEach(c => {
+    ctxB.save();
+    ctxB.translate(c.x, c.y);
+    ctxB.rotate((c.rotation || 0) * Math.PI / 180);
+    ctxB.translate(-c.x, -c.y);
+    const t = TAILLE[c.type];
+    if (c.type === 'pile') drawPile(ctxB, c.x, c.y, t.w, t.h, c.valeur);
+    else if (c.type === 'resistance') drawResistance(ctxB, c.x, c.y, t.w, t.h, c.valeur);
+    else if (c.type === 'bobine') drawBobine(ctxB, c.x, c.y, t.w, t.h, c.valeur);
+    else if (c.type === 'interrupteur') drawInterrupteur(ctxB, c.x, c.y, t.w, t.h);
+    ctxB.restore();
+  });
+  branchement.composants.forEach(c => getBornes(c).forEach(b => drawBorneB(b)));
+  if (branchement.oscilloscope) {
+    drawOscillo(branchement.oscilloscope);
+    getBornesOscillo().forEach(b => drawBorneB(b, true));
+  }
+}
+
+function drawFilB(fil) {
+  const br = fil.de && fil.vers;
+  ctxB.strokeStyle = br ? '#4caf50' : '#4fc3f7';
+  ctxB.lineWidth = 5; ctxB.lineCap = 'round';
+  ctxB.beginPath(); ctxB.moveTo(fil.x1, fil.y1); ctxB.lineTo(fil.x2, fil.y2); ctxB.stroke();
+  ctxB.fillStyle = fil.de ? '#4caf50' : '#888';
+  ctxB.beginPath(); ctxB.arc(fil.x1, fil.y1, 10, 0, Math.PI*2); ctxB.fill();
+  ctxB.fillStyle = fil.vers ? '#4caf50' : '#888';
+  ctxB.beginPath(); ctxB.arc(fil.x2, fil.y2, 10, 0, Math.PI*2); ctxB.fill();
+}
+
+function drawOscillo(o) {
+  ctxB.fillStyle = '#0d47a1';
+  ctxB.strokeStyle = '#4fc3f7'; ctxB.lineWidth = 3;
+  ctxB.beginPath(); ctxB.roundRect(o.x - o.w/2, o.y - o.h/2, o.w, o.h, 10); ctxB.fill(); ctxB.stroke();
+  ctxB.fillStyle = '#000'; ctxB.strokeStyle = '#4caf50'; ctxB.lineWidth = 2;
+  ctxB.beginPath(); ctxB.rect(o.x - 20, o.y - 25, 80, 50); ctxB.fill(); ctxB.stroke();
+  ctxB.fillStyle = '#fff'; ctxB.font = 'bold 10px monospace'; ctxB.textAlign = 'center'; ctxB.textBaseline = 'middle';
+  ctxB.fillText('OSCILLO', o.x, o.y - o.h/2 + 12);
+  ctxB.fillStyle = '#4fc3f7'; ctxB.font = 'bold 9px monospace'; ctxB.textAlign = 'left';
+  ctxB.fillText('Voie 1 (+)', o.x - o.w/2 + 6, o.y - o.h/4);
+  ctxB.fillStyle = '#ffeb3b'; ctxB.fillText('Voie 2 (−)', o.x - o.w/2 + 6, o.y + o.h/4);
+  ctxB.textBaseline = 'alphabetic';
+}
+
+function drawBorneB(b, estOscillo) {
+  const c = branchement.fils.some(f => f.de === b.id || f.vers === b.id);
+  if (estOscillo) ctxB.fillStyle = b.id === 'osc-1' ? '#4fc3f7' : '#ffeb3b';
+  else ctxB.fillStyle = c ? '#4caf50' : '#fff';
+  ctxB.strokeStyle = '#000'; ctxB.lineWidth = 2;
+  ctxB.beginPath(); ctxB.arc(b.x, b.y, 12, 0, Math.PI*2); ctxB.fill(); ctxB.stroke();
+}
+
+function getCanvasCoordsB(e) {
+  const rect = canvasB.getBoundingClientRect();
+  const ratio = canvasB.width / canvasB.height;
+  const rectRatio = rect.width / rect.height;
+  let rw, rh, ox, oy;
+  if (rectRatio > ratio) { rh = rect.height; rw = rh * ratio; ox = (rect.width - rw) / 2; oy = 0; }
+  else { rw = rect.width; rh = rw / ratio; ox = 0; oy = (rect.height - rh) / 2; }
+  let cx, cy;
+  if (e.touches) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
+  else { cx = e.clientX; cy = e.clientY; }
+  return { x: (cx - rect.left - ox) * (canvasB.width / rw), y: (cy - rect.top - oy) * (canvasB.height / rh) };
+}
+
+let dragStateB = { type: null, filId: null, cote: null, offsetX: 0, offsetY: 0 };
+
+canvasB.addEventListener('touchstart', (e) => { e.preventDefault(); const p = getCanvasCoordsB(e); handleTouchStartB(p.x, p.y); }, { passive: false });
+canvasB.addEventListener('touchmove', (e) => { e.preventDefault(); const p = getCanvasCoordsB(e); handleTouchMoveB(p.x, p.y); }, { passive: false });
+canvasB.addEventListener('touchend', (e) => { e.preventDefault(); handleTouchEndB(); });
+canvasB.addEventListener('mousedown', (e) => { if (e.button !== 0) return; const p = getCanvasCoordsB(e); handleTouchStartB(p.x, p.y); canvasB._mouseDown = true; });
+canvasB.addEventListener('mousemove', (e) => { if (!canvasB._mouseDown) return; const p = getCanvasCoordsB(e); handleTouchMoveB(p.x, p.y); });
+canvasB.addEventListener('mouseup', () => { if (!canvasB._mouseDown) return; canvasB._mouseDown = false; handleTouchEndB(); });
+
+function handleTouchStartB(x, y) {
+  if (branchement.oscilloscope) {
+    const o = branchement.oscilloscope;
+    if (Math.abs(x - o.x) < o.w/2 + 10 && Math.abs(y - o.y) < o.h/2 + 10) {
+      dragStateB.type = 'oscilloscope';
+      dragStateB.offsetX = x - o.x;
+      dragStateB.offsetY = y - o.y;
+      drawBranchement(); return;
+    }
+  }
+  let filTrouve = null, coteTrouve = null, distanceMin = 45;
+  for (const fil of branchement.fils) {
+    const dA = Math.hypot(fil.x1 - x, fil.y1 - y);
+    const dB = Math.hypot(fil.x2 - x, fil.y2 - y);
+    if (dA < distanceMin) { distanceMin = dA; filTrouve = fil; coteTrouve = 'A'; }
+    if (dB < distanceMin) { distanceMin = dB; filTrouve = fil; coteTrouve = 'B'; }
+  }
+  if (filTrouve) {
+    dragStateB.type = 'fil-handle';
+    dragStateB.filId = filTrouve.id;
+    dragStateB.cote = coteTrouve;
+    branchement.filSelectionne = filTrouve.id;
+    return;
+  }
+  branchement.filSelectionne = null;
+  drawBranchement();
+}
+
+function handleTouchMoveB(x, y) {
+  if (dragStateB.type === 'oscilloscope' && branchement.oscilloscope) {
+    const o = branchement.oscilloscope;
+    o.x = Math.max(o.w/2 + 10, Math.min(WB - o.w/2 - 10, x - dragStateB.offsetX));
+    o.y = Math.max(o.h/2 + 10, Math.min(HB - o.h/2 - 10, y - dragStateB.offsetY));
+    drawBranchement(); return;
+  }
+  if (dragStateB.type === 'fil-handle') {
+    const fil = branchement.fils.find(f => f.id === dragStateB.filId);
+    if (!fil) return;
+    const borne = trouverBorneProcheB(x, y, 70);
+    let fx = Math.max(10, Math.min(WB - 10, x));
+    let fy = Math.max(10, Math.min(HB - 10, y));
+    if (borne) { fx = borne.x; fy = borne.y; }
+    if (dragStateB.cote === 'A') { fil.x1 = fx; fil.y1 = fy; }
+    else { fil.x2 = fx; fil.y2 = fy; }
+    updateConnexionsFilsB();
+    drawBranchement(); return;
+  }
+}
+
+function handleTouchEndB() {
+  const avaitDrag = dragStateB.type !== null;
+  dragStateB.type = null; dragStateB.filId = null; dragStateB.cote = null;
+  dragStateB.offsetX = 0; dragStateB.offsetY = 0;
+  if (avaitDrag) { updateConnexionsFilsB(); drawBranchement(); updateHintBranchement(); }
+}
+
+function trouverBorneProcheB(x, y, maxD) {
+  let meilleur = null, minD = maxD;
+  getToutesLesBornesB().forEach(b => {
+    const d = Math.hypot(b.x - x, b.y - y);
+    if (d < minD) { minD = d; meilleur = b; }
+  });
+  return meilleur;
+}
+
+function updateHintBranchement() {
+  const h = document.getElementById('canvasHintBranchement');
+  if (!h) return;
+  if (!branchement.oscilloPlace) h.textContent = '📺 Pose l\'oscilloscope';
+  else h.textContent = '🔗 Glisse les fils vers les bornes';
+}
+
+function verifierBranchement() {
+  const msg = document.getElementById('verifBranchement');
+  const checks = [];
+  let toutOK = true;
+
+  if (!montage.interrupteurFerme) {
+    checks.push({ ok: false, txt: "⚠️ L'interrupteur K est OUVERT. Retourne à l'étape 2." });
+    msg.classList.remove('success', 'error');
+    msg.classList.add('show', 'error');
+    msg.innerHTML = '<strong>⚠️ Impossible :</strong><ul>' + checks.map(c => `<li class="${c.ok ? 'ok' : 'ko'}">${c.txt}</li>`).join('') + '</ul>';
+    jouerSon('erreur'); return;
+  }
+
+  if (!branchement.oscilloPlace) {
+    checks.push({ ok: false, txt: 'Oscilloscope non posé' }); toutOK = false;
+  } else {
+    checks.push({ ok: true, txt: 'Oscilloscope posé' });
+  }
+
+  const fils = branchement.fils.filter(f => f.de && f.vers);
+  const f1 = fils.find(f => f.de === 'osc-1' || f.vers === 'osc-1');
+  const f2 = fils.find(f => f.de === 'osc-2' || f.vers === 'osc-2');
+  const typeCible = mesureChoisie === 'UR' ? 'resistance' : 'bobine';
+  const cible = branchement.composants.find(c => c.type === typeCible);
+
+  if (f1 && cible) {
+    const ext = f1.de === 'osc-1' ? f1.vers : f1.de;
+    const b = getBorneByIdB(ext);
+    if (b && b.composantId === cible.id) checks.push({ ok: true, txt: 'Voie 1 sur la cible' });
+    else { checks.push({ ok: false, txt: 'Voie 1 doit être sur la cible' }); toutOK = false; }
+  } else { checks.push({ ok: false, txt: 'Voie 1 non branchée' }); toutOK = false; }
+
+  if (f2 && cible) {
+    const ext = f2.de === 'osc-2' ? f2.vers : f2.de;
+    const b = getBorneByIdB(ext);
+    if (b && b.composantId === cible.id) checks.push({ ok: true, txt: 'Voie 2 sur la cible' });
+    else { checks.push({ ok: false, txt: 'Voie 2 doit être sur la cible' }); toutOK = false; }
+  } else { checks.push({ ok: false, txt: 'Voie 2 non branchée' }); toutOK = false; }
+
+  msg.classList.remove('success', 'error');
+  msg.classList.add('show', toutOK ? 'success' : 'error');
+  let html = toutOK ? `<strong>🎉 Branchement validé !</strong><ul>` : `<strong>⚠️ Vérifie :</strong><ul>`;
+  checks.forEach(c => html += `<li class="${c.ok ? 'ok' : 'ko'}">${c.txt}</li>`);
+  html += '</ul>';
+  if (toutOK) {
+    html += `<div style="margin-top: 12px; text-align: center;">
+      <button class="btn btn-primary" onclick="debloquerEtape(4); allerEtape(4);">➡️ Passer à l'analyse</button>
+    </div>`;
+    debloquerEtape(4); jouerSon('valide');
+  } else jouerSon('erreur');
+  msg.innerHTML = html;
+}
+
+// ============================================================
+//  ANALYSE (ÉTAPE 4)
+// ============================================================
+function changerSousOnglet(nom) {
+  document.querySelectorAll('.sous-onglet').forEach(b => b.classList.toggle('active', b.dataset.sous === nom));
+  document.querySelectorAll('.sous-onglet-contenu').forEach(c => c.classList.remove('active'));
+  document.getElementById('sous-' + nom).classList.add('active');
+  if (nom === 'recap') setTimeout(() => { drawRecapCourbe(); initRecapEditable(); }, 50);
+  if (nom === 'charge') setTimeout(() => { initCourbesVides(); majTextesCourbes(); }, 50);
+}
+
+let courbesComparaison = [];
+
+function initRecapEditable() {
+  const iR = document.getElementById('inputR');
+  const iL = document.getElementById('inputL');
+  if (!iR || !iL) return;
+  if (!iR.dataset.bound) {
+    iR.addEventListener('input', () => { majTau(); drawRecapCourbe(); });
+    iL.addEventListener('input', () => { majTau(); drawRecapCourbe(); });
+    iR.dataset.bound = '1';
+  }
+  majTau();
+}
+
+function majTau() {
+  const R = parseFloat(document.getElementById('inputR').value) || 100;
+  const L = parseFloat(document.getElementById('inputL').value) || 1;
+  const tau = L / R;
+  const tauMs = tau * 1000;
+  document.getElementById('valeurTau').textContent = tauMs >= 1000 ? (tauMs/1000).toFixed(2) + ' s' : tauMs.toFixed(1) + ' ms';
+}
+
+let modeCourbe = 'charge';
+
+window.changerModeCourbe = function(mode) {
+  modeCourbe = mode;
+  document.getElementById('btnModeCharge').classList.toggle('active', mode === 'charge');
+  document.getElementById('btnModeDecharge').classList.toggle('active', mode === 'decharge');
+
+  const formuleUR = document.getElementById('formuleUR');
+  const formuleUL = document.getElementById('formuleUL');
+  if (mode === 'charge') {
+    formuleUR.innerHTML = 'U_R(t) = E · (1 − e^(−t/τ))';
+    formuleUL.innerHTML = 'U_L(t) = E · e^(−t/τ)';
+  } else {
+    formuleUR.innerHTML = 'U_R(t) = E · e^(−t/τ)';
+    formuleUL.innerHTML = 'U_L(t) = −E · e^(−t/τ)';
+  }
+  jouerSon('connect');
+  drawRecapCourbe();
+};
+
+function drawRecapCourbe() {
+  const R = parseFloat(document.getElementById('inputR')?.value) || 100;
+  const L = parseFloat(document.getElementById('inputL')?.value) || 1;
+  const E = 6;
+  const T = L / R;
+  const tMax = Math.min(0.1, 6 * T);
+  drawCourbeUR('recapCourbeUR', R, L, E, T, tMax, modeCourbe);
+  drawCourbeUL('recapCourbeUL', R, L, E, T, tMax, modeCourbe);
+  courbesComparaison.forEach(({ R, L, couleur }) => {
+    const Tcomp = L / R;
+    drawCourbeComparaisonUR('recapCourbeUR', R, L, E, Tcomp, tMax, couleur);
+  });
+}
+
+function drawCourbeUR(canvasId, R, L, E, T, tMax, mode) {
+  const c = document.getElementById(canvasId);
+  if (!c) return;
+  const ctx2 = c.getContext('2d');
+  const cw = c.width, ch = c.height;
+  const mG = 40, mD = 10, mH = 20, mB = 30;
+  const largeur = cw - mG - mD;
+  const hauteur = ch - mH - mB;
+  const Umax = E * 1.15;
+  ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
+  ctx2.strokeStyle = 'rgba(255, 235, 59, 0.15)'; ctx2.lineWidth = 1;
+  for (let i = 0; i <= 5; i++) { const y = mH + hauteur * i / 5; ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
+  for (let i = 0; i <= 5; i++) { const x = mG + largeur * i / 5; ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
+  ctx2.strokeStyle = 'rgba(255, 235, 59, 0.7)'; ctx2.lineWidth = 1.5;
+  ctx2.beginPath();
+  ctx2.moveTo(mG, mH + hauteur); ctx2.lineTo(mG + largeur, mH + hauteur);
+  ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
+  ctx2.stroke();
+  ctx2.fillStyle = '#ffeb3b'; ctx2.font = 'bold 9px "Courier New", monospace';
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'middle';
+  for (let i = 0; i <= 4; i++) {
+    const v = Umax * (1 - i / 4);
+    ctx2.fillText(v.toFixed(1), mG - 3, mH + hauteur * i / 4);
+  }
+  ctx2.textAlign = 'center'; ctx2.textBaseline = 'top';
+  for (let i = 0; i <= 4; i++) {
+    ctx2.fillText((tMax * i / 4 * 1000).toFixed(0), mG + largeur * i / 4, mH + hauteur + 4);
+  }
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
+  ctx2.fillText('V', cw - 4, 4);
+  ctx2.textBaseline = 'bottom';
+  ctx2.fillText('ms', mG + largeur, ch - 4);
+  ctx2.strokeStyle = '#ffeb3b'; ctx2.lineWidth = 2.5;
+  ctx2.shadowColor = '#ffeb3b'; ctx2.shadowBlur = 8;
+  ctx2.beginPath();
+  for (let i = 0; i <= 300; i++) {
+    const t = tMax * i / 300;
+    let U;
+    if (mode === 'charge') U = E * (1 - Math.exp(-t / T));
+    else U = E * Math.exp(-t / T);
+    const x = mG + largeur * t / tMax;
+    const y = mH + hauteur - hauteur * U / Umax;
+    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke(); ctx2.shadowBlur = 0;
+  if (T < tMax) {
+    const xTau = mG + largeur * T / tMax;
+    const U_tau = mode === 'charge' ? E * 0.632 : E * 0.368;
+    const yTau = mH + hauteur - hauteur * U_tau / Umax;
+    ctx2.strokeStyle = '#ff9800'; ctx2.lineWidth = 1.5; ctx2.setLineDash([4, 4]);
+    ctx2.beginPath();
+    ctx2.moveTo(xTau, mH); ctx2.lineTo(xTau, mH + hauteur);
+    ctx2.stroke();
+    ctx2.beginPath();
+    ctx2.moveTo(mG, yTau); ctx2.lineTo(xTau, yTau);
+    ctx2.stroke();
+    ctx2.setLineDash([]);
+    ctx2.fillStyle = '#ff9800';
+    ctx2.beginPath(); ctx2.arc(xTau, yTau, 5, 0, Math.PI * 2); ctx2.fill();
+    ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 2; ctx2.stroke();
+  }
+}
+
+function drawCourbeUL(canvasId, R, L, E, T, tMax, mode) {
+  const c = document.getElementById(canvasId);
+  if (!c) return;
+  const ctx2 = c.getContext('2d');
+  const cw = c.width, ch = c.height;
+  const mG = 40, mD = 10, mH = 20, mB = 30;
+  const largeur = cw - mG - mD;
+  const hauteur = ch - mH - mB;
+  const Umax = E * 1.15;
+  const Umin = -E * 1.15;
+  const amplitude = Umax - Umin;
+  ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
+  ctx2.strokeStyle = 'rgba(79, 195, 247, 0.15)'; ctx2.lineWidth = 1;
+  for (let i = 0; i <= 5; i++) { const y = mH + hauteur * i / 5; ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
+  for (let i = 0; i <= 5; i++) { const x = mG + largeur * i / 5; ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
+  const yZero = mH + hauteur * Umax / amplitude;
+  ctx2.strokeStyle = 'rgba(79, 195, 247, 0.7)'; ctx2.lineWidth = 1.5;
+  ctx2.beginPath();
+  ctx2.moveTo(mG, yZero); ctx2.lineTo(mG + largeur, yZero);
+  ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
+  ctx2.stroke();
+  ctx2.fillStyle = '#4fc3f7'; ctx2.font = 'bold 9px "Courier New", monospace';
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'middle';
+  for (let i = 0; i <= 4; i++) {
+    const v = Umax - amplitude * i / 4;
+    ctx2.fillText(v.toFixed(1), mG - 3, mH + hauteur * i / 4);
+  }
+  ctx2.textAlign = 'center'; ctx2.textBaseline = 'top';
+  for (let i = 0; i <= 4; i++) {
+    ctx2.fillText((tMax * i / 4 * 1000).toFixed(0), mG + largeur * i / 4, mH + hauteur + 4);
+  }
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
+  ctx2.fillText('V', cw - 4, 4);
+  ctx2.textBaseline = 'bottom';
+  ctx2.fillText('ms', mG + largeur, ch - 4);
+  ctx2.strokeStyle = '#4fc3f7'; ctx2.lineWidth = 2.5;
+  ctx2.shadowColor = '#4fc3f7'; ctx2.shadowBlur = 8;
+  ctx2.beginPath();
+  for (let i = 0; i <= 300; i++) {
+    const t = tMax * i / 300;
+    let U;
+    if (mode === 'charge') U = E * Math.exp(-t / T);
+    else U = -E * Math.exp(-t / T);
+    const x = mG + largeur * t / tMax;
+    const y = mH + hauteur - hauteur * (U - Umin) / amplitude;
+    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke(); ctx2.shadowBlur = 0;
+  if (T < tMax) {
+    const xTau = mG + largeur * T / tMax;
+    const U_tau = mode === 'charge' ? E * 0.368 : -E * 0.368;
+    const yTau = mH + hauteur - hauteur * (U_tau - Umin) / amplitude;
+    ctx2.strokeStyle = '#ff9800'; ctx2.lineWidth = 1.5; ctx2.setLineDash([4, 4]);
+    ctx2.beginPath();
+    ctx2.moveTo(xTau, mH); ctx2.lineTo(xTau, mH + hauteur);
+    ctx2.stroke();
+    ctx2.beginPath();
+    ctx2.moveTo(mG, yTau); ctx2.lineTo(xTau, yTau);
+    ctx2.stroke();
+    ctx2.setLineDash([]);
+    ctx2.fillStyle = '#ff9800';
+    ctx2.beginPath(); ctx2.arc(xTau, yTau, 5, 0, Math.PI * 2); ctx2.fill();
+    ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 2; ctx2.stroke();
+  }
+}
+
+function drawCourbeComparaisonUR(canvasId, R, L, E, T, tMax, couleur) {
+  const c = document.getElementById(canvasId);
+  if (!c) return;
+  const ctx2 = c.getContext('2d');
+  const cw = c.width, ch = c.height;
+  const mG = 40, mD = 10, mH = 20, mB = 30;
+  const largeur = cw - mG - mD;
+  const hauteur = ch - mH - mB;
+  const Umax = E * 1.15;
+  ctx2.strokeStyle = couleur; ctx2.lineWidth = 2;
+  ctx2.setLineDash([6, 4]); ctx2.shadowColor = couleur; ctx2.shadowBlur = 6;
+  ctx2.beginPath();
+  for (let i = 0; i <= 300; i++) {
+    const t = tMax * i / 300;
+    const U = E * (1 - Math.exp(-t / T));
+    const x = mG + largeur * t / tMax;
+    const y = mH + hauteur - hauteur * U / Umax;
+    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke(); ctx2.setLineDash([]); ctx2.shadowBlur = 0;
+}
+
+function ajouterCourbeComparaison() {
+  const R = parseFloat(document.getElementById('inputR').value) || 100;
+  const L = parseFloat(document.getElementById('inputL').value) || 1;
+  const couleurs = ['#4fc3f7', '#ff9800', '#e91e63', '#9c27b0'];
+  const couleur = couleurs[courbesComparaison.length % couleurs.length];
+  courbesComparaison.push({ R, L, couleur });
+  document.getElementById('recapLegende').style.display = 'flex';
+  document.getElementById('legendeCourante').textContent = `R=${R}Ω, L=${L}H`;
+  drawRecapCourbe();
+  jouerSon('pose');
+}
+
+function reinitialiserComparaison() {
+  courbesComparaison = [];
+  document.getElementById('recapLegende').style.display = 'none';
+  document.getElementById('inputR').value = 100;
+  document.getElementById('inputL').value = 1;
+  majTau();
+  drawRecapCourbe();
+}
+
+function initCourbesVides() {
+  ['courbeCharge', 'courbeDecharge'].forEach(id => {
+    const c = document.getElementById(id);
+    if (!c) return;
+    const ctx2 = c.getContext('2d');
+    ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, c.width, c.height);
+    ctx2.fillStyle = 'rgba(76,175,80,0.5)';
+    ctx2.font = 'bold 13px "Courier New", monospace';
+    ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+    ctx2.fillText('▶ Clique sur Animer', c.width/2, c.height/2);
+  });
+}
+
+function majTextesCourbes() {
+  const isUR = mesureChoisie === 'UR';
+  document.getElementById('titreCharge').textContent = isUR ? '🔋 ÉTABLISSEMENT' : '🔋 U_L à l\'établissement';
+  document.getElementById('titreDecharge').textContent = isUR ? '⚡ RUPTURE' : '⚡ U_L en rupture';
+  document.getElementById('formuleCharge').innerHTML = isUR ? 'U_R(t) = E·(1 − e^(−t/τ))' : 'U_L(t) = E·e^(−t/τ)';
+  document.getElementById('formuleDecharge').innerHTML = isUR ? 'U_R(t) = E·e^(−t/τ)' : 'U_L(t) = −E·e^(−t/τ)';
+  document.getElementById('descCharge').innerHTML = isUR ? 'K <strong>fermé</strong> → i monte' : 'K <strong>fermé</strong> → U_L descend';
+  document.getElementById('descDecharge').innerHTML = isUR ? 'K <strong>ouvert</strong> → i redescend' : 'K <strong>ouvert</strong> → U_L négatif';
+}
+
+function choisirCourbe(type) {
+  mesureChoisie = type;
+  document.getElementById('radioCourbeUR').classList.toggle('actif', type === 'UR');
+  document.getElementById('radioCourbeUL').classList.toggle('actif', type === 'UL');
+  majTextesCourbes();
+  initCourbesVides();
+  jouerSon('connect');
+}
+
+function drawCourbeRL(ctx2, cw, ch, type, grandeur) {
+  const mG = 50, mD = 20, mH = 30, mB = 35;
+  const largeur = cw - mG - mD, hauteur = ch - mH - mB;
+  const E = 6, tMax = 0.05, Umax = E * 1.1;
+  const Umin = -E * 0.6, amplitude = Umax - Umin;
+  ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
+  ctx2.strokeStyle = 'rgba(76,175,80,0.15)'; ctx2.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) { const y = mH + hauteur * i / 10; ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
+  for (let i = 0; i <= 10; i++) { const x = mG + largeur * i / 10; ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
+  const yZero = mH + hauteur - hauteur * (-Umin) / amplitude;
+  ctx2.strokeStyle = 'rgba(76,175,80,0.6)'; ctx2.lineWidth = 1.5;
+  ctx2.beginPath();
+  ctx2.moveTo(mG, yZero); ctx2.lineTo(mG + largeur, yZero);
+  ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
+  ctx2.stroke();
+  ctx2.fillStyle = '#4caf50'; ctx2.font = 'bold 9px "Courier New", monospace';
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'middle';
+  for (let i = 0; i <= 5; i++) {
+    const u = Umax - (Umax - Umin) * i / 5;
+    ctx2.fillText(u.toFixed(1) + 'V', mG - 4, mH + hauteur * i / 5);
+  }
+  ctx2.textAlign = 'center'; ctx2.textBaseline = 'top';
+  for (let i = 0; i <= 5; i++) {
+    ctx2.fillText((tMax * i / 5 * 1000).toFixed(0) + 'ms', mG + largeur * i / 5, mH + hauteur + 4);
+  }
+  ctx2.strokeStyle = type === 'charge' ? '#ffeb3b' : '#ff9800';
+  ctx2.lineWidth = 3;
+  ctx2.shadowColor = ctx2.strokeStyle; ctx2.shadowBlur = 10;
+  ctx2.beginPath();
+  const T = 0.01;
+  for (let i = 0; i <= 200; i++) {
+    const t = tMax * i / 200;
+    let U;
+    if (grandeur === 'UR') {
+      U = type === 'charge' ? E * (1 - Math.exp(-t / T)) : E * Math.exp(-t / T);
+    } else {
+      U = type === 'charge' ? E * Math.exp(-t / T) : -E * Math.exp(-t / T);
+    }
+    const x = mG + largeur * t / tMax;
+    const y = mH + hauteur - hauteur * (U - Umin) / amplitude;
+    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke(); ctx2.shadowBlur = 0;
+}
+
+let animRAF = null;
+
+function animerCourbe(type) {
+  if (animRAF) cancelAnimationFrame(animRAF);
+  const T = 0.01, E = 6;
+  initCourbesVides();
+  const tMax = 0.05;
+  const start = performance.now();
+  function anim(now) {
+    const elapsed = (now - start) / 1000;
+    let t = elapsed * 0.25;
+    if (t > tMax) t = tMax;
+    if (type === 'charge' || type === 'cycle') animerCourbeProgression('courbeCharge', 'charge', t, T, E, mesureChoisie);
+    if (type === 'decharge' || (type === 'cycle' && elapsed > 1.5)) {
+      const td = type === 'cycle' ? Math.min(elapsed - 1.5, 0.5) * 0.25 : t;
+      animerCourbeProgression('courbeDecharge', 'decharge', td, T, E, mesureChoisie);
+    }
+    if (elapsed < (type === 'cycle' ? 3 : 1.5)) animRAF = requestAnimationFrame(anim);
+  }
+  animRAF = requestAnimationFrame(anim);
+}
+
+function animerCourbeProgression(canvasId, type, t, T, E, grandeur) {
+  const c = document.getElementById(canvasId);
+  if (!c) return;
+  const ctx2 = c.getContext('2d');
+  drawCourbeRL(ctx2, c.width, c.height, type, grandeur);
+  const mG = 50, mD = 20, mH = 30, mB = 35;
+  const largeur = c.width - mG - mD, hauteur = c.height - mH - mB;
+  const tMax = 0.05, Umax = E * 1.1;
+  const Umin = -E * 0.6, amplitude = Umax - Umin;
+  const nbPts = Math.max(2, Math.floor(t / tMax * 200));
+  ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 4;
+  ctx2.beginPath();
+  for (let i = 0; i <= nbPts; i++) {
+    const tCur = t * i / nbPts;
+    let U;
+    if (grandeur === 'UR') {
+      U = type === 'charge' ? E * (1 - Math.exp(-tCur / T)) : E * Math.exp(-tCur / T);
+    } else {
+      U = type === 'charge' ? E * Math.exp(-tCur / T) : -E * Math.exp(-tCur / T);
+    }
+    const x = mG + largeur * tCur / tMax;
+    const y = mH + hauteur - hauteur * (U - Umin) / amplitude;
+    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke();
+}
+
+function afficherLoiMailles() {
+  const canvas = document.getElementById('courbeCharge');
+  if (!canvas) return;
+  const ctx2 = canvas.getContext('2d');
+  const cw = canvas.width, ch = canvas.height;
+  const mG = 50, mD = 20, mH = 30, mB = 35;
+  const largeur = cw - mG - mD, hauteur = ch - mH - mB;
+  const E = 6, tMax = 0.05, T = 0.01, Umax = E * 1.2;
+  ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
+  ctx2.strokeStyle = 'rgba(76,175,80,0.15)'; ctx2.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) { const y = mH + hauteur * i / 10; ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
+  ctx2.strokeStyle = 'rgba(76,175,80,0.6)'; ctx2.lineWidth = 1.5;
+  ctx2.beginPath();
+  ctx2.moveTo(mG, mH + hauteur); ctx2.lineTo(mG + largeur, mH + hauteur);
+  ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
+  ctx2.stroke();
+  const gradX = (t) => mG + largeur * t / tMax;
+  const gradY = (u) => mH + hauteur - hauteur * u / Umax;
+  ctx2.strokeStyle = '#ffeb3b'; ctx2.lineWidth = 3;
+  ctx2.beginPath();
+  for (let i = 0; i <= 200; i++) {
+    const t = tMax * i / 200;
+    const U = E * (1 - Math.exp(-t / T));
+    if (i === 0) ctx2.moveTo(gradX(t), gradY(U)); else ctx2.lineTo(gradX(t), gradY(U));
+  }
+  ctx2.stroke();
+  ctx2.strokeStyle = '#4fc3f7'; ctx2.lineWidth = 3;
+  ctx2.beginPath();
+  for (let i = 0; i <= 200; i++) {
+    const t = tMax * i / 200;
+    const U = E * Math.exp(-t / T);
+    if (i === 0) ctx2.moveTo(gradX(t), gradY(U)); else ctx2.lineTo(gradX(t), gradY(U));
+  }
+  ctx2.stroke();
+  ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 2.5; ctx2.setLineDash([8, 5]);
+  ctx2.beginPath();
+  for (let i = 0; i <= 200; i++) {
+    const t = tMax * i / 200;
+    if (i === 0) ctx2.moveTo(gradX(t), gradY(E)); else ctx2.lineTo(gradX(t), gradY(E));
+  }
+  ctx2.stroke(); ctx2.setLineDash([]);
+  ctx2.fillStyle = '#ffeb3b'; ctx2.font = 'bold 11px monospace';
+  ctx2.textAlign = 'left'; ctx2.textBaseline = 'top';
+  ctx2.fillText('U_R(t)', mG + 10, mH + 5);
+  ctx2.fillStyle = '#4fc3f7'; ctx2.fillText('U_L(t)', mG + 10, mH + 22);
+  ctx2.fillStyle = '#fff'; ctx2.fillText('U_R + U_L = E = 6 V', mG + 10, mH + 39);
+  jouerSon('valide');
+}
+
+function voirAnimationAppli(type) {
+  const zone = document.getElementById('canvas-' + type);
+  if (!zone) return;
+  zone.classList.add('show');
+  const canvasId = { electroaimant: 'animElectroaimant', relais: 'animRelais', freinage: 'animFreinage', transformateur: 'animTransformateur' }[type];
+  const canvas2 = document.getElementById(canvasId);
+  if (!canvas2) return;
+  let start = performance.now();
+  function anim(now) {
+    const elapsed = (now - start) / 1000;
+    drawAppli(canvas2, type, elapsed);
+    requestAnimationFrame(anim);
+  }
+  requestAnimationFrame(anim);
+}
+
+function drawAppli(c, type, elapsed) {
+  const ctx2 = c.getContext('2d');
+  const cw = c.width, ch = c.height;
+  ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
+  const mG = 40, mD = 15, mH = 20, mB = 25;
+  const largeur = cw - mG - mD, hauteur = ch - mH - mB;
+  const E = 6, Umax = E * 1.1;
+  ctx2.strokeStyle = 'rgba(76,175,80,0.1)';
+  for (let i = 0; i <= 10; i++) { const y = mH + hauteur * i / 10; ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
+  ctx2.lineWidth = 2.5;
+  ctx2.beginPath();
+  const tMax = 0.05;
+  for (let i = 0; i <= 200; i++) {
+    const t = tMax * i / 200;
+    let U;
+    if (type === 'electroaimant') U = E * (1 - Math.exp(-t / 0.01));
+    else if (type === 'relais') { const c2 = t % 0.04; U = c2 < 0.02 ? E * (1 - Math.exp(-c2 / 0.004)) : E * Math.exp(-(c2 - 0.02) / 0.004); }
+    else if (type === 'freinage') U = E * Math.exp(-t / 0.02);
+    else U = Math.abs(E * Math.sin(2 * Math.PI * t / 0.02) * (1 - Math.exp(-t / 0.01)));
+    if (i === 0) ctx2.moveTo(mG + largeur * t / tMax, mH + hauteur - hauteur * U / Umax); 
+    else ctx2.lineTo(mG + largeur * t / tMax, mH + hauteur - hauteur * U / Umax);
+  }
+  ctx2.strokeStyle = type === 'electroaimant' ? '#ff5722' : (type === 'relais' ? '#4fc3f7' : (type === 'freinage' ? '#9c27b0' : '#ffeb3b'));
+  ctx2.shadowColor = ctx2.strokeStyle; ctx2.shadowBlur = 10;
+  ctx2.stroke(); ctx2.shadowBlur = 0;
+}
+
+// QCM
+let qcmRep = { 1: null, 2: null, 3: null };
+let qcmVal = { 1: false, 2: false, 3: false };
+
+document.querySelectorAll('.qcm-option').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const q = parseInt(btn.dataset.q);
+    if (qcmVal[q]) return;
+    document.querySelectorAll(`.qcm-option[data-q="${q}"]`).forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    qcmRep[q] = btn.dataset.value;
+    const bv = btn.closest('.qcm-item').querySelector('.qcm-btn-valider');
+    if (bv) bv.disabled = false;
+  });
+});
+
+function validerQCM(num) {
+  if (qcmVal[num]) return;
+  const rep = qcmRep[num];
+  if (!rep) return;
+  const item = document.getElementById('qcm-' + num);
+  const fb = document.getElementById('feedback-' + num);
+  const opts = document.querySelectorAll(`.qcm-option[data-q="${num}"]`);
+  const bonne = document.querySelector(`.qcm-option[data-q="${num}"][data-correct="1"]`);
+  opts.forEach(o => {
+    o.disabled = true;
+    if (o.dataset.correct === '1') o.classList.add('correct');
+    else if (o.dataset.value === rep) o.classList.add('incorrect');
+  });
+  const ok = rep === bonne.dataset.value;
+  const expl = {
+    1: "U_R = R·i : la tension aux bornes de R est proportionnelle au courant.",
+    2: "τ = L / R = 2 / 200 = 0,01 s = 10 ms.",
+    3: "τ = L / R. Si R augmente, τ diminue."
+  };
+  if (ok) {
+    item.classList.add('correct');
+    fb.className = 'qcm-feedback success show';
+    fb.innerHTML = `<strong>✅ Bravo !</strong><br>${expl[num]}`;
+    qcmVal[num] = true; jouerSon('valide');
+  } else {
+    item.classList.add('incorrect');
+    fb.className = 'qcm-feedback error show';
+    fb.innerHTML = `<strong>❌ Pas tout à fait.</strong><br>Bonne réponse : <strong>${bonne.textContent.trim().substring(1).trim()}</strong><br><br>${expl[num]}`;
+    qcmVal[num] = true; jouerSon('erreur');
+  }
+}
+
+// Conclusion
+const STORAGE_KEY = 'tp_rl_mobile_conclusion';
+
+function majProgression() {
+  let n = 0;
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('concl-' + i);
+    if (el && el.value.trim()) n++;
+  }
+  document.getElementById('progressRemplissage').style.width = (n / 5 * 100) + '%';
+  document.getElementById('progressTexte').textContent = n + '/5';
+  const data = {};
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('concl-' + i);
+    data['c' + i] = el ? el.value : '';
+  }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e){}
+}
+
+['concl-1','concl-2','concl-3','concl-4','concl-5'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) { el.addEventListener('input', majProgression); el.addEventListener('change', majProgression); }
+});
+
+try {
+  const d = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('concl-' + i);
+    if (el && d['c' + i]) el.value = d['c' + i];
+  }
+  majProgression();
+} catch(e) {}
+
+function verifierConclusion() {
+  const r = {
+    1: document.getElementById('concl-1').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, ''),
+    2: document.getElementById('concl-2').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, ''),
+    3: document.getElementById('concl-3').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, ''),
+    4: document.getElementById('concl-4').value,
+    5: document.getElementById('concl-5').value.trim().toLowerCase()
+  };
+  const acc = {
+    1: ['10ms', '0.01s', '0,01s'],
+    2: ['0.038', '0.0378', '38ma', '63%'],
+    3: ['0.022', '0.0222', '22ma', '37%'],
+    4: ['lent'],
+    5: null
+  };
+  let score = 0;
+  const ok1 = acc[1].some(x => r[1].includes(x));
+  marquer(1, ok1, ok1 ? '✅ τ = 10 ms.' : '❌ τ = L/R = 1/100 = 0,01 s = 10 ms.');
+  if (ok1) score++;
+  const ok2 = acc[2].some(x => r[2].includes(x));
+  marquer(2, ok2, ok2 ? '✅ i(τ) ≈ 0,038 A.' : '❌ i(τ) ≈ 0,63 × 0,06 = 0,038 A (38 mA).');
+  if (ok2) score++;
+  const ok3 = acc[3].some(x => r[3].includes(x));
+  marquer(3, ok3, ok3 ? '✅ i(τ) ≈ 0,022 A.' : '❌ i(τ) ≈ 0,37 × 0,06 = 0,022 A (22 mA).');
+  if (ok3) score++;
+  const ok4 = r[4] === 'lent';
+  marquer(4, ok4, ok4 ? '✅ Établissement lent.' : '❌ Plus τ est grand, plus l\'établissement est LENT.');
+  if (ok4) score++;
+  const ok5 = r[5].length >= 3;
+  marquer(5, ok5, ok5 ? '✅ Bien !' : '❌ Réponse trop courte.');
+  if (ok5) score++;
+
+  const res = document.getElementById('conclusionResultat');
+  res.className = 'conclusion-resultat show ' + (score === 5 ? 'success' : 'partiel');
+  res.innerHTML = score === 5 ? `<strong>🎉 Parfait ! ${score}/5</strong>` : `<strong>📊 Score : ${score}/5</strong>`;
+  if (score >= 3) afficherConclusionFinale(score, 5);
+  jouerSon(score === 5 ? 'jingle' : (score >= 3 ? 'valide' : 'erreur'));
+}
+
+function marquer(n, ok, msg) {
+  const c = document.getElementById('concl-' + n);
+  const fb = document.getElementById('fb-' + n);
+  c.classList.remove('correct', 'incorrect');
+  c.classList.add(ok ? 'correct' : 'incorrect');
+  fb.className = 'champ-feedback show ' + (ok ? 'success' : 'error');
+  fb.innerHTML = msg;
+}
+
+function afficherConclusionFinale(score, total) {
+  const zone = document.getElementById('conclusionFinale');
+  const texte = document.getElementById('conclusionTexte');
+  const appli = document.getElementById('concl-5').value.trim();
+  texte.innerHTML = `<strong>Conclusion du TP RL</strong>\n\nNous avons réalisé un circuit RL avec une pile (E = 6 V), une résistance (R = 100 Ω), une bobine (L = 1 H) et un interrupteur K.\n\nLa constante de temps vaut :\n<strong>τ = L / R = 1 / 100 = 0,01 s = 10 ms</strong>.\n\nÀ t = τ, lors de l'établissement, le courant atteint 63 % de I_max = E/R = 0,06 A, soit environ 0,038 A.\nLors de la rupture, il redescend à 37 % de I_max, soit environ 0,022 A.\n\nPlus τ est grand, plus l'établissement du courant est lent.\n\nCette expérience nous a permis de vérifier la relation τ = L / R et de comprendre le rôle de la bobine dans des applications telles que ${appli ? appli : 'les électroaimants, les relais et les transformateurs'}.\n\n<em>Score : ${score}/${total}</em>`;
+  zone.classList.add('show');
+  zone.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function reinitialiserConclusion() {
+  ['concl-1','concl-2','concl-3','concl-5'].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = '';
+    el.classList.remove('correct', 'incorrect');
+  });
+  const sel = document.getElementById('concl-4');
+  sel.value = '';
+  sel.classList.remove('correct', 'incorrect');
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById('fb-' + i).className = 'champ-feedback';
+    document.getElementById('fb-' + i).innerHTML = '';
+  }
+  document.getElementById('conclusionResultat').className = 'conclusion-resultat';
+  document.getElementById('conclusionFinale').classList.remove('show');
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
+  majProgression();
+}
+
+function imprimerConclusion() {
+  const t = document.getElementById('conclusionTexte').innerText;
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Conclusion TP RL</title><style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:20px;line-height:1.7;}h1{font-size:22px;border-bottom:2px solid #A8853F;padding-bottom:10px;}pre{white-space:pre-wrap;font-family:Georgia,serif;font-size:14.5px;}</style></head><body><h1>✍️ Ma conclusion — TP RL</h1><pre>${t.replace(/</g,'&lt;')}</pre></body></html>`);
+  w.document.close();
+  setTimeout(() => w.print(), 400);
+}
+
+function telechargerConclusion() {
+  const t = document.getElementById('conclusionTexte').innerText;
+  const blob = new Blob([t], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'conclusion_tp_rl.txt';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function genererCertificat() {
+  const nom = (document.getElementById('certificatNom').value || '').trim() || 'Élève';
+  const date = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  const qcmScore = Object.values(qcmVal).filter(v => v).length + '/3';
+  const conclusion = document.getElementById('conclusionTexte')?.innerText || '—';
+  let img = '';
+  try {
+    const c = document.getElementById('canvasMontage');
+    if (c) img = c.toDataURL('image/png');
+  } catch(e){}
+  const bloc = img ? `<div style="text-align:center;margin:20px 0;"><h3 style="font-size:13px;color:#1B2A4A;margin-bottom:8px;text-transform:uppercase;">📸 Montage réalisé</h3><img src="${img}" style="max-width:100%;border:2px solid #A8853F;border-radius:8px;" alt="Montage"></div>` : '';
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Certificat TP RL</title><style>@page{size:A4;margin:15mm;}body{font-family:Georgia,serif;color:#1a1a1a;line-height:1.6;}.cert{border:4px double #A8853F;padding:30px 35px;max-width:780px;margin:0 auto;}.h{text-align:center;border-bottom:3px solid #A8853F;padding-bottom:12px;margin-bottom:20px;}.h h1{font-size:22px;color:#1B2A4A;margin-bottom:5px;}.t{text-align:center;font-size:24px;color:#A8853F;margin:18px 0;letter-spacing:2px;}.n{text-align:center;font-size:20px;font-weight:bold;color:#1B2A4A;padding:10px;border-bottom:2px dashed #A8853F;margin:12px 0 20px;}.g{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0;}.c{background:#F7F5F0;border-left:4px solid #A8853F;padding:10px 14px;}.c .l{font-size:11px;text-transform:uppercase;color:#5B6472;letter-spacing:1px;font-weight:bold;}.c .v{font-size:15px;color:#1B2A4A;font-family:'Courier New',monospace;font-weight:bold;margin-top:3px;}.b{background:#F7F5F0;padding:15px 18px;border-radius:6px;font-size:12.5px;margin:18px 0;}.s{display:flex;justify-content:space-between;margin-top:30px;font-size:13px;}.s .l{border-top:1px solid #5B6472;width:200px;margin-top:35px;padding-top:6px;color:#5B6472;text-align:center;}.p{text-align:center;font-size:11px;color:#5B6472;margin-top:25px;font-style:italic;}.np{text-align:center;margin:18px auto;}.np button{padding:12px 22px;background:#A8853F;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;}</style></head><body><div class="cert"><div class="h"><h1>🏫 Lycée Franco-Arabe de Kermadiabel</h1><p>Département de Physique-Chimie — Travaux Pratiques</p></div><div class="t">CERTIFICAT DE RÉUSSITE — TP RL</div><div class="n">${nom}</div><p style="text-align:center;font-size:13.5px;margin-bottom:18px;">a réalisé avec succès l'ensemble du TP RL (établissement et rupture du courant dans une bobine).</p><div class="g"><div class="c"><div class="l">Constante τ</div><div class="v">10 ms</div></div><div class="c"><div class="l">Score QCM</div><div class="v">${qcmScore}</div></div><div class="c"><div class="l">Date</div><div class="v">${date}</div></div><div class="c"><div class="l">Relation vérifiée</div><div class="v">τ = L / R</div></div></div>${bloc}<div class="b"><strong>📝 Conclusion de l'élève</strong><br>${conclusion.replace(/</g,'&lt;').substring(0,800)}</div><div class="s"><div class="l">Signature élève</div><div class="l">Signature professeur</div></div><div class="p">Certificat — Simulateur TP RL Mobile LFAKM</div></div><div class="np"><button onclick="window.print()">🖨️ Imprimer / PDF</button></div></body></html>`);
+  w.document.close();
+  jouerSon('jingle');
+}
+
+// Exercices
+function verifierExo1() {
+  const r = document.getElementById('exo1-rep').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, '');
+  const ok = ['10ms', '0.01s', '0,01s', '10'].some(x => r === x);
+  const fb = document.getElementById('exo1-fb');
+  document.getElementById('exo1-rep').classList.remove('correct', 'incorrect');
+  document.getElementById('exo1-rep').classList.add(ok ? 'correct' : 'incorrect');
+  fb.className = 'exercice-feedback show ' + (ok ? 'success' : 'error');
+  fb.innerHTML = ok ? '✅ τ = L/R = 2/200 = 0,01 s = 10 ms.' : '❌ τ = L/R = 2/200 = 10 ms.';
+  if (ok) jouerSon('valide'); else jouerSon('erreur');
+}
+
+function verifierExo2() {
+  const r = document.getElementById('exo2-rep').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, '').replace('a', '');
+  const ok = ['0.038', '0.0378', '38ma', '0.04'].some(x => r.startsWith(x));
+  const fb = document.getElementById('exo2-fb');
+  document.getElementById('exo2-rep').classList.remove('correct', 'incorrect');
+  document.getElementById('exo2-rep').classList.add(ok ? 'correct' : 'incorrect');
+  fb.className = 'exercice-feedback show ' + (ok ? 'success' : 'error');
+  fb.innerHTML = ok ? '✅ I_max = 0,06 A, i(τ) ≈ 0,63 × 0,06 = 0,038 A.' : '❌ i(τ) = 0,63 × 0,06 = 0,038 A (38 mA).';
+  if (ok) jouerSon('valide'); else jouerSon('erreur');
+}
+
+function verifierExo3() {
+  const r = document.getElementById('exo3-rep').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, '').replace('j', '');
+  const ok = ['2.25', '2,25', '2.3'].some(x => r.startsWith(x));
+  const fb = document.getElementById('exo3-fb');
+  document.getElementById('exo3-rep').classList.remove('correct', 'incorrect');
+  document.getElementById('exo3-rep').classList.add(ok ? 'correct' : 'incorrect');
+  fb.className = 'exercice-feedback show ' + (ok ? 'success' : 'error');
+  fb.innerHTML = ok ? '✅ E = ½ · L · i² = ½ × 0,5 × 9 = 2,25 J.' : '❌ E = ½ × 0,5 × 3² = 2,25 J.';
+  if (ok) jouerSon('valide'); else jouerSon('erreur');
+}
+
+window.addEventListener('load', () => {
+  allerEtape(2);
+  drawMontage();
+  updateProgress();
+  updateCanvasHint();
+  const btnSon = document.getElementById('sonToggle');
+  if (btnSon) { btnSon.textContent = sonActif ? '🔊' : '🔇'; btnSon.classList.toggle('off', !sonActif); }
+  console.log('✅ TP RL Mobile chargé');
+});
+
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    if (w < 2*r) r = w/2; if (h < 2*r) r = h/2;
+    this.beginPath();
+    this.moveTo(x + r, y);
+    this.arcTo(x + w, y, x + w, y + h, r);
+    this.arcTo(x + w, y + h, x, y + h, r);
+    this.arcTo(x, y + h, x, y, r);
+    this.arcTo(x, y, x + w, y, r);
+    this.closePath();
+    return this;
+  };
+}
+</script>
+</body>
+</html>

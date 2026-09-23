@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<link rel="icon" type="image/png" href="assets/favicon.png">
-<link rel="stylesheet" href="assets/style-menu.css">
-  <link rel="manifest" href="assets/manifest.json">
+<link rel="stylesheet" href="style-menu.css">
+  <link rel="icon" type="image/png" href="favicon.png">
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1B2A4A">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Identification des membres — LFAKM</title>
+<title>Autres — LFAKM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -103,46 +103,15 @@
     .admin-dropdown { position: static; box-shadow: none; border: none; }
   }
 
-  /* ZONE DE CONNEXION */
-  .login-wrap {
-    min-height: calc(100vh - 85px);
-    display:flex; align-items:center; justify-content:center; padding: 60px 24px;
-  }
-  .login-box {
-    background: var(--paper); border: 1px solid var(--line); width:100%; max-width: 440px; padding: 48px 40px;
-    border-radius: 8px;
-  }
-  .login-eyebrow {
-    font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--brass); font-weight: 700; margin-bottom: 12px;
-  }
-  .login-box h1 { font-family: var(--serif); font-size: 26px; font-weight: 600; color: var(--ink); }
-  .login-box > p { color: var(--slate); font-size: 14px; margin-top: 10px; margin-bottom: 30px; }
+  /* HERO */
+  .page-hero { background: var(--ink-deep); color: #fff; padding: 60px 0; text-align: center; }
+  .page-hero h1 { font-family: var(--serif); font-size: 32px; margin-bottom: 10px; }
 
-  .field { margin-bottom: 20px; }
-  .field label { display:block; font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
-  .field input {
-    width: 100%; padding: 13px 14px; border: 1px solid var(--line); border-radius: 6px;
-    background: #fff; font-family: var(--sans); font-size: 14.5px; color: var(--text);
-  }
-  .field input:focus { outline: none; border-color: var(--brass); }
-
-  .login-actions { display:flex; align-items:center; justify-content:space-between; margin: 6px 0 24px; }
-  .remember { display:flex; align-items:center; gap:8px; font-size: 13px; color: var(--slate); }
-  .forgot { font-size: 13px; color: var(--ink); border-bottom: 1px solid var(--brass); padding-bottom: 1px; }
-  .forgot:hover { color: var(--brass); }
-
-  .btn-submit {
-    width: 100%; background: var(--ink); color: #fff; padding: 15px; font-weight: 700; font-size: 14px;
-    border: none; border-radius: 6px; cursor: pointer; letter-spacing: 0.02em; font-family: var(--sans);
-  }
-  .btn-submit:hover { background: var(--ink-deep); }
-
-  .login-note {
-    margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--line);
-    font-size: 12.5px; color: var(--slate); text-align: center;
-  }
-  .login-note a { color: var(--ink); border-bottom: 1px solid var(--brass); padding-bottom: 1px; }
-  .login-note a:hover { color: var(--brass); }
+  /* CONTENT */
+  section { padding: 60px 0; }
+  .content-box { background: #fff; border: 1px solid var(--line); padding: 40px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+  .section-title { font-family: var(--serif); color: var(--ink); margin-bottom: 25px; border-bottom: 2px solid var(--brass); display: inline-block; padding-bottom: 5px; font-size: 24px;}
+  p { margin-bottom: 20px; color: var(--text); font-size: 16px; text-align: justify; }
 
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
 </style>
@@ -174,11 +143,12 @@
 
         <li><a href="historique.html">Historique</a></li>
         <li><a href="actualites.html">Actualités</a></li>
-        <li><a href="pc/ressources.html">Ressources</a></li>
+        <li><a href="ressources.html">Ressources</a></li>
+        <li><a href="autres.html" class="active">Autres</a></li>
 
         <!-- 🎓 NOUVEAU : Lien Gouvernement scolaire -->
         <li class="gov-item">
-          <a href="pc/publier-annonce.html">🎓 Gouvernement</a>
+          <a href="publier-annonce.html">🎓 Gouvernement</a>
         </li>
         <li id="user-profile" class="profile-info"></li>
         <li><a href="identification.html" id="auth-link" class="nav-cta">Connexion</a></li>
@@ -188,40 +158,25 @@
   </div>
 </header>
 
-<div class="login-wrap">
-  <div class="login-box">
-    <div class="login-eyebrow">Espace membres</div>
-    <h1>Identification</h1>
-    <p>Connectez-vous pour accéder à votre espace professeur ou élève.</p>
-
-    <form id="login-form">
-      <div class="field">
-        <label for="identifiant">Identifiant ou e-mail</label>
-        <input type="email" id="identifiant" placeholder="ex : prenom.nom@lfakm.sn" required>
-      </div>
-      <div class="field">
-        <label for="motdepasse">Mot de passe</label>
-        <input type="password" id="motdepasse" placeholder="••••••••" required>
-      </div>
-      <div class="login-actions">
-        <label class="remember"><input type="checkbox"> Se souvenir de moi</label>
-        <a href="#" id="forgot-link" class="forgot">Mot de passe oublié ?</a>
-      </div>
-      <div id="reset-msg" style="display:none; font-size:13px; margin-bottom:16px;"></div>
-      <div id="login-error" style="display:none; color:#B3402A; font-size:13px; margin-bottom:16px;"></div>
-      <button type="submit" class="btn-submit">Se connecter</button>
-    </form>
-
-    <div class="login-note">Espace réservé aux professeurs et élèves de l'établissement. En cas de difficulté, contactez l'administration.</div>
-    <div class="login-note">Pas encore de compte ? <a href="inscription.html">S'inscrire</a></div>
+<section class="page-hero">
+  <div class="wrap">
+    <h1>Autres</h1>
+    <p style="color: #C7CBD6;">Découvrez nos autres ressources et informations.</p>
   </div>
-</div>
+</section>
+
+<section class="wrap">
+  <div class="content-box">
+    <h2 class="section-title">Bientôt disponible</h2>
+    <p>Cette rubrique est réservée à de futurs contenus (vie associative, partenariats, galerie photo, etc.).</p>
+  </div>
+</section>
 
 <footer>© 2026 Lycée Franco Arabe de Keur Madiabel<div id="public-contact" style="margin-top: 12px;"></div></footer>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -264,22 +219,25 @@
       const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
       const profile = snap.data();
       
+      // Affiche le nom et le rôle de l'utilisateur connecté
       profileSpan.innerHTML = `<span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span><span class="profile-role">${profile.role}</span>`;
       profileSpan.style.display = 'flex';
       
+      // Bouton Déconnexion
       link.textContent = "Déconnexion";
       link.onclick = () => signOut(auth).then(() => location.reload());
       
-      // Admin
-      if (['admin', 'proviseur', 'censeur'].includes(profile.role)) {
+      // Affiche le menu déroulant Admin uniquement pour les admins
+      if (profile.role === 'admin' || profile.role === 'proviseur' || profile.role === 'censeur') {
         document.querySelectorAll('.admin-item').forEach(el => el.style.display = 'block');
       }
 
-      // 🎓 Gouvernement scolaire
+      // 🎓 Affiche le lien Gouvernement pour Président, Ministre et admins
       if (['admin', 'proviseur', 'censeur', 'president', 'ministre_communication'].includes(profile.role)) {
         document.querySelectorAll('.gov-item').forEach(el => el.style.display = 'block');
       }
     } else {
+      // Visiteur non connecté
       profileSpan.style.display = 'none';
       link.textContent = "Connexion";
       link.href = "identification.html";
@@ -287,7 +245,7 @@
     }
   });
 
-  // Fonction modale Contact Proviseur
+  // Fonction pour afficher les coordonnées du Proviseur dans une fenêtre modale
   window.showContact = async () => {
     const snap = await getDoc(doc(db, 'config', 'contact'));
     if (!snap.exists() || !snap.data().email) {
@@ -307,55 +265,6 @@
       </div>`;
     document.body.appendChild(overlay);
   };
-
-  // LOGIQUE DE CONNEXION
-  const form = document.getElementById('login-form');
-  const errorBox = document.getElementById('login-error');
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    errorBox.style.display = 'none';
-    const email = document.getElementById('identifiant').value;
-    const password = document.getElementById('motdepasse').value;
-    try {
-      const cred = await signInWithEmailAndPassword(auth, email, password);
-      const profilRef = doc(db, 'utilisateurs', cred.user.uid);
-      const profilSnap = await getDoc(profilRef);
-      const profil = profilSnap.exists() ? profilSnap.data() : null;
-      window.location.href = 'pc/ressources.html';
-    } catch (err) {
-      errorBox.textContent = "Identifiant ou mot de passe incorrect.";
-      errorBox.style.display = 'block';
-    }
-  });
-
-  const identInput = document.getElementById('identifiant');
-  const resetMsg = document.getElementById('reset-msg');
-
-  document.getElementById('forgot-link').addEventListener('click', async (e) => {
-    e.preventDefault();
-    const email = identInput.value.trim();
-    resetMsg.style.display = 'block';
-
-    if (!email) {
-      resetMsg.style.color = '#B3402A';
-      resetMsg.textContent = "Saisissez d'abord votre e-mail ci-dessus, puis cliquez à nouveau sur ce lien.";
-      identInput.focus();
-      return;
-    }
-
-    resetMsg.style.color = 'var(--slate)';
-    resetMsg.textContent = "Envoi en cours...";
-
-    try {
-      await sendPasswordResetEmail(auth, email);
-      resetMsg.style.color = '#2E7D32';
-      resetMsg.textContent = `📧 Un e-mail de réinitialisation a été envoyé à ${email}. Pensez à vérifier vos spams.`;
-    } catch (err) {
-      resetMsg.style.color = '#B3402A';
-      resetMsg.textContent = "Impossible d'envoyer l'e-mail. Vérifiez que l'adresse est correcte et correspond bien à votre compte.";
-    }
-  });
 </script>
 
 <script>
@@ -364,6 +273,25 @@
       navigator.serviceWorker.register('service-worker.js').catch(err => console.warn('Service worker non enregistré :', err));
     });
   }
+</script>
+
+<script>
+  // ✅ Ouvre/ferme les sous-menus (Admin, Laboratoire, Optique) en accordéon sur mobile
+  document.addEventListener('click', function(e) {
+    if (window.innerWidth > 1024) return;
+    const trigger = e.target.closest('.admin-trigger, .labo-trigger, .optique-trigger');
+    if (!trigger) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const item = trigger.closest('.admin-item, .labo-item, .optique-item');
+    if (!item) return;
+    const dropdown = item.querySelector('.admin-dropdown, .labo-dropdown, .optique-dropdown');
+    if (!dropdown) return;
+    const estOuvert = dropdown.classList.contains('show');
+    document.querySelectorAll('.admin-dropdown.show, .labo-dropdown.show, .optique-dropdown.show')
+      .forEach(function(d) { d.classList.remove('show'); });
+    if (!estOuvert) dropdown.classList.add('show');
+  });
 </script>
 </body>
 </html>

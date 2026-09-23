@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Assistant LFAKM</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 600px; margin: auto; border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
+        .hidden { display: none; }
+        #chat-box { height: 200px; border: 1px solid #ddd; overflow-y: scroll; margin-bottom: 10px; padding: 10px; }
+        #user-input { width: 80%; padding: 10px; }
+        #send-btn { padding: 10px; }
+        .msg-user { text-align: right; color: blue; margin-bottom: 5px;}
+        .msg-ai { text-align: left; color: green; margin-bottom: 10px;}
+        .error { color: red; font-weight: bold;}
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Assistant LFAKM (Prototype)</h2>
+
+        <!-- Étape 1 : Connexion simulée -->
+        <div id="login-section">
+            <h3>Veuillez vous identifier</h3>
+            <button onclick="login('prof')">Se connecter en tant que Professeur</button>
+            <button onclick="login('eleve')">Se connecter en tant qu'Élève</button>
+        </div>
+
+        <!-- Étape 2 : Chat -->
+        <div id="chat-section" class="hidden">
+            <p>Connecté en tant que : <strong id="current-role"></strong></p>
+            <div id="chat-box"></div>
+            <input type="text" id="user-input" placeholder="Écrivez votre message...">
+            <button id="send-btn" onclick="sendMessage()">Envoyer</button>
+            <p id="error-display" class="error"></p>
+        </div>
+    </div>
+
+    <script>
+        // ⚠️ ATTENTION : Pour les tests uniquement. 
+        // Remplacez par votre vraie clé API Groq (disponible sur console.groq.com)
+        const API_KEY = "VOTRE_CLE_API_GROQ_ICI"; 
+        const API_URL = "https://api.groq.com/openai/v1/chat/completions";
+
+        let currentRole = null;
+
+        function login(role) {
+            currentRole = role;
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('chat-section').classList.remove('hidden');
+            document.getElementById('current-role').innerText = (role === 'prof') ? 'Professeur' : 'Élève';
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('user-input').value;
+            if (!input) return;
+
+            // Affichage du message utilisateur
+            appendMessage('user', input);
+            document.getElementById('user-input').value = '';
+            document.getElementById('error-display').innerText = '';
+
+            // 🛡️ ÉTAPE CRUCIALE : Le Prompt Système qui change selon le rôle !
+            let systemPrompt = "";
+
+            if (currentRole === 'prof') {
+                systemPrompt = "Tu es l'assistant pédagogique du lycée LFAKM. Tu aides les professeurs à concevoir des devoirs, des corrections, des plans de cours et à analyser les difficultés des élèves. Tu es autorisé à donner des réponses complètes.";
+            } else if (currentRole === 'eleve') {
+                systemPrompt = "Tu es l'assistant du lycée LFAKM. Tu aides les élèves pour des questions administratives (horaires, contacter un prof, orientation). En revanche, si un élève te demande de résoudre un exercice, rédiger une dissertation ou lui donner les réponses de son devoir, tu DOIS refuser poliment et lui rappeler de demander de l'aide à son professeur. Tu ne fournis jamais la solution d'un devoir en cours.";
+            }
+
+            try {
+                // Appel à l'API Groq
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile", // Modèle gratuit et performant
+                        messages: [
+                            { role: "system", content: systemPrompt },
+                            { role: "user", content: input }
+                        ]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erreur API : ${response.status}`);
+                }
+
+                const data = await response.json();
+                const aiResponse = data.choices[0].message.content;
+                appendMessage('ai', aiResponse);
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('error-display').innerText = "Erreur de connexion à l'API. Vérifiez votre clé et votre connexion internet.";
+            }
+        }
+
+        function appendMessage(sender, text) {
+            const chatBox = document.getElementById('chat-box');
+            const div = document.createElement('div');
+            div.className = `msg-${sender}`;
+            div.innerText = text;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
