@@ -3758,9 +3758,11 @@ function analyserNodal(pile, resistances, E) {
     const I_branche = bloquee ? 0 : U_branche * G_branche;
 
     // ✅ Pour la diode/LED, on affiche la résistance équivalente réelle
-    const R_affichage = bloquee ? '∞' : (comp && (comp.type === 'diode' || comp.type === 'led')
-      ? (U_branche / Math.max(I_branche, 1e-9))
-      : b.valeur);
+    const R_affichage = bloquee
+  ? 999999  // ✅ nombre au lieu de '∞'
+  : (comp && (comp.type === 'diode' || comp.type === 'led')
+    ? (U_branche / Math.max(I_branche, 1e-9))
+    : b.valeur);
 
     return {
       id: b.id,
@@ -3919,7 +3921,7 @@ function genererTableauMesures() {
     chauffante: '🔥 Chauffante', bobine: '🌀 Bobine', electrolyseur: '⚗️ Électrolyseur'
   };
 
-  r.branches.forEach(b => {
+    r.branches.forEach(b => {
     const comp = atelier.composants.find(c => c.id === b.id);
     if (!comp) return;
     const nom = labels[comp.type] || comp.type;
@@ -3927,10 +3929,16 @@ function genererTableauMesures() {
     const I_mA = b.I * 1000;
     const I_affiche = (Math.abs(I_mA) < 10 && Math.abs(I_mA) > 0)
       ? I_mA.toFixed(1) : I_mA.toFixed(0);
+
+    // ✅ Gestion du cas bloquée
+    const R_affiche = b.bloquee
+      ? '∞'
+      : (typeof b.valeur === 'number' ? b.valeur.toFixed(0) : b.valeur);
+
     html += `
       <tr>
         <td class="comp-name">${nom}</td>
-        <td>${b.valeur.toFixed(0)}</td>
+        <td>${R_affiche}</td>
         <td>${b.U.toFixed(2)}</td>
         <td>${I_affiche}</td>
         <td>${P.toFixed(3)}</td>
