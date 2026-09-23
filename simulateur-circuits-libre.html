@@ -3736,24 +3736,39 @@ function analyserNodal(pile, resistances, E) {
   const U_test = V[idxPileL] || 0;
   let Req = U_test / 1;
 
-  const branches = resistancesBranches.map(b => {
+    const branches = resistancesBranches.map(b => {
     const nL = noeuds[b.leftId];
     const nR = noeuds[b.rightId];
     const vL = nL === refNode ? 0 : (freeNodes.indexOf(nL) >= 0 ? V[freeNodes.indexOf(nL)] : 0);
     const vR = nR === refNode ? 0 : (freeNodes.indexOf(nR) >= 0 ? V[freeNodes.indexOf(nR)] : 0);
     const U_branche = Math.abs(vL - vR) * (pile.tension / Math.max(U_test, 1e-9));
-    const I_branche = U_branche / valeurPositive(b.valeur, 1);
 
     // 🆕 Détection polarité diode/LED
     let bloquee = false;
     const comp = atelier.composants.find(c => c.id === b.id);
     if (comp && (comp.type === 'diode' || comp.type === 'led')) {
-      // La borne -L est l'anode (côté gauche), -R la cathode (côté droit)
-      // Si le courant va de R vers L, c'est bloqué
       if (vL < vR) bloquee = true;
     }
 
-    return { id: b.id, valeur: b.valeur, I: bloquee ? 0 : I_branche, U: U_branche, bloquee };
+    // ✅ Le courant est calculé à partir de la CONDUCTANCE (G),
+    // pas de R. En série, I est donc identique partout.
+    const G_branche = comp && (comp.type === 'diode' || comp.type === 'led')
+      ? 1 / valeurPositive(comp.valeur + (comp.seuil || 0.7), 1)
+      : 1 / valeurPositive(b.valeur, 1);
+    const I_branche = bloquee ? 0 : U_branche * G_branche;
+
+    // ✅ Pour la diode/LED, on affiche la résistance équivalente réelle
+    const R_affichage = bloquee ? '∞' : (comp && (comp.type === 'diode' || comp.type === 'led')
+      ? (U_branche / Math.max(I_branche, 1e-9))
+      : b.valeur);
+
+    return {
+      id: b.id,
+      valeur: R_affichage,
+      I: I_branche,
+      U: U_branche,
+      bloquee
+    };
   });
 
   return { Req, branches };
