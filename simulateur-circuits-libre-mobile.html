@@ -1646,7 +1646,8 @@ function getMesuresComposant(compId) {
     R: branche.valeur,
     U: branche.U,
     I: branche.I,
-    P: branche.U * branche.I
+    P: branche.U * branche.I,
+    bloquee: !!branche.bloquee
   };
 }
 
@@ -1696,7 +1697,7 @@ function drawComposant(c) {
   ctx.restore();
   ctx.shadowBlur = 0;
 
-  if (mesures && sousTension && COMPOSANTS_RESISTIFS.has(c.type)) {
+    if (mesures && (COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led')) {
     drawEtiquetteMesures(c, mesures);
   }
 
@@ -1734,7 +1735,8 @@ function drawEtiquetteMesures(c, mesures) {
   const boxY = ly - hauteur / 2;
 
   ctx.fillStyle = 'rgba(10, 10, 26, 0.9)';
-  ctx.strokeStyle = 'rgba(76, 175, 80, 0.6)';
+  // 🆕 Bordure rouge si bloquée
+  ctx.strokeStyle = mesures.bloquee ? 'rgba(244, 67, 54, 0.9)' : 'rgba(76, 175, 80, 0.6)';
   ctx.lineWidth = 2;
   if (ctx.roundRect) {
     ctx.beginPath();
@@ -1746,10 +1748,18 @@ function drawEtiquetteMesures(c, mesures) {
     ctx.strokeRect(boxX, boxY, largeur, hauteur);
   }
 
-  ctx.fillStyle = '#4fc3f7';
+  // 🆕 Couleur du texte selon blocage
+  ctx.fillStyle = mesures.bloquee ? '#ff8a80' : '#4fc3f7';
   lignes.forEach((ligne, i) => {
     ctx.fillText(ligne, lx, boxY + 15 + i * 16);
   });
+
+  // 🆕 Badge BLOQUÉE
+  if (mesures.bloquee) {
+    ctx.fillStyle = '#f44336';
+    ctx.font = 'bold 11px monospace';
+    ctx.fillText('⛔ BLOQUÉE', lx, boxY - 6);
+  }
 
   ctx.textBaseline = 'alphabetic';
 }
@@ -2015,6 +2025,18 @@ function drawDiode(cx, cy, w, h, mesures) {
   ctx.font = 'bold 13px monospace';
   ctx.textAlign = 'center';
   ctx.fillText('DIODE', cx, cy - 38);
+
+    // ✅ Indicateur de polarité
+  ctx.font = 'bold 11px monospace';
+  ctx.textAlign = 'center';
+  const passante = mesures && mesures.I > 0.001 && atelier.interrupteurFerme && !mesures.bloquee;
+  if (passante) {
+    ctx.fillStyle = '#4caf50';
+    ctx.fillText('▶ PASSANTE', cx, cy + 32);
+  } else if (mesures && mesures.bloquee) {
+    ctx.fillStyle = '#f44336';
+    ctx.fillText('✕ BLOQUÉE', cx, cy + 32);
+  }
 }
 
 function drawCondensateur(cx, cy, w, h, capacite, charge, mesures) {
@@ -2060,8 +2082,8 @@ function drawLED(cx, cy, w, h, seuil, resistance, mesures) {
   ctx.lineTo(cx + 18, cy + 18);
   ctx.stroke();
 
-  let allumee = false;
-  if (mesures && atelier.interrupteurFerme && mesures.I > 0.001) {
+    let allumee = false;
+  if (mesures && atelier.interrupteurFerme && mesures.I > 0.001 && !mesures.bloquee) {
     allumee = true;
   }
 
@@ -2079,6 +2101,17 @@ function drawLED(cx, cy, w, h, seuil, resistance, mesures) {
   ctx.font = 'bold 13px monospace';
   ctx.textAlign = 'center';
   ctx.fillText('LED', cx, cy - h/2 - 10);
+
+    // ✅ Indicateur de polarité
+  ctx.font = 'bold 11px monospace';
+  ctx.textAlign = 'center';
+  if (allumee) {
+    ctx.fillStyle = '#4caf50';
+    ctx.fillText('▶ ALLUMÉE', cx, cy + h/2 + 20);
+  } else if (mesures && mesures.bloquee) {
+    ctx.fillStyle = '#f44336';
+    ctx.fillText('✕ BLOQUÉE', cx, cy + h/2 + 20);
+  }
 }
 
 function drawFusible(cx, cy, w, h, courantMax, resistance, mesures) {
@@ -2876,6 +2909,42 @@ function updateSelectorsMobile() {
 // ============================================================
 //  ANALYSE DU CIRCUIT
 // ============================================================
+function diagnostiquerCircuitOuvertMobile() {
+  const raisons = [];
+  const piles = atelier.composants.filter(c => c.type === 'pile');
+  if (piles.length === 0) raisons.push('🔋 Aucune pile.');
+
+  const filsNonBranches = atelier.fils.filter(f => !f.de || !f.vers);
+  if (filsNonBranches.length > 0) {
+    raisons.push(`🔗 ${filsNonBranches.length} fil(s) non connecté(s).`);
+  }
+
+  const interrupteurs = atelier.composants.filter(c => c.type === 'interrupteur');
+  if (interrupteurs.length > 0 && !atelier.interrupteurFerme) {
+    raisons.push('🔘 L\'interrupteur est OUVERT : appuie sur 🔘 Fermer.');
+  }
+
+  const diodes = atelier.composants.filter(c => c.type === 'diode' || c.type === 'led');
+  diodes.forEach(d => {
+    const m = getMesuresComposant(d.id);
+    if (m && m.bloquee) {
+      raisons.push('▷| Diode/LED en POLARISATION INVERSE : double-tap pour la retourner.');
+    }
+  });
+
+  const recepteurs = atelier.composants.filter(c =>
+    COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led'
+  );
+  if (recepteurs.length === 0 && piles.length > 0) {
+    raisons.push('💡 Aucun récepteur (résistance, lampe…).');
+  }
+
+  if (raisons.length === 0) {
+    raisons.push('❓ Vérifie que les fils relient bien le + au − de la pile.');
+  }
+  return raisons;
+}
+
 function analyserCircuit() {
   atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null, etapes: [] };
 
@@ -2941,8 +3010,63 @@ function analyserCircuit() {
 
   const typeDetecte = detecterType(chemin, resistances);
   const analyse = analyserNodal(pile, resistances, E);
+  // ✅ Propagation : si une diode/LED bloquée → circuit ouvert
+  const brancheBloquee = (analyse.branches || []).find(b => b.bloquee);
+  if (brancheBloquee) {
+    atelier.resultats = {
+      type: 'ouvert',
+      Req: 0,
+      I_total: 0,
+      U_pile: E,
+      branches: analyse.branches.map(b => ({
+        id: b.id,
+        valeur: b.valeur,
+        I: 0,
+        U: b.bloquee ? b.U : 0,
+        bloquee: b.bloquee
+      })),
+      chemin,
+      etapes: [{
+        titre: '⚠️ DIODE BLOQUÉE',
+        formule: 'Polarisation inverse → courant = 0',
+        calcul: 'Aucun courant ne circule.'
+      }],
+      message: '▷| Diode/LED en polarisation inverse. Double-tap pour la retourner.'
+    };
+    updateMesuresMobile();
+    majSonnerie();
+    return;
+  }
+  // ✅ Fusible fondu → circuit ouvert
+  const fusibleFondu = atelier.composants.find(c => {
+    if (c.type !== 'fusible') return false;
+    const m = (analyse.branches || []).find(b => b.id === c.id);
+    return m && m.I > c.courantMax;
+  });
+  if (fusibleFondu) {
+    atelier.resultats = {
+      type: 'ouvert',
+      Req: 0,
+      I_total: 0,
+      U_pile: E,
+      branches: (analyse.branches || []).map(b => ({
+        id: b.id, valeur: b.valeur, I: 0, U: 0, bloquee: false
+      })),
+      chemin,
+      etapes: [{
+        titre: '🔌 FUSIBLE FONDU',
+        formule: 'I > ' + fusibleFondu.courantMax + ' A',
+        calcul: 'Circuit ouvert.'
+      }],
+      message: '🔌 Un fusible a fondu : le circuit est ouvert.'
+    };
+    updateMesuresMobile();
+    majSonnerie();
+    return;
+  }
 
   let Req = analyse.Req;
+
   let I_total = Req > 0 ? E / Req : 0;
   let branches = analyse.branches || [];
   let etapes = [];
@@ -3139,23 +3263,48 @@ function analyserNodal(pile, resistances, E) {
   const U_test = V[idxPileL] || 0;
   let Req = U_test / 1;
 
-  const branches = resistancesBranches.map(b => {
+    const branches = resistancesBranches.map(b => {
     const nL = noeuds[b.leftId];
     const nR = noeuds[b.rightId];
     const vL = nL === refNode ? 0 : (freeNodes.indexOf(nL) >= 0 ? V[freeNodes.indexOf(nL)] : 0);
     const vR = nR === refNode ? 0 : (freeNodes.indexOf(nR) >= 0 ? V[freeNodes.indexOf(nR)] : 0);
     let U_branche = Math.abs(vL - vR) * (pile.tension / Math.max(U_test, 1e-9));
-    let I_branche = U_branche / valeurPositive(b.valeur, 1);
-    
-    if (b.type === 'electrolyseur' && b.seuil) {
-      if (U_branche > b.seuil) {
-        I_branche = (U_branche - b.seuil) / valeurPositive(b.valeur, 1);
+
+    const comp = atelier.composants.find(c => c.id === b.id);
+
+    // 🆕 Détection polarité diode/LED
+    let bloquee = false;
+    if (comp && (comp.type === 'diode' || comp.type === 'led')) {
+      if (vL < vR) bloquee = true;
+    }
+
+    // 🆕 Courant basé sur G (cohérent avec l'analyse nodale)
+    let I_branche = 0;
+    if (!bloquee) {
+      if (comp && (comp.type === 'diode' || comp.type === 'led')) {
+        const R_eq = valeurPositive((comp.valeur || 0.1) + (comp.seuil || 0.7), 1);
+        I_branche = U_branche / R_eq;
+      } else if (b.type === 'electrolyseur' && b.seuil) {
+        I_branche = U_branche > b.seuil ? (U_branche - b.seuil) / valeurPositive(b.valeur, 1) : 0;
       } else {
-        I_branche = 0;
+        I_branche = U_branche / valeurPositive(b.valeur, 1);
       }
     }
-    
-    return { id: b.id, valeur: b.valeur, I: I_branche, U: U_branche };
+
+    // 🆕 Résistance affichée
+    const R_affichage = bloquee
+      ? 999999
+      : (comp && (comp.type === 'diode' || comp.type === 'led')
+        ? (U_branche / Math.max(I_branche, 1e-9))
+        : b.valeur);
+
+    return {
+      id: b.id,
+      valeur: R_affichage,
+      I: I_branche,
+      U: U_branche,
+      bloquee
+    };
   });
 
   return { Req, branches };
@@ -3382,15 +3531,18 @@ function genererTableauMesuresMobile() {
     electrolyseur: '⚗️ Électro.'
   };
 
-  r.branches.forEach(b => {
+    r.branches.forEach(b => {
     const comp = atelier.composants.find(c => c.id === b.id);
     if (!comp) return;
     const nom = labels[comp.type] || comp.type;
     const P = b.U * b.I;
+    const R_affiche = b.bloquee
+      ? '∞'
+      : (typeof b.valeur === 'number' && b.valeur < 1000 ? b.valeur.toFixed(0) : '∞');
     html += `
       <tr>
         <td class="comp-name">${nom}</td>
-        <td>${b.valeur.toFixed(0)}</td>
+        <td>${R_affiche}</td>
         <td>${b.U.toFixed(2)}</td>
         <td>${(b.I * 1000).toFixed(0)}</td>
         <td>${P.toFixed(2)}</td>
@@ -3423,8 +3575,9 @@ function genererLoisPanelMobile() {
 
   if (r.type === 'aucun' || !r.chemin) {
     html = `<div class="loi-warning">⚠️ Ajoute une pile, des fils et des résistances.</div>`;
-  } else if (r.type === 'ouvert') {
-    html = `<div class="loi-warning">⚠️ Circuit ouvert. Appuie sur le bouton 🔘 Fermer.</div>`;
+    } else if (r.type === 'ouvert') {
+    const raisons = diagnostiquerCircuitOuvertMobile();
+    html = `<div class="loi-warning">⚠️ <strong>Pourquoi ouvert ?</strong><br>• ${raisons.join('<br>• ')}</div>`;
   } else if (r.type === 'court-circuit') {
     html = `<div class="loi-warning">⚡ COURT-CIRCUIT ! Aucune résistance.</div>`;
   } else if (r.type === 'erreur') {
