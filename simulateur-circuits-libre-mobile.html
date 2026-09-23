@@ -81,7 +81,6 @@
     line-height: 1.3;
   }
 
-  /* 🆕 Barre d'info AU-DESSUS du canvas (ne bloque plus les taps) */
   .info-bar-mobile {
     display: flex;
     gap: 6px;
@@ -291,7 +290,6 @@
     line-height: 1.1;
   }
 
-  /* Sélecteur compact en ligne */
   .select-row {
     display: flex;
     align-items: center;
@@ -321,7 +319,6 @@
     min-width: 0;
   }
 
-  /* Bascule Tableau ↔ Lois */
   .bascule-container {
     display: flex;
     gap: 4px;
@@ -370,7 +367,6 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* Tableau des mesures */
   .table-wrapper {
     max-height: 320px;
     overflow-y: auto;
@@ -428,7 +424,6 @@
     font-size: 0.9em;
   }
 
-  /* Lois */
   .lois-panel {
     background: rgba(79, 195, 247, 0.08);
     border-left: 4px solid #4fc3f7;
@@ -546,7 +541,6 @@
     color: #ff8a80;
     border-color: rgba(244, 67, 54, 0.4);
   }
-  /* 🆕 Bouton grille */
   .btn-grille {
     background: rgba(79, 195, 247, 0.2);
     color: #4fc3f7;
@@ -762,7 +756,6 @@
     </div>
   </div>
 
-  <!-- 🆕 Barre d'info AU-DESSUS du canvas -->
   <div class="info-bar-mobile">
     <span class="info-badge" id="zoneInfo">Aucun composant</span>
     <span class="info-badge info-tool" id="zoneTool" style="display:none;">〰️ Fil</span>
@@ -787,7 +780,6 @@
     <button class="tab-mobile" data-tab="mesures">📊 Mesures</button>
   </div>
 
-  <!-- Panneau Outils -->
   <div class="panneau active" id="panneau-outils">
     <div class="section-title">🔌 Connexions</div>
     <div class="outils-grid">
@@ -889,10 +881,8 @@
     </div>
   </div>
 
-  <!-- Panneau Mesures -->
   <div class="panneau" id="panneau-mesures">
     
-    <!-- Sélecteurs compacts -->
     <div class="select-row">
       <label>Ⓥ Volt :</label>
       <select id="selectVoltmetreMobile">
@@ -906,7 +896,6 @@
       </select>
     </div>
 
-    <!-- Multimètres côte à côte -->
     <div class="mesures-grid-compact">
       <div class="mesure-box voltm off" id="mmVoltMobile">
         <div class="mb-title">Ⓥ VOLTMÈTRE</div>
@@ -922,17 +911,15 @@
       </div>
     </div>
 
-    <!-- Bascule Tableau ↔ Lois -->
     <div class="bascule-container">
-      <button class="bascule-btn active" data-bascule="tableau" onclick="basculerMesureLois('tableau')">
+      <button class="bascule-btn active" data-bascule="tableau">
         📋 Tableau
       </button>
-      <button class="bascule-btn" data-bascule="lois" onclick="basculerMesureLois('lois')">
+      <button class="bascule-btn" data-bascule="lois">
         📚 Lois
       </button>
     </div>
 
-    <!-- Contenu : Tableau -->
     <div class="bascule-content active" id="bascule-tableau">
       <div class="table-wrapper">
         <table class="measures-table">
@@ -952,7 +939,6 @@
       </div>
     </div>
 
-    <!-- Contenu : Lois -->
     <div class="bascule-content" id="bascule-lois">
       <div class="lois-panel" id="loisPanelMobile">
         <div class="loi-warning">⚠️ Ajoute des composants pour commencer</div>
@@ -963,7 +949,6 @@
 
   <div class="status-line" id="status">Appuie sur un bouton pour commencer</div>
 
-  <!-- Barre d'action -->
   <div class="action-bar">
     <button class="btn-action btn-animer" id="btnAnimer" disabled>▶ Animer</button>
     <button class="btn-action btn-interrupteur" id="btnInterrupteur" style="display: none;">
@@ -977,7 +962,6 @@
 
 </div>
 
-<!-- Modal Formules -->
 <div class="modal-overlay" id="modalFormules">
   <div class="modal-box">
     <h3>📐 Formules à retenir</h3>
@@ -1006,17 +990,17 @@
     <div class="formule-bloc">
       <h4>🔬 Composants spéciaux</h4>
       <p>
+        <strong>Diode/LED :</strong> polarisée en direct → passante ; en inverse → <code>bloquée (I=0)</code><br>
         <strong>Électrolyseur :</strong> <code>U = E₀ + r·I</code><br>
         <strong>Résistance chauffante :</strong> <code>P = U·I = R·I²</code><br>
-        <strong>Bobine (en continu) :</strong> <code>U = r·I</code><br>
-        <strong>Condensateur polarisé :</strong> bloque le courant continu
+        <strong>Bobine (continu) :</strong> <code>U = r·I</code><br>
+        <strong>Fusible :</strong> fond si <code>I > I_max</code> → circuit ouvert
       </p>
     </div>
     <button class="btn-fermer" id="btnFermerFormules">Fermer</button>
   </div>
 </div>
 
-<!-- Modal Édition -->
 <div class="modal-overlay" id="modalEditComposant">
   <div class="modal-box">
     <h3 id="editTitle">Modifier le composant</h3>
@@ -1055,7 +1039,10 @@ let atelier = {
   prochainIdNoeud: 1,
   interrupteurFerme: false,
   animation: { active: false, rafId: null, lastTime: 0 },
-  resultats: { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null, etapes: [] }
+  resultats: { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null, etapes: [] },
+  // 🆕 Flags pour gérer le double-tap
+  _dragStartedAt: 0,
+  _dragEndedAt: 0
 };
 
 // ============================================================
@@ -1063,18 +1050,16 @@ let atelier = {
 // ============================================================
 let grilleMagnétique = {
   active: true,
-  taille: 20,          // Alignement tous les 20 pixels
-  snapDistance: 25     // Distance max pour le snap entre composants
+  taille: 20,
+  snapDistance: 25
 };
 
-// 🧲 Arrondit une coordonnée à la grille la plus proche
 function magnetiser(valeur) {
   if (!grilleMagnétique.active) return valeur;
   const t = grilleMagnétique.taille;
   return Math.round(valeur / t) * t;
 }
 
-// 🧲 Snap automatique entre composants (alignement entre eux)
 function magnetiserVersComposants(x, y, composantEnCours) {
   if (!grilleMagnétique.active) return { x, y };
   
@@ -1085,14 +1070,12 @@ function magnetiserVersComposants(x, y, composantEnCours) {
   atelier.composants.forEach(c => {
     if (c === composantEnCours) return;
     
-    // Snap vertical : même X (alignement en colonne)
     const dx = Math.abs(c.x - x);
     if (dx < minDistX && Math.abs(c.y - y) < 200) {
       minDistX = dx;
       bestX = c.x;
     }
     
-    // Snap horizontal : même Y (alignement en ligne)
     const dy = Math.abs(c.y - y);
     if (dy < minDistY && Math.abs(c.x - x) < 200) {
       minDistY = dy;
@@ -1138,7 +1121,7 @@ let composantSurvole = null;
 let composantEnEdition = null;
 
 // ============================================================
-//  🔊 AUDIO — Son de cloche pour la sonnerie (buzzer)
+//  🔊 AUDIO
 // ============================================================
 let audioCtx = null;
 let sonnerieEnCours = null;
@@ -1165,7 +1148,6 @@ function jouerSonnerie() {
   if (sonnerieEnCours) return;
 
   const t = audioCtx.currentTime;
-
   const frequences = [
     { freq: 880, gain: 0.15 },
     { freq: 1760, gain: 0.08 },
@@ -1182,7 +1164,6 @@ function jouerSonnerie() {
   frequences.forEach(({ freq, gain: g }) => {
     const osc = audioCtx.createOscillator();
     const oscGain = audioCtx.createGain();
-
     osc.type = 'sine';
     osc.frequency.setValueAtTime(freq, t);
 
@@ -1197,7 +1178,6 @@ function jouerSonnerie() {
     oscGain.gain.setValueAtTime(g, t);
     osc.connect(oscGain);
     oscGain.connect(masterGain);
-
     osc.start(t);
     oscillateurs.push({ osc, lfo });
   });
@@ -1216,12 +1196,12 @@ function arreterSonnerie() {
   sonnerieEnCours.masterGain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
 
   const sonnerie = sonnerieEnCours;
+  sonnerieEnCours = null;
   setTimeout(() => {
     sonnerie.oscillateurs.forEach(({ osc, lfo }) => {
       try { osc.stop(); lfo.stop(); } catch (e) {}
     });
   }, 250);
-  sonnerieEnCours = null;
 }
 
 function majSonnerie() {
@@ -1230,15 +1210,10 @@ function majSonnerie() {
     arreterSonnerie();
     return;
   }
-
   const mesures = getMesuresComposant(buzzer.id);
   const alimentee = mesures && mesures.I > 0.001 && atelier.interrupteurFerme;
-
-  if (alimentee && !sonnerieEnCours) {
-    jouerSonnerie();
-  } else if (!alimentee && sonnerieEnCours) {
-    arreterSonnerie();
-  }
+  if (alimentee && !sonnerieEnCours) jouerSonnerie();
+  else if (!alimentee && sonnerieEnCours) arreterSonnerie();
 }
 
 function jouerNoteConfirmation() {
@@ -1259,19 +1234,20 @@ function jouerNoteConfirmation() {
 }
 
 // ============================================================
-//  🆕 BASCULE TABLEAU ↔ LOIS
+//  BASCULE TABLEAU ↔ LOIS
 // ============================================================
-function basculerMesureLois(choix) {
-  document.querySelectorAll('.bascule-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.bascule === choix);
+document.querySelectorAll('.bascule-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const choix = btn.dataset.bascule;
+    document.querySelectorAll('.bascule-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.bascule === choix);
+    });
+    document.querySelectorAll('.bascule-content').forEach(content => {
+      content.classList.toggle('active', content.id === 'bascule-' + choix);
+    });
+    if (audioActif) jouerNoteConfirmation();
   });
-  document.querySelectorAll('.bascule-content').forEach(content => {
-    content.classList.toggle('active', content.id === 'bascule-' + choix);
-  });
-  if (typeof jouerNoteConfirmation === 'function' && audioActif) {
-    jouerNoteConfirmation();
-  }
-}
+});
 
 // ============================================================
 //  ONGLETS MOBILES
@@ -1312,7 +1288,6 @@ function ajouterComposant(type, tensionForcee) {
   const col = index % 2;
   const row = Math.floor(index / 2);
   
-  // 🧲 Position initiale alignée sur la grille
   const x = magnetiser(200 + col * 500);
   const y = magnetiser(180 + row * 220);
 
@@ -1351,7 +1326,6 @@ function ajouterComposant(type, tensionForcee) {
   updateStatus(`✅ ${type} ajouté`);
 }
 
-// FILS EN BAS DE L'ÉCRAN, HORIZONTAUX
 function ajouterFilLibre() {
   const nbFils = atelier.fils.length;
   const margeGauche = 80;
@@ -1379,7 +1353,7 @@ function ajouterFilLibre() {
   updateZoneTool();
   updateSelectionInfo();
   analyserCircuit();
-  updateStatus('〰️ Fil ajouté en bas — glisse les poignées');
+  updateStatus('〰️ Fil ajouté — touche une poignée ✥ puis glisse-la sur une borne');
 }
 
 function ajouterNoeud() {
@@ -1496,10 +1470,8 @@ function drawCircuit() {
   ctx.fillStyle = '#0a0a1a';
   ctx.fillRect(0, 0, W, H);
 
-  // 🧲 Grille magnétique : lignes fines + lignes principales
   if (grilleMagnétique.active) {
     const pas = grilleMagnétique.taille;
-    // Lignes fines (20 px) — sauf les multiples de 100
     ctx.strokeStyle = 'rgba(79,195,247,0.04)';
     ctx.lineWidth = 1;
     for (let x = 0; x < W; x += pas) {
@@ -1512,7 +1484,6 @@ function drawCircuit() {
         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
       }
     }
-    // Lignes principales (100 px)
     ctx.strokeStyle = 'rgba(79,195,247,0.12)';
     for (let x = 0; x < W; x += 100) {
       ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
@@ -1521,7 +1492,6 @@ function drawCircuit() {
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
     }
   } else {
-    // Grille par défaut (40 px) si désactivée
     ctx.strokeStyle = 'rgba(79,195,247,0.05)';
     ctx.lineWidth = 1;
     for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
@@ -1535,7 +1505,7 @@ function drawCircuit() {
 
   if (atelier.animation.active && atelier.interrupteurFerme &&
       atelier.resultats.type !== 'aucun' && atelier.resultats.type !== 'ouvert' &&
-      atelier.resultats.type !== 'erreur') {
+      atelier.resultats.type !== 'erreur' && atelier.resultats.type !== 'court-circuit') {
     drawElectrons();
   }
 }
@@ -1572,7 +1542,6 @@ function drawNoeud(noeud) {
   }
 }
 
-// DRAW FIL — DROIT si non branché, COURBE si branché
 function drawFil(fil) {
   const estSelectionne = atelier.filSelectionne === fil.id;
   const estBranche = fil.de && fil.vers;
@@ -1613,30 +1582,32 @@ function drawFil(fil) {
 }
 
 function drawPoigneeFil(x, y, pulse) {
-  const grad = ctx.createRadialGradient(x, y, 2, x, y, 32 + pulse * 10);
-  grad.addColorStop(0, `rgba(255, 213, 79, ${0.5 + pulse * 0.4})`);
+  // ✅ Poignées plus grosses pour faciliter le toucher sur mobile
+  const grad = ctx.createRadialGradient(x, y, 2, x, y, 45 + pulse * 12);
+  grad.addColorStop(0, `rgba(255, 213, 79, ${0.6 + pulse * 0.4})`);
   grad.addColorStop(1, 'rgba(255, 213, 79, 0)');
   ctx.fillStyle = grad;
   ctx.beginPath();
-  ctx.arc(x, y, 32 + pulse * 10, 0, Math.PI * 2);
+  ctx.arc(x, y, 45 + pulse * 12, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = '#ffd54f';
   ctx.strokeStyle = '#fff';
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.arc(x, y, 16, 0, Math.PI * 2);
+  ctx.arc(x, y, 22, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 
-  ctx.fillStyle = '#fff';
-  ctx.font = 'bold 18px Arial';
+  ctx.fillStyle = '#000';
+  ctx.font = 'bold 22px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('✥', x, y + 1);
   ctx.textBaseline = 'alphabetic';
 }
 
+// ✅ getMesuresComposant avec propagation de bloquee
 function getMesuresComposant(compId) {
   const r = atelier.resultats;
   if (!r || !r.branches) return null;
@@ -1697,7 +1668,8 @@ function drawComposant(c) {
   ctx.restore();
   ctx.shadowBlur = 0;
 
-    if (mesures && (COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led')) {
+  // ✅ Étiquettes U/I/P aussi pour diode/LED
+  if (mesures && (COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led')) {
     drawEtiquetteMesures(c, mesures);
   }
 
@@ -1710,6 +1682,7 @@ function drawComposant(c) {
   drawPoigneeRotation(c);
 }
 
+// ✅ Étiquette avec gestion bloquee
 function drawEtiquetteMesures(c, mesures) {
   const t = TAILLE[c.type];
   if (!t) return;
@@ -1735,7 +1708,7 @@ function drawEtiquetteMesures(c, mesures) {
   const boxY = ly - hauteur / 2;
 
   ctx.fillStyle = 'rgba(10, 10, 26, 0.9)';
-  // 🆕 Bordure rouge si bloquée
+  // ✅ Bordure rouge si bloquée
   ctx.strokeStyle = mesures.bloquee ? 'rgba(244, 67, 54, 0.9)' : 'rgba(76, 175, 80, 0.6)';
   ctx.lineWidth = 2;
   if (ctx.roundRect) {
@@ -1748,13 +1721,13 @@ function drawEtiquetteMesures(c, mesures) {
     ctx.strokeRect(boxX, boxY, largeur, hauteur);
   }
 
-  // 🆕 Couleur du texte selon blocage
+  // ✅ Couleur du texte selon blocage
   ctx.fillStyle = mesures.bloquee ? '#ff8a80' : '#4fc3f7';
   lignes.forEach((ligne, i) => {
     ctx.fillText(ligne, lx, boxY + 15 + i * 16);
   });
 
-  // 🆕 Badge BLOQUÉE
+  // ✅ Badge BLOQUÉE
   if (mesures.bloquee) {
     ctx.fillStyle = '#f44336';
     ctx.font = 'bold 11px monospace';
@@ -2004,11 +1977,12 @@ function drawBuzzer(cx, cy, w, h, valeur, mesures) {
   ctx.fillText(valeur + ' Ω', cx, cy + 48);
 }
 
+// ✅ Diode avec indicateur de polarité
 function drawDiode(cx, cy, w, h, mesures) {
   drawWireLine(cx, cy, w);
-  const actif = mesures && mesures.I > 0.001 && atelier.interrupteurFerme;
+  const actif = mesures && mesures.I > 0.001 && atelier.interrupteurFerme && !mesures.bloquee;
 
-  ctx.strokeStyle = actif ? '#4caf50' : '#fff';
+  ctx.strokeStyle = actif ? '#4caf50' : (mesures && mesures.bloquee ? '#f44336' : '#fff');
   ctx.fillStyle = '#0a0a1a';
   ctx.lineWidth = 3;
   ctx.beginPath();
@@ -2026,11 +2000,10 @@ function drawDiode(cx, cy, w, h, mesures) {
   ctx.textAlign = 'center';
   ctx.fillText('DIODE', cx, cy - 38);
 
-    // ✅ Indicateur de polarité
+  // ✅ Indicateur de polarité
   ctx.font = 'bold 11px monospace';
   ctx.textAlign = 'center';
-  const passante = mesures && mesures.I > 0.001 && atelier.interrupteurFerme && !mesures.bloquee;
-  if (passante) {
+  if (actif) {
     ctx.fillStyle = '#4caf50';
     ctx.fillText('▶ PASSANTE', cx, cy + 32);
   } else if (mesures && mesures.bloquee) {
@@ -2063,6 +2036,7 @@ function drawCondensateur(cx, cy, w, h, capacite, charge, mesures) {
   ctx.fillText(`${capacite}µF`, cx, cy - h/2 - 10);
 }
 
+// ✅ LED avec indicateur de polarité
 function drawLED(cx, cy, w, h, seuil, resistance, mesures) {
   ctx.fillStyle = '#1a1a2e';
   ctx.strokeStyle = '#ff5722';
@@ -2082,7 +2056,7 @@ function drawLED(cx, cy, w, h, seuil, resistance, mesures) {
   ctx.lineTo(cx + 18, cy + 18);
   ctx.stroke();
 
-    let allumee = false;
+  let allumee = false;
   if (mesures && atelier.interrupteurFerme && mesures.I > 0.001 && !mesures.bloquee) {
     allumee = true;
   }
@@ -2102,7 +2076,7 @@ function drawLED(cx, cy, w, h, seuil, resistance, mesures) {
   ctx.textAlign = 'center';
   ctx.fillText('LED', cx, cy - h/2 - 10);
 
-    // ✅ Indicateur de polarité
+  // ✅ Indicateur de polarité
   ctx.font = 'bold 11px monospace';
   ctx.textAlign = 'center';
   if (allumee) {
@@ -2396,52 +2370,25 @@ function drawBorne(b) {
 }
 
 // ============================================================
-//  INTERACTIONS TACTILES
+//  INTERACTIONS TACTILES — AMÉLIORÉES
 // ============================================================
+
+// Touchstart : drag + détection double-tap
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
-  const p = getCanvasCoords(e, true);
-  handlePointerDown(p.x, p.y);
-}, { passive: false });
-canvas.addEventListener('touchmove', e => {
-  e.preventDefault();
-  const p = getCanvasCoords(e, true);
-  handlePointerMove(p.x, p.y);
-}, { passive: false });
-canvas.addEventListener('touchend', e => {
-  e.preventDefault();
-  handlePointerUp();
-});
-canvas.addEventListener('touchcancel', e => {
-  handlePointerUp();
-});
 
-canvas.addEventListener('mousedown', e => { const p = getCanvasCoords(e, false); handlePointerDown(p.x, p.y); });
-canvas.addEventListener('mousemove', e => {
-  const p = getCanvasCoords(e, false);
-  handlePointerMove(p.x, p.y);
-});
-canvas.addEventListener('mouseup', handlePointerUp);
-
-// Double-tap pour éditer
-let lastTapTime = 0;
-let lastTapPos = { x: 0, y: 0 };
-
-// 🆕 Double-tap sur touchstart : évite le conflit avec le drag
-canvas.addEventListener('touchstart', e => {
+  // 🆕 Détection double-tap sur touchstart (avant tout drag)
   const now = Date.now();
-
-  // 🆕 Ne pas déclencher si un drag est en cours ou vient de finir
   if (atelier._dragEndedAt && (now - atelier._dragEndedAt) < 300) return;
 
-  const p = getCanvasCoords(e, true);
+  const pTap = getCanvasCoords(e, true);
   const dt = now - lastTapTime;
-  const dist = Math.hypot(p.x - lastTapPos.x, p.y - lastTapPos.y);
+  const dist = Math.hypot(pTap.x - lastTapPos.x, pTap.y - lastTapPos.y);
 
   if (dt < 300 && dist < 30 && !atelier.filSelectionne) {
-    const comp = trouverComposantProche(p.x, p.y);
+    const comp = trouverComposantProche(pTap.x, pTap.y);
     if (comp) {
-      e.preventDefault();  // empêche le drag de démarrer
+      e.preventDefault();
       if (comp.type === 'interrupteur') {
         atelier.interrupteurFerme = !atelier.interrupteurFerme;
         drawCircuit();
@@ -2459,40 +2406,40 @@ canvas.addEventListener('touchstart', e => {
   }
 
   lastTapTime = now;
-  lastTapPos = p;
-}, { passive: false });
-  const now = Date.now();
+  lastTapPos = pTap;
 
-  // 🆕 Si un drag vient de se terminer (< 500 ms), on ignore ce touchend
-  if (atelier._dragStartedAt && (now - atelier._dragStartedAt) < 500) {
-    atelier._dragStartedAt = 0;
-    return;
-  }
+  // Mémorise le début du drag pour bloquer le double-tap
+  atelier._dragStartedAt = now;
 
   const p = getCanvasCoords(e, true);
-  const dt = now - lastTapTime;
-  const dist = Math.hypot(p.x - lastTapPos.x, p.y - lastTapPos.y);
+  handlePointerDown(p.x, p.y);
+}, { passive: false });
 
-  // 🆕 Double-tap seulement si pas de drag et pas de sélection active
-  if (dt < 300 && dist < 30 && !atelier.filSelectionne && !atelier.composantSelectionne) {
-    const comp = trouverComposantProche(p.x, p.y);
-    if (comp) {
-      if (comp.type === 'interrupteur') {
-        atelier.interrupteurFerme = !atelier.interrupteurFerme;
-        drawCircuit();
-        analyserCircuit();
-        updateInterrupteurButton();
-        updateStatus(atelier.interrupteurFerme ? '🔘 FERMÉ' : '🔘 OUVERT');
-      } else if (comp.type === 'pile' || COMPOSANTS_RESISTIFS.has(comp.type) ||
-                 comp.type === 'condensateur' || comp.type === 'condensateurPolarise' ||
-                 comp.type === 'led' || comp.type === 'fusible') {
-        ouvrirPanneauEdition(comp);
-      }
-    }
-  }
-  lastTapTime = now;
-  lastTapPos = p;
-}, { passive: true });
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const p = getCanvasCoords(e, true);
+  handlePointerMove(p.x, p.y);
+}, { passive: false });
+
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  handlePointerUp();
+});
+
+canvas.addEventListener('touchcancel', e => {
+  handlePointerUp();
+});
+
+// Souris (test desktop)
+canvas.addEventListener('mousedown', e => { const p = getCanvasCoords(e, false); handlePointerDown(p.x, p.y); });
+canvas.addEventListener('mousemove', e => {
+  const p = getCanvasCoords(e, false);
+  handlePointerMove(p.x, p.y);
+});
+canvas.addEventListener('mouseup', handlePointerUp);
+
+let lastTapTime = 0;
+let lastTapPos = { x: 0, y: 0 };
 
 function getCanvasCoords(e, isTouch) {
   const rect = canvas.getBoundingClientRect();
@@ -2520,16 +2467,45 @@ function getCanvasCoords(e, isTouch) {
 }
 
 function handlePointerDown(x, y) {
-  // 🆕 On mémorise qu'un drag commence → bloque le double-tap
-  atelier._dragStartedAt = Date.now();
+  // 🆕 Auto-sélection du fil le plus proche (tolérance élargie)
+  const filProche = trouverFilProcheTactile(x, y, 60);
+  if (filProche && atelier.filSelectionne !== filProche.id) {
+    atelier.filSelectionne = filProche.id;
+    atelier.composantSelectionne = null;
+    atelier.noeudSelectionne = null;
+    updateZoneTool();
+    updateSelectionInfo();
+    drawCircuit();
+    updateStatus('〰️ Fil sélectionné — touche une poignée jaune pour la déplacer');
+    return;
+  }
 
+  // 🆕 Détection des poignées avec zone élargie + offset mémorisé
   if (atelier.filSelectionne) {
     const fil = atelier.fils.find(f => f.id === atelier.filSelectionne);
     if (fil) {
       const dA = Math.hypot(fil.x1 - x, fil.y1 - y);
       const dB = Math.hypot(fil.x2 - x, fil.y2 - y);
-      if (dA < 30) { atelier.poigneeEnDrag = { filId: fil.id, cote: 'A' }; return; }
-      if (dB < 30) { atelier.poigneeEnDrag = { filId: fil.id, cote: 'B' }; return; }
+      if (dA < 60 && dA <= dB) {
+        atelier.poigneeEnDrag = {
+          filId: fil.id,
+          cote: 'A',
+          offsetX: fil.x1 - x,
+          offsetY: fil.y1 - y
+        };
+        updateStatus('✥ Déplace la poignée vers une borne');
+        return;
+      }
+      if (dB < 60) {
+        atelier.poigneeEnDrag = {
+          filId: fil.id,
+          cote: 'B',
+          offsetX: fil.x2 - x,
+          offsetY: fil.y2 - y
+        };
+        updateStatus('✥ Déplace la poignée vers une borne');
+        return;
+      }
     }
   }
 
@@ -2597,14 +2573,20 @@ function handlePointerMove(x, y) {
   if (atelier.poigneeEnDrag) {
     const fil = atelier.fils.find(f => f.id === atelier.poigneeEnDrag.filId);
     if (fil) {
-      const borneProche = trouverBorneProcheDe(x, y, DIST_SNAP);
-      let finalX = Math.max(10, Math.min(W - 10, x));
-      let finalY = Math.max(10, Math.min(H - 10, y));
+      // 🆕 Applique l'offset doigt↔poignée
+      const drag = atelier.poigneeEnDrag;
+      const targetX = x + (drag.offsetX || 0);
+      const targetY = y + (drag.offsetY || 0);
+
+      const borneProche = trouverBorneProcheDe(targetX, targetY, 80);
+
+      let finalX = Math.max(10, Math.min(W - 10, targetX));
+      let finalY = Math.max(10, Math.min(H - 10, targetY));
       if (borneProche) {
         finalX = borneProche.x;
         finalY = borneProche.y;
       }
-      if (atelier.poigneeEnDrag.cote === 'A') {
+      if (drag.cote === 'A') {
         fil.x1 = finalX; fil.y1 = finalY;
       } else {
         fil.x2 = finalX; fil.y2 = finalY;
@@ -2616,7 +2598,6 @@ function handlePointerMove(x, y) {
   }
 
   if (atelier.noeudEnDrag) {
-    // 🧲 Magnétisation du nœud
     let newX = magnetiser(x - atelier.offsetDrag.x);
     let newY = magnetiser(y - atelier.offsetDrag.y);
     atelier.noeudEnDrag.x = Math.max(20, Math.min(W - 20, newX));
@@ -2633,11 +2614,9 @@ function handlePointerMove(x, y) {
     let newX = x - atelier.offsetDrag.x;
     let newY = y - atelier.offsetDrag.y;
     
-    // 🧲 1. Magnétisation grille
     newX = magnetiser(newX);
     newY = magnetiser(newY);
     
-    // 🧲 2. Magnétisation vers composants proches (snap)
     const snap = magnetiserVersComposants(newX, newY, atelier.composantEnDrag);
     newX = snap.x;
     newY = snap.y;
@@ -2653,7 +2632,7 @@ function handlePointerMove(x, y) {
 function handlePointerUp() {
   const avaitDrag = atelier.composantEnDrag || atelier.poigneeEnDrag || atelier.noeudEnDrag;
 
-  // 🆕 Mémorise qu'un drag vient de se terminer pour bloquer le double-tap
+  // 🆕 Mémorise la fin du drag pour bloquer le double-tap
   if (avaitDrag) {
     atelier._dragEndedAt = Date.now();
   }
@@ -2667,6 +2646,16 @@ function handlePointerUp() {
     updateSelectorsMobile();
     analyserCircuit();
   }
+}
+
+// 🆕 Recherche tactile élargie
+function trouverFilProcheTactile(x, y, tolerance) {
+  let meilleur = null, minDist = tolerance;
+  atelier.fils.forEach(fil => {
+    const d = distancePointSegment(x, y, fil.x1, fil.y1, fil.x2, fil.y2);
+    if (d < minDist) { minDist = d; meilleur = fil; }
+  });
+  return meilleur;
 }
 
 function trouverNoeudProche(x, y) {
@@ -2748,7 +2737,7 @@ function updateSelectionInfo() {
   }
 
   if (atelier.filSelectionne) {
-    text.innerHTML = `<strong>〰️ Fil sélectionné</strong>`;
+    text.innerHTML = `<strong>〰️ Fil sélectionné — touche une poignée ✥</strong>`;
     info.classList.add('show');
     return;
   }
@@ -2958,7 +2947,7 @@ function updateSelectorsMobile() {
 }
 
 // ============================================================
-//  ANALYSE DU CIRCUIT
+//  DIAGNOSTIC CIRCUIT OUVERT
 // ============================================================
 function diagnostiquerCircuitOuvertMobile() {
   const raisons = [];
@@ -2983,6 +2972,15 @@ function diagnostiquerCircuitOuvertMobile() {
     }
   });
 
+  const fusibleFondu = atelier.composants.find(c => {
+    if (c.type !== 'fusible') return false;
+    const m = getMesuresComposant(c.id);
+    return m && m.I > c.courantMax;
+  });
+  if (fusibleFondu) {
+    raisons.push('🔌 Un fusible a fondu : le circuit est ouvert.');
+  }
+
   const recepteurs = atelier.composants.filter(c =>
     COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led'
   );
@@ -2996,6 +2994,9 @@ function diagnostiquerCircuitOuvertMobile() {
   return raisons;
 }
 
+// ============================================================
+//  ANALYSE DU CIRCUIT
+// ============================================================
 function analyserCircuit() {
   atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null, etapes: [] };
 
@@ -3061,7 +3062,8 @@ function analyserCircuit() {
 
   const typeDetecte = detecterType(chemin, resistances);
   const analyse = analyserNodal(pile, resistances, E);
-  // ✅ Propagation : si une diode/LED bloquée → circuit ouvert
+
+  // ✅ Blocage diode/LED → circuit ouvert
   const brancheBloquee = (analyse.branches || []).find(b => b.bloquee);
   if (brancheBloquee) {
     atelier.resultats = {
@@ -3088,6 +3090,7 @@ function analyserCircuit() {
     majSonnerie();
     return;
   }
+
   // ✅ Fusible fondu → circuit ouvert
   const fusibleFondu = atelier.composants.find(c => {
     if (c.type !== 'fusible') return false;
@@ -3117,6 +3120,12 @@ function analyserCircuit() {
   }
 
   let Req = analyse.Req;
+  if (!isFinite(Req) || Req < 0.01) {
+    atelier.resultats.type = 'court-circuit';
+    updateMesuresMobile();
+    majSonnerie();
+    return;
+  }
 
   let I_total = Req > 0 ? E / Req : 0;
   let branches = analyse.branches || [];
@@ -3147,15 +3156,6 @@ function analyserCircuit() {
     formule: 'I = E / Req',
     calcul: 'I = ' + E + ' / ' + Req.toFixed(2) + ' = ' + I_total.toFixed(3) + ' A'
   });
-
-  const electrolyseur = resistances.find(r => r.type === 'electrolyseur');
-  if (electrolyseur) {
-    etapes.push({
-      titre: '⚗️ ÉLECTROLYSEUR',
-      formule: 'U = E₀ + r·I',
-      calcul: `U = ${electrolyseur.seuil} + ${electrolyseur.valeur}×${I_total.toFixed(3)} = ${(electrolyseur.seuil + electrolyseur.valeur * I_total).toFixed(2)} V`
-    });
-  }
 
   atelier.resultats = {
     type: typeDetecte,
@@ -3241,6 +3241,7 @@ function trouverComposantConnexe(graphe, departId) {
   return minimum;
 }
 
+// ✅ Analyse nodale avec polarité diode/LED et courant cohérent
 function analyserNodal(pile, resistances, E) {
   const noeuds = {};
   let nodeIndex = 0;
@@ -3265,6 +3266,8 @@ function analyserNodal(pile, resistances, E) {
     let R = valeurPositive(r.valeur, 1);
     if (r.type === 'electrolyseur') {
       R = r.valeur;
+    } else if (r.type === 'diode' || r.type === 'led') {
+      R = valeurPositive((r.valeur || 0.1) + (r.seuil || 0.7), 1);
     }
     const G = 1 / R;
     aretes.push({ n1: getNodeIndex(leftId), n2: getNodeIndex(rightId), G });
@@ -3314,7 +3317,7 @@ function analyserNodal(pile, resistances, E) {
   const U_test = V[idxPileL] || 0;
   let Req = U_test / 1;
 
-    const branches = resistancesBranches.map(b => {
+  const branches = resistancesBranches.map(b => {
     const nL = noeuds[b.leftId];
     const nR = noeuds[b.rightId];
     const vL = nL === refNode ? 0 : (freeNodes.indexOf(nL) >= 0 ? V[freeNodes.indexOf(nL)] : 0);
@@ -3323,13 +3326,13 @@ function analyserNodal(pile, resistances, E) {
 
     const comp = atelier.composants.find(c => c.id === b.id);
 
-    // 🆕 Détection polarité diode/LED
+    // ✅ Détection polarité diode/LED
     let bloquee = false;
     if (comp && (comp.type === 'diode' || comp.type === 'led')) {
       if (vL < vR) bloquee = true;
     }
 
-    // 🆕 Courant basé sur G (cohérent avec l'analyse nodale)
+    // ✅ Courant basé sur G (cohérent avec analyse nodale)
     let I_branche = 0;
     if (!bloquee) {
       if (comp && (comp.type === 'diode' || comp.type === 'led')) {
@@ -3342,7 +3345,7 @@ function analyserNodal(pile, resistances, E) {
       }
     }
 
-    // 🆕 Résistance affichée
+    // ✅ Résistance affichée
     const R_affichage = bloquee
       ? 999999
       : (comp && (comp.type === 'diode' || comp.type === 'led')
@@ -3557,6 +3560,7 @@ function updateMesuresMobile() {
   updateBoutonAnimer();
 }
 
+// ✅ Tableau gère bloquee (R = ∞)
 function genererTableauMesuresMobile() {
   const tbody = document.getElementById('measuresBodyMobile');
   if (!tbody) return;
@@ -3582,7 +3586,7 @@ function genererTableauMesuresMobile() {
     electrolyseur: '⚗️ Électro.'
   };
 
-    r.branches.forEach(b => {
+  r.branches.forEach(b => {
     const comp = atelier.composants.find(c => c.id === b.id);
     if (!comp) return;
     const nom = labels[comp.type] || comp.type;
@@ -3619,6 +3623,7 @@ function genererTableauMesuresMobile() {
   tbody.innerHTML = html;
 }
 
+// ✅ Panneau Lois avec diagnostic « Pourquoi ouvert ? »
 function genererLoisPanelMobile() {
   const panel = document.getElementById('loisPanelMobile');
   const r = atelier.resultats;
@@ -3626,7 +3631,7 @@ function genererLoisPanelMobile() {
 
   if (r.type === 'aucun' || !r.chemin) {
     html = `<div class="loi-warning">⚠️ Ajoute une pile, des fils et des résistances.</div>`;
-    } else if (r.type === 'ouvert') {
+  } else if (r.type === 'ouvert') {
     const raisons = diagnostiquerCircuitOuvertMobile();
     html = `<div class="loi-warning">⚠️ <strong>Pourquoi ouvert ?</strong><br>• ${raisons.join('<br>• ')}</div>`;
   } else if (r.type === 'court-circuit') {
@@ -3857,7 +3862,6 @@ document.getElementById('modalFormules').addEventListener('click', e => {
   if (e.target.id === 'modalFormules') e.target.classList.remove('show');
 });
 
-// 🆕 BOUTON SON
 document.getElementById('btnSon').addEventListener('click', () => {
   audioActif = !audioActif;
   const btn = document.getElementById('btnSon');
@@ -3874,7 +3878,6 @@ document.getElementById('btnSon').addEventListener('click', () => {
   updateStatus(audioActif ? '🔊 Son activé' : '🔇 Son coupé');
 });
 
-// 🆕 BOUTON GRILLE MAGNÉTIQUE
 document.getElementById('btnGrille').addEventListener('click', () => {
   grilleMagnétique.active = !grilleMagnétique.active;
   const btn = document.getElementById('btnGrille');
@@ -4151,9 +4154,8 @@ window.addEventListener('load', () => {
   updateInterrupteurButton();
   updateMesuresMobile();
   updateStatus('Appuie sur un bouton pour ajouter un composant');
-  console.log('📱 Atelier circuits mobile chargé (grille + snap + son de cloche) !');
-  
-  // Initialiser l'audio au premier tap
+  console.log('📱 Atelier circuits mobile chargé !');
+
   document.body.addEventListener('touchstart', initAudio, { once: true });
   document.body.addEventListener('click', initAudio, { once: true });
 });
@@ -4170,7 +4172,6 @@ document.querySelectorAll('button').forEach(btn => {
   if (!btn.getAttribute('type')) btn.setAttribute('type', 'button');
 });
 
-// Empêcher le zoom sur double-tap accidentel
 let lastTouchEnd = 0;
 document.addEventListener('touchend', e => {
   const now = Date.now();
