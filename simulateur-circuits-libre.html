@@ -16,6 +16,11 @@
     color: #eee;
     padding: 6px;
     font-size: 13px;
+    transition: background 0.3s, color 0.3s;
+  }
+  body.theme-clair {
+    background: linear-gradient(135deg, #e8eef7 0%, #d4dce8 100%);
+    color: #1a1a2e;
   }
   .app {
     height: calc(100vh - 12px);
@@ -28,6 +33,9 @@
     border-radius: 12px;
     padding: 8px;
     overflow: hidden;
+  }
+  body.theme-clair .app {
+    background: rgba(255,255,255,0.6);
   }
   .topbar {
     display: flex;
@@ -42,6 +50,8 @@
     font-weight: bold;
     white-space: nowrap;
   }
+  body.theme-clair .topbar-title { color: #0277bd; }
+  .topbar-actions { display: flex; gap: 6px; align-items: center; }
   .btn-mini {
     padding: 5px 10px;
     border-radius: 6px;
@@ -57,8 +67,8 @@
   }
   .btn-mini:hover { background: rgba(168, 133, 63, 0.35); }
 
-    .main-zone {
-    flex: 1;              /* ✅ Prend tout l'espace disponible */
+  .main-zone {
+    flex: 1;
     min-height: 0;
     display: grid;
     grid-template-columns: 220px 1fr 320px;
@@ -66,7 +76,7 @@
     overflow: hidden;
   }
   .canvas-zone {
-    height: 100%;         /* ✅ Remplit toute la hauteur */
+    height: 100%;
   }
   .toolbox {
     background: rgba(0,0,0,0.4);
@@ -80,6 +90,10 @@
     min-height: 0;
     height: 100%;
   }
+  body.theme-clair .toolbox {
+    background: rgba(255,255,255,0.85);
+    border-color: rgba(2, 119, 189, 0.4);
+  }
   .panel-title {
     color: #4fc3f7;
     font-size: 0.7em;
@@ -90,6 +104,7 @@
     padding-bottom: 3px;
     margin-bottom: 3px;
   }
+  body.theme-clair .panel-title { color: #0277bd; }
   .tool-btn {
     display: flex;
     align-items: center;
@@ -105,6 +120,11 @@
     font-weight: 600;
     transition: all 0.15s;
     text-align: left;
+  }
+  body.theme-clair .tool-btn {
+    background: rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.1);
+    color: #333;
   }
   .tool-btn:hover {
     background: rgba(79, 195, 247, 0.15);
@@ -132,7 +152,7 @@
     border-color: #ffb300;
     color: #ffe082;
   }
-    .tool-btn.condensateur-btn { background: rgba(79, 195, 247, 0.15); border-color: rgba(79, 195, 247, 0.4); color: #4fc3f7; }
+  .tool-btn.condensateur-btn { background: rgba(79, 195, 247, 0.15); border-color: rgba(79, 195, 247, 0.4); color: #4fc3f7; }
   .tool-btn.condensateur-btn:hover { background: rgba(79, 195, 247, 0.3); }
   .tool-btn.led-btn { background: rgba(255, 87, 34, 0.15); border-color: rgba(255, 87, 34, 0.4); color: #ff5722; }
   .tool-btn.led-btn:hover { background: rgba(255, 87, 34, 0.3); }
@@ -148,8 +168,7 @@
   .tool-btn.bobine-btn:hover { background: rgba(139, 195, 74, 0.3); }
   .tool-btn.condo-pol-btn { background: rgba(0, 150, 136, 0.15); border-color: rgba(0, 150, 136, 0.4); color: #4db6ac; }
   .tool-btn.condo-pol-btn:hover { background: rgba(0, 150, 136, 0.3); }
-  
-  /* 🆕 Encadré explicatif */
+
   .info-encadre {
     background: rgba(79, 195, 247, 0.08);
     border-left: 4px solid #4fc3f7;
@@ -160,7 +179,9 @@
     line-height: 1.5;
     color: #ccc;
   }
+  body.theme-clair .info-encadre { color: #333; }
   .info-encadre strong { color: #4fc3f7; display: block; margin-bottom: 3px; }
+  body.theme-clair .info-encadre strong { color: #0277bd; }
   .info-encadre em { color: #ffd54f; font-style: normal; font-weight: 700; }
   .tool-btn.danger {
     border-color: rgba(244, 67, 54, 0.5);
@@ -181,7 +202,8 @@
     margin-top: auto;
     border-left: 3px solid #ffc107;
   }
-   .canvas-zone {
+  body.theme-clair .tool-hint { background: rgba(0,0,0,0.05); color: #555; }
+  .canvas-zone {
     background: #000;
     border-radius: 8px;
     border: 2px solid #4fc3f7;
@@ -190,7 +212,7 @@
     overflow: hidden;
     min-height: 0;
     height: 100%;
-    flex: 1;              /* 🆕 Force le canvas à prendre tout l'espace */
+    flex: 1;
   }
   .canvas-zone canvas {
     display: block;
@@ -198,6 +220,7 @@
     height: 100%;
     object-fit: contain;
     cursor: default;
+    touch-action: none;
   }
   .zone-label {
     position: absolute;
@@ -215,7 +238,6 @@
     border-radius: 4px;
     pointer-events: none;
   }
-  /* 🆕 ZONE-INFO : déplacé en HAUT au centre */
   .zone-info {
     position: absolute;
     top: 5px;
@@ -246,6 +268,20 @@
     pointer-events: none;
     border: 1px solid rgba(76, 175, 80, 0.5);
   }
+  .zoom-info {
+    position: absolute;
+    bottom: 5px;
+    left: 8px;
+    color: #aaa;
+    font-size: 0.65em;
+    font-weight: 600;
+    background: rgba(0,0,0,0.75);
+    padding: 3px 8px;
+    border-radius: 4px;
+    z-index: 2;
+    pointer-events: none;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
   .side-zone {
     background: rgba(0,0,0,0.35);
     border-radius: 8px;
@@ -258,6 +294,7 @@
     flex-direction: column;
     gap: 7px;
   }
+  body.theme-clair .side-zone { background: rgba(255,255,255,0.85); }
   .circuit-type {
     background: linear-gradient(135deg, #6a4c93 0%, #9b59b6 100%);
     color: #fff;
@@ -302,6 +339,7 @@
     font-weight: 700;
     margin-bottom: 4px;
   }
+  body.theme-clair .measure-selector label { color: #0277bd; }
   .measure-selector select {
     width: 100%;
     padding: 5px 6px;
@@ -313,6 +351,7 @@
     font-size: 0.75em;
     cursor: pointer;
   }
+  body.theme-clair .measure-selector select { background: #fff; color: #1a1a2e; }
   .measure-selector select:focus {
     outline: none;
     border-color: #4fc3f7;
@@ -327,30 +366,11 @@
     box-shadow: inset 0 0 10px rgba(76, 175, 80, 0.3);
     transition: opacity 0.3s;
   }
-  .multimeter.off {
-    opacity: 0.4;
-    border-color: #555;
-    box-shadow: none;
-  }
-  .multimeter.off .mm-value {
-    color: #666;
-    text-shadow: none;
-  }
-  .multimeter.voltm {
-    border-color: #ff9800;
-    box-shadow: inset 0 0 10px rgba(255, 152, 0, 0.3);
-  }
-  .multimeter.voltm.off {
-    border-color: #555;
-    box-shadow: none;
-  }
-  .multimeter .mm-title {
-    font-size: 0.62em;
-    color: #4caf50;
-    font-weight: 700;
-    letter-spacing: 1px;
-    margin-bottom: 3px;
-  }
+  .multimeter.off { opacity: 0.4; border-color: #555; box-shadow: none; }
+  .multimeter.off .mm-value { color: #666; text-shadow: none; }
+  .multimeter.voltm { border-color: #ff9800; box-shadow: inset 0 0 10px rgba(255, 152, 0, 0.3); }
+  .multimeter.voltm.off { border-color: #555; box-shadow: none; }
+  .multimeter .mm-title { font-size: 0.62em; color: #4caf50; font-weight: 700; letter-spacing: 1px; margin-bottom: 3px; }
   .multimeter.voltm .mm-title { color: #ff9800; }
   .multimeter .mm-value {
     font-family: 'Courier New', monospace;
@@ -360,46 +380,20 @@
     text-shadow: 0 0 10px #00ff00;
     letter-spacing: 1px;
   }
-  .multimeter.voltm .mm-value {
-    color: #ffb74d;
-    text-shadow: 0 0 10px #ff9800;
-  }
-  .multimeter .mm-unit {
-    font-size: 0.68em;
-    color: #888;
-    margin-top: 1px;
-  }
-  .multimeter .mm-target {
-    font-size: 0.6em;
-    color: #4fc3f7;
-    margin-top: 3px;
-    font-style: italic;
-  }
-    /* 🆕 Multimètres côte à côte */
+  .multimeter.voltm .mm-value { color: #ffb74d; text-shadow: 0 0 10px #ff9800; }
+  .multimeter .mm-unit { font-size: 0.68em; color: #888; margin-top: 1px; }
+  .multimeter .mm-target { font-size: 0.6em; color: #4fc3f7; margin-top: 3px; font-style: italic; }
   .multimeters-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 6px;
   }
-  .multimeters-row .multimeter {
-    padding: 8px 6px;
-  }
-  .multimeters-row .multimeter .mm-title {
-    font-size: 0.58em;
-  }
-  .multimeters-row .multimeter .mm-value {
-    font-size: 1.25em;
-  }
-  .multimeters-row .multimeter .mm-unit {
-    font-size: 0.6em;
-  }
-  .multimeters-row .multimeter .mm-target {
-    font-size: 0.55em;
-    min-height: 1.1em;
-    line-height: 1.1;
-  }
+  .multimeters-row .multimeter { padding: 8px 6px; }
+  .multimeters-row .multimeter .mm-title { font-size: 0.58em; }
+  .multimeters-row .multimeter .mm-value { font-size: 1.25em; }
+  .multimeters-row .multimeter .mm-unit { font-size: 0.6em; }
+  .multimeters-row .multimeter .mm-target { font-size: 0.55em; min-height: 1.1em; line-height: 1.1; }
 
-  /* 🆕 Bascule Tableau ↔ Lois */
   .bascule-tabs {
     display: flex;
     gap: 4px;
@@ -408,6 +402,7 @@
     border-radius: 8px;
     margin-top: 4px;
   }
+  body.theme-clair .bascule-tabs { background: rgba(0,0,0,0.05); }
   .bascule-tab {
     flex: 1;
     padding: 8px 10px;
@@ -426,10 +421,7 @@
     gap: 5px;
     white-space: nowrap;
   }
-  .bascule-tab:hover {
-    color: #4fc3f7;
-    background: rgba(79, 195, 247, 0.08);
-  }
+  .bascule-tab:hover { color: #4fc3f7; background: rgba(79, 195, 247, 0.08); }
   .bascule-tab.active {
     background: rgba(79, 195, 247, 0.2);
     color: #4fc3f7;
@@ -437,15 +429,8 @@
   }
   .bascule-tab:active { transform: scale(0.98); }
 
-  .bascule-content {
-    display: none;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .bascule-content.active {
-    display: flex;
-    animation: fadeInBascule 0.25s ease-out;
-  }
+  .bascule-content { display: none; flex-direction: column; gap: 6px; }
+  .bascule-content.active { display: flex; animation: fadeInBascule 0.25s ease-out; }
   @keyframes fadeInBascule {
     from { opacity: 0; transform: translateY(5px); }
     to { opacity: 1; transform: translateY(0); }
@@ -457,17 +442,10 @@
     border: 1px solid rgba(79, 195, 247, 0.3);
     background: rgba(0,0,0,0.3);
   }
-  .measures-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.68em;
-  }
-  .measures-table thead {
-    position: sticky;
-    top: 0;
-    background: #1a1a2e;
-    z-index: 2;
-  }
+  body.theme-clair .table-wrapper { background: rgba(255,255,255,0.7); }
+  .measures-table { width: 100%; border-collapse: collapse; font-size: 0.68em; }
+  .measures-table thead { position: sticky; top: 0; background: #1a1a2e; z-index: 2; }
+  body.theme-clair .measures-table thead { background: #e8eef7; }
   .measures-table th {
     padding: 5px 6px;
     text-align: left;
@@ -478,31 +456,23 @@
     letter-spacing: 0.5px;
     border-bottom: 1px solid rgba(79, 195, 247, 0.3);
   }
+  body.theme-clair .measures-table th { color: #0277bd; }
   .measures-table td {
     padding: 4px 6px;
     border-bottom: 1px solid rgba(255,255,255,0.05);
     font-family: 'Courier New', monospace;
   }
+  body.theme-clair .measures-table td { border-bottom-color: rgba(0,0,0,0.05); }
   .measures-table tr:last-child td { border-bottom: none; }
-  .measures-table tr.total-row {
-    background: rgba(79, 195, 247, 0.1);
-    font-weight: 700;
-  }
+  .measures-table tr.total-row { background: rgba(79, 195, 247, 0.1); font-weight: 700; }
   .measures-table tr.total-row td {
     color: #4fc3f7;
     border-top: 2px solid rgba(79, 195, 247, 0.4);
   }
-  .measures-table .comp-name {
-    color: #ffd54f;
-    font-family: inherit;
-    font-weight: 600;
-  }
-  .measures-table .empty-msg {
-    text-align: center;
-    color: #888;
-    font-style: italic;
-    padding: 12px;
-  }
+  body.theme-clair .measures-table tr.total-row td { color: #0277bd; }
+  .measures-table .comp-name { color: #ffd54f; font-family: inherit; font-weight: 600; }
+  body.theme-clair .measures-table .comp-name { color: #b8860b; }
+  .measures-table .empty-msg { text-align: center; color: #888; font-style: italic; padding: 12px; }
   .lois-panel {
     background: rgba(79, 195, 247, 0.08);
     border-left: 4px solid #4fc3f7;
@@ -511,12 +481,8 @@
     font-size: 0.7em;
     line-height: 1.5;
   }
-  .lois-panel .loi-title {
-    color: #4fc3f7;
-    font-weight: 700;
-    margin-bottom: 3px;
-    font-size: 0.95em;
-  }
+  .lois-panel .loi-title { color: #4fc3f7; font-weight: 700; margin-bottom: 3px; font-size: 0.95em; }
+  body.theme-clair .lois-panel .loi-title { color: #0277bd; }
   .lois-panel .loi-formule {
     font-family: 'Courier New', monospace;
     color: #ffd54f;
@@ -526,12 +492,14 @@
     display: inline-block;
     margin: 2px 0;
   }
+  body.theme-clair .lois-panel .loi-formule { background: rgba(0,0,0,0.08); color: #b8860b; }
   .lois-panel .loi-calcul {
     font-family: 'Courier New', monospace;
     color: #00ff00;
     font-size: 0.95em;
     margin: 2px 0;
   }
+  body.theme-clair .lois-panel .loi-calcul { color: #006400; }
   .lois-panel .loi-warning {
     color: #ff8a80;
     font-weight: 700;
@@ -542,7 +510,8 @@
     border-radius: 4px;
     margin-top: 5px;
   }
-   .action-bar {
+
+  .action-bar {
     display: flex;
     gap: 6px;
     flex-shrink: 0;
@@ -553,9 +522,8 @@
     flex-wrap: nowrap;
     width: 100%;
   }
-  .action-bar > button {
-    flex-shrink: 0;
-  }
+  body.theme-clair .action-bar { background: rgba(0,0,0,0.05); }
+  .action-bar > button { flex-shrink: 0; }
   .status-inline {
     flex: 1;
     text-align: right;
@@ -592,8 +560,13 @@
     font-size: 0.78em;
     font-family: inherit;
   }
+  body.theme-clair .btn-secondary {
+    background: rgba(0,0,0,0.06);
+    color: #333;
+    border-color: rgba(0,0,0,0.15);
+  }
   .btn-secondary:hover { background: rgba(255,255,255,0.2); }
-    /* 🆕 Bouton son */
+  body.theme-clair .btn-secondary:hover { background: rgba(0,0,0,0.12); }
   .btn-son {
     padding: 7px 12px;
     border: 1px solid rgba(76, 175, 80, 0.4);
@@ -613,7 +586,6 @@
     background: rgba(244, 67, 54, 0.15);
     color: #ff8a80;
   }
-    /* 🆕 Bouton interrupteur */
   .btn-interrupteur {
     padding: 7px 12px;
     border: 1px solid rgba(244, 67, 54, 0.4);
@@ -635,14 +607,8 @@
     color: #a5d6a7;
   }
   .btn-interrupteur.ferme:hover { background: rgba(76, 175, 80, 0.35); }
-  .status-inline {
-    flex: 1;
-    text-align: center;
-    font-size: 0.72em;
-    color: #aaa;
-    font-style: italic;
-  }
   .status-inline.active { color: #4fc3f7; }
+
   .modal-overlay {
     display: none;
     position: fixed;
@@ -664,12 +630,9 @@
     max-height: 85vh;
     overflow-y: auto;
   }
-  .modal-box h3 {
-    color: #4fc3f7;
-    font-size: 1.1em;
-    margin-bottom: 15px;
-    font-family: inherit;
-  }
+  body.theme-clair .modal-box { background: #fff; color: #1a1a2e; }
+  .modal-box h3 { color: #4fc3f7; font-size: 1.1em; margin-bottom: 15px; font-family: inherit; }
+  body.theme-clair .modal-box h3 { color: #0277bd; }
   .modal-box .formule-bloc {
     background: rgba(0,0,0,0.3);
     padding: 12px;
@@ -677,16 +640,10 @@
     margin-bottom: 12px;
     border-left: 3px solid #ffd54f;
   }
-  .modal-box .formule-bloc h4 {
-    color: #ffd54f;
-    font-size: 0.9em;
-    margin-bottom: 6px;
-  }
-  .modal-box .formule-bloc p {
-    color: #ccc;
-    font-size: 0.82em;
-    line-height: 1.6;
-  }
+  body.theme-clair .modal-box .formule-bloc { background: rgba(0,0,0,0.05); }
+  .modal-box .formule-bloc h4 { color: #ffd54f; font-size: 0.9em; margin-bottom: 6px; }
+  .modal-box .formule-bloc p { color: #ccc; font-size: 0.82em; line-height: 1.6; }
+  body.theme-clair .modal-box .formule-bloc p { color: #333; }
   .modal-box .formule-bloc code {
     font-family: 'Courier New', monospace;
     color: #00ff00;
@@ -694,6 +651,7 @@
     padding: 2px 6px;
     border-radius: 3px;
   }
+  body.theme-clair .modal-box .formule-bloc code { background: rgba(0,0,0,0.1); color: #006400; }
   .modal-box .btn-fermer {
     width: 100%;
     padding: 10px;
@@ -715,6 +673,7 @@
     font-weight: 700;
     color: #90caf9;
   }
+  body.theme-clair .tool-subtitle { color: #0277bd; border-top-color: rgba(0,0,0,0.1); }
   .symbol-legend {
     margin-top: 8px;
     padding: 7px 8px;
@@ -723,11 +682,47 @@
     font-size: .68rem;
     line-height: 1.4;
   }
+  body.theme-clair .symbol-legend { background: rgba(0,0,0,0.04); }
+
+  /* 🆕 Menu contextuel HTML */
+  .context-menu {
+    display: none;
+    position: fixed;
+    background: #1a1a2e;
+    border: 1px solid rgba(79,195,247,0.5);
+    border-radius: 8px;
+    padding: 5px;
+    z-index: 4000;
+    min-width: 200px;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.7);
+  }
+  body.theme-clair .context-menu { background: #fff; }
+  .context-menu.show { display: block; }
+  .context-menu button {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    color: #eee;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.82em;
+    border-radius: 5px;
+    font-weight: 600;
+  }
+  body.theme-clair .context-menu button { color: #1a1a2e; }
+  .context-menu button:hover { background: rgba(79, 195, 247, 0.2); color: #4fc3f7; }
+  .context-menu .sep { height: 1px; background: rgba(255,255,255,0.1); margin: 4px 0; }
+  body.theme-clair .context-menu .sep { background: rgba(0,0,0,0.1); }
+  .context-menu .danger-btn { color: #ff8a80; }
+  .context-menu .danger-btn:hover { background: rgba(244, 67, 54, 0.2); color: #ff8a80; }
+
   @media (max-width: 1200px) {
     .main-zone { grid-template-columns: 200px 1fr 300px; }
   }
-   @media (max-width: 1000px) {
-    /* 🆕 On garde la même structure */
+  @media (max-width: 1000px) {
     .main-zone { grid-template-columns: 180px 1fr 280px; }
   }
 </style>
@@ -750,95 +745,98 @@
 
   <div class="topbar">
     <div class="topbar-title">⚡ Atelier de circuits — LFAKM</div>
-    <a href="labo-pc.html" class="btn-mini">← Labo PC</a>
+    <div class="topbar-actions">
+      <button class="btn-mini" id="btnTheme" title="Changer de thème" aria-label="Changer de thème">🌓</button>
+      <a href="labo-pc.html" class="btn-mini">← Labo PC</a>
+    </div>
   </div>
 
   <div class="main-zone">
 
     <div class="toolbox">
       <div class="panel-title">🧰 Boîte à outils</div>
-      <button class="tool-btn wire-btn" id="btnAddFil">
+      <button class="tool-btn wire-btn" id="btnAddFil" aria-label="Ajouter un fil">
         <span class="icon">〰️</span>
         <span>➕ Ajouter un fil</span>
       </button>
-      <button class="tool-btn noeud-btn" id="btnAddNoeud">
+      <button class="tool-btn noeud-btn" id="btnAddNoeud" aria-label="Ajouter un nœud">
         <span class="icon">⬤</span>
         <span>➕ Ajouter un nœud</span>
       </button>
       <div class="tool-subtitle">🔋 Sources</div>
-      <button class="tool-btn" id="btnAddPile">
+      <button class="tool-btn" id="btnAddPile" aria-label="Ajouter une pile 12 volts">
         <span class="icon">🔋</span>
         <span>Pile (12 V)</span>
       </button>
-      <button class="tool-btn" id="btnAddPile6">
+      <button class="tool-btn" id="btnAddPile6" aria-label="Ajouter une pile 6 volts">
         <span class="icon">🔋</span>
         <span>Pile (6 V)</span>
       </button>
       <div class="tool-subtitle">📏 Commandes</div>
-      <button class="tool-btn" id="btnAddResistance">
+      <button class="tool-btn" id="btnAddResistance" aria-label="Ajouter une résistance">
         <span class="icon">📏</span>
         <span>Résistance (10 Ω)</span>
       </button>
-      <button class="tool-btn" id="btnAddInterrupteur">
+      <button class="tool-btn" id="btnAddInterrupteur" aria-label="Ajouter un interrupteur">
         <span class="icon">🔘</span>
         <span>Interrupteur</span>
       </button>
       <div class="tool-subtitle">⚙️ Récepteurs</div>
-      <button class="tool-btn" id="btnAddLampe">
+      <button class="tool-btn" id="btnAddLampe" aria-label="Ajouter une lampe">
         <span class="icon">💡</span>
         <span>Lampe</span>
       </button>
-      <button class="tool-btn" id="btnAddMoteur">
+      <button class="tool-btn" id="btnAddMoteur" aria-label="Ajouter un moteur">
         <span class="icon">⚙️</span>
         <span>Moteur</span>
       </button>
-      <button class="tool-btn" id="btnAddBuzzer">
+      <button class="tool-btn" id="btnAddBuzzer" aria-label="Ajouter une sonnerie">
         <span class="icon">🔔</span>
         <span>Sonnerie</span>
       </button>
-            <button class="tool-btn" id="btnAddDiode">
+      <button class="tool-btn" id="btnAddDiode" aria-label="Ajouter une diode">
         <span class="icon">▷|</span>
         <span>Diode</span>
       </button>
-      <button class="tool-btn condensateur-btn" id="btnAddCondensateur">
+      <button class="tool-btn condensateur-btn" id="btnAddCondensateur" aria-label="Ajouter un condensateur">
         <span class="icon">⚡</span>
         <span>Condensateur</span>
       </button>
-      <button class="tool-btn led-btn" id="btnAddLED">
+      <button class="tool-btn led-btn" id="btnAddLED" aria-label="Ajouter une LED">
         <span class="icon">💡</span>
         <span>LED</span>
       </button>
-      <button class="tool-btn fusible-btn" id="btnAddFusible">
+      <button class="tool-btn fusible-btn" id="btnAddFusible" aria-label="Ajouter un fusible">
         <span class="icon">🔌</span>
         <span>Fusible</span>
       </button>
-      <button class="tool-btn potentiometre-btn" id="btnAddPotentiometre">
+      <button class="tool-btn potentiometre-btn" id="btnAddPotentiometre" aria-label="Ajouter un potentiomètre">
         <span class="icon">🎛</span>
         <span>Potentiomètre</span>
       </button>
       <div class="tool-subtitle">🔬 Nouveaux composants</div>
-      <button class="tool-btn electrolyseur-btn" id="btnAddElectrolyseur">
+      <button class="tool-btn electrolyseur-btn" id="btnAddElectrolyseur" aria-label="Ajouter un électrolyseur">
         <span class="icon">⚗️</span>
         <span>Électrolyseur</span>
       </button>
-      <button class="tool-btn chauffante-btn" id="btnAddChauffante">
+      <button class="tool-btn chauffante-btn" id="btnAddChauffante" aria-label="Ajouter une résistance chauffante">
         <span class="icon">🔥</span>
         <span>Chauffante</span>
       </button>
-      <button class="tool-btn bobine-btn" id="btnAddBobine">
+      <button class="tool-btn bobine-btn" id="btnAddBobine" aria-label="Ajouter une bobine">
         <span class="icon">🌀</span>
         <span>Bobine</span>
       </button>
-      <button class="tool-btn condo-pol-btn" id="btnAddCondensateurPolarise">
+      <button class="tool-btn condo-pol-btn" id="btnAddCondensateurPolarise" aria-label="Ajouter un condensateur polarisé">
         <span class="icon">⚡+</span>
         <span>Condensateur polarisé</span>
       </button>
       <div class="panel-title" style="margin-top: 6px;">🎛 Actions</div>
-      <button class="tool-btn danger" id="btnClearAll">
+      <button class="tool-btn danger" id="btnClearAll" aria-label="Tout effacer">
         <span class="icon">🗑</span>
         <span>Tout effacer</span>
       </button>
-            <div class="symbol-legend">
+      <div class="symbol-legend">
         <strong>🆕 Nœuds :</strong> relient <b>3 fils ou +</b> au même point.<br><br>
         <strong>✎ Modifier un composant :</strong> <b>double-clic</b> dessus pour changer sa valeur.<br><br>
         <strong>Détection auto</strong> du type de circuit.
@@ -848,7 +846,8 @@
         1. <b>Ajoute un fil</b> → apparaît en bas<br>
         2. <b>Glisse les poignées</b> (auto-snap)<br>
         3. Utilise un <b>nœud</b> si 3 fils se rejoignent<br>
-        4. <b>Double-clic</b> sur interrupteur
+        4. <b>Double-clic</b> sur interrupteur<br>
+        5. <b>Molette</b> = zoom · <b>Clic droit</b> = pan
       </div>
     </div>
 
@@ -857,6 +856,7 @@
       <canvas id="canvasCircuit" width="1000" height="650"></canvas>
       <div class="zone-info" id="zoneInfo">Aucun composant pour l'instant</div>
       <div class="zone-tool" id="zoneTool" style="display:none;">〰️ Fil sélectionné</div>
+      <div class="zoom-info" id="zoomInfo">🔍 100%</div>
     </div>
 
     <div class="side-zone">
@@ -866,7 +866,7 @@
         <div class="ct-value" id="circuitTypeValue">—</div>
       </div>
 
-            <div class="measure-selector">
+      <div class="measure-selector">
         <label>Ⓥ Voltmètre mesure :</label>
         <select id="selectVoltmetre">
           <option value="pile">🔋 Pile (tension totale)</option>
@@ -880,7 +880,6 @@
         </select>
       </div>
 
-      <!-- 🆕 Multimètres côte à côte -->
       <div class="multimeters-row">
         <div class="multimeter voltm off" id="mmVolt">
           <div class="mm-title">Ⓥ VOLTMÈTRE</div>
@@ -896,12 +895,11 @@
         </div>
       </div>
 
-      <!-- 🆕 Bascule Tableau ↔ Lois -->
       <div class="bascule-tabs">
-        <button class="bascule-tab active" data-bascule="tableau" onclick="basculerMesureLois('tableau')">
+        <button class="bascule-tab active" data-bascule="tableau" aria-label="Voir le tableau des mesures">
           📋 Tableau
         </button>
-        <button class="bascule-tab" data-bascule="lois" onclick="basculerMesureLois('lois')">
+        <button class="bascule-tab" data-bascule="lois" aria-label="Voir les lois">
           📚 Lois
         </button>
       </div>
@@ -927,31 +925,30 @@
 
       <div class="bascule-content" id="bascule-lois">
         <div class="lois-panel" id="loisPanel">
-                <!-- 🆕 Explication sur la diode -->
-      <div class="info-encadre">
-        <strong>▷| Comportement de la diode</strong>
-        La diode est un composant <em>polarisé</em> : elle laisse passer le courant <em>dans un seul sens</em>.<br><br>
-        • <strong>Polarisation directe</strong> (borne + sur l'anode) : la diode laisse passer le courant dès que la tension dépasse son <em>seuil</em> (~0,7 V).<br>
-        • <strong>Polarisation inverse</strong> (borne − sur l'anode) : la diode <em>bloque</em> le courant. Le circuit est ouvert.<br><br>
-        💡 <strong>Astuce :</strong> si vous fermez le générateur et que rien ne se passe, essayez de <em>retourner la diode</em> (double-clic → rotation 90°).
-      </div>
           <div class="loi-warning">⚠️ Ajoute des composants pour commencer</div>
         </div>
       </div>
+    </div>
+
   </div>
 
-    <div class="action-bar">
+  <div class="action-bar">
     <button class="btn-play" id="btnAnimer" disabled>▶ Animer les électrons</button>
     <button class="btn-interrupteur" id="btnInterrupteur">🔘 Fermer</button>
     <button class="btn-secondary" id="btnReset">🔄 Reset</button>
-        <button class="btn-secondary" id="btnFormules">📐 Formules</button>
+    <button class="btn-secondary" id="btnFormules">📐 Formules</button>
+    <button class="btn-secondary" id="btnSave" title="Sauvegarder">💾</button>
+    <button class="btn-secondary" id="btnLoad" title="Charger">📂</button>
+    <button class="btn-secondary" id="btnShare" title="Copier le lien de partage">🔗</button>
+    <button class="btn-secondary" id="btnUndo" title="Annuler (Ctrl+Z)">↶</button>
+    <button class="btn-secondary" id="btnRedo" title="Rétablir (Ctrl+Y)">↷</button>
     <button class="btn-son" id="btnSon" title="Activer/désactiver le son">🔊 Son</button>
     <div class="status-inline" id="status">Clique sur « Ajouter un fil » pour commencer</div>
   </div>
 
 </div>
 
-<!-- 🆕 Panneau d'édition de composant -->
+<!-- Panneau d'édition de composant -->
 <div class="modal-overlay" id="modalEditComposant">
   <div class="modal-box" style="max-width: 420px;">
     <h3 id="editTitle">Modifier le composant</h3>
@@ -960,7 +957,7 @@
         <span id="editDescription">Choisissez une nouvelle valeur :</span>
       </p>
       <div class="field" style="margin-bottom: 10px;">
-        <label id="editLabel" style="display: block; font-size: 12px; font-weight: 700; color: var(--ink, #4fc3f7); margin-bottom: 5px;">
+        <label id="editLabel" style="display: block; font-size: 12px; font-weight: 700; color: #4fc3f7; margin-bottom: 5px;">
           Valeur
         </label>
         <input type="number" id="editValue" step="any"
@@ -971,8 +968,7 @@
           Plage : 1 à 10 000 Ω
         </div>
       </div>
-      <div id="editRaccourcis" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px;">
-      </div>
+      <div id="editRaccourcis" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px;"></div>
     </div>
     <div style="display: flex; gap: 8px; margin-top: 15px;">
       <button class="btn-fermer" id="btnAnnulerEdit" style="flex: 1; background: #333; color: #ccc;">Annuler</button>
@@ -980,6 +976,8 @@
     </div>
   </div>
 </div>
+
+<!-- Panneau des formules -->
 <div class="modal-overlay" id="modalFormules">
   <div class="modal-box">
     <h3>📐 Formules à retenir</h3>
@@ -1013,6 +1011,15 @@
   </div>
 </div>
 
+<!-- Menu contextuel -->
+<div class="context-menu" id="contextMenu">
+  <button id="ctxTourner">⟳ Tourner 90°</button>
+  <button id="ctxDupliquer">📋 Dupliquer</button>
+  <button id="ctxModifier">✎ Modifier la valeur</button>
+  <div class="sep"></div>
+  <button id="ctxSupprimer" class="danger-btn">🗑 Supprimer</button>
+</div>
+
 <script>
 // ============================================================
 //  ÉTAT GLOBAL
@@ -1033,8 +1040,19 @@ let atelier = {
   prochainIdNoeud: 1,
   interrupteurFerme: false,
   animation: { active: false, rafId: null, lastTime: 0 },
-  resultats: { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null, etapes: [] }
+  resultats: { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null, etapes: [] },
+  // 🆕 Zoom / pan
+  zoom: 1,
+  panX: 0,
+  panY: 0,
+  panning: false,
+  panStart: { x: 0, y: 0 }
 };
+
+// 🆕 Historique undo/redo
+let historique = [];
+let historiqueIndex = -1;
+const HISTORIQUE_MAX = 50;
 
 const canvas = document.getElementById('canvasCircuit');
 const ctx = canvas.getContext('2d');
@@ -1059,21 +1077,71 @@ const TAILLE = {
   condensateurPolarise: { w: 75, h: 55 }
 };
 
-// 🆕 Composants qui se comportent comme des résistances
+// 🆕 Composants résistifs (mais attention : diode et LED gérées à part pour la polarité)
 const COMPOSANTS_RESISTIFS = new Set([
   'resistance', 'lampe', 'moteur', 'buzzer',
   'potentiometre', 'fusible', 'chauffante', 'bobine', 'electrolyseur'
 ]);
+// 🆕 Composants polarisés (bloquent en inverse)
+const COMPOSANTS_POLARISES = new Set(['diode', 'led', 'condensateurPolarise']);
+// 🆕 Composants qui bloquent le courant continu
+const COMPOSANTS_BLOQUANTS_DC = new Set(['condensateur', 'condensateurPolarise']);
+
 const DIST_CONNEXION = 40;
 const DIST_SNAP = 45;
+const GRILLE = 40;
 
 let composantSurvole = null;
+
+// ============================================================
+//  🔍 ZOOM / PAN
+// ============================================================
+function appliquerTransform(ctx) {
+  ctx.translate(atelier.panX, atelier.panY);
+  ctx.scale(atelier.zoom, atelier.zoom);
+}
+
+function screenToCanvas(sx, sy) {
+  return {
+    x: (sx - atelier.panX) / atelier.zoom,
+    y: (sy - atelier.panY) / atelier.zoom
+  };
+}
+
+function getCanvasCoords(e, isTouch) {
+  const rect = canvas.getBoundingClientRect();
+  const canvasRatio = canvas.width / canvas.height;
+  const rectRatio = rect.width / rect.height;
+  let renderWidth, renderHeight, offsetX, offsetY;
+  if (rectRatio > canvasRatio) {
+    renderHeight = rect.height;
+    renderWidth = renderHeight * canvasRatio;
+    offsetX = (rect.width - renderWidth) / 2;
+    offsetY = 0;
+  } else {
+    renderWidth = rect.width;
+    renderHeight = renderWidth / canvasRatio;
+    offsetX = 0;
+    offsetY = (rect.height - renderHeight) / 2;
+  }
+  let clientX, clientY;
+  if (isTouch) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+  else { clientX = e.clientX; clientY = e.clientY; }
+  const rawX = (clientX - rect.left - offsetX) * (canvas.width / renderWidth);
+  const rawY = (clientY - rect.top - offsetY) * (canvas.height / renderHeight);
+  // Convertir en coordonnées canvas (avant zoom/pan)
+  return {
+    x: (rawX - atelier.panX) / atelier.zoom,
+    y: (rawY - atelier.panY) / atelier.zoom
+  };
+}
 
 // ============================================================
 //  🔊 AUDIO — Son de cloche pour la sonnerie
 // ============================================================
 let audioCtx = null;
 let sonnerieEnCours = null;
+let sonnerieTimeout = null;
 let audioActif = true;
 
 function initAudio() {
@@ -1113,7 +1181,6 @@ function jouerSonnerie() {
     const oscGain = audioCtx.createGain();
     osc.type = 'sine';
     osc.frequency.setValueAtTime(freq, t);
-    // Trémolo léger pour effet cloche
     const lfo = audioCtx.createOscillator();
     const lfoGain = audioCtx.createGain();
     lfo.frequency.setValueAtTime(6 + Math.random() * 2, t);
@@ -1138,12 +1205,14 @@ function arreterSonnerie() {
   sonnerieEnCours.masterGain.gain.setValueAtTime(sonnerieEnCours.masterGain.gain.value, t);
   sonnerieEnCours.masterGain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
   const sonnerie = sonnerieEnCours;
-  setTimeout(() => {
+  sonnerieEnCours = null; // ✅ reset immédiat pour éviter le blocage
+  if (sonnerieTimeout) clearTimeout(sonnerieTimeout);
+  sonnerieTimeout = setTimeout(() => {
     sonnerie.oscillateurs.forEach(({ osc, lfo }) => {
       try { osc.stop(); lfo.stop(); } catch (e) {}
     });
+    sonnerieTimeout = null;
   }, 250);
-  sonnerieEnCours = null;
 }
 
 function majSonnerie() {
@@ -1170,6 +1239,170 @@ function jouerNoteConfirmation() {
   gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
   osc.start(t);
   osc.stop(t + 0.13);
+}
+
+// ============================================================
+//  🆕 HISTORIQUE UNDO/REDO
+// ============================================================
+function pushHistorique() {
+  const snapshot = JSON.stringify({
+    composants: atelier.composants,
+    fils: atelier.fils,
+    noeuds: atelier.noeuds,
+    prochainIdComp: atelier.prochainIdComp,
+    prochainIdFil: atelier.prochainIdFil,
+    prochainIdNoeud: atelier.prochainIdNoeud,
+    interrupteurFerme: atelier.interrupteurFerme
+  });
+  if (historiqueIndex >= 0 && historique[historiqueIndex] === snapshot) return;
+  historique = historique.slice(0, historiqueIndex + 1);
+  historique.push(snapshot);
+  if (historique.length > HISTORIQUE_MAX) historique.shift();
+  historiqueIndex = historique.length - 1;
+  majBoutonsUndoRedo();
+}
+
+function appliquerSnapshot(snapshot) {
+  const data = JSON.parse(snapshot);
+  atelier.composants = data.composants;
+  atelier.fils = data.fils;
+  atelier.noeuds = data.noeuds;
+  atelier.prochainIdComp = data.prochainIdComp;
+  atelier.prochainIdFil = data.prochainIdFil;
+  atelier.prochainIdNoeud = data.prochainIdNoeud;
+  atelier.interrupteurFerme = data.interrupteurFerme;
+  atelier.filSelectionne = null;
+  atelier.composantSelectionne = null;
+  atelier.noeudSelectionne = null;
+  updateConnexionsFils();
+  drawCircuit();
+  updateZoneInfo();
+  updateZoneTool();
+  updateSelectors();
+  updateBoutonInterrupteur();
+  analyserCircuit();
+}
+
+function undo() {
+  if (historiqueIndex <= 0) return;
+  historiqueIndex--;
+  appliquerSnapshot(historique[historiqueIndex]);
+  majBoutonsUndoRedo();
+  updateStatus('↶ Annulé');
+}
+
+function redo() {
+  if (historiqueIndex >= historique.length - 1) return;
+  historiqueIndex++;
+  appliquerSnapshot(historique[historiqueIndex]);
+  majBoutonsUndoRedo();
+  updateStatus('↷ Rétabli');
+}
+
+function majBoutonsUndoRedo() {
+  const btnU = document.getElementById('btnUndo');
+  const btnR = document.getElementById('btnRedo');
+  if (btnU) btnU.disabled = historiqueIndex <= 0;
+  if (btnR) btnR.disabled = historiqueIndex >= historique.length - 1;
+}
+
+// ============================================================
+//  🆕 SAUVEGARDE / CHARGEMENT / PARTAGE
+// ============================================================
+function sauvegarder() {
+  try {
+    const data = {
+      version: 1,
+      composants: atelier.composants,
+      fils: atelier.fils,
+      noeuds: atelier.noeuds,
+      prochainIdComp: atelier.prochainIdComp,
+      prochainIdFil: atelier.prochainIdFil,
+      prochainIdNoeud: atelier.prochainIdNoeud,
+      interrupteurFerme: atelier.interrupteurFerme,
+      date: new Date().toISOString()
+    };
+    localStorage.setItem('lfakm_circuit_libre', JSON.stringify(data));
+    updateStatus('💾 Circuit sauvegardé');
+    jouerNoteConfirmation();
+  } catch (e) {
+    alert('Erreur de sauvegarde : ' + e.message);
+  }
+}
+
+function charger() {
+  try {
+    const raw = localStorage.getItem('lfakm_circuit_libre');
+    if (!raw) { updateStatus('📂 Aucune sauvegarde trouvée'); return; }
+    const data = JSON.parse(raw);
+    appliquerSnapshot(JSON.stringify(data));
+    pushHistorique();
+    updateStatus('📂 Circuit chargé (' + new Date(data.date).toLocaleString() + ')');
+    jouerNoteConfirmation();
+  } catch (e) {
+    alert('Erreur de chargement : ' + e.message);
+  }
+}
+
+function encoderPartage() {
+  const data = {
+    v: 1,
+    c: atelier.composants,
+    f: atelier.fils,
+    n: atelier.noeuds,
+    ic: atelier.prochainIdComp,
+    if: atelier.prochainIdFil,
+    in: atelier.prochainIdNoeud,
+    o: atelier.interrupteurFerme
+  };
+  try {
+    const json = JSON.stringify(data);
+    return btoa(unescape(encodeURIComponent(json)));
+  } catch (e) {
+    return null;
+  }
+}
+
+function decoderPartage(str) {
+  try {
+    const json = decodeURIComponent(escape(atob(str)));
+    const data = JSON.parse(json);
+    return {
+      composants: data.c || [],
+      fils: data.f || [],
+      noeuds: data.n || [],
+      prochainIdComp: data.ic || 1,
+      prochainIdFil: data.if || 1,
+      prochainIdNoeud: data.in || 1,
+      interrupteurFerme: !!data.o
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+function partager() {
+  const encoded = encoderPartage();
+  if (!encoded) { alert('Erreur d\'encodage'); return; }
+  const url = window.location.origin + window.location.pathname + '#circuit=' + encoded;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(() => {
+      updateStatus('🔗 Lien copié dans le presse-papiers !');
+      jouerNoteConfirmation();
+    }).catch(() => prompt('Copie ce lien :', url));
+  } else {
+    prompt('Copie ce lien :', url);
+  }
+}
+
+function chargerDepuisURL() {
+  const hash = window.location.hash;
+  if (!hash || !hash.startsWith('#circuit=')) return false;
+  const encoded = hash.substring('#circuit='.length);
+  const data = decoderPartage(encoded);
+  if (!data) return false;
+  appliquerSnapshot(JSON.stringify(data));
+  return true;
 }
 
 // ============================================================
@@ -1221,7 +1454,8 @@ function ajouterComposant(type, tensionForcee) {
     case 'condensateurPolarise': composant.capacite = 470; composant.charge = 0; break;
   }
 
-   atelier.composants.push(composant);
+  atelier.composants.push(composant);
+  pushHistorique();
   drawCircuit();
   updateZoneInfo();
   updateSelectors();
@@ -1229,7 +1463,6 @@ function ajouterComposant(type, tensionForcee) {
   analyserCircuit();
 }
 
-// 🆕 Trouve une position libre sur la grille
 function trouverPositionLibre() {
   const margeX = 120;
   const margeY = 100;
@@ -1238,7 +1471,6 @@ function trouverPositionLibre() {
   const cols = Math.floor((W - 2 * margeX) / espacementX);
   const rows = Math.floor((H - margeY - 80) / espacementY);
   
-  // Parcourir la grille et trouver la première case libre
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       const x = margeX + col * espacementX;
@@ -1253,14 +1485,12 @@ function trouverPositionLibre() {
     }
   }
   
-  // Si la grille est pleine, position aléatoire
   return {
     x: margeX + Math.random() * (W - 2 * margeX),
     y: margeY + Math.random() * (H - 2 * margeY - 60)
   };
 }
 
-// 🆕 FILS EN BAS DE L'ÉCRAN, HORIZONTAUX
 function ajouterFilLibre() {
   const nbFils = atelier.fils.length;
   const margeGauche = 80;
@@ -1268,20 +1498,20 @@ function ajouterFilLibre() {
   const espacementX = 40;
   const longueur = 180;
   
-  // 📍 Position en bas de l'écran, horizontal
   const x1 = margeGauche + (nbFils % 6) * espacementX + Math.floor(nbFils / 6) * 220;
   const y1 = H - margeBas - Math.floor(nbFils / 6) * 30;
   
   const fil = {
     id: 'f' + atelier.prochainIdFil++,
     x1: x1, y1: y1,
-    x2: x1 + longueur, y2: y1,   // ⚠️ y2 = y1 → HORIZONTAL
+    x2: x1 + longueur, y2: y1,
     de: null,
     vers: null
   };
 
   atelier.fils.push(fil);
   atelier.filSelectionne = fil.id;
+  pushHistorique();
   updateConnexionsFils();
   drawCircuit();
   updateZoneInfo();
@@ -1301,6 +1531,7 @@ function ajouterNoeud() {
   };
 
   atelier.noeuds.push(noeud);
+  pushHistorique();
   drawCircuit();
   updateZoneInfo();
   updateStatus('⬤ Nœud ajouté');
@@ -1348,11 +1579,24 @@ function getToutesLesBornes() {
   return toutes;
 }
 
+// 🆕 Cache pour getBorneById
+let _cacheBornes = null;
+let _cacheBornesVersion = 0;
+let _versionBornes = 0;
+
+function invaliderCacheBornes() { _versionBornes++; }
+
 function getBorneById(id) {
-  return getToutesLesBornes().find(b => b.id === id);
+  if (_cacheBornesVersion !== _versionBornes || !_cacheBornes) {
+    _cacheBornes = new Map();
+    getToutesLesBornes().forEach(b => _cacheBornes.set(b.id, b));
+    _cacheBornesVersion = _versionBornes;
+  }
+  return _cacheBornes.get(id);
 }
 
 function updateConnexionsFils() {
+  invaliderCacheBornes();
   const bornes = getToutesLesBornes();
   atelier.fils.forEach(fil => {
     fil.de = null;
@@ -1396,13 +1640,18 @@ function trouverBorneProcheDe(x, y, maxDist) {
 // ============================================================
 function drawCircuit() {
   ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = '#0a0a1a';
+  ctx.fillStyle = document.body.classList.contains('theme-clair') ? '#f5f7fa' : '#0a0a1a';
   ctx.fillRect(0, 0, W, H);
 
-  ctx.strokeStyle = 'rgba(79,195,247,0.05)';
+  ctx.save();
+  appliquerTransform(ctx);
+
+  // Grille
+  ctx.strokeStyle = document.body.classList.contains('theme-clair')
+    ? 'rgba(2,119,189,0.08)' : 'rgba(79,195,247,0.05)';
   ctx.lineWidth = 1;
-  for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
-  for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+  for (let x = 0; x < W; x += GRILLE) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  for (let y = 0; y < H; y += GRILLE) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
 
   atelier.fils.forEach(fil => drawFil(fil));
   atelier.noeuds.forEach(n => drawNoeud(n));
@@ -1411,9 +1660,11 @@ function drawCircuit() {
 
   if (atelier.animation.active && atelier.interrupteurFerme &&
       atelier.resultats.type !== 'aucun' && atelier.resultats.type !== 'ouvert' &&
-      atelier.resultats.type !== 'erreur') {
+      atelier.resultats.type !== 'erreur' && atelier.resultats.type !== 'court-circuit') {
     drawElectrons();
   }
+
+  ctx.restore();
 
   if (atelier.poigneeEnDrag || atelier.composantEnDrag || atelier.noeudEnDrag) {
     canvas.style.cursor = 'grabbing';
@@ -1422,6 +1673,8 @@ function drawCircuit() {
   } else {
     canvas.style.cursor = 'default';
   }
+
+  document.getElementById('zoomInfo').textContent = '🔍 ' + Math.round(atelier.zoom * 100) + '%';
 }
 
 function drawNoeud(noeud) {
@@ -1568,7 +1821,7 @@ function drawComposant(c) {
   ctx.restore();
   ctx.shadowBlur = 0;
 
-  if (mesures && sousTension && COMPOSANTS_RESISTIFS.has(c.type)) {
+  if (mesures && sousTension && (COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led')) {
     drawEtiquetteMesures(c, mesures);
   }
 
@@ -1576,7 +1829,10 @@ function drawComposant(c) {
     drawIndicateurEditable(c);
   }
 
-  drawPoigneeRotation(c);
+  // 🆕 Poignée rotation : sauf pour la pile
+  if (c.type !== 'pile') {
+    drawPoigneeRotation(c);
+  }
 }
 
 function drawIndicateurEditable(c) {
@@ -1844,11 +2100,12 @@ function drawBuzzer(cx, cy, w, h, valeur, mesures) {
   ctx.fillText(valeur + ' Ω', cx, cy + 34);
 }
 
+// 🆕 Diode avec indicateur de polarité
 function drawDiode(cx, cy, w, h, mesures) {
   drawWireLine(cx, cy, w);
-  const actif = mesures && mesures.I > 0.001 && atelier.interrupteurFerme;
+  const passante = mesures && mesures.I > 0.001 && atelier.interrupteurFerme;
 
-  ctx.strokeStyle = actif ? '#4caf50' : '#fff';
+  ctx.strokeStyle = passante ? '#4caf50' : (mesures && mesures.bloquee ? '#f44336' : '#fff');
   ctx.fillStyle = '#0a0a1a';
   ctx.lineWidth = 2.5;
   ctx.beginPath();
@@ -1861,10 +2118,21 @@ function drawDiode(cx, cy, w, h, mesures) {
   ctx.moveTo(cx + 12, cy - 15);
   ctx.lineTo(cx + 12, cy + 15);
   ctx.stroke();
+
   ctx.fillStyle = '#fff';
   ctx.font = 'bold 10px monospace';
   ctx.textAlign = 'center';
   ctx.fillText('DIODE', cx, cy - 27);
+
+  // 🆕 Indicateur de polarité
+  ctx.font = 'bold 9px monospace';
+  if (passante) {
+    ctx.fillStyle = '#4caf50';
+    ctx.fillText('▶ PASSANTE', cx, cy + 30);
+  } else if (mesures && mesures.bloquee) {
+    ctx.fillStyle = '#f44336';
+    ctx.fillText('✕ BLOQUÉE', cx, cy + 30);
+  }
 }
 
 function drawCondensateur(cx, cy, w, h, capacite, charge) {
@@ -1886,6 +2154,10 @@ function drawCondensateur(cx, cy, w, h, capacite, charge) {
   ctx.font = 'bold 11px monospace';
   ctx.textAlign = 'center';
   ctx.fillText(`${capacite}µF`, cx, cy - h/2 - 8);
+  // 🆕 Indicateur blocage DC
+  ctx.fillStyle = '#888';
+  ctx.font = '9px monospace';
+  ctx.fillText('(bloque le courant continu)', cx, cy + h/2 + 12);
 }
 
 function drawLED(cx, cy, w, h, seuil, resistance, mesures) {
@@ -1901,7 +2173,9 @@ function drawLED(cx, cy, w, h, seuil, resistance, mesures) {
   ctx.beginPath();
   ctx.moveTo(cx + 15, cy - 15); ctx.lineTo(cx + 15, cy + 15);
   ctx.stroke();
-  const allumee = mesures && atelier.interrupteurFerme && mesures.I > 0.001;
+
+  // 🆕 LED allumée seulement si polarisation directe
+  const allumee = mesures && atelier.interrupteurFerme && mesures.I > 0.001 && !mesures.bloquee;
   if (allumee) {
     const grad = ctx.createRadialGradient(cx, cy, 5, cx, cy, 40);
     grad.addColorStop(0, 'rgba(255, 87, 34, 0.8)');
@@ -1913,6 +2187,16 @@ function drawLED(cx, cy, w, h, seuil, resistance, mesures) {
   ctx.font = 'bold 11px monospace';
   ctx.textAlign = 'center';
   ctx.fillText('LED', cx, cy - h/2 - 8);
+
+  // 🆕 Indicateur polarité
+  ctx.font = 'bold 9px monospace';
+  if (allumee) {
+    ctx.fillStyle = '#4caf50';
+    ctx.fillText('▶ ALLUMÉE', cx, cy + h/2 + 12);
+  } else if (mesures && mesures.bloquee) {
+    ctx.fillStyle = '#f44336';
+    ctx.fillText('✕ BLOQUÉE', cx, cy + h/2 + 12);
+  }
 }
 
 function drawFusible(cx, cy, w, h, courantMax, resistance, mesures) {
@@ -2072,8 +2356,10 @@ function drawCondensateurPolarise(cx, cy, w, h, capacite, charge) {
   ctx.font = 'bold 10px monospace';
   ctx.textAlign = 'center';
   ctx.fillText(`${capacite}µF`, cx, cy - h/2 - 8);
+  ctx.fillStyle = '#888';
+  ctx.font = '9px monospace';
+  ctx.fillText('(bloque le courant continu)', cx, cy + h/2 + 12);
 }
-
 
 function drawInterrupteur(cx, cy, w, h) {
   ctx.fillStyle = '#1a1a2e';
@@ -2132,16 +2418,54 @@ function drawBorne(b) {
 }
 
 // ============================================================
-//  INTERACTIONS
+//  INTERACTIONS SOURIS
 // ============================================================
-canvas.addEventListener('mousedown', e => { const p = getCanvasCoords(e, false); handlePointerDown(p.x, p.y); });
+canvas.addEventListener('mousedown', e => {
+  // 🆕 Pan avec clic droit ou bouton du milieu
+  if (e.button === 1 || e.button === 2) {
+    atelier.panning = true;
+    atelier.panStart = { x: e.clientX - atelier.panX, y: e.clientY - atelier.panY };
+    e.preventDefault();
+    return;
+  }
+  const p = getCanvasCoords(e, false);
+  handlePointerDown(p.x, p.y);
+});
+
 canvas.addEventListener('mousemove', e => {
+  if (atelier.panning) {
+    atelier.panX = e.clientX - atelier.panStart.x;
+    atelier.panY = e.clientY - atelier.panStart.y;
+    drawCircuit();
+    return;
+  }
   const p = getCanvasCoords(e, false);
   composantSurvole = trouverComposantProche(p.x, p.y);
   handlePointerMove(p.x, p.y);
 });
+
 canvas.addEventListener('mouseup', handlePointerUp);
-canvas.addEventListener('mouseleave', handlePointerUp);
+canvas.addEventListener('mouseleave', () => {
+  atelier.panning = false;
+  handlePointerUp();
+});
+
+// 🆕 Zoom avec la molette
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+  const canvasX = (mouseX - atelier.panX) / atelier.zoom;
+  const canvasY = (mouseY - atelier.panY) / atelier.zoom;
+
+  const facteur = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+  const nouveauZoom = Math.max(0.3, Math.min(3, atelier.zoom * facteur));
+  atelier.zoom = nouveauZoom;
+  atelier.panX = mouseX - canvasX * atelier.zoom;
+  atelier.panY = mouseY - canvasY * atelier.zoom;
+  drawCircuit();
+}, { passive: false });
 
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
@@ -2163,8 +2487,10 @@ canvas.addEventListener('dblclick', e => {
   if (comp.type === 'interrupteur') {
     atelier.interrupteurFerme = !atelier.interrupteurFerme;
     atelier.composantEnDrag = null;
+    pushHistorique();
     drawCircuit();
     analyserCircuit();
+    updateBoutonInterrupteur();
     updateStatus(atelier.interrupteurFerme ? '🔘 Interrupteur FERMÉ' : '🔘 Interrupteur OUVERT');
     return;
   }
@@ -2173,7 +2499,133 @@ canvas.addEventListener('dblclick', e => {
 });
 
 // ============================================================
-//  PANNEAU D'ÉDITION DE COMPOSANT
+//  🆕 MENU CONTEXTUEL HTML
+// ============================================================
+const contextMenu = document.getElementById('contextMenu');
+let contexteCible = null;
+
+canvas.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  const pos = getCanvasCoords(e, false);
+
+  // Si pan en cours, on ne montre pas le menu
+  if (atelier.panning) return;
+
+  const filTrouve = trouverFilProche(pos.x, pos.y);
+  const noeudTrouve = trouverNoeudProche(pos.x, pos.y);
+  const comp = trouverComposantProche(pos.x, pos.y);
+
+  if (!filTrouve && !noeudTrouve && !comp) {
+    contextMenu.classList.remove('show');
+    return;
+  }
+
+  contextMenu.classList.add('show');
+  contextMenu.style.left = e.clientX + 'px';
+  contextMenu.style.top = e.clientY + 'px';
+
+  if (comp) {
+    contexteCible = { type: 'composant', obj: comp };
+    document.getElementById('ctxTourner').style.display = (comp.type === 'pile') ? 'none' : 'block';
+    document.getElementById('ctxDupliquer').style.display = 'block';
+    document.getElementById('ctxModifier').style.display = (comp.type === 'pile' || COMPOSANTS_RESISTIFS.has(comp.type)) ? 'block' : 'none';
+    document.getElementById('ctxSupprimer').textContent = '🗑 Supprimer le composant';
+  } else if (filTrouve) {
+    contexteCible = { type: 'fil', obj: filTrouve };
+    document.getElementById('ctxTourner').style.display = 'none';
+    document.getElementById('ctxDupliquer').style.display = 'none';
+    document.getElementById('ctxModifier').style.display = 'none';
+    document.getElementById('ctxSupprimer').textContent = '🗑 Supprimer le fil';
+  } else if (noeudTrouve) {
+    contexteCible = { type: 'noeud', obj: noeudTrouve };
+    document.getElementById('ctxTourner').style.display = 'none';
+    document.getElementById('ctxDupliquer').style.display = 'none';
+    document.getElementById('ctxModifier').style.display = 'none';
+    document.getElementById('ctxSupprimer').textContent = '🗑 Supprimer le nœud';
+  }
+});
+
+document.addEventListener('click', e => {
+  if (!contextMenu.contains(e.target)) contextMenu.classList.remove('show');
+});
+
+document.getElementById('ctxTourner').addEventListener('click', () => {
+  if (contexteCible && contexteCible.type === 'composant') {
+    contexteCible.obj.rotation = ((contexteCible.obj.rotation || 0) + 90) % 360;
+    pushHistorique();
+    updateConnexionsFils();
+    drawCircuit();
+    analyserCircuit();
+  }
+  contextMenu.classList.remove('show');
+});
+
+document.getElementById('ctxDupliquer').addEventListener('click', () => {
+  if (contexteCible && contexteCible.type === 'composant') {
+    dupliquerComposant(contexteCible.obj);
+  }
+  contextMenu.classList.remove('show');
+});
+
+document.getElementById('ctxModifier').addEventListener('click', () => {
+  if (contexteCible && contexteCible.type === 'composant') {
+    ouvrirPanneauEdition(contexteCible.obj);
+  }
+  contextMenu.classList.remove('show');
+});
+
+document.getElementById('ctxSupprimer').addEventListener('click', () => {
+  if (!contexteCible) return;
+  if (contexteCible.type === 'composant') {
+    supprimerComposant(contexteCible.obj.id);
+  } else if (contexteCible.type === 'fil') {
+    atelier.fils = atelier.fils.filter(f => f.id !== contexteCible.obj.id);
+    if (atelier.filSelectionne === contexteCible.obj.id) atelier.filSelectionne = null;
+    pushHistorique();
+    updateConnexionsFils();
+    drawCircuit();
+    updateZoneInfo();
+    updateZoneTool();
+    updateSelectors();
+    analyserCircuit();
+    updateStatus('🗑 Fil supprimé');
+  } else if (contexteCible.type === 'noeud') {
+    const id = contexteCible.obj.id;
+    atelier.fils.forEach(f => {
+      if (f.de === id) f.de = null;
+      if (f.vers === id) f.vers = null;
+    });
+    atelier.noeuds = atelier.noeuds.filter(n => n.id !== id);
+    if (atelier.noeudSelectionne === id) atelier.noeudSelectionne = null;
+    pushHistorique();
+    updateConnexionsFils();
+    drawCircuit();
+    updateZoneInfo();
+    updateSelectors();
+    analyserCircuit();
+    updateStatus('🗑 Nœud supprimé');
+  }
+  contexteCible = null;
+  contextMenu.classList.remove('show');
+});
+
+function dupliquerComposant(comp) {
+  const copie = JSON.parse(JSON.stringify(comp));
+  copie.id = 'c' + atelier.prochainIdComp++;
+  copie.x = Math.min(W - 60, comp.x + 60);
+  copie.y = Math.min(H - 60, comp.y + 40);
+  atelier.composants.push(copie);
+  atelier.composantSelectionne = copie.id;
+  pushHistorique();
+  drawCircuit();
+  updateZoneInfo();
+  updateSelectors();
+  analyserCircuit();
+  updateStatus('📋 Composant dupliqué');
+}
+
+// ============================================================
+//  🆕 PANNEAU D'ÉDITION DE COMPOSANT
 // ============================================================
 let composantEnEdition = null;
 
@@ -2206,21 +2658,20 @@ function ouvrirPanneauEdition(comp) {
       btn.onclick = () => { input.value = v; };
       raccourcis.appendChild(btn);
     });
-  } else if (comp.type === 'resistance' || comp.type === 'lampe' || comp.type === 'moteur' || comp.type === 'buzzer') {
+  } else if (COMPOSANTS_RESISTIFS.has(comp.type)) {
     const labels = {
       resistance: '📏 Modifier la résistance',
       lampe: '💡 Modifier la lampe',
       moteur: '⚙️ Modifier le moteur',
-      buzzer: '🔔 Modifier la sonnerie'
+      buzzer: '🔔 Modifier la sonnerie',
+      potentiometre: '🎛 Modifier le potentiomètre',
+      fusible: '🔌 Modifier le fusible',
+      chauffante: '🔥 Modifier la résistance chauffante',
+      bobine: '🌀 Modifier la bobine',
+      electrolyseur: '⚗️ Modifier l\'électrolyseur'
     };
-    const descriptions = {
-      resistance: 'Choisissez la valeur de la résistance :',
-      lampe: 'Choisissez la résistance équivalente de la lampe :',
-      moteur: 'Choisissez la résistance équivalente du moteur :',
-      buzzer: 'Choisissez la résistance équivalente de la sonnerie :'
-    };
-    titre.textContent = labels[comp.type];
-    description.textContent = descriptions[comp.type];
+    titre.textContent = labels[comp.type] || 'Modifier le composant';
+    description.textContent = 'Choisissez la résistance équivalente :';
     label.textContent = 'Résistance R (ohms)';
     input.value = comp.valeur;
     input.min = 1;
@@ -2234,6 +2685,24 @@ function ouvrirPanneauEdition(comp) {
       btn.onclick = () => { input.value = v; };
       raccourcis.appendChild(btn);
     });
+  } else if (comp.type === 'diode' || comp.type === 'led') {
+    titre.textContent = comp.type === 'diode' ? '▷| Modifier la diode' : '💡 Modifier la LED';
+    description.textContent = 'Seuil de tension directe :';
+    label.textContent = 'Seuil (volts)';
+    input.value = comp.seuil;
+    input.min = 0.1;
+    input.max = 5;
+    input.step = 0.1;
+    helper.textContent = 'Plage : 0,1 à 5 V';
+  } else if (comp.type === 'condensateur' || comp.type === 'condensateurPolarise') {
+    titre.textContent = '⚡ Modifier le condensateur';
+    description.textContent = 'Capacité du condensateur :';
+    label.textContent = 'Capacité (µF)';
+    input.value = comp.capacite;
+    input.min = 1;
+    input.max = 10000;
+    input.step = 1;
+    helper.textContent = 'Plage : 1 à 10 000 µF';
   }
 
   document.getElementById('modalEditComposant').classList.add('show');
@@ -2264,8 +2733,15 @@ document.getElementById('btnValiderEdit').addEventListener('click', () => {
     valeur = Math.max(1, Math.min(10000, valeur));
     composantEnEdition.valeur = valeur;
     updateStatus(`📏 ${composantEnEdition.type} modifié : ${valeur} Ω`);
+  } else if (composantEnEdition.type === 'diode' || composantEnEdition.type === 'led') {
+    valeur = Math.max(0.1, Math.min(5, valeur));
+    composantEnEdition.seuil = valeur;
+  } else if (composantEnEdition.type === 'condensateur' || composantEnEdition.type === 'condensateurPolarise') {
+    valeur = Math.max(1, Math.min(10000, valeur));
+    composantEnEdition.capacite = valeur;
   }
 
+  pushHistorique();
   document.getElementById('modalEditComposant').classList.remove('show');
   composantEnEdition = null;
 
@@ -2288,19 +2764,49 @@ document.getElementById('modalEditComposant').addEventListener('click', e => {
   }
 });
 
+// ============================================================
+//  RACCOURCIS CLAVIER
+// ============================================================
 document.addEventListener('keydown', e => {
+  // 🆕 Undo / Redo
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+    e.preventDefault();
+    undo();
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+    e.preventDefault();
+    redo();
+    return;
+  }
+  // 🆕 Duplication
+  if ((e.ctrlKey || e.metaKey) && e.key === 'd' && composantSurvole) {
+    e.preventDefault();
+    dupliquerComposant(composantSurvole);
+    return;
+  }
+  // 🆕 Sauvegarde rapide
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    sauvegarder();
+    return;
+  }
+  // Rotation
   if (e.key === 'r' || e.key === 'R') {
-    if (composantSurvole) {
+    if (composantSurvole && composantSurvole.type !== 'pile') {
       composantSurvole.rotation = ((composantSurvole.rotation || 0) + 90) % 360;
+      pushHistorique();
       updateConnexionsFils();
       drawCircuit();
       analyserCircuit();
     }
   }
+  // Suppression
   if (e.key === 'Delete' || e.key === 'Suppr') {
     if (atelier.filSelectionne) {
       atelier.fils = atelier.fils.filter(f => f.id !== atelier.filSelectionne);
       atelier.filSelectionne = null;
+      pushHistorique();
       updateConnexionsFils();
       drawCircuit();
       updateZoneInfo();
@@ -2318,6 +2824,7 @@ document.addEventListener('keydown', e => {
       });
       atelier.noeuds = atelier.noeuds.filter(n => n.id !== id);
       atelier.noeudSelectionne = null;
+      pushHistorique();
       updateConnexionsFils();
       drawCircuit();
       updateZoneInfo();
@@ -2327,11 +2834,17 @@ document.addEventListener('keydown', e => {
       return;
     }
     if (composantSurvole) {
-      if (confirm(`Supprimer ce ${composantSurvole.type} ?`)) {
-        supprimerComposant(composantSurvole.id);
-        composantSurvole = null;
-      }
+      supprimerComposant(composantSurvole.id);
+      composantSurvole = null;
     }
+  }
+  // 🆕 Échap
+  if (e.key === 'Escape') {
+    atelier.filSelectionne = null;
+    atelier.composantSelectionne = null;
+    atelier.noeudSelectionne = null;
+    updateZoneTool();
+    drawCircuit();
   }
 });
 
@@ -2343,6 +2856,7 @@ function supprimerComposant(compId) {
     if (b2 && b2.composantId === compId) f.vers = null;
   });
   atelier.composants = atelier.composants.filter(c => c.id !== compId);
+  pushHistorique();
   updateConnexionsFils();
   drawCircuit();
   updateZoneInfo();
@@ -2351,77 +2865,9 @@ function supprimerComposant(compId) {
   analyserCircuit();
 }
 
-canvas.addEventListener('contextmenu', e => {
-  e.preventDefault();
-  const pos = getCanvasCoords(e, false);
-
-  const filTrouve = trouverFilProche(pos.x, pos.y);
-  if (filTrouve) {
-    if (confirm('Supprimer ce fil ?')) {
-      atelier.fils = atelier.fils.filter(f => f.id !== filTrouve.id);
-      if (atelier.filSelectionne === filTrouve.id) atelier.filSelectionne = null;
-      updateConnexionsFils();
-      drawCircuit(); updateZoneInfo(); updateZoneTool(); updateSelectors(); analyserCircuit();
-      updateStatus('🗑 Fil supprimé');
-    }
-    return;
-  }
-
-  const noeudTrouve = trouverNoeudProche(pos.x, pos.y);
-  if (noeudTrouve) {
-    if (confirm('Supprimer ce nœud ?')) {
-      const id = noeudTrouve.id;
-      atelier.fils.forEach(f => {
-        if (f.de === id) f.de = null;
-        if (f.vers === id) f.vers = null;
-      });
-      atelier.noeuds = atelier.noeuds.filter(n => n.id !== id);
-      if (atelier.noeudSelectionne === id) atelier.noeudSelectionne = null;
-      updateConnexionsFils();
-      drawCircuit(); updateZoneInfo(); updateSelectors(); analyserCircuit();
-      updateStatus('🗑 Nœud supprimé');
-    }
-    return;
-  }
-
-  const comp = trouverComposantProche(pos.x, pos.y);
-  if (comp) {
-    const action = prompt(`Composant : ${comp.type}\n\n1 = Tourner de 90°\n2 = Supprimer`, '1');
-    if (action === '1') {
-      comp.rotation = ((comp.rotation || 0) + 90) % 360;
-      updateConnexionsFils();
-      drawCircuit(); analyserCircuit();
-    } else if (action === '2') {
-      supprimerComposant(comp.id);
-    }
-  }
-});
-
-function getCanvasCoords(e, isTouch) {
-  const rect = canvas.getBoundingClientRect();
-  const canvasRatio = canvas.width / canvas.height;
-  const rectRatio = rect.width / rect.height;
-  let renderWidth, renderHeight, offsetX, offsetY;
-  if (rectRatio > canvasRatio) {
-    renderHeight = rect.height;
-    renderWidth = renderHeight * canvasRatio;
-    offsetX = (rect.width - renderWidth) / 2;
-    offsetY = 0;
-  } else {
-    renderWidth = rect.width;
-    renderHeight = renderWidth / canvasRatio;
-    offsetX = 0;
-    offsetY = (rect.height - renderHeight) / 2;
-  }
-  let clientX, clientY;
-  if (isTouch) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
-  else { clientX = e.clientX; clientY = e.clientY; }
-  return {
-    x: (clientX - rect.left - offsetX) * (canvas.width / renderWidth),
-    y: (clientY - rect.top - offsetY) * (canvas.height / renderHeight)
-  };
-}
-
+// ============================================================
+//  GESTION POINTEUR
+// ============================================================
 function handlePointerDown(x, y) {
   if (atelier.filSelectionne) {
     const fil = atelier.fils.find(f => f.id === atelier.filSelectionne);
@@ -2455,7 +2901,9 @@ function handlePointerDown(x, y) {
     return;
   }
 
+  // Poignée rotation
   for (const c of atelier.composants) {
+    if (c.type === 'pile') continue;
     const t = TAILLE[c.type];
     const angle = (c.rotation || 0) * Math.PI / 180;
     const offsetY = -t.h / 2 - 20;
@@ -2463,8 +2911,10 @@ function handlePointerDown(x, y) {
     const hy = c.y - offsetY * Math.cos(angle);
     if (Math.hypot(hx - x, hy - y) < 15) {
       c.rotation = ((c.rotation || 0) + 90) % 360;
+      pushHistorique();
       updateConnexionsFils();
-      drawCircuit(); analyserCircuit();
+      drawCircuit();
+      analyserCircuit();
       return;
     }
   }
@@ -2498,6 +2948,10 @@ function handlePointerMove(x, y) {
       if (borneProche) {
         finalX = borneProche.x;
         finalY = borneProche.y;
+      } else {
+        // Snap grille
+        finalX = Math.round(finalX / GRILLE) * GRILLE;
+        finalY = Math.round(finalY / GRILLE) * GRILLE;
       }
       if (atelier.poigneeEnDrag.cote === 'A') {
         fil.x1 = finalX; fil.y1 = finalY;
@@ -2511,8 +2965,15 @@ function handlePointerMove(x, y) {
   }
 
   if (atelier.noeudEnDrag) {
-    atelier.noeudEnDrag.x = Math.max(20, Math.min(W - 20, x - atelier.offsetDrag.x));
-    atelier.noeudEnDrag.y = Math.max(20, Math.min(H - 20, y - atelier.offsetDrag.y));
+    let nx = x - atelier.offsetDrag.x;
+    let ny = y - atelier.offsetDrag.y;
+    // 🆕 Snap grille (Shift = libre)
+    if (!window.event || !window.event.shiftKey) {
+      nx = Math.round(nx / GRILLE) * GRILLE;
+      ny = Math.round(ny / GRILLE) * GRILLE;
+    }
+    atelier.noeudEnDrag.x = Math.max(20, Math.min(W - 20, nx));
+    atelier.noeudEnDrag.y = Math.max(20, Math.min(H - 20, ny));
     atelier.fils.forEach(fil => {
       if (fil.de === atelier.noeudEnDrag.id) { fil.x1 = atelier.noeudEnDrag.x; fil.y1 = atelier.noeudEnDrag.y; }
       if (fil.vers === atelier.noeudEnDrag.id) { fil.x2 = atelier.noeudEnDrag.x; fil.y2 = atelier.noeudEnDrag.y; }
@@ -2522,8 +2983,15 @@ function handlePointerMove(x, y) {
   }
 
   if (atelier.composantEnDrag) {
-    atelier.composantEnDrag.x = Math.max(60, Math.min(W - 60, x - atelier.offsetDrag.x));
-    atelier.composantEnDrag.y = Math.max(60, Math.min(H - 60, y - atelier.offsetDrag.y));
+    let nx = x - atelier.offsetDrag.x;
+    let ny = y - atelier.offsetDrag.y;
+    // 🆕 Snap grille (Shift = libre)
+    if (!window.event || !window.event.shiftKey) {
+      nx = Math.round(nx / GRILLE) * GRILLE;
+      ny = Math.round(ny / GRILLE) * GRILLE;
+    }
+    atelier.composantEnDrag.x = Math.max(60, Math.min(W - 60, nx));
+    atelier.composantEnDrag.y = Math.max(60, Math.min(H - 60, ny));
     updateConnexionsFils();
     drawCircuit();
     return;
@@ -2537,7 +3005,9 @@ function handlePointerUp() {
   atelier.composantEnDrag = null;
   atelier.poigneeEnDrag = null;
   atelier.noeudEnDrag = null;
+  atelier.panning = false;
   if (avaitDrag) {
+    pushHistorique();
     updateConnexionsFils();
     drawCircuit();
     updateSelectors();
@@ -2590,7 +3060,7 @@ function distancePointSegment(px, py, x1, y1, x2, y2) {
 }
 
 // ============================================================
-//  TOUT EFFACER
+//  BOUTONS PRINCIPAUX
 // ============================================================
 document.getElementById('btnClearAll').addEventListener('click', () => {
   if (!confirm('Effacer tout le montage ?')) return;
@@ -2603,453 +3073,89 @@ document.getElementById('btnClearAll').addEventListener('click', () => {
   atelier.interrupteurFerme = false;
   atelier.animation.active = false;
   atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null, etapes: [] };
+  pushHistorique();
   drawCircuit(); updateZoneInfo(); updateZoneTool(); updateSelectors(); updateBoutonInterrupteur(); updateMesures();
   updateStatus('Atelier vidé');
 });
 
-// ============================================================
-//  SÉLECTEURS
-// ============================================================
-function updateSelectors() {
-  const selectVolt = document.getElementById('selectVoltmetre');
-  const selectAmp = document.getElementById('selectAmperemetre');
-
-  const valVolt = selectVolt.value;
-  const valAmp = selectAmp.value;
-
-  selectVolt.innerHTML = '<option value="pile">🔋 Pile (tension totale)</option>';
-  atelier.composants.forEach(c => {
-    if (COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode') {
-      const labels = {
-        resistance: '📏 Résistance',
-        lampe: '💡 Lampe',
-        moteur: '⚙️ Moteur',
-        buzzer: '🔔 Sonnerie',
-        diode: '▷| Diode'
-      };
-      const opt = document.createElement('option');
-      opt.value = c.id;
-      opt.textContent = `${labels[c.type] || c.type} (${c.valeur || '—'} Ω)`;
-      selectVolt.appendChild(opt);
-    }
-  });
-
-  selectAmp.innerHTML = '<option value="total">🔌 Courant total</option>';
-  atelier.composants.forEach(c => {
-    if (COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode') {
-      const labels = {
-        resistance: '📏 Branche R',
-        lampe: '💡 Branche L',
-        moteur: '⚙️ Branche M',
-        buzzer: '🔔 Branche sonnerie',
-        diode: '▷| Branche diode'
-      };
-      const opt = document.createElement('option');
-      opt.value = c.id;
-      opt.textContent = labels[c.type] || c.type;
-      selectAmp.appendChild(opt);
-    }
-  });
-
-  if ([...selectVolt.options].some(o => o.value === valVolt)) selectVolt.value = valVolt;
-  if ([...selectAmp.options].some(o => o.value === valAmp)) selectAmp.value = valAmp;
-}
-
-// ============================================================
-//  ANALYSE DU CIRCUIT
-// ============================================================
-function analyserCircuit() {
+document.getElementById('btnReset').addEventListener('click', () => {
+  if (!confirm('Tout réinitialiser ?')) return;
+  atelier.composants = [];
+  atelier.fils = [];
+  atelier.noeuds = [];
+  atelier.filSelectionne = null;
+  atelier.composantSelectionne = null;
+  atelier.noeudSelectionne = null;
+  atelier.interrupteurFerme = false;
+  atelier.animation.active = false;
+  atelier.zoom = 1;
+  atelier.panX = 0;
+  atelier.panY = 0;
   atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null, etapes: [] };
+  pushHistorique();
+  drawCircuit(); updateZoneInfo(); updateZoneTool(); updateSelectors(); updateBoutonInterrupteur(); updateMesures();
+  updateStatus('Atelier réinitialisé');
+});
 
-  const filsActifs = atelier.fils.filter(f => f.de && f.vers);
-  if (filsActifs.length < 2) {
-      atelier.resultats.type = 'aucun';
-    updateMesures();
-    majSonnerie();
-    return;
-}
-  const piles = atelier.composants.filter(c => c.type === 'pile');
-  if (piles.length === 0) {
-        atelier.resultats.type = 'aucun';
-    updateMesures();
-    majSonnerie();
-    return;
-  }
-  if (piles.length > 1) {
-        atelier.resultats.type = 'erreur';
-    atelier.resultats.message = `Ce montage contient ${piles.length} piles. Il n'en faut qu'UNE seule.`;
-    updateMesures();
-    majSonnerie();
-    return;
-  }
+document.getElementById('btnFormules').addEventListener('click', () => {
+  document.getElementById('modalFormules').classList.add('show');
+});
 
-  const pile = piles[0];
-  const E = pile.tension;
+document.getElementById('btnFermerFormules').addEventListener('click', () => {
+  document.getElementById('modalFormules').classList.remove('show');
+});
 
-  const graphe = construireGraphe();
-  const departId = pile.id + '-R';
-  const arriveeId = pile.id + '-L';
-  const chemin = trouverCheminAvecResistance(graphe, departId, arriveeId);
+document.getElementById('modalFormules').addEventListener('click', e => {
+  if (e.target.id === 'modalFormules') e.target.classList.remove('show');
+});
 
-  if (!chemin) {
-       atelier.resultats.type = 'ouvert';
-    updateMesures();
-    majSonnerie();
-    return;
-  }
+document.getElementById('btnSave').addEventListener('click', sauvegarder);
+document.getElementById('btnLoad').addEventListener('click', charger);
+document.getElementById('btnShare').addEventListener('click', partager);
+document.getElementById('btnUndo').addEventListener('click', undo);
+document.getElementById('btnRedo').addEventListener('click', redo);
 
-  const interrupteurs = atelier.composants.filter(c => c.type === 'interrupteur');
-  const interrupteurDansChemin = chemin.some(id => {
-    const b = getBorneById(id);
-    return b && interrupteurs.some(i => i.id === b.composantId);
-  });
-  if (interrupteurDansChemin && !atelier.interrupteurFerme) {
-        atelier.resultats.type = 'ouvert';
-    updateMesures();
-    majSonnerie();
-    return;
-  }
-
-  const resistances = atelier.composants.filter(c => COMPOSANTS_RESISTIFS.has(c.type));
-  if (resistances.length === 0) {
-        atelier.resultats.type = 'court-circuit';
-    updateMesures();
-    majSonnerie();
-    return;
-  }
-
-  const typeDetecte = detecterType(chemin, resistances);
-
-  const analyse = analyserNodal(pile, resistances, E);
-
-  let Req = analyse.Req;
-  let I_total = Req > 0 ? E / Req : 0;
-  let branches = analyse.branches || [];
-  let etapes = [];
-
-  if (typeDetecte === 'serie') {
-    etapes.push({
-      titre: '🔗 SÉRIE — Req = somme des résistances',
-      formule: 'Req = ' + resistances.map(r => r.valeur).join(' + '),
-      calcul: 'Req = ' + Req.toFixed(2) + ' Ω'
-    });
-  } else if (typeDetecte === 'derivation') {
-    etapes.push({
-      titre: '🌿 DÉRIVATION — 1/Req = somme des 1/R',
-      formule: '1/Req = ' + resistances.map(r => '1/' + r.valeur).join(' + '),
-      calcul: 'Req = ' + Req.toFixed(2) + ' Ω'
-    });
+// 🔊 Bouton son
+document.getElementById('btnSon').addEventListener('click', () => {
+  audioActif = !audioActif;
+  const btn = document.getElementById('btnSon');
+  if (audioActif) {
+    btn.textContent = '🔊 Son';
+    btn.classList.remove('muet');
+    initAudio();
+    jouerNoteConfirmation();
   } else {
-    etapes.push({
-      titre: '🔀 MIXTE — Req par analyse nodale',
-      formule: 'Résistances : ' + resistances.map(r => r.valeur + ' Ω').join(', '),
-      calcul: 'Req = ' + Req.toFixed(2) + ' Ω'
-    });
+    btn.textContent = '🔇 Muet';
+    btn.classList.add('muet');
+    arreterSonnerie();
   }
+  updateStatus(audioActif ? '🔊 Son activé' : '🔇 Son coupé');
+});
 
-  etapes.push({
-    titre: '⚡ COURANT TOTAL',
-    formule: 'I = E / Req',
-    calcul: 'I = ' + E + ' / ' + Req.toFixed(2) + ' = ' + I_total.toFixed(3) + ' A'
+// 🆕 Bouton thème
+document.getElementById('btnTheme').addEventListener('click', () => {
+  document.body.classList.toggle('theme-clair');
+  const estClair = document.body.classList.contains('theme-clair');
+  localStorage.setItem('lfakm_theme', estClair ? 'clair' : 'sombre');
+  drawCircuit();
+});
+
+// 🆕 Sélecteurs de mesure
+document.getElementById('selectVoltmetre').addEventListener('change', () => updateMesures());
+document.getElementById('selectAmperemetre').addEventListener('change', () => updateMesures());
+
+// 🆕 Bascule Tableau ↔ Lois via addEventListener
+document.querySelectorAll('.bascule-tab').forEach(tab => {
+  tab.addEventListener('click', () => basculerMesureLois(tab.dataset.bascule));
+});
+
+function basculerMesureLois(choix) {
+  document.querySelectorAll('.bascule-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.bascule === choix);
   });
-
-   atelier.resultats = {
-    type: typeDetecte,
-    Req, I_total, U_pile: E, branches, chemin, etapes
-  };
-  updateMesures();
-  majSonnerie();
-}
-
-function detecterType(chemin, resistances) {
-  if (resistances.length === 0) return 'aucun';
-  if (resistances.length === 1) return 'serie';
-
-  const graphe = construireGraphe();
-
-  const noeudsEffectifs = {};
-  const toutesLesBornes = getToutesLesBornes();
-  toutesLesBornes.forEach(b => {
-    noeudsEffectifs[b.id] = trouverComposantConnexe(graphe, b.id);
+  document.querySelectorAll('.bascule-content').forEach(content => {
+    content.classList.toggle('active', content.id === 'bascule-' + choix);
   });
-
-  const resistancesAvecNoeuds = resistances.map(r => {
-    const nL = noeudsEffectifs[r.id + '-L'] || r.id + '-L';
-    const nR = noeudsEffectifs[r.id + '-R'] || r.id + '-R';
-    return { id: r.id, nL, nR };
-  });
-
-  let nbPairesParalleles = 0;
-  for (let i = 0; i < resistancesAvecNoeuds.length; i++) {
-    for (let j = i + 1; j < resistancesAvecNoeuds.length; j++) {
-      const r1 = resistancesAvecNoeuds[i];
-      const r2 = resistancesAvecNoeuds[j];
-      if ((r1.nL === r2.nL && r1.nR === r2.nR) ||
-          (r1.nL === r2.nR && r1.nR === r2.nL)) {
-        nbPairesParalleles++;
-      }
-    }
-  }
-
-  if (nbPairesParalleles === 0) {
-    return 'serie';
-  }
-
-  const premierNoeudPair = resistancesAvecNoeuds[0];
-  let toutesDansMemeBloc = true;
-  for (let i = 1; i < resistancesAvecNoeuds.length; i++) {
-    const r = resistancesAvecNoeuds[i];
-    const memeNoeuds =
-      (r.nL === premierNoeudPair.nL && r.nR === premierNoeudPair.nR) ||
-      (r.nL === premierNoeudPair.nR && r.nR === premierNoeudPair.nL);
-    if (!memeNoeuds) {
-      toutesDansMemeBloc = false;
-      break;
-    }
-  }
-
-  if (toutesDansMemeBloc) {
-    return 'derivation';
-  }
-
-  return 'mixte';
-}
-
-function trouverComposantConnexe(graphe, departId) {
-  const grapheFils = {};
-  atelier.fils.forEach(f => {
-    if (!f.de || !f.vers) return;
-    if (!grapheFils[f.de]) grapheFils[f.de] = [];
-    if (!grapheFils[f.vers]) grapheFils[f.vers] = [];
-    grapheFils[f.de].push(f.vers);
-    grapheFils[f.vers].push(f.de);
-  });
-
-  const visited = new Set([departId]);
-  const queue = [departId];
-  let minimum = departId;
-
-  while (queue.length > 0) {
-    const current = queue.shift();
-    if (current < minimum) minimum = current;
-
-    const voisins = grapheFils[current] || [];
-    for (const v of voisins) {
-      if (!visited.has(v)) {
-        visited.add(v);
-        queue.push(v);
-      }
-    }
-  }
-
-  return minimum;
-}
-
-function analyserNodal(pile, resistances, E) {
-  const noeuds = {};
-  let nodeIndex = 0;
-
-  function getNodeIndex(id) {
-    if (noeuds[id] === undefined) noeuds[id] = nodeIndex++;
-    return noeuds[id];
-  }
-
-  const aretes = [];
-  const G_FIL = 1e6;
-
-  atelier.fils.forEach(f => {
-    if (!f.de || !f.vers) return;
-    aretes.push({ n1: getNodeIndex(f.de), n2: getNodeIndex(f.vers), G: G_FIL });
-  });
-
-  const resistancesBranches = [];
-  resistances.forEach(r => {
-    const leftId = r.id + '-L';
-    const rightId = r.id + '-R';
-    const G = 1 / valeurPositive(r.valeur, 1);
-    aretes.push({ n1: getNodeIndex(leftId), n2: getNodeIndex(rightId), G });
-    resistancesBranches.push({ id: r.id, valeur: r.valeur, leftId, rightId });
-  });
-
-  atelier.composants.filter(c => c.type === 'interrupteur' && atelier.interrupteurFerme).forEach(i => {
-    aretes.push({
-      n1: getNodeIndex(i.id + '-L'),
-      n2: getNodeIndex(i.id + '-R'),
-      G: G_FIL
-    });
-  });
-
-  // 🆕 Condensateurs : laissent passer le courant en transitoire
-  atelier.composants.filter(c => c.type === 'condensateur' || c.type === 'condensateurPolarise').forEach(c => {
-    aretes.push({
-      n1: getNodeIndex(c.id + '-L'),
-      n2: getNodeIndex(c.id + '-R'),
-      G: G_FIL
-    });
-  });
-
-  const nPileL = getNodeIndex(pile.id + '-L');
-  const nPileR = getNodeIndex(pile.id + '-R');
-  const N = nodeIndex;
-
-  const Gmat = Array.from({ length: N }, () => new Array(N).fill(0));
-  aretes.forEach(a => {
-    if (a.n1 === a.n2) return;
-    Gmat[a.n1][a.n1] += a.G;
-    Gmat[a.n2][a.n2] += a.G;
-    Gmat[a.n1][a.n2] -= a.G;
-    Gmat[a.n2][a.n1] -= a.G;
-  });
-
-  const refNode = nPileR;
-  const freeNodes = [];
-  for (let i = 0; i < N; i++) if (i !== refNode) freeNodes.push(i);
-
-  const M = freeNodes.length;
-  const A = Array.from({ length: M }, () => new Array(M).fill(0));
-  for (let i = 0; i < M; i++) {
-    for (let j = 0; j < M; j++) {
-      A[i][j] = Gmat[freeNodes[i]][freeNodes[j]];
-    }
-  }
-
-  const Ivec = new Array(M).fill(0);
-  const idxPileL = freeNodes.indexOf(nPileL);
-  if (idxPileL >= 0) Ivec[idxPileL] = 1;
-
-  const V = resoudreLineaire(A, Ivec);
-  if (!V) return { Req: 0, branches: [] };
-
-  const U_test = V[idxPileL] || 0;
-  let Req = U_test / 1;
-
-  const branches = resistancesBranches.map(b => {
-    const nL = noeuds[b.leftId];
-    const nR = noeuds[b.rightId];
-    const vL = nL === refNode ? 0 : (freeNodes.indexOf(nL) >= 0 ? V[freeNodes.indexOf(nL)] : 0);
-    const vR = nR === refNode ? 0 : (freeNodes.indexOf(nR) >= 0 ? V[freeNodes.indexOf(nR)] : 0);
-    const U_branche = Math.abs(vL - vR) * (pile.tension / Math.max(U_test, 1e-9));
-    const I_branche = U_branche / valeurPositive(b.valeur, 1);
-    return { id: b.id, valeur: b.valeur, I: I_branche, U: U_branche };
-  });
-
-  return { Req, branches };
-}
-
-function resoudreLineaire(A, b) {
-  const n = A.length;
-  if (n === 0) return [];
-  const M = A.map((row, i) => [...row, b[i]]);
-
-  for (let i = 0; i < n; i++) {
-    let maxRow = i;
-    for (let k = i + 1; k < n; k++) {
-      if (Math.abs(M[k][i]) > Math.abs(M[maxRow][i])) maxRow = k;
-    }
-    [M[i], M[maxRow]] = [M[maxRow], M[i]];
-    if (Math.abs(M[i][i]) < 1e-12) continue;
-
-    for (let k = i + 1; k < n; k++) {
-      const facteur = M[k][i] / M[i][i];
-      for (let j = i; j <= n; j++) M[k][j] -= facteur * M[i][j];
-    }
-  }
-
-  const x = new Array(n).fill(0);
-  for (let i = n - 1; i >= 0; i--) {
-    if (Math.abs(M[i][i]) < 1e-12) { x[i] = 0; continue; }
-    let somme = M[i][n];
-    for (let j = i + 1; j < n; j++) somme -= M[i][j] * x[j];
-    x[i] = somme / M[i][i];
-  }
-  return x;
-}
-
-function construireGraphe() {
-  const graphe = {};
-  atelier.fils.forEach(f => {
-    if (!f.de || !f.vers) return;
-    if (!graphe[f.de]) graphe[f.de] = [];
-    if (!graphe[f.vers]) graphe[f.vers] = [];
-    graphe[f.de].push(f.vers);
-    graphe[f.vers].push(f.de);
-  });
-  atelier.composants.forEach(c => {
-    const leftId = c.id + '-L', rightId = c.id + '-R';
-    if (!graphe[leftId]) graphe[leftId] = [];
-    if (!graphe[rightId]) graphe[rightId] = [];
-        if (c.type === 'pile' || COMPOSANTS_RESISTIFS.has(c.type) || 
-        c.type === 'diode' || c.type === 'led' ||
-        c.type === 'condensateur' || c.type === 'condensateurPolarise') {
-      graphe[leftId].push(rightId);
-      graphe[rightId].push(leftId);
-    } else if (c.type === 'interrupteur' && atelier.interrupteurFerme) {
-      graphe[leftId].push(rightId);
-      graphe[rightId].push(leftId);
-    }
-  });
-  atelier.noeuds.forEach(n => {
-    if (!graphe[n.id]) graphe[n.id] = [];
-  });
-  return graphe;
-}
-
-function trouverCheminAvecResistance(graphe, departId, arriveeId) {
-  if (!graphe[departId]) return null;
-
-  const resistancesIds = atelier.composants.filter(c => COMPOSANTS_RESISTIFS.has(c.type)).map(c => c.id);
-  const chemins = [];
-
-  function dfs(id, chemin, visited, profondeur) {
-    if (profondeur > 25) return;
-    if (id === arriveeId && chemin.length > 2) {
-      const traverse = chemin.some(borneId => {
-        const b = getBorneById(borneId);
-        if (!b) return false;
-        return resistancesIds.includes(b.composantId);
-      });
-      if (traverse) chemins.push([...chemin]);
-      return;
-    }
-    const voisins = graphe[id] || [];
-    for (const v of voisins) {
-      if (!visited.has(v)) {
-        visited.add(v);
-        chemin.push(v);
-        dfs(v, chemin, visited, profondeur + 1);
-        chemin.pop();
-        visited.delete(v);
-      }
-    }
-  }
-  dfs(departId, [departId], new Set([departId]), 0);
-  if (chemins.length === 0) return null;
-  chemins.sort((a, b) => a.length - b.length);
-  return chemins[0];
-}
-
-function trouverTousLesChemins(graphe, departId, arriveeId, maxProfondeur) {
-  const chemins = [];
-
-  function dfs(id, chemin, visited, profondeur) {
-    if (profondeur > maxProfondeur) return;
-    if (id === arriveeId && chemin.length > 2) {
-      chemins.push([...chemin]);
-      return;
-    }
-    const voisins = graphe[id] || [];
-    for (const v of voisins) {
-      if (!visited.has(v)) {
-        visited.add(v);
-        chemin.push(v);
-        dfs(v, chemin, visited, profondeur + 1);
-        chemin.pop();
-        visited.delete(v);
-      }
-    }
-  }
-  dfs(departId, [departId], new Set([departId]), 0);
-  return chemins;
 }
 
 // ============================================================
@@ -3106,7 +3212,7 @@ function updateMesures() {
         cibleLabel = comp ? `Branche ${comp.type}` : 'Branche';
       }
     }
-    document.getElementById('mmAmpereVal').textContent = I_affiche.toFixed(3);
+    document.getElementById('mmAmpereVal').textContent = formaterValeur(I_affiche, 'A');
     document.getElementById('mmAmpereTarget').textContent = cibleLabel;
   }
 
@@ -3143,18 +3249,501 @@ function updateMesures() {
   updateBoutonAnimer();
 }
 
-// ============================================================
-//  🆕 BASCULE TABLEAU ↔ LOIS
-// ============================================================
-function basculerMesureLois(choix) {
-  document.querySelectorAll('.bascule-tab').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.bascule === choix);
-  });
-  document.querySelectorAll('.bascule-content').forEach(content => {
-    content.classList.toggle('active', content.id === 'bascule-' + choix);
-  });
+// 🆕 Formatage adaptatif
+function formaterValeur(val, unite) {
+  if (!isFinite(val)) return '∞';
+  const abs = Math.abs(val);
+  if (abs >= 1) return val.toFixed(3);
+  if (abs >= 0.001) return val.toFixed(4);
+  if (abs >= 0.000001) return val.toExponential(2);
+  return '0.000';
 }
 
+// ============================================================
+//  UPDATE SÉLECTEURS (préservation de la sélection)
+// ============================================================
+function updateSelectors() {
+  const selectVolt = document.getElementById('selectVoltmetre');
+  const selectAmp = document.getElementById('selectAmperemetre');
+
+  const valVolt = selectVolt.value;
+  const valAmp = selectAmp.value;
+
+  // Reconstruction propre
+  const optionsVolt = ['<option value="pile">🔋 Pile (tension totale)</option>'];
+  atelier.composants.forEach(c => {
+    if (COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led') {
+      const labels = {
+        resistance: '📏 Résistance', lampe: '💡 Lampe', moteur: '⚙️ Moteur',
+        buzzer: '🔔 Sonnerie', diode: '▷| Diode', led: '💡 LED',
+        potentiometre: '🎛 Potentiomètre', fusible: '🔌 Fusible',
+        chauffante: '🔥 Chauffante', bobine: '🌀 Bobine', electrolyseur: '⚗️ Électrolyseur'
+      };
+      optionsVolt.push(`<option value="${c.id}">${labels[c.type] || c.type} (${c.valeur || '—'} Ω)</option>`);
+    }
+  });
+  selectVolt.innerHTML = optionsVolt.join('');
+
+  const optionsAmp = ['<option value="total">🔌 Courant total</option>'];
+  atelier.composants.forEach(c => {
+    if (COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led') {
+      const labels = {
+        resistance: '📏 Branche R', lampe: '💡 Branche L', moteur: '⚙️ Branche M',
+        buzzer: '🔔 Branche sonnerie', diode: '▷| Branche diode', led: '💡 Branche LED',
+        potentiometre: '🎛 Branche potentiomètre', fusible: '🔌 Branche fusible',
+        chauffante: '🔥 Branche chauffante', bobine: '🌀 Branche bobine', electrolyseur: '⚗️ Branche électrolyseur'
+      };
+      optionsAmp.push(`<option value="${c.id}">${labels[c.type] || c.type}</option>`);
+    }
+  });
+  selectAmp.innerHTML = optionsAmp.join('');
+
+  if ([...selectVolt.options].some(o => o.value === valVolt)) selectVolt.value = valVolt;
+  if ([...selectAmp.options].some(o => o.value === valAmp)) selectAmp.value = valAmp;
+}
+
+// ============================================================
+//  ANALYSE DU CIRCUIT
+// ============================================================
+function analyserCircuit() {
+  atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null, etapes: [] };
+
+  const filsActifs = atelier.fils.filter(f => f.de && f.vers);
+  if (filsActifs.length < 2) {
+    atelier.resultats.type = 'aucun';
+    updateMesures();
+    majSonnerie();
+    return;
+  }
+  const piles = atelier.composants.filter(c => c.type === 'pile');
+  if (piles.length === 0) {
+    atelier.resultats.type = 'aucun';
+    updateMesures();
+    majSonnerie();
+    return;
+  }
+  if (piles.length > 1) {
+    atelier.resultats.type = 'erreur';
+    atelier.resultats.message = `Ce montage contient ${piles.length} piles. Il n'en faut qu'UNE seule.`;
+    updateMesures();
+    majSonnerie();
+    return;
+  }
+
+  const pile = piles[0];
+  const E = pile.tension;
+
+  const graphe = construireGraphe();
+  const departId = pile.id + '-R';
+  const arriveeId = pile.id + '-L';
+  const chemin = trouverCheminAvecResistance(graphe, departId, arriveeId);
+
+  if (!chemin) {
+    atelier.resultats.type = 'ouvert';
+    updateMesures();
+    majSonnerie();
+    return;
+  }
+
+  const interrupteurs = atelier.composants.filter(c => c.type === 'interrupteur');
+  const interrupteurDansChemin = chemin.some(id => {
+    const b = getBorneById(id);
+    return b && interrupteurs.some(i => i.id === b.composantId);
+  });
+  if (interrupteurDansChemin && !atelier.interrupteurFerme) {
+    atelier.resultats.type = 'ouvert';
+    updateMesures();
+    majSonnerie();
+    return;
+  }
+
+  // 🆕 Détection du fusible fondu AVANT analyse
+  // (on regarde d'abord les résistances)
+  const resistances = atelier.composants.filter(c =>
+    COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led'
+  );
+  if (resistances.length === 0) {
+    atelier.resultats.type = 'court-circuit';
+    updateMesures();
+    majSonnerie();
+    return;
+  }
+
+  const typeDetecte = detecterType(chemin, resistances);
+
+  const analyse = analyserNodal(pile, resistances, E);
+
+  let Req = analyse.Req;
+  // 🆕 Court-circuit plafonné
+  if (!isFinite(Req) || Req < 0.01) {
+    atelier.resultats.type = 'court-circuit';
+    updateMesures();
+    majSonnerie();
+    return;
+  }
+
+  let I_total = Req > 0 ? E / Req : 0;
+  let branches = analyse.branches || [];
+  let etapes = [];
+
+  // 🆕 Vérification fusible fondu
+  const fusibleFondu = atelier.composants.find(c => {
+    if (c.type !== 'fusible') return false;
+    const m = getMesuresComposant(c.id);
+    return m && m.I > c.courantMax;
+  });
+  if (fusibleFondu) {
+    atelier.resultats.type = 'ouvert';
+    atelier.resultats.message = '🔌 Fusible fondu : le circuit est ouvert.';
+    updateMesures();
+    majSonnerie();
+    return;
+  }
+
+  if (typeDetecte === 'serie') {
+    etapes.push({
+      titre: '🔗 SÉRIE — Req = somme des résistances',
+      formule: 'Req = ' + resistances.map(r => r.valeur).join(' + '),
+      calcul: 'Req = ' + Req.toFixed(2) + ' Ω'
+    });
+  } else if (typeDetecte === 'derivation') {
+    etapes.push({
+      titre: '🌿 DÉRIVATION — 1/Req = somme des 1/R',
+      formule: '1/Req = ' + resistances.map(r => '1/' + r.valeur).join(' + '),
+      calcul: 'Req = ' + Req.toFixed(2) + ' Ω'
+    });
+  } else {
+    etapes.push({
+      titre: '🔀 MIXTE — Req par analyse nodale',
+      formule: 'Résistances : ' + resistances.map(r => r.valeur + ' Ω').join(', '),
+      calcul: 'Req = ' + Req.toFixed(2) + ' Ω'
+    });
+  }
+
+  etapes.push({
+    titre: '⚡ COURANT TOTAL',
+    formule: 'I = E / Req',
+    calcul: 'I = ' + E + ' / ' + Req.toFixed(2) + ' = ' + I_total.toFixed(3) + ' A'
+  });
+
+  atelier.resultats = {
+    type: typeDetecte,
+    Req, I_total, U_pile: E, branches, chemin, etapes
+  };
+  updateMesures();
+  majSonnerie();
+}
+
+function detecterType(chemin, resistances) {
+  if (resistances.length === 0) return 'aucun';
+  if (resistances.length === 1) return 'serie';
+
+  const graphe = construireGraphe();
+
+  const noeudsEffectifs = {};
+  const toutesLesBornes = getToutesLesBornes();
+  toutesLesBornes.forEach(b => {
+    noeudsEffectifs[b.id] = trouverComposantConnexe(graphe, b.id);
+  });
+
+  const resistancesAvecNoeuds = resistances.map(r => {
+    const nL = noeudsEffectifs[r.id + '-L'] || r.id + '-L';
+    const nR = noeudsEffectifs[r.id + '-R'] || r.id + '-R';
+    return { id: r.id, nL, nR };
+  });
+
+  let nbPairesParalleles = 0;
+  for (let i = 0; i < resistancesAvecNoeuds.length; i++) {
+    for (let j = i + 1; j < resistancesAvecNoeuds.length; j++) {
+      const r1 = resistancesAvecNoeuds[i];
+      const r2 = resistancesAvecNoeuds[j];
+      if ((r1.nL === r2.nL && r1.nR === r2.nR) ||
+          (r1.nL === r2.nR && r1.nR === r2.nL)) {
+        nbPairesParalleles++;
+      }
+    }
+  }
+
+  if (nbPairesParalleles === 0) return 'serie';
+
+  const premierNoeudPair = resistancesAvecNoeuds[0];
+  let toutesDansMemeBloc = true;
+  for (let i = 1; i < resistancesAvecNoeuds.length; i++) {
+    const r = resistancesAvecNoeuds[i];
+    const memeNoeuds =
+      (r.nL === premierNoeudPair.nL && r.nR === premierNoeudPair.nR) ||
+      (r.nL === premierNoeudPair.nR && r.nR === premierNoeudPair.nL);
+    if (!memeNoeuds) { toutesDansMemeBloc = false; break; }
+  }
+
+  return toutesDansMemeBloc ? 'derivation' : 'mixte';
+}
+
+function trouverComposantConnexe(graphe, departId) {
+  const grapheFils = {};
+  atelier.fils.forEach(f => {
+    if (!f.de || !f.vers) return;
+    if (!grapheFils[f.de]) grapheFils[f.de] = [];
+    if (!grapheFils[f.vers]) grapheFils[f.vers] = [];
+    grapheFils[f.de].push(f.vers);
+    grapheFils[f.vers].push(f.de);
+  });
+
+  const visited = new Set([departId]);
+  const queue = [departId];
+  let minimum = departId;
+
+  while (queue.length > 0) {
+    const current = queue.shift();
+    if (current < minimum) minimum = current;
+    const voisins = grapheFils[current] || [];
+    for (const v of voisins) {
+      if (!visited.has(v)) {
+        visited.add(v);
+        queue.push(v);
+      }
+    }
+  }
+
+  return minimum;
+}
+
+// 🆕 Analyse nodale avec polarité des diodes/LED et blocage DC des condensateurs
+function analyserNodal(pile, resistances, E) {
+  const noeuds = {};
+  let nodeIndex = 0;
+
+  function getNodeIndex(id) {
+    if (noeuds[id] === undefined) noeuds[id] = nodeIndex++;
+    return noeuds[id];
+  }
+
+  const aretes = [];
+  const G_FIL = 1e6;
+
+  // Fils → conductance énorme
+  atelier.fils.forEach(f => {
+    if (!f.de || !f.vers) return;
+    aretes.push({ n1: getNodeIndex(f.de), n2: getNodeIndex(f.vers), G: G_FIL });
+  });
+
+  // Interrupteurs fermés
+  atelier.composants.filter(c => c.type === 'interrupteur' && atelier.interrupteurFerme).forEach(i => {
+    aretes.push({
+      n1: getNodeIndex(i.id + '-L'),
+      n2: getNodeIndex(i.id + '-R'),
+      G: G_FIL
+    });
+  });
+
+  // ⚠️ Condensateurs : BLOQUENT le courant continu
+  // → on ne les ajoute PAS au graphe nodal (circuit ouvert en DC)
+  // (Sauf si on voulait modéliser le transitoire)
+
+  const resistancesBranches = [];
+
+  resistances.forEach(r => {
+    const leftId = r.id + '-L';
+    const rightId = r.id + '-R';
+    let G;
+
+    if (r.type === 'diode' || r.type === 'led') {
+      // 🆕 Diode/LED : on suppose polarisation directe pour le calcul
+      // (l'utilisateur verra le résultat, et si bloquée on affichera 0)
+      G = 1 / valeurPositive(r.valeur + (r.seuil || 0.7), 1);
+    } else {
+      G = 1 / valeurPositive(r.valeur, 1);
+    }
+
+    aretes.push({ n1: getNodeIndex(leftId), n2: getNodeIndex(rightId), G });
+    resistancesBranches.push({ id: r.id, valeur: r.valeur, leftId, rightId });
+  });
+
+  const nPileL = getNodeIndex(pile.id + '-L');
+  const nPileR = getNodeIndex(pile.id + '-R');
+  const N = nodeIndex;
+
+  const Gmat = Array.from({ length: N }, () => new Array(N).fill(0));
+  aretes.forEach(a => {
+    if (a.n1 === a.n2) return;
+    Gmat[a.n1][a.n1] += a.G;
+    Gmat[a.n2][a.n2] += a.G;
+    Gmat[a.n1][a.n2] -= a.G;
+    Gmat[a.n2][a.n1] -= a.G;
+  });
+
+  const refNode = nPileR;
+  const freeNodes = [];
+  for (let i = 0; i < N; i++) if (i !== refNode) freeNodes.push(i);
+
+  const M = freeNodes.length;
+  const A = Array.from({ length: M }, () => new Array(M).fill(0));
+  for (let i = 0; i < M; i++) {
+    for (let j = 0; j < M; j++) {
+      A[i][j] = Gmat[freeNodes[i]][freeNodes[j]];
+    }
+  }
+
+  const Ivec = new Array(M).fill(0);
+  const idxPileL = freeNodes.indexOf(nPileL);
+  if (idxPileL >= 0) Ivec[idxPileL] = 1;
+
+  const V = resoudreLineaire(A, Ivec);
+  if (!V) return { Req: 0, branches: [] };
+
+  const U_test = V[idxPileL] || 0;
+  let Req = U_test / 1;
+
+  const branches = resistancesBranches.map(b => {
+    const nL = noeuds[b.leftId];
+    const nR = noeuds[b.rightId];
+    const vL = nL === refNode ? 0 : (freeNodes.indexOf(nL) >= 0 ? V[freeNodes.indexOf(nL)] : 0);
+    const vR = nR === refNode ? 0 : (freeNodes.indexOf(nR) >= 0 ? V[freeNodes.indexOf(nR)] : 0);
+    const U_branche = Math.abs(vL - vR) * (pile.tension / Math.max(U_test, 1e-9));
+    const I_branche = U_branche / valeurPositive(b.valeur, 1);
+
+    // 🆕 Détection polarité diode/LED
+    let bloquee = false;
+    const comp = atelier.composants.find(c => c.id === b.id);
+    if (comp && (comp.type === 'diode' || comp.type === 'led')) {
+      // La borne -L est l'anode (côté gauche), -R la cathode (côté droit)
+      // Si le courant va de R vers L, c'est bloqué
+      if (vL < vR) bloquee = true;
+    }
+
+    return { id: b.id, valeur: b.valeur, I: bloquee ? 0 : I_branche, U: U_branche, bloquee };
+  });
+
+  return { Req, branches };
+}
+
+function resoudreLineaire(A, b) {
+  const n = A.length;
+  if (n === 0) return [];
+  const M = A.map((row, i) => [...row, b[i]]);
+
+  for (let i = 0; i < n; i++) {
+    // Pivot partiel
+    let maxRow = i;
+    for (let k = i + 1; k < n; k++) {
+      if (Math.abs(M[k][i]) > Math.abs(M[maxRow][i])) maxRow = k;
+    }
+    if (maxRow !== i) [M[i], M[maxRow]] = [M[maxRow], M[i]];
+
+    if (Math.abs(M[i][i]) < 1e-12) {
+      // Pivot nul → essayer de continuer
+      continue;
+    }
+
+    for (let k = i + 1; k < n; k++) {
+      const facteur = M[k][i] / M[i][i];
+      for (let j = i; j <= n; j++) M[k][j] -= facteur * M[i][j];
+    }
+  }
+
+  const x = new Array(n).fill(0);
+  for (let i = n - 1; i >= 0; i--) {
+    if (Math.abs(M[i][i]) < 1e-12) { x[i] = 0; continue; }
+    let somme = M[i][n];
+    for (let j = i + 1; j < n; j++) somme -= M[i][j] * x[j];
+    x[i] = somme / M[i][i];
+  }
+  return x;
+}
+
+function construireGraphe() {
+  const graphe = {};
+  atelier.fils.forEach(f => {
+    if (!f.de || !f.vers) return;
+    if (!graphe[f.de]) graphe[f.de] = [];
+    if (!graphe[f.vers]) graphe[f.vers] = [];
+    graphe[f.de].push(f.vers);
+    graphe[f.vers].push(f.de);
+  });
+  atelier.composants.forEach(c => {
+    const leftId = c.id + '-L', rightId = c.id + '-R';
+    if (!graphe[leftId]) graphe[leftId] = [];
+    if (!graphe[rightId]) graphe[rightId] = [];
+
+    if (c.type === 'pile' || COMPOSANTS_RESISTIFS.has(c.type) ||
+        c.type === 'diode' || c.type === 'led') {
+      graphe[leftId].push(rightId);
+      graphe[rightId].push(leftId);
+    } else if (c.type === 'interrupteur' && atelier.interrupteurFerme) {
+      graphe[leftId].push(rightId);
+      graphe[rightId].push(leftId);
+    }
+    // ⚠️ Condensateurs : ne sont PAS ajoutés au graphe (blocage DC)
+  });
+  atelier.noeuds.forEach(n => {
+    if (!graphe[n.id]) graphe[n.id] = [];
+  });
+  return graphe;
+}
+
+function trouverCheminAvecResistance(graphe, departId, arriveeId) {
+  if (!graphe[departId]) return null;
+
+  const resistancesIds = atelier.composants.filter(c =>
+    COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led'
+  ).map(c => c.id);
+  const chemins = [];
+
+  function dfs(id, chemin, visited, profondeur) {
+    if (profondeur > 25) return;
+    if (id === arriveeId && chemin.length > 2) {
+      const traverse = chemin.some(borneId => {
+        const b = getBorneById(borneId);
+        if (!b) return false;
+        return resistancesIds.includes(b.composantId);
+      });
+      if (traverse) chemins.push([...chemin]);
+      return;
+    }
+    const voisins = graphe[id] || [];
+    for (const v of voisins) {
+      if (!visited.has(v)) {
+        visited.add(v);
+        chemin.push(v);
+        dfs(v, chemin, visited, profondeur + 1);
+        chemin.pop();
+        visited.delete(v);
+      }
+    }
+  }
+  dfs(departId, [departId], new Set([departId]), 0);
+  if (chemins.length === 0) return null;
+  chemins.sort((a, b) => a.length - b.length);
+  return chemins[0];
+}
+
+function trouverTousLesChemins(graphe, departId, arriveeId, maxProfondeur) {
+  const chemins = [];
+
+  function dfs(id, chemin, visited, profondeur) {
+    if (profondeur > maxProfondeur) return;
+    if (id === arriveeId && chemin.length > 2) {
+      chemins.push([...chemin]);
+      return;
+    }
+    const voisins = graphe[id] || [];
+    for (const v of voisins) {
+      if (!visited.has(v)) {
+        visited.add(v);
+        chemin.push(v);
+        dfs(v, chemin, visited, profondeur + 1);
+        chemin.pop();
+        visited.delete(v);
+      }
+    }
+  }
+  dfs(departId, [departId], new Set([departId]), 0);
+  return chemins;
+}
+
+// ============================================================
+//  TABLEAU & LOIS
+// ============================================================
 function genererTableauMesures() {
   const tbody = document.getElementById('measuresBody');
   if (!tbody) return;
@@ -3167,11 +3756,10 @@ function genererTableauMesures() {
 
   let html = '';
   const labels = {
-    resistance: '📏 Résistance',
-    lampe: '💡 Lampe',
-    moteur: '⚙️ Moteur',
-    buzzer: '🔔 Sonnerie',
-    diode: '▷| Diode'
+    resistance: '📏 Résistance', lampe: '💡 Lampe', moteur: '⚙️ Moteur',
+    buzzer: '🔔 Sonnerie', diode: '▷| Diode', led: '💡 LED',
+    potentiometre: '🎛 Potentiomètre', fusible: '🔌 Fusible',
+    chauffante: '🔥 Chauffante', bobine: '🌀 Bobine', electrolyseur: '⚗️ Électrolyseur'
   };
 
   r.branches.forEach(b => {
@@ -3179,12 +3767,15 @@ function genererTableauMesures() {
     if (!comp) return;
     const nom = labels[comp.type] || comp.type;
     const P = b.U * b.I;
+    const I_mA = b.I * 1000;
+    const I_affiche = (Math.abs(I_mA) < 10 && Math.abs(I_mA) > 0)
+      ? I_mA.toFixed(1) : I_mA.toFixed(0);
     html += `
       <tr>
         <td class="comp-name">${nom}</td>
         <td>${b.valeur.toFixed(0)}</td>
         <td>${b.U.toFixed(2)}</td>
-        <td>${(b.I * 1000).toFixed(0)}</td>
+        <td>${I_affiche}</td>
         <td>${P.toFixed(3)}</td>
       </tr>
     `;
@@ -3239,7 +3830,7 @@ function genererLoisPanel() {
   } else if (r.type === 'ouvert') {
     html = `<div class="loi-warning">⚠️ Circuit ouvert : aucun courant ne circule.</div>`;
   } else if (r.type === 'court-circuit') {
-    html = `<div class="loi-warning">⚡ COURT-CIRCUIT ! Aucune résistance dans le circuit.</div>`;
+    html = `<div class="loi-warning">⚡ COURT-CIRCUIT ! Aucune résistance valide dans le circuit.</div>`;
   } else if (r.type === 'erreur') {
     html = `<div class="loi-warning">❌ Trop de piles détectées. Garde 1 seule pile.</div>`;
   } else {
@@ -3257,7 +3848,7 @@ function genererLoisPanel() {
 }
 
 // ============================================================
-//  ÉLECTRONS SUR TOUTES LES MAILLES
+//  ÉLECTRONS
 // ============================================================
 function drawElectrons() {
   if (!atelier.interrupteurFerme) return;
@@ -3274,11 +3865,10 @@ function drawElectrons() {
   const arriveeId = pile.id + '-L';
 
   const tousChemins = trouverTousLesChemins(graphe, departId, arriveeId, 25);
-
   if (tousChemins.length === 0) return;
 
   const resistancesIds = atelier.composants
-    .filter(c => COMPOSANTS_RESISTIFS.has(c.type))
+    .filter(c => COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led')
     .map(c => c.id);
 
   const cheminsValides = tousChemins.filter(chemin =>
@@ -3383,9 +3973,6 @@ function animate(timestamp) {
   }
 }
 
-// ============================================================
-//  BOUTONS
-// ============================================================
 document.getElementById('btnAnimer').addEventListener('click', () => {
   if (atelier.animation.active) {
     atelier.animation.active = false;
@@ -3407,9 +3994,7 @@ document.getElementById('btnAnimer').addEventListener('click', () => {
   }
 });
 
-// ============================================================
-//  🆕 BOUTON INTERRUPTEUR
-// ============================================================
+// 🆕 Bouton interrupteur
 function updateBoutonInterrupteur() {
   const btn = document.getElementById('btnInterrupteur');
   if (!btn) return;
@@ -3432,56 +4017,12 @@ document.getElementById('btnInterrupteur').addEventListener('click', () => {
   const nbInterrupteurs = atelier.composants.filter(c => c.type === 'interrupteur').length;
   if (nbInterrupteurs === 0) return;
   atelier.interrupteurFerme = !atelier.interrupteurFerme;
+  pushHistorique();
   drawCircuit();
   analyserCircuit();
   updateBoutonInterrupteur();
   updateStatus(atelier.interrupteurFerme ? '🔘 Interrupteur FERMÉ' : '🔘 Interrupteur OUVERT');
 });
-document.getElementById('btnReset').addEventListener('click', () => {
-  if (!confirm('Tout réinitialiser ?')) return;
-  atelier.composants = [];
-  atelier.fils = [];
-  atelier.noeuds = [];
-  atelier.filSelectionne = null;
-  atelier.composantSelectionne = null;
-  atelier.noeudSelectionne = null;
-  atelier.interrupteurFerme = false;
-  atelier.animation.active = false;
-  atelier.resultats = { type: 'aucun', Req: 0, I_total: 0, U_pile: 0, branches: [], chemin: null, etapes: [] };
-  drawCircuit(); updateZoneInfo(); updateZoneTool(); updateSelectors(); updateBoutonInterrupteur(); updateMesures();
-  updateStatus('Atelier réinitialisé');
-});
-
-document.getElementById('btnFormules').addEventListener('click', () => {
-  document.getElementById('modalFormules').classList.add('show');
-});
-
-document.getElementById('btnFermerFormules').addEventListener('click', () => {
-  document.getElementById('modalFormules').classList.remove('show');
-});
-
-document.getElementById('modalFormules').addEventListener('click', e => {
-  if (e.target.id === 'modalFormules') e.target.classList.remove('show');
-});
-
-// 🔊 Bouton son
-document.getElementById('btnSon').addEventListener('click', () => {
-  audioActif = !audioActif;
-  const btn = document.getElementById('btnSon');
-  if (audioActif) {
-    btn.textContent = '🔊 Son';
-    btn.classList.remove('muet');
-    initAudio();
-    jouerNoteConfirmation();
-  } else {
-    btn.textContent = '🔇 Muet';
-    btn.classList.add('muet');
-    arreterSonnerie();
-  }
-  updateStatus(audioActif ? '🔊 Son activé' : '🔇 Son coupé');
-});
-document.getElementById('selectVoltmetre').addEventListener('change', () => updateMesures());
-document.getElementById('selectAmperemetre').addEventListener('change', () => updateMesures());
 
 // ============================================================
 //  UTILITAIRES
@@ -3538,18 +4079,84 @@ function valeurPositive(v, fallback = 1) {
   return Number.isFinite(n) && n > 0 ? n : fallback;
 }
 
+// ============================================================
+//  INITIALISATION
+// ============================================================
 window.addEventListener('load', () => {
+  // 🆕 Thème sauvegardé
+  const themeSauvegarde = localStorage.getItem('lfakm_theme');
+  if (themeSauvegarde === 'clair') document.body.classList.add('theme-clair');
+
+  // 🆕 Charger depuis URL si présent
+  const chargéDepuisURL = chargerDepuisURL();
+  if (!chargéDepuisURL) {
+    // Sinon, charger la sauvegarde locale automatique
+    try {
+      const raw = localStorage.getItem('lfakm_circuit_libre');
+      if (raw) {
+        const data = JSON.parse(raw);
+        appliquerSnapshot(JSON.stringify(data));
+        updateStatus('📂 Session précédente restaurée');
+      }
+    } catch (e) { /* ignore */ }
+  }
+
   drawCircuit();
   updateZoneInfo();
   updateZoneTool();
   updateSelectors();
   updateBoutonInterrupteur();
   updateMesures();
-  updateStatus('Clique sur « Ajouter un fil » pour commencer');
+  pushHistorique();
+  majBoutonsUndoRedo();
+
+  if (!chargéDepuisURL && atelier.composants.length === 0) {
+    updateStatus('Clique sur « Ajouter un fil » pour commencer');
+  }
+
   console.log('✅ Atelier de circuits chargé !');
-  
-  // 🔊 Initialiser l'audio au premier clic (politique navigateur)
+
   document.body.addEventListener('click', initAudio, { once: true });
+
+  // 🆕 Sauvegarde auto toutes les 30 secondes
+  setInterval(() => {
+    if (atelier.composants.length > 0) {
+      try {
+        const data = {
+          version: 1,
+          composants: atelier.composants,
+          fils: atelier.fils,
+          noeuds: atelier.noeuds,
+          prochainIdComp: atelier.prochainIdComp,
+          prochainIdFil: atelier.prochainIdFil,
+          prochainIdNoeud: atelier.prochainIdNoeud,
+          interrupteurFerme: atelier.interrupteurFerme,
+          date: new Date().toISOString()
+        };
+        localStorage.setItem('lfakm_circuit_libre', JSON.stringify(data));
+      } catch (e) { /* ignore */ }
+    }
+  }, 30000);
+});
+
+// 🆕 Sauvegarde avant fermeture
+window.addEventListener('beforeunload', () => {
+  if (atelier.composants.length > 0) {
+    try {
+      const data = {
+        version: 1,
+        composants: atelier.composants,
+        fils: atelier.fils,
+        noeuds: atelier.noeuds,
+        prochainIdComp: atelier.prochainIdComp,
+        prochainIdFil: atelier.prochainIdFil,
+        prochainIdNoeud: atelier.prochainIdNoeud,
+        interrupteurFerme: atelier.interrupteurFerme,
+        date: new Date().toISOString()
+      };
+      localStorage.setItem('lfakm_circuit_libre', JSON.stringify(data));
+    } catch (e) { /* ignore */ }
+  }
 });
 
 if ('serviceWorker' in navigator) {
@@ -3562,16 +4169,6 @@ if ('serviceWorker' in navigator) {
 
 document.querySelectorAll('button').forEach(btn => {
   if (!btn.getAttribute('type')) btn.setAttribute('type', 'button');
-});
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    atelier.filSelectionne = null;
-    atelier.composantSelectionne = null;
-    atelier.noeudSelectionne = null;
-    updateZoneTool();
-    drawCircuit();
-  }
 });
 </script>
 
