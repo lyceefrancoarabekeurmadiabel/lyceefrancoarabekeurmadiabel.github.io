@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>TP RLC forcé — Mobile | LFAKM</title>
+<title>TP RLC libre — Mobile | LFAKM</title>
 <link rel="icon" type="image/png" href="../assets/favicon.png">
 <link rel="manifest" href="../assets/manifest.json">
-<meta name="theme-color" content="#7c3aed">
+<meta name="theme-color" content="#0f766e">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -16,17 +16,16 @@
     --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
     --success: #2e7d32; --warning: #f39c12; --danger: #d9534f; --info: #3498db;
     --rlc: #0f766e; --rlc-light: #5eead4; --rlc-dark: #134e4a;
-    --gbf: #7c3aed; --gbf-light: #a78bfa;
     --touch-size: 48px;
   }
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
   html, body { overflow-x: hidden; max-width: 100vw; }
   body { font-family: var(--sans); background: var(--paper); color: #1a1a1a; line-height: 1.55; min-height: 100vh; padding-bottom: env(safe-area-inset-bottom); }
   .top-nav { background: var(--ink-deep); color: #fff; padding: 10px 12px; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-  .top-nav .title { font-family: var(--serif); font-size: 14px; font-weight: 700; color: var(--gbf-light); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .top-nav .title { font-family: var(--serif); font-size: 14px; font-weight: 700; color: var(--rlc-light); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .top-nav .nav-links { display: flex; gap: 6px; flex-shrink: 0; }
   .top-nav .nav-links a { color: #fff; text-decoration: none; font-size: 11px; font-weight: 600; padding: 6px 10px; border-radius: 6px; background: rgba(255,255,255,0.1); white-space: nowrap; }
-  .top-nav .nav-links a.pc { background: rgba(167,139,250,0.2); color: var(--gbf-light); }
+  .top-nav .nav-links a.pc { background: rgba(94,234,212,0.2); color: var(--rlc-light); }
   .top-nav .son-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; font-size: 16px; padding: 4px 8px; border-radius: 6px; cursor: pointer; }
   .top-nav .son-btn.off { opacity: 0.4; }
   .steps-bar { background: #fff; padding: 10px 12px; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 99; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
@@ -35,56 +34,56 @@
   .step-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; flex-shrink: 0; opacity: 0.5; transition: opacity 0.2s; }
   .step-item.active, .step-item.done { opacity: 1; }
   .step-circle { width: 40px; height: 40px; border-radius: 50%; background: #fff; border: 2px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: var(--slate); }
-  .step-item.active .step-circle { border-color: var(--gbf); background: var(--gbf); color: #fff; box-shadow: 0 0 0 4px rgba(124,58,237,0.15); }
+  .step-item.active .step-circle { border-color: var(--rlc); background: var(--rlc); color: #fff; box-shadow: 0 0 0 4px rgba(15,118,110,0.15); }
   .step-item.done .step-circle { border-color: var(--success); background: var(--success); color: #fff; }
   .step-label { font-size: 10px; font-weight: 700; color: var(--slate); text-transform: uppercase; white-space: nowrap; }
-  .step-item.active .step-label { color: var(--gbf); }
+  .step-item.active .step-label { color: var(--rlc); }
   .step-item.done .step-label { color: var(--success); }
   .main-content { padding: 15px 12px 40px; max-width: 100%; }
   .etape { display: none; }
   .etape.active { display: block; animation: fadeIn 0.3s ease-out; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
   .etape-header { text-align: center; margin-bottom: 20px; }
-  .etape-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gbf); margin-bottom: 6px; }
+  .etape-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--rlc); margin-bottom: 6px; }
   .etape-title { font-family: var(--serif); font-size: 22px; color: var(--ink); margin-bottom: 8px; line-height: 1.2; }
   .etape-subtitle { font-size: 13px; color: var(--slate); }
   .card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
   .card-title { font-family: var(--serif); font-size: 16px; color: var(--ink); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
   .card-title .icon { font-size: 20px; }
   .card-subtitle { font-size: 12px; color: var(--slate); margin-bottom: 12px; }
-  .objectif-box { background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%); border-left: 4px solid var(--gbf); border-radius: 8px; padding: 14px 16px; margin-bottom: 15px; }
-  .objectif-box .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--gbf); margin-bottom: 5px; }
+  .objectif-box { background: linear-gradient(135deg, #ccfbf1 0%, #f0fdfa 100%); border-left: 4px solid var(--rlc); border-radius: 8px; padding: 14px 16px; margin-bottom: 15px; }
+  .objectif-box .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--rlc); margin-bottom: 5px; }
   .objectif-box .text { font-size: 13.5px; color: var(--ink); line-height: 1.5; }
   .composants-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .composant-card { background: #f9f7f2; border: 2px solid var(--line); border-radius: 10px; padding: 14px 10px; text-align: center; cursor: pointer; transition: all 0.15s; position: relative; min-height: 100px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-  .composant-card:active { border-color: var(--gbf); background: #fff; transform: scale(0.97); }
+  .composant-card:active { border-color: var(--rlc); background: #fff; transform: scale(0.97); }
   .composant-card .symbol { font-size: 36px; margin-bottom: 6px; line-height: 1; }
   .composant-card .name { font-weight: 700; font-size: 12.5px; color: var(--ink); margin-bottom: 3px; }
-  .composant-card .value { font-size: 11px; color: var(--gbf); font-weight: 700; font-family: 'Courier New', monospace; }
+  .composant-card .value { font-size: 11px; color: var(--rlc); font-weight: 700; font-family: 'Courier New', monospace; }
   .composant-card .click-hint { position: absolute; top: 5px; right: 7px; font-size: 10px; color: var(--slate); opacity: 0.5; }
   .notions-list { list-style: none; padding: 0; }
   .notions-list li { padding: 10px 12px 10px 38px; background: #f9f7f2; border-radius: 8px; margin-bottom: 6px; font-size: 13px; line-height: 1.5; position: relative; color: var(--ink); }
-  .notions-list li::before { content: '✓'; position: absolute; left: 12px; top: 10px; color: var(--gbf); font-weight: 800; font-size: 16px; }
-  .notions-list li strong { color: var(--gbf); font-family: 'Courier New', monospace; }
+  .notions-list li::before { content: '✓'; position: absolute; left: 12px; top: 10px; color: var(--rlc); font-weight: 800; font-size: 16px; }
+  .notions-list li strong { color: var(--rlc); font-family: 'Courier New', monospace; }
   .actions { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
   .btn { padding: 14px 20px; border-radius: 10px; border: none; font-family: var(--sans); font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; justify-content: center; min-height: var(--touch-size); }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn:active:not(:disabled) { transform: scale(0.97); }
-  .btn-primary { background: linear-gradient(135deg, var(--gbf) 0%, #5b21b6 100%); color: #fff; box-shadow: 0 3px 10px rgba(124, 58, 237, 0.3); }
+  .btn-primary { background: linear-gradient(135deg, var(--rlc) 0%, var(--rlc-dark) 100%); color: #fff; box-shadow: 0 3px 10px rgba(15, 118, 110, 0.3); }
   .btn-secondary { background: #fff; color: var(--ink); border: 2px solid var(--line); }
-  .canvas-montage { background: #000; border: 2px solid var(--gbf); border-radius: 12px; padding: 3px; position: relative; overflow: hidden; margin-bottom: 10px; }
+  .canvas-montage { background: #000; border: 2px solid var(--rlc); border-radius: 12px; padding: 3px; position: relative; overflow: hidden; margin-bottom: 10px; }
   .canvas-montage canvas { display: block; width: 100%; height: auto; touch-action: none; cursor: pointer; }
-  .canvas-hint-top { display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(124,58,237,0.12); color: #5b21b6; font-size: 12.5px; font-weight: 700; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(124,58,237,0.35); margin-bottom: 8px; text-align: center; min-height: 40px; line-height: 1.35; }
+  .canvas-hint-top { display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(15,118,110,0.12); color: var(--rlc-dark); font-size: 12.5px; font-weight: 700; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(15,118,110,0.35); margin-bottom: 8px; text-align: center; min-height: 40px; line-height: 1.35; }
   .toolbox-mobile { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 10px; }
   .outil-btn { display: flex; align-items: center; gap: 8px; padding: 12px 10px; background: #f9f7f2; border: 2px solid var(--line); border-radius: 10px; cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 700; color: var(--ink); text-align: left; transition: all 0.15s; min-height: var(--touch-size); }
-  .outil-btn:active:not(.used) { background: #fff; border-color: var(--gbf); transform: scale(0.97); }
+  .outil-btn:active:not(.used) { background: #fff; border-color: var(--rlc); transform: scale(0.97); }
   .outil-btn.used { opacity: 0.4; cursor: not-allowed; }
   .outil-btn .icon { font-size: 20px; flex-shrink: 0; }
   .outil-btn.wire-btn { background: rgba(76, 175, 80, 0.1); border-color: rgba(76, 175, 80, 0.4); color: #2e7d32; }
   .outil-btn.danger { background: #fff5f5; border-color: rgba(217, 83, 79, 0.4); color: #d9534f; }
   .montage-progress { display: flex; gap: 8px; justify-content: center; background: #fff; border: 2px solid var(--line); border-radius: 10px; padding: 10px 12px; flex-wrap: wrap; font-size: 12px; }
   .progress-item { display: flex; align-items: center; gap: 6px; font-weight: 700; color: var(--ink); }
-  .progress-item .count { background: var(--gbf); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 800; font-family: 'Courier New', monospace; }
+  .progress-item .count { background: var(--rlc); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 800; font-family: 'Courier New', monospace; }
   .progress-item.done .count { background: var(--success); }
   .verif-message { border-radius: 10px; padding: 12px 15px; font-size: 13px; line-height: 1.55; display: none; margin-top: 12px; }
   .verif-message.show { display: block; }
@@ -96,124 +95,139 @@
   .verif-message li.ok::before { content: '✅'; }
   .verif-message li.ko::before { content: '❌'; }
 
+  /* Interrupteur */
+  .interrupteur-control { display: flex; justify-content: center; margin-top: 12px; margin-bottom: 8px; }
+  .btn-interrupteur { padding: 14px 28px; border-radius: 10px; border: 2px solid var(--rlc); background: #f0fdfa; color: var(--rlc-dark); font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; min-height: 52px; display: flex; align-items: center; gap: 8px; }
+  .btn-interrupteur.ferme { background: #e8f5e9; border-color: #4caf50; color: #2e7d32; }
+  .btn-interrupteur.ouvert { background: #fff5f5; border-color: #f44336; color: #c62828; }
+
   /* Régime */
-  .regime-box { background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%); border: 2px solid var(--gbf); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
-  .regime-box h4 { font-family: var(--serif); font-size: 16px; color: #5b21b6; margin-bottom: 8px; }
+  .regime-box { background: linear-gradient(135deg, #ccfbf1 0%, #f0fdfa 100%); border: 2px solid var(--rlc); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+  .regime-box h4 { font-family: var(--serif); font-size: 16px; color: var(--rlc-dark); margin-bottom: 8px; }
   .regime-box .intro { font-size: 13px; color: var(--ink); line-height: 1.55; margin-bottom: 12px; }
   .regime-option { display: flex; gap: 10px; padding: 12px; background: #fff; border: 2px solid var(--line); border-radius: 10px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; }
-  .regime-option.actif { border-color: var(--gbf); background: #f5f3ff; box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15); }
+  .regime-option.actif { border-color: var(--rlc); background: #f0fdfa; box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15); }
   .regime-radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--line); background: #fff; flex-shrink: 0; margin-top: 3px; position: relative; }
-  .regime-option.actif .regime-radio { border-color: var(--gbf); }
-  .regime-option.actif .regime-radio::after { content: ''; position: absolute; inset: 2px; border-radius: 50%; background: var(--gbf); }
+  .regime-option.actif .regime-radio { border-color: var(--rlc); }
+  .regime-option.actif .regime-radio::after { content: ''; position: absolute; inset: 2px; border-radius: 50%; background: var(--rlc); }
   .regime-texte { flex: 1; min-width: 0; }
   .regime-titre { font-size: 14px; font-weight: 800; color: var(--ink); margin-bottom: 4px; }
   .regime-desc { font-size: 12px; color: var(--slate); line-height: 1.5; }
-  .regime-badge { display: inline-block; font-size: 10px; padding: 2px 8px; background: var(--gbf); color: #fff; border-radius: 4px; font-weight: 700; margin-left: 6px; }
+  .regime-badge { display: inline-block; font-size: 10px; padding: 2px 8px; background: var(--rlc); color: #fff; border-radius: 4px; font-weight: 700; margin-left: 6px; }
   .regime-input-zone { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; padding: 10px; background: #f9f7f2; border-radius: 8px; }
   .regime-input-zone label { font-size: 12.5px; font-weight: 700; color: var(--ink); }
   .regime-input-zone input { padding: 8px 10px; border: 2px solid var(--line); border-radius: 6px; font-family: 'Courier New', monospace; font-size: 14px; font-weight: 700; width: 90px; }
 
   /* Sélecteur mesure */
-  .selecteur-mesure { background: #fff; border: 2px solid var(--gbf); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .selecteur-mesure { background: #fff; border: 2px solid var(--rlc); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; }
   .selecteur-mesure .label { font-size: 12px; font-weight: 800; color: var(--ink); text-transform: uppercase; letter-spacing: 0.5px; }
   .radio-btn { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #f9f7f2; border: 2px solid var(--line); border-radius: 8px; cursor: pointer; font-size: 12.5px; font-weight: 700; color: var(--ink); transition: all 0.15s; min-height: var(--touch-size); }
-  .radio-btn.actif { background: #f5f3ff; border-color: var(--gbf); color: #5b21b6; }
+  .radio-btn.actif { background: #ccfbf1; border-color: var(--rlc); color: var(--rlc-dark); }
   .radio-btn input { display: none; }
   .radio-btn .radio-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--line); background: #fff; position: relative; flex-shrink: 0; }
-  .radio-btn.actif .radio-dot { border-color: var(--gbf); }
-  .radio-btn.actif .radio-dot::after { content: ''; position: absolute; inset: 2px; border-radius: 50%; background: var(--gbf); }
+  .radio-btn.actif .radio-dot { border-color: var(--rlc); }
+  .radio-btn.actif .radio-dot::after { content: ''; position: absolute; inset: 2px; border-radius: 50%; background: var(--rlc); }
+  .radio-btn select { padding: 6px 8px; border: 2px solid var(--line); border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 12px; flex: 1; min-width: 0; }
 
   /* Analyse */
   .analyse-layout { background: #fff; border: 2px solid var(--line); border-radius: 12px; overflow: hidden; }
   .sous-onglets { display: flex; background: #f9f7f2; border-bottom: 2px solid var(--line); overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   .sous-onglets::-webkit-scrollbar { display: none; }
   .sous-onglet { flex-shrink: 0; padding: 12px 14px; background: transparent; border: none; border-bottom: 3px solid transparent; color: var(--slate); font-family: var(--sans); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; min-height: var(--touch-size); }
-  .sous-onglet.active { color: var(--gbf); border-bottom-color: var(--gbf); background: #fff; }
+  .sous-onglet.active { color: var(--rlc); border-bottom-color: var(--rlc); background: #fff; }
   .sous-onglet-contenu { display: none; padding: 15px; }
   .sous-onglet-contenu.active { display: block; animation: fadeIn 0.3s ease-out; }
   .recap-header { text-align: center; margin-bottom: 18px; }
   .recap-header h3 { font-family: var(--serif); font-size: 18px; color: var(--ink); margin-bottom: 6px; }
   .recap-header p { font-size: 12.5px; color: var(--slate); }
   .recap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-  .recap-card { background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%); border: 2px solid var(--gbf); border-radius: 10px; padding: 12px 10px; text-align: center; }
+  .recap-card { background: linear-gradient(135deg, #ccfbf1 0%, #f0fdfa 100%); border: 2px solid var(--rlc); border-radius: 10px; padding: 12px 10px; text-align: center; }
   .recap-card .recap-icon { font-size: 24px; margin-bottom: 4px; display: block; }
   .recap-card .recap-label { font-size: 9.5px; text-transform: uppercase; color: var(--slate); letter-spacing: 0.8px; font-weight: 700; margin-bottom: 3px; }
   .recap-card .recap-value { font-family: 'Courier New', monospace; font-size: 15px; font-weight: 800; color: var(--ink); }
-  .recap-card .recap-formule { font-family: 'Courier New', monospace; font-size: 10px; color: var(--slate); margin-top: 6px; padding-top: 6px; border-top: 1px dashed rgba(124,58,237,0.25); line-height: 1.5; text-align: left; }
+  .recap-card .recap-formule { font-family: 'Courier New', monospace; font-size: 10px; color: var(--slate); margin-top: 6px; padding-top: 6px; border-top: 1px dashed rgba(15,118,110,0.25); line-height: 1.5; text-align: left; }
   .recap-card-editable { padding-bottom: 12px; }
-  .recap-input { width: 80px; padding: 6px; margin-top: 3px; border: 2px solid var(--gbf); border-radius: 6px; font-family: 'Courier New', monospace; font-size: 14px; font-weight: 800; color: var(--ink); text-align: center; background: #fff; }
+  .recap-input { width: 80px; padding: 6px; margin-top: 3px; border: 2px solid var(--rlc); border-radius: 6px; font-family: 'Courier New', monospace; font-size: 14px; font-weight: 800; color: var(--ink); text-align: center; background: #fff; }
   .recap-unit { font-family: 'Courier New', monospace; font-size: 11px; color: var(--slate); font-weight: 700; }
-  .recap-courbe { background: #000; border-radius: 10px; border: 2px solid var(--gbf); padding: 6px; margin-bottom: 15px; position: relative; }
+  .recap-compare-controls { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+  .recap-legende { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; font-size: 11.5px; color: var(--ink); margin-bottom: 10px; }
+  .legende-item { display: inline-flex; align-items: center; gap: 5px; }
+  .legende-trait { width: 18px; height: 3px; border-radius: 2px; display: inline-block; }
+  .recap-courbe { background: #000; border-radius: 10px; border: 2px solid var(--rlc); padding: 6px; margin-bottom: 15px; }
   .recap-courbe canvas { display: block; width: 100%; height: auto; max-height: 260px; touch-action: none; }
-  .freq-control { background: #fff; border: 2px solid var(--gbf); border-radius: 10px; padding: 12px 14px; margin-bottom: 15px; }
-  .freq-control .ligne { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  .freq-control label { font-size: 12.5px; font-weight: 700; color: var(--ink); }
-  .freq-control input[type="range"] { flex: 1; min-width: 120px; accent-color: var(--gbf); height: 30px; }
-  .freq-control .valeur { font-family: 'Courier New', monospace; font-size: 15px; font-weight: 800; color: var(--gbf); min-width: 70px; text-align: right; }
-  .freq-control .info { font-size: 11px; color: var(--slate); margin-top: 6px; font-style: italic; }
-  .info-encadre { background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%); border-left: 4px solid var(--gbf); border-radius: 8px; padding: 12px 14px; font-size: 12.5px; line-height: 1.55; color: var(--ink); margin-top: 12px; }
-  .info-encadre strong { color: var(--gbf); }
-  .courbe-box { background: #000; border-radius: 10px; padding: 8px; border: 2px solid var(--gbf); margin-bottom: 10px; }
-  .courbe-box h4 { color: var(--gbf-light); font-family: var(--serif); font-size: 13px; margin-bottom: 6px; text-align: center; }
+  .recap-valeurs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .recap-valeur-item { background: #f9f7f2; border-radius: 8px; padding: 10px 8px; text-align: center; border-left: 3px solid var(--rlc); }
+  .recap-valeur-item .label { font-size: 10px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+  .recap-valeur-item .value { font-family: 'Courier New', monospace; font-size: 13px; font-weight: 800; color: var(--rlc); }
+  .tau-interactif-banner { background: linear-gradient(135deg, #ccfbf1 0%, #f0fdfa 100%); border-left: 4px solid var(--rlc); border-radius: 8px; padding: 12px 14px; margin: 12px 0; font-size: 12.5px; color: var(--ink); line-height: 1.5; }
+  .tau-interactif-banner .titre { font-weight: 800; color: var(--rlc); margin-bottom: 4px; }
+  .tau-resultat { background: #fff; border: 2px solid var(--rlc); border-radius: 8px; padding: 10px 12px; margin-top: 8px; font-family: 'Courier New', monospace; font-size: 12.5px; font-weight: 700; color: var(--rlc-dark); display: none; }
+  .tau-resultat.show { display: block; }
+  .courbe-box { background: #000; border-radius: 10px; padding: 8px; border: 2px solid var(--rlc); margin-bottom: 10px; }
+  .courbe-box h4 { color: var(--rlc-light); font-family: var(--serif); font-size: 13px; margin-bottom: 6px; text-align: center; }
   .courbe-box canvas { display: block; width: 100%; height: auto; max-height: 200px; touch-action: none; }
-  .courbe-formule { background: #f9f7f2; border-radius: 8px; padding: 10px 12px; margin-top: 8px; font-family: 'Courier New', monospace; font-size: 12px; color: var(--ink); text-align: center; border-left: 3px solid var(--gbf); }
+  .courbe-formule { background: #f9f7f2; border-radius: 8px; padding: 10px 12px; margin-top: 8px; font-family: 'Courier New', monospace; font-size: 12px; color: var(--ink); text-align: center; border-left: 3px solid var(--rlc); }
   .courbe-controls { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
   .btn-courbe { padding: 12px 16px; border-radius: 8px; border: none; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; justify-content: center; min-height: var(--touch-size); transition: all 0.15s; }
   .btn-courbe:active { transform: scale(0.97); }
-  .btn-courbe.gbf { background: linear-gradient(135deg, var(--gbf), var(--gbf-light)); color: #fff; }
-  .btn-courbe.charge { background: linear-gradient(135deg, #7c3aed, #a78bfa); color: #fff; }
+  .btn-courbe.rlc { background: linear-gradient(135deg, var(--rlc), var(--rlc-light)); color: #fff; }
+  .btn-courbe.charge { background: linear-gradient(135deg, #0f766e, #5eead4); color: #fff; }
   .btn-courbe.decharge { background: linear-gradient(135deg, #b45309, #f59e0b); color: #fff; }
   .btn-courbe.cycle { background: linear-gradient(135deg, #1976d2, #42a5f5); color: #fff; }
-
+  .btn-courbe.energies { background: linear-gradient(135deg, #7c3aed, #a78bfa); color: #fff; }
+  .info-encadre { background: linear-gradient(135deg, #ccfbf1 0%, #f0fdfa 100%); border-left: 4px solid var(--rlc); border-radius: 8px; padding: 12px 14px; font-size: 12.5px; line-height: 1.55; color: var(--ink); margin-top: 12px; }
+  .info-encadre strong { color: var(--rlc); }
   .applis-grid { display: flex; flex-direction: column; gap: 12px; }
   .appli-card { background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
   .appli-header { display: flex; align-items: center; gap: 10px; }
-  .appli-icon { font-size: 28px; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%); }
+  .appli-icon { font-size: 28px; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: linear-gradient(135deg, #ccfbf1 0%, #f0fdfa 100%); }
   .appli-title { font-family: var(--serif); font-size: 15px; color: var(--ink); font-weight: 700; }
   .appli-subtitle { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.4px; }
   .appli-desc { font-size: 13px; color: var(--ink); line-height: 1.55; }
-  .appli-desc strong { color: var(--gbf); }
-
+  .appli-desc strong { color: var(--rlc); }
+  .appli-btn { padding: 10px 14px; background: linear-gradient(135deg, var(--rlc), var(--rlc-dark)); color: #fff; border: none; border-radius: 8px; font-family: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; min-height: var(--touch-size); }
+  .appli-canvas-zone { background: #000; border-radius: 8px; padding: 6px; display: none; }
+  .appli-canvas-zone.show { display: block; }
+  .appli-canvas-zone canvas { display: block; width: 100%; height: auto; max-height: 150px; }
   .qcm-header { text-align: center; margin-bottom: 18px; }
   .qcm-header h3 { font-family: var(--serif); font-size: 18px; color: var(--ink); margin-bottom: 6px; }
   .qcm-header p { font-size: 12.5px; color: var(--slate); }
   .qcm-item { background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 15px; margin-bottom: 14px; }
   .qcm-item.correct { border-color: var(--success); background: #f1f8f3; }
   .qcm-item.incorrect { border-color: var(--danger); background: #fdf2f2; }
-  .qcm-question-num { display: inline-block; background: var(--gbf); color: #fff; font-weight: 800; font-size: 11px; padding: 3px 10px; border-radius: 16px; margin-bottom: 10px; }
+  .qcm-question-num { display: inline-block; background: var(--rlc); color: #fff; font-weight: 800; font-size: 11px; padding: 3px 10px; border-radius: 16px; margin-bottom: 10px; }
   .qcm-question-texte { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 12px; line-height: 1.45; }
   .qcm-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
   .qcm-option { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #f9f7f2; border: 2px solid transparent; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 13px; color: var(--ink); text-align: left; transition: all 0.15s; width: 100%; min-height: var(--touch-size); }
-  .qcm-option.selected { background: #ede9fe; border-color: var(--gbf); font-weight: 700; }
+  .qcm-option.selected { background: #ccfbf1; border-color: var(--rlc); font-weight: 700; }
   .qcm-option.correct { background: #e8f5e9; border-color: var(--success); font-weight: 700; }
   .qcm-option.incorrect { background: #ffebee; border-color: var(--danger); }
   .qcm-option:disabled { cursor: not-allowed; }
   .qcm-option .qcm-lettre { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: #fff; border: 2px solid var(--line); font-weight: 800; font-size: 13px; flex-shrink: 0; }
-  .qcm-option.selected .qcm-lettre { background: var(--gbf); color: #fff; border-color: var(--gbf); }
+  .qcm-option.selected .qcm-lettre { background: var(--rlc); color: #fff; border-color: var(--rlc); }
   .qcm-option.correct .qcm-lettre { background: var(--success); color: #fff; border-color: var(--success); }
   .qcm-option.incorrect .qcm-lettre { background: var(--danger); color: #fff; border-color: var(--danger); }
   .qcm-feedback { border-radius: 8px; padding: 10px 12px; font-size: 12.5px; line-height: 1.55; display: none; }
   .qcm-feedback.show { display: block; }
   .qcm-feedback.success { background: #e8f5e9; border-left: 4px solid var(--success); color: #1b5e20; }
   .qcm-feedback.error { background: #ffebee; border-left: 4px solid var(--danger); color: #b71c1c; }
-  .qcm-btn-valider { padding: 12px 18px; background: linear-gradient(135deg, var(--gbf), #5b21b6); color: #fff; border: none; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 8px; min-height: var(--touch-size); }
+  .qcm-btn-valider { padding: 12px 18px; background: linear-gradient(135deg, var(--rlc), var(--rlc-dark)); color: #fff; border: none; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 8px; min-height: var(--touch-size); }
   .qcm-btn-valider:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  .conclusion-bilan { background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%); border-left: 4px solid var(--gbf); border-radius: 8px; padding: 12px 14px; margin-bottom: 15px; display: flex; gap: 10px; }
+  .conclusion-bilan { background: linear-gradient(135deg, #ccfbf1 0%, #f0fdfa 100%); border-left: 4px solid var(--rlc); border-radius: 8px; padding: 12px 14px; margin-bottom: 15px; display: flex; gap: 10px; }
   .bilan-icon { font-size: 24px; flex-shrink: 0; }
-  .bilan-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--gbf); margin-bottom: 3px; }
+  .bilan-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--rlc); margin-bottom: 3px; }
   .bilan-text { font-size: 12.5px; color: var(--ink); line-height: 1.5; }
   .conclusion-progress { background: #f9f7f2; border-radius: 10px; padding: 10px 14px; margin-bottom: 15px; display: flex; align-items: center; gap: 12px; }
   .progress-barre { flex: 1; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
-  .progress-remplissage { height: 100%; background: linear-gradient(90deg, var(--gbf), var(--gbf-light)); width: 0%; transition: width 0.4s ease; border-radius: 4px; }
-  .progress-texte { font-family: 'Courier New', monospace; font-size: 13px; font-weight: 800; color: var(--gbf); min-width: 40px; text-align: right; }
+  .progress-remplissage { height: 100%; background: linear-gradient(90deg, var(--rlc), var(--rlc-light)); width: 0%; transition: width 0.4s ease; border-radius: 4px; }
+  .progress-texte { font-family: 'Courier New', monospace; font-size: 13px; font-weight: 800; color: var(--rlc); min-width: 40px; text-align: right; }
   .conclusion-form { background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 15px; }
   .conclusion-champ { margin-bottom: 18px; }
   .conclusion-champ label { display: flex; align-items: flex-start; gap: 10px; font-size: 13.5px; font-weight: 700; color: var(--ink); margin-bottom: 6px; cursor: pointer; line-height: 1.4; }
-  .champ-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--gbf); color: #fff; font-size: 12px; font-weight: 800; flex-shrink: 0; }
+  .champ-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--rlc); color: #fff; font-size: 12px; font-weight: 800; flex-shrink: 0; }
   .champ-indice { font-size: 11.5px; color: var(--slate); font-style: italic; margin: 0 0 8px 34px; line-height: 1.4; }
   .conclusion-champ input, .conclusion-champ select { width: 100%; padding: 12px 14px; border: 2px solid var(--line); border-radius: 8px; font-family: inherit; font-size: 14px; color: var(--ink); background: #f9f7f2; min-height: var(--touch-size); }
-  .conclusion-champ input:focus, .conclusion-champ select:focus { outline: none; border-color: var(--gbf); background: #fff; }
+  .conclusion-champ input:focus, .conclusion-champ select:focus { outline: none; border-color: var(--rlc); background: #fff; }
   .conclusion-champ input.correct, .conclusion-champ select.correct { border-color: var(--success); background: #f1f8f3; }
   .conclusion-champ input.incorrect, .conclusion-champ select.incorrect { border-color: var(--danger); background: #fdf2f2; }
   .champ-feedback { font-size: 12px; margin-top: 6px; line-height: 1.45; display: none; padding: 8px 10px; border-radius: 6px; }
@@ -229,23 +243,22 @@
   .conclusion-finale.show { display: block; }
   .conclusion-finale h4 { font-family: var(--serif); font-size: 16px; color: var(--ink); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid var(--line); }
   .conclusion-texte { font-size: 13px; line-height: 1.6; color: var(--ink); background: #f9f7f2; border-radius: 8px; padding: 14px; margin-bottom: 12px; white-space: pre-line; }
-  .conclusion-texte strong { color: var(--gbf); }
+  .conclusion-texte strong { color: var(--rlc); }
   .conclusion-finale-actions { display: flex; flex-direction: column; gap: 8px; }
-  .certificat-zone { background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%); border: 3px solid var(--gbf); border-radius: 12px; padding: 18px; margin-top: 18px; text-align: center; }
+  .certificat-zone { background: linear-gradient(135deg, #ccfbf1 0%, #f0fdfa 100%); border: 3px solid var(--rlc); border-radius: 12px; padding: 18px; margin-top: 18px; text-align: center; }
   .certificat-zone h3 { font-family: var(--serif); font-size: 17px; color: var(--ink); margin-bottom: 6px; }
   .certificat-zone p { font-size: 12.5px; color: var(--slate); margin-bottom: 12px; }
   .certificat-nom { padding: 12px 14px; border: 2px solid var(--line); border-radius: 8px; font-family: inherit; font-size: 14px; width: 100%; max-width: 280px; margin: 6px auto 12px; display: block; text-align: center; background: #fff; min-height: var(--touch-size); }
-
   .exercice-card { background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
   .exercice-card.reussi { border-color: var(--success); background: #f1f8f3; }
   .exercice-card.echoue { border-color: var(--danger); background: #fdf2f2; }
   .exercice-entete { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-  .exercice-num { background: var(--gbf); color: #fff; font-weight: 800; font-size: 14px; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .exercice-num { background: var(--rlc); color: #fff; font-weight: 800; font-size: 14px; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .exercice-titre { font-family: var(--serif); font-size: 15px; color: var(--ink); font-weight: 700; line-height: 1.3; }
-  .exercice-enonce { background: #f9f7f2; border-left: 3px solid var(--gbf); border-radius: 6px; padding: 10px 12px; font-size: 13px; line-height: 1.55; color: var(--ink); margin-bottom: 12px; }
+  .exercice-enonce { background: #f9f7f2; border-left: 3px solid var(--rlc); border-radius: 6px; padding: 10px 12px; font-size: 13px; line-height: 1.55; color: var(--ink); margin-bottom: 12px; }
   .exercice-etapes { list-style: none; padding: 0; margin-bottom: 12px; }
   .exercice-etapes li { padding: 8px 10px 8px 32px; background: #fff; border: 1px solid var(--line); border-radius: 6px; margin-bottom: 5px; font-size: 12.5px; line-height: 1.45; position: relative; color: var(--ink); }
-  .exercice-etapes li::before { content: '→'; position: absolute; left: 12px; color: var(--gbf); font-weight: 800; }
+  .exercice-etapes li::before { content: '→'; position: absolute; left: 12px; color: var(--rlc); font-weight: 800; }
   .exercice-input-zone { display: flex; flex-direction: column; gap: 8px; }
   .exercice-input { padding: 12px 14px; border: 2px solid var(--line); border-radius: 8px; font-family: 'Courier New', monospace; font-size: 14px; font-weight: 700; color: var(--ink); background: #fff; min-height: var(--touch-size); }
   .exercice-input.correct { border-color: var(--success); background: #f1f8f3; }
@@ -254,25 +267,24 @@
   .exercice-feedback.show { display: block; }
   .exercice-feedback.success { background: #e8f5e9; color: #1b5e20; border-left: 3px solid var(--success); }
   .exercice-feedback.error { background: #ffebee; color: #b71c1c; border-left: 3px solid var(--danger); }
-
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
   .modal-overlay.show { display: flex; }
   .modal-box { background: #fff; border-radius: 12px; padding: 20px; max-width: 400px; width: 100%; max-height: 85vh; overflow-y: auto; }
   .modal-box h3 { font-family: var(--serif); font-size: 17px; color: var(--ink); margin-bottom: 10px; }
   .modal-content { font-size: 13px; line-height: 1.55; color: var(--ink); }
   .modal-content p { margin-bottom: 8px; }
-  .modal-content code { background: #f9f7f2; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 12px; color: var(--brass); }
-  .modal-btn { margin-top: 14px; padding: 12px 20px; background: var(--gbf); color: #fff; border: none; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; width: 100%; min-height: var(--touch-size); }
+  .modal-content code { background: #f9f7f2; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 12px; color: var(--rlc); }
+  .modal-btn { margin-top: 14px; padding: 12px 20px; background: var(--rlc); color: #fff; border: none; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; width: 100%; min-height: var(--touch-size); }
 </style>
 </head>
 <body>
 
 <div class="top-nav">
-  <div class="title">🟣 TP RLC forcé — Mobile</div>
+  <div class="title">🔵 TP RLC — Mobile</div>
   <div class="nav-links">
     <button class="son-btn" id="sonToggle" onclick="toggleSon()" title="Sons">🔊</button>
-    <a href="../mobile/simulateur-rlc-mobile.html">← RLC libre</a>
-    <a href="../pc/simulateur-rlc-forces.html" class="pc">🖥️ PC</a>
+    <a href="../pc/labo-pc.html">← Labo</a>
+    <a href="../pc/simulateur-rlc.html" class="pc">🖥️ PC</a>
   </div>
 </div>
 
@@ -303,14 +315,14 @@
     <div class="etape-header">
       <div class="etape-eyebrow">Étape 1 sur 4</div>
       <h1 class="etape-title">📦 Présentation du matériel</h1>
-      <p class="etape-subtitle">Découvre le circuit RLC <strong>forcé</strong> : un GBF impose une tension sinusoïdale.</p>
+      <p class="etape-subtitle">Découvre le circuit RLC libre et le rôle de la résistance dans l'amortissement.</p>
     </div>
 
     <div class="objectif-box">
       <div class="label">🎯 Objectif du TP</div>
       <div class="text">
-        Étudier la <strong>résonance d'intensité</strong> d'un RLC série alimenté par un GBF,
-        tracer i(f) et déterminer <strong>f₀</strong>, <strong>Δf</strong> et <strong>Q</strong>.
+        Étudier les <strong>oscillations amorties</strong> d'un circuit RLC libre et identifier
+        les <strong>trois régimes</strong> selon la valeur de R.
       </div>
     </div>
 
@@ -318,92 +330,93 @@
       <div class="card-title"><span class="icon">🔧</span> Composants du circuit</div>
       <div class="card-subtitle">Tape sur un composant pour découvrir son rôle.</div>
       <div class="composants-grid">
-        <div class="composant-card" onclick="ouvrirModal('gbf')">
-          <span class="click-hint">👆</span><span class="symbol">🔊</span>
-          <div class="name">GBF</div><div class="value">sinusoïdal</div>
-        </div>
         <div class="composant-card" onclick="ouvrirModal('condensateur')">
           <span class="click-hint">👆</span><span class="symbol">⚡</span>
           <div class="name">Condensateur</div><div class="value">10 µF</div>
         </div>
         <div class="composant-card" onclick="ouvrirModal('bobine')">
           <span class="click-hint">👆</span><span class="symbol">🌀</span>
-          <div class="name">Bobine</div><div class="value">0,1 H</div>
+          <div class="name">Bobine</div><div class="value">1 H</div>
         </div>
         <div class="composant-card" onclick="ouvrirModal('resistance')">
           <span class="click-hint">👆</span><span class="symbol">📏</span>
           <div class="name">Résistance</div><div class="value">variable</div>
         </div>
-        <div class="composant-card" onclick="ouvrirModal('oscillo')">
-          <span class="click-hint">👆</span><span class="symbol">📺</span>
-          <div class="name">Oscilloscope</div><div class="value">2 voies</div>
+        <div class="composant-card" onclick="ouvrirModal('interrupteur')">
+          <span class="click-hint">👆</span><span class="symbol">🔘</span>
+          <div class="name">Interrupteur</div><div class="value">K</div>
+        </div>
+        <div class="composant-card" onclick="ouvrirModal('fils')">
+          <span class="click-hint">👆</span><span class="symbol">🧵</span>
+          <div class="name">Fils</div><div class="value">× 4 min.</div>
         </div>
       </div>
     </div>
 
     <div class="regime-box">
-      <h4>🎬 Choisis un niveau de résistance</h4>
+      <h4>🎬 Choisis un régime</h4>
       <div class="intro">
-        Plus <strong>R est petite</strong>, plus la résonance est <strong>aiguë</strong> (Q élevé).
+        Selon la valeur de <strong>R</strong>, le circuit oscille différemment.
+        La valeur critique <strong>R_c = 2√(L/C)</strong> sépare les comportements.
       </div>
 
-      <div class="regime-option actif" id="resOptFaible" onclick="choisirR('faible')">
+      <div class="regime-option actif" id="regimeOptPseudo" onclick="choisirRegime('pseudo')">
         <div class="regime-radio"></div>
         <div class="regime-texte">
-          <div class="regime-titre">1️⃣ Résonance aiguë <span class="regime-badge">R = 10 Ω</span></div>
-          <div class="regime-desc">R faible → Q élevé ≈ 10. Pic très marqué.</div>
+          <div class="regime-titre">1️⃣ Pseudo-périodique <span class="regime-badge">R = 50 Ω</span></div>
+          <div class="regime-desc">R &lt; R_c : le circuit oscille mais l'amplitude diminue progressivement.</div>
         </div>
       </div>
 
-      <div class="regime-option" id="resOptMoyen" onclick="choisirR('moyen')">
+      <div class="regime-option" id="regimeOptCritique" onclick="choisirRegime('critique')">
         <div class="regime-radio"></div>
         <div class="regime-texte">
-          <div class="regime-titre">2️⃣ Résonance moyenne <span class="regime-badge">R = 50 Ω</span></div>
-          <div class="regime-desc">Q ≈ 2. Pic bien visible mais plus large.</div>
+          <div class="regime-titre">2️⃣ Critique <span class="regime-badge" style="background:#e65100;">R = 632 Ω</span></div>
+          <div class="regime-desc">R = R_c : retour le plus rapide à 0 sans osciller.</div>
         </div>
       </div>
 
-      <div class="regime-option" id="resOptForte" onclick="choisirR('forte')">
+      <div class="regime-option" id="regimeOptAperiodique" onclick="choisirRegime('aperiodique')">
         <div class="regime-radio"></div>
         <div class="regime-texte">
-          <div class="regime-titre">3️⃣ Résonance plate <span class="regime-badge" style="background:#f59e0b;">R = 200 Ω</span></div>
-          <div class="regime-desc">Q faible ≈ 0,5. Courbe presque plate.</div>
+          <div class="regime-titre">3️⃣ Apériodique <span class="regime-badge" style="background:#b91c1c;">R = 1500 Ω</span></div>
+          <div class="regime-desc">R &gt; R_c : retour lent à 0 sans osciller.</div>
         </div>
       </div>
 
-      <div class="regime-option" id="resOptPerso" onclick="choisirR('perso')">
+      <div class="regime-option" id="regimeOptPerso" onclick="choisirRegime('perso')">
         <div class="regime-radio"></div>
         <div class="regime-texte">
           <div class="regime-titre">4️⃣ Personnalisé <span class="regime-badge" style="background:#5B6472;">R libre</span></div>
-          <div class="regime-desc">Explore entre 5 Ω et 500 Ω.</div>
+          <div class="regime-desc">Explore librement entre 10 Ω et 5000 Ω.</div>
           <div class="regime-input-zone" onclick="event.stopPropagation();">
             <label for="inputRPerso">R =</label>
-            <input type="number" id="inputRPerso" value="100" min="5" max="500" step="5" onchange="majRPersonnalise()">
+            <input type="number" id="inputRPerso" value="200" min="10" max="5000" step="10" onchange="majRPersonnalise()">
             <span style="font-family:'Courier New',monospace;font-weight:700;color:var(--slate);">Ω</span>
           </div>
         </div>
       </div>
 
-      <div style="margin-top: 12px; padding: 10px; background: #fff; border-radius: 8px; border: 1px dashed var(--gbf); font-size: 12px; line-height: 1.5;">
-        <strong style="color: var(--gbf);">📐 Rappel :</strong>
-        <strong>f₀ = 1/(2π√(LC))</strong> et <strong>Q = (1/R)·√(L/C)</strong>.
+      <div style="margin-top: 12px; padding: 10px; background: #fff; border-radius: 8px; border: 1px dashed var(--rlc); font-size: 12px; line-height: 1.5;">
+        <strong style="color: var(--rlc);">📐 Valeur critique :</strong> avec L = 1 H et C = 10 µF,
+        <strong>R_c = 2√(L/C) ≈ 632 Ω</strong>.
       </div>
     </div>
 
     <div class="card">
       <div class="card-title"><span class="icon">📚</span> Notions à connaître</div>
       <ul class="notions-list">
-        <li>En régime forcé, le circuit oscille à la <strong>fréquence du GBF</strong>.</li>
-        <li>GBF : <strong>u(t) = U_m · cos(2πft)</strong></li>
-        <li>Résonance d'intensité : <strong>i maximal quand f = f₀</strong></li>
-        <li>Fréquence propre : <strong>f₀ = 1 / (2π√(LC))</strong></li>
-        <li>Facteur de qualité : <strong>Q = f₀ / Δf</strong></li>
-        <li>À la résonance : <strong>u et i sont en phase</strong>.</li>
+        <li>Un circuit RLC <strong>dissipe</strong> son énergie dans R (effet Joule).</li>
+        <li>Loi des mailles : <strong>U_C + U_R + U_L = 0</strong></li>
+        <li>Résistance critique : <strong>R_c = 2√(L/C)</strong></li>
+        <li>Pseudo-période : <strong>T ≈ 2π√(LC)</strong></li>
+        <li>Facteur de qualité : <strong>Q = (1/R)·√(L/C)</strong></li>
+        <li>Plus <strong>R est petite</strong>, plus les oscillations durent longtemps.</li>
       </ul>
     </div>
 
     <div class="actions">
-      <a href="../mobile/simulateur-rlc-mobile.html" class="btn btn-secondary">← RLC libre</a>
+      <a href="../pc/labo-pc.html" class="btn btn-secondary">← Retour au Labo</a>
       <button class="btn btn-primary" onclick="allerEtape(2)">➡️ Passer au montage</button>
     </div>
   </section>
@@ -413,29 +426,29 @@
     <div class="etape-header">
       <div class="etape-eyebrow">Étape 2 sur 4</div>
       <h1 class="etape-title">🛠️ Montage du circuit</h1>
-      <p class="etape-subtitle">Construis une boucle RLC série alimentée par le GBF.</p>
+      <p class="etape-subtitle">Construis une boucle RLC fermée : R + L + C + K.</p>
     </div>
 
     <div class="objectif-box">
       <div class="label">🎯 Mission</div>
       <div class="text">
-        Place les <strong>4 composants</strong> (GBF, C, L, R) et connecte-les avec au moins
-        <strong>4 fils</strong> pour former une boucle fermée.
+        Place les <strong>4 composants</strong> et connecte-les avec au moins
+        <strong>4 fils</strong> pour fermer la boucle.
       </div>
     </div>
 
     <div class="toolbox-mobile">
-      <button class="outil-btn" id="btn-gbf" onclick="ajouterComposant('gbf')">
-        <span class="icon">🔊</span><span>GBF</span>
-      </button>
       <button class="outil-btn" id="btn-condensateur" onclick="ajouterComposant('condensateur')">
-        <span class="icon">⚡</span><span>Condensateur</span>
+        <span class="icon">⚡</span><span>Condensateur (10 µF)</span>
       </button>
       <button class="outil-btn" id="btn-bobine" onclick="ajouterComposant('bobine')">
-        <span class="icon">🌀</span><span>Bobine (0,1 H)</span>
+        <span class="icon">🌀</span><span>Bobine (1 H)</span>
       </button>
       <button class="outil-btn" id="btn-resistance" onclick="ajouterComposant('resistance')">
-        <span class="icon">📏</span><span>Résistance</span>
+        <span class="icon">📏</span><span>Résistance variable</span>
+      </button>
+      <button class="outil-btn" id="btn-interrupteur" onclick="ajouterComposant('interrupteur')">
+        <span class="icon">🔘</span><span>Interrupteur</span>
       </button>
       <button class="outil-btn wire-btn" onclick="ajouterFil()">
         <span class="icon">🧵</span><span>➕ Ajouter un fil</span>
@@ -448,6 +461,12 @@
     <div class="canvas-hint-top" id="canvasHint">👆 Tape sur un composant pour l'ajouter</div>
     <div class="canvas-montage">
       <canvas id="canvasMontage" width="900" height="600"></canvas>
+    </div>
+
+    <div class="interrupteur-control" id="interrupteurControl" style="display:none;">
+      <button class="btn-interrupteur" id="btnInterrupteur" onclick="toggleInterrupteur()">
+        <span id="etatInterrupteur">🔘 K ouvert</span>
+      </button>
     </div>
 
     <div class="montage-progress">
@@ -471,15 +490,68 @@
     <div class="etape-header">
       <div class="etape-eyebrow">Étape 3 sur 4</div>
       <h1 class="etape-title">📺 Brancher l'oscilloscope</h1>
-      <p class="etape-subtitle">Branche l'oscilloscope : GBF (voie 1) et R (voie 2).</p>
+      <p class="etape-subtitle">Choisis ce que tu veux mesurer puis branche les voies.</p>
     </div>
 
-    <div style="background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%); border-left: 4px solid var(--gbf); border-radius: 8px; padding: 14px; margin-bottom: 12px; font-size: 13px; line-height: 1.55; color: #5b21b6;">
-      <strong>🎯 Mission :</strong> branche les voies sur le GBF et sur R.
-      <div style="background: #fff; border-radius: 6px; padding: 10px 12px; margin-top: 10px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.7; color: var(--ink);">
-        <div><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-weight:700;margin-right:6px;background:#ffeb3b;color:#1a1a2e;">Voie 1 (+)</span> → borne <strong>+ du GBF</strong></div>
-        <div style="margin-top:5px;"><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-weight:700;margin-right:6px;background:#4fc3f7;color:#1a1a2e;">Voie 2 (−)</span> → bornes de <strong>R</strong> (image de i)</div>
+    <div class="regime-box" style="margin-bottom: 15px;">
+      <h4>🎬 Mode de mesure</h4>
+      <div class="intro">L'oscilloscope peut mesurer une seule tension ou deux simultanément (2 voies).</div>
+
+      <div class="regime-option actif" id="modeOptC" onclick="choisirModeMesure('C')">
+        <div class="regime-radio"></div>
+        <div class="regime-texte">
+          <div class="regime-titre">1️⃣ U_C — condensateur</div>
+          <div class="regime-desc">Voie 1 (+) et Voie 2 (−) aux bornes de C.</div>
+        </div>
       </div>
+
+      <div class="regime-option" id="modeOptR" onclick="choisirModeMesure('R')">
+        <div class="regime-radio"></div>
+        <div class="regime-texte">
+          <div class="regime-titre">2️⃣ U_R — résistor</div>
+          <div class="regime-desc">Image du courant : U_R = R·i.</div>
+        </div>
+      </div>
+
+      <div class="regime-option" id="modeOptL" onclick="choisirModeMesure('L')">
+        <div class="regime-radio"></div>
+        <div class="regime-texte">
+          <div class="regime-titre">3️⃣ U_L — bobine</div>
+          <div class="regime-desc">U_L = L·di/dt.</div>
+        </div>
+      </div>
+
+      <div class="regime-option" id="modeOptDouble" onclick="choisirModeMesure('double')">
+        <div class="regime-radio"></div>
+        <div class="regime-texte">
+          <div class="regime-titre">4️⃣ 🔀 Bicourbe <span class="regime-badge" style="background:#7c3aed;">2 voies</span></div>
+          <div class="regime-desc">Choisis 2 grandeurs parmi 4.</div>
+          <div class="regime-input-zone" onclick="event.stopPropagation();" style="flex-wrap:wrap;">
+            <label>Voie 1 :</label>
+            <select id="selectVoie1" onchange="majSelectionBicourbe()" style="flex:1;min-width:120px;padding:6px 8px;border:2px solid var(--line);border-radius:6px;font-weight:700;">
+              <option value="C">🔵 U_C</option>
+              <option value="R" selected>🟠 U_R</option>
+              <option value="L">🟣 U_L</option>
+              <option value="I">🔴 i</option>
+            </select>
+            <label>Voie 2 :</label>
+            <select id="selectVoie2" onchange="majSelectionBicourbe()" style="flex:1;min-width:120px;padding:6px 8px;border:2px solid var(--line);border-radius:6px;font-weight:700;">
+              <option value="C" selected>🔵 U_C</option>
+              <option value="R">🟠 U_R</option>
+              <option value="L">🟣 U_L</option>
+              <option value="I">🔴 i</option>
+            </select>
+          </div>
+          <div id="messageBicourbe" style="margin-top:8px;padding:8px;background:#fff;border-radius:6px;border-left:3px solid #7c3aed;font-size:11.5px;line-height:1.5;">
+            <em>👉 Sélectionne 2 grandeurs différentes.</em>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="canvas-hint-top" id="canvasHintBranchement">📺 Pose l'oscilloscope puis branche ses voies</div>
+    <div class="canvas-montage">
+      <canvas id="canvasBranchement" width="900" height="600"></canvas>
     </div>
 
     <div class="toolbox-mobile" style="grid-template-columns: 1fr 1fr;">
@@ -491,11 +563,6 @@
       </button>
     </div>
 
-    <div class="canvas-hint-top" id="canvasHintBranchement">📺 Pose l'oscilloscope puis branche ses voies</div>
-    <div class="canvas-montage">
-      <canvas id="canvasBranchement" width="900" height="600"></canvas>
-    </div>
-
     <div class="verif-message" id="verifBranchement"></div>
 
     <div class="actions">
@@ -503,20 +570,20 @@
       <button class="btn btn-primary" onclick="verifierBranchement()">✅ Vérifier le branchement</button>
     </div>
   </section>
-
-  <!-- ===== ÉTAPE 4 : ANALYSE ===== -->
+    <!-- ===== ÉTAPE 4 : ANALYSE ===== -->
   <section class="etape" id="etape-4">
     <div class="etape-header">
       <div class="etape-eyebrow">Étape 4 sur 4</div>
       <h1 class="etape-title">🎓 Analyse & Conclusion</h1>
-      <p class="etape-subtitle">Étudie la résonance d'intensité du circuit RLC forcé.</p>
+      <p class="etape-subtitle">Étudie les oscillations amorties et identifie les 3 régimes.</p>
     </div>
 
     <div class="analyse-layout">
       <div class="sous-onglets">
         <button class="sous-onglet active" data-sous="recap" onclick="changerSousOnglet('recap')">📊 Récap</button>
-        <button class="sous-onglet" data-sous="resonance" onclick="changerSousOnglet('resonance')">🎯 Résonance</button>
-        <button class="sous-onglet" data-sous="phase" onclick="changerSousOnglet('phase')">🔄 Déphasage</button>
+        <button class="sous-onglet" data-sous="charge" onclick="changerSousOnglet('charge')">🔵 Oscillations</button>
+        <button class="sous-onglet" data-sous="regimes" onclick="changerSousOnglet('regimes')">🎯 Régimes</button>
+        <button class="sous-onglet" data-sous="energies" onclick="changerSousOnglet('energies')">⚡ Énergies</button>
         <button class="sous-onglet" data-sous="applis" onclick="changerSousOnglet('applis')">🌍 Applications</button>
         <button class="sous-onglet" data-sous="qcm" onclick="changerSousOnglet('qcm')">🛡️ Questions</button>
         <button class="sous-onglet" data-sous="conclusion" onclick="changerSousOnglet('conclusion')">✍️ Conclusion</button>
@@ -527,37 +594,24 @@
       <div class="sous-onglet-contenu active" id="sous-recap">
         <div class="recap-header">
           <h3>📊 Récapitulatif</h3>
-          <p>Ajuste la fréquence du GBF et observe.</p>
-        </div>
-
-        <div class="freq-control">
-          <div class="ligne">
-            <label for="freqGBF">🔊 f GBF :</label>
-            <input type="range" id="freqGBF" min="10" max="500" step="1" value="159" oninput="majFrequenceGBF(this.value)">
-            <span class="valeur" id="valeurFreqGBF">159 Hz</span>
-          </div>
-          <div class="ligne" style="margin-top:8px;">
-            <label>⚙️ ω =</label>
-            <span class="valeur" id="valeurOmegaGBF" style="color:var(--gbf);">1000 rad/s</span>
-          </div>
-          <div class="info">💡 Ajuste la fréquence pour observer l'effet sur Z et i.</div>
+          <p>Modifie R, L, C pour comparer.</p>
         </div>
 
         <div class="recap-grid">
           <div class="recap-card">
-            <span class="recap-icon">🔊</span>
-            <div class="recap-label">U_m</div>
+            <span class="recap-icon">⚡</span>
+            <div class="recap-label">U₀ initial</div>
             <div class="recap-value">6.0 V</div>
           </div>
           <div class="recap-card recap-card-editable">
             <span class="recap-icon">📏</span>
             <div class="recap-label">R (Ω)</div>
-            <input type="number" id="inputR" class="recap-input" value="50" min="5" max="500" step="5">
+            <input type="number" id="inputR" class="recap-input" value="50" min="10" max="5000" step="10">
           </div>
           <div class="recap-card recap-card-editable">
             <span class="recap-icon">🌀</span>
             <div class="recap-label">L (H)</div>
-            <input type="number" id="inputL" class="recap-input" value="0.1" min="0.01" max="1" step="0.01">
+            <input type="number" id="inputL" class="recap-input" value="1" min="0.1" max="10" step="0.1">
           </div>
           <div class="recap-card recap-card-editable">
             <span class="recap-icon">⚡</span>
@@ -568,112 +622,155 @@
 
         <div class="recap-grid">
           <div class="recap-card">
-            <span class="recap-icon">⚙️</span>
-            <div class="recap-label">Z(f)</div>
-            <div class="recap-value" id="valeurZf">50 Ω</div>
-          </div>
-          <div class="recap-card">
-            <span class="recap-icon">🔌</span>
-            <div class="recap-label">I(f)</div>
-            <div class="recap-value" id="valeurIf">120 mA</div>
-          </div>
-          <div class="recap-card">
-            <span class="recap-icon">📐</span>
-            <div class="recap-label">φ(f)</div>
-            <div class="recap-value" id="valeurPhiF">0.0°</div>
+            <span class="recap-icon">🎯</span>
+            <div class="recap-label">Régime</div>
+            <div class="recap-value" id="valeurRegime" style="font-size:12px;">Pseudo-périodique</div>
           </div>
           <div class="recap-card">
             <span class="recap-icon">🎯</span>
-            <div class="recap-label">f₀</div>
-            <div class="recap-value" id="valeurF0">159.2 Hz</div>
+            <div class="recap-label">R_c</div>
+            <div class="recap-value" id="valeurRc">632 Ω</div>
+          </div>
+          <div class="recap-card">
+            <span class="recap-icon">📐</span>
+            <div class="recap-label">T₀</div>
+            <div class="recap-value" id="valeurT">20.1 ms</div>
           </div>
           <div class="recap-card">
             <span class="recap-icon">📊</span>
             <div class="recap-label">Q</div>
-            <div class="recap-value" id="valeurQ">2.0</div>
+            <div class="recap-value" id="valeurQ">19.9</div>
           </div>
           <div class="recap-card">
-            <span class="recap-icon">📉</span>
-            <div class="recap-label">Δf</div>
-            <div class="recap-value" id="valeurDeltaF">79.6 Hz</div>
+            <span class="recap-icon">⏱️</span>
+            <div class="recap-label">τ = 2L/R</div>
+            <div class="recap-value" id="valeurTau">40.0 ms</div>
+          </div>
+          <div class="recap-card">
+            <span class="recap-icon">🔋</span>
+            <div class="recap-label">E₀</div>
+            <div class="recap-value" id="valeurE0">180 µJ</div>
           </div>
         </div>
-
-                <h4 style="font-family: var(--serif); font-size: 14px; color: var(--ink); margin: 10px 0;">🎯 Courbe de résonance i(f)</h4>
 
         <div class="recap-compare-controls">
           <button class="btn-courbe charge" onclick="ajouterCourbeComparaison()">➕ Comparer</button>
           <button class="btn-courbe cycle" onclick="reinitialiserComparaison()">↺ Réinitialiser</button>
         </div>
 
-        <div class="recap-legende" id="recapLegende" style="display:none;">
-          <span class="legende-item"><span class="legende-trait" style="background:#a78bfa;"></span> Courbe actuelle</span>
-          <span class="legende-item"><span class="legende-trait" style="background:#4fc3f7;"></span> <span id="legendeCourante">Courbe comparée</span></span>
+        <h4 style="font-family: var(--serif); font-size: 14px; color: var(--ink); margin: 10px 0;">📈 Courbe observée</h4>
+
+        <div class="selecteur-mesure" style="flex-direction:row;flex-wrap:wrap;gap:6px;">
+          <button class="btn-courbe charge" id="btnAfficheUC" style="flex:1;padding:8px;" onclick="afficherCourbeRecap('C')">🔵 U_C</button>
+          <button class="btn-courbe decharge" id="btnAfficheUR" style="flex:1;padding:8px;opacity:0.5;" onclick="afficherCourbeRecap('R')">🟠 U_R</button>
+          <button class="btn-courbe energies" id="btnAfficheUL" style="flex:1;padding:8px;opacity:0.5;" onclick="afficherCourbeRecap('L')">🟣 U_L</button>
+          <button class="btn-courbe rlc" id="btnAfficheI" style="flex:1;padding:8px;opacity:0.5;" onclick="afficherCourbeRecap('I')">🔴 i(t)</button>
         </div>
 
         <div class="recap-courbe">
           <canvas id="recapCourbe" width="800" height="320"></canvas>
         </div>
 
-        <div class="info-encadre">
-          <strong>💡 À retenir :</strong> à f = f₀, Z = R (minimale), i maximal, u et i en phase.
+        <div class="tau-interactif-banner show">
+          <div class="titre">📊 Mesure interactive de T</div>
+          <div>👆 <strong>Tape sur deux sommets successifs</strong> pour mesurer la pseudo-période T.</div>
+          <div class="tau-resultat" id="tauResultat"></div>
         </div>
       </div>
 
-      <!-- Onglet Résonance -->
-      <div class="sous-onglet-contenu" id="sous-resonance">
+      <!-- Onglet Oscillations -->
+      <div class="sous-onglet-contenu" id="sous-charge">
         <div class="recap-header">
-          <h3>🎯 Comparaison de 3 R</h3>
-          <p>Compare l'acuité de la résonance pour différentes valeurs de R.</p>
-        </div>
-
-        <div class="recap-courbe" style="margin-bottom:15px;">
-          <canvas id="courbeResonance" width="900" height="360"></canvas>
-        </div>
-
-        <div class="courbe-controls">
-          <button class="btn-courbe gbf" onclick="afficherResonance()">🎯 Afficher i(f)</button>
-        </div>
-
-        <div class="info-encadre">
-          <strong>💡 À retenir :</strong> Plus R est petite, plus Q est grand et plus le pic est aigu.<br>
-          Q = (1/R)·√(L/C) — Bande passante Δf = f₀ / Q.
-        </div>
-      </div>
-            <!-- Onglet Phase -->
-      <div class="sous-onglet-contenu" id="sous-phase">
-        <div class="recap-header">
-          <h3>🔄 Déphasage u-i</h3>
-          <p>Observe le comportement selon la fréquence.</p>
+          <h3>🔵 Oscillations amorties</h3>
+          <p>Observe U_C, U_R, U_L et i(t).</p>
         </div>
 
         <div class="courbe-box">
-          <h4>🔵 f &lt; f₀ — capacitif</h4>
-          <canvas id="courbeBasFreq" width="500" height="200"></canvas>
+          <h4>🔵 U_C(t) — condensateur</h4>
+          <canvas id="courbeGauche" width="500" height="250"></canvas>
         </div>
-        <div class="courbe-formule">u en <strong>retard</strong> sur i (φ &lt; 0)</div>
-
         <div class="courbe-box">
-          <h4>🟢 f = f₀ — résonance</h4>
-          <canvas id="courbeResFreq" width="500" height="200"></canvas>
+          <h4>🟠 U_R(t) — résistor</h4>
+          <canvas id="courbeDroite" width="500" height="250"></canvas>
         </div>
-        <div class="courbe-formule">u et i <strong>en phase</strong> (φ = 0)</div>
-
         <div class="courbe-box">
-          <h4>🟠 f &gt; f₀ — inductif</h4>
-          <canvas id="courbeHautFreq" width="500" height="200"></canvas>
+          <h4>🟣 U_L(t) — bobine</h4>
+          <canvas id="courbeBobine" width="500" height="250"></canvas>
         </div>
-        <div class="courbe-formule">u en <strong>avance</strong> sur i (φ &gt; 0)</div>
+        <div class="courbe-box">
+          <h4>⚡ i(t) — courant</h4>
+          <canvas id="courbeCourant" width="500" height="250"></canvas>
+        </div>
 
         <div class="courbe-controls" style="margin-top:12px;">
-          <button class="btn-courbe gbf" onclick="afficherPhases()">🔄 Afficher les 3 cas</button>
+          <button class="btn-courbe charge" onclick="animerCourbe('oscillation')">🔵 Lancer l'animation</button>
+          <button class="btn-courbe cycle" onclick="afficherToutesCourbesStatiques()">📊 Vue statique</button>
         </div>
 
         <div class="info-encadre">
           <strong>💡 À retenir :</strong><br>
-          • f &lt; f₀ : condensateur dominant → déphasage négatif.<br>
-          • f = f₀ : résonance, impédance purement résistive.<br>
-          • f &gt; f₀ : bobine dominante → déphasage positif.
+          • Pseudo-périodique : oscillations amorties.<br>
+          • Critique : retour le plus rapide à 0.<br>
+          • Apériodique : retour lent à 0.<br>
+          • L'énergie est dissipée dans R (effet Joule).
+        </div>
+      </div>
+
+      <!-- Onglet Régimes -->
+      <div class="sous-onglet-contenu" id="sous-regimes">
+        <div class="recap-header">
+          <h3>🎯 Les 3 régimes</h3>
+          <p>Comparaison sur une même courbe.</p>
+        </div>
+
+        <div class="recap-courbe" style="margin-bottom:15px;">
+          <canvas id="courbeRegimes" width="900" height="360"></canvas>
+        </div>
+
+        <div class="courbe-controls">
+          <button class="btn-courbe charge" onclick="afficherComparaisonRegimes('C')">🔵 U_C</button>
+          <button class="btn-courbe decharge" onclick="afficherComparaisonRegimes('R')">🟠 U_R</button>
+          <button class="btn-courbe energies" onclick="afficherComparaisonRegimes('L')">🟣 U_L</button>
+        </div>
+
+        <div class="recap-valeurs" style="margin-top:15px;">
+          <div class="recap-valeur-item" style="border-left-color:#5eead4;">
+            <div class="label">Pseudo</div>
+            <div class="value" style="color:#0f766e;font-size:11px;">R &lt; 632 Ω</div>
+          </div>
+          <div class="recap-valeur-item" style="border-left-color:#f59e0b;">
+            <div class="label">Critique</div>
+            <div class="value" style="color:#b45309;font-size:11px;">R = 632 Ω</div>
+          </div>
+          <div class="recap-valeur-item" style="border-left-color:#dc2626;">
+            <div class="label">Apériodique</div>
+            <div class="value" style="color:#b91c1c;font-size:11px;">R &gt; 632 Ω</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Onglet Énergies -->
+      <div class="sous-onglet-contenu" id="sous-energies">
+        <div class="recap-header">
+          <h3>⚡ Dissipation de l'énergie</h3>
+          <p>L'énergie totale décroît dans R.</p>
+        </div>
+
+        <div class="recap-courbe" style="margin-bottom:15px;">
+          <canvas id="courbeEnergies" width="900" height="320"></canvas>
+        </div>
+
+        <div class="courbe-controls">
+          <button class="btn-courbe energies" onclick="animerEnergies()">⚡ Animer</button>
+          <button class="btn-courbe cycle" onclick="afficherEnergiesStatiques()">📊 Statique</button>
+        </div>
+
+        <div class="info-encadre">
+          <strong>💡 À retenir :</strong><br>
+          • E_C = ½·C·U_C² (jaune)<br>
+          • E_L = ½·L·i² (bleu)<br>
+          • E_totale (vert) décroît : dissipation dans R.<br>
+          • P = R·i² (effet Joule).
         </div>
       </div>
 
@@ -681,24 +778,32 @@
       <div class="sous-onglet-contenu" id="sous-applis">
         <div class="recap-header">
           <h3>🌍 Applications</h3>
-          <p>La résonance RLC est partout.</p>
+          <p>Le RLC est partout.</p>
         </div>
         <div class="applis-grid">
           <div class="appli-card">
             <div class="appli-header"><span class="appli-icon">📻</span><div><div class="appli-title">Radio</div><div class="appli-subtitle">Sélectivité</div></div></div>
-            <div class="appli-desc">Q élevé → bonne séparation des stations proches.</div>
+            <div class="appli-desc">Le facteur Q contrôle la finesse de l'accord.</div>
+            <button class="appli-btn" onclick="voirAnimationAppli('radio')">▶ Voir</button>
+            <div class="appli-canvas-zone" id="canvas-radio"><canvas id="animRadio" width="400" height="180"></canvas></div>
           </div>
           <div class="appli-card">
-            <div class="appli-header"><span class="appli-icon">📡</span><div><div class="appli-title">Antennes</div><div class="appli-subtitle">Accord</div></div></div>
-            <div class="appli-desc">Les antennes sont accordées à la fréquence d'émission.</div>
+            <div class="appli-header"><span class="appli-icon">🔔</span><div><div class="appli-title">Sonnerie</div><div class="appli-subtitle">Son amorti</div></div></div>
+            <div class="appli-desc">Oscillations amorties = son pur à la fréquence f₀.</div>
+            <button class="appli-btn" onclick="voirAnimationAppli('sonnerie')">▶ Voir</button>
+            <div class="appli-canvas-zone" id="canvas-sonnerie"><canvas id="animSonnerie" width="400" height="180"></canvas></div>
           </div>
           <div class="appli-card">
-            <div class="appli-header"><span class="appli-icon">🔊</span><div><div class="appli-title">Enceintes audio</div><div class="appli-subtitle">Filtres passifs</div></div></div>
-            <div class="appli-desc">Les filtres RLC séparent les graves des aigus.</div>
+            <div class="appli-header"><span class="appli-icon">⚡</span><div><div class="appli-title">Allumage</div><div class="appli-subtitle">Impulsion brève</div></div></div>
+            <div class="appli-desc">Décharge oscillante → étincelle.</div>
+            <button class="appli-btn" onclick="voirAnimationAppli('allumage')">▶ Voir</button>
+            <div class="appli-canvas-zone" id="canvas-allumage"><canvas id="animAllumage" width="400" height="180"></canvas></div>
           </div>
           <div class="appli-card">
-            <div class="appli-header"><span class="appli-icon">🏥</span><div><div class="appli-title">IRM</div><div class="appli-subtitle">Résonance magnétique</div></div></div>
-            <div class="appli-desc">Résonance des noyaux atomiques en imagerie médicale.</div>
+            <div class="appli-header"><span class="appli-icon">🏥</span><div><div class="appli-title">Défibrillateur</div><div class="appli-subtitle">Impulsion contrôlée</div></div></div>
+            <div class="appli-desc">Impulsion électrique amortie calibrée.</div>
+            <button class="appli-btn" onclick="voirAnimationAppli('defibrillateur')">▶ Voir</button>
+            <div class="appli-canvas-zone" id="canvas-defibrillateur"><canvas id="animDefibrillateur" width="400" height="180"></canvas></div>
           </div>
         </div>
       </div>
@@ -706,38 +811,35 @@
       <!-- Onglet QCM -->
       <div class="sous-onglet-contenu" id="sous-qcm">
         <div class="qcm-header"><h3>🛡️ Questions</h3><p>Réponds aux 3 questions.</p></div>
-
         <div class="qcm-item" id="qcm-1">
           <div class="qcm-question-num">Question 1 / 3</div>
-          <div class="qcm-question-texte">À la résonance, quelles sont les propriétés ?</div>
+          <div class="qcm-question-texte">Pourquoi les oscillations s'amortissent-elles ?</div>
           <div class="qcm-options">
-            <button class="qcm-option" data-q="1" data-value="a"><span class="qcm-lettre">A</span><span>Z maximale, i minimale</span></button>
-            <button class="qcm-option" data-q="1" data-value="b" data-correct="1"><span class="qcm-lettre">B</span><span>Z = R, i maximale, u et i en phase</span></button>
-            <button class="qcm-option" data-q="1" data-value="c"><span class="qcm-lettre">C</span><span>Circuit purement capacitif</span></button>
+            <button class="qcm-option" data-q="1" data-value="a"><span class="qcm-lettre">A</span><span>La bobine perd son énergie</span></button>
+            <button class="qcm-option" data-q="1" data-value="b" data-correct="1"><span class="qcm-lettre">B</span><span>R dissipe l'énergie (effet Joule)</span></button>
+            <button class="qcm-option" data-q="1" data-value="c"><span class="qcm-lettre">C</span><span>Le condensateur se vide</span></button>
           </div>
           <button class="qcm-btn-valider" onclick="validerQCM(1)" disabled>Valider</button>
           <div class="qcm-feedback" id="feedback-1"></div>
         </div>
-
         <div class="qcm-item" id="qcm-2">
           <div class="qcm-question-num">Question 2 / 3</div>
-          <div class="qcm-question-texte">f₀ pour L = 0,1 H et C = 10 µF ?</div>
+          <div class="qcm-question-texte">R_c pour L = 4 H et C = 100 µF ?</div>
           <div class="qcm-options">
-            <button class="qcm-option" data-q="2" data-value="a"><span class="qcm-lettre">A</span><span>100 Hz</span></button>
-            <button class="qcm-option" data-q="2" data-value="b" data-correct="1"><span class="qcm-lettre">B</span><span>159 Hz</span></button>
-            <button class="qcm-option" data-q="2" data-value="c"><span class="qcm-lettre">C</span><span>500 Hz</span></button>
+            <button class="qcm-option" data-q="2" data-value="a"><span class="qcm-lettre">A</span><span>200 Ω</span></button>
+            <button class="qcm-option" data-q="2" data-value="b" data-correct="1"><span class="qcm-lettre">B</span><span>400 Ω</span></button>
+            <button class="qcm-option" data-q="2" data-value="c"><span class="qcm-lettre">C</span><span>800 Ω</span></button>
           </div>
           <button class="qcm-btn-valider" onclick="validerQCM(2)" disabled>Valider</button>
           <div class="qcm-feedback" id="feedback-2"></div>
         </div>
-
         <div class="qcm-item" id="qcm-3">
           <div class="qcm-question-num">Question 3 / 3</div>
-          <div class="qcm-question-texte">Que devient la résonance si on augmente R ?</div>
+          <div class="qcm-question-texte">Que se passe-t-il si on augmente R ?</div>
           <div class="qcm-options">
-            <button class="qcm-option" data-q="3" data-value="a"><span class="qcm-lettre">A</span><span>Plus aiguë (Q augmente)</span></button>
-            <button class="qcm-option" data-q="3" data-value="b" data-correct="1"><span class="qcm-lettre">B</span><span>Plus plate (Q diminue)</span></button>
-            <button class="qcm-option" data-q="3" data-value="c"><span class="qcm-lettre">C</span><span>Ne change pas</span></button>
+            <button class="qcm-option" data-q="3" data-value="a"><span class="qcm-lettre">A</span><span>Pseudo → Apériodique → Critique</span></button>
+            <button class="qcm-option" data-q="3" data-value="b" data-correct="1"><span class="qcm-lettre">B</span><span>Pseudo → Critique → Apériodique</span></button>
+            <button class="qcm-option" data-q="3" data-value="c"><span class="qcm-lettre">C</span><span>Apériodique → Critique → Pseudo</span></button>
           </div>
           <button class="qcm-btn-valider" onclick="validerQCM(3)" disabled>Valider</button>
           <div class="qcm-feedback" id="feedback-3"></div>
@@ -754,43 +856,42 @@
         </div>
         <div class="conclusion-bilan">
           <span class="bilan-icon">🎯</span>
-          <div><div class="bilan-label">Objectif</div><div class="bilan-text">Déterminer f₀, Δf, Q et comprendre la résonance.</div></div>
+          <div><div class="bilan-label">Objectif</div><div class="bilan-text">Identifier les 3 régimes du RLC libre.</div></div>
         </div>
         <div class="conclusion-form">
           <div class="conclusion-champ">
-            <label for="concl-1"><span class="champ-num">1</span> Fréquence propre f₀ (L=0,1H, C=10µF) ?</label>
-            <div class="champ-indice">💡 f₀ = 1/(2π√(LC))</div>
-            <input type="text" id="concl-1" placeholder="Ex : 159 Hz">
+            <label for="concl-1"><span class="champ-num">1</span> Valeur de R_c ?</label>
+            <div class="champ-indice">💡 R_c = 2√(L/C)</div>
+            <input type="text" id="concl-1" placeholder="Ta réponse…">
             <div class="champ-feedback" id="fb-1"></div>
           </div>
           <div class="conclusion-champ">
-            <label for="concl-2"><span class="champ-num">2</span> Impédance Z à la résonance ?</label>
-            <div class="champ-indice">💡 U_C et U_L se compensent</div>
-            <input type="text" id="concl-2" placeholder="Ta réponse…">
+            <label for="concl-2"><span class="champ-num">2</span> Régime si R = 50 Ω ?</label>
+            <select id="concl-2">
+              <option value="">— Choisis —</option>
+              <option value="pseudo">Pseudo-périodique</option>
+              <option value="critique">Critique</option>
+              <option value="aperiodique">Apériodique</option>
+            </select>
             <div class="champ-feedback" id="fb-2"></div>
           </div>
           <div class="conclusion-champ">
-            <label for="concl-3"><span class="champ-num">3</span> À la résonance, u et i sont…</label>
+            <label for="concl-3"><span class="champ-num">3</span> Régime le plus rapide à revenir à 0 ?</label>
             <select id="concl-3">
               <option value="">— Choisis —</option>
-              <option value="phase">En phase</option>
-              <option value="retard">u en retard sur i</option>
-              <option value="avance">u en avance sur i</option>
+              <option value="pseudo">Pseudo-périodique</option>
+              <option value="critique">Critique</option>
+              <option value="aperiodique">Apériodique</option>
             </select>
             <div class="champ-feedback" id="fb-3"></div>
           </div>
           <div class="conclusion-champ">
-            <label for="concl-4"><span class="champ-num">4</span> Si R diminue, Δf…</label>
-            <select id="concl-4">
-              <option value="">— Choisis —</option>
-              <option value="augmente">Δf augmente</option>
-              <option value="diminue">Δf diminue</option>
-              <option value="constante">Δf reste constante</option>
-            </select>
+            <label for="concl-4"><span class="champ-num">4</span> L'énergie est dissipée sous forme de…</label>
+            <input type="text" id="concl-4" placeholder="Ta réponse…">
             <div class="champ-feedback" id="fb-4"></div>
           </div>
           <div class="conclusion-champ">
-            <label for="concl-5"><span class="champ-num">5</span> Une application de la résonance RLC ?</label>
+            <label for="concl-5"><span class="champ-num">5</span> Une application du RLC ?</label>
             <input type="text" id="concl-5" placeholder="Ta réponse…">
             <div class="champ-feedback" id="fb-5"></div>
           </div>
@@ -820,35 +921,35 @@
       <div class="sous-onglet-contenu" id="sous-exercices">
         <div class="recap-header"><h3>🧮 Exercices</h3><p>3 exercices progressifs.</p></div>
         <div class="exercice-card" id="exo-1">
-          <div class="exercice-entete"><div class="exercice-num">1</div><div class="exercice-titre">Calculer f₀</div></div>
-          <div class="exercice-enonce">L = 0,5 H, C = 20 µF. f₀ ?</div>
-          <ul class="exercice-etapes"><li>f₀ = 1/(2π√(LC))</li></ul>
+          <div class="exercice-entete"><div class="exercice-num">1</div><div class="exercice-titre">Calculer R_c</div></div>
+          <div class="exercice-enonce">L = 2 H, C = 50 µF. Quelle est R_c ?</div>
+          <ul class="exercice-etapes"><li>Formule : R_c = 2√(L/C)</li></ul>
           <div class="exercice-input-zone">
-            <input type="text" class="exercice-input" id="exo1-rep" placeholder="Ex : 50 Hz">
+            <input type="text" class="exercice-input" id="exo1-rep" placeholder="Ex : 400 Ω">
             <button class="btn btn-primary" onclick="verifierExo1()">Vérifier</button>
           </div>
           <div class="exercice-feedback" id="exo1-fb"></div>
         </div>
         <div class="exercice-card" id="exo-2">
-          <div class="exercice-entete"><div class="exercice-num">2</div><div class="exercice-titre">Calculer Q</div></div>
-          <div class="exercice-enonce">Même circuit avec R = 100 Ω. Q ?</div>
-          <ul class="exercice-etapes"><li>Q = (1/R)·√(L/C)</li></ul>
+          <div class="exercice-entete"><div class="exercice-num">2</div><div class="exercice-titre">Identifier le régime</div></div>
+          <div class="exercice-enonce">R = 250 Ω avec R_c = 400 Ω. Quel régime ?</div>
           <div class="exercice-input-zone">
-            <input type="text" class="exercice-input" id="exo2-rep" placeholder="Ex : 1,58">
+            <select class="exercice-input" id="exo2-rep">
+              <option value="">— Choisis —</option>
+              <option value="pseudo">Pseudo-périodique</option>
+              <option value="critique">Critique</option>
+              <option value="aperiodique">Apériodique</option>
+            </select>
             <button class="btn btn-primary" onclick="verifierExo2()">Vérifier</button>
           </div>
           <div class="exercice-feedback" id="exo2-fb"></div>
         </div>
         <div class="exercice-card" id="exo-3">
-          <div class="exercice-entete"><div class="exercice-num">3</div><div class="exercice-titre">Identifier le comportement</div></div>
-          <div class="exercice-enonce">À 2f₀, le circuit est…</div>
+          <div class="exercice-entete"><div class="exercice-num">3</div><div class="exercice-titre">Pseudo-période T</div></div>
+          <div class="exercice-enonce">L = 1 H, C = 10 µF. Quelle est T ≈ T₀ ?</div>
+          <ul class="exercice-etapes"><li>Formule : T ≈ 2π√(L·C)</li></ul>
           <div class="exercice-input-zone">
-            <select class="exercice-input" id="exo3-rep">
-              <option value="">— Choisis —</option>
-              <option value="capacitif">Capacitif</option>
-              <option value="inductif">Inductif</option>
-              <option value="resonance">À la résonance</option>
-            </select>
+            <input type="text" class="exercice-input" id="exo3-rep" placeholder="Ex : 20 ms">
             <button class="btn btn-primary" onclick="verifierExo3()">Vérifier</button>
           </div>
           <div class="exercice-feedback" id="exo3-fb"></div>
@@ -871,74 +972,15 @@
   </div>
 </div>
 <script>
-
-// ============================================================
-//  ✅ PATCH FLUIDITÉ MOBILE — LFAKM (auto-généré)
-// ============================================================
-
-function vibrer(duree = 10) {
-  if (navigator.vibrate && typeof sonActif === 'undefined') {
-    try { navigator.vibrate(duree); } catch(e) {}
-  } else if (navigator.vibrate && sonActif) {
-    try { navigator.vibrate(duree); } catch(e) {}
-  }
-}
-
-function activerNoScroll() {
-  document.body.classList.add('no-scroll');
-}
-function desactiverNoScroll() {
-  document.body.classList.remove('no-scroll');
-}
-
-document.addEventListener('touchmove', function(e) {
-  const el = e.target;
-  if (el.closest('input, textarea, select, .table-wrapper, .sous-onglets, .tabs-mobile, .source-picker')) {
-    return;
-  }
-  if (el.closest('canvas')) {
-    e.preventDefault();
-    return;
-  }
-}, { passive: false });
-
-let _lastTouchEnd = 0;
-document.addEventListener('touchend', function(e) {
-  const now = Date.now();
-  if (now - _lastTouchEnd <= 300) {
-    e.preventDefault();
-  }
-  _lastTouchEnd = now;
-}, { passive: false });
-
-document.addEventListener('gesturestart', function(e) {
-  e.preventDefault();
-});
-
-document.addEventListener('touchstart', function(e) {
-  if (e.touches.length > 1) {
-    e.preventDefault();
-  }
-}, { passive: false });
-
-document.addEventListener('dragstart', function(e) {
-  if (e.target.tagName === 'IMG') {
-    e.preventDefault();
-  }
-});
-
-console.log('✅ Patch fluidité mobile chargé');
-
-
 // ============================================================
 //  EXPLICATIONS
 // ============================================================
 const EXPLICATIONS = {
-  gbf: { title: '🔊 GBF', content: `<p>Délivre <strong>u(t) = U_m·cos(2πft)</strong> avec f réglable.</p><p>Force le circuit à osciller à sa fréquence.</p>` },
-  condensateur: { title: '⚡ Condensateur', content: `<p><code>Z_C = 1/(Cω)</code> — diminue quand f augmente.</p>` },
-  bobine: { title: '🌀 Bobine', content: `<p><code>Z_L = Lω</code> — augmente quand f augmente.</p>` },
-  resistance: { title: '📏 Résistance', content: `<p>Contrôle l'acuité : <code>Q = (1/R)·√(L/C)</code></p>` },
-  oscillo: { title: '📺 Oscilloscope', content: `<p>Voie 1 : u(t) du GBF.<br>Voie 2 : U_R(t) = image de i(t).</p>` }
+  condensateur: { title: '⚡ Condensateur (C = 10 µF)', content: `<p>Stocke l'énergie sous forme <strong>électrique</strong>.</p><p><code>E_C = ½·C·U_C²</code></p>` },
+  bobine: { title: '🌀 Bobine (L = 1 H)', content: `<p>Stocke l'énergie sous forme <strong>magnétique</strong>.</p><p><code>E_L = ½·L·i²</code></p>` },
+  resistance: { title: '📏 Résistance variable', content: `<p>Dissipe l'énergie en chaleur (effet Joule). C'est elle qui provoque l'<strong>amortissement</strong>.</p><p><code>R_c = 2√(L/C) ≈ 632 Ω</code></p>` },
+  interrupteur: { title: '🔘 Interrupteur K', content: `<p>Ouvre ou ferme la boucle RLC.</p>` },
+  fils: { title: '🧵 Fils', content: `<p>Boucle fermée = <strong>4 fils minimum</strong>.</p>` }
 };
 
 function ouvrirModal(cle) {
@@ -951,18 +993,9 @@ function ouvrirModal(cle) {
 function fermerModal() { document.getElementById('modalOverlay').classList.remove('show'); }
 
 // ============================================================
-//  ÉTAT GLOBAL
-// ============================================================
-let choixRes = 'moyen';
-let R = 50, L = 0.1, C = 10;
-let freqGBF = 159;
-const Um = 6;
-const FREQ_MIN = 10, FREQ_MAX = 500;
-
-// ============================================================
 //  SON
 // ============================================================
-let sonActif = localStorage.getItem('tp_rlcf_mobile_son') !== 'false';
+let sonActif = localStorage.getItem('tp_rlc_mobile_son') !== 'false';
 let audioCtx = null;
 function initAudio() { if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} } }
 function jouerSon(type) {
@@ -1006,11 +1039,22 @@ function jouerNote(freq, dur, type, vol) {
 }
 function toggleSon() {
   sonActif = !sonActif;
-  localStorage.setItem('tp_rlcf_mobile_son', sonActif);
+  localStorage.setItem('tp_rlc_mobile_son', sonActif);
   const btn = document.getElementById('sonToggle');
   if (btn) { btn.textContent = sonActif ? '🔊' : '🔇'; btn.classList.toggle('off', !sonActif); }
-  if (sonActif) vibrer([20, 30, 20]); jouerSon('valide');
+  if (sonActif) jouerSon('valide');
 }
+
+// ============================================================
+//  ÉTAT GLOBAL
+// ============================================================
+let regimeChoisi = 'pseudo';
+let R = 50, L = 1, C = 10;
+const U0 = 6;
+let modeMesure = 'C';
+let voie1Bicourbe = 'R';
+let voie2Bicourbe = 'C';
+let courbeAffichee = 'C';
 
 // ============================================================
 //  NAVIGATION
@@ -1032,90 +1076,88 @@ function allerEtape(n) {
   });
   etapeActuelle = n;
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (n === 3) setTimeout(() => initialiserBranchement(), 100);
-  if (n === 4) setTimeout(() => { initRecapEditable(); majAffichage(); drawRecapCourbe(); initCourbesPhasesVides(); }, 100);
+  if (n === 3) setTimeout(() => { initialiserBranchement(); majMessageBranchement(); }, 100);
+  if (n === 4) {
+    setTimeout(() => {
+      initRecapEditable();
+      majRegimeAffichage();
+      drawRecapCourbe();
+      initCourbesVides();
+      chargerConclusionDepuisStorage();
+      initTInteractif();
+    }, 100);
+  }
 }
 function debloquerEtape(n) { if (!etapesDebloquees.includes(n)) etapesDebloquees.push(n); }
 
 // ============================================================
-//  CHOIX DE R
+//  SÉLECTEUR DE RÉGIME
 // ============================================================
-function choisirR(niveau) {
-  choixRes = niveau;
-  ['faible', 'moyen', 'forte', 'perso'].forEach(r => {
-    const id = 'resOpt' + (r === 'faible' ? 'Faible' : r === 'moyen' ? 'Moyen' : r === 'forte' ? 'Forte' : 'Perso');
+function choisirRegime(regime) {
+  regimeChoisi = regime;
+  ['pseudo', 'critique', 'aperiodique', 'perso'].forEach(r => {
+    const id = 'regimeOpt' + (r === 'pseudo' ? 'Pseudo' : r === 'critique' ? 'Critique' : r === 'aperiodique' ? 'Aperiodique' : 'Perso');
     const el = document.getElementById(id);
-    if (el) el.classList.toggle('actif', r === niveau);
+    if (el) el.classList.toggle('actif', r === regime);
   });
-  if (niveau === 'faible') R = 10;
-  else if (niveau === 'moyen') R = 50;
-  else if (niveau === 'forte') R = 200;
+  if (regime === 'pseudo') R = 50;
+  else if (regime === 'critique') R = 632;
+  else if (regime === 'aperiodique') R = 1500;
   else {
     const inp = document.getElementById('inputRPerso');
-    R = inp ? Math.max(5, Math.min(500, parseFloat(inp.value) || 100)) : 100;
+    R = inp ? Math.max(10, Math.min(5000, parseFloat(inp.value) || 200)) : 200;
   }
   const inputR = document.getElementById('inputR');
   if (inputR) inputR.value = R;
-  majAffichage();
-  vibrer(10); jouerSon('connect');
+  majRegimeAffichage();
+  jouerSon('connect');
 }
 
 function majRPersonnalise() {
-  if (choixRes !== 'perso') return;
+  if (regimeChoisi !== 'perso') return;
   const inp = document.getElementById('inputRPerso');
-  R = Math.max(5, Math.min(500, parseFloat(inp.value) || 100));
+  R = Math.max(10, Math.min(5000, parseFloat(inp.value) || 200));
   const inputR = document.getElementById('inputR');
   if (inputR) inputR.value = R;
-  majAffichage();
-  vibrer(10); jouerSon('connect');
+  majRegimeAffichage();
+  jouerSon('connect');
 }
 
-function majFrequenceGBF(val) {
-  freqGBF = parseFloat(val) || 159;
-  const slider = document.getElementById('freqGBF');
-  if (slider && parseFloat(slider.value) !== freqGBF) slider.value = freqGBF;
-  majAffichage();
-  drawRecapCourbe();
+function determinerRegime(R, L, C) {
+  const Rc = 2 * Math.sqrt(L / (C * 1e-6));
+  const tol = 0.02;
+  if (Math.abs(R - Rc) / Rc < tol) return 'critique';
+  return R < Rc ? 'pseudo' : 'aperiodique';
 }
 
-// ============================================================
-//  CALCULS
-// ============================================================
-function calculerF0(L, C) { return 1 / (2 * Math.PI * Math.sqrt(L * C * 1e-6)); }
-
-function calculerImpedance(f, R, L, C) {
-  const omega = 2 * Math.PI * f;
-  const C_f = C * 1e-6;
-  const XL = L * omega;
-  const XC = 1 / (C_f * omega);
-  const Z = Math.sqrt(R * R + (XL - XC) * (XL - XC));
-  const phi = Math.atan2(XL - XC, R);
-  return { Z, phi, XL, XC, omega };
-}
-
-function calculerCourantAmplitude(f, R, L, C) {
-  const { Z } = calculerImpedance(f, R, L, C);
-  return Um / Z;
-}
-
-function majAffichage() {
-  const f0 = calculerF0(L, C);
+function majRegimeAffichage() {
+  const Rc = 2 * Math.sqrt(L / (C * 1e-6));
+  const regimeAuto = determinerRegime(R, L, C);
+  const elRc = document.getElementById('valeurRc');
+  if (elRc) elRc.textContent = Rc.toFixed(0) + ' Ω';
+  const elReg = document.getElementById('valeurRegime');
+  if (elReg) {
+    const labels = { pseudo: 'Pseudo-périodique', critique: 'Critique', aperiodique: 'Apériodique' };
+    elReg.textContent = labels[regimeAuto];
+    elReg.style.color = regimeAuto === 'pseudo' ? '#0f766e' : regimeAuto === 'critique' ? '#b45309' : '#b91c1c';
+  }
+  const T0 = 2 * Math.PI * Math.sqrt(L * C * 1e-6);
+  const elT = document.getElementById('valeurT');
+  if (elT) elT.textContent = (T0 * 1000).toFixed(1) + ' ms';
   const Q = (1 / R) * Math.sqrt(L / (C * 1e-6));
-  const deltaF = f0 / Q;
-  const imp = calculerImpedance(freqGBF, R, L, C);
-  const iF = Um / imp.Z;
-  const phiDeg = imp.phi * 180 / Math.PI;
-  const omegaGBF = 2 * Math.PI * freqGBF;
+  const elQ = document.getElementById('valeurQ');
+  if (elQ) elQ.textContent = Q.toFixed(1);
+  const tau = 2 * L / R;
+  const elTau = document.getElementById('valeurTau');
+  if (elTau) elTau.textContent = (tau * 1000).toFixed(1) + ' ms';
+  const E0 = 0.5 * (C * 1e-6) * U0 * U0;
+  const elE0 = document.getElementById('valeurE0');
+  if (elE0) elE0.textContent = (E0 * 1e6).toFixed(0) + ' µJ';
+}
 
-  const setTxt = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
-  setTxt('valeurFreqGBF', freqGBF.toFixed(0) + ' Hz');
-  setTxt('valeurOmegaGBF', omegaGBF.toFixed(0) + ' rad/s');
-  setTxt('valeurZf', imp.Z.toFixed(1) + ' Ω');
-  setTxt('valeurIf', (iF * 1000).toFixed(0) + ' mA');
-  setTxt('valeurPhiF', phiDeg.toFixed(1) + '°');
-  setTxt('valeurF0', f0.toFixed(1) + ' Hz');
-  setTxt('valeurQ', Q.toFixed(2));
-  setTxt('valeurDeltaF', deltaF.toFixed(1) + ' Hz');
+function labelGrandeur(g) {
+  const l = { C: 'U_C', R: 'U_R', L: 'U_L', I: 'i' };
+  return l[g] || g;
 }
 
 // ============================================================
@@ -1128,14 +1170,15 @@ const W = canvas.width, H = canvas.height;
 let montage = {
   composants: [], fils: [],
   composantSelectionne: null, filSelectionne: null,
-  prochainIdComp: 1, prochainIdFil: 1
+  prochainIdComp: 1, prochainIdFil: 1,
+  interrupteurFerme: false
 };
 
 const TAILLE = {
-  gbf: { w: 110, h: 100 },
   condensateur: { w: 80, h: 90 },
   bobine: { w: 120, h: 80 },
-  resistance: { w: 110, h: 40 }
+  resistance: { w: 110, h: 40 },
+  interrupteur: { w: 90, h: 50 }
 };
 const DIST_CONNEXION = 55;
 
@@ -1148,12 +1191,12 @@ function ajouterComposant(type) {
   const comp = {
     id: 'c' + montage.prochainIdComp++,
     type, x: pos.x, y: pos.y, rotation: 0,
-    valeur: type === 'gbf' ? '~' : type === 'condensateur' ? 'C' : type === 'bobine' ? '0.1 H' : 'R'
+    valeur: type === 'condensateur' ? '10 µF' : type === 'bobine' ? '1 H' : type === 'resistance' ? 'R' : 'K'
   };
   montage.composants.push(comp);
   const btn = document.getElementById('btn-' + type);
   if (btn) btn.classList.add('used');
-  vibrer(15); jouerSon('pose');
+  jouerSon('pose');
   drawMontage(); updateProgress(); updateCanvasHint();
 }
 
@@ -1169,7 +1212,7 @@ function ajouterFil() {
   montage.fils.push(fil);
   montage.filSelectionne = fil.id;
   updateConnexionsFils();
-  vibrer(15); jouerSon('pose');
+  jouerSon('pose');
   drawMontage(); updateProgress();
 }
 
@@ -1216,7 +1259,7 @@ function updateConnexionsFils() {
 function drawMontage() {
   ctx.clearRect(0, 0, W, H);
   ctx.fillStyle = '#0a0a1a'; ctx.fillRect(0, 0, W, H);
-  ctx.strokeStyle = 'rgba(124,58,237,0.08)'; ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(15,118,110,0.08)'; ctx.lineWidth = 1;
   for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
   for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
   montage.fils.forEach(f => drawFil(f));
@@ -1231,7 +1274,7 @@ function drawMontage() {
 function drawFil(fil) {
   const sel = montage.filSelectionne === fil.id;
   const br = fil.de && fil.vers;
-  ctx.strokeStyle = sel ? '#ffd54f' : (br ? '#4caf50' : '#a78bfa');
+  ctx.strokeStyle = sel ? '#ffd54f' : (br ? '#4caf50' : '#5eead4');
   ctx.lineWidth = sel ? 8 : 5;
   ctx.lineCap = 'round';
   ctx.shadowColor = ctx.strokeStyle;
@@ -1250,10 +1293,10 @@ function drawComposant(ctx2, c) {
   ctx2.translate(c.x, c.y);
   ctx2.rotate((c.rotation || 0) * Math.PI / 180);
   ctx2.translate(-c.x, -c.y);
-  if (c.type === 'gbf') drawGBF(ctx2, c.x, c.y, t.w, t.h);
-  else if (c.type === 'condensateur') drawCondensateur(ctx2, c.x, c.y, t.w, t.h, c.valeur);
+  if (c.type === 'condensateur') drawCondensateur(ctx2, c.x, c.y, t.w, t.h, c.valeur);
   else if (c.type === 'bobine') drawBobine(ctx2, c.x, c.y, t.w, t.h, c.valeur);
   else if (c.type === 'resistance') drawResistance(ctx2, c.x, c.y, t.w, t.h, c.valeur);
+  else if (c.type === 'interrupteur') drawInterrupteur(ctx2, c.x, c.y, t.w, t.h);
   ctx2.restore();
   drawPoigneeRotation(ctx2, c);
 }
@@ -1265,29 +1308,10 @@ function drawPoigneeRotation(ctx2, c) {
   const offsetY = -t.h / 2 - 25;
   const hx = c.x + offsetY * Math.sin(angle);
   const hy = c.y - offsetY * Math.cos(angle);
-  ctx2.fillStyle = '#a78bfa'; ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 2;
+  ctx2.fillStyle = '#5eead4'; ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 2;
   ctx2.beginPath(); ctx2.arc(hx, hy, 12, 0, Math.PI * 2); ctx2.fill(); ctx2.stroke();
   ctx2.fillStyle = '#fff'; ctx2.font = 'bold 14px Arial'; ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
   ctx2.fillText('⟳', hx, hy + 1); ctx2.textBaseline = 'alphabetic';
-}
-
-function drawGBF(ctx2, cx, cy, w, h) {
-  ctx2.fillStyle = '#1a1a2e'; ctx2.strokeStyle = '#7c3aed'; ctx2.lineWidth = 3;
-  ctx2.beginPath(); ctx2.roundRect(cx - w/2, cy - h/2, w, h, 12); ctx2.fill(); ctx2.stroke();
-  ctx2.strokeStyle = '#a78bfa'; ctx2.lineWidth = 3; ctx2.shadowColor = '#a78bfa'; ctx2.shadowBlur = 8;
-  ctx2.beginPath();
-  for (let i = -30; i <= 30; i++) {
-    const x = cx + i;
-    const y = cy - 18 * Math.sin(i * Math.PI / 15);
-    if (i === -30) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
-  }
-  ctx2.stroke(); ctx2.shadowBlur = 0;
-  ctx2.fillStyle = '#fff'; ctx2.font = 'bold 13px monospace'; ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
-  ctx2.fillText('GBF ~', cx, cy + h/2 - 14);
-  ctx2.fillStyle = '#a78bfa'; ctx2.font = 'bold 14px Arial';
-  ctx2.fillText('+', cx - w/2 - 14, cy - h/4);
-  ctx2.fillText('−', cx - w/2 - 14, cy + h/4);
-  ctx2.textBaseline = 'alphabetic';
 }
 
 function drawCondensateur(ctx2, cx, cy, w, h, val) {
@@ -1306,15 +1330,22 @@ function drawBobine(ctx2, cx, cy, w, h, val) {
   ctx2.fillStyle = '#1a1a2e'; ctx2.strokeStyle = '#B87333'; ctx2.lineWidth = 3;
   ctx2.beginPath(); ctx2.roundRect(cx - w/2, cy - h/2, w, h, 10); ctx2.fill(); ctx2.stroke();
   const noyauW = w - 30, noyauH = 18;
-  const gradN = ctx2.createLinearGradient(cx - noyauW/2, cy, cx + noyauW/2, cy);
-  gradN.addColorStop(0, '#3a4250'); gradN.addColorStop(0.5, '#b8bfcc'); gradN.addColorStop(1, '#3a4250');
-  ctx2.fillStyle = gradN;
+  const gradNoyau = ctx2.createLinearGradient(cx - noyauW/2, cy, cx + noyauW/2, cy);
+  gradNoyau.addColorStop(0, '#3a4250'); gradNoyau.addColorStop(0.4, '#8a92a0');
+  gradNoyau.addColorStop(0.6, '#b8bfcc'); gradNoyau.addColorStop(1, '#3a4250');
+  ctx2.fillStyle = gradNoyau;
   ctx2.beginPath(); ctx2.roundRect(cx - noyauW/2, cy - noyauH/2, noyauW, noyauH, noyauH/2); ctx2.fill();
+  ctx2.strokeStyle = '#2a323e'; ctx2.lineWidth = 1.5; ctx2.stroke();
   const nbSpires = 10, espacement = noyauW / nbSpires;
+  const spireRx = espacement / 2 + 1, spireRy = 26;
+  const pulse = (Math.sin(Date.now() / 800) + 1) / 2;
+  const ryVar = spireRy + pulse * 1.5;
   for (let i = 0; i < nbSpires; i++) {
     const x = cx - noyauW/2 + espacement * (i + 0.5);
-    ctx2.strokeStyle = '#B87333'; ctx2.lineWidth = 3;
-    ctx2.beginPath(); ctx2.ellipse(x, cy, espacement/2 + 1, 26, 0, 0, Math.PI * 2); ctx2.stroke();
+    const gradSpire = ctx2.createRadialGradient(x - spireRx * 0.4, cy - ryVar * 0.3, 1, x, cy, spireRx * 1.4);
+    gradSpire.addColorStop(0, '#F5B072'); gradSpire.addColorStop(0.5, '#B87333'); gradSpire.addColorStop(1, '#6B3E1A');
+    ctx2.strokeStyle = gradSpire; ctx2.lineWidth = 3;
+    ctx2.beginPath(); ctx2.ellipse(x, cy, spireRx, ryVar, 0, 0, Math.PI * 2); ctx2.stroke();
   }
   ctx2.fillStyle = '#fff'; ctx2.font = 'bold 12px monospace'; ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
   ctx2.fillText(val, cx, cy + h/2 - 10); ctx2.textBaseline = 'alphabetic';
@@ -1330,6 +1361,22 @@ function drawResistance(ctx2, cx, cy, w, h, val) {
   ctx2.stroke();
   ctx2.fillStyle = '#fff'; ctx2.font = 'bold 12px monospace'; ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
   ctx2.fillText(val, cx, cy); ctx2.textBaseline = 'alphabetic';
+}
+
+function drawInterrupteur(ctx2, cx, cy, w, h) {
+  const f = montage.interrupteurFerme;
+  ctx2.fillStyle = '#1a1a2e'; ctx2.strokeStyle = f ? '#4caf50' : '#5eead4'; ctx2.lineWidth = 3;
+  ctx2.beginPath(); ctx2.roundRect(cx - w/2, cy - h/2, w, h, 8); ctx2.fill(); ctx2.stroke();
+  const bx1 = cx - w/2 + 15, bx2 = cx + w/2 - 15;
+  ctx2.fillStyle = '#fff';
+  ctx2.beginPath(); ctx2.arc(bx1, cy, 6, 0, Math.PI*2); ctx2.fill();
+  ctx2.beginPath(); ctx2.arc(bx2, cy, 6, 0, Math.PI*2); ctx2.fill();
+  ctx2.strokeStyle = f ? '#4caf50' : '#f44336'; ctx2.lineWidth = 4; ctx2.lineCap = 'round';
+  ctx2.beginPath(); ctx2.moveTo(bx1, cy);
+  if (f) ctx2.lineTo(bx2, cy); else ctx2.lineTo(bx2, cy - 22);
+  ctx2.stroke();
+  ctx2.fillStyle = f ? '#4caf50' : '#5eead4'; ctx2.font = 'bold 10px monospace'; ctx2.textAlign = 'center';
+  ctx2.fillText(f ? 'K FERMÉ' : 'K OUVERT', cx, cy - h/2 - 10);
 }
 
 function drawBorne(b) {
@@ -1381,7 +1428,6 @@ canvas.addEventListener('mousemove', (e) => { if (!canvas._mouseDown) return; co
 canvas.addEventListener('mouseup', () => { if (!canvas._mouseDown) return; canvas._mouseDown = false; handleTouchEnd(); });
 
 function handleTouchStart(x, y) {
-  activerNoScroll();
   for (const c of montage.composants) {
     const t = TAILLE[c.type];
     if (!t) continue;
@@ -1391,7 +1437,7 @@ function handleTouchStart(x, y) {
     const hy = c.y - offsetY * Math.cos(angle);
     if (Math.hypot(hx - x, hy - y) < 22) {
       c.rotation = ((c.rotation || 0) + 90) % 360;
-      updateConnexionsFils(); drawMontage(); vibrer(10); jouerSon('connect');
+      updateConnexionsFils(); drawMontage(); jouerSon('connect');
       return;
     }
   }
@@ -1408,7 +1454,7 @@ function handleTouchStart(x, y) {
     dragState.cote = coteTrouve;
     montage.filSelectionne = filTrouve.id;
     montage.composantSelectionne = null;
-    vibrer(10); jouerSon('connect'); drawMontage();
+    jouerSon('connect'); drawMontage();
     return;
   }
   const comp = trouverComposant(x, y);
@@ -1419,7 +1465,7 @@ function handleTouchStart(x, y) {
     dragState.offsetY = y - comp.y;
     montage.composantSelectionne = comp.id;
     montage.filSelectionne = null;
-    vibrer(10); jouerSon('connect'); drawMontage();
+    jouerSon('connect'); drawMontage();
     return;
   }
   handleTap(x, y);
@@ -1449,7 +1495,6 @@ function handleTouchMove(x, y) {
 }
 
 function handleTouchEnd() {
-  desactiverNoScroll();
   const avait = dragState.type !== null;
   dragState.type = null; dragState.filId = null; dragState.cote = null; dragState.compId = null;
   if (avait) { updateConnexionsFils(); updateProgress(); drawMontage(); updateCanvasHint(); }
@@ -1467,16 +1512,24 @@ function trouverBorneProche(x, y, maxD) {
 function handleTap(x, y) {
   const comp = trouverComposant(x, y);
   if (comp) {
+    if (comp.type === 'interrupteur') {
+      if (montage.composantSelectionne === comp.id) {
+        montage.interrupteurFerme = !montage.interrupteurFerme;
+        montage.composantSelectionne = null;
+        jouerSon('connect'); drawMontage(); majBoutonInterrupteur();
+        return;
+      }
+    }
     montage.composantSelectionne = montage.composantSelectionne === comp.id ? null : comp.id;
     montage.filSelectionne = null;
-    vibrer(10); jouerSon('connect'); drawMontage();
+    jouerSon('connect'); drawMontage();
     return;
   }
   const fil = trouverFil(x, y);
   if (fil) {
     montage.filSelectionne = montage.filSelectionne === fil.id ? null : fil.id;
     montage.composantSelectionne = null;
-    vibrer(10); jouerSon('connect'); drawMontage();
+    jouerSon('connect'); drawMontage();
     return;
   }
   montage.composantSelectionne = null;
@@ -1524,7 +1577,30 @@ function updateProgress() {
   document.getElementById('countFils').textContent = `${nbF}/4`;
   document.getElementById('progComposants').classList.toggle('done', nbC === 4);
   document.getElementById('progFils').classList.toggle('done', nbF >= 4);
+  majBoutonInterrupteur();
 }
+
+function majBoutonInterrupteur() {
+  const zone = document.getElementById('interrupteurControl');
+  const btn = document.getElementById('btnInterrupteur');
+  const etat = document.getElementById('etatInterrupteur');
+  if (!zone || !btn || !etat) return;
+  const exist = montage.composants.some(c => c.type === 'interrupteur');
+  if (!exist) { zone.style.display = 'none'; return; }
+  zone.style.display = 'flex';
+  if (montage.interrupteurFerme) {
+    btn.classList.add('ferme'); btn.classList.remove('ouvert');
+    etat.textContent = '🔒 K fermé ✓';
+  } else {
+    btn.classList.add('ouvert'); btn.classList.remove('ferme');
+    etat.textContent = '🔓 K ouvert';
+  }
+}
+
+window.toggleInterrupteur = function() {
+  montage.interrupteurFerme = !montage.interrupteurFerme;
+  jouerSon('connect'); drawMontage(); updateProgress(); majBoutonInterrupteur(); updateCanvasHint();
+};
 
 function updateCanvasHint() {
   const h = document.getElementById('canvasHint');
@@ -1540,6 +1616,7 @@ function effacerTout() {
   montage.composants = []; montage.fils = [];
   montage.composantSelectionne = null; montage.filSelectionne = null;
   montage.prochainIdComp = 1; montage.prochainIdFil = 1;
+  montage.interrupteurFerme = false;
   document.querySelectorAll('.outil-btn').forEach(b => b.classList.remove('used'));
   drawMontage(); updateProgress(); updateCanvasHint();
   document.getElementById('verifMessage').classList.remove('show');
@@ -1549,23 +1626,33 @@ function verifierMontage() {
   const msg = document.getElementById('verifMessage');
   const checks = [];
   let toutOK = true;
-  const attendus = ['gbf', 'condensateur', 'bobine', 'resistance'];
+  const attendus = ['condensateur', 'bobine', 'resistance', 'interrupteur'];
   const presents = montage.composants.map(c => c.type);
   const compOK = attendus.every(t => presents.includes(t));
 
   if (compOK) checks.push({ ok: true, txt: 'Les 4 composants sont présents' });
   else {
-    const manq = attendus.filter(t => !presents.includes(t));
-    checks.push({ ok: false, txt: `Manquants : ${manq.join(', ')}` });
+    const manquants = attendus.filter(t => !presents.includes(t));
+    checks.push({ ok: false, txt: `Manquants : ${manquants.join(', ')}` });
     toutOK = false;
   }
+
   const fils = montage.fils.filter(f => f.de && f.vers).length;
   if (fils >= 4) checks.push({ ok: true, txt: `Fils connectés (${fils})` });
   else { checks.push({ ok: false, txt: `Il manque ${4 - fils} fil(s)` }); toutOK = false; }
 
+  if (compOK && fils >= 4) {
+    if (!montage.interrupteurFerme) {
+      checks.push({ ok: false, txt: "⚠️ L'interrupteur K est OUVERT." });
+      toutOK = false;
+    } else {
+      checks.push({ ok: true, txt: "🔒 Interrupteur K fermé" });
+    }
+  }
+
   msg.classList.remove('success', 'error');
   msg.classList.add('show', toutOK ? 'success' : 'error');
-  let html = toutOK ? `<strong>🎉 Montage validé !</strong><ul>` : `<strong>⚠️ Presque !</strong><ul>`;
+  let html = toutOK ? `<strong>🎉 Montage validé !</strong><ul>` : `<strong>⚠️ Presque ! Vérifie :</strong><ul>`;
   checks.forEach(c => html += `<li class="${c.ok ? 'ok' : 'ko'}">${c.txt}</li>`);
   html += '</ul>';
   if (toutOK) {
@@ -1573,8 +1660,8 @@ function verifierMontage() {
       <button class="btn btn-primary" onclick="debloquerEtape(3); allerEtape(3);">➡️ Passer au branchement</button>
     </div>`;
     debloquerEtape(3);
-    vibrer([20, 30, 20]); jouerSon('valide');
-  } else vibrer([50, 30, 50]); jouerSon('erreur');
+    jouerSon('valide');
+  } else jouerSon('erreur');
   msg.innerHTML = html;
 }
 
@@ -1592,6 +1679,45 @@ let branchement = {
   filSelectionne: null
 };
 
+function choisirModeMesure(mode) {
+  modeMesure = mode;
+  ['C', 'R', 'L', 'double'].forEach(m => {
+    const id = 'modeOpt' + (m === 'C' ? 'C' : m === 'R' ? 'R' : m === 'L' ? 'L' : 'Double');
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('actif', m === mode);
+  });
+  majMessageBranchement();
+  jouerSon('connect');
+}
+
+function majSelectionBicourbe() {
+  const s1 = document.getElementById('selectVoie1');
+  const s2 = document.getElementById('selectVoie2');
+  if (!s1 || !s2) return;
+  voie1Bicourbe = s1.value;
+  voie2Bicourbe = s2.value;
+  const msgBic = document.getElementById('messageBicourbe');
+  if (msgBic) {
+    if (voie1Bicourbe === voie2Bicourbe) {
+      msgBic.style.borderLeftColor = '#dc2626';
+      msgBic.innerHTML = `⚠️ Choisis 2 grandeurs différentes.`;
+    } else {
+      msgBic.style.borderLeftColor = '#7c3aed';
+      msgBic.innerHTML = `✅ CH1 → ${labelGrandeur(voie1Bicourbe)}, CH2 → ${labelGrandeur(voie2Bicourbe)}.`;
+    }
+  }
+  majMessageBranchement();
+}
+
+function majMessageBranchement() {
+  const hint = document.getElementById('canvasHintBranchement');
+  if (!hint) return;
+  if (modeMesure === 'C') hint.textContent = '📺 Branche les voies sur le condensateur C';
+  else if (modeMesure === 'R') hint.textContent = '📺 Branche les voies sur la résistance R';
+  else if (modeMesure === 'L') hint.textContent = '📺 Branche les voies sur la bobine L';
+  else hint.textContent = `📺 Bicourbe : ${labelGrandeur(voie1Bicourbe)} + ${labelGrandeur(voie2Bicourbe)}`;
+}
+
 function initialiserBranchement() {
   branchement.composants = JSON.parse(JSON.stringify(montage.composants));
   branchement.fils = (montage.fils || []).map(fil => ({
@@ -1605,13 +1731,12 @@ function initialiserBranchement() {
 
 function poserOscilloscope() {
   if (branchement.oscilloscope) return;
-  branchement.oscilloscope = { id: 'osc', x: 100, y: 100, w: 160, h: 120, rotation: 0 };
+  branchement.oscilloscope = { id: 'osc', x: WB - 180, y: 150, w: 160, h: 120, rotation: 0 };
   branchement.oscilloPlace = true;
   const btn = document.getElementById('btn-oscillo');
   if (btn) { btn.classList.add('used'); btn.disabled = true; btn.innerHTML = '<span class="icon">✅</span><span>Posé</span>'; }
-  vibrer(15); jouerSon('pose');
-  drawBranchement();
-  updateHintBranchement();
+  jouerSon('pose');
+  drawBranchement(); updateHintBranchement();
 }
 
 function ajouterFilBranchement() {
@@ -1626,7 +1751,7 @@ function ajouterFilBranchement() {
   };
   branchement.fils.push(fil);
   branchement.filSelectionne = fil.id;
-  vibrer(15); jouerSon('pose');
+  jouerSon('pose');
   updateConnexionsFilsB();
   drawBranchement();
 }
@@ -1672,7 +1797,7 @@ function updateConnexionsFilsB() {
 function drawBranchement() {
   ctxB.clearRect(0, 0, WB, HB);
   ctxB.fillStyle = '#0a0a1a'; ctxB.fillRect(0, 0, WB, HB);
-  ctxB.strokeStyle = 'rgba(124,58,237,0.08)'; ctxB.lineWidth = 1;
+  ctxB.strokeStyle = 'rgba(15,118,110,0.08)'; ctxB.lineWidth = 1;
   for (let x = 0; x < WB; x += 40) { ctxB.beginPath(); ctxB.moveTo(x, 0); ctxB.lineTo(x, HB); ctxB.stroke(); }
   for (let y = 0; y < HB; y += 40) { ctxB.beginPath(); ctxB.moveTo(0, y); ctxB.lineTo(WB, y); ctxB.stroke(); }
   branchement.fils.forEach(f => drawFilB(f));
@@ -1682,22 +1807,22 @@ function drawBranchement() {
     ctxB.rotate((c.rotation || 0) * Math.PI / 180);
     ctxB.translate(-c.x, -c.y);
     const t = TAILLE[c.type];
-    if (c.type === 'gbf') drawGBF(ctxB, c.x, c.y, t.w, t.h);
-    else if (c.type === 'condensateur') drawCondensateur(ctxB, c.x, c.y, t.w, t.h, c.valeur);
+    if (c.type === 'condensateur') drawCondensateur(ctxB, c.x, c.y, t.w, t.h, c.valeur);
     else if (c.type === 'bobine') drawBobine(ctxB, c.x, c.y, t.w, t.h, c.valeur);
     else if (c.type === 'resistance') drawResistance(ctxB, c.x, c.y, t.w, t.h, c.valeur);
+    else if (c.type === 'interrupteur') drawInterrupteur(ctxB, c.x, c.y, t.w, t.h);
     ctxB.restore();
   });
   branchement.composants.forEach(c => getBornes(c).forEach(b => drawBorneB(b)));
   if (branchement.oscilloscope) {
-    drawOscilloB(branchement.oscilloscope);
+    drawOscillo(branchement.oscilloscope);
     getBornesOscillo().forEach(b => drawBorneB(b, true));
   }
 }
 
 function drawFilB(fil) {
   const br = fil.de && fil.vers;
-  ctxB.strokeStyle = br ? '#4caf50' : '#a78bfa';
+  ctxB.strokeStyle = br ? '#4caf50' : '#5eead4';
   ctxB.lineWidth = 5; ctxB.lineCap = 'round';
   ctxB.beginPath(); ctxB.moveTo(fil.x1, fil.y1); ctxB.lineTo(fil.x2, fil.y2); ctxB.stroke();
   ctxB.fillStyle = fil.de ? '#4caf50' : '#888';
@@ -1706,8 +1831,8 @@ function drawFilB(fil) {
   ctxB.beginPath(); ctxB.arc(fil.x2, fil.y2, 10, 0, Math.PI*2); ctxB.fill();
 }
 
-function drawOscilloB(o) {
-  ctxB.fillStyle = '#7c3aed'; ctxB.strokeStyle = '#a78bfa'; ctxB.lineWidth = 3;
+function drawOscillo(o) {
+  ctxB.fillStyle = '#0f766e'; ctxB.strokeStyle = '#5eead4'; ctxB.lineWidth = 3;
   ctxB.beginPath(); ctxB.roundRect(o.x - o.w/2, o.y - o.h/2, o.w, o.h, 10); ctxB.fill(); ctxB.stroke();
   ctxB.fillStyle = '#000'; ctxB.strokeStyle = '#4caf50'; ctxB.lineWidth = 2;
   ctxB.beginPath(); ctxB.rect(o.x - 20, o.y - 25, 80, 50); ctxB.fill(); ctxB.stroke();
@@ -1826,35 +1951,43 @@ function verifierBranchement() {
   const checks = [];
   let toutOK = true;
 
-  if (!branchement.oscilloPlace) {
-    checks.push({ ok: false, txt: 'Oscilloscope non posé' });
-    toutOK = false;
+  if (!montage.interrupteurFerme) {
+    checks.push({ ok: false, txt: "⚠️ L'interrupteur K est OUVERT." });
     msg.classList.remove('success', 'error');
     msg.classList.add('show', 'error');
-    msg.innerHTML = '<strong>⚠️ Pose d\'abord l\'oscilloscope.</strong><ul>' + checks.map(c => `<li class="${c.ok ? 'ok' : 'ko'}">${c.txt}</li>`).join('') + '</ul>';
-    vibrer([50, 30, 50]); jouerSon('erreur'); return;
+    msg.innerHTML = '<strong>⚠️ Impossible :</strong><ul>' + checks.map(c => `<li class="${c.ok ? 'ok' : 'ko'}">${c.txt}</li>`).join('') + '</ul>';
+    jouerSon('erreur'); return;
   }
-  checks.push({ ok: true, txt: 'Oscilloscope posé' });
+
+  if (!branchement.oscilloPlace) {
+    checks.push({ ok: false, txt: 'Oscilloscope non posé' }); toutOK = false;
+  } else checks.push({ ok: true, txt: 'Oscilloscope posé' });
 
   const fils = branchement.fils.filter(f => f.de && f.vers);
   const f1 = fils.find(f => f.de === 'osc-1' || f.vers === 'osc-1');
   const f2 = fils.find(f => f.de === 'osc-2' || f.vers === 'osc-2');
-  const gbf = branchement.composants.find(c => c.type === 'gbf');
-  const resistance = branchement.composants.find(c => c.type === 'resistance');
 
-  if (f1 && gbf) {
-    const ext = f1.de === 'osc-1' ? f1.vers : f1.de;
-    const b = getBorneByIdB(ext);
-    if (b && b.composantId === gbf.id) checks.push({ ok: true, txt: 'Voie 1 (+) sur GBF' });
-    else { checks.push({ ok: false, txt: 'Voie 1 (+) doit être sur GBF' }); toutOK = false; }
-  } else { checks.push({ ok: false, txt: 'Voie 1 (+) non branchée' }); toutOK = false; }
+  const compCible = modeMesure === 'C' ? 'condensateur' :
+                    modeMesure === 'R' ? 'resistance' :
+                    modeMesure === 'L' ? 'bobine' : null;
+  const cible = compCible ? branchement.composants.find(c => c.type === compCible) : null;
 
-  if (f2 && resistance) {
-    const ext = f2.de === 'osc-2' ? f2.vers : f2.de;
-    const b = getBorneByIdB(ext);
-    if (b && b.composantId === resistance.id) checks.push({ ok: true, txt: 'Voie 2 (−) sur R' });
-    else { checks.push({ ok: false, txt: 'Voie 2 (−) doit être sur R' }); toutOK = false; }
-  } else { checks.push({ ok: false, txt: 'Voie 2 (−) non branchée' }); toutOK = false; }
+  if (modeMesure !== 'double' && cible) {
+    if (f1) {
+      const ext = f1.de === 'osc-1' ? f1.vers : f1.de;
+      const b = getBorneByIdB(ext);
+      if (b && b.composantId === cible.id) checks.push({ ok: true, txt: 'Voie 1 sur la cible' });
+      else { checks.push({ ok: false, txt: 'Voie 1 doit être sur la cible' }); toutOK = false; }
+    } else { checks.push({ ok: false, txt: 'Voie 1 non branchée' }); toutOK = false; }
+    if (f2) {
+      const ext = f2.de === 'osc-2' ? f2.vers : f2.de;
+      const b = getBorneByIdB(ext);
+      if (b && b.composantId === cible.id) checks.push({ ok: true, txt: 'Voie 2 sur la cible' });
+      else { checks.push({ ok: false, txt: 'Voie 2 doit être sur la cible' }); toutOK = false; }
+    } else { checks.push({ ok: false, txt: 'Voie 2 non branchée' }); toutOK = false; }
+  } else if (modeMesure === 'double') {
+    checks.push({ ok: true, txt: `Bicourbe : ${labelGrandeur(voie1Bicourbe)} + ${labelGrandeur(voie2Bicourbe)}` });
+  }
 
   msg.classList.remove('success', 'error');
   msg.classList.add('show', toutOK ? 'success' : 'error');
@@ -1865,8 +1998,8 @@ function verifierBranchement() {
     html += `<div style="margin-top:12px;text-align:center;">
       <button class="btn btn-primary" onclick="debloquerEtape(4); allerEtape(4);">➡️ Passer à l'analyse</button>
     </div>`;
-    debloquerEtape(4); vibrer([20, 30, 20]); jouerSon('valide');
-  } else vibrer([50, 30, 50]); jouerSon('erreur');
+    debloquerEtape(4); jouerSon('valide');
+  } else jouerSon('erreur');
   msg.innerHTML = html;
 }
 
@@ -1878,40 +2011,113 @@ function changerSousOnglet(nom) {
   document.querySelectorAll('.sous-onglet-contenu').forEach(c => c.classList.remove('active'));
   document.getElementById('sous-' + nom).classList.add('active');
   setTimeout(() => {
-    if (nom === 'recap') { initRecapEditable(); majAffichage(); drawRecapCourbe(); }
-    if (nom === 'resonance') { afficherResonance(); }
-    if (nom === 'phase') { initCourbesPhasesVides(); }
+    if (nom === 'recap') { initRecapEditable(); drawRecapCourbe(); initTInteractif(); }
+    if (nom === 'charge') { initCourbesVides(); afficherToutesCourbesStatiques(); }
+    if (nom === 'regimes') { afficherComparaisonRegimes('C'); }
+    if (nom === 'energies') { initCourbeEnergiesVide(); }
     if (nom === 'conclusion') { chargerConclusionDepuisStorage(); }
   }, 50);
 }
 
+let courbesComparaison = [];
+
 function initRecapEditable() {
-  const iR = document.getElementById('inputR');
-  const iL = document.getElementById('inputL');
-  const iC = document.getElementById('inputC');
-  if (!iR || !iL || !iC) return;
-  if (!iR.dataset.bound) {
-    iR.addEventListener('input', () => {
-      const v = parseFloat(iR.value);
-      R = isNaN(v) ? 50 : Math.max(5, Math.min(500, v));
-      if (isNaN(v)) iR.value = 50;
-      majAffichage(); drawRecapCourbe();
+  const inputR = document.getElementById('inputR');
+  const inputL = document.getElementById('inputL');
+  const inputC = document.getElementById('inputC');
+  if (!inputR || !inputL || !inputC) return;
+  if (!inputR.dataset.bound) {
+    inputR.addEventListener('input', () => {
+      R = Math.max(10, Math.min(5000, parseFloat(inputR.value) || 50));
+      regimeChoisi = 'perso';
+      majRegimeAffichage(); drawRecapCourbe();
     });
-    iL.addEventListener('input', () => {
-      const v = parseFloat(iL.value);
-      L = isNaN(v) ? 0.1 : Math.max(0.01, Math.min(1, v));
-      if (isNaN(v)) iL.value = 0.1;
-      majAffichage(); drawRecapCourbe();
+    inputL.addEventListener('input', () => {
+      L = Math.max(0.1, Math.min(10, parseFloat(inputL.value) || 1));
+      majRegimeAffichage(); drawRecapCourbe();
     });
-    iC.addEventListener('input', () => {
-      const v = parseFloat(iC.value);
-      C = isNaN(v) ? 10 : Math.max(1, Math.min(100, v));
-      if (isNaN(v)) iC.value = 10;
-      majAffichage(); drawRecapCourbe();
+    inputC.addEventListener('input', () => {
+      C = Math.max(1, Math.min(100, parseFloat(inputC.value) || 10));
+      majRegimeAffichage(); drawRecapCourbe();
     });
-    iR.dataset.bound = '1';
+    inputR.dataset.bound = '1';
   }
-  majAffichage();
+  majRegimeAffichage();
+}
+
+function ajouterCourbeComparaison() {
+  courbesComparaison.push({ R, L, C, couleur: '#4fc3f7' });
+  drawRecapCourbe();
+  jouerSon('pose');
+}
+
+function reinitialiserComparaison() {
+  courbesComparaison = [];
+  drawRecapCourbe();
+}
+
+function afficherCourbeRecap(type) {
+  courbeAffichee = type;
+  ['btnAfficheUC', 'btnAfficheUR', 'btnAfficheUL', 'btnAfficheI'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) b.style.opacity = '0.5';
+  });
+  const mapId = { C: 'btnAfficheUC', R: 'btnAfficheUR', L: 'btnAfficheUL', I: 'btnAfficheI' };
+  const btn = document.getElementById(mapId[type]);
+  if (btn) btn.style.opacity = '1';
+  drawRecapCourbe();
+  initTInteractif();
+}
+
+// Physique
+function calculerUc(t, R, L, C, U0init) {
+  const C_f = C * 1e-6;
+  const w0 = 1 / Math.sqrt(L * C_f);
+  const Rc = 2 * Math.sqrt(L / C_f);
+  if (R < Rc - 0.02 * Rc) {
+    const alpha = R / (2 * L);
+    const w = Math.sqrt(w0 * w0 - alpha * alpha);
+    return U0init * Math.exp(-alpha * t) * Math.cos(w * t);
+  } else if (Math.abs(R - Rc) < 0.02 * Rc) {
+    const alpha = R / (2 * L);
+    return U0init * (1 + alpha * t) * Math.exp(-alpha * t);
+  } else {
+    const alpha = R / (2 * L);
+    const beta = Math.sqrt(alpha * alpha - w0 * w0);
+    const r1 = -alpha + beta, r2 = -alpha - beta;
+    const A = U0init * r2 / (r2 - r1);
+    const B = -U0init * r1 / (r2 - r1);
+    return A * Math.exp(r1 * t) + B * Math.exp(r2 * t);
+  }
+}
+
+function calculerCourant(t, R, L, C, U0init) {
+  const C_f = C * 1e-6;
+  const w0 = 1 / Math.sqrt(L * C_f);
+  const Rc = 2 * Math.sqrt(L / C_f);
+  const alpha = R / (2 * L);
+  if (R < Rc - 0.02 * Rc) {
+    const w = Math.sqrt(w0 * w0 - alpha * alpha);
+    return C_f * U0init * Math.exp(-alpha * t) * (alpha * Math.cos(w * t) + w * Math.sin(w * t));
+  } else if (Math.abs(R - Rc) < 0.02 * Rc) {
+    return C_f * U0init * alpha * alpha * t * Math.exp(-alpha * t);
+  } else {
+    const beta = Math.sqrt(alpha * alpha - w0 * w0);
+    const r1 = -alpha + beta, r2 = -alpha - beta;
+    const A = U0init * r2 / (r2 - r1);
+    const B = -U0init * r1 / (r2 - r1);
+    return -C_f * (A * r1 * Math.exp(r1 * t) + B * r2 * Math.exp(r2 * t));
+  }
+}
+
+function calculerUr(t, R, L, C, U0init) { return R * calculerCourant(t, R, L, C, U0init); }
+function calculerUl(t, R, L, C, U0init) { return -calculerUc(t, R, L, C, U0init) - calculerUr(t, R, L, C, U0init); }
+
+function getCouleurLabelFunc(type) {
+  if (type === 'R') return { couleur: '#f59e0b', label: 'U_R(t) [V]', func: calculerUr };
+  if (type === 'L') return { couleur: '#a78bfa', label: 'U_L(t) [V]', func: calculerUl };
+  if (type === 'I') return { couleur: '#dc2626', label: 'i(t) [A]', func: calculerCourant };
+  return { couleur: '#5eead4', label: 'U_C(t) [V]', func: calculerUc };
 }
 
 function drawRecapCourbe() {
@@ -1919,275 +2125,443 @@ function drawRecapCourbe() {
   if (!canvas) return;
   const ctx2 = canvas.getContext('2d');
   const cw = canvas.width, ch = canvas.height;
-  const mG = 60, mD = 15, mH = 25, mB = 40;
+  const mG = 50, mD = 15, mH = 25, mB = 35;
   const largeur = cw - mG - mD;
   const hauteur = ch - mH - mB;
+  const tMax = Math.min(0.2, 6 * L / Math.max(R, 1));
 
   ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
-  ctx2.strokeStyle = 'rgba(124,58,237,0.15)'; ctx2.lineWidth = 1;
-  for (let i = 0; i <= 10; i++) { const y = mH + hauteur * i / 10; ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
-  for (let i = 0; i <= 10; i++) { const x = mG + largeur * i / 10; ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
+  ctx2.strokeStyle = 'rgba(15, 118, 110, 0.15)'; ctx2.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) { const y = mH + (hauteur * i / 10); ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
+  for (let i = 0; i <= 10; i++) { const x = mG + (largeur * i / 10); ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
 
-  ctx2.strokeStyle = 'rgba(124,58,237,0.6)'; ctx2.lineWidth = 1.5;
+  const yZero = mH + hauteur / 2;
+  ctx2.strokeStyle = 'rgba(15, 118, 110, 0.6)'; ctx2.lineWidth = 1.5;
   ctx2.beginPath();
-  ctx2.moveTo(mG, mH + hauteur); ctx2.lineTo(mG + largeur, mH + hauteur);
+  ctx2.moveTo(mG, yZero); ctx2.lineTo(mG + largeur, yZero);
   ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
   ctx2.stroke();
 
-  // Calcule l'échelle max en tenant compte des courbes comparées
-  let iMaxPlot = (Um / R) * 1.15;
-  courbesComparaison.forEach(c => {
-    iMaxPlot = Math.max(iMaxPlot, (Um / c.R) * 1.15);
-  });
+  const { couleur, label, func } = getCouleurLabelFunc(courbeAffichee);
+  let maxAbs = 0;
+  for (let i = 0; i <= 200; i++) {
+    const t = tMax * i / 200;
+    maxAbs = Math.max(maxAbs, Math.abs(func(t, R, L, C, U0)));
+  }
+  maxAbs = maxAbs * 1.15 || 1;
 
-  // Axes
-  ctx2.fillStyle = '#a78bfa'; ctx2.font = 'bold 9px "Courier New", monospace';
+  ctx2.fillStyle = '#5eead4'; ctx2.font = 'bold 9px "Courier New", monospace';
   ctx2.textAlign = 'center'; ctx2.textBaseline = 'top';
   for (let i = 0; i <= 5; i++) {
-    const f = FREQ_MIN + (FREQ_MAX - FREQ_MIN) * i / 5;
-    ctx2.fillText(f.toFixed(0) + 'Hz', mG + largeur * i / 5, mH + hauteur + 4);
+    const t = (tMax * i / 5);
+    ctx2.fillText((t * 1000).toFixed(0) + 'ms', mG + (largeur * i / 5), mH + hauteur + 4);
   }
   ctx2.textAlign = 'right'; ctx2.textBaseline = 'middle';
   for (let i = 0; i <= 4; i++) {
-    const val = iMaxPlot * (1 - i / 4);
-    ctx2.fillText((val * 1000).toFixed(0) + 'mA', mG - 4, mH + hauteur * i / 4);
+    const u = maxAbs * (1 - 2 * i / 4);
+    const y = mH + hauteur * i / 4;
+    ctx2.fillText(u.toFixed(1), mG - 4, y);
   }
 
-  // === Courbes de comparaison (en pointillé) ===
-  courbesComparaison.forEach(c => {
-    ctx2.strokeStyle = c.couleur;
-    ctx2.lineWidth = 2;
-    ctx2.setLineDash([5, 4]);
-    ctx2.shadowColor = c.couleur;
-    ctx2.shadowBlur = 6;
-    ctx2.beginPath();
-    for (let i = 0; i <= 400; i++) {
-      const f = FREQ_MIN + (FREQ_MAX - FREQ_MIN) * i / 400;
-      const im = calculerCourantAmplitude(f, c.R, c.L, c.C);
-      const x = mG + largeur * i / 400;
-      const y = mH + hauteur - (hauteur * im / iMaxPlot);
-      if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
-    }
-    ctx2.stroke();
-    ctx2.setLineDash([]);
-    ctx2.shadowBlur = 0;
-  });
-
-  // === Courbe actuelle (en plein) ===
-  ctx2.strokeStyle = '#a78bfa';
-  ctx2.lineWidth = 3;
-  ctx2.shadowColor = '#a78bfa';
-  ctx2.shadowBlur = 10;
+  ctx2.strokeStyle = couleur; ctx2.lineWidth = 3;
+  ctx2.shadowColor = couleur; ctx2.shadowBlur = 10;
   ctx2.beginPath();
   for (let i = 0; i <= 400; i++) {
-    const f = FREQ_MIN + (FREQ_MAX - FREQ_MIN) * i / 400;
-    const im = calculerCourantAmplitude(f, R, L, C);
-    const x = mG + largeur * i / 400;
-    const y = mH + hauteur - (hauteur * im / iMaxPlot);
+    const t = tMax * i / 400;
+    const val = func(t, R, L, C, U0);
+    const x = mG + largeur * t / tMax;
+    const y = yZero - (hauteur / 2) * val / maxAbs;
     if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
   }
   ctx2.stroke(); ctx2.shadowBlur = 0;
 
-  // f₀
-  const f0 = calculerF0(L, C);
-  if (f0 >= FREQ_MIN && f0 <= FREQ_MAX) {
-    const xF0 = mG + largeur * (f0 - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
-    ctx2.strokeStyle = '#f59e0b'; ctx2.lineWidth = 2; ctx2.setLineDash([4, 4]);
-    ctx2.beginPath(); ctx2.moveTo(xF0, mH); ctx2.lineTo(xF0, mH + hauteur); ctx2.stroke();
-    ctx2.setLineDash([]);
-    ctx2.fillStyle = '#f59e0b'; ctx2.font = 'bold 10px "Courier New", monospace';
-    ctx2.textAlign = 'center'; ctx2.textBaseline = 'bottom';
-    ctx2.fillText('f₀ = ' + f0.toFixed(0), xF0, mH - 2);
-  }
+  courbesComparaison.forEach(({ R: Rc, L: Lc, C: Cc, couleur: cc }) => {
+    ctx2.strokeStyle = cc; ctx2.lineWidth = 2; ctx2.setLineDash([5, 4]);
+    ctx2.beginPath();
+    for (let i = 0; i <= 400; i++) {
+      const t = tMax * i / 400;
+      const val = func(t, Rc, Lc, Cc, U0);
+      const x = mG + largeur * t / tMax;
+      const y = yZero - (hauteur / 2) * val / maxAbs;
+      if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+    }
+    ctx2.stroke(); ctx2.setLineDash([]);
+  });
 
-  // Marqueur GBF
-  if (freqGBF >= FREQ_MIN && freqGBF <= FREQ_MAX) {
-    const xF = mG + largeur * (freqGBF - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
-    const iGBF = calculerCourantAmplitude(freqGBF, R, L, C);
-    const yF = mH + hauteur - (hauteur * iGBF / iMaxPlot);
-    ctx2.strokeStyle = '#e91e63'; ctx2.lineWidth = 2;
-    ctx2.beginPath(); ctx2.moveTo(xF, mH); ctx2.lineTo(xF, mH + hauteur); ctx2.stroke();
-    ctx2.fillStyle = '#e91e63'; ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 2;
-    ctx2.beginPath(); ctx2.arc(xF, yF, 6, 0, Math.PI * 2); ctx2.fill(); ctx2.stroke();
-  }
-
-  ctx2.fillStyle = '#a78bfa'; ctx2.font = 'bold 10px "Courier New", monospace';
+  ctx2.fillStyle = couleur; ctx2.font = 'bold 11px "Courier New", monospace';
   ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
-  ctx2.fillText('i(f) [mA]', cw - 6, 6);
+  ctx2.fillText(label, cw - 6, 6);
 }
 
-// ============================================================
-//  COMPARAISON DE COURBES i(f)
-// ============================================================
-let courbesComparaison = [];
-
-function ajouterCourbeComparaison() {
-  const couleurs = ['#4fc3f7', '#f59e0b', '#e91e63', '#10b981', '#06b6d4'];
-  const couleur = couleurs[courbesComparaison.length % couleurs.length];
-  courbesComparaison.push({ R, L, C, couleur });
-  
-  document.getElementById('recapLegende').style.display = 'flex';
-  document.getElementById('legendeCourante').textContent = 
-    `R=${R}Ω, L=${L}H, C=${C}µF`;
-  
-  drawRecapCourbe();
-  vibrer(15); jouerSon('pose');
+function initTInteractif() {
+  const canvas = document.getElementById('recapCourbe');
+  if (!canvas || canvas.dataset.tBound) return;
+  canvas.dataset.tBound = '1';
+  let premierClic = null;
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const cw = canvas.width;
+    const xClic = (e.clientX - rect.left) * (cw / rect.width);
+    const mG = 50, mD = 15;
+    const largeur = cw - mG - mD;
+    const tMax = Math.min(0.2, 6 * L / Math.max(R, 1));
+    if (xClic < mG || xClic > mG + largeur) return;
+    const tClic = (xClic - mG) / largeur * tMax;
+    const res = document.getElementById('tauResultat');
+    res.classList.add('show');
+    if (!premierClic) {
+      premierClic = tClic;
+      res.innerHTML = `📌 Premier sommet à t₁ ≈ <strong>${(tClic * 1000).toFixed(1)} ms</strong>.<br>👉 Clique sur un second sommet.`;
+      jouerSon('connect');
+    } else {
+      const dt = Math.abs(tClic - premierClic);
+      res.innerHTML = `📌 Δt = <strong>${(dt * 1000).toFixed(1)} ms</strong>.<br>Si tu as cliqué sur deux sommets successifs, T ≈ ${(dt * 1000).toFixed(1)} ms.`;
+      premierClic = null;
+      jouerSon('valide');
+    }
+  });
 }
 
-function reinitialiserComparaison() {
-  courbesComparaison = [];
-  document.getElementById('recapLegende').style.display = 'none';
-  drawRecapCourbe();
-  vibrer(10); jouerSon('connect');
+function initCourbesVides() {
+  ['courbeGauche', 'courbeDroite', 'courbeBobine', 'courbeCourant'].forEach(id => {
+    const c = document.getElementById(id);
+    if (!c) return;
+    const ctx2 = c.getContext('2d');
+    ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, c.width, c.height);
+    ctx2.fillStyle = 'rgba(94,234,212,0.5)';
+    ctx2.font = 'bold 13px "Courier New", monospace';
+    ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+    ctx2.fillText('▶ Clique sur Animer', c.width/2, c.height/2);
+  });
 }
 
-function afficherResonance() {
-  const canvas = document.getElementById('courbeResonance');
+function afficherComparaisonRegimes(type = 'C') {
+  const canvas = document.getElementById('courbeRegimes');
   if (!canvas) return;
   const ctx2 = canvas.getContext('2d');
   const cw = canvas.width, ch = canvas.height;
-  const mG = 60, mD = 15, mH = 25, mB = 40;
-  const largeur = cw - mG - mD, hauteur = ch - mH - mB;
+  const mG = 50, mD = 15, mH = 25, mB = 35;
+  const largeur = cw - mG - mD;
+  const hauteur = ch - mH - mB;
+  const tMax = 0.1;
 
   ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
-  ctx2.strokeStyle = 'rgba(124,58,237,0.15)'; ctx2.lineWidth = 1;
-  for (let i = 0; i <= 10; i++) { const y = mH + hauteur * i / 10; ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
-  for (let i = 0; i <= 10; i++) { const x = mG + largeur * i / 10; ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
+  ctx2.strokeStyle = 'rgba(15, 118, 110, 0.15)'; ctx2.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) { const y = mH + (hauteur * i / 10); ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
+  for (let i = 0; i <= 10; i++) { const x = mG + (largeur * i / 10); ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
 
-  ctx2.strokeStyle = 'rgba(124,58,237,0.6)'; ctx2.lineWidth = 1.5;
+  const yZero = mH + hauteur / 2;
+  ctx2.strokeStyle = 'rgba(15, 118, 110, 0.6)'; ctx2.lineWidth = 1.5;
   ctx2.beginPath();
-  ctx2.moveTo(mG, mH + hauteur); ctx2.lineTo(mG + largeur, mH + hauteur);
+  ctx2.moveTo(mG, yZero); ctx2.lineTo(mG + largeur, yZero);
   ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
   ctx2.stroke();
 
-  const iMaxRef = Um / 10;
-  ctx2.fillStyle = '#a78bfa'; ctx2.font = 'bold 9px "Courier New", monospace';
+  ctx2.fillStyle = '#5eead4'; ctx2.font = 'bold 9px "Courier New", monospace';
   ctx2.textAlign = 'center'; ctx2.textBaseline = 'top';
   for (let i = 0; i <= 5; i++) {
-    const f = FREQ_MIN + (FREQ_MAX - FREQ_MIN) * i / 5;
-    ctx2.fillText(f.toFixed(0) + 'Hz', mG + largeur * i / 5, mH + hauteur + 4);
-  }
-  ctx2.textAlign = 'right'; ctx2.textBaseline = 'middle';
-  for (let i = 0; i <= 4; i++) {
-    ctx2.fillText(((iMaxRef * 1.15 * (1 - i / 4)) * 1000).toFixed(0) + 'mA', mG - 4, mH + hauteur * i / 4);
+    ctx2.fillText((tMax * i / 5 * 1000).toFixed(0) + 'ms', mG + (largeur * i / 5), mH + hauteur + 4);
   }
 
-  const courbes = [
-    { R: 10,  couleur: '#5eead4', label: 'R = 10 Ω (Q ≈ 10)' },
-    { R: 50,  couleur: '#a78bfa', label: 'R = 50 Ω (Q ≈ 2)' },
-    { R: 200, couleur: '#f59e0b', label: 'R = 200 Ω (Q ≈ 0.5)' }
+  const Rc = 2 * Math.sqrt(L / (C * 1e-6));
+  const { func } = getCouleurLabelFunc(type);
+  const graphes = [
+    { R: 50,    couleur: '#5eead4', label: 'Pseudo (R=50)' },
+    { R: Rc,    couleur: '#f59e0b', label: 'Critique (R=' + Rc.toFixed(0) + ')' },
+    { R: 1500,  couleur: '#dc2626', label: 'Apériodique (R=1500)' }
   ];
 
-  courbes.forEach(g => {
+  let maxAbs = 0;
+  graphes.forEach(g => {
+    for (let i = 0; i <= 200; i++) {
+      const t = tMax * i / 200;
+      maxAbs = Math.max(maxAbs, Math.abs(func(t, g.R, L, C, U0)));
+    }
+  });
+  maxAbs = maxAbs * 1.15 || 1;
+
+  graphes.forEach(g => {
     ctx2.strokeStyle = g.couleur; ctx2.lineWidth = 3;
     ctx2.shadowColor = g.couleur; ctx2.shadowBlur = 8;
     ctx2.beginPath();
     for (let i = 0; i <= 500; i++) {
-      const f = FREQ_MIN + (FREQ_MAX - FREQ_MIN) * i / 500;
-      const im = calculerCourantAmplitude(f, g.R, L, C);
-      const x = mG + largeur * i / 500;
-      const y = mH + hauteur - (hauteur * im / (iMaxRef * 1.15));
+      const t = tMax * i / 500;
+      const val = func(t, g.R, L, C, U0);
+      const x = mG + largeur * t / tMax;
+      const y = yZero - (hauteur / 2) * val / maxAbs;
       if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
     }
     ctx2.stroke(); ctx2.shadowBlur = 0;
   });
 
-  const f0 = calculerF0(L, C);
-  if (f0 >= FREQ_MIN && f0 <= FREQ_MAX) {
-    const xF0 = mG + largeur * (f0 - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
-    ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 1.5; ctx2.setLineDash([4, 4]);
-    ctx2.beginPath(); ctx2.moveTo(xF0, mH); ctx2.lineTo(xF0, mH + hauteur); ctx2.stroke();
-    ctx2.setLineDash([]);
-    ctx2.fillStyle = '#fff'; ctx2.font = 'bold 10px "Courier New", monospace';
-    ctx2.textAlign = 'center'; ctx2.textBaseline = 'bottom';
-    ctx2.fillText('f₀ = ' + f0.toFixed(0), xF0, mH - 2);
-  }
-
   ctx2.font = 'bold 10px "Courier New", monospace';
-  ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
-  courbes.forEach((c, i) => {
-    ctx2.fillStyle = c.couleur;
-    ctx2.fillText('● ' + c.label, cw - 6, 6 + i * 16);
+  ctx2.textAlign = 'left'; ctx2.textBaseline = 'top';
+  graphes.forEach((g, i) => {
+    ctx2.fillStyle = g.couleur;
+    ctx2.fillText('● ' + g.label, cw - 180, 8 + i * 16);
   });
-
-  vibrer([20, 30, 20]); jouerSon('valide');
+  jouerSon('valide');
 }
 
-function initCourbesPhasesVides() {
-  ['courbeBasFreq', 'courbeResFreq', 'courbeHautFreq'].forEach(id => {
-    const c = document.getElementById(id);
-    if (!c) return;
-    const ctx2 = c.getContext('2d');
-    ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, c.width, c.height);
-    ctx2.fillStyle = 'rgba(167,139,250,0.5)';
-    ctx2.font = 'bold 12px "Courier New", monospace';
-    ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
-    ctx2.fillText('▶ Clique sur « Afficher les 3 cas »', c.width/2, c.height/2);
-  });
+function initCourbeEnergiesVide() {
+  const canvas = document.getElementById('courbeEnergies');
+  if (!canvas) return;
+  const ctx2 = canvas.getContext('2d');
+  ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, canvas.width, canvas.height);
+  ctx2.fillStyle = 'rgba(255,152,0,0.5)';
+  ctx2.font = 'bold 13px "Courier New", monospace';
+  ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+  ctx2.fillText('▶ Clique sur Animer', canvas.width/2, canvas.height/2);
 }
 
-function afficherPhases() {
-  const f0 = calculerF0(L, C);
-  const cas = [
-    { canvas: 'courbeBasFreq', f: f0 * 0.5, couleur: '#4fc3f7' },
-    { canvas: 'courbeResFreq', f: f0, couleur: '#4caf50' },
-    { canvas: 'courbeHautFreq', f: f0 * 1.5, couleur: '#f59e0b' }
-  ];
-  cas.forEach(c => {
-    const canvas = document.getElementById(c.canvas);
-    if (canvas) drawPhaseStatique(canvas, c);
-  });
-  vibrer([20, 30, 20]); jouerSon('valide');
+function afficherToutesCourbesStatiques() {
+  const tMax = Math.min(0.2, 6 * L / Math.max(R, 1));
+  const cG = document.getElementById('courbeGauche');
+  const cD = document.getElementById('courbeDroite');
+  const cB = document.getElementById('courbeBobine');
+  const cC = document.getElementById('courbeCourant');
+  if (cG) drawCourbeGenerique(cG, calculerUc, '#5eead4', 'U_C(t) [V]', tMax);
+  if (cD) drawCourbeGenerique(cD, calculerUr, '#f59e0b', 'U_R(t) [V]', tMax);
+  if (cB) drawCourbeGenerique(cB, calculerUl, '#a78bfa', 'U_L(t) [V]', tMax);
+  if (cC) drawCourbeGenerique(cC, calculerCourant, '#dc2626', 'i(t) [A]', tMax, true);
 }
 
-function drawPhaseStatique(canvas, c) {
+function drawCourbeGenerique(canvas, func, couleur, label, tMax, basSeule = false) {
   const ctx2 = canvas.getContext('2d');
   const cw = canvas.width, ch = canvas.height;
-  const mG = 40, mD = 10, mH = 15, mB = 20;
-  const largeur = cw - mG - mD, hauteur = ch - mH - mB;
+  const mG = 50, mD = 15, mH = 20, mB = 28;
+  const largeur = cw - mG - mD;
+  const hauteur = ch - mH - mB;
   ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
-  ctx2.strokeStyle = 'rgba(124,58,237,0.15)';
-  for (let i = 0; i <= 10; i++) { const y = mH + hauteur * i / 10; ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
-  ctx2.strokeStyle = 'rgba(124,58,237,0.6)'; ctx2.lineWidth = 1;
+  ctx2.strokeStyle = 'rgba(15, 118, 110, 0.15)'; ctx2.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) { const y = mH + (hauteur * i / 10); ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
+  for (let i = 0; i <= 10; i++) { const x = mG + (largeur * i / 10); ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
+  let maxAbs = 0;
+  for (let i = 0; i <= 200; i++) {
+    const t = tMax * i / 200;
+    maxAbs = Math.max(maxAbs, Math.abs(func(t, R, L, C, U0)));
+  }
+  maxAbs = maxAbs * 1.15 || 1;
+  const yZero = basSeule ? (mH + hauteur) : (mH + hauteur / 2);
+  const spanH = basSeule ? hauteur : hauteur / 2;
+  ctx2.strokeStyle = 'rgba(15, 118, 110, 0.6)'; ctx2.lineWidth = 1.5;
   ctx2.beginPath();
-  ctx2.moveTo(mG, mH + hauteur / 2); ctx2.lineTo(mG + largeur, mH + hauteur / 2);
+  ctx2.moveTo(mG, yZero); ctx2.lineTo(mG + largeur, yZero);
   ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
   ctx2.stroke();
-
-  const T = 1 / c.f;
-  const nbPts = 300;
-  ctx2.strokeStyle = '#a78bfa'; ctx2.lineWidth = 2;
+  ctx2.strokeStyle = couleur; ctx2.lineWidth = 2.5;
+  ctx2.shadowColor = couleur; ctx2.shadowBlur = 8;
   ctx2.beginPath();
-  for (let i = 0; i <= nbPts; i++) {
-    const t = 2 * T * i / nbPts;
-    const u = Math.cos(2 * Math.PI * c.f * t);
-    const x = mG + largeur * i / nbPts;
-    const y = mH + hauteur / 2 - (hauteur / 2.4) * u;
+  for (let i = 0; i <= 400; i++) {
+    const t = tMax * i / 400;
+    const val = func(t, R, L, C, U0);
+    const x = mG + largeur * t / tMax;
+    const y = basSeule ? mH + hauteur - (hauteur * val / maxAbs) : yZero - spanH * val / maxAbs;
     if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
   }
-  ctx2.stroke();
+  ctx2.stroke(); ctx2.shadowBlur = 0;
+  ctx2.fillStyle = couleur; ctx2.font = 'bold 10px "Courier New", monospace';
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
+  ctx2.fillText(label, cw - 6, 6);
+}
 
-  const { Z, phi } = calculerImpedance(c.f, R, L, C);
-  const imax = Um / Z;
-  ctx2.strokeStyle = c.couleur; ctx2.lineWidth = 2;
-  ctx2.shadowColor = c.couleur; ctx2.shadowBlur = 6;
+let animRAF = null;
+let animEnergiesRAF = null;
+
+function animerCourbe(type) {
+  if (animRAF) cancelAnimationFrame(animRAF);
+  const cG = document.getElementById('courbeGauche');
+  const cD = document.getElementById('courbeDroite');
+  const cB = document.getElementById('courbeBobine');
+  const cC = document.getElementById('courbeCourant');
+  if (!cG || !cD) return;
+  const tMax = Math.min(0.2, 6 * L / Math.max(R, 1));
+  let startTime = performance.now();
+  function animer(now) {
+    const elapsed = (now - startTime) / 1000;
+    const t = elapsed * 0.1;
+    if (cG) drawCourbeGeneriqueAnimee(cG, calculerUc, '#5eead4', 'U_C(t) [V]', t, tMax, false);
+    if (cD) drawCourbeGeneriqueAnimee(cD, calculerUr, '#f59e0b', 'U_R(t) [V]', t, tMax, false);
+    if (cB) drawCourbeGeneriqueAnimee(cB, calculerUl, '#a78bfa', 'U_L(t) [V]', t, tMax, false);
+    if (cC) drawCourbeGeneriqueAnimee(cC, calculerCourant, '#dc2626', 'i(t) [A]', t, tMax, true);
+    animRAF = requestAnimationFrame(animer);
+  }
+  animRAF = requestAnimationFrame(animer);
+  jouerSon('valide');
+}
+
+function drawCourbeGeneriqueAnimee(canvas, func, couleur, label, t, tMax, basSeule) {
+  const ctx2 = canvas.getContext('2d');
+  const cw = canvas.width, ch = canvas.height;
+  const mG = 50, mD = 15, mH = 20, mB = 28;
+  const largeur = cw - mG - mD;
+  const hauteur = ch - mH - mB;
+  ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
+  ctx2.strokeStyle = 'rgba(15, 118, 110, 0.15)'; ctx2.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) { const y = mH + (hauteur * i / 10); ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
+  for (let i = 0; i <= 10; i++) { const x = mG + (largeur * i / 10); ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
+  let maxAbs = 0;
+  for (let i = 0; i <= 200; i++) {
+    const tt = tMax * i / 200;
+    maxAbs = Math.max(maxAbs, Math.abs(func(tt, R, L, C, U0)));
+  }
+  maxAbs = maxAbs * 1.15 || 1;
+  const yZero = basSeule ? (mH + hauteur) : (mH + hauteur / 2);
+  const spanH = basSeule ? hauteur : hauteur / 2;
+  ctx2.strokeStyle = 'rgba(15, 118, 110, 0.6)'; ctx2.lineWidth = 1.5;
+  ctx2.beginPath();
+  ctx2.moveTo(mG, yZero); ctx2.lineTo(mG + largeur, yZero);
+  ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
+  ctx2.stroke();
+  const tAffiche = Math.min(t, tMax);
+  const nbPts = Math.max(2, Math.floor(tAffiche / tMax * 400));
+  ctx2.strokeStyle = couleur; ctx2.lineWidth = 2.5;
+  ctx2.shadowColor = couleur; ctx2.shadowBlur = 8;
   ctx2.beginPath();
   for (let i = 0; i <= nbPts; i++) {
-    const t = 2 * T * i / nbPts;
-    const ii = imax * Math.cos(2 * Math.PI * c.f * t - phi);
-    const x = mG + largeur * i / nbPts;
-    const y = mH + hauteur / 2 - (hauteur / 2.4) * (ii / (Um / R));
+    const tCur = (tAffiche * i / nbPts);
+    const val = func(tCur, R, L, C, U0);
+    const x = mG + largeur * tCur / tMax;
+    const y = basSeule ? mH + hauteur - (hauteur * val / maxAbs) : yZero - spanH * val / maxAbs;
+    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke(); ctx2.shadowBlur = 0;
+  ctx2.fillStyle = couleur; ctx2.font = 'bold 10px "Courier New", monospace';
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
+  ctx2.fillText(label, cw - 6, 6);
+}
+
+function animerEnergies() {
+  if (animEnergiesRAF) cancelAnimationFrame(animEnergiesRAF);
+  const canvas = document.getElementById('courbeEnergies');
+  if (!canvas) return;
+  let startTime = performance.now();
+  function animer(now) {
+    const elapsed = (now - startTime) / 1000;
+    drawCourbeEnergies(canvas, elapsed * 0.1);
+    animEnergiesRAF = requestAnimationFrame(animer);
+  }
+  animEnergiesRAF = requestAnimationFrame(animer);
+  jouerSon('valide');
+}
+
+function drawCourbeEnergies(canvas, t) {
+  const ctx2 = canvas.getContext('2d');
+  const cw = canvas.width, ch = canvas.height;
+  const mG = 55, mD = 15, mH = 25, mB = 35;
+  const largeur = cw - mG - mD;
+  const hauteur = ch - mH - mB;
+  const tMax = Math.min(0.2, 6 * L / Math.max(R, 1));
+  const C_f = C * 1e-6;
+  const E0 = 0.5 * C_f * U0 * U0;
+  const Emax = E0 * 1.05;
+  ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
+  ctx2.strokeStyle = 'rgba(15, 118, 110, 0.15)'; ctx2.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) { const y = mH + (hauteur * i / 10); ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
+  for (let i = 0; i <= 10; i++) { const x = mG + (largeur * i / 10); ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
+  ctx2.strokeStyle = 'rgba(15, 118, 110, 0.6)'; ctx2.lineWidth = 1.5;
+  ctx2.beginPath();
+  ctx2.moveTo(mG, mH + hauteur); ctx2.lineTo(mG + largeur, mH + hauteur);
+  ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
+  ctx2.stroke();
+  ctx2.fillStyle = '#5eead4'; ctx2.font = 'bold 9px "Courier New", monospace';
+  ctx2.textAlign = 'center'; ctx2.textBaseline = 'top';
+  for (let i = 0; i <= 5; i++) ctx2.fillText((tMax * i / 5 * 1000).toFixed(0) + 'ms', mG + (largeur * i / 5), mH + hauteur + 4);
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'middle';
+  for (let i = 0; i <= 4; i++) {
+    ctx2.fillText((Emax * (1 - i / 4) * 1000).toFixed(1) + 'mJ', mG - 4, mH + hauteur * i / 4);
+  }
+  const tFin = Math.max(0.001, Math.min(t, tMax));
+  const nPts = Math.max(2, Math.floor(500 * tFin / tMax));
+
+  ctx2.strokeStyle = '#ffeb3b'; ctx2.lineWidth = 3;
+  ctx2.shadowColor = '#ffeb3b'; ctx2.shadowBlur = 8;
+  ctx2.beginPath();
+  for (let i = 0; i <= nPts; i++) {
+    const tCur = tFin * i / nPts;
+    const Uc = calculerUc(tCur, R, L, C, U0);
+    const Ec = 0.5 * C_f * Uc * Uc;
+    const x = mG + largeur * tCur / tMax;
+    const y = mH + hauteur - (hauteur * Ec / Emax);
     if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
   }
   ctx2.stroke(); ctx2.shadowBlur = 0;
 
-  ctx2.fillStyle = '#a78bfa'; ctx2.font = 'bold 9px "Courier New", monospace';
-  ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
-  ctx2.fillText('u(t)', cw - 6, 4);
-  ctx2.fillStyle = c.couleur;
-  ctx2.fillText('i(t)', cw - 6, 16);
-  ctx2.fillStyle = '#fff'; ctx2.textAlign = 'left';
-  ctx2.fillText('φ = ' + (phi * 180 / Math.PI).toFixed(1) + '°', mG + 4, 4);
+  ctx2.strokeStyle = '#4caf50'; ctx2.lineWidth = 2.5; ctx2.setLineDash([6, 4]);
+  ctx2.beginPath();
+  for (let i = 0; i <= nPts; i++) {
+    const tCur = tFin * i / nPts;
+    const Uc = calculerUc(tCur, R, L, C, U0);
+    const dt = tMax / 1000;
+    const UcNext = calculerUc(tCur + dt, R, L, C, U0);
+    const courant = -C_f * (UcNext - Uc) / dt;
+    const Etot = 0.5 * C_f * Uc * Uc + 0.5 * L * courant * courant;
+    const x = mG + largeur * tCur / tMax;
+    const y = mH + hauteur - (hauteur * Math.min(Etot, Emax) / Emax);
+    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke(); ctx2.setLineDash([]);
+
+  ctx2.font = 'bold 10px "Courier New", monospace';
+  ctx2.textAlign = 'left'; ctx2.textBaseline = 'top';
+  ctx2.fillStyle = '#ffeb3b'; ctx2.fillText('E_C(t)', cw - 160, 8);
+  ctx2.fillStyle = '#4caf50'; ctx2.fillText('E_totale', cw - 160, 24);
+}
+
+function afficherEnergiesStatiques() {
+  const canvas = document.getElementById('courbeEnergies');
+  if (!canvas) return;
+  const tMax = Math.min(0.2, 6 * L / Math.max(R, 1));
+  drawCourbeEnergies(canvas, tMax);
+  jouerSon('valide');
+}
+
+function voirAnimationAppli(type) {
+  const canvasId = { radio: 'animRadio', sonnerie: 'animSonnerie', allumage: 'animAllumage', defibrillateur: 'animDefibrillateur' }[type];
+  const zone = document.getElementById('canvas-' + type);
+  if (!zone) return;
+  zone.classList.add('show');
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  let startTime = performance.now();
+  function animer(now) {
+    const elapsed = (now - startTime) / 1000;
+    drawAppliRLC(canvas, type, elapsed);
+    requestAnimationFrame(animer);
+  }
+  requestAnimationFrame(animer);
+}
+
+function drawAppliRLC(canvas, type, elapsed) {
+  const ctx2 = canvas.getContext('2d');
+  const cw = canvas.width, ch = canvas.height;
+  const mG = 40, mD = 15, mH = 20, mB = 25;
+  const largeur = cw - mG - mD;
+  const hauteur = ch - mH - mB;
+  ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
+  ctx2.strokeStyle = 'rgba(15,118,110,0.15)';
+  for (let i = 0; i <= 10; i++) { const y = mH + hauteur * i / 10; ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
+  ctx2.strokeStyle = 'rgba(15,118,110,0.6)'; ctx2.lineWidth = 1.5;
+  ctx2.beginPath();
+  ctx2.moveTo(mG, mH + hauteur/2); ctx2.lineTo(mG + largeur, mH + hauteur/2);
+  ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
+  ctx2.stroke();
+  ctx2.lineWidth = 2.5;
+  ctx2.beginPath();
+  const tMax = 0.1;
+  const tau = type === 'sonnerie' ? 0.02 : type === 'allumage' ? 0.01 : 0.03;
+  for (let i = 0; i <= 300; i++) {
+    const t = tMax * i / 300;
+    let val = Math.exp(-t / tau) * Math.cos(2 * Math.PI * 50 * t);
+    if (type === 'defibrillateur') val = Math.exp(-t / 0.02) * Math.cos(2 * Math.PI * 80 * t);
+    const x = mG + largeur * t / tMax;
+    const y = mH + hauteur / 2 - (hauteur / 2) * val;
+    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+  }
+  ctx2.strokeStyle = type === 'radio' ? '#5eead4' : type === 'sonnerie' ? '#f59e0b' : type === 'allumage' ? '#dc2626' : '#42a5f5';
+  ctx2.shadowColor = ctx2.strokeStyle;
+  ctx2.shadowBlur = 10;
+  ctx2.stroke(); ctx2.shadowBlur = 0;
 }
 
 // QCM
@@ -2221,42 +2595,51 @@ function validerQCM(num) {
   });
   const ok = rep === bonne.dataset.value;
   const expl = {
-    1: "À la résonance : Z = R (minimale), i est maximal, u et i en phase.",
-    2: "f₀ = 1/(2π√(0,1×10×10⁻⁶)) ≈ 159,2 Hz.",
-    3: "Q = (1/R)·√(L/C). Quand R augmente, Q diminue, la résonance devient plus plate."
+    1: "R dissipe l'énergie en chaleur (effet Joule).",
+    2: "R_c = 2√(L/C) = 2√(4/100e-6) = 2√40000 = 2×200 = 400 Ω.",
+    3: "En augmentant R : pseudo → critique → apériodique."
   };
   if (ok) {
     item.classList.add('correct');
     fb.className = 'qcm-feedback success show';
     fb.innerHTML = `<strong>✅ Bravo !</strong><br>${expl[num]}`;
-    qcmVal[num] = true; vibrer([20, 30, 20]); jouerSon('valide');
+    qcmVal[num] = true; jouerSon('valide');
   } else {
     item.classList.add('incorrect');
     fb.className = 'qcm-feedback error show';
     fb.innerHTML = `<strong>❌ Pas tout à fait.</strong><br>Bonne réponse : <strong>${bonne.textContent.trim().substring(1).trim()}</strong><br><br>${expl[num]}`;
-    qcmVal[num] = true; vibrer([50, 30, 50]); jouerSon('erreur');
+    qcmVal[num] = true; jouerSon('erreur');
   }
 }
 
 // Conclusion
-const STORAGE_KEY = 'tp_rlcf_mobile_conclusion';
+const STORAGE_KEY = 'tp_rlc_mobile_conclusion';
 
 function chargerConclusionDepuisStorage() {
   try {
-    const d = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    ['1','2','3','4','5'].forEach(n => { const el = document.getElementById('concl-'+n); if (el && d['c'+n]) el.value = d['c'+n]; });
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    for (let i = 1; i <= 5; i++) {
+      const el = document.getElementById('concl-' + i);
+      if (el && data['c' + i]) el.value = data['c' + i];
+    }
     majProgression();
-  } catch(e) {}
+  } catch (e) {}
 }
 
 function majProgression() {
   let n = 0;
-  for (let i = 1; i <= 5; i++) { const el = document.getElementById('concl-'+i); if (el && el.value.trim()) n++; }
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('concl-' + i);
+    if (el && el.value.trim()) n++;
+  }
   document.getElementById('progressRemplissage').style.width = (n / 5 * 100) + '%';
   document.getElementById('progressTexte').textContent = n + '/5';
-  const d = {};
-  for (let i = 1; i <= 5; i++) { const el = document.getElementById('concl-'+i); d['c'+i] = el ? el.value : ''; }
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch(e) {}
+  const data = {};
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('concl-' + i);
+    data['c' + i] = el ? el.value : '';
+  }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e){}
 }
 
 ['concl-1','concl-2','concl-3','concl-4','concl-5'].forEach(id => {
@@ -2265,25 +2648,25 @@ function majProgression() {
 });
 
 function verifierConclusion() {
-  const c1 = document.getElementById('concl-1').value.trim().toLowerCase().replace(',', '.');
-  const c2 = document.getElementById('concl-2').value.trim().toLowerCase();
-  const c3 = document.getElementById('concl-3').value;
-  const c4 = document.getElementById('concl-4').value;
-  const c5 = document.getElementById('concl-5').value.trim().toLowerCase();
+  const r1 = document.getElementById('concl-1').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, '');
+  const r2 = document.getElementById('concl-2').value;
+  const r3 = document.getElementById('concl-3').value;
+  const r4 = document.getElementById('concl-4').value.trim().toLowerCase();
+  const r5 = document.getElementById('concl-5').value.trim().toLowerCase();
   let score = 0;
-  const ok1 = /15[0-9]|160/.test(c1);
-  marquer(1, ok1, ok1 ? '✅ f₀ ≈ 159 Hz.' : '❌ f₀ = 1/(2π√(LC)) ≈ 159,2 Hz.');
+  const ok1 = ['632', '632ohm', '632ω', '630'].some(x => r1.includes(x));
+  marquer(1, ok1, ok1 ? '✅ R_c ≈ 632 Ω.' : '❌ R_c = 2√(L/C) ≈ 632 Ω.');
   if (ok1) score++;
-  const ok2 = c2 === 'r' || c2.includes('= r') || c2.includes('égale à r') || c2 === 'r=50' || c2 === '50' || c2 === '50ω' || c2 === '50ω';
-  marquer(2, ok2, ok2 ? '✅ Z = R.' : '❌ À la résonance, Z = R.');
+  const ok2 = r2 === 'pseudo';
+  marquer(2, ok2, ok2 ? '✅ R = 50 Ω < R_c → Pseudo.' : '❌ R = 50 Ω < 632 Ω → PSEUDO.');
   if (ok2) score++;
-  const ok3 = c3 === 'phase';
-  marquer(3, ok3, ok3 ? '✅ En phase.' : '❌ u et i en phase à la résonance.');
+  const ok3 = r3 === 'critique';
+  marquer(3, ok3, ok3 ? '✅ Le régime critique.' : '❌ C\'est le CRITIQUE.');
   if (ok3) score++;
-  const ok4 = c4 === 'diminue';
-  marquer(4, ok4, ok4 ? '✅ Δf diminue.' : '❌ Si R diminue, Q augmente, donc Δf diminue.');
+  const ok4 = r4.includes('chaleur') || r4.includes('joule') || r4.includes('thermique');
+  marquer(4, ok4, ok4 ? '✅ Effet Joule.' : '❌ CHALEUR (effet Joule).');
   if (ok4) score++;
-  const ok5 = c5.length >= 3;
+  const ok5 = r5.length >= 3;
   marquer(5, ok5, ok5 ? '✅ Bien !' : '❌ Trop court.');
   if (ok5) score++;
 
@@ -2307,31 +2690,38 @@ function afficherConclusionFinale(score, total) {
   const zone = document.getElementById('conclusionFinale');
   const texte = document.getElementById('conclusionTexte');
   const appli = document.getElementById('concl-5').value.trim();
-  const f0 = calculerF0(L, C);
-  const Q = (1 / R) * Math.sqrt(L / (C * 1e-6));
-  const df = f0 / Q;
-  texte.innerHTML = `<strong>Conclusion du TP RLC forcé</strong>\n\nCircuit RLC série alimenté par un GBF (U_m = 6 V).\n\n<strong>Fréquence propre :</strong> f₀ = 1/(2π√(LC)) = ${f0.toFixed(1)} Hz\n\nÀ la résonance :\n• Z = R = ${R} Ω (minimale)\n• i_max = U_m/R = ${(Um/R*1000).toFixed(0)} mA\n• u et i en phase\n\n<strong>Facteur de qualité :</strong> Q = (1/R)·√(L/C) = ${Q.toFixed(2)}\n<strong>Bande passante :</strong> Δf = f₀/Q = ${df.toFixed(1)} Hz\n\nEn dehors de la résonance :\n• f &lt; f₀ : capacitif (u en retard)\n• f &gt; f₀ : inductif (u en avance)\n\nApplication : ${appli || 'radio, filtres, IRM'}.\n\n<em>Score : ${score}/${total}</em>`;
+  const Rc = 2 * Math.sqrt(L / (C * 1e-6));
+  const regimeAuto = determinerRegime(R, L, C);
+  texte.innerHTML = `<strong>Conclusion du TP RLC libre</strong>\n\nCircuit RLC avec L = ${L} H, C = ${C} µF, R variable.\n\nR_c = 2√(L/C) = ${Rc.toFixed(0)} Ω.\n\nAvec R = ${R} Ω : régime ${regimeAuto === 'pseudo' ? 'PSEUDO-périodique' : regimeAuto === 'critique' ? 'CRITIQUE' : 'APÉRIODIQUE'}.\n\nLes 3 régimes :\n• Pseudo-périodique (R < R_c) : oscillations amorties.\n• Critique (R = R_c) : retour rapide sans oscillation.\n• Apériodique (R > R_c) : retour lent sans oscillation.\n\nL'énergie est dissipée dans R sous forme de CHALEUR (effet Joule).\n\nApplications : ${appli || 'radio, sonnerie, allumage, défibrillateur'}.\n\n<em>Score : ${score}/${total}</em>`;
   zone.classList.add('show');
   zone.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function reinitialiserConclusion() {
-  ['1','2','3','4','5'].forEach(n => {
-    const el = document.getElementById('concl-'+n);
-    if (el) { el.value = ''; el.classList.remove('correct', 'incorrect'); }
-    const fb = document.getElementById('fb-'+n);
-    if (fb) { fb.className = 'champ-feedback'; fb.innerHTML = ''; }
+  ['concl-1', 'concl-4', 'concl-5'].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = '';
+    el.classList.remove('correct', 'incorrect');
   });
+  ['concl-2', 'concl-3'].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = '';
+    el.classList.remove('correct', 'incorrect');
+  });
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById('fb-' + i).className = 'champ-feedback';
+    document.getElementById('fb-' + i).innerHTML = '';
+  }
   document.getElementById('conclusionResultat').className = 'conclusion-resultat';
   document.getElementById('conclusionFinale').classList.remove('show');
-  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
   majProgression();
 }
 
 function imprimerConclusion() {
   const t = document.getElementById('conclusionTexte').innerText;
   const w = window.open('', '_blank');
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Conclusion RLC forcé</title><style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:20px;line-height:1.7;}h1{font-size:22px;border-bottom:2px solid #7c3aed;padding-bottom:10px;color:#5b21b6;}pre{white-space:pre-wrap;font-family:Georgia,serif;font-size:14.5px;}</style></head><body><h1>🟣 Ma conclusion — TP RLC forcé</h1><pre>${t.replace(/</g,'&lt;')}</pre></body></html>`);
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Conclusion TP RLC</title><style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:20px;line-height:1.7;}h1{font-size:22px;border-bottom:2px solid #0f766e;padding-bottom:10px;color:#134e4a;}pre{white-space:pre-wrap;font-family:Georgia,serif;font-size:14.5px;}</style></head><body><h1>🔵 Ma conclusion — TP RLC</h1><pre>${t.replace(/</g,'&lt;')}</pre></body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 400);
 }
@@ -2341,202 +2731,73 @@ function telechargerConclusion() {
   const blob = new Blob([t], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = 'conclusion_rlc_force.txt';
+  a.href = url; a.download = 'conclusion_tp_rlc.txt';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
 
 function genererCertificat() {
   const nom = (document.getElementById('certificatNom').value || '').trim() || 'Élève';
-  const date = new Date().toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
-  const qcm = Object.values(qcmVal).filter(v => v).length + '/3';
-  const f0 = calculerF0(L, C);
-  const Q = (1 / R) * Math.sqrt(L / (C * 1e-6));
+  const date = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  const qcmScore = Object.values(qcmVal).filter(v => v).length + '/3';
   const conclusion = document.getElementById('conclusionTexte')?.innerText || '—';
+  const Rc = 2 * Math.sqrt(L / (C * 1e-6));
+  const regimeAuto = determinerRegime(R, L, C);
   let img = '';
   try {
     const c = document.getElementById('canvasMontage');
     if (c) img = c.toDataURL('image/png');
   } catch(e){}
-  const bloc = img ? `<div style="text-align:center;margin:20px 0;"><h3 style="font-size:13px;color:#1B2A4A;margin-bottom:8px;text-transform:uppercase;">📸 Montage</h3><img src="${img}" style="max-width:100%;border:2px solid #7c3aed;border-radius:8px;" alt="Montage"></div>` : '';
+  const bloc = img ? `<div style="text-align:center;margin:20px 0;"><h3 style="font-size:13px;color:#1B2A4A;margin-bottom:8px;text-transform:uppercase;">📸 Montage</h3><img src="${img}" style="max-width:100%;border:2px solid #0f766e;border-radius:8px;" alt="Montage"></div>` : '';
   const w = window.open('', '_blank');
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Certificat RLC forcé</title><style>@page{size:A4;margin:15mm;}body{font-family:Georgia,serif;color:#1a1a1a;line-height:1.6;}.cert{border:4px double #7c3aed;padding:30px 35px;max-width:780px;margin:0 auto;}.h{text-align:center;border-bottom:3px solid #7c3aed;padding-bottom:12px;margin-bottom:20px;}.h h1{font-size:22px;color:#1B2A4A;margin-bottom:5px;}.t{text-align:center;font-size:24px;color:#7c3aed;margin:18px 0;letter-spacing:2px;}.n{text-align:center;font-size:20px;font-weight:bold;color:#1B2A4A;padding:10px;border-bottom:2px dashed #7c3aed;margin:12px 0 20px;}.g{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0;}.c{background:#F7F5F0;border-left:4px solid #7c3aed;padding:10px 14px;}.c .l{font-size:11px;text-transform:uppercase;color:#5B6472;letter-spacing:1px;font-weight:bold;}.c .v{font-size:15px;color:#1B2A4A;font-family:'Courier New',monospace;font-weight:bold;margin-top:3px;}.b{background:#F7F5F0;padding:15px 18px;border-radius:6px;font-size:12.5px;margin:18px 0;}.s{display:flex;justify-content:space-between;margin-top:30px;font-size:13px;}.s .l{border-top:1px solid #5B6472;width:200px;margin-top:35px;padding-top:6px;color:#5B6472;text-align:center;}.p{text-align:center;font-size:11px;color:#5B6472;margin-top:25px;font-style:italic;}.np{text-align:center;margin:18px auto;}.np button{padding:12px 22px;background:#7c3aed;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;}
-/* ============================================================
-   ✅ PATCH FLUIDITÉ MOBILE — LFAKM (auto-généré)
-   ============================================================ */
-
-html, body {
-  overscroll-behavior: none;
-  overscroll-behavior-y: contain;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
-  -webkit-tap-highlight-color: transparent;
-}
-canvas, .canvas-zone, .canvas-montage, .canvas-wrapper {
-  touch-action: none;
-  -webkit-user-drag: none;
-  -webkit-user-select: none;
-  user-select: none;
-}
-button, .btn, .outil-btn, .radio-btn, .tab, .tab-mobile,
-.sous-onglet, .mode-courbe-btn, .bascule-btn, .composant-card,
-.source-btn, .appli-btn, .qcm-option, .qcm-btn-valider,
-.btn-action, .btn-courbe, .btn-mini, .btn-secondary, .btn-primary {
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  transition: transform 0.1s ease, background 0.15s ease,
-              border-color 0.15s ease, opacity 0.15s ease;
-}
-button:active:not(:disabled),
-.btn:active:not(:disabled),
-.outil-btn:active:not(.used),
-.radio-btn:active,
-.tab:active,
-.tab-mobile:active,
-.sous-onglet:active,
-.mode-courbe-btn:active:not(.active),
-.bascule-btn:active,
-.composant-card:active,
-.source-btn:active,
-.appli-btn:active,
-.qcm-option:active:not(:disabled),
-.qcm-btn-valider:active:not(:disabled),
-.btn-action:active:not(:disabled),
-.btn-courbe:active:not(:disabled),
-.btn-mini:active,
-.btn-secondary:active,
-.btn-primary:active:not(:disabled) {
-  transform: scale(0.95);
-}
-button, .btn, .outil-btn, .radio-btn, .tab, .tab-mobile,
-.sous-onglet, .bascule-btn, .composant-card, .source-btn,
-.appli-btn, .qcm-option {
-  min-height: 44px;
-}
-.tabs-mobile, .sous-onglets, .source-picker, .steps-container,
-.bascule-tabs, .bascule-container {
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-}
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 36px;
-  background: transparent;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-input[type="range"]::-webkit-slider-runnable-track {
-  height: 8px;
-  border-radius: 4px;
-  background: rgba(0, 0, 0, 0.15);
-}
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--brass, #A8853F);
-  border: 3px solid #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  margin-top: -10px;
-}
-input[type="range"]::-moz-range-track {
-  height: 8px;
-  border-radius: 4px;
-  background: rgba(0, 0, 0, 0.15);
-}
-input[type="range"]::-moz-range-thumb {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--brass, #A8853F);
-  border: 3px solid #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-}
-input[type="text"], input[type="number"], input[type="search"],
-select, textarea {
-  font-size: 16px;
-  min-height: 44px;
-}
-@media screen and (max-width: 768px) {
-  input, select, textarea {
-    font-size: 16px !important;
-  }
-}
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
-}
-body.no-scroll {
-  overflow: hidden !important;
-  touch-action: none;
-}
-
-</style></head><body><div class="cert"><div class="h"><h1>🏫 Lycée Franco-Arabe de Kermadiabel</h1><p>Département de Physique-Chimie — Travaux Pratiques</p></div><div class="t">CERTIFICAT — TP RLC FORCÉ</div><div class="n">${nom}</div><p style="text-align:center;font-size:13.5px;margin-bottom:18px;">a réalisé avec succès le TP sur les oscillations électriques forcées.</p><div class="g"><div class="c"><div class="l">Fréquence propre f₀</div><div class="v">${f0.toFixed(1)} Hz</div></div><div class="c"><div class="l">Facteur Q</div><div class="v">${Q.toFixed(2)}</div></div><div class="c"><div class="l">Résistance R</div><div class="v">${R} Ω</div></div><div class="c"><div class="l">Score QCM</div><div class="v">${qcm}</div></div><div class="c"><div class="l">Date</div><div class="v">${date}</div></div></div>${bloc}<div class="b"><strong>📝 Conclusion</strong><br>${conclusion.replace(/</g,'&lt;').substring(0,800)}</div><div class="s"><div class="l">Signature élève</div><div class="l">Signature professeur</div></div><div class="p">Certificat — Simulateur RLC forcé Mobile LFAKM</div></div><div class="np"><button onclick="window.print()">🖨️ Imprimer / PDF</button></div></body></html>`);
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Certificat TP RLC</title><style>@page{size:A4;margin:15mm;}body{font-family:Georgia,serif;color:#1a1a1a;line-height:1.6;}.cert{border:4px double #0f766e;padding:30px 35px;max-width:780px;margin:0 auto;}.h{text-align:center;border-bottom:3px solid #0f766e;padding-bottom:12px;margin-bottom:20px;}.h h1{font-size:22px;color:#1B2A4A;margin-bottom:5px;}.t{text-align:center;font-size:24px;color:#0f766e;margin:18px 0;letter-spacing:2px;}.n{text-align:center;font-size:20px;font-weight:bold;color:#1B2A4A;padding:10px;border-bottom:2px dashed #0f766e;margin:12px 0 20px;}.g{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0;}.c{background:#F7F5F0;border-left:4px solid #0f766e;padding:10px 14px;}.c .l{font-size:11px;text-transform:uppercase;color:#5B6472;letter-spacing:1px;font-weight:bold;}.c .v{font-size:15px;color:#1B2A4A;font-family:'Courier New',monospace;font-weight:bold;margin-top:3px;}.b{background:#F7F5F0;padding:15px 18px;border-radius:6px;font-size:12.5px;margin:18px 0;}.s{display:flex;justify-content:space-between;margin-top:30px;font-size:13px;}.s .l{border-top:1px solid #5B6472;width:200px;margin-top:35px;padding-top:6px;color:#5B6472;text-align:center;}.p{text-align:center;font-size:11px;color:#5B6472;margin-top:25px;font-style:italic;}.np{text-align:center;margin:18px auto;}.np button{padding:12px 22px;background:#0f766e;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;}</style></head><body><div class="cert"><div class="h"><h1>🏫 Lycée Franco-Arabe de Kermadiabel</h1><p>Département de Physique-Chimie — Travaux Pratiques</p></div><div class="t">CERTIFICAT — TP RLC LIBRE</div><div class="n">${nom}</div><p style="text-align:center;font-size:13.5px;margin-bottom:18px;">a réalisé avec succès l'ensemble du TP sur les oscillations amorties du circuit RLC libre.</p><div class="g"><div class="c"><div class="l">Résistance critique R_c</div><div class="v">${Rc.toFixed(0)} Ω</div></div><div class="c"><div class="l">Régime observé</div><div class="v">${regimeAuto}</div></div><div class="c"><div class="l">Score QCM</div><div class="v">${qcmScore}</div></div><div class="c"><div class="l">Date</div><div class="v">${date}</div></div></div>${bloc}<div class="b"><strong>📝 Conclusion</strong><br>${conclusion.replace(/</g,'&lt;').substring(0,800)}</div><div class="s"><div class="l">Signature élève</div><div class="l">Signature professeur</div></div><div class="p">Certificat — Simulateur TP RLC Mobile LFAKM</div></div><div class="np"><button onclick="window.print()">🖨️ Imprimer / PDF</button></div></body></html>`);
   w.document.close();
-  vibrer([30, 50, 30, 50, 100]); jouerSon('jingle');
+  jouerSon('jingle');
 }
 
-// Exercices
 function verifierExo1() {
-  const rep = document.getElementById('exo1-rep').value.trim().toLowerCase().replace(',', '.').replace(/\s/g,'');
-  const ok = /50|50\./.test(rep);
+  const r = document.getElementById('exo1-rep').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, '');
+  const ok = ['400', '400ohm', '400ω'].some(x => r.includes(x));
   const fb = document.getElementById('exo1-fb');
-  const inp = document.getElementById('exo1-rep');
-  inp.classList.remove('correct','incorrect'); inp.classList.add(ok ? 'correct' : 'incorrect');
+  document.getElementById('exo1-rep').classList.remove('correct', 'incorrect');
+  document.getElementById('exo1-rep').classList.add(ok ? 'correct' : 'incorrect');
   fb.className = 'exercice-feedback show ' + (ok ? 'success' : 'error');
-  fb.innerHTML = ok ? '✅ f₀ ≈ 50,3 Hz.' : '❌ f₀ = 1/(2π√(0,5×20×10⁻⁶)) ≈ 50,3 Hz.';
-  if (ok) vibrer([20, 30, 20]); jouerSon('valide'); else vibrer([50, 30, 50]); jouerSon('erreur');
+  fb.innerHTML = ok ? '✅ R_c = 2√(L/C) = 2√40000 = 400 Ω.' : '❌ R_c = 2 × 200 = 400 Ω.';
+  if (ok) jouerSon('valide'); else jouerSon('erreur');
 }
 
 function verifierExo2() {
-  const rep = document.getElementById('exo2-rep').value.trim().toLowerCase().replace(',', '.');
-  const ok = /1\.5|1\.6|1\.58/.test(rep);
+  const r = document.getElementById('exo2-rep').value;
+  const ok = r === 'pseudo';
   const fb = document.getElementById('exo2-fb');
-  const inp = document.getElementById('exo2-rep');
-  inp.classList.remove('correct','incorrect'); inp.classList.add(ok ? 'correct' : 'incorrect');
+  document.getElementById('exo2-rep').classList.remove('correct', 'incorrect');
+  document.getElementById('exo2-rep').classList.add(ok ? 'correct' : 'incorrect');
   fb.className = 'exercice-feedback show ' + (ok ? 'success' : 'error');
-  fb.innerHTML = ok ? '✅ Q ≈ 1,58.' : '❌ Q = (1/100)·√(25000) ≈ 1,58.';
-  if (ok) vibrer([20, 30, 20]); jouerSon('valide'); else vibrer([50, 30, 50]); jouerSon('erreur');
+  fb.innerHTML = ok ? '✅ R < R_c → pseudo-périodique.' : '❌ R = 250 < 400 → PSEUDO.';
+  if (ok) jouerSon('valide'); else jouerSon('erreur');
 }
 
 function verifierExo3() {
-  const rep = document.getElementById('exo3-rep').value;
-  const ok = rep === 'inductif';
+  const r = document.getElementById('exo3-rep').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, '');
+  const ok = ['19.9ms', '19,9ms', '20ms', '0.0199s', '0,0199s'].some(x => r === x);
   const fb = document.getElementById('exo3-fb');
-  const inp = document.getElementById('exo3-rep');
-  inp.classList.remove('correct','incorrect'); inp.classList.add(ok ? 'correct' : 'incorrect');
+  document.getElementById('exo3-rep').classList.remove('correct', 'incorrect');
+  document.getElementById('exo3-rep').classList.add(ok ? 'correct' : 'incorrect');
   fb.className = 'exercice-feedback show ' + (ok ? 'success' : 'error');
-  fb.innerHTML = ok ? '✅ f > f₀ → inductif.' : '❌ f > f₀ → bobine dominante → INDUCTIF.';
-  if (ok) vibrer([20, 30, 20]); jouerSon('valide'); else vibrer([50, 30, 50]); jouerSon('erreur');
+  fb.innerHTML = ok ? '✅ T ≈ 2π√(LC) ≈ 20 ms.' : '❌ T = 2π√(1 × 10e-6) ≈ 20 ms.';
+  if (ok) jouerSon('valide'); else jouerSon('erreur');
 }
 
-// INIT
 window.addEventListener('load', () => {
   allerEtape(2);
   drawMontage();
   updateProgress();
   updateCanvasHint();
-  majAffichage();
-  const slider = document.getElementById('freqGBF');
-  if (slider) {
-    slider.addEventListener('input', e => majFrequenceGBF(e.target.value));
-    majFrequenceGBF(slider.value);
-  }
+  majRegimeAffichage();
+  majMessageBranchement();
   const btnSon = document.getElementById('sonToggle');
   if (btnSon) { btnSon.textContent = sonActif ? '🔊' : '🔇'; btnSon.classList.toggle('off', !sonActif); }
-  ['concl-1','concl-2','concl-3','concl-4','concl-5'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) { el.addEventListener('input', majProgression); el.addEventListener('change', majProgression); }
-  });
-  console.log('✅ TP RLC forcé Mobile chargé');
+  console.log('✅ TP RLC Mobile chargé');
 });
 
 if (!CanvasRenderingContext2D.prototype.roundRect) {

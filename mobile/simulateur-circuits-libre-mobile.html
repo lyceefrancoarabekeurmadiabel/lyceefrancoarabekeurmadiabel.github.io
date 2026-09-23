@@ -734,6 +734,125 @@
     50% { opacity: 0.6; }
   }
   .pulsing { animation: pulse-status 0.8s infinite; }
+
+/* ============================================================
+   ✅ PATCH FLUIDITÉ MOBILE — LFAKM (auto-généré)
+   ============================================================ */
+
+html, body {
+  overscroll-behavior: none;
+  overscroll-behavior-y: contain;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+canvas, .canvas-zone, .canvas-montage, .canvas-wrapper {
+  touch-action: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+button, .btn, .outil-btn, .radio-btn, .tab, .tab-mobile,
+.sous-onglet, .mode-courbe-btn, .bascule-btn, .composant-card,
+.source-btn, .appli-btn, .qcm-option, .qcm-btn-valider,
+.btn-action, .btn-courbe, .btn-mini, .btn-secondary, .btn-primary {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.1s ease, background 0.15s ease,
+              border-color 0.15s ease, opacity 0.15s ease;
+}
+button:active:not(:disabled),
+.btn:active:not(:disabled),
+.outil-btn:active:not(.used),
+.radio-btn:active,
+.tab:active,
+.tab-mobile:active,
+.sous-onglet:active,
+.mode-courbe-btn:active:not(.active),
+.bascule-btn:active,
+.composant-card:active,
+.source-btn:active,
+.appli-btn:active,
+.qcm-option:active:not(:disabled),
+.qcm-btn-valider:active:not(:disabled),
+.btn-action:active:not(:disabled),
+.btn-courbe:active:not(:disabled),
+.btn-mini:active,
+.btn-secondary:active,
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.95);
+}
+button, .btn, .outil-btn, .radio-btn, .tab, .tab-mobile,
+.sous-onglet, .bascule-btn, .composant-card, .source-btn,
+.appli-btn, .qcm-option {
+  min-height: 44px;
+}
+.tabs-mobile, .sous-onglets, .source-picker, .steps-container,
+.bascule-tabs, .bascule-container {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 36px;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.15);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--brass, #A8853F);
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  margin-top: -10px;
+}
+input[type="range"]::-moz-range-track {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.15);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--brass, #A8853F);
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+input[type="text"], input[type="number"], input[type="search"],
+select, textarea {
+  font-size: 16px;
+  min-height: 44px;
+}
+@media screen and (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+body.no-scroll {
+  overflow: hidden !important;
+  touch-action: none;
+}
+
 </style>
 </head>
 <body>
@@ -1021,6 +1140,65 @@
 </div>
 
 <script>
+
+// ============================================================
+//  ✅ PATCH FLUIDITÉ MOBILE — LFAKM (auto-généré)
+// ============================================================
+
+function vibrer(duree = 10) {
+  if (navigator.vibrate && typeof sonActif === 'undefined') {
+    try { navigator.vibrate(duree); } catch(e) {}
+  } else if (navigator.vibrate && sonActif) {
+    try { navigator.vibrate(duree); } catch(e) {}
+  }
+}
+
+function activerNoScroll() {
+  document.body.classList.add('no-scroll');
+}
+function desactiverNoScroll() {
+  document.body.classList.remove('no-scroll');
+}
+
+document.addEventListener('touchmove', function(e) {
+  const el = e.target;
+  if (el.closest('input, textarea, select, .table-wrapper, .sous-onglets, .tabs-mobile, .source-picker')) {
+    return;
+  }
+  if (el.closest('canvas')) {
+    e.preventDefault();
+    return;
+  }
+}, { passive: false });
+
+let _lastTouchEnd = 0;
+document.addEventListener('touchend', function(e) {
+  const now = Date.now();
+  if (now - _lastTouchEnd <= 300) {
+    e.preventDefault();
+  }
+  _lastTouchEnd = now;
+}, { passive: false });
+
+document.addEventListener('gesturestart', function(e) {
+  e.preventDefault();
+});
+
+document.addEventListener('touchstart', function(e) {
+  if (e.touches.length > 1) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+document.addEventListener('dragstart', function(e) {
+  if (e.target.tagName === 'IMG') {
+    e.preventDefault();
+  }
+});
+
+console.log('✅ Patch fluidité mobile chargé');
+
+
 // ============================================================
 //  ÉTAT GLOBAL
 // ============================================================

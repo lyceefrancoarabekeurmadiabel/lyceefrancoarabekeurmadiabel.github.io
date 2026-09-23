@@ -1802,6 +1802,65 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
 <script>
+
+// ============================================================
+//  ✅ PATCH FLUIDITÉ MOBILE — LFAKM (auto-généré)
+// ============================================================
+
+function vibrer(duree = 10) {
+  if (navigator.vibrate && typeof sonActif === 'undefined') {
+    try { navigator.vibrate(duree); } catch(e) {}
+  } else if (navigator.vibrate && sonActif) {
+    try { navigator.vibrate(duree); } catch(e) {}
+  }
+}
+
+function activerNoScroll() {
+  document.body.classList.add('no-scroll');
+}
+function desactiverNoScroll() {
+  document.body.classList.remove('no-scroll');
+}
+
+document.addEventListener('touchmove', function(e) {
+  const el = e.target;
+  if (el.closest('input, textarea, select, .table-wrapper, .sous-onglets, .tabs-mobile, .source-picker')) {
+    return;
+  }
+  if (el.closest('canvas')) {
+    e.preventDefault();
+    return;
+  }
+}, { passive: false });
+
+let _lastTouchEnd = 0;
+document.addEventListener('touchend', function(e) {
+  const now = Date.now();
+  if (now - _lastTouchEnd <= 300) {
+    e.preventDefault();
+  }
+  _lastTouchEnd = now;
+}, { passive: false });
+
+document.addEventListener('gesturestart', function(e) {
+  e.preventDefault();
+});
+
+document.addEventListener('touchstart', function(e) {
+  if (e.touches.length > 1) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+document.addEventListener('dragstart', function(e) {
+  if (e.target.tagName === 'IMG') {
+    e.preventDefault();
+  }
+});
+
+console.log('✅ Patch fluidité mobile chargé');
+
+
 const EXPLICATIONS = {
   pile: { title: '🔋 Pile (E = 9 V)', content: `<p>Fournit la tension pour charger le condensateur.</p><p><code>9 V</code>.</p>` },
   resistance: { title: '📏 Résistance (R = 1 kΩ)', content: `<p>Limite le courant et fixe τ avec C.</p><p><code>1 kΩ = 1000 Ω</code>.</p>` },
@@ -1869,7 +1928,7 @@ function toggleSon() {
   localStorage.setItem('tp_rc_mobile_son', sonActif);
   const btn = document.getElementById('sonToggle');
   if (btn) { btn.textContent = sonActif ? '🔊' : '🔇'; btn.classList.toggle('off', !sonActif); }
-  if (sonActif) jouerSon('valide');
+  if (sonActif) vibrer([20, 30, 20]); jouerSon('valide');
 }
 
 let etapeActuelle = 2;
@@ -1928,7 +1987,7 @@ function ajouterComposant(type) {
   montage.composants.push(comp);
   const btn = document.getElementById('btn-' + type);
   if (btn) btn.classList.add('used');
-  jouerSon('pose');
+  vibrer(15); jouerSon('pose');
   drawMontage(); updateProgress(); updateCanvasHint();
 }
 
@@ -1944,7 +2003,7 @@ function ajouterFil() {
   montage.fils.push(fil);
   montage.filSelectionne = fil.id;
   updateConnexionsFils();
-  jouerSon('pose');
+  vibrer(15); jouerSon('pose');
   drawMontage(); updateProgress();
 }
 
@@ -2193,6 +2252,7 @@ canvas.addEventListener('mouseleave', () => {
 });
 
 function handleTouchStart(x, y) {
+  activerNoScroll();
   for (const c of montage.composants) {
     const t = TAILLE[c.type];
     if (!t) continue;
@@ -2204,7 +2264,7 @@ function handleTouchStart(x, y) {
       c.rotation = ((c.rotation || 0) + 90) % 360;
       updateConnexionsFils();
       drawMontage();
-      jouerSon('connect');
+      vibrer(10); jouerSon('connect');
       return;
     }
   }
@@ -2222,7 +2282,7 @@ function handleTouchStart(x, y) {
     dragState.cote = coteTrouve;
     montage.filSelectionne = filTrouve.id;
     montage.composantSelectionne = null;
-    jouerSon('connect');
+    vibrer(10); jouerSon('connect');
     drawMontage();
     return;
   }
@@ -2234,7 +2294,7 @@ function handleTouchStart(x, y) {
     dragState.offsetY = y - comp.y;
     montage.composantSelectionne = comp.id;
     montage.filSelectionne = null;
-    jouerSon('connect');
+    vibrer(10); jouerSon('connect');
     drawMontage();
     return;
   }
@@ -2268,6 +2328,7 @@ function handleTouchMove(x, y) {
 }
 
 function handleTouchEnd() {
+  desactiverNoScroll();
   const avaitDrag = dragState.type !== null;
   dragState.type = null;
   dragState.filId = null;
@@ -2297,7 +2358,7 @@ function handleTap(x, y) {
       if (montage.composantSelectionne === comp.id) {
         montage.interrupteurFerme = !montage.interrupteurFerme;
         montage.composantSelectionne = null;
-        jouerSon('connect');
+        vibrer(10); jouerSon('connect');
         drawMontage();
         majBoutonInterrupteur();
         return;
@@ -2305,7 +2366,7 @@ function handleTap(x, y) {
     }
     montage.composantSelectionne = montage.composantSelectionne === comp.id ? null : comp.id;
     montage.filSelectionne = null;
-    jouerSon('connect');
+    vibrer(10); jouerSon('connect');
     drawMontage();
     return;
   }
@@ -2313,7 +2374,7 @@ function handleTap(x, y) {
   if (fil) {
     montage.filSelectionne = montage.filSelectionne === fil.id ? null : fil.id;
     montage.composantSelectionne = null;
-    jouerSon('connect');
+    vibrer(10); jouerSon('connect');
     drawMontage();
     return;
   }
@@ -2384,7 +2445,7 @@ function majBoutonInterrupteur() {
 
 window.toggleInterrupteur = function() {
   montage.interrupteurFerme = !montage.interrupteurFerme;
-  jouerSon('connect');
+  vibrer(10); jouerSon('connect');
   drawMontage();
   updateProgress();
   majBoutonInterrupteur();
@@ -2449,8 +2510,8 @@ function verifierMontage() {
       <button class="btn btn-primary" onclick="debloquerEtape(3); allerEtape(3);">➡️ Passer au branchement</button>
     </div>`;
     debloquerEtape(3);
-    jouerSon('valide');
-  } else jouerSon('erreur');
+    vibrer([20, 30, 20]); jouerSon('valide');
+  } else vibrer([50, 30, 50]); jouerSon('erreur');
   msg.innerHTML = html;
 }
 
@@ -2485,7 +2546,7 @@ function poserOscilloscope() {
   branchement.oscilloPlace = true;
   const btn = document.getElementById('btn-oscillo');
   if (btn) { btn.classList.add('used'); btn.disabled = true; btn.innerHTML = '<span class="icon">✅</span><span>Oscilloscope posé</span>'; }
-  jouerSon('pose');
+  vibrer(15); jouerSon('pose');
   drawBranchement();
   updateHintBranchement();
 }
@@ -2502,7 +2563,7 @@ function ajouterFilBranchement() {
   };
   branchement.fils.push(fil);
   branchement.filSelectionne = fil.id;
-  jouerSon('pose');
+  vibrer(15); jouerSon('pose');
   updateConnexionsFilsB();
   drawBranchement();
 }
@@ -2730,7 +2791,7 @@ function verifierBranchement() {
     msg.classList.remove('success', 'error');
     msg.classList.add('show', 'error');
     msg.innerHTML = '<strong>⚠️ Impossible :</strong><ul>' + checks.map(c => `<li class="${c.ok ? 'ok' : 'ko'}">${c.txt}</li>`).join('') + '</ul>';
-    jouerSon('erreur');
+    vibrer([50, 30, 50]); jouerSon('erreur');
     return;
   }
 
@@ -2770,8 +2831,8 @@ function verifierBranchement() {
       <button class="btn btn-primary" onclick="debloquerEtape(4); allerEtape(4);">➡️ Passer à l'analyse</button>
     </div>`;
     debloquerEtape(4);
-    jouerSon('valide');
-  } else jouerSon('erreur');
+    vibrer([20, 30, 20]); jouerSon('valide');
+  } else vibrer([50, 30, 50]); jouerSon('erreur');
   msg.innerHTML = html;
 }
 
@@ -2827,7 +2888,7 @@ window.changerModeCourbe = function(mode) {
     formuleI.innerHTML = 'i(t) = (E/R) · e^(−t/τ)';
   }
 
-  jouerSon('connect');
+  vibrer(10); jouerSon('connect');
   drawRecapCourbe();
 };
 
@@ -3058,7 +3119,7 @@ function ajouterCourbeComparaison() {
   document.getElementById('recapLegende').style.display = 'flex';
   document.getElementById('legendeCourante').textContent = `R=${R}Ω, C=${C}µF`;
   drawRecapCourbe();
-  jouerSon('pose');
+  vibrer(15); jouerSon('pose');
 }
 
 function reinitialiserComparaison() {
@@ -3260,13 +3321,13 @@ function validerQCM(num) {
     fb.className = 'qcm-feedback success show';
     fb.innerHTML = `<strong>✅ Bravo !</strong><br>${expl[num]}`;
     qcmVal[num] = true;
-    jouerSon('valide');
+    vibrer([20, 30, 20]); jouerSon('valide');
   } else {
     item.classList.add('incorrect');
     fb.className = 'qcm-feedback error show';
     fb.innerHTML = `<strong>❌ Pas tout à fait.</strong><br>Bonne réponse : <strong>${bonne.textContent.trim().substring(1).trim()}</strong><br><br>${expl[num]}`;
     qcmVal[num] = true;
-    jouerSon('erreur');
+    vibrer([50, 30, 50]); jouerSon('erreur');
   }
 }
 
@@ -3409,9 +3470,128 @@ function genererCertificat() {
   } catch(e){}
   const bloc = img ? `<div style="text-align:center;margin:20px 0;"><h3 style="font-size:13px;color:#1B2A4A;margin-bottom:8px;text-transform:uppercase;">📸 Montage réalisé</h3><img src="${img}" style="max-width:100%;border:2px solid #A8853F;border-radius:8px;" alt="Montage"></div>` : '';
   const w = window.open('', '_blank');
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Certificat TP RC</title><style>@page{size:A4;margin:15mm;}body{font-family:Georgia,serif;color:#1a1a1a;line-height:1.6;}.cert{border:4px double #A8853F;padding:30px 35px;max-width:780px;margin:0 auto;}.h{text-align:center;border-bottom:3px solid #A8853F;padding-bottom:12px;margin-bottom:20px;}.h h1{font-size:22px;color:#1B2A4A;margin-bottom:5px;}.t{text-align:center;font-size:24px;color:#A8853F;margin:18px 0;letter-spacing:2px;}.n{text-align:center;font-size:20px;font-weight:bold;color:#1B2A4A;padding:10px;border-bottom:2px dashed #A8853F;margin:12px 0 20px;}.g{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0;}.c{background:#F7F5F0;border-left:4px solid #A8853F;padding:10px 14px;}.c .l{font-size:11px;text-transform:uppercase;color:#5B6472;letter-spacing:1px;font-weight:bold;}.c .v{font-size:15px;color:#1B2A4A;font-family:'Courier New',monospace;font-weight:bold;margin-top:3px;}.b{background:#F7F5F0;padding:15px 18px;border-radius:6px;font-size:12.5px;margin:18px 0;}.s{display:flex;justify-content:space-between;margin-top:30px;font-size:13px;}.s .l{border-top:1px solid #5B6472;width:200px;margin-top:35px;padding-top:6px;color:#5B6472;text-align:center;}.p{text-align:center;font-size:11px;color:#5B6472;margin-top:25px;font-style:italic;}.np{text-align:center;margin:18px auto;}.np button{padding:12px 22px;background:#A8853F;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;}</style></head><body><div class="cert"><div class="h"><h1>🏫 Lycée Franco-Arabe de Kermadiabel</h1><p>Département de Physique-Chimie — Travaux Pratiques</p></div><div class="t">CERTIFICAT DE RÉUSSITE — TP RC</div><div class="n">${nom}</div><p style="text-align:center;font-size:13.5px;margin-bottom:18px;">a réalisé avec succès l'ensemble du TP RC (charge et décharge d'un condensateur).</p><div class="g"><div class="c"><div class="l">Constante τ</div><div class="v">100 ms</div></div><div class="c"><div class="l">Score QCM</div><div class="v">${qcmScore}</div></div><div class="c"><div class="l">Date</div><div class="v">${date}</div></div><div class="c"><div class="l">Relation vérifiée</div><div class="v">τ = R × C</div></div></div>${bloc}<div class="b"><strong>📝 Conclusion de l'élève</strong><br>${conclusion.replace(/</g,'&lt;').substring(0,800)}</div><div class="s"><div class="l">Signature élève</div><div class="l">Signature professeur</div></div><div class="p">Certificat — Simulateur TP RC Mobile LFAKM</div></div><div class="np"><button onclick="window.print()">🖨️ Imprimer / PDF</button></div></body></html>`);
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Certificat TP RC</title><style>@page{size:A4;margin:15mm;}body{font-family:Georgia,serif;color:#1a1a1a;line-height:1.6;}.cert{border:4px double #A8853F;padding:30px 35px;max-width:780px;margin:0 auto;}.h{text-align:center;border-bottom:3px solid #A8853F;padding-bottom:12px;margin-bottom:20px;}.h h1{font-size:22px;color:#1B2A4A;margin-bottom:5px;}.t{text-align:center;font-size:24px;color:#A8853F;margin:18px 0;letter-spacing:2px;}.n{text-align:center;font-size:20px;font-weight:bold;color:#1B2A4A;padding:10px;border-bottom:2px dashed #A8853F;margin:12px 0 20px;}.g{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0;}.c{background:#F7F5F0;border-left:4px solid #A8853F;padding:10px 14px;}.c .l{font-size:11px;text-transform:uppercase;color:#5B6472;letter-spacing:1px;font-weight:bold;}.c .v{font-size:15px;color:#1B2A4A;font-family:'Courier New',monospace;font-weight:bold;margin-top:3px;}.b{background:#F7F5F0;padding:15px 18px;border-radius:6px;font-size:12.5px;margin:18px 0;}.s{display:flex;justify-content:space-between;margin-top:30px;font-size:13px;}.s .l{border-top:1px solid #5B6472;width:200px;margin-top:35px;padding-top:6px;color:#5B6472;text-align:center;}.p{text-align:center;font-size:11px;color:#5B6472;margin-top:25px;font-style:italic;}.np{text-align:center;margin:18px auto;}.np button{padding:12px 22px;background:#A8853F;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;}
+/* ============================================================
+   ✅ PATCH FLUIDITÉ MOBILE — LFAKM (auto-généré)
+   ============================================================ */
+
+html, body {
+  overscroll-behavior: none;
+  overscroll-behavior-y: contain;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+canvas, .canvas-zone, .canvas-montage, .canvas-wrapper {
+  touch-action: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+button, .btn, .outil-btn, .radio-btn, .tab, .tab-mobile,
+.sous-onglet, .mode-courbe-btn, .bascule-btn, .composant-card,
+.source-btn, .appli-btn, .qcm-option, .qcm-btn-valider,
+.btn-action, .btn-courbe, .btn-mini, .btn-secondary, .btn-primary {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.1s ease, background 0.15s ease,
+              border-color 0.15s ease, opacity 0.15s ease;
+}
+button:active:not(:disabled),
+.btn:active:not(:disabled),
+.outil-btn:active:not(.used),
+.radio-btn:active,
+.tab:active,
+.tab-mobile:active,
+.sous-onglet:active,
+.mode-courbe-btn:active:not(.active),
+.bascule-btn:active,
+.composant-card:active,
+.source-btn:active,
+.appli-btn:active,
+.qcm-option:active:not(:disabled),
+.qcm-btn-valider:active:not(:disabled),
+.btn-action:active:not(:disabled),
+.btn-courbe:active:not(:disabled),
+.btn-mini:active,
+.btn-secondary:active,
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.95);
+}
+button, .btn, .outil-btn, .radio-btn, .tab, .tab-mobile,
+.sous-onglet, .bascule-btn, .composant-card, .source-btn,
+.appli-btn, .qcm-option {
+  min-height: 44px;
+}
+.tabs-mobile, .sous-onglets, .source-picker, .steps-container,
+.bascule-tabs, .bascule-container {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 36px;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.15);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--brass, #A8853F);
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  margin-top: -10px;
+}
+input[type="range"]::-moz-range-track {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.15);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--brass, #A8853F);
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+input[type="text"], input[type="number"], input[type="search"],
+select, textarea {
+  font-size: 16px;
+  min-height: 44px;
+}
+@media screen and (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+body.no-scroll {
+  overflow: hidden !important;
+  touch-action: none;
+}
+
+</style></head><body><div class="cert"><div class="h"><h1>🏫 Lycée Franco-Arabe de Kermadiabel</h1><p>Département de Physique-Chimie — Travaux Pratiques</p></div><div class="t">CERTIFICAT DE RÉUSSITE — TP RC</div><div class="n">${nom}</div><p style="text-align:center;font-size:13.5px;margin-bottom:18px;">a réalisé avec succès l'ensemble du TP RC (charge et décharge d'un condensateur).</p><div class="g"><div class="c"><div class="l">Constante τ</div><div class="v">100 ms</div></div><div class="c"><div class="l">Score QCM</div><div class="v">${qcmScore}</div></div><div class="c"><div class="l">Date</div><div class="v">${date}</div></div><div class="c"><div class="l">Relation vérifiée</div><div class="v">τ = R × C</div></div></div>${bloc}<div class="b"><strong>📝 Conclusion de l'élève</strong><br>${conclusion.replace(/</g,'&lt;').substring(0,800)}</div><div class="s"><div class="l">Signature élève</div><div class="l">Signature professeur</div></div><div class="p">Certificat — Simulateur TP RC Mobile LFAKM</div></div><div class="np"><button onclick="window.print()">🖨️ Imprimer / PDF</button></div></body></html>`);
   w.document.close();
-  jouerSon('jingle');
+  vibrer([30, 50, 30, 50, 100]); jouerSon('jingle');
 }
 
 function verifierExo1() {
@@ -3422,7 +3602,7 @@ function verifierExo1() {
   document.getElementById('exo1-rep').classList.add(ok ? 'correct' : 'incorrect');
   fb.className = 'exercice-feedback show ' + (ok ? 'success' : 'error');
   fb.innerHTML = ok ? '✅ Bravo ! τ = R × C = 2000 × 50×10⁻⁶ = 100 ms.' : '❌ τ = R × C = 2000 × 50×10⁻⁶ = 0,1 s = 100 ms.';
-  if (ok) jouerSon('valide'); else jouerSon('erreur');
+  if (ok) vibrer([20, 30, 20]); jouerSon('valide'); else vibrer([50, 30, 50]); jouerSon('erreur');
 }
 
 function verifierExo2() {
@@ -3433,7 +3613,7 @@ function verifierExo2() {
   document.getElementById('exo2-rep').classList.add(ok ? 'correct' : 'incorrect');
   fb.className = 'exercice-feedback show ' + (ok ? 'success' : 'error');
   fb.innerHTML = ok ? '✅ U_C(τ) = 6 × 0,63 ≈ 3,79 V.' : '❌ U_C(τ) = 6 × (1 − e⁻¹) ≈ 6 × 0,63 ≈ 3,79 V.';
-  if (ok) jouerSon('valide'); else jouerSon('erreur');
+  if (ok) vibrer([20, 30, 20]); jouerSon('valide'); else vibrer([50, 30, 50]); jouerSon('erreur');
 }
 
 function verifierExo3() {
@@ -3444,7 +3624,7 @@ function verifierExo3() {
   document.getElementById('exo3-rep').classList.add(ok ? 'correct' : 'incorrect');
   fb.className = 'exercice-feedback show ' + (ok ? 'success' : 'error');
   fb.innerHTML = ok ? '✅ R = τ / C = 0,5 / (100×10⁻⁶) = 5000 Ω = 5 kΩ.' : '❌ R = τ / C = 0,5 / (100×10⁻⁶) = 5000 Ω = 5 kΩ.';
-  if (ok) jouerSon('valide'); else jouerSon('erreur');
+  if (ok) vibrer([20, 30, 20]); jouerSon('valide'); else vibrer([50, 30, 50]); jouerSon('erreur');
 }
 
 window.addEventListener('load', () => {
