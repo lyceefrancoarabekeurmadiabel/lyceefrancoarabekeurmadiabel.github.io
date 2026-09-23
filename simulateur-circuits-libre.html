@@ -1664,7 +1664,12 @@ function drawCircuit() {
     drawElectrons();
   }
 
-  ctx.restore();
+    ctx.restore();
+
+  // ✅ Passe séparée pour les étiquettes (indépendantes du zoom)
+  atelier.composants.forEach(c => {
+    const mesures = getMesuresComposant(c.id);
+    });
 
   if (atelier.poigneeEnDrag || atelier.composantEnDrag || atelier.noeudEnDrag) {
     canvas.style.cursor = 'grabbing';
@@ -1772,7 +1777,8 @@ function getMesuresComposant(compId) {
     R: branche.valeur,
     U: branche.U,
     I: branche.I,
-    P: branche.U * branche.I
+    P: branche.U * branche.I,
+    bloquee: !!branche.bloquee
   };
 }
 
@@ -1821,11 +1827,8 @@ function drawComposant(c) {
   ctx.restore();
   ctx.shadowBlur = 0;
 
-  if (mesures && sousTension && (COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led')) {
-    drawEtiquetteMesures(c, mesures);
-  }
-
-  if (c.type === 'pile' || COMPOSANTS_RESISTIFS.has(c.type)) {
+   // ✅ Affichage des grandeurs dès qu'une mesure existe (même I=0, pour voir U et P)
+    if (c.type === 'pile' || COMPOSANTS_RESISTIFS.has(c.type)) {
     drawIndicateurEditable(c);
   }
 
@@ -1858,8 +1861,12 @@ function drawEtiquetteMesures(c, mesures) {
   const rotation = c.rotation || 0;
   const angle = rotation * Math.PI / 180;
   const offsetY = t.h / 2 + 45;
-  const lx = c.x - offsetY * Math.sin(angle);
-  const ly = c.y + offsetY * Math.cos(angle);
+  const lxCanvas = c.x - offsetY * Math.sin(angle);
+  const lyCanvas = c.y + offsetY * Math.cos(angle);
+
+  // ✅ Conversion vers le repère écran (taille fixe, indépendante du zoom)
+  const lx = lxCanvas * atelier.zoom + atelier.panX;
+  const ly = lyCanvas * atelier.zoom + atelier.panY;
 
   const lignes = [
     `U = ${mesures.U.toFixed(2)} V`,
@@ -1876,8 +1883,14 @@ function drawEtiquetteMesures(c, mesures) {
   const boxX = lx - largeur / 2;
   const boxY = ly - hauteur / 2;
 
-  ctx.fillStyle = 'rgba(10, 10, 26, 0.9)';
-  ctx.strokeStyle = 'rgba(76, 175, 80, 0.6)';
+  // ✅ Opacité progressive selon le zoom (évite le chevauchement si trop dézoomé)
+  const alpha = atelier.zoom < 0.5 ? 0 : Math.min(1, (atelier.zoom - 0.4) * 2);
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+
+  ctx.fillStyle = 'rgba(10, 10, 26, 0.92)';
+  ctx.strokeStyle = mesures.bloquee ? 'rgba(244, 67, 54, 0.8)' : 'rgba(76, 175, 80, 0.6)';
   ctx.lineWidth = 1.5;
   if (ctx.roundRect) {
     ctx.beginPath();
@@ -1889,11 +1902,18 @@ function drawEtiquetteMesures(c, mesures) {
     ctx.strokeRect(boxX, boxY, largeur, hauteur);
   }
 
-  ctx.fillStyle = '#4fc3f7';
+  ctx.fillStyle = mesures.bloquee ? '#ff8a80' : '#4fc3f7';
   lignes.forEach((ligne, i) => {
     ctx.fillText(ligne, lx, boxY + 12 + i * 13);
   });
 
+  if (mesures.bloquee) {
+    ctx.fillStyle = '#f44336';
+    ctx.font = 'bold 9px monospace';
+    ctx.fillText('⛔ BLOQUÉE', lx, boxY - 6);
+  }
+
+  ctx.restore();
   ctx.textBaseline = 'alphabetic';
 }
 
@@ -2124,6 +2144,16 @@ function drawDiode(cx, cy, w, h, mesures) {
   ctx.textAlign = 'center';
   ctx.fillText('DIODE', cx, cy - 27);
 
+    // ✅ Indicateur de polarité
+  ctx.font = 'bold 9px monospace';
+  if (actif) {
+    ctx.fillStyle = '#4caf50';
+    ctx.fillText('▶ PASSANTE', cx, cy + 30);
+  } else if (mesures && mesures.bloquee) {
+    ctx.fillStyle = '#f44336';
+    ctx.fillText('✕ BLOQUÉE', cx, cy + 30);
+  }
+
   // 🆕 Indicateur de polarité
   ctx.font = 'bold 9px monospace';
   if (passante) {
@@ -2187,6 +2217,16 @@ function drawLED(cx, cy, w, h, seuil, resistance, mesures) {
   ctx.font = 'bold 11px monospace';
   ctx.textAlign = 'center';
   ctx.fillText('LED', cx, cy - h/2 - 8);
+
+    // ✅ Indicateur de polarité
+  ctx.font = 'bold 9px monospace';
+  if (allumee) {
+    ctx.fillStyle = '#4caf50';
+    ctx.fillText('▶ ALLUMÉE', cx, cy + h/2 + 12);
+  } else if (mesures && mesures.bloquee) {
+    ctx.fillStyle = '#f44336';
+    ctx.fillText('✕ BLOQUÉE', cx, cy + h/2 + 12);
+  }
 
   // 🆕 Indicateur polarité
   ctx.font = 'bold 9px monospace';
