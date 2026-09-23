@@ -767,13 +767,14 @@
   </div>
 
   <div class="selection-info" id="selectionInfo">
-    <div id="selectionText">Composant sélectionné</div>
-    <div class="actions-selection">
-      <button id="btnEditerSel">✎ Modifier</button>
-      <button id="btnSupprimerSel">🗑 Supprimer</button>
-      <button id="btnFermerSel">✕</button>
-    </div>
+  <div id="selectionText">Composant sélectionné</div>
+  <div class="actions-selection">
+    <button id="btnTournerSel" style="background: rgba(79,195,247,0.2); color: #4fc3f7; border-color: rgba(79,195,247,0.4);">⟳ Tourner</button>
+    <button id="btnEditerSel">✎ Modifier</button>
+    <button id="btnSupprimerSel">🗑 Supprimer</button>
+    <button id="btnFermerSel">✕</button>
   </div>
+</div>
 
   <div class="tabs-mobile">
     <button class="tab-mobile active" data-tab="outils">🧰 Outils</button>
@@ -1013,9 +1014,10 @@
       <div class="edit-helper" id="editHelper">Plage : 1 à 10 000 Ω</div>
     </div>
     <div class="edit-actions">
-      <button class="btn-annuler" id="btnAnnulerEdit">Annuler</button>
-      <button class="btn-valider" id="btnValiderEdit">✅ Valider</button>
-    </div>
+  <button class="btn-annuler" id="btnAnnulerEdit">Annuler</button>
+  <button id="btnTournerEdit" style="flex: 1; background: rgba(79,195,247,0.2); color: #4fc3f7; border: 1px solid rgba(79,195,247,0.4); border-radius: 8px; font-weight: 700; font-family: inherit; font-size: 0.85em; cursor: pointer;">⟳ Tourner</button>
+  <button class="btn-valider" id="btnValiderEdit">✅ Valider</button>
+</div>
   </div>
 </div>
 
@@ -1760,20 +1762,32 @@ function drawPoigneeRotation(c) {
   const t = TAILLE[c.type];
   if (!t) return;
   const angle = (c.rotation || 0) * Math.PI / 180;
-  const offsetY = -t.h / 2 - 28;
+  const offsetY = -t.h / 2 - 32;
   const hx = c.x + offsetY * Math.sin(angle);
   const hy = c.y - offsetY * Math.cos(angle);
 
+  // ✅ Halo pulsant autour
+  const pulse = (Math.sin(Date.now() / 400) + 1) / 2;
+  const grad = ctx.createRadialGradient(hx, hy, 2, hx, hy, 30 + pulse * 8);
+  grad.addColorStop(0, `rgba(79, 195, 247, ${0.5 + pulse * 0.4})`);
+  grad.addColorStop(1, 'rgba(79, 195, 247, 0)');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(hx, hy, 30 + pulse * 8, 0, Math.PI * 2);
+  ctx.fill();
+
+  // ✅ Cercle plus gros
   ctx.fillStyle = '#4fc3f7';
   ctx.strokeStyle = '#fff';
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.arc(hx, hy, 12, 0, Math.PI * 2);
+  ctx.arc(hx, hy, 18, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 
+  // ✅ Icône plus grosse
   ctx.fillStyle = '#fff';
-  ctx.font = 'bold 14px Arial';
+  ctx.font = 'bold 18px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('⟳', hx, hy);
@@ -2533,6 +2547,7 @@ function handlePointerDown(x, y) {
     return;
   }
 
+    // ✅ Rotation : zone élargie (60 px au lieu de 25) + marge de 40 px si limite
   for (const c of atelier.composants) {
     const t = TAILLE[c.type];
     if (!t) continue;
@@ -2540,10 +2555,13 @@ function handlePointerDown(x, y) {
     const offsetY = -t.h / 2 - 28;
     const hx = c.x + offsetY * Math.sin(angle);
     const hy = c.y - offsetY * Math.cos(angle);
-    if (Math.hypot(hx - x, hy - y) < 25) {
+    if (Math.hypot(hx - x, hy - y) < 60) {
       c.rotation = ((c.rotation || 0) + 90) % 360;
       updateConnexionsFils();
-      drawCircuit(); analyserCircuit();
+      drawCircuit();
+      analyserCircuit();
+      updateStatus(`⟳ Composant tourné : ${c.rotation}°`);
+      if (audioActif) jouerNoteConfirmation();
       return;
     }
   }
@@ -4019,6 +4037,18 @@ function ouvrirPanneauEdition(comp) {
   document.getElementById('modalEditComposant').classList.add('show');
   setTimeout(() => input.focus(), 100);
 }
+
+// ✅ Bouton Tourner dans le panneau d'édition
+document.getElementById('btnTournerEdit').addEventListener('click', () => {
+  if (composantEnEdition && composantEnEdition.type !== 'pile') {
+    composantEnEdition.rotation = ((composantEnEdition.rotation || 0) + 90) % 360;
+    updateConnexionsFils();
+    drawCircuit();
+    analyserCircuit();
+    updateStatus(`⟳ Rotation : ${composantEnEdition.rotation}°`);
+    if (audioActif) jouerNoteConfirmation();
+  }
+});
 
 document.getElementById('btnAnnulerEdit').addEventListener('click', () => {
   document.getElementById('modalEditComposant').classList.remove('show');
