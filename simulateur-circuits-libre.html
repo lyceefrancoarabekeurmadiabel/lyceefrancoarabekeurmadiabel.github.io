@@ -3515,6 +3515,44 @@ function analyserCircuit() {
 
   const analyse = analyserNodal(pile, resistances, E);
 
+    // ✅ Si une diode/LED bloquée est SUR LE CHEMIN PRINCIPAL → circuit ouvert
+  const uneBrancheBloquee = (analyse.branches || []).some(b => b.bloquee);
+  if (uneBrancheBloquee) {
+    const idsBloquees = (analyse.branches || [])
+      .filter(b => b.bloquee)
+      .map(b => b.id);
+    const blocageSurChemin = chemin && chemin.some(borneId => {
+      const borne = getBorneById(borneId);
+      return borne && idsBloquees.includes(borne.composantId);
+    });
+    if (blocageSurChemin) {
+      // ✅ On force TOUT à zéro sauf la tension seuil de la diode
+      atelier.resultats = {
+        type: 'ouvert',
+        Req: 0,
+        I_total: 0,
+        U_pile: E,
+        branches: analyse.branches.map(b => ({
+          id: b.id,
+          valeur: b.valeur,
+          I: 0,
+          U: b.bloquee ? b.U : 0,   // la diode garde sa tension seuil
+          bloquee: b.bloquee
+        })),
+        chemin,
+        etapes: [{
+          titre: '⚠️ DIODE BLOQUÉE',
+          formule: 'Polarisation inverse → courant = 0',
+          calcul: 'Aucun courant ne circule dans le circuit.'
+        }],
+        message: '▷| Une diode/LED en polarisation inverse bloque le courant. Retourne-la (double-clic ou touche R) pour la rendre passante.'
+      };
+      updateMesures();
+      majSonnerie();
+      return;
+    }
+  }
+
   let Req = analyse.Req;
   // 🆕 Court-circuit plafonné
   if (!isFinite(Req) || Req < 0.01) {
