@@ -1667,9 +1667,12 @@ function drawCircuit() {
     ctx.restore();
 
   // ✅ Passe séparée pour les étiquettes (indépendantes du zoom)
-  atelier.composants.forEach(c => {
+    atelier.composants.forEach(c => {
     const mesures = getMesuresComposant(c.id);
-    });
+    if (mesures && (COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led')) {
+      drawEtiquetteMesures(c, mesures);
+    }
+  });
 
   if (atelier.poigneeEnDrag || atelier.composantEnDrag || atelier.noeudEnDrag) {
     canvas.style.cursor = 'grabbing';
