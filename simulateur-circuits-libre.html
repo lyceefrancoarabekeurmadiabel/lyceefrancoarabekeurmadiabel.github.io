@@ -1720,12 +1720,29 @@ function drawNoeud(noeud) {
 function drawFil(fil) {
   const estSelectionne = atelier.filSelectionne === fil.id;
   const estBranche = fil.de && fil.vers;
+  const demiBranche = (fil.de && !fil.vers) || (!fil.de && fil.vers);
 
-  ctx.strokeStyle = estSelectionne ? '#ffd54f' : (estBranche ? '#4caf50' : '#4fc3f7');
-  ctx.lineWidth = estSelectionne ? 7 : 5;
+  // ✅ Fil à moitié branché → orange clignotant
+  const pulse = (Math.sin(Date.now() / 300) + 1) / 2;
+  let couleur, epaisseur;
+  if (estSelectionne) {
+    couleur = '#ffd54f'; epaisseur = 7;
+  } else if (estBranche) {
+    couleur = '#4caf50'; epaisseur = 5;
+  } else if (demiBranche) {
+    // Orange clignotant : une seule extrémité branchée
+    const intensite = 0.5 + pulse * 0.5;
+    couleur = `rgba(255, 152, 0, ${intensite})`;
+    epaisseur = 6;
+  } else {
+    couleur = '#4fc3f7'; epaisseur = 5;
+  }
+
+  ctx.strokeStyle = couleur;
+  ctx.lineWidth = epaisseur;
   ctx.lineCap = 'round';
-  ctx.shadowColor = estSelectionne ? '#ffd54f' : (estBranche ? '#4caf50' : '#4fc3f7');
-  ctx.shadowBlur = estSelectionne ? 15 : 8;
+  ctx.shadowColor = couleur;
+  ctx.shadowBlur = estSelectionne ? 15 : (demiBranche ? 15 : 8);
   ctx.beginPath();
   ctx.moveTo(fil.x1, fil.y1);
   ctx.lineTo(fil.x2, fil.y2);
@@ -3218,15 +3235,29 @@ function updateMesures() {
 
   document.getElementById('circuitTypeValue').textContent = typeLabel[r.type] || '—';
 
-  const box = document.getElementById('circuitTypeBox');
+    const box = document.getElementById('circuitTypeBox');
   let msgDiv = box.querySelector('.ct-message');
+  
+  // ✅ Diagnostic enrichi
+  let messageDiag = null;
   if (r.type === 'erreur' && r.message) {
+    messageDiag = r.message;
+  } else if (r.type === 'ouvert') {
+    const raisons = diagnostiquerCircuitOuvert();
+    messageDiag = '🔍 Pourquoi ouvert ?\n\n• ' + raisons.join('\n• ');
+  }
+  
+  if (messageDiag) {
     if (!msgDiv) {
       msgDiv = document.createElement('div');
       msgDiv.className = 'ct-message';
       box.appendChild(msgDiv);
     }
-    msgDiv.textContent = r.message;
+    // Style multi-lignes
+    msgDiv.style.whiteSpace = 'pre-line';
+    msgDiv.style.fontSize = '0.68em';
+    msgDiv.style.lineHeight = '1.5';
+    msgDiv.textContent = messageDiag;
   } else if (msgDiv) {
     msgDiv.remove();
   }
@@ -3343,6 +3374,74 @@ function updateSelectors() {
 
   if ([...selectVolt.options].some(o => o.value === valVolt)) selectVolt.value = valVolt;
   if ([...selectAmp.options].some(o => o.value === valAmp)) selectAmp.value = valAmp;
+}
+
+// ============================================================
+//  🆕 DIAGNOSTIC : POURQUOI LE CIRCUIT EST OUVERT ?
+// ============================================================
+function diagnostiquerCircuitOuvert() {
+  const raisons = [];
+
+  // 1. Pile(s)
+  const piles = atelier.composants.filter(c => c.type === 'pile');
+  if (piles.length === 0) {
+    raisons.push('🔋 Aucune pile dans le circuit.');
+  }
+
+  // 2. Fils non connectés
+  const filsNonBranches = atelier.fils.filter(f => !f.de || !f.vers);
+  if (filsNonBranches.length > 0) {
+    raisons.push(`🔗 ${filsNonBranches.length} fil(s) non connecté(s) : glisse les poignées jaunes sur les bornes.`);
+  }
+
+  // 3. Interrupteur ouvert
+  const interrupteurs = atelier.composants.filter(c => c.type === 'interrupteur');
+  if (interrupteurs.length > 0 && !atelier.interrupteurFerme) {
+    raisons.push('🔘 L\'interrupteur est OUVERT : clique dessus ou sur le bouton « Fermer ».');
+  }
+
+  // 4. Diode en polarisation inverse
+  if (piles.length === 1) {
+    const pile = piles[0];
+    const diodes = atelier.composants.filter(c => c.type === 'diode' || c.type === 'led');
+    diodes.forEach(d => {
+      // On regarde le sens de la diode par rapport au + de la pile
+      // Simplification : si la diode a un courant nul détecté dans les branches
+      const mesures = getMesuresComposant(d.id);
+      if (mesures && mesures.bloquee) {
+        raisons.push('▷| La diode/LED est en POLARISATION INVERSE : elle bloque le courant. Essaie de la retourner (double-clic → rotation).');
+      }
+    });
+  }
+
+  // 5. Aucun récepteur
+  const recepteurs = atelier.composants.filter(c =>
+    COMPOSANTS_RESISTIFS.has(c.type) || c.type === 'diode' || c.type === 'led'
+  );
+  if (recepteurs.length === 0 && piles.length > 0) {
+    raisons.push('💡 Aucun récepteur (résistance, lampe, moteur…) : le courant ne peut pas circuler.');
+  }
+
+  // 6. Pas assez de fils
+  const filsActifs = atelier.fils.filter(f => f.de && f.vers);
+  if (filsActifs.length < 2 && piles.length > 0) {
+    raisons.push('🔌 Pas assez de fils connectés pour former une boucle fermée.');
+  }
+
+  // 7. Condensateurs en série (bloquent le DC)
+  const condosDansCircuit = atelier.composants.filter(c =>
+    c.type === 'condensateur' || c.type === 'condensateurPolarise'
+  );
+  if (condosDansCircuit.length > 0 && recepteurs.length === 0) {
+    raisons.push('⚡ Un condensateur seul bloque le courant continu : ajoute une résistance ou une lampe.');
+  }
+
+  // 8. Cas général si rien d'autre n'a été trouvé
+  if (raisons.length === 0) {
+    raisons.push('❓ Le circuit est ouvert : vérifie que tous les fils relient bien les bornes des composants (une boucle doit partir du + de la pile et revenir au −).');
+  }
+
+  return raisons;
 }
 
 // ============================================================
@@ -3851,6 +3950,20 @@ function updateBoutonAnimer() {
     atelier.resultats.type !== 'court-circuit' &&
     atelier.resultats.type !== 'erreur' &&
     atelier.resultats.chemin;
+    // ✅ Redraw continu si un fil est à moitié branché (pour le clignotement)
+  const aDemiBranche = atelier.fils.some(f => (f.de && !f.vers) || (!f.de && f.vers));
+  if (aDemiBranche && !atelier.animation.active) {
+    if (!atelier._rafPulse) {
+      const bouclePulse = () => {
+        drawCircuit();
+        const encore = atelier.fils.some(f => (f.de && !f.vers) || (!f.de && f.vers));
+        if (encore) atelier._rafPulse = requestAnimationFrame(bouclePulse);
+        else atelier._rafPulse = null;
+      };
+      atelier._rafPulse = requestAnimationFrame(bouclePulse);
+    }
+  }
+
   if (atelier.animation.active) {
     btn.disabled = false;
     btn.textContent = '⏸ Pause';
