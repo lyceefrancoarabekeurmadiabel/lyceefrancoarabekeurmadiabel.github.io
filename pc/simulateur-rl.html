@@ -426,6 +426,32 @@
     border-color: #4fc3f7;
   }
 </style>
+<script>
+  // Redirection automatique vers la version mobile du simulateur
+  (function() {
+    const ua = navigator.userAgent || '';
+    const isMobile = /Android|iPhone|iPad|iPod|Mobile|Opera Mini|IEMobile/i.test(ua)
+                     || (window.innerWidth <= 900 && 'ontouchstart' in window);
+    if (!isMobile) return;
+
+    const map = {
+      'simulateur-circuits-libre.html': 'simulateur-circuits-libre-mobile.html',
+      'simulateur-dosage.html':         'simulateur-dosage-mobile.html',
+      'simulateur-interferences.html':  'simulateur-interferences-mobile.html',
+      'simulateur-lentilles.html':      'simulateur-lentilles-mobile.html',
+      'simulateur-rc.html':             'simulateur-rc-mobile.html',
+      'simulateur-rl.html':             'simulateur-rl-mobile.html',
+      'simulateur-rlc-forces.html':     'simulateur-rlc-forces-mobile.html',
+      'simulateur-rlc.html':            'simulateur-rlc-mobile.html'
+    };
+
+    const path = window.location.pathname.split('/').pop();
+    const target = map[path];
+    if (target) {
+      window.location.replace('../mobile/' + target);
+    }
+  })();
+</script>
 </head>
 <body>
 
