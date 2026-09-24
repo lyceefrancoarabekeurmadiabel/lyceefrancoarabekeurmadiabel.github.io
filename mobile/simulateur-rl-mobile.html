@@ -1963,6 +1963,7 @@ let dragDepuisBarre = { actif: false, slot: null };
 function initialiserDragFilsBarre() {
   const slots = document.querySelectorAll('#filsSlots .fil-slot');
   slots.forEach(el => {
+    el.style.touchAction = 'none';
     el.addEventListener('touchstart', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -1976,30 +1977,23 @@ function initialiserDragFilsBarre() {
     });
   });
 
-  // ✅ FIX : écouter sur window (pas document) + ne PAS preventDefault
-  // sur touchmove pour éviter d'avaler l'événement du canvas
   window.addEventListener('touchmove', (e) => {
     if (!dragDepuisBarre.actif) return;
     e.preventDefault();
-    const t = e.touches[0];
-    majDragPreview(t.clientX, t.clientY);
-  }, { passive: false, capture: true }); // ← capture: true pour passer AVANT les autres
-
-  window.addEventListener('mousemove', (e) => {
-    if (!dragDepuisBarre.actif) return;
-    majDragPreview(e.clientX, e.clientY);
-  }, { capture: true });
+    e.stopPropagation();
+    majDragPreview(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: false, capture: true });
 
   window.addEventListener('touchend', (e) => {
     if (!dragDepuisBarre.actif) return;
     e.preventDefault();
+    e.stopPropagation();
     const t = e.changedTouches[0];
     terminerDragDepuisBarre(t.clientX, t.clientY);
   }, { passive: false, capture: true });
 
-  window.addEventListener('touchcancel', (e) => {
+  window.addEventListener('touchcancel', () => {
     if (!dragDepuisBarre.actif) return;
-    // Annuler le drag proprement
     const overlay = document.getElementById('dragOverlay');
     const preview = document.getElementById('dragFilPreview');
     if (overlay) overlay.classList.remove('show');
@@ -2008,8 +2002,15 @@ function initialiserDragFilsBarre() {
     dragDepuisBarre.slot = null;
   }, { capture: true });
 
+  window.addEventListener('mousemove', (e) => {
+    if (!dragDepuisBarre.actif) return;
+    e.stopPropagation();
+    majDragPreview(e.clientX, e.clientY);
+  }, { capture: true });
+
   window.addEventListener('mouseup', (e) => {
     if (!dragDepuisBarre.actif) return;
+    e.stopPropagation();
     terminerDragDepuisBarre(e.clientX, e.clientY);
   }, { capture: true });
 }
@@ -2400,6 +2401,8 @@ function getCanvasCoords(e, isTouch) {
 }
 
 canvas.addEventListener('touchstart', e => {
+  // ✅ Si un drag depuis la barre est en cours, ne pas interférer
+  if (dragDepuisBarre.actif) return;
   e.preventDefault();
   const now = Date.now();
   if (montage._dragEndedAt && (now - montage._dragEndedAt) < 300) return;
@@ -2428,12 +2431,16 @@ canvas.addEventListener('touchstart', e => {
 }, { passive: false });
 
 canvas.addEventListener('touchmove', e => {
+  // ✅ Ne pas intercepter si drag depuis barre
+  if (dragDepuisBarre.actif) return;
   e.preventDefault();
   const p = getCanvasCoords(e, true);
   handlePointerMove(p.x, p.y);
 }, { passive: false });
 
 canvas.addEventListener('touchend', e => {
+  // ✅ Ne pas intercepter si drag depuis barre
+  if (dragDepuisBarre.actif) return;
   e.preventDefault();
   handlePointerUp();
 });
@@ -3270,6 +3277,7 @@ let dragDepuisBarreB = { actif: false, slot: null };
 function initialiserDragFilsBarreB() {
   const slots = document.querySelectorAll('#filsSlotsB .fil-slot');
   slots.forEach(el => {
+    el.style.touchAction = 'none';
     el.addEventListener('touchstart', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -3286,23 +3294,19 @@ function initialiserDragFilsBarreB() {
   window.addEventListener('touchmove', (e) => {
     if (!dragDepuisBarreB.actif) return;
     e.preventDefault();
-    const t = e.touches[0];
-    majDragPreviewB(t.clientX, t.clientY);
+    e.stopPropagation();
+    majDragPreviewB(e.touches[0].clientX, e.touches[0].clientY);
   }, { passive: false, capture: true });
-
-  window.addEventListener('mousemove', (e) => {
-    if (!dragDepuisBarreB.actif) return;
-    majDragPreviewB(e.clientX, e.clientY);
-  }, { capture: true });
 
   window.addEventListener('touchend', (e) => {
     if (!dragDepuisBarreB.actif) return;
     e.preventDefault();
+    e.stopPropagation();
     const t = e.changedTouches[0];
     terminerDragB(t.clientX, t.clientY);
   }, { passive: false, capture: true });
 
-  window.addEventListener('touchcancel', (e) => {
+  window.addEventListener('touchcancel', () => {
     if (!dragDepuisBarreB.actif) return;
     const overlay = document.getElementById('dragOverlay');
     const preview = document.getElementById('dragFilPreview');
@@ -3312,8 +3316,15 @@ function initialiserDragFilsBarreB() {
     dragDepuisBarreB.slot = null;
   }, { capture: true });
 
+  window.addEventListener('mousemove', (e) => {
+    if (!dragDepuisBarreB.actif) return;
+    e.stopPropagation();
+    majDragPreviewB(e.clientX, e.clientY);
+  }, { capture: true });
+
   window.addEventListener('mouseup', (e) => {
     if (!dragDepuisBarreB.actif) return;
+    e.stopPropagation();
     terminerDragB(e.clientX, e.clientY);
   }, { capture: true });
 }
@@ -3643,6 +3654,7 @@ function getCanvasCoordsB(e, isTouch) {
 }
 
 canvasB.addEventListener('touchstart', e => {
+  if (dragDepuisBarreB.actif) return;
   e.preventDefault();
   if (branchement._dragEndedAt && (Date.now() - branchement._dragEndedAt) < 300) return;
   const p = getCanvasCoordsB(e, true);
@@ -3650,12 +3662,14 @@ canvasB.addEventListener('touchstart', e => {
 }, { passive: false });
 
 canvasB.addEventListener('touchmove', e => {
+  if (dragDepuisBarreB.actif) return;
   e.preventDefault();
   const p = getCanvasCoordsB(e, true);
   handlePointerMoveB(p.x, p.y);
 }, { passive: false });
 
 canvasB.addEventListener('touchend', e => {
+  if (dragDepuisBarreB.actif) return;
   e.preventDefault();
   handlePointerUpB();
 });
