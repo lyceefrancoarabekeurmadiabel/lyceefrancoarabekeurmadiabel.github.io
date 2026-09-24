@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>TP RL — Mobile | LFAKM</title>
-<link rel="icon" type="image/png" href="../assets/favicon.png">
 <link rel="manifest" href="../assets/manifest.json">
 <meta name="theme-color" content="#1B2A4A">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -407,7 +406,7 @@
     display: none;
     pointer-events: none;
   }
-  .drag-overlay.show { display: block; pointer-events: auto; }
+  .drag-overlay.show { display: block; pointer-events: none; }
   .drag-fil-preview {
     position: fixed;
     width: 40px;
@@ -1966,37 +1965,53 @@ function initialiserDragFilsBarre() {
   slots.forEach(el => {
     el.addEventListener('touchstart', (e) => {
       e.preventDefault();
+      e.stopPropagation();
       if (el.classList.contains('utilise')) return;
       demarrerDragDepuisBarre(parseInt(el.dataset.slot), e.touches[0].clientX, e.touches[0].clientY);
     }, { passive: false });
     el.addEventListener('mousedown', (e) => {
+      e.preventDefault();
       if (el.classList.contains('utilise')) return;
       demarrerDragDepuisBarre(parseInt(el.dataset.slot), e.clientX, e.clientY);
     });
   });
 
-  document.addEventListener('touchmove', (e) => {
+  // ✅ FIX : écouter sur window (pas document) + ne PAS preventDefault
+  // sur touchmove pour éviter d'avaler l'événement du canvas
+  window.addEventListener('touchmove', (e) => {
     if (!dragDepuisBarre.actif) return;
     e.preventDefault();
-    majDragPreview(e.touches[0].clientX, e.touches[0].clientY);
-  }, { passive: false });
+    const t = e.touches[0];
+    majDragPreview(t.clientX, t.clientY);
+  }, { passive: false, capture: true }); // ← capture: true pour passer AVANT les autres
 
-  document.addEventListener('mousemove', (e) => {
+  window.addEventListener('mousemove', (e) => {
     if (!dragDepuisBarre.actif) return;
     majDragPreview(e.clientX, e.clientY);
-  });
+  }, { capture: true });
 
-  document.addEventListener('touchend', (e) => {
+  window.addEventListener('touchend', (e) => {
     if (!dragDepuisBarre.actif) return;
     e.preventDefault();
     const t = e.changedTouches[0];
     terminerDragDepuisBarre(t.clientX, t.clientY);
-  }, { passive: false });
+  }, { passive: false, capture: true });
 
-  document.addEventListener('mouseup', (e) => {
+  window.addEventListener('touchcancel', (e) => {
+    if (!dragDepuisBarre.actif) return;
+    // Annuler le drag proprement
+    const overlay = document.getElementById('dragOverlay');
+    const preview = document.getElementById('dragFilPreview');
+    if (overlay) overlay.classList.remove('show');
+    if (preview) preview.style.display = 'none';
+    dragDepuisBarre.actif = false;
+    dragDepuisBarre.slot = null;
+  }, { capture: true });
+
+  window.addEventListener('mouseup', (e) => {
     if (!dragDepuisBarre.actif) return;
     terminerDragDepuisBarre(e.clientX, e.clientY);
-  });
+  }, { capture: true });
 }
 
 function demarrerDragDepuisBarre(slot, cx, cy) {
@@ -3257,37 +3272,50 @@ function initialiserDragFilsBarreB() {
   slots.forEach(el => {
     el.addEventListener('touchstart', (e) => {
       e.preventDefault();
+      e.stopPropagation();
       if (el.classList.contains('utilise')) return;
       demarrerDragB(parseInt(el.dataset.slot), e.touches[0].clientX, e.touches[0].clientY);
     }, { passive: false });
     el.addEventListener('mousedown', (e) => {
+      e.preventDefault();
       if (el.classList.contains('utilise')) return;
       demarrerDragB(parseInt(el.dataset.slot), e.clientX, e.clientY);
     });
   });
 
-  document.addEventListener('touchmove', (e) => {
+  window.addEventListener('touchmove', (e) => {
     if (!dragDepuisBarreB.actif) return;
     e.preventDefault();
-    majDragPreviewB(e.touches[0].clientX, e.touches[0].clientY);
-  }, { passive: false });
+    const t = e.touches[0];
+    majDragPreviewB(t.clientX, t.clientY);
+  }, { passive: false, capture: true });
 
-  document.addEventListener('mousemove', (e) => {
+  window.addEventListener('mousemove', (e) => {
     if (!dragDepuisBarreB.actif) return;
     majDragPreviewB(e.clientX, e.clientY);
-  });
+  }, { capture: true });
 
-  document.addEventListener('touchend', (e) => {
+  window.addEventListener('touchend', (e) => {
     if (!dragDepuisBarreB.actif) return;
     e.preventDefault();
     const t = e.changedTouches[0];
     terminerDragB(t.clientX, t.clientY);
-  }, { passive: false });
+  }, { passive: false, capture: true });
 
-  document.addEventListener('mouseup', (e) => {
+  window.addEventListener('touchcancel', (e) => {
+    if (!dragDepuisBarreB.actif) return;
+    const overlay = document.getElementById('dragOverlay');
+    const preview = document.getElementById('dragFilPreview');
+    if (overlay) overlay.classList.remove('show');
+    if (preview) preview.style.display = 'none';
+    dragDepuisBarreB.actif = false;
+    dragDepuisBarreB.slot = null;
+  }, { capture: true });
+
+  window.addEventListener('mouseup', (e) => {
     if (!dragDepuisBarreB.actif) return;
     terminerDragB(e.clientX, e.clientY);
-  });
+  }, { capture: true });
 }
 
 function demarrerDragB(slot, cx, cy) {
