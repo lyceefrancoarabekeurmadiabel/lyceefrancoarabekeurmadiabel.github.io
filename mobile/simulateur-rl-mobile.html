@@ -2400,18 +2400,21 @@ function getCanvasCoords(e, isTouch) {
   };
 }
 
+// ✅ FIX : on mémorise si un drag commence pour autoriser/bloquer le scroll
+let _canvasDragEnCours = false;
+
 canvas.addEventListener('touchstart', e => {
-  // ✅ Si un drag depuis la barre est en cours, ne pas interférer
-  if (dragDepuisBarre.actif) return;
-  e.preventDefault();
   const now = Date.now();
   if (montage._dragEndedAt && (now - montage._dragEndedAt) < 300) return;
   const p = getCanvasCoords(e, true);
+
+  // Double-tap → ouvre modale
   const dt = now - lastTapTime2;
   const dist = Math.hypot(p.x - lastTapPos2.x, p.y - lastTapPos2.y);
   if (dt < 300 && dist < 30 && !montage.filSelectionne) {
     const comp = trouverComposantProche(p.x, p.y);
     if (comp) {
+      e.preventDefault();
       if (comp.type === 'interrupteur') {
         montage.interrupteurFerme = !montage.interrupteurFerme;
         drawMontage();
@@ -2427,22 +2430,42 @@ canvas.addEventListener('touchstart', e => {
   }
   lastTapTime2 = now;
   lastTapPos2 = p;
-  handlePointerDown(p.x, p.y);
+
+  // ✅ On regarde ce qui est touché SANS preventDefault
+  // pour laisser le navigateur décider si c'est un scroll ou un drag
+  const comp = trouverComposantProcheTactile(p.x, p.y, 40);
+  const filProche = trouverFilProche(p.x, p.y, 60);
+  const poigneeTouchee = detecterPoignee(p.x, p.y);
+
+  if (comp || filProche || poigneeTouchee) {
+    // On touche quelque chose de manipulable → on autorise le drag
+    _canvasDragEnCours = true;
+    e.preventDefault();  // ← bloque le scroll seulement dans ce cas
+    handlePointerDown(p.x, p.y);
+  } else {
+    // On touche le vide → on laisse passer le scroll
+    _canvasDragEnCours = false;
+    // Ne pas appeler preventDefault ici
+  }
 }, { passive: false });
 
 canvas.addEventListener('touchmove', e => {
-  // ✅ Ne pas intercepter si drag depuis barre
-  if (dragDepuisBarre.actif) return;
-  e.preventDefault();
+  if (!_canvasDragEnCours) {
+    // L'utilisateur scrolle → on ne fait rien, le navigateur gère
+    return;
+  }
+  e.preventDefault();  // ← bloque le scroll pendant un drag actif
   const p = getCanvasCoords(e, true);
   handlePointerMove(p.x, p.y);
 }, { passive: false });
 
 canvas.addEventListener('touchend', e => {
-  // ✅ Ne pas intercepter si drag depuis barre
-  if (dragDepuisBarre.actif) return;
-  e.preventDefault();
-  handlePointerUp();
+  if (_canvasDragEnCours) {
+    e.preventDefault();
+    handlePointerUp();
+    _canvasDragEnCours = false;
+  }
+  // Sinon : rien, on laisse le scroll se terminer
 });
 
 canvas.addEventListener('mousedown', e => {
@@ -2460,6 +2483,29 @@ canvas.addEventListener('mouseup', () => {
   canvas._mouseDown = false;
   handlePointerUp();
 });
+
+function detecterPoignee(x, y) {
+  // Poignée de rotation d'un composant ?
+  for (const c of montage.composants) {
+    if (c.type === 'pile') continue;
+    const t = TAILLE[c.type];
+    if (!t) continue;
+    const angle = (c.rotation || 0) * Math.PI / 180;
+    const offsetY = -t.h / 2 - 32;
+    const hx = c.x + offsetY * Math.sin(angle);
+    const hy = c.y - offsetY * Math.cos(angle);
+    if (Math.hypot(hx - x, hy - y) < 60) return true;
+  }
+  // Poignée d'un fil sélectionné ?
+  if (montage.filSelectionne) {
+    const fil = montage.fils.find(f => f.id === montage.filSelectionne);
+    if (fil) {
+      if (Math.hypot(fil.x1 - x, fil.y1 - y) < 60) return true;
+      if (Math.hypot(fil.x2 - x, fil.y2 - y) < 60) return true;
+    }
+  }
+  return false;
+}
 
 function handlePointerDown(x, y) {
   // Priorité 1 : Composant
@@ -3653,25 +3699,51 @@ function getCanvasCoordsB(e, isTouch) {
   };
 }
 
+let _canvasBDragEnCours = false;
+
 canvasB.addEventListener('touchstart', e => {
-  if (dragDepuisBarreB.actif) return;
-  e.preventDefault();
   if (branchement._dragEndedAt && (Date.now() - branchement._dragEndedAt) < 300) return;
   const p = getCanvasCoordsB(e, true);
-  handlePointerDownB(p.x, p.y);
+
+  // Détecter si on touche un fil, une poignée ou l'oscilloscope
+  const filProche = trouverFilProcheB(p.x, p.y, 60);
+  const poigneeTouchee = (function() {
+    if (branchement.filSelectionne) {
+      const fil = branchement.fils.find(f => f.id === branchement.filSelectionne);
+      if (fil) {
+        if (Math.hypot(fil.x1 - p.x, fil.y1 - p.y) < 60) return true;
+        if (Math.hypot(fil.x2 - p.x, fil.y2 - p.y) < 60) return true;
+      }
+    }
+    if (branchement.oscilloscope) {
+      const o = branchement.oscilloscope;
+      if (Math.abs(p.x - o.x) < o.w/2 + 15 && Math.abs(p.y - o.y) < o.h/2 + 15) return true;
+    }
+    return false;
+  })();
+
+  if (filProche || poigneeTouchee) {
+    _canvasBDragEnCours = true;
+    e.preventDefault();
+    handlePointerDownB(p.x, p.y);
+  } else {
+    _canvasBDragEnCours = false;
+  }
 }, { passive: false });
 
 canvasB.addEventListener('touchmove', e => {
-  if (dragDepuisBarreB.actif) return;
+  if (!_canvasBDragEnCours) return;
   e.preventDefault();
   const p = getCanvasCoordsB(e, true);
   handlePointerMoveB(p.x, p.y);
 }, { passive: false });
 
 canvasB.addEventListener('touchend', e => {
-  if (dragDepuisBarreB.actif) return;
-  e.preventDefault();
-  handlePointerUpB();
+  if (_canvasBDragEnCours) {
+    e.preventDefault();
+    handlePointerUpB();
+    _canvasBDragEnCours = false;
+  }
 });
 
 canvasB.addEventListener('mousedown', e => {
