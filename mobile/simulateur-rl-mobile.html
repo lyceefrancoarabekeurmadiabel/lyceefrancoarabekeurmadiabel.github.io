@@ -141,7 +141,10 @@
   .step-item.done .step-label { color: var(--success); }
 
   /* ===== MAIN ===== */
-  .main-content { padding: 15px 12px 40px; max-width: 100%; }
+  .main-content {
+  padding: 15px 12px 20px;
+  max-width: 100%;
+}
   .etape { display: none; }
   .etape.active { display: block; animation: fadeIn 0.3s ease-out; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -260,7 +263,7 @@
     overflow: hidden;
     margin-bottom: 8px;
   }
-  .canvas-zone canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: pointer; }
+  .canvas-zone canvas { display: block; width: 100%; height: 100%; touch-action: pan-y; cursor: pointer; }
   .canvas-hint-top {
     display: flex;
     align-items: center;
@@ -464,18 +467,14 @@
 
   /* ===== BARRE D'ACTIONS FIXE EN BAS ===== */
   .action-bar-fixe {
-    position: sticky;
-    bottom: 0;
-    z-index: 90;
-    background: rgba(247, 245, 240, 0.98);
-    backdrop-filter: blur(10px);
-    border-top: 2px solid var(--line);
-    padding: 8px 12px calc(8px + env(safe-area-inset-bottom)) 12px;
-    margin: 8px -12px -40px -12px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
+  background: rgba(247, 245, 240, 0.98);
+  border-top: 2px solid var(--line);
+  padding: 12px;
+  margin: 20px -12px -40px -12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
   .action-bar-fixe .row { display: flex; gap: 6px; }
   .action-bar-fixe .row > * { flex: 1; }
   .btn-fixe {
@@ -1188,26 +1187,14 @@
         <span class="icon">🔘</span><span class="label">Interrupteur</span>
       </button>
     </div>
-    <div class="toolbox-actions">
-      <button class="outil-btn" id="btnRemettreFils" onclick="remettreTousLesFils()">
-        <span class="icon">🔄</span><span class="label">Remettre tous les fils</span>
-      </button>
-      <button class="outil-btn danger" onclick="effacerTout()">
-        <span class="icon">🗑</span><span class="label">Tout effacer</span>
-      </button>
-    </div>
-    <div class="fils-bar">
-      <div class="fils-bar-title">
-        <span>🧵 Fils disponibles</span>
-        <span class="compteur" id="compteurFils">0/4 placés</span>
-      </div>
-      <div class="fils-slots" id="filsSlots">
-        <div class="fil-slot" data-slot="0"><span class="fs-icon">〰️</span><span class="fs-label">Fil 1</span></div>
-        <div class="fil-slot" data-slot="1"><span class="fs-icon">〰️</span><span class="fs-label">Fil 2</span></div>
-        <div class="fil-slot" data-slot="2"><span class="fs-icon">〰️</span><span class="fs-label">Fil 3</span></div>
-        <div class="fil-slot" data-slot="3"><span class="fs-icon">〰️</span><span class="fs-label">Fil 4</span></div>
-      </div>
-    </div>
+    <div class="toolbox-actions" style="grid-template-columns: 1fr 1fr;">
+  <button class="outil-btn" onclick="ajouterUnFil()">
+    <span class="icon">🧵</span><span class="label">Ajouter un fil</span>
+  </button>
+  <button class="outil-btn danger" onclick="effacerTout()">
+    <span class="icon">🗑</span><span class="label">Tout effacer</span>
+  </button>
+</div>
     <div class="montage-progress">
       <div class="progress-item" id="progComposants">
         🔧 Composants <span class="count" id="countComposants">0/4</span>
@@ -1261,24 +1248,17 @@
     <div class="canvas-zone">
       <canvas id="canvasBranchement" width="900" height="800"></canvas>
     </div>
-    <div class="toolbox-actions">
-      <button class="outil-btn" id="btn-oscillo" onclick="poserOscilloscope()">
-        <span class="icon">📺</span><span class="label">Poser l'oscilloscope</span>
-      </button>
-      <button class="outil-btn" id="btnRemettreFilsB" onclick="remettreFilsBranchement()">
-        <span class="icon">🔄</span><span class="label">Fils</span>
-      </button>
-    </div>
-    <div class="fils-bar">
-      <div class="fils-bar-title">
-        <span>🧵 Fils disponibles</span>
-        <span class="compteur" id="compteurFilsB">0/2 branchés</span>
-      </div>
-      <div class="fils-slots" id="filsSlotsB">
-        <div class="fil-slot" data-slot="0"><span class="fs-icon">〰️</span><span class="fs-label">Fil 1</span></div>
-        <div class="fil-slot" data-slot="1"><span class="fs-icon">〰️</span><span class="fs-label">Fil 2</span></div>
-      </div>
-    </div>
+    <div class="toolbox-actions" style="grid-template-columns: 1fr 1fr 1fr;">
+  <button class="outil-btn" id="btn-oscillo" onclick="poserOscilloscope()">
+    <span class="icon">📺</span><span class="label">Oscillo</span>
+  </button>
+  <button class="outil-btn" onclick="ajouterUnFilBranchement()">
+    <span class="icon">🧵</span><span class="label">Ajouter un fil</span>
+  </button>
+  <button class="outil-btn danger" onclick="remettreFilsBranchement()">
+    <span class="icon">🗑</span><span class="label">Effacer fils</span>
+  </button>
+</div>
     <div class="verif-message" id="verifBranchement"></div>
     <div class="action-bar-fixe">
       <div class="row">
@@ -2401,14 +2381,15 @@ function getCanvasCoords(e, isTouch) {
 }
 
 // ✅ FIX : on mémorise si un drag commence pour autoriser/bloquer le scroll
-let _canvasDragEnCours = false;
+let _canvasADragEnCours = false;
 
 canvas.addEventListener('touchstart', e => {
   const now = Date.now();
   if (montage._dragEndedAt && (now - montage._dragEndedAt) < 300) return;
+
   const p = getCanvasCoords(e, true);
 
-  // Double-tap → ouvre modale
+  // Double-tap → édition
   const dt = now - lastTapTime2;
   const dist = Math.hypot(p.x - lastTapPos2.x, p.y - lastTapPos2.y);
   if (dt < 300 && dist < 30 && !montage.filSelectionne) {
@@ -2431,41 +2412,34 @@ canvas.addEventListener('touchstart', e => {
   lastTapTime2 = now;
   lastTapPos2 = p;
 
-  // ✅ On regarde ce qui est touché SANS preventDefault
-  // pour laisser le navigateur décider si c'est un scroll ou un drag
+  // Détecter si on touche quelque chose de manipulable
   const comp = trouverComposantProcheTactile(p.x, p.y, 40);
   const filProche = trouverFilProche(p.x, p.y, 60);
   const poigneeTouchee = detecterPoignee(p.x, p.y);
 
   if (comp || filProche || poigneeTouchee) {
-    // On touche quelque chose de manipulable → on autorise le drag
-    _canvasDragEnCours = true;
-    e.preventDefault();  // ← bloque le scroll seulement dans ce cas
+    _canvasADragEnCours = true;
+    e.preventDefault();
     handlePointerDown(p.x, p.y);
   } else {
-    // On touche le vide → on laisse passer le scroll
-    _canvasDragEnCours = false;
-    // Ne pas appeler preventDefault ici
+    _canvasADragEnCours = false;
+    // ⚠️ Pas de preventDefault → autorise le scroll
   }
 }, { passive: false });
 
 canvas.addEventListener('touchmove', e => {
-  if (!_canvasDragEnCours) {
-    // L'utilisateur scrolle → on ne fait rien, le navigateur gère
-    return;
-  }
-  e.preventDefault();  // ← bloque le scroll pendant un drag actif
+  if (!_canvasADragEnCours) return;
+  e.preventDefault();
   const p = getCanvasCoords(e, true);
   handlePointerMove(p.x, p.y);
 }, { passive: false });
 
 canvas.addEventListener('touchend', e => {
-  if (_canvasDragEnCours) {
+  if (_canvasADragEnCours) {
     e.preventDefault();
     handlePointerUp();
-    _canvasDragEnCours = false;
+    _canvasADragEnCours = false;
   }
-  // Sinon : rien, on laisse le scroll se terminer
 });
 
 canvas.addEventListener('mousedown', e => {
@@ -2497,6 +2471,27 @@ function detecterPoignee(x, y) {
     if (Math.hypot(hx - x, hy - y) < 60) return true;
   }
   // Poignée d'un fil sélectionné ?
+  if (montage.filSelectionne) {
+    const fil = montage.fils.find(f => f.id === montage.filSelectionne);
+    if (fil) {
+      if (Math.hypot(fil.x1 - x, fil.y1 - y) < 60) return true;
+      if (Math.hypot(fil.x2 - x, fil.y2 - y) < 60) return true;
+    }
+  }
+  return false;
+}
+
+function detecterPoignee(x, y) {
+  for (const c of montage.composants) {
+    if (c.type === 'pile') continue;
+    const t = TAILLE[c.type];
+    if (!t) continue;
+    const angle = (c.rotation || 0) * Math.PI / 180;
+    const offsetY = -t.h / 2 - 32;
+    const hx = c.x + offsetY * Math.sin(angle);
+    const hy = c.y - offsetY * Math.cos(angle);
+    if (Math.hypot(hx - x, hy - y) < 60) return true;
+  }
   if (montage.filSelectionne) {
     const fil = montage.fils.find(f => f.id === montage.filSelectionne);
     if (fil) {
@@ -3081,6 +3076,67 @@ document.getElementById('modalOverlay').addEventListener('click', e => {
 });
 
 // ⚠️ FIN DE LA PARTIE A — la Partie B (étape 3 + étape 4 + init) va suivre dans le même <script>
+
+// ============================================================
+//  ✅ NOUVEAU : ajouter un fil sur le canvas (étape 2)
+// ============================================================
+function ajouterUnFil() {
+  const nb = montage.fils.length;
+  const cx = W / 2 + ((nb % 3) - 1) * 90;
+  const cy = H / 2 + Math.floor(nb / 3) * 70;
+  const longueur = 180;
+
+  const fil = {
+    id: 'f' + montage.prochainIdFil++,
+    x1: cx - longueur / 2,
+    y1: cy,
+    x2: cx + longueur / 2,
+    y2: cy,
+    de: null,
+    vers: null
+  };
+  montage.fils.push(fil);
+  montage.filSelectionne = fil.id;
+  montage.composantSelectionne = null;
+  updateConnexionsFils();
+  drawMontage();
+  updateProgress();
+  updateCanvasHint();
+  updateSelectionInfo2();
+  jouerSon('pose');
+  updateStatusMsg('🧵 Fil ajouté — glisse les poignées ✥ vers les bornes');
+}
+
+// ============================================================
+//  ✅ NOUVEAU : ajouter un fil sur le canvas (étape 3)
+// ============================================================
+function ajouterUnFilBranchement() {
+  if (!branchement.oscilloPlace) {
+    alert('⚠️ Pose d\'abord l\'oscilloscope.');
+    return;
+  }
+  const nb = branchement.fils.length;
+  const cx = WB / 2 + ((nb % 2) - 0.5) * 150;
+  const cy = HB / 2 + Math.floor(nb / 2) * 80;
+  const longueur = 180;
+
+  const fil = {
+    id: 'fb' + branchement.prochainIdFil++,
+    x1: cx - longueur / 2,
+    y1: cy,
+    x2: cx + longueur / 2,
+    y2: cy,
+    de: null,
+    vers: null
+  };
+  branchement.fils.push(fil);
+  branchement.filSelectionne = fil.id;
+  updateConnexionsFilsB();
+  drawBranchement();
+  updateHintBranchement();
+  jouerSon('pose');
+  updateStatusMsgB('🧵 Fil ajouté — glisse les poignées vers les bornes');
+}  
 
 // =========================================================================
 //  PARTIE B — ÉTAPE 3 (BRANCHEMENT) + ÉTAPE 4 (ANALYSE) + INIT UNIQUE
@@ -4767,8 +4823,6 @@ window.addEventListener('load', () => {
   document.body.addEventListener('click', initAudio, { once: true });
 
   // Étape 2 — barre de fils + état
-  initialiserDragFilsBarre();
-  majFilsSlotsUI();
   drawMontage();
   updateProgress();
   updateCanvasHint();
@@ -4776,9 +4830,7 @@ window.addEventListener('load', () => {
   majBoutonInterrupteur();
 
   // Étape 3 — barre de fils
-  initialiserDragFilsBarreB();
-  majFilsSlotsBUI();
-
+  
   // Étape 4 — mesure interactive τ
   initialiserMesureInteractiveTau();
 
