@@ -32,6 +32,7 @@
     '/pc/simulateur-rl.html':             '/mobile/simulateur-rl-mobile.html',
     '/pc/simulateur-rlc.html':            '/mobile/simulateur-rlc-mobile.html',
     '/pc/simulateur-rlc-forces.html':     '/mobile/simulateur-rlc-forces-mobile.html',
+    '/pc/simulateur-lc.html':            '/mobile/simulateur-lc-mobile.html',
   };
 
   const ua = navigator.userAgent || '';
