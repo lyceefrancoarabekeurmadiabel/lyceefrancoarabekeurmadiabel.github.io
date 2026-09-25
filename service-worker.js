@@ -68,3 +68,4 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
+const CACHE_NAME = 'lfakm-cache-v3'; // était v2

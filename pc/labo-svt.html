@@ -72,6 +72,11 @@
   .btn-secondary { background: #5B6472; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; margin: 5px; font-size: 13px; }
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
 </style>
+<style>
+  /* 🔒 Cache le body tant que la vérification auth n'est pas terminée */
+  body { visibility: hidden; }
+  body.auth-ok { visibility: visible; }
+</style>
 </head>
 <script src="../assets/detect-mobile.js" defer></script>
 <body>
@@ -370,6 +375,20 @@
   };
 
   console.log('✅ Labo SVT chargé');
+
+  // 🔒 Protection de la page : redirection vers identification si non connecté
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      setTimeout(() => {
+        if (!auth.currentUser) {
+          const cible = encodeURIComponent(window.location.pathname + window.location.search);
+          window.location.replace('../identification.html?redirect=' + cible);
+        }
+      }, 300);
+    } else {
+      document.body.classList.add('auth-ok');
+    }
+  });
 </script>
 
 <script>

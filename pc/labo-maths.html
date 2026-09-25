@@ -73,6 +73,11 @@
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
 </style>
 <script src="../assets/detect-mobile.js" defer></script>
+<style>
+  /* 🔒 Cache le body tant que la vérification auth n'est pas terminée */
+  body { visibility: hidden; }
+  body.auth-ok { visibility: visible; }
+</style>
 </head>
 <body>
 
@@ -407,6 +412,20 @@
   };
 
   console.log('✅ Labo Maths chargé');
+
+  // 🔒 Protection de la page : redirection vers identification si non connecté
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      setTimeout(() => {
+        if (!auth.currentUser) {
+          const cible = encodeURIComponent(window.location.pathname + window.location.search);
+          window.location.replace('../identification.html?redirect=' + cible);
+        }
+      }, 300);
+    } else {
+      document.body.classList.add('auth-ok');
+    }
+  });
 </script>
 
 <script>

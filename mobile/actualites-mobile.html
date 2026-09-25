@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Actualités — LFAKM</title>
+<link rel="manifest" href="../assets/manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="apple-touch-icon" href="../icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
+    --slate: #5B6472; --line: rgba(27,42,74,0.14);
+    --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --gov-purple: #6a4c93;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { overflow-x: hidden; max-width: 100vw; }
+  body { font-family: var(--sans); background: var(--paper); color: #1a1a1a; line-height: 1.55; min-height: 100vh; padding-bottom: env(safe-area-inset-bottom); }
+
+  header {
+    background: var(--paper); border-bottom: 1px solid var(--line); padding: 10px 14px;
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 64px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; min-width: 0; flex: 1; }
+  .brand-mark { width: 40px; height: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
+  .brand-text { min-width: 0; flex: 1; }
+  .brand-name { font-family: var(--serif); font-weight: 700; font-size: 13px; color: var(--ink); line-height: 1.2; }
+  .brand-tag { font-size: 9.5px; color: var(--slate); letter-spacing: 0.5px; margin-top: 1px; }
+  .header-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .header-btn {
+    background: var(--ink-deep); color: #fff; text-decoration: none; font-size: 12px; font-weight: 600;
+    padding: 10px 14px; border-radius: 8px; min-height: 44px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: none; cursor: pointer; font-family: var(--sans);
+  }
+  .header-btn:active { background: #050810; }
+  .header-btn.secondary { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+
+  .hero { background: var(--ink-deep); color: #EFE9DC; padding: 36px 20px 40px; text-align: center; }
+  .hero h1 { font-family: var(--serif); font-size: 26px; line-height: 1.25; margin-bottom: 10px; }
+  .hero p { font-size: 13.5px; opacity: 0.85; line-height: 1.55; }
+
+  .wrap { padding: 20px 14px 30px; max-width: 700px; margin: 0 auto; }
+  .actus-list { display: flex; flex-direction: column; gap: 16px; }
+  .actus-card {
+    background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-decoration: none; color: inherit; display: block;
+  }
+  .actus-card img { width: 100%; height: auto; max-height: 240px; object-fit: cover; display: block; }
+  .actus-card-body { padding: 16px; }
+  .gov-badge {
+    display: inline-block; background: var(--gov-purple); color: #fff;
+    padding: 3px 10px; border-radius: 10px; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.5px; margin-bottom: 10px;
+  }
+  .actus-card-body h3 { font-family: var(--serif); font-size: 18px; color: var(--ink); margin-bottom: 8px; line-height: 1.35; }
+  .actus-card-body p { font-size: 14px; color: var(--slate); line-height: 1.6; margin-bottom: 12px; }
+  .actus-card-body .date { font-size: 12px; color: var(--brass); font-weight: 700; display: inline-block; }
+  .empty-msg { text-align: center; padding: 50px 20px; color: var(--slate); font-size: 14px; }
+  .empty-msg .icon { font-size: 42px; display: block; margin-bottom: 12px; }
+
+  footer {
+    background: var(--ink-deep); color: #B7BCC9; padding: 30px 16px;
+    text-align: center; font-size: 12px; line-height: 1.7; margin-top: 20px;
+  }
+  footer a { color: #B7BCC9; text-decoration: none; }
+  footer a.pc-link {
+    display: inline-block; margin-top: 14px; padding: 10px 16px;
+    border: 1px solid rgba(183,188,201,0.3); border-radius: 8px; font-size: 12px;
+  }
+
+  .drawer-backdrop {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 900; opacity: 0; transition: opacity 0.25s;
+  }
+  .drawer-backdrop.show { display: block; opacity: 1; }
+  .drawer {
+    position: fixed; top: 0; right: -100%; width: 82%; max-width: 340px;
+    height: 100vh; height: 100dvh; background: var(--paper); z-index: 1000;
+    transition: right 0.3s ease; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+    display: flex; flex-direction: column;
+  }
+  .drawer.show { right: 0; }
+  .drawer-header {
+    padding: 16px 18px; border-bottom: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+  }
+  .drawer-header h2 { font-family: var(--serif); font-size: 16px; color: var(--ink); }
+  .drawer-close { background: none; border: none; font-size: 26px; cursor: pointer; color: var(--ink); padding: 4px 10px; line-height: 1; }
+  .drawer-user { padding: 14px 18px; background: #f1ece1; font-size: 13px; color: var(--ink); border-bottom: 1px solid var(--line); }
+  .drawer-user .name { font-weight: 700; color: var(--brass); }
+  .drawer-user .role { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--slate); }
+  .drawer-nav { padding: 8px 0; flex: 1; }
+  .drawer-nav a, .drawer-nav button {
+    display: flex; align-items: center; gap: 12px; padding: 14px 18px;
+    color: var(--ink); text-decoration: none; font-size: 15px; font-weight: 600;
+    border: none; background: none; width: 100%; text-align: left;
+    font-family: var(--sans); cursor: pointer; min-height: 48px;
+  }
+  .drawer-nav a:active, .drawer-nav button:active { background: #f0f0f0; }
+  .drawer-nav a.primary { color: var(--brass); }
+  .drawer-nav a.gov { color: var(--gov-purple); font-weight: 700; }
+  .drawer-nav .separator { height: 1px; background: var(--line); margin: 8px 18px; }
+  .drawer-footer { padding: 14px 18px; border-top: 1px solid var(--line); font-size: 11px; color: var(--slate); text-align: center; flex-shrink: 0; }
+
+  .admin-only, .gov-only, .connecte-only { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index-mobile.html" class="brand">
+    <div class="brand-mark"><img src="../logo-header.png" alt="LFAKM"></div>
+    <div class="brand-text">
+      <div class="brand-name">Lycée Franco Arabe de Keur Madiabel</div>
+      <div class="brand-tag">Excellence & Savoir</div>
+    </div>
+  </a>
+  <div class="header-actions">
+    <button class="header-btn secondary" id="burger-btn" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<section class="hero">
+  <h1>📰 Actualités du Lycée</h1>
+  <p>Suivez toute l'actualité du Lycée Franco Arabe de Keur Madiabel.</p>
+</section>
+
+<div class="wrap">
+  <div id="actus-container" class="actus-list">
+    <div class="empty-msg"><span class="icon">⏳</span>Chargement des actualités...</div>
+  </div>
+</div>
+
+<footer>
+  <div>© 2026 Lycée Franco Arabe de Keur Madiabel</div>
+  <a href="#" onclick="window.showContact(); return false;">📞 Contacter le Proviseur</a>
+  <br>
+  <a class="pc-link" href="../actualites.html?pc=1">🖥️ Voir la version ordinateur</a>
+</footer>
+
+<div class="drawer-backdrop" id="drawer-backdrop"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-header">
+    <h2>Menu</h2>
+    <button class="drawer-close" id="drawer-close" aria-label="Fermer">×</button>
+  </div>
+  <div class="drawer-user" id="drawer-user" style="display:none;">
+    <div class="name" id="drawer-user-name"></div>
+    <div class="role" id="drawer-user-role"></div>
+  </div>
+  <nav class="drawer-nav">
+    <a href="index-mobile.html">🏠 Accueil</a>
+    <a href="actualites-mobile.html">📰 Actualités</a>
+    <a href="historique.html">🏫 Historique</a>
+    <a href="ressources-mobile.html" class="connecte-only">📚 Ressources</a>
+
+    <div class="separator"></div>
+
+    <a href="labo-pc-mobile.html" class="connecte-only">🔬 Labo Physique-Chimie</a>
+    <a href="labo-maths-mobile.html" class="connecte-only">📐 Labo Maths</a>
+    <a href="labo-svt-mobile.html" class="connecte-only">🧬 Labo SVT</a>
+
+    <div class="separator"></div>
+
+    <a href="../admin-gestion.html" class="admin-only">⚙️ Administration</a>
+    <a href="../admin-news.html" class="admin-only">📰 Publier une actu</a>
+    <a href="../feedback.html" class="admin-only">📊 Retours</a>
+
+    <a href="../pc/publier-annonce.html" class="gov gov-only">🎓 Gouvernement</a>
+
+    <div class="separator"></div>
+
+    <a href="#" id="auth-link" class="primary">🔐 Se connecter</a>
+  </nav>
+  <div class="drawer-footer">LFAKM — Version mobile</div>
+</aside>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc, collection, onSnapshot, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+    authDomain: "lfakm-87dec.firebaseapp.com",
+    projectId: "lfakm-87dec",
+    storageBucket: "lfakm-87dec.firebasestorage.app",
+    messagingSenderId: "739517262614",
+    appId: "1:739517262614:web:14abd3538427960c527e37"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let profile = null;
+  const isAdmin = (role) => role === 'admin' || role === 'proviseur' || role === 'censeur';
+  const isGouvernement = (role) => role === 'president' || role === 'ministre_communication';
+  const escapeHtml = (str) => { const div = document.createElement('div'); div.textContent = str ?? ''; return div.innerHTML; };
+
+  const drawer = document.getElementById('drawer');
+  const backdrop = document.getElementById('drawer-backdrop');
+  const burgerBtn = document.getElementById('burger-btn');
+  const closeBtn = document.getElementById('drawer-close');
+
+  function openDrawer() { drawer.classList.add('show'); backdrop.classList.add('show'); document.body.style.overflow = 'hidden'; }
+  function closeDrawer() { drawer.classList.remove('show'); backdrop.classList.remove('show'); document.body.style.overflow = ''; }
+  burgerBtn.addEventListener('click', openDrawer);
+  closeBtn.addEventListener('click', closeDrawer);
+  backdrop.addEventListener('click', closeDrawer);
+
+  onAuthStateChanged(auth, async (user) => {
+    const authLink = document.getElementById('auth-link');
+    const userBox = document.getElementById('drawer-user');
+    const userName = document.getElementById('drawer-user-name');
+    const userRole = document.getElementById('drawer-user-role');
+
+    if (user) {
+      try {
+        const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+        profile = snap.exists() ? snap.data() : null;
+        if (!profile) return;
+
+        userBox.style.display = 'block';
+        userName.textContent = `👤 ${profile.prenom} ${profile.nom}`;
+        userRole.textContent = profile.role;
+
+        document.querySelectorAll('.connecte-only').forEach(el => el.style.display = 'flex');
+
+        if (isAdmin(profile.role)) {
+          document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
+        }
+        if (isAdmin(profile.role) || isGouvernement(profile.role)) {
+          document.querySelectorAll('.gov-only').forEach(el => el.style.display = 'flex');
+        }
+
+        authLink.textContent = '🚪 Se déconnecter';
+        authLink.onclick = (e) => { e.preventDefault(); signOut(auth).then(() => window.location.reload()); };
+      } catch (err) { console.warn('Erreur:', err); }
+    } else {
+      userBox.style.display = 'none';
+      document.querySelectorAll('.admin-only, .gov-only, .connecte-only').forEach(el => el.style.display = 'none');
+      authLink.textContent = '🔐 Se connecter';
+      authLink.href = '../identification.html';
+      authLink.onclick = null;
+    }
+  });
+
+  function loadActualites() {
+    const container = document.getElementById('actus-container');
+    if (!container) return;
+
+    try {
+      onSnapshot(query(collection(db, 'actualites'), orderBy('date', 'desc')), (snap) => {
+        const cards = [];
+        snap.forEach(d => {
+          const n = d.data();
+          const dest = n.destinataire || 'tous';
+          if (dest !== 'tous' && dest !== profile?.role && !isAdmin(profile?.role)) return;
+          const date = n.date?.toDate ? n.date.toDate().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+          const govBadge = n.sourceGouvernement ? `<span class="gov-badge">🎓 GOUVERNEMENT SCOLAIRE</span>` : '';
+          cards.push(`
+            <div class="actus-card">
+              ${n.image ? `<img src="${n.image}" alt="${escapeHtml(n.titre)}">` : ''}
+              <div class="actus-card-body">
+                ${govBadge}
+                <h3>${escapeHtml(n.titre)}</h3>
+                <p>${escapeHtml(n.contenu || '')}</p>
+                <span class="date">📅 ${date}</span>
+              </div>
+            </div>
+          `);
+        });
+        if (cards.length === 0) {
+          container.innerHTML = `<div class="empty-msg"><span class="icon">📰</span>Aucune actualité pour le moment.</div>`;
+        } else {
+          container.innerHTML = cards.join('');
+        }
+      });
+    } catch (err) {
+      console.warn(err.message);
+      container.innerHTML = `<div class="empty-msg"><span class="icon">⚠️</span>Erreur de chargement.</div>`;
+    }
+  }
+  loadActualites();
+
+  window.showContact = async () => {
+    const snap = await getDoc(doc(db, 'config', 'contact'));
+    if (!snap.exists() || !snap.data().email) { alert("Coordonnées non renseignées."); return; }
+    const c = snap.data();
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
+    overlay.innerHTML = `
+      <div style="background:#fff;border-radius:12px;padding:25px;max-width:340px;width:100%;text-align:center;">
+        <h3 style="font-family:var(--serif);color:var(--ink);margin-bottom:6px;">${escapeHtml(c.nom) || 'Le Proviseur'}</h3>
+        <p style="font-size:12px;color:var(--slate);margin-bottom:18px;">Chef d'établissement — LFAKM</p>
+        ${c.telephone ? `<a href="tel:${c.telephone}" style="display:block;padding:12px;margin-bottom:8px;background:var(--ink-deep);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">📞 ${c.telephone}</a>` : ''}
+        ${c.email ? `<a href="mailto:${c.email}" style="display:block;padding:12px;margin-bottom:14px;background:var(--brass);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">✉️ ${c.email}</a>` : ''}
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="border:none;background:#eee;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600;">Fermer</button>
+      </div>`;
+    document.body.appendChild(overlay);
+  };
+</script>
+
+</body>
+</html>
