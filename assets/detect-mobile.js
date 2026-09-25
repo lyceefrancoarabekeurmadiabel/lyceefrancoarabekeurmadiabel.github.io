@@ -20,8 +20,8 @@
   // Correspondance : page PC  ->  page mobile
   const REDIRECTIONS = {
     '/pc/labo-pc.html':        '/mobile/labo-pc-mobile.html',
-    '/labo-maths.html':        '/mobile/labo-maths-mobile.html',
-    '/labo-svt.html':          '/mobile/labo-svt-mobile.html',
+    '/pc/labo-maths.html':        '/mobile/labo-maths-mobile.html',
+    '/pc/labo-svt.html':          '/mobile/labo-svt-mobile.html',
   };
 
   // ---- Détection mobile ----
