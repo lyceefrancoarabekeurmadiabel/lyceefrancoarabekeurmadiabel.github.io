@@ -1144,6 +1144,12 @@ window.addEventListener('load', () => {
   const auth = getAuth(app);
 
   onAuthStateChanged(auth, (user) => {
+    // ⚠️ Si une redirection mobile est en cours, on ne fait rien
+    if (window.__lfakmRedirectingMobile) {
+      document.body.classList.add('auth-ok');
+      return;
+    }
+
     if (!user) {
       setTimeout(() => {
         if (!auth.currentUser) {
