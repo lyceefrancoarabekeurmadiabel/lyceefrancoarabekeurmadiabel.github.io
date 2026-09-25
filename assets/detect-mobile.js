@@ -16,6 +16,7 @@
     '/index.html':                      '/mobile/index-mobile.html',
     '/actualites.html':                 '/mobile/actualites-mobile.html',
     '/pc/ressources.html':              '/mobile/ressources-mobile.html',
+    '/historique.html':                 '/mobile/historique-mobile.html',
 
     // Labos
     '/pc/labo-pc.html':                 '/mobile/labo-pc-mobile.html',
