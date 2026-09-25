@@ -350,12 +350,43 @@
   /* 🔒 Cache le body tant que la vérification auth n'est pas terminée */
   body { visibility: hidden; }
   body.auth-ok { visibility: visible; }
+
+/* ============================================================ */
+/*  📱 AJUSTEMENTS MOBILES                                      */
+/* ============================================================ */
+@media (max-width: 768px) {
+  .top-nav { padding: 8px 12px; gap: 6px; }
+  .top-nav .title { font-size: 13px; }
+  .top-nav a { font-size: 11px; padding: 4px 8px; }
+  .steps-bar { padding: 10px 8px; }
+  .main-content { padding: 15px 10px 40px; }
+  .etape-title { font-size: 22px; }
+  .etape-subtitle { font-size: 13px; }
+  .card { padding: 16px; }
+  .card-title { font-size: 16px; }
+  .montage-layout, .branchement-layout { grid-template-columns: 1fr !important; }
+  .canvas-montage { min-height: 320px; }
+  .toolbox { position: static; }
+  .outil-btn { padding: 10px 12px; font-size: 12px; }
+  .btn { padding: 12px 20px; font-size: 13px; }
+  .sous-onglet { min-width: 80px; font-size: 11px; padding: 10px 4px; }
+  .sous-onglet-contenu { padding: 15px; }
+  .recap-grid { grid-template-columns: 1fr 1fr !important; }
+  .charge-decharge-grid { grid-template-columns: 1fr !important; }
+  .applis-grid { grid-template-columns: 1fr !important; }
+  .step-circle { width: 32px; height: 32px; font-size: 13px; }
+  .step-label { font-size: 9px; }
+}
+@media (max-width: 480px) {
+  .recap-grid { grid-template-columns: 1fr !important; }
+  .composants-grid { grid-template-columns: 1fr !important; }
+}
 </style>
 </head>
 <body>
 
 <div class="top-nav">
-  <div class="title">🌊 TP LC</div>
+  <div class="title">🌊 TP LC — Circuit oscillant</div>
   <div class="nav-links">
     <button class="son-btn" id="sonToggle" onclick="toggleSon()" title="Activer/désactiver les sons">🔊</button>
     <a href="labo-pc-mobile.html">← Labo</a>
@@ -3467,7 +3498,7 @@ function imprimerConclusion() {
       @media print { body { margin: 20px; } }
     </style></head><body>
     <h1>🌊 Ma conclusion — TP LC</h1>
-    <pre>${texte.replace(/</g, '&lt;')}</pre>
+        <pre>${texte.replace(/</g, '&lt;')}</pre>
     <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -3502,7 +3533,7 @@ function imprimerConclusion() {
       document.body.classList.add('auth-ok');
     }
   });
-</script>
+<\/script>
 </body></html>
   `);
   fenetre.document.close();
@@ -3571,38 +3602,7 @@ function genererCertificat() {
       .pied { text-align: center; font-size: 11px; color: #5B6472; margin-top: 30px; font-style: italic; }
       .no-print { text-align: center; margin: 20px auto; }
       .no-print button { padding: 12px 24px; background: #9c27b0; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; font-family: inherit; }
-    
-/* ============================================================ */
-/*  📱 AJUSTEMENTS MOBILES                                      */
-/* ============================================================ */
-@media (max-width: 768px) {
-  .top-nav { padding: 8px 12px; gap: 6px; }
-  .top-nav .title { font-size: 13px; }
-  .top-nav a { font-size: 11px; padding: 4px 8px; }
-  .steps-bar { padding: 10px 8px; }
-  .main-content { padding: 15px 10px 40px; }
-  .etape-title { font-size: 22px; }
-  .etape-subtitle { font-size: 13px; }
-  .card { padding: 16px; }
-  .card-title { font-size: 16px; }
-  .montage-layout, .branchement-layout { grid-template-columns: 1fr !important; }
-  .canvas-montage { min-height: 320px; }
-  .toolbox { position: static; }
-  .outil-btn { padding: 10px 12px; font-size: 12px; }
-  .btn { padding: 12px 20px; font-size: 13px; }
-  .sous-onglet { min-width: 80px; font-size: 11px; padding: 10px 4px; }
-  .sous-onglet-contenu { padding: 15px; }
-  .recap-grid { grid-template-columns: 1fr 1fr !important; }
-  .charge-decharge-grid { grid-template-columns: 1fr !important; }
-  .applis-grid { grid-template-columns: 1fr !important; }
-  .step-circle { width: 32px; height: 32px; font-size: 13px; }
-  .step-label { font-size: 9px; }
-}
-@media (max-width: 480px) {
-  .recap-grid { grid-template-columns: 1fr !important; }
-  .composants-grid { grid-template-columns: 1fr !important; }
-}
-</style></head><body>
+    </style></head><body>
     <div class="cert">
       <div class="entete">
         <h1>🏫 Lycée Franco-Arabe de Kermadiabel</h1>
@@ -3743,6 +3743,40 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
     return this;
   };
 }
+</script>
+<script type="module">
+  // 🔒 Protection de la page : redirection vers identification si non connecté
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+    authDomain: "lfakm-87dec.firebaseapp.com",
+    projectId: "lfakm-87dec",
+    storageBucket: "lfakm-87dec.firebasestorage.app",
+    messagingSenderId: "739517262614",
+    appId: "1:739517262614:web:14abd3538427960c527e37"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  onAuthStateChanged(auth, (user) => {
+    if (window.__lfakmRedirectingMobile) {
+      document.body.classList.add('auth-ok');
+      return;
+    }
+    if (!user) {
+      setTimeout(() => {
+        if (!auth.currentUser) {
+          const cible = encodeURIComponent(window.location.pathname + window.location.search);
+          window.location.replace('../identification.html?redirect=' + cible);
+        }
+      }, 300);
+    } else {
+      document.body.classList.add('auth-ok');
+    }
+  });
 </script>
 
 </body>
