@@ -19,9 +19,21 @@
   // ---- Configuration : table des redirections ----
   // Correspondance : page PC  ->  page mobile
   const REDIRECTIONS = {
-    '/pc/labo-pc.html':        '/mobile/labo-pc-mobile.html',
-    '/pc/labo-maths.html':        '/mobile/labo-maths-mobile.html',
-    '/pc/labo-svt.html':          '/mobile/labo-svt-mobile.html',
+    // Labos
+    '/pc/labo-pc.html':                      '/mobile/labo-pc-mobile.html',
+    '/pc/labo-maths.html':                   '/mobile/labo-maths-mobile.html',
+    '/pc/labo-svt.html':                     '/mobile/labo-svt-mobile.html',
+
+    // Simulateurs
+    '/pc/simulateur-circuits-libre.html':    '/mobile/simulateur-circuits-libre-mobile.html',
+    '/pc/simulateur-dosage.html':            '/mobile/simulateur-dosage-mobile.html',
+    '/pc/simulateur-interferences.html':     '/mobile/simulateur-interferences-mobile.html',
+    '/pc/simulateur-lentilles.html':         '/mobile/simulateur-lentilles-mobile.html',
+    '/pc/simulateur-rc.html':                '/mobile/simulateur-rc-mobile.html',
+    '/pc/simulateur-rl.html':                '/mobile/simulateur-rl-mobile.html',
+    '/pc/simulateur-rlc.html':               '/mobile/simulateur-rlc-mobile.html',
+    '/pc/simulateur-rlc-forces.html':        '/mobile/simulateur-rlc-forces-mobile.html',
+    // Note : simulateur-lc.html n'a pas de version mobile → pas de redirection
   };
 
   // ---- Détection mobile ----
@@ -47,7 +59,6 @@
   // ---- Construire l'URL de redirection ----
   const chemin = window.location.pathname;
 
-  // Trouver la correspondance (on compare avec le chemin sans le nom de domaine)
   let pageMobile = null;
   for (const [pagePC, pageMobileCible] of Object.entries(REDIRECTIONS)) {
     if (chemin.endsWith(pagePC)) {
@@ -58,7 +69,7 @@
 
   if (!pageMobile) return; // Aucune redirection définie pour cette page
 
-  // ---- Rediriger en gardant le paramètre éventuel ----
+  // ---- Rediriger en gardant le hash éventuel ----
   const nouvelleUrl = pageMobile + window.location.hash;
   window.location.replace(nouvelleUrl);
 })();
