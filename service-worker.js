@@ -6,7 +6,7 @@
 // Ne touche JAMAIS aux données dynamiques (Firestore, Cloudinary) qui doivent
 // toujours venir du réseau pour rester à jour.
 
-const CACHE_NAME = 'lfakm-cache-v2';
+const CACHE_NAME = 'lfakm-cache-v3';
 
 const urlsToCache = [
   'index.html',
@@ -41,9 +41,6 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = event.request.url;
 
-  // On ne met JAMAIS en cache : Firebase/Firestore/Auth, Cloudinary, Google APIs,
-  // ni les requêtes non-GET (envoi de formulaires, uploads...).
-  // Ces données doivent toujours être fraîches, jamais servies depuis un cache local.
   if (
     event.request.method !== 'GET' ||
     url.includes('firestore.googleapis.com') ||
@@ -64,8 +61,6 @@ self.addEventListener('fetch', (event) => {
         }
         return response;
       })
-      .catch(() => caches.match(event.request)) // hors-ligne seulement : on retombe sur le cache
+      .catch(() => caches.match(event.request))
   );
 });
-
-const CACHE_NAME = 'lfakm-cache-v3'; // était v2

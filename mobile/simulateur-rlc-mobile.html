@@ -276,6 +276,10 @@
   .modal-content code { background: #f9f7f2; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 12px; color: var(--rlc); }
   .modal-btn { margin-top: 14px; padding: 12px 20px; background: var(--rlc); color: #fff; border: none; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; width: 100%; min-height: var(--touch-size); }
 </style>
+<style>
+  body { visibility: hidden; }
+  body.auth-ok { visibility: visible; }
+</style>
 </head>
 <body>
 
@@ -2721,7 +2725,32 @@ function reinitialiserConclusion() {
 function imprimerConclusion() {
   const t = document.getElementById('conclusionTexte').innerText;
   const w = window.open('', '_blank');
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Conclusion TP RLC</title><style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:20px;line-height:1.7;}h1{font-size:22px;border-bottom:2px solid #0f766e;padding-bottom:10px;color:#134e4a;}pre{white-space:pre-wrap;font-family:Georgia,serif;font-size:14.5px;}</style></head><body><h1>🔵 Ma conclusion — TP RLC</h1><pre>${t.replace(/</g,'&lt;')}</pre></body></html>`);
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Conclusion TP RLC</title><style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:20px;line-height:1.7;}h1{font-size:22px;border-bottom:2px solid #0f766e;padding-bottom:10px;color:#134e4a;}pre{white-space:pre-wrap;font-family:Georgia,serif;font-size:14.5px;}</style></head><body><h1>🔵 Ma conclusion — TP RLC</h1><pre>${t.replace(/</g,'&lt;')}</pre><script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+    authDomain: "lfakm-87dec.firebaseapp.com",
+    projectId: "lfakm-87dec",
+    storageBucket: "lfakm-87dec.firebasestorage.app",
+    messagingSenderId: "739517262614",
+    appId: "1:739517262614:web:14abd3538427960c527e37"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      const cible = encodeURIComponent(window.location.pathname + window.location.search);
+      window.location.replace('../identification.html?redirect=' + cible);
+    } else {
+      document.body.classList.add('auth-ok');
+    }
+  });
+</script>
+</body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 400);
 }
