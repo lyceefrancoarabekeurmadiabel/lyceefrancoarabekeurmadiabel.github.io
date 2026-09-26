@@ -3499,285 +3499,42 @@ function imprimerConclusion() {
     </style></head><body>
     <h1>🌊 Ma conclusion — TP LC</h1>
         <pre>${texte.replace(/</g, '&lt;')}</pre>
-    <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
-    authDomain: "lfakm-87dec.firebaseapp.com",
-    projectId: "lfakm-87dec",
-    storageBucket: "lfakm-87dec.firebasestorage.app",
-    messagingSenderId: "739517262614",
-    appId: "1:739517262614:web:14abd3538427960c527e37"
-  };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
 
-  onAuthStateChanged(auth, (user) => {
-    // ⚠️ Si une redirection mobile est en cours, on ne fait rien
-    if (window.__lfakmRedirectingMobile) {
-      document.body.classList.add('auth-ok');
-      return;
-    }
-
-    if (!user) {
-      setTimeout(() => {
-        if (!auth.currentUser) {
-          const cible = encodeURIComponent(window.location.pathname + window.location.search);
-          window.location.replace('../identification.html?redirect=' + cible);
-        }
-      }, 300);
-    } else {
-      document.body.classList.add('auth-ok');
-    }
-  });
-<\/script>
-</body></html>
-  `);
-  fenetre.document.close();
-  setTimeout(() => fenetre.print(), 400);
-}
-
-function telechargerConclusion() {
-  const texte = document.getElementById('conclusionTexte').innerText;
-  const blob = new Blob([texte], { type: 'text/plain;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'conclusion_tp_lc.txt';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-// ============================================================
-//  CERTIFICAT (bug corrigé : concaténation au lieu d'interpolation)
-// ============================================================
-function genererCertificat() {
-  const nom = (document.getElementById('certificatNom').value || '').trim() || 'Élève';
-  const date = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-  const t0Val = document.getElementById('valeurT0')?.textContent || '19.9 ms';
-  const qcmScore = Object.values(qcmValides).filter(v => v).length + '/3';
-  const conclusion = document.getElementById('conclusionTexte')?.innerText || '—';
-
-  let montageImg = '';
-  try {
-    const c = document.getElementById('canvasMontage');
-    if (c) montageImg = c.toDataURL('image/png');
-  } catch (e) { /* ignore */ }
-
-  const blocMontage = montageImg
-    ? '<div class="montage-zone"><h3>📸 Montage réalisé</h3><img src="' + montageImg + '" alt="Montage"></div>'
-    : '';
-
-  const fenetre = window.open('', '_blank');
-  fenetre.document.write(`
-    <!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
-    <title>Certificat — TP LC</title>
-    <style>
-      @page { size: A4; margin: 15mm; }
-      body { font-family: Georgia, serif; color: #1a1a1a; line-height: 1.6; }
-      .cert { border: 4px double #9c27b0; padding: 35px 40px; max-width: 780px; margin: 0 auto; }
-      .entete { text-align: center; border-bottom: 3px solid #9c27b0; padding-bottom: 15px; margin-bottom: 25px; }
-      .entete h1 { font-size: 24px; color: #1B2A4A; margin-bottom: 6px; letter-spacing: 1px; }
-      .entete p { font-size: 13px; color: #5B6472; font-style: italic; }
-      .titre-cert { text-align: center; font-size: 26px; color: #9c27b0; margin: 20px 0; letter-spacing: 2px; }
-      .nom { text-align: center; font-size: 22px; font-weight: bold; color: #1B2A4A; padding: 12px; border-bottom: 2px dashed #9c27b0; margin: 15px 0 25px; }
-      .intro { text-align: center; font-size: 14px; margin-bottom: 25px; line-height: 1.7; }
-      .grille { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
-      .case { background: #F7F5F0; border-left: 4px solid #9c27b0; padding: 10px 15px; }
-      .case .lab { font-size: 11px; text-transform: uppercase; color: #5B6472; letter-spacing: 1px; font-weight: bold; }
-      .case .val { font-size: 16px; color: #1B2A4A; font-family: 'Courier New', monospace; font-weight: bold; margin-top: 3px; }
-      .montage-zone { text-align: center; margin: 25px 0; }
-      .montage-zone h3 { font-size: 14px; color: #1B2A4A; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-      .montage-zone img { max-width: 100%; border: 2px solid #9c27b0; border-radius: 8px; }
-      .conclusion-bloc { background: #F7F5F0; padding: 18px 22px; border-radius: 6px; font-size: 13px; line-height: 1.6; margin: 20px 0; }
-      .conclusion-bloc h3 { font-size: 14px; color: #1B2A4A; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
-      .signatures { display: flex; justify-content: space-between; margin-top: 40px; font-size: 13px; }
-      .signature { text-align: center; }
-      .signature .ligne { border-top: 1px solid #5B6472; width: 200px; margin-top: 40px; padding-top: 6px; color: #5B6472; }
-      .pied { text-align: center; font-size: 11px; color: #5B6472; margin-top: 30px; font-style: italic; }
-      .no-print { text-align: center; margin: 20px auto; }
-      .no-print button { padding: 12px 24px; background: #9c27b0; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; font-family: inherit; }
-    </style></head><body>
-    <div class="cert">
-      <div class="entete">
-        <h1>🏫 Lycée Franco-Arabe de Kermadiabel</h1>
-        <p>Département de Physique-Chimie — Travaux Pratiques</p>
-      </div>
-      <div class="titre-cert">CERTIFICAT DE RÉUSSITE — TP LC</div>
-      <div class="nom">${nom}</div>
-      <div class="intro">
-        a réalisé avec succès l'ensemble des étapes du <strong>TP sur le circuit LC</strong>
-        (oscillations libres, échange d'énergie condensateur ↔ bobine),
-        dans le cadre du programme de Physique-Chimie.
-      </div>
-      <div class="grille">
-        <div class="case"><div class="lab">Période propre T₀</div><div class="val">${t0Val}</div></div>
-        <div class="case"><div class="lab">Score QCM</div><div class="val">${qcmScore}</div></div>
-        <div class="case"><div class="lab">Date</div><div class="val">${date}</div></div>
-        <div class="case"><div class="lab">Relation vérifiée</div><div class="val">T₀ = 2π√(LC)</div></div>
-      </div>
-      ${blocMontage}
-      <div class="conclusion-bloc">
-        <h3>📝 Conclusion de l'élève</h3>
-        <div>${conclusion.replace(/</g, '&lt;').substring(0, 800)}</div>
-      </div>
-      <div class="signatures">
-        <div class="signature"><div class="ligne">Signature de l'élève</div></div>
-        <div class="signature"><div class="ligne">Signature du professeur</div></div>
-      </div>
-      <div class="pied">Ce certificat atteste de la réalisation complète du TP LC — Simulateur numérique LFAKM</div>
-    </div>
-    <div class="no-print"><button onclick="window.print()">🖨️ Imprimer / Enregistrer en PDF</button></div>
-    </body></html>
-  `);
-  fenetre.document.close();
-  jouerSon('jingle');
-}
-
-// ============================================================
-//  EXERCICES
-// ============================================================
-function verifierExo1() {
-  const rep = document.getElementById('exo1-rep').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, '');
-  const fb = document.getElementById('exo1-fb');
-  const input = document.getElementById('exo1-rep');
-  const ok = ['62.8ms', '62,8ms', '63ms', '0.0628s', '0,0628s', '62.8'].some(r => rep === r);
-  input.classList.remove('correct', 'incorrect');
-  input.classList.add(ok ? 'correct' : 'incorrect');
-  fb.className = 'exercice-feedback show ' + (ok ? 'success' : 'error');
-  if (ok) {
-    fb.innerHTML = `<strong>✅ Bravo !</strong> T₀ = 2π√(LC) ≈ <strong>62,8 ms</strong>.`;
-    document.getElementById('exo-1').classList.add('reussi');
-    jouerSon('valide');
-  } else {
-    fb.innerHTML = `<strong>❌ Presque !</strong> L·C = 4 × 25×10⁻⁶ = 10⁻⁴ s². √(LC) = 10 ms. T₀ = 2π × 10 ms ≈ <strong>62,8 ms</strong>.`;
-    document.getElementById('exo-1').classList.add('echoue');
-    jouerSon('erreur');
-  }
-}
-
-function verifierExo2() {
-  const rep = document.getElementById('exo2-rep').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, '').replace('hz', '');
-  const fb = document.getElementById('exo2-fb');
-  const input = document.getElementById('exo2-rep');
-  const vals = ['15.9', '15.92', '16'];
-  const ok = vals.some(r => rep === r || rep.startsWith(r));
-  input.classList.remove('correct', 'incorrect');
-  input.classList.add(ok ? 'correct' : 'incorrect');
-  fb.className = 'exercice-feedback show ' + (ok ? 'success' : 'error');
-  if (ok) {
-    fb.innerHTML = `<strong>✅ Exact !</strong> f₀ = 1/T₀ ≈ <strong>15,9 Hz</strong>.`;
-    document.getElementById('exo-2').classList.add('reussi');
-    jouerSon('valide');
-  } else {
-    fb.innerHTML = `<strong>❌ Rappel :</strong> f₀ = 1/T₀ = 1/0,0628 ≈ <strong>15,9 Hz</strong>.`;
-    document.getElementById('exo-2').classList.add('echoue');
-    jouerSon('erreur');
-  }
-}
-
-function verifierExo3() {
-  const rep = document.getElementById('exo3-rep').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, '').replace('mj', '').replace('j', '');
-  const fb = document.getElementById('exo3-fb');
-  const input = document.getElementById('exo3-rep');
-  const vals = ['1', '1.0', '1.00', '0.001', '0,001'];
-  const ok = vals.some(r => rep === r || rep.startsWith(r));
-  input.classList.remove('correct', 'incorrect');
-  input.classList.add(ok ? 'correct' : 'incorrect');
-  fb.className = 'exercice-feedback show ' + (ok ? 'success' : 'error');
-  if (ok) {
-    fb.innerHTML = `<strong>✅ Bravo !</strong> E = ½ · C · U₀² = <strong>1 mJ</strong>.`;
-    document.getElementById('exo-3').classList.add('reussi');
-    jouerSon('valide');
-  } else {
-    fb.innerHTML = `<strong>❌ Rappel :</strong> E = ½ × 20×10⁻⁶ × 100 = <strong>10⁻³ J = 1 mJ</strong>.`;
-    document.getElementById('exo-3').classList.add('echoue');
-    jouerSon('erreur');
-  }
-}
-
-// ============================================================
-//  INIT
-// ============================================================
-window.addEventListener('load', () => {
-  allerEtape(2);
-  drawMontage();
-  updateProgress();
-  updateCanvasHint();
-  updateBoutonSupprNoeud();
-  initT0Interactif();
-
-  const btnSon = document.getElementById('sonToggle');
-  if (btnSon) {
-    btnSon.textContent = sonActif ? '🔊' : '🔇';
-    btnSon.classList.toggle('off', !sonActif);
-  }
-
-  ['concl-1','concl-2','concl-3','concl-4','concl-5'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('input', majProgression);
-      el.addEventListener('change', majProgression);
-    }
-  });
-
-  console.log('✅ Simulateur LC V6.4 corrigé — oscillations, énergies, T0, certificat, sons');
-});
-
-if (!CanvasRenderingContext2D.prototype.roundRect) {
-  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
-    if (w < 2 * r) r = w / 2;
-    if (h < 2 * r) r = h / 2;
-    this.beginPath();
-    this.moveTo(x + r, y);
-    this.arcTo(x + w, y, x + w, y + h, r);
-    this.arcTo(x + w, y + h, x, y + h, r);
-    this.arcTo(x, y + h, x, y, r);
-    this.arcTo(x, y, x + w, y, r);
-    this.closePath();
-    return this;
-  };
-}
-</script>
 <script type="module">
-  // 🔒 Protection de la page : redirection vers identification si non connecté
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
-    authDomain: "lfakm-87dec.firebaseapp.com",
-    projectId: "lfakm-87dec",
-    storageBucket: "lfakm-87dec.firebasestorage.app",
-    messagingSenderId: "739517262614",
-    appId: "1:739517262614:web:14abd3538427960c527e37"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+      authDomain: "lfakm-87dec.firebaseapp.com",
+      projectId: "lfakm-87dec",
+      storageBucket: "lfakm-87dec.firebasestorage.app",
+      messagingSenderId: "739517262614",
+      appId: "1:739517262614:web:14abd3538427960c527e37"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-  onAuthStateChanged(auth, (user) => {
-    if (window.__lfakmRedirectingMobile) {
-      document.body.classList.add('auth-ok');
-      return;
-    }
-    if (!user) {
-      setTimeout(() => {
-        if (!auth.currentUser) {
-          const cible = encodeURIComponent(window.location.pathname + window.location.search);
-          window.location.replace('../identification.html?redirect=' + cible);
-        }
-      }, 300);
-    } else {
-      document.body.classList.add('auth-ok');
-    }
-  });
-</script>
-
+    onAuthStateChanged(auth, (user) => {
+      if (window.__lfakmRedirectingMobile) {
+        document.body.classList.add('auth-ok');
+        return;
+      }
+      if (!user) {
+        setTimeout(() => {
+          if (!auth.currentUser) {
+            const cible = encodeURIComponent(window.location.pathname + window.location.search);
+            window.location.replace('../identification.html?redirect=' + cible);
+          }
+        }, 300);
+      } else {
+        document.body.classList.add('auth-ok');
+      }
+    });
+  </script>
 </body>
 </html>

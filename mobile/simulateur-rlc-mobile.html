@@ -2843,5 +2843,39 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
   };
 }
 </script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+      authDomain: "lfakm-87dec.firebaseapp.com",
+      projectId: "lfakm-87dec",
+      storageBucket: "lfakm-87dec.firebasestorage.app",
+      messagingSenderId: "739517262614",
+      appId: "1:739517262614:web:14abd3538427960c527e37"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, (user) => {
+      if (window.__lfakmRedirectingMobile) {
+        document.body.classList.add('auth-ok');
+        return;
+      }
+      if (!user) {
+        setTimeout(() => {
+          if (!auth.currentUser) {
+            const cible = encodeURIComponent(window.location.pathname + window.location.search);
+            window.location.replace('../identification.html?redirect=' + cible);
+          }
+        }, 300);
+      } else {
+        document.body.classList.add('auth-ok');
+      }
+    });
+  </script>
 </body>
 </html>
