@@ -3089,42 +3089,64 @@ function initCourbesVides() {
 
 function drawCourbeTheorique(ctx2, cw, ch, type) {
   const mG = 50, mD = 20, mH = 30, mB = 35;
-  const largeur = cw - mG - mD, hauteur = ch - mH - mB;
+  const largeur = cw - mG - mD;
+  const hauteur = ch - mH - mB;
   const E = 9, tMax = 0.5, Umax = E * 1.1;
   ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
-  ctx2.strokeStyle = 'rgba(76,175,80,0.15)'; ctx2.lineWidth = 1;
-  for (let i = 0; i <= 10; i++) { const y = mH + hauteur * i / 10; ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
-  for (let i = 0; i <= 10; i++) { const x = mG + largeur * i / 10; ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
-  ctx2.strokeStyle = 'rgba(76,175,80,0.6)'; ctx2.lineWidth = 1.5;
+  ctx2.strokeStyle = 'rgba(76, 175, 80, 0.15)'; ctx2.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) { const y = mH + (hauteur * i / 10); ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
+  for (let i = 0; i <= 10; i++) { const x = mG + (largeur * i / 10); ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
+  ctx2.strokeStyle = 'rgba(76, 175, 80, 0.6)'; ctx2.lineWidth = 1.5;
   ctx2.beginPath();
   ctx2.moveTo(mG, mH + hauteur); ctx2.lineTo(mG + largeur, mH + hauteur);
   ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
   ctx2.stroke();
-  ctx2.fillStyle = '#4caf50'; ctx2.font = 'bold 9px "Courier New", monospace';
+  ctx2.fillStyle = '#4caf50'; ctx2.font = 'bold 10px "Courier New", monospace';
   ctx2.textAlign = 'right'; ctx2.textBaseline = 'middle';
   for (let i = 0; i <= 5; i++) {
-    const u = Umax * (1 - i / 5);
-    ctx2.fillText(u.toFixed(1) + 'V', mG - 4, mH + hauteur * i / 5);
+    const u = (Umax * i / 5);
+    const y = mH + hauteur - (hauteur * i / 5);
+    ctx2.fillText(u.toFixed(1) + ' V', mG - 6, y);
   }
   ctx2.textAlign = 'center'; ctx2.textBaseline = 'top';
   for (let i = 0; i <= 5; i++) {
-    ctx2.fillText((tMax * i / 5 * 1000).toFixed(0) + 'ms', mG + largeur * i / 5, mH + hauteur + 4);
+    const t = (tMax * i / 5);
+    const x = mG + (largeur * i / 5);
+    ctx2.fillText((t * 1000).toFixed(0) + ' ms', x, mH + hauteur + 6);
   }
+  ctx2.setLineDash([3, 3]); ctx2.strokeStyle = 'rgba(255, 213, 79, 0.4)'; ctx2.lineWidth = 1;
+  for (let k = 1; k <= 5; k++) {
+    const tK = k * 0.1;
+    if (tK > tMax) break;
+    const xK = mG + (largeur * tK / tMax);
+    ctx2.beginPath(); ctx2.moveTo(xK, mH); ctx2.lineTo(xK, mH + hauteur); ctx2.stroke();
+    ctx2.fillStyle = 'rgba(255, 213, 79, 0.6)';
+    ctx2.font = 'bold 9px "Courier New", monospace';
+    ctx2.textAlign = 'center'; ctx2.textBaseline = 'top';
+    ctx2.fillText(k + 'τ', xK, mH + 2);
+  }
+  ctx2.setLineDash([]);
   ctx2.strokeStyle = type === 'charge' ? '#ffeb3b' : '#ff9800';
   ctx2.lineWidth = 3;
-  ctx2.shadowColor = ctx2.strokeStyle; ctx2.shadowBlur = 10;
+  ctx2.shadowColor = type === 'charge' ? '#ffeb3b' : '#ff9800';
+  ctx2.shadowBlur = 10;
   ctx2.beginPath();
   const T = 0.1;
   for (let i = 0; i <= 200; i++) {
-    const t = tMax * i / 200;
+    const t = (tMax * i / 200);
     let U;
     if (type === 'charge') U = E * (1 - Math.exp(-t / T));
     else U = E * Math.exp(-t / T);
-    const x = mG + largeur * t / tMax;
-    const y = mH + hauteur - hauteur * U / Umax;
+    const x = mG + (largeur * t / tMax);
+    const y = mH + hauteur - (hauteur * U / Umax);
     if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
   }
-  ctx2.stroke(); ctx2.shadowBlur = 0;
+  ctx2.stroke(); // <-- CET APPEL ÉTAIT MANQUANT
+  ctx2.shadowBlur = 0;
+  ctx2.fillStyle = type === 'charge' ? '#ffeb3b' : '#ff9800';
+  ctx2.font = 'bold 11px "Courier New", monospace';
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
+  ctx2.fillText('U_C(t) [V]', cw - 8, 8);
 }
 
 let animRAF = null;
@@ -3502,37 +3524,38 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
 </script>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  // 🔒 Protection de la page : redirection vers identification si non connecté
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
-      authDomain: "lfakm-87dec.firebaseapp.com",
-      projectId: "lfakm-87dec",
-      storageBucket: "lfakm-87dec.firebasestorage.app",
-      messagingSenderId: "739517262614",
-      appId: "1:739517262614:web:14abd3538427960c527e37"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+    authDomain: "lfakm-87dec.firebaseapp.com",
+    projectId: "lfakm-87dec",
+    storageBucket: "lfakm-87dec.firebasestorage.app",
+    messagingSenderId: "739517262614",
+    appId: "1:739517262614:web:14abd3538427960c527e37"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
 
-    onAuthStateChanged(auth, (user) => {
-      if (window.__lfakmRedirectingMobile) {
-        document.body.classList.add('auth-ok');
-        return;
-      }
-      if (!user) {
-        setTimeout(() => {
-          if (!auth.currentUser) {
-            const cible = encodeURIComponent(window.location.pathname + window.location.search);
-            window.location.replace('../identification.html?redirect=' + cible);
-          }
-        }, 300);
-      } else {
-        document.body.classList.add('auth-ok');
-      }
-    });
-  </script>
+  onAuthStateChanged(auth, (user) => {
+    if (window.__lfakmRedirectingMobile) {
+      document.body.classList.add('auth-ok');
+      return;
+    }
+    if (!user) {
+      setTimeout(() => {
+        if (!auth.currentUser) {
+          const cible = encodeURIComponent(window.location.pathname + window.location.search);
+          window.location.replace('../identification.html?redirect=' + cible);
+        }
+      }, 300);
+    } else {
+      document.body.classList.add('auth-ok');
+    }
+  });
+</script>
 </body>
 </html>
