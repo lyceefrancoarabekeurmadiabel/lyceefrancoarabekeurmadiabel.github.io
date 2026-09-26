@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TP RL — Démarche expérimentale | LFAKM</title>
+<title>TP RC — Démarche expérimentale | LFAKM</title>
 <link rel="icon" type="image/png" href="../assets/favicon.png">
 <link rel="manifest" href="../assets/manifest.json">
 <meta name="theme-color" content="#1B2A4A">
@@ -15,7 +15,6 @@
     --slate: #5B6472; --line: rgba(27,42,74,0.14);
     --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
     --success: #2e7d32; --warning: #f39c12; --danger: #d9534f; --info: #3498db;
-    --copper: #B87333; --copper-light: #E8A05C; --iron: #5B6472;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: var(--sans); background: var(--paper); color: #1a1a1a; line-height: 1.55; min-height: 100vh; }
@@ -139,58 +138,6 @@
   .message-3a .voie-info .voie-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-weight: 700; margin-right: 8px; }
   .message-3a .voie-info .voie-1 { background: #ffeb3b; color: #1a1a2e; }
   .message-3a .voie-info .voie-2 { background: #4fc3f7; color: #1a1a2e; }
-
-  /* Sélecteur U_R / U_L */
-  .selecteur-mesure {
-    background: #fff;
-    border: 2px solid #ff9800;
-    border-radius: 10px;
-    padding: 12px 18px;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-  .selecteur-mesure .label {
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--ink);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .radio-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 14px;
-    background: #f9f7f2;
-    border: 2px solid var(--line);
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13.5px;
-    font-weight: 700;
-    color: var(--ink);
-    transition: all 0.15s;
-  }
-  .radio-btn:hover { background: #fff; border-color: var(--brass); }
-  .radio-btn.actif { background: #fff8e1; border-color: #ff9800; color: #E65100; }
-  .radio-btn input { display: none; }
-  .radio-btn .radio-dot {
-    width: 16px; height: 16px; border-radius: 50%;
-    border: 2px solid var(--line);
-    background: #fff;
-    position: relative;
-    flex-shrink: 0;
-  }
-  .radio-btn.actif .radio-dot { border-color: #ff9800; }
-  .radio-btn.actif .radio-dot::after {
-    content: '';
-    position: absolute; inset: 2px;
-    border-radius: 50%;
-    background: #ff9800;
-  }
-
   .analyse-layout { background: #fff; border: 2px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
   .sous-onglets { display: flex; background: #f9f7f2; border-bottom: 2px solid var(--line); flex-wrap: wrap; }
   .sous-onglet { flex: 1; min-width: 130px; padding: 14px 12px; background: transparent; border: none; border-bottom: 3px solid transparent; color: var(--slate); font-family: var(--sans); font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; }
@@ -352,7 +299,7 @@
   .modal-content code { background: #f9f7f2; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 13px; color: var(--brass); }
   .modal-btn { margin-top: 18px; padding: 10px 20px; background: var(--brass); color: #fff; border: none; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
 
-  /* ✅ Boutons ÉTABLISSEMENT / RUPTURE */
+  /* ✅ Boutons Charge / Décharge */
   .mode-courbe-btns {
     display: flex;
     gap: 10px;
@@ -361,7 +308,7 @@
   }
   .mode-courbe-btn {
     flex: 1;
-    max-width: 240px;
+    max-width: 220px;
     padding: 12px 20px;
     border-radius: 10px;
     border: 2px solid var(--line);
@@ -409,8 +356,8 @@
     border-radius: 6px;
     background: #f9f7f2;
   }
-  #labelUR { color: #ffeb3b; background: rgba(255, 235, 59, 0.15); }
-  #labelUL { color: #4fc3f7; background: rgba(79, 195, 247, 0.1); }
+  #labelUC { color: #4fc3f7; background: rgba(79, 195, 247, 0.1); }
+  #labelI  { color: #e91e63; background: rgba(233, 30, 99, 0.1); }
   .courbe-duo-formule {
     font-family: 'Courier New', monospace;
     font-size: 12px;
@@ -423,32 +370,19 @@
     line-height: 1.4;
   }
   .courbe-duo-item:last-child .recap-courbe {
-    border-color: #4fc3f7;
+    border-color: #e91e63;
   }
 </style>
+<!-- 📱 Redirection automatique vers la version mobile -->
 <script>
-  // Redirection automatique vers la version mobile du simulateur
   (function() {
-    const ua = navigator.userAgent || '';
-    const isMobile = /Android|iPhone|iPad|iPod|Mobile|Opera Mini|IEMobile/i.test(ua)
-                     || (window.innerWidth <= 900 && 'ontouchstart' in window);
-    if (!isMobile) return;
-
-    const map = {
-      'simulateur-circuits-libre.html': 'simulateur-circuits-libre-mobile.html',
-      'simulateur-dosage.html':         'simulateur-dosage-mobile.html',
-      'simulateur-interferences.html':  'simulateur-interferences-mobile.html',
-      'simulateur-lentilles.html':      'simulateur-lentilles-mobile.html',
-      'simulateur-rc.html':             'simulateur-rc-mobile.html',
-      'simulateur-rl.html':             'simulateur-rl-mobile.html',
-      'simulateur-rlc-forces.html':     'simulateur-rlc-forces-mobile.html',
-      'simulateur-rlc.html':            'simulateur-rlc-mobile.html'
-    };
-
-    const path = window.location.pathname.split('/').pop();
-    const target = map[path];
-    if (target) {
-      window.location.replace('../mobile/' + target);
+    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent)
+                     || window.innerWidth < 768;
+    const alreadyRedirected = sessionStorage.getItem('mobile_redirected_rc');
+    
+    if (isMobile && !alreadyRedirected) {
+      sessionStorage.setItem('mobile_redirected_rc', '1');
+      window.location.replace('../mobile/simulateur-rc-mobile.html');
     }
   })();
 </script>
@@ -462,11 +396,12 @@
 <body>
 
 <div class="top-nav">
-  <div class="title">🌀 TP RL — Démarche expérimentale</div>
+  <div class="title">🔋 TP RC — Démarche expérimentale</div>
   <div class="nav-links">
     <button class="son-btn" id="sonToggle" onclick="toggleSon()" title="Activer/désactiver les sons">🔊</button>
     <a href="../pc/labo-pc.html">← Labo PC</a>
     <a href="../index.html">🏠 Accueil</a>
+     <a href="../mobile/simulateur-rc-mobile.html" class="pc">📱 Mobile</a> 
   </div>
 </div>
 
@@ -498,7 +433,8 @@
       <div class="etape-eyebrow">Étape 1 sur 4</div>
       <h1 class="etape-title">📦 Présentation du matériel</h1>
       <p class="etape-subtitle">
-        Avant de manipuler, découvrons les composants du circuit RL : bobine, résistance et appareils de mesure.
+        Avant de manipuler, découvrons ensemble les composants et les appareils
+        que nous allons utiliser dans ce travail pratique.
       </p>
     </div>
 
@@ -506,8 +442,8 @@
       <div class="label">🎯 Objectif du TP</div>
       <div class="text">
         Déterminer <strong>expérimentalement</strong> la constante de temps
-        <strong>τ</strong> d'un circuit RL, puis vérifier la relation
-        <strong>τ = L / R</strong>.
+        <strong>τ</strong> d'un circuit RC, puis vérifier la relation
+        <strong>τ = R × C</strong>.
       </div>
     </div>
 
@@ -517,15 +453,15 @@
       <div class="composants-grid">
         <div class="composant-card" onclick="ouvrirModal('pile')">
           <span class="click-hint">👆</span><span class="symbol">🔋</span>
-          <div class="name">Pile</div><div class="value">6 V</div>
+          <div class="name">Pile</div><div class="value">9 V</div>
         </div>
         <div class="composant-card" onclick="ouvrirModal('resistance')">
           <span class="click-hint">👆</span><span class="symbol">📏</span>
-          <div class="name">Résistance</div><div class="value">100 Ω</div>
+          <div class="name">Résistance</div><div class="value">1 kΩ</div>
         </div>
-        <div class="composant-card" onclick="ouvrirModal('bobine')">
-          <span class="click-hint">👆</span><span class="symbol">🌀</span>
-          <div class="name">Bobine</div><div class="value">1 H</div>
+        <div class="composant-card" onclick="ouvrirModal('condensateur')">
+          <span class="click-hint">👆</span><span class="symbol">⚡</span>
+          <div class="name">Condensateur</div><div class="value">100 µF</div>
         </div>
         <div class="composant-card" onclick="ouvrirModal('interrupteur')">
           <span class="click-hint">👆</span><span class="symbol">🔘</span>
@@ -543,7 +479,7 @@
         <div class="icon">📺</div>
         <div>
           <h3>Oscilloscope</h3>
-          <p>L'appareil de mesure qui trace la courbe i(t) ou U(t)</p>
+          <p>L'appareil de mesure qui trace la courbe U_C(t)</p>
         </div>
       </div>
       <div class="oscillo-desc">
@@ -551,15 +487,14 @@
           <div class="role-title">📌 Rôle</div>
           <div class="role-text">
             L'oscilloscope affiche en <strong>temps réel</strong> l'évolution
-            d'une tension. Dans ce TP, on l'utilise pour observer
-            <strong>U_R(t)</strong> (image du courant) ou <strong>U_L(t)</strong> (aux bornes de la bobine).
+            d'une tension. Il sera branché <strong>en dérivation</strong> aux bornes du condensateur.
           </div>
         </div>
         <div class="oscillo-role">
           <div class="role-title">📌 Ses 2 voies</div>
           <div class="role-text">
-            • <strong>Voie 1 (+)</strong> : borne + du composant à mesurer<br>
-            • <strong>Voie 2 (−)</strong> : borne − du composant à mesurer
+            • <strong>Voie 1 (+)</strong> : borne + du condensateur<br>
+            • <strong>Voie 2 (−)</strong> : borne − du condensateur
           </div>
         </div>
       </div>
@@ -568,12 +503,11 @@
     <div class="card">
       <div class="card-title"><span class="icon">📚</span> Notions à connaître</div>
       <ul class="notions-list">
-        <li>Une bobine <strong>stocke de l'énergie</strong> dans un <strong>champ magnétique</strong>.</li>
-        <li>Loi des mailles : <strong>E = U_R + U_L = R·i + L·(di/dt)</strong></li>
-        <li>Pendant l'établissement : <strong>i(t) = (E/R)·(1 − e^(−t/τ))</strong></li>
-        <li>Pendant la rupture : <strong>i(t) = (E/R) · e^(−t/τ)</strong></li>
-        <li>La <strong>constante de temps</strong> : <strong>τ = L / R</strong></li>
-        <li>À <strong>t = τ</strong> : i atteint <strong>63 % de I_max</strong> (établissement) ou <strong>37 %</strong> (rupture).</li>
+        <li>Un condensateur <strong>stocke de l'énergie</strong> sous forme électrique.</li>
+        <li>Pendant la charge : <strong>U_C(t) = E·(1 − e^(−t/τ))</strong></li>
+        <li>Pendant la décharge : <strong>U_C(t) = E · e^(−t/τ)</strong></li>
+        <li>La <strong>constante de temps</strong> : <strong>τ = R × C</strong></li>
+        <li>À <strong>t = τ</strong> : U_C atteint <strong>63 % de E</strong> (charge) ou <strong>37 %</strong> (décharge).</li>
       </ul>
     </div>
 
@@ -589,7 +523,7 @@
       <div class="etape-eyebrow">Étape 2 sur 4</div>
       <h1 class="etape-title">🛠️ Montage du circuit</h1>
       <p class="etape-subtitle">
-        Construis le circuit RL. Oriente les composants avec la poignée ⟳ et
+        Construis le circuit RC. Oriente les composants avec la poignée ⟳ et
         ajoute des nœuds si nécessaire.
       </p>
     </div>
@@ -598,7 +532,7 @@
       <div class="label">🎯 Mission</div>
       <div class="text">
         Place les <strong>4 composants</strong> et connecte-les avec au moins
-        <strong>4 fils</strong> pour former un circuit RL fermé.
+        <strong>4 fils</strong> pour former un circuit RC fermé.
       </div>
     </div>
 
@@ -607,13 +541,13 @@
         <div class="toolbox-title">🧰 Boîte à outils</div>
         <div class="toolbox-grid">
           <button class="outil-btn" id="btn-pile" onclick="ajouterComposant('pile')">
-            <span class="icon">🔋</span><span>Pile (6 V)</span>
+            <span class="icon">🔋</span><span>Pile (9 V)</span>
           </button>
           <button class="outil-btn" id="btn-resistance" onclick="ajouterComposant('resistance')">
-            <span class="icon">📏</span><span>Résistance (100 Ω)</span>
+            <span class="icon">📏</span><span>Résistance (1 kΩ)</span>
           </button>
-          <button class="outil-btn" id="btn-bobine" onclick="ajouterComposant('bobine')">
-            <span class="icon">🌀</span><span>Bobine (1 H)</span>
+          <button class="outil-btn" id="btn-condensateur" onclick="ajouterComposant('condensateur')">
+            <span class="icon">⚡</span><span>Condensateur (100 µF)</span>
           </button>
           <button class="outil-btn" id="btn-interrupteur" onclick="ajouterComposant('interrupteur')">
             <span class="icon">🔘</span><span>Interrupteur</span>
@@ -655,14 +589,10 @@
             <text x="60" y="124" text-anchor="middle" font-size="12" fill="#f44336" font-weight="bold">−</text>
             <rect x="150" y="45" width="100" height="30" fill="#fff" stroke="#ffd54f" stroke-width="2" rx="4"/>
             <path d="M 160 60 L 172 50 L 184 70 L 196 50 L 208 70 L 220 50 L 232 60" stroke="#ffd54f" stroke-width="2" fill="none"/>
-            <text x="200" y="35" text-anchor="middle" font-size="10" fill="#ffd54f" font-weight="bold">R = 100 Ω</text>
+            <text x="200" y="35" text-anchor="middle" font-size="10" fill="#ffd54f" font-weight="bold">R = 1 kΩ</text>
             <line x1="320" y1="100" x2="360" y2="100" stroke="#4fc3f7" stroke-width="3"/>
             <line x1="320" y1="140" x2="360" y2="140" stroke="#4fc3f7" stroke-width="3"/>
-            <g stroke="#B87333" stroke-width="2.5" fill="none">
-              <path d="M 320 100 Q 326 94 332 100 Q 338 106 344 100 Q 350 94 356 100"/>
-              <path d="M 320 140 Q 326 134 332 140 Q 338 146 344 140 Q 350 134 356 140"/>
-            </g>
-            <text x="340" y="85" text-anchor="middle" font-size="10" fill="#B87333" font-weight="bold">L = 1 H</text>
+            <text x="340" y="85" text-anchor="middle" font-size="10" fill="#4fc3f7" font-weight="bold">C = 100 µF</text>
             <circle cx="180" cy="180" r="5" fill="#fff" stroke="#4fc3f7" stroke-width="2"/>
             <circle cx="220" cy="180" r="5" fill="#fff" stroke="#4fc3f7" stroke-width="2"/>
             <line x1="180" y1="180" x2="215" y2="165" stroke="#f44336" stroke-width="3" stroke-linecap="round"/>
@@ -702,30 +632,16 @@
       <div class="etape-eyebrow">Étape 3 sur 4</div>
       <h1 class="etape-title">📺 Brancher l'oscilloscope</h1>
       <p class="etape-subtitle">
-        Branche les 2 voies de l'oscilloscope <strong>en dérivation</strong>
-        sur le composant que tu veux étudier.
+        Pour mesurer la tension aux bornes du condensateur, il faut brancher
+        les 2 voies de l'oscilloscope <strong>en dérivation</strong> sur le condensateur.
       </p>
     </div>
 
-    <div class="selecteur-mesure">
-      <span class="label">🎯 Je veux mesurer :</span>
-      <label class="radio-btn actif" id="radioUR" onclick="choisirMesure('UR')">
-        <input type="radio" name="mesure" value="UR" checked>
-        <span class="radio-dot"></span>
-        <span>U<sub>R</sub> — image du courant i(t)</span>
-      </label>
-      <label class="radio-btn" id="radioUL" onclick="choisirMesure('UL')">
-        <input type="radio" name="mesure" value="UL">
-        <span class="radio-dot"></span>
-        <span>U<sub>L</sub> — tension aux bornes de la bobine</span>
-      </label>
-    </div>
-
     <div class="message-3a">
-      <strong>🎯 Mission :</strong> <span id="missionTexte">branche les 2 voies de l'oscilloscope aux bornes de <strong>la résistance R</strong>.</span>
+      <strong>🎯 Mission :</strong> branche les 2 voies de l'oscilloscope sur le condensateur.
       <div class="voie-info">
-        <div><span class="voie-tag voie-1">Voie 1 (+)</span> → borne <strong id="ciblePlus">+ de la résistance R</strong></div>
-        <div style="margin-top:6px;"><span class="voie-tag voie-2">Voie 2 (−)</span> → borne <strong id="cibleMoins">− de la résistance R</strong></div>
+        <div><span class="voie-tag voie-1">Voie 1 (+)</span> → borne <strong>+ du condensateur C</strong></div>
+        <div style="margin-top:6px;"><span class="voie-tag voie-2">Voie 2 (−)</span> → borne <strong>− du condensateur C</strong></div>
       </div>
       <div style="margin-top: 10px; font-size: 12px; opacity: 0.85;">
         💡 L'oscilloscope est déjà posé sur le canvas. S'il te gêne, tu peux le <strong>glisser</strong> dans une zone libre.
@@ -753,8 +669,8 @@
         </div>
         <div style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.08); border-radius: 8px; font-size: 11.5px; line-height: 1.5;">
           <strong>🎯 Objectif :</strong><br>
-          1 fil relie <span style="color:#4fc3f7; font-weight:700;">Voie 1 (+)</span> à la borne <strong id="objectifPlus">+ de R</strong><br>
-          1 fil relie <span style="color:#ffeb3b; font-weight:700;">Voie 2 (−)</span> à la borne <strong id="objectifMoins">− de R</strong>
+          1 fil relie <span style="color:#4fc3f7; font-weight:700;">Voie 1 (+)</span> à la borne <strong>+ du condensateur</strong><br>
+          1 fil relie <span style="color:#ffeb3b; font-weight:700;">Voie 2 (−)</span> à la borne <strong>− du condensateur</strong>
         </div>
       </div>
 
@@ -774,23 +690,20 @@
             <text x="40" y="144" text-anchor="middle" font-size="12" fill="#f44336" font-weight="bold">−</text>
             <rect x="120" y="65" width="100" height="30" fill="#fff" stroke="#ffd54f" stroke-width="2" rx="4"/>
             <path d="M 130 80 L 142 70 L 154 90 L 166 70 L 178 90 L 190 70 L 202 80" stroke="#ffd54f" stroke-width="2" fill="none"/>
-            <text x="170" y="55" text-anchor="middle" font-size="10" fill="#ffd54f" font-weight="bold">R = 100 Ω</text>
+            <text x="170" y="55" text-anchor="middle" font-size="10" fill="#ffd54f" font-weight="bold">R = 1 kΩ</text>
             <line x1="260" y1="120" x2="300" y2="120" stroke="#4fc3f7" stroke-width="3"/>
             <line x1="260" y1="160" x2="300" y2="160" stroke="#4fc3f7" stroke-width="3"/>
-            <g stroke="#B87333" stroke-width="2.5" fill="none">
-              <path d="M 260 120 Q 266 114 272 120 Q 278 126 284 120 Q 290 114 296 120 Q 300 124 304 120"/>
-              <path d="M 260 160 Q 266 154 272 160 Q 278 166 284 160 Q 290 154 296 160 Q 300 164 304 160"/>
-            </g>
-            <text x="282" y="105" text-anchor="middle" font-size="9" fill="#B87333" font-weight="bold">L</text>
+            <text x="305" y="112" text-anchor="middle" font-size="11" fill="#4caf50" font-weight="bold">+</text>
+            <text x="305" y="178" text-anchor="middle" font-size="11" fill="#f44336" font-weight="bold">−</text>
+            <text x="280" y="105" text-anchor="middle" font-size="9" fill="#4fc3f7" font-weight="bold">C</text>
             <rect x="320" y="30" width="70" height="90" fill="#0d47a1" stroke="#4fc3f7" stroke-width="2" rx="6"/>
             <text x="355" y="48" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">OSCILLO</text>
             <text x="355" y="68" text-anchor="middle" font-size="8" fill="#4fc3f7">Voie 1 (+)</text>
             <text x="355" y="82" text-anchor="middle" font-size="8" fill="#ffeb3b">Voie 2 (−)</text>
             <circle cx="325" cy="68" r="3" fill="#4fc3f7"/>
             <circle cx="325" cy="85" r="3" fill="#ffeb3b"/>
-            <line id="lienVoie1" x1="325" y1="68" x2="120" y2="80" stroke="#4fc3f7" stroke-width="2" stroke-dasharray="4,4"/>
-            <line id="lienVoie2" x1="325" y1="85" x2="220" y2="80" stroke="#ffeb3b" stroke-width="2" stroke-dasharray="4,4"/>
-            <rect id="cadreMesure" x="115" y="60" width="110" height="40" fill="none" stroke="#ff9800" stroke-width="2.5" stroke-dasharray="6,3" rx="6"/>
+            <line x1="325" y1="68" x2="305" y2="112" stroke="#4fc3f7" stroke-width="2" stroke-dasharray="4,4"/>
+            <line x1="325" y1="85" x2="305" y2="178" stroke="#ffeb3b" stroke-width="2" stroke-dasharray="4,4"/>
           </svg>
         </div>
 
@@ -815,8 +728,8 @@
       <div class="etape-eyebrow">Étape 4 sur 4</div>
       <h1 class="etape-title">🎓 Analyse & Conclusion</h1>
       <p class="etape-subtitle">
-        Comprendre le comportement de la bobine lors de l'établissement et de la rupture du courant,
-        puis voir ses applications dans la vie courante.
+        Comprendre le comportement du condensateur lors de sa charge et de sa décharge,
+        et voir ses applications dans la vie courante.
       </p>
     </div>
 
@@ -827,7 +740,7 @@
           📊 Récapitulatif
         </button>
         <button class="sous-onglet" data-sous="charge" onclick="changerSousOnglet('charge')">
-          📈 Établissement vs Rupture
+          📈 Charge vs Décharge
         </button>
         <button class="sous-onglet" data-sous="applis" onclick="changerSousOnglet('applis')">
           🌍 Applications
@@ -847,31 +760,31 @@
       <div class="sous-onglet-contenu active" id="sous-recap">
         <div class="recap-header">
           <h3>📊 Récapitulatif de ton expérience</h3>
-          <p>Voici un bilan de ce que tu as fait dans ce TP. Modifie R et L pour comparer les courbes.</p>
+          <p>Voici un bilan de ce que tu as fait dans ce TP. Modifie R et C pour comparer les courbes.</p>
         </div>
 
         <div class="recap-grid" id="recapGrid">
           <div class="recap-card">
             <span class="recap-icon">🔋</span>
             <div class="recap-label">Tension E</div>
-            <div class="recap-value">6.0 V</div>
+            <div class="recap-value">9.0 V</div>
           </div>
           <div class="recap-card recap-card-editable">
             <span class="recap-icon">📏</span>
             <div class="recap-label">Résistance R</div>
-            <input type="number" id="inputR" class="recap-input" value="100" min="10" max="1000" step="10">
+            <input type="number" id="inputR" class="recap-input" value="1000" min="100" max="10000" step="100">
             <span class="recap-unit">Ω</span>
           </div>
           <div class="recap-card recap-card-editable">
-            <span class="recap-icon">🌀</span>
-            <div class="recap-label">Bobine L</div>
-            <input type="number" id="inputL" class="recap-input" value="1" min="0.1" max="10" step="0.1">
-            <span class="recap-unit">H</span>
+            <span class="recap-icon">⚡</span>
+            <div class="recap-label">Condensateur C</div>
+            <input type="number" id="inputC" class="recap-input" value="100" min="10" max="1000" step="10">
+            <span class="recap-unit">µF</span>
           </div>
           <div class="recap-card recap-card-editable">
             <span class="recap-icon">⏱️</span>
             <div class="recap-label">Constante τ</div>
-            <div class="recap-value" id="valeurTau">10 ms</div>
+            <div class="recap-value" id="valeurTau">100 ms</div>
           </div>
         </div>
 
@@ -885,7 +798,7 @@
         </div>
 
         <div class="recap-legende" id="recapLegende" style="display:none;">
-          <span class="legende-item"><span class="legende-trait" style="background:#ffeb3b;"></span> Courbe initiale (R=100Ω, L=1H)</span>
+          <span class="legende-item"><span class="legende-trait" style="background:#ffeb3b;"></span> Courbe initiale (R=1kΩ, C=100µF)</span>
           <span class="legende-item"><span class="legende-trait" style="background:#4fc3f7;"></span> <span id="legendeCourante">Nouvelle courbe</span></span>
         </div>
 
@@ -893,225 +806,207 @@
           📈 Courbes observées
         </h4>
 
-        <!-- ✅ Boutons ÉTABLISSEMENT / RUPTURE -->
+        <!-- ✅ Boutons Charge / Décharge -->
         <div class="mode-courbe-btns">
           <button class="mode-courbe-btn active" id="btnModeCharge" onclick="changerModeCourbe('charge')">
-            🔋 ÉTABLISSEMENT
+            🔋 CHARGE
           </button>
           <button class="mode-courbe-btn" id="btnModeDecharge" onclick="changerModeCourbe('decharge')">
-            ⚡ RUPTURE
+            ⚡ DÉCHARGE
           </button>
         </div>
 
         <!-- ✅ Deux courbes côte à côte -->
         <div class="courbes-duo">
           <div class="courbe-duo-item">
-            <div class="courbe-duo-label" id="labelUR">🟡 U_R(t) — image du courant i(t)</div>
+            <div class="courbe-duo-label" id="labelUC">🔵 U_C(t) — Tension</div>
             <div class="recap-courbe">
-              <canvas id="recapCourbeUR" width="400" height="260"></canvas>
+              <canvas id="recapCourbeUC" width="400" height="260"></canvas>
             </div>
-            <div class="courbe-duo-formule" id="formuleUR">U_R(t) = E · (1 − e^(−t/τ))</div>
+            <div class="courbe-duo-formule" id="formuleUC">U_C(t) = E · (1 − e^(−t/τ))</div>
           </div>
           <div class="courbe-duo-item">
-            <div class="courbe-duo-label" id="labelUL">🔵 U_L(t) — tension aux bornes de la bobine</div>
+            <div class="courbe-duo-label" id="labelI">⚡ i(t) — Courant</div>
             <div class="recap-courbe">
-              <canvas id="recapCourbeUL" width="400" height="260"></canvas>
+              <canvas id="recapCourbeI" width="400" height="260"></canvas>
             </div>
-            <div class="courbe-duo-formule" id="formuleUL">U_L(t) = E · e^(−t/τ)</div>
+            <div class="courbe-duo-formule" id="formuleI">i(t) = (E/R) · e^(−t/τ)</div>
           </div>
         </div>
 
         <div class="tau-interactif-banner show" id="tauBanner">
           <div class="titre">📊 Mesure interactive de τ</div>
-          <div>👆 <strong>Clique sur la courbe U_R(t)</strong> pour placer le marqueur à <strong>63 % de E</strong> (établissement) ou <strong>37 % de E</strong> (rupture).</div>
+          <div>👆 <strong>Clique sur la courbe U_C(t)</strong> pour placer le marqueur à <strong>63 % de E</strong> (charge) ou <strong>37 % de E</strong> (décharge).</div>
           <div class="tau-resultat" id="tauResultat"></div>
         </div>
 
         <div class="recap-valeurs">
           <div class="recap-valeur-item">
-            <div class="label">i à t = τ</div>
-            <div class="value">63 % de I_max</div>
+            <div class="label">U_C à t = τ</div>
+            <div class="value">5.67 V (63 %)</div>
           </div>
           <div class="recap-valeur-item">
-            <div class="label">i à t = 3τ</div>
-            <div class="value">95 % de I_max</div>
+            <div class="label">U_C à t = 3τ</div>
+            <div class="value">8.55 V (95 %)</div>
           </div>
           <div class="recap-valeur-item">
-            <div class="label">i à t = 5τ</div>
-            <div class="value">99 % de I_max</div>
+            <div class="label">U_C à t = 5τ</div>
+            <div class="value">8.91 V (99 %)</div>
           </div>
           <div class="recap-valeur-item">
             <div class="label">Relation</div>
-            <div class="value">τ = L / R</div>
+            <div class="value">τ = R × C</div>
           </div>
         </div>
       </div>
 
-      <!-- Onglet 4.2 : Établissement vs Rupture -->
+      <!-- Onglet 4.2 : Charge vs Décharge -->
       <div class="sous-onglet-contenu" id="sous-charge">
         <div class="recap-header">
-          <h3>📈 Comportement de la bobine</h3>
-          <p>Sélectionne la grandeur à observer, puis lance l'animation.</p>
-        </div>
-
-        <div class="selecteur-mesure" style="justify-content:center;">
-          <span class="label">📺 Grandeur observée :</span>
-          <label class="radio-btn actif" id="radioCourbeUR" onclick="choisirCourbe('UR')">
-            <input type="radio" name="courbe" value="UR" checked>
-            <span class="radio-dot"></span>
-            <span>U<sub>R</sub> (image du courant)</span>
-          </label>
-          <label class="radio-btn" id="radioCourbeUL" onclick="choisirCourbe('UL')">
-            <input type="radio" name="courbe" value="UL">
-            <span class="radio-dot"></span>
-            <span>U<sub>L</sub> (bobine)</span>
-          </label>
+          <h3>📈 Comportement du condensateur</h3>
+          <p>Clique sur un bouton ci-dessous pour lancer l'animation de la charge ou de la décharge.</p>
         </div>
 
         <div class="charge-decharge-grid">
           <div>
             <div class="courbe-box charge">
-              <h4 id="titreCharge">🔋 ÉTABLISSEMENT du courant</h4>
+              <h4>🔋 CHARGE du condensateur</h4>
               <canvas id="courbeCharge" width="500" height="280"></canvas>
             </div>
-            <div class="courbe-formule" id="formuleCharge">
-              U_R(t) = E · (1 − e^(−t/τ))
+            <div class="courbe-formule">
+              U_C(t) = E · (1 − e^(−t/τ))
             </div>
-            <div style="font-size: 13px; color: var(--slate); margin-top: 8px; text-align: center;" id="descCharge">
+            <div style="font-size: 13px; color: var(--slate); margin-top: 8px; text-align: center;">
               ⚡ Interrupteur K <strong>fermé</strong><br>
-              Le courant monte vers I_max = E/R
+              U_C monte vers E
             </div>
           </div>
 
           <div>
             <div class="courbe-box decharge">
-              <h4 id="titreDecharge">⚡ RUPTURE du courant</h4>
+              <h4>⚡ DÉCHARGE du condensateur</h4>
               <canvas id="courbeDecharge" width="500" height="280"></canvas>
             </div>
-            <div class="courbe-formule" id="formuleDecharge">
-              U_R(t) = E · e^(−t/τ)
+            <div class="courbe-formule">
+              U_C(t) = E · e^(−t/τ)
             </div>
-            <div style="font-size: 13px; color: var(--slate); margin-top: 8px; text-align: center;" id="descDecharge">
+            <div style="font-size: 13px; color: var(--slate); margin-top: 8px; text-align: center;">
               ⚡ Interrupteur K <strong>ouvert</strong><br>
-              Le courant redescend vers 0
+              U_C descend vers 0
             </div>
           </div>
         </div>
 
         <div class="courbe-controls">
           <button class="btn-courbe charge" onclick="animerCourbe('charge')">
-            🔋 Animer l'ÉTABLISSEMENT
+            🔋 Animer la CHARGE
           </button>
           <button class="btn-courbe decharge" onclick="animerCourbe('decharge')">
-            ⚡ Animer la RUPTURE
+            ⚡ Animer la DÉCHARGE
           </button>
           <button class="btn-courbe cycle" onclick="animerCourbe('cycle')">
             🔄 Cycle complet
-          </button>
-          <button class="btn-courbe" style="background:linear-gradient(135deg,#6a4c93,#9c27b0);color:#fff;" onclick="afficherLoiMailles()">
-            ∑ Vérifier la loi des mailles
           </button>
         </div>
 
         <div class="info-encadre">
           <strong>💡 À retenir :</strong><br>
-          • Pendant l'<strong>établissement</strong>, le courant monte progressivement jusqu'à I_max = E/R.<br>
-          • Pendant la <strong>rupture</strong>, le courant redescend progressivement jusqu'à 0.<br>
-          • Dans les 2 cas, la vitesse dépend de <strong>τ = L / R</strong>.<br>
-          • À t = τ : établissement → i = 63% de I_max ; rupture → i = 37% de I_max.<br>
-          • <strong>Loi des mailles</strong> : à tout instant, <strong>U_R(t) + U_L(t) = E</strong>.
+          • Pendant la <strong>charge</strong>, U_C monte progressivement jusqu'à E.<br>
+          • Pendant la <strong>décharge</strong>, U_C descend progressivement jusqu'à 0.<br>
+          • Dans les 2 cas, la vitesse dépend de <strong>τ = R × C</strong>.<br>
+          • À t = τ : charge → U_C = 63% de E ; décharge → U_C = 37% de E.
         </div>
       </div>
             <!-- Onglet 4.3 : Applications -->
       <div class="sous-onglet-contenu" id="sous-applis">
         <div class="recap-header">
           <h3>🌍 Applications dans la vie courante</h3>
-          <p>La bobine RL est partout autour de toi !</p>
+          <p>Le condensateur RC est partout autour de toi !</p>
         </div>
 
         <div class="applis-grid">
 
           <div class="appli-card">
             <div class="appli-header">
-              <span class="appli-icon">🧲</span>
+              <span class="appli-icon">📸</span>
               <div>
-                <div class="appli-title">Électroaimant</div>
-                <div class="appli-subtitle">Champ magnétique progressif</div>
+                <div class="appli-title">Flash d'appareil photo</div>
+                <div class="appli-subtitle">Charge lente / Décharge rapide</div>
               </div>
             </div>
             <div class="appli-desc">
-              Une bobine parcourue par un courant crée un <strong>champ magnétique</strong>.
-              À cause de τ = L/R, l'aimantation <strong>monte progressivement</strong>
-              puis se stabilise. Utilisé dans les grues de chantier.
+              Le condensateur se <strong>charge lentement</strong> (quelques secondes)
+              puis se <strong>décharge très rapidement</strong> (quelques millisecondes)
+              dans la lampe flash. C'est ce qui produit un éclair intense.
             </div>
-            <button class="appli-btn" onclick="voirAnimationAppli('electroaimant')">
+            <button class="appli-btn" onclick="voirAnimationAppli('flash')">
               ▶️ Voir l'animation
             </button>
-            <div class="appli-canvas-zone" id="canvas-electroaimant">
-              <canvas id="animElectroaimant" width="400" height="180"></canvas>
+            <div class="appli-canvas-zone" id="canvas-flash">
+              <canvas id="animFlash" width="400" height="180"></canvas>
             </div>
           </div>
 
           <div class="appli-card">
             <div class="appli-header">
-              <span class="appli-icon">🔔</span>
+              <span class="appli-icon">🚗</span>
               <div>
-                <div class="appli-title">Relais / Sonnette</div>
-                <div class="appli-subtitle">Temps de réponse</div>
+                <div class="appli-title">Clignotant de voiture</div>
+                <div class="appli-subtitle">Cycle régulier</div>
               </div>
             </div>
             <div class="appli-desc">
-              Un <strong>relais</strong> comporte une bobine qui attire un contact mobile quand
-              le courant monte. Le temps de commutation dépend de τ.
-              Utilisé dans les sonnettes, les voitures, les automatismes.
+              Un condensateur associé à une résistance détermine la <strong>fréquence
+              du clignotement</strong>. Charge + Décharge = 1 clignotement.
+              Plus τ est grand, plus le clignotement est lent.
             </div>
-            <button class="appli-btn" onclick="voirAnimationAppli('relais')">
+            <button class="appli-btn" onclick="voirAnimationAppli('clignotant')">
               ▶️ Voir l'animation
             </button>
-            <div class="appli-canvas-zone" id="canvas-relais">
-              <canvas id="animRelais" width="400" height="180"></canvas>
+            <div class="appli-canvas-zone" id="canvas-clignotant">
+              <canvas id="animClignotant" width="400" height="180"></canvas>
             </div>
           </div>
 
           <div class="appli-card">
             <div class="appli-header">
-              <span class="appli-icon">🚆</span>
+              <span class="appli-icon">⏱️</span>
               <div>
-                <div class="appli-title">Freinage TGV / Métro</div>
-                <div class="appli-subtitle">Freinage progressif</div>
+                <div class="appli-title">Minuterie / Temporisateur</div>
+                <div class="appli-subtitle">Utilise τ pour temporiser</div>
               </div>
             </div>
             <div class="appli-desc">
-              Les moteurs électriques des TGV utilisent des <strong>inductances</strong>.
-              Lors du freinage, la bobine s'oppose aux variations brutales du courant,
-              ce qui permet un <strong>freinage progressif</strong> et sûr.
+              Le condensateur charge pendant un temps défini par <strong>τ = R × C</strong>.
+              Après environ <strong>5τ</strong>, le circuit déclenche une action :
+              éclairage d'escalier, arrosage automatique, minuterie de four.
             </div>
-            <button class="appli-btn" onclick="voirAnimationAppli('freinage')">
+            <button class="appli-btn" onclick="voirAnimationAppli('minuterie')">
               ▶️ Voir l'animation
             </button>
-            <div class="appli-canvas-zone" id="canvas-freinage">
-              <canvas id="animFreinage" width="400" height="180"></canvas>
+            <div class="appli-canvas-zone" id="canvas-minuterie">
+              <canvas id="animMinuterie" width="400" height="180"></canvas>
             </div>
           </div>
 
           <div class="appli-card">
             <div class="appli-header">
-              <span class="appli-icon">⚡</span>
+              <span class="appli-icon">🚌</span>
               <div>
-                <div class="appli-title">Transformateur</div>
-                <div class="appli-subtitle">Deux bobines couplées</div>
+                <div class="appli-title">Supercondensateur (bus)</div>
+                <div class="appli-subtitle">Stockage d'énergie</div>
               </div>
             </div>
             <div class="appli-desc">
-              Un <strong>transformateur</strong> comporte deux bobines couplées par un noyau
-              magnétique. Il permet de modifier la tension alternative.
-              Utilisé dans les chargeurs, les lignes haute tension.
+              Les supercondensateurs des bus et tramways <strong>stockent l'énergie
+              de freinage</strong> et la restituent au démarrage. Charge en quelques
+              secondes, décharge rapide pour accélérer.
             </div>
-            <button class="appli-btn" onclick="voirAnimationAppli('transformateur')">
+            <button class="appli-btn" onclick="voirAnimationAppli('supercaps')">
               ▶️ Voir l'animation
             </button>
-            <div class="appli-canvas-zone" id="canvas-transformateur">
-              <canvas id="animTransformateur" width="400" height="180"></canvas>
+            <div class="appli-canvas-zone" id="canvas-supercaps">
+              <canvas id="animSupercaps" width="400" height="180"></canvas>
             </div>
           </div>
 
@@ -1121,27 +1016,27 @@
       <!-- Onglet 4.4 : QCM -->
       <div class="sous-onglet-contenu" id="sous-qcm">
         <div class="qcm-header">
-          <h3>🛡️ Questions de compréhension</h3>
+          <h3>🛡️ Questions de sécurité</h3>
           <p>Réponds aux 3 questions pour valider ta compréhension.</p>
         </div>
 
         <div class="qcm-item" id="qcm-1">
           <div class="qcm-question-num">Question 1 / 3</div>
           <div class="qcm-question-texte">
-            Pourquoi branche-t-on l'oscilloscope aux bornes de <strong>R</strong> plutôt qu'aux bornes de <strong>L</strong> pour observer le courant ?
+            Pourquoi l'interrupteur doit-il être ouvert avant de commencer l'expérience ?
           </div>
           <div class="qcm-options">
             <button class="qcm-option" data-q="1" data-value="a">
               <span class="qcm-lettre">A</span>
-              <span>Parce que la résistance est plus facile à mesurer</span>
+              <span>Pour économiser l'électricité</span>
             </button>
             <button class="qcm-option" data-q="1" data-value="b" data-correct="1">
               <span class="qcm-lettre">B</span>
-              <span>Parce que U_R = R·i, donc U_R est directement proportionnelle au courant i(t)</span>
+              <span>Pour éviter que le condensateur se charge pendant qu'on branche les appareils</span>
             </button>
             <button class="qcm-option" data-q="1" data-value="c">
               <span class="qcm-lettre">C</span>
-              <span>Parce que la bobine ne supporte pas l'oscilloscope</span>
+              <span>Parce que c'est une règle du lycée</span>
             </button>
           </div>
           <button class="qcm-btn-valider" onclick="validerQCM(1)" disabled>Valider ma réponse</button>
@@ -1151,20 +1046,20 @@
         <div class="qcm-item" id="qcm-2">
           <div class="qcm-question-num">Question 2 / 3</div>
           <div class="qcm-question-texte">
-            Que vaut <strong>τ</strong> pour un circuit RL avec L = 2 H et R = 200 Ω ?
+            Pourquoi branche-t-on l'oscilloscope EN DÉRIVATION sur le condensateur ?
           </div>
           <div class="qcm-options">
             <button class="qcm-option" data-q="2" data-value="a">
               <span class="qcm-lettre">A</span>
-              <span>τ = 400 s</span>
+              <span>Pour ne pas griller l'oscilloscope</span>
             </button>
             <button class="qcm-option" data-q="2" data-value="b" data-correct="1">
               <span class="qcm-lettre">B</span>
-              <span>τ = 0,01 s = 10 ms</span>
+              <span>Parce qu'un voltmètre se branche toujours en dérivation sur le composant dont on veut mesurer la tension</span>
             </button>
             <button class="qcm-option" data-q="2" data-value="c">
               <span class="qcm-lettre">C</span>
-              <span>τ = 100 s</span>
+              <span>Pour mesurer le courant qui traverse C</span>
             </button>
           </div>
           <button class="qcm-btn-valider" onclick="validerQCM(2)" disabled>Valider ma réponse</button>
@@ -1174,20 +1069,20 @@
         <div class="qcm-item" id="qcm-3">
           <div class="qcm-question-num">Question 3 / 3</div>
           <div class="qcm-question-texte">
-            Comment évolue <strong>τ</strong> si on augmente R (avec L constant) ?
+            Pourquoi mesure-t-on U_C et pas U_R ?
           </div>
           <div class="qcm-options">
             <button class="qcm-option" data-q="3" data-value="a">
               <span class="qcm-lettre">A</span>
-              <span>τ augmente (car τ = L × R)</span>
+              <span>Parce que U_R est difficile à mesurer</span>
             </button>
             <button class="qcm-option" data-q="3" data-value="b" data-correct="1">
               <span class="qcm-lettre">B</span>
-              <span>τ diminue (car τ = L / R)</span>
+              <span>Parce que c'est la tension du condensateur qui nous intéresse pour tracer la courbe de charge</span>
             </button>
             <button class="qcm-option" data-q="3" data-value="c">
               <span class="qcm-lettre">C</span>
-              <span>τ ne change pas</span>
+              <span>Parce que U_R est constante</span>
             </button>
           </div>
           <button class="qcm-btn-valider" onclick="validerQCM(3)" disabled>Valider ma réponse</button>
@@ -1217,7 +1112,7 @@
               <div class="bilan-label">Objectif du TP</div>
               <div class="bilan-text">
                 Déterminer expérimentalement la constante de temps <strong>τ</strong>
-                d'un circuit RL et vérifier la relation <strong>τ = L / R</strong>.
+                d'un circuit RC et vérifier la relation <strong>τ = R × C</strong>.
               </div>
             </div>
           </div>
@@ -1229,7 +1124,7 @@
               <span class="champ-num">1</span>
               Quelle est la valeur théorique de la constante de temps τ ?
             </label>
-            <div class="champ-indice">💡 τ = L / R avec L = 1 H et R = 100 Ω</div>
+            <div class="champ-indice">💡 τ = R × C avec R = 1 kΩ et C = 100 µF</div>
             <input type="text" id="concl-1" placeholder="Ta réponse…" autocomplete="off">
             <div class="champ-feedback" id="fb-1"></div>
           </div>
@@ -1237,9 +1132,9 @@
           <div class="conclusion-champ">
             <label for="concl-2">
               <span class="champ-num">2</span>
-              Quelle est la valeur du courant i à t = τ lors de l'établissement ?
+              Quelle est la tension U_C à t = τ lors de la charge ?
             </label>
-            <div class="champ-indice">💡 i(τ) = I_max × (1 − e⁻¹) ≈ 0,63 × I_max, avec I_max = E/R</div>
+            <div class="champ-indice">💡 U_C = E × (1 − e^(−1)) ≈ 0,63 × E, avec E = 9 V</div>
             <input type="text" id="concl-2" placeholder="Ta réponse…" autocomplete="off">
             <div class="champ-feedback" id="fb-2"></div>
           </div>
@@ -1247,9 +1142,9 @@
           <div class="conclusion-champ">
             <label for="concl-3">
               <span class="champ-num">3</span>
-              Quelle est la valeur du courant i à t = τ lors de la rupture ?
+              Quelle est la tension U_C à t = τ lors de la décharge ?
             </label>
-            <div class="champ-indice">💡 i(τ) = I_max × e⁻¹ ≈ 0,37 × I_max</div>
+            <div class="champ-indice">💡 U_C = E × e^(−1) ≈ 0,37 × E</div>
             <input type="text" id="concl-3" placeholder="Ta réponse…" autocomplete="off">
             <div class="champ-feedback" id="fb-3"></div>
           </div>
@@ -1257,14 +1152,14 @@
           <div class="conclusion-champ">
             <label for="concl-4">
               <span class="champ-num">4</span>
-              Complète : « Plus τ est grand, plus l'établissement du courant est… »
+              Complète : « Plus τ est grand, plus la charge du condensateur est… »
             </label>
             <div class="champ-indice">💡 Pense à la vitesse d'évolution de la courbe</div>
             <select id="concl-4">
               <option value="">— Choisis une réponse —</option>
-              <option value="lent">lent</option>
+              <option value="lente">lente</option>
               <option value="rapide">rapide</option>
-              <option value="instantanee">instantané</option>
+              <option value="instantanee">instantanée</option>
             </select>
             <div class="champ-feedback" id="fb-4"></div>
           </div>
@@ -1272,7 +1167,7 @@
           <div class="conclusion-champ">
             <label for="concl-5">
               <span class="champ-num">5</span>
-              Cite une application concrète du circuit RL vue dans ce TP.
+              Cite une application concrète du circuit RC vue dans ce TP.
             </label>
             <div class="champ-indice">💡 Regarde l'onglet « Applications »</div>
             <input type="text" id="concl-5" placeholder="Ta réponse…" autocomplete="off">
@@ -1297,7 +1192,7 @@
         </div>
 
         <div class="certificat-zone" id="certificatZone">
-          <h3>🎓 Certificat de réussite du TP RL</h3>
+          <h3>🎓 Certificat de réussite du TP RC</h3>
           <p>Félicitations ! Tu as terminé toutes les étapes du TP. Saisis ton nom pour générer ton certificat.</p>
           <input type="text" class="certificat-nom" id="certificatNom" placeholder="Ton nom et prénom" maxlength="60">
           <div class="conclusion-finale-actions" style="justify-content:center;">
@@ -1310,27 +1205,27 @@
       <div class="sous-onglet-contenu" id="sous-exercices">
         <div class="recap-header">
           <h3>🧮 Exercices guidés</h3>
-          <p>Applique ce que tu as appris avec 3 exercices progressifs.</p>
+          <p>Applique ce que tu as appris avec 3 exercices progressifs. Chacun te guide pas à pas.</p>
         </div>
 
         <div class="exercice-card" id="exo-1">
           <div class="exercice-entete">
             <div class="exercice-num">1</div>
-            <div class="exercice-titre">Calculer τ pour un nouveau circuit RL</div>
+            <div class="exercice-titre">Calculer τ pour un nouveau circuit</div>
           </div>
           <div class="exercice-enonce">
-            Un circuit RL utilise une bobine <strong>L = 2 H</strong>
-            et une résistance <strong>R = 200 Ω</strong>.
-            Quelle est la constante de temps τ ?
+            Un circuit RC utilise cette fois une résistance <strong>R = 2 kΩ</strong>
+            et un condensateur <strong>C = 50 µF</strong>.
+            Quelle est la nouvelle constante de temps τ ?
           </div>
           <ul class="exercice-etapes">
-            <li>Formule à utiliser : <strong>τ = L / R</strong></li>
-            <li>L en henrys : <strong>2 H</strong></li>
-            <li>R en ohms : <strong>200 Ω</strong></li>
+            <li>Formule à utiliser : <strong>τ = R × C</strong></li>
+            <li>Convertir R en ohms : <strong>2 kΩ = 2000 Ω</strong></li>
+            <li>Convertir C en farads : <strong>50 µF = 50 × 10⁻⁶ F</strong></li>
             <li>Calculer τ (en secondes, puis en ms)</li>
           </ul>
           <div class="exercice-input-zone">
-            <input type="text" class="exercice-input" id="exo1-rep" placeholder="Ta réponse (ex : 10 ms)">
+            <input type="text" class="exercice-input" id="exo1-rep" placeholder="Ta réponse (ex : 100 ms)">
             <button class="btn btn-primary" style="padding:10px 18px;font-size:13px;" onclick="verifierExo1()">Vérifier</button>
           </div>
           <div class="exercice-feedback" id="exo1-fb"></div>
@@ -1339,19 +1234,19 @@
         <div class="exercice-card" id="exo-2">
           <div class="exercice-entete">
             <div class="exercice-num">2</div>
-            <div class="exercice-titre">Courant i(τ) à l'établissement</div>
+            <div class="exercice-titre">Tension U_C à t = τ</div>
           </div>
           <div class="exercice-enonce">
-            Avec le même circuit (L = 2 H, R = 200 Ω), alimenté par une pile <strong>E = 12 V</strong>,
-            quel est le courant i aux bornes de la bobine <strong>à t = τ</strong> lors de l'établissement ?
+            Avec le même circuit (R = 2 kΩ, C = 50 µF), alimenté par une pile <strong>E = 6 V</strong>,
+            quelle est la tension U_C aux bornes du condensateur <strong>à t = τ</strong> lors de la charge ?
           </div>
           <ul class="exercice-etapes">
-            <li>I_max = E / R = <strong>12 / 200 = 0,06 A</strong></li>
-            <li>Formule : <strong>i(τ) = I_max × (1 − e⁻¹) ≈ 0,63 × I_max</strong></li>
-            <li>i(τ) ≈ <strong>0,63 × 0,06 A</strong></li>
+            <li>Formule : <strong>U_C(τ) = E × (1 − e⁻¹)</strong></li>
+            <li>e⁻¹ ≈ <strong>0,37</strong>, donc 1 − e⁻¹ ≈ <strong>0,63</strong></li>
+            <li>U_C(τ) ≈ <strong>0,63 × 6 V</strong></li>
           </ul>
           <div class="exercice-input-zone">
-            <input type="text" class="exercice-input" id="exo2-rep" placeholder="Ta réponse (ex : 0,038 A)">
+            <input type="text" class="exercice-input" id="exo2-rep" placeholder="Ta réponse (ex : 3,79 V)">
             <button class="btn btn-primary" style="padding:10px 18px;font-size:13px;" onclick="verifierExo2()">Vérifier</button>
           </div>
           <div class="exercice-feedback" id="exo2-fb"></div>
@@ -1360,19 +1255,21 @@
         <div class="exercice-card" id="exo-3">
           <div class="exercice-entete">
             <div class="exercice-num">3</div>
-            <div class="exercice-titre">Énergie stockée dans la bobine</div>
+            <div class="exercice-titre">Choisir la bonne résistance</div>
           </div>
           <div class="exercice-enonce">
-            Une bobine d'inductance <strong>L = 0,5 H</strong> est parcourue par un courant
-            <strong>i = 3 A</strong>. Quelle est l'énergie magnétique stockée ?
+            On veut construire un circuit RC dont la constante de temps vaut <strong>τ = 0,5 s</strong>.
+            On dispose d'un condensateur de <strong>C = 100 µF</strong>.
+            Quelle valeur de résistance R faut-il utiliser ?
           </div>
           <ul class="exercice-etapes">
-            <li>Formule : <strong>E_mag = ½ · L · i²</strong></li>
-            <li>L = 0,5 H, i = 3 A</li>
-            <li>E_mag = ½ × 0,5 × 9 = <strong>2,25 J</strong></li>
+            <li>Formule à utiliser : <strong>τ = R × C</strong></li>
+            <li>Isoler R : <strong>R = τ / C</strong></li>
+            <li>Convertir C : <strong>100 µF = 100 × 10⁻⁶ F</strong></li>
+            <li>Calculer R, puis exprimer le résultat en kΩ</li>
           </ul>
           <div class="exercice-input-zone">
-            <input type="text" class="exercice-input" id="exo3-rep" placeholder="Ta réponse (ex : 2,25 J)">
+            <input type="text" class="exercice-input" id="exo3-rep" placeholder="Ta réponse (ex : 5 kΩ)">
             <button class="btn btn-primary" style="padding:10px 18px;font-size:13px;" onclick="verifierExo3()">Vérifier</button>
           </div>
           <div class="exercice-feedback" id="exo3-fb"></div>
@@ -1400,10 +1297,10 @@
 //  EXPLICATIONS (ÉTAPE 1)
 // ============================================================
 const EXPLICATIONS = {
-  pile: { title: '🔋 Pile (E = 6 V)', content: `<p>La pile fournit la <strong>tension électrique</strong> qui fait circuler le courant dans la bobine.</p><p>Valeur : <code>6 V</code>.</p>` },
-  resistance: { title: '📏 Résistance (R = 100 Ω)', content: `<p>Limite le courant et fixe avec L la <strong>constante de temps τ = L/R</strong>.</p><p><code>100 Ω</code>.</p>` },
-  bobine: { title: '🌀 Bobine (L = 1 H)', content: `<p>Stocke l'énergie dans un <strong>champ magnétique</strong>. Elle s'oppose aux variations brutales du courant.</p><p><code>1 H = 1 henry</code>.</p>` },
-  interrupteur: { title: '🔘 Interrupteur (K)', content: `<p>Ouvre ou ferme le circuit.</p><p>Fermé → établissement du courant ; ouvert → rupture.</p>` },
+  pile: { title: '🔋 Pile (E = 9 V)', content: `<p>La pile fournit la <strong>tension électrique</strong> pour charger le condensateur.</p><p>Valeur : <code>9 V</code>.</p>` },
+  resistance: { title: '📏 Résistance (R = 1 kΩ)', content: `<p>Limite le courant et détermine la <strong>vitesse de charge</strong>.</p><p><code>1 kΩ = 1000 Ω</code>.</p>` },
+  condensateur: { title: '⚡ Condensateur (C = 100 µF)', content: `<p>Stocke l'énergie électrique.</p><p><code>100 µF = 100 × 10⁻⁶ F</code>.</p>` },
+  interrupteur: { title: '🔘 Interrupteur (K)', content: `<p>Ouvre ou ferme le circuit.</p><p>Peu importe sa position, tant qu'il est dans la boucle.</p>` },
   fils: { title: '🧵 Fils de connexion', content: `<p>Relient les composants.</p><p><strong>4 fils minimum</strong>.</p>` }
 };
 
@@ -1421,7 +1318,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') fermerModal(
 // ============================================================
 //  🔊 RETOUR SONORE
 // ============================================================
-let sonActif = localStorage.getItem('tp_rl_son_actif') !== 'false';
+let sonActif = localStorage.getItem('tp_rc_son_actif') !== 'false';
 let audioCtx = null;
 
 function initAudio() {
@@ -1477,7 +1374,7 @@ function jouerNote(freq, dur, type, vol) {
 
 function toggleSon() {
   sonActif = !sonActif;
-  localStorage.setItem('tp_rl_son_actif', sonActif);
+  localStorage.setItem('tp_rc_son_actif', sonActif);
   const btn = document.getElementById('sonToggle');
   if (btn) {
     btn.textContent = sonActif ? '🔊' : '🔇';
@@ -1548,7 +1445,7 @@ let montage = {
 const TAILLE = {
   pile: { w: 90, h: 90 },
   resistance: { w: 110, h: 40 },
-  bobine: { w: 120, h: 80 },
+  condensateur: { w: 80, h: 90 },
   interrupteur: { w: 90, h: 50 }
 };
 
@@ -1567,7 +1464,7 @@ function ajouterComposant(type) {
   const composant = {
     id: 'c' + montage.prochainIdComp++,
     type: type, x: pos.x, y: pos.y, rotation: 0,
-    valeur: type === 'pile' ? '6 V' : type === 'resistance' ? '100 Ω' : type === 'bobine' ? '1 H' : 'K'
+    valeur: type === 'pile' ? '9 V' : type === 'resistance' ? '1 kΩ' : type === 'condensateur' ? '100 µF' : 'K'
   };
   montage.composants.push(composant);
   document.getElementById('btn-' + type).classList.add('used');
@@ -1698,7 +1595,8 @@ function drawFil(fil) {
   const estSelectionne = montage.filSelectionne === fil.id;
   const estBranche = fil.de && fil.vers;
   ctx.strokeStyle = estSelectionne ? '#ffd54f' : (estBranche ? '#4caf50' : '#4fc3f7');
-  ctx.lineWidth = estSelectionne ? 7 : 5; ctx.lineCap = 'round';
+  ctx.lineWidth = estSelectionne ? 7 : 5;
+  ctx.lineCap = 'round';
   ctx.shadowColor = estSelectionne ? '#ffd54f' : (estBranche ? '#4caf50' : '#4fc3f7');
   ctx.shadowBlur = estSelectionne ? 12 : 6;
   ctx.beginPath(); ctx.moveTo(fil.x1, fil.y1); ctx.lineTo(fil.x2, fil.y2); ctx.stroke();
@@ -1749,7 +1647,7 @@ function drawComposant(c) {
   ctx.translate(-c.x, -c.y);
   if (c.type === 'pile') drawPile(c.x, c.y, t.w, t.h, c.valeur);
   else if (c.type === 'resistance') drawResistance(c.x, c.y, t.w, t.h, c.valeur);
-  else if (c.type === 'bobine') drawBobine(c.x, c.y, t.w, t.h, c.valeur);
+  else if (c.type === 'condensateur') drawCondensateur(c.x, c.y, t.w, t.h, c.valeur);
   else if (c.type === 'interrupteur') drawInterrupteur(c.x, c.y, t.w, t.h);
   ctx.restore();
   ctx.shadowBlur = 0;
@@ -1790,58 +1688,16 @@ function drawResistance(cx, cy, w, h, valeur) {
   ctx.fillText(valeur, cx, cy); ctx.textBaseline = 'alphabetic';
 }
 
-function drawBobine(cx, cy, w, h, valeur) {
-  ctx.fillStyle = '#1a1a2e'; ctx.strokeStyle = '#B87333'; ctx.lineWidth = 3;
-  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 10); ctx.fill(); ctx.stroke();
-
-  const noyauW = w - 30;
-  const noyauH = 18;
-  const gradNoyau = ctx.createLinearGradient(cx - noyauW/2, cy, cx + noyauW/2, cy);
-  gradNoyau.addColorStop(0, '#3a4250');
-  gradNoyau.addColorStop(0.4, '#8a92a0');
-  gradNoyau.addColorStop(0.6, '#b8bfcc');
-  gradNoyau.addColorStop(1, '#3a4250');
-  ctx.fillStyle = gradNoyau;
+function drawCondensateur(cx, cy, w, h, valeur) {
+  ctx.fillStyle = '#1a1a2e'; ctx.strokeStyle = '#4fc3f7'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 8); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.roundRect(cx - noyauW/2, cy - noyauH/2, noyauW, noyauH, noyauH/2);
-  ctx.fill();
-  ctx.strokeStyle = '#2a323e'; ctx.lineWidth = 1.5; ctx.stroke();
-
-  const nbSpires = 10;
-  const espacement = noyauW / nbSpires;
-  const spireRx = espacement / 2 + 1;
-  const spireRy = 26;
-  const pulse = (Math.sin(Date.now() / 800) + 1) / 2;
-  const ryVar = spireRy + pulse * 1.5;
-
-  for (let i = 0; i < nbSpires; i++) {
-    const x = cx - noyauW/2 + espacement * (i + 0.5);
-    const gradSpire = ctx.createRadialGradient(x - spireRx * 0.4, cy - ryVar * 0.3, 1, x, cy, spireRx * 1.4);
-    gradSpire.addColorStop(0, '#F5B072');
-    gradSpire.addColorStop(0.5, '#B87333');
-    gradSpire.addColorStop(1, '#6B3E1A');
-    ctx.strokeStyle = gradSpire;
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.ellipse(x, cy, spireRx, ryVar, 0, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.strokeStyle = 'rgba(255, 220, 180, 0.5)';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.ellipse(x, cy - 3, spireRx * 0.7, ryVar * 0.8, 0, Math.PI * 1.15, Math.PI * 1.85);
-    ctx.stroke();
-  }
-
-  ctx.strokeStyle = '#B87333'; ctx.lineWidth = 3; ctx.lineCap = 'round';
-  ctx.beginPath();
-  ctx.moveTo(cx - w/2, cy - 8);
-  ctx.lineTo(cx - noyauW/2, cy - 4);
-  ctx.moveTo(cx + w/2, cy + 8);
-  ctx.lineTo(cx + noyauW/2, cy + 4);
+  ctx.moveTo(cx - 15, cy - 18); ctx.lineTo(cx - 15, cy + 18);
+  ctx.moveTo(cx + 15, cy - 18); ctx.lineTo(cx + 15, cy + 18);
   ctx.stroke();
-
   ctx.fillStyle = '#fff'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText(valeur, cx, cy + h/2 - 10); ctx.textBaseline = 'alphabetic';
+  ctx.fillText(valeur, cx, cy + h/2 - 8); ctx.textBaseline = 'alphabetic';
 }
 
 function drawInterrupteur(cx, cy, w, h) {
@@ -2090,11 +1946,11 @@ function verifierMontage() {
   const msg = document.getElementById('verifMessage');
   const checks = [];
   let toutOK = true;
-  const typesAttendus = ['pile', 'resistance', 'bobine', 'interrupteur'];
+  const typesAttendus = ['pile', 'resistance', 'condensateur', 'interrupteur'];
   const typesPresents = montage.composants.map(c => c.type);
   const composantsOK = typesAttendus.every(t => typesPresents.includes(t));
 
-  if (composantsOK) checks.push({ ok: true, txt: 'Les 4 composants sont présents (pile, R, bobine, K)' });
+  if (composantsOK) checks.push({ ok: true, txt: 'Les 4 composants sont présents (pile, R, C, K)' });
   else {
     const manquants = typesAttendus.filter(t => !typesPresents.includes(t));
     checks.push({ ok: false, txt: `Composants manquants : ${manquants.join(', ')}` });
@@ -2144,7 +2000,7 @@ function verifierMontage() {
 
   msg.classList.remove('success', 'error');
   msg.classList.add('show', toutOK ? 'success' : 'error');
-  let html = toutOK ? `<strong>🎉 Bravo, ton montage RL est validé !</strong><ul>` : `<strong>⚠️ Presque ! Vérifie :</strong><ul>`;
+  let html = toutOK ? `<strong>🎉 Bravo, ton montage RC est validé !</strong><ul>` : `<strong>⚠️ Presque ! Vérifie :</strong><ul>`;
   checks.forEach(c => html += `<li class="${c.ok ? 'ok' : 'ko'}">${c.txt}</li>`);
   html += `</ul>`;
   if (toutOK) {
@@ -2188,14 +2044,12 @@ function construireGraphe(options = {}) {
 }
 
 // ============================================================
-//  ÉTAPE 3 : BRANCHEMENT OSCILLOSCOPE (avec sélecteur U_R / U_L)
+//  ÉTAPE 3 : BRANCHEMENT OSCILLOSCOPE
 // ============================================================
 const canvasB = document.getElementById('canvasBranchement');
 const ctxB = canvasB.getContext('2d');
 const WB = canvasB.width;
 const HB = canvasB.height;
-
-let mesureChoisie = 'UR';
 
 let branchement = {
   composants: [], oscilloscope: null, fils: [],
@@ -2203,66 +2057,6 @@ let branchement = {
   oscilloPlace: false, oscilloEnDrag: null, poigneeEnDrag: null,
   offsetDragOscillo: { x: 0, y: 0 }, prochainIdFil: 100
 };
-
-function choisirMesure(type) {
-  mesureChoisie = type;
-  document.getElementById('radioUR').classList.toggle('actif', type === 'UR');
-  document.getElementById('radioUL').classList.toggle('actif', type === 'UL');
-  document.getElementById('radioUR').querySelector('input').checked = (type === 'UR');
-  document.getElementById('radioUL').querySelector('input').checked = (type === 'UL');
-
-  const cible = type === 'UR' ? 'la résistance R' : 'la bobine L';
-  const ciblePlus = type === 'UR' ? '+ de la résistance R' : '+ de la bobine L';
-  const cibleMoins = type === 'UR' ? '− de la résistance R' : '− de la bobine L';
-  document.getElementById('missionTexte').innerHTML = `branche les 2 voies de l'oscilloscope aux bornes de <strong>${cible}</strong>.`;
-  document.getElementById('ciblePlus').textContent = ciblePlus;
-  document.getElementById('cibleMoins').textContent = cibleMoins;
-  document.getElementById('objectifPlus').textContent = type === 'UR' ? '+ de R' : '+ de L';
-  document.getElementById('objectifMoins').textContent = type === 'UR' ? '− de R' : '− de L';
-
-  const cadre = document.getElementById('cadreMesure');
-  const lien1 = document.getElementById('lienVoie1');
-  const lien2 = document.getElementById('lienVoie2');
-  if (type === 'UR') {
-    cadre.setAttribute('x', 115); cadre.setAttribute('y', 60); cadre.setAttribute('width', 110); cadre.setAttribute('height', 40);
-    lien1.setAttribute('x2', 120); lien1.setAttribute('y2', 80);
-    lien2.setAttribute('x2', 220); lien2.setAttribute('y2', 80);
-  } else {
-    cadre.setAttribute('x', 255); cadre.setAttribute('y', 110); cadre.setAttribute('width', 55); cadre.setAttribute('height', 60);
-    lien1.setAttribute('x2', 260); lien1.setAttribute('y2', 120);
-    lien2.setAttribute('x2', 300); lien2.setAttribute('y2', 160);
-  }
-
-  drawBranchement();
-  jouerSon('connect');
-}
-
-function choisirCourbe(type) {
-  mesureChoisie = type;
-  document.getElementById('radioCourbeUR').classList.toggle('actif', type === 'UR');
-  document.getElementById('radioCourbeUL').classList.toggle('actif', type === 'UL');
-  majTextesCourbes();
-  initCourbesVides();
-  jouerSon('connect');
-}
-
-function majTextesCourbes() {
-  const isUR = mesureChoisie === 'UR';
-  document.getElementById('titreCharge').textContent = isUR ? '🔋 U_R pendant l\'établissement' : '🔋 U_L pendant l\'établissement';
-  document.getElementById('titreDecharge').textContent = isUR ? '⚡ U_R pendant la rupture' : '⚡ U_L pendant la rupture';
-  document.getElementById('formuleCharge').innerHTML = isUR
-    ? 'U_R(t) = E · (1 − e^(−t/τ))'
-    : 'U_L(t) = E · e^(−t/τ)';
-  document.getElementById('formuleDecharge').innerHTML = isUR
-    ? 'U_R(t) = E · e^(−t/τ)'
-    : 'U_L(t) = −E · e^(−t/τ)';
-  document.getElementById('descCharge').innerHTML = isUR
-    ? '⚡ Interrupteur K <strong>fermé</strong><br>U_R monte vers E'
-    : '⚡ Interrupteur K <strong>fermé</strong><br>U_L descend de E vers 0';
-  document.getElementById('descDecharge').innerHTML = isUR
-    ? '⚡ Interrupteur K <strong>ouvert</strong><br>U_R descend vers 0'
-    : '⚡ Interrupteur K <strong>ouvert</strong><br>U_L devient négatif';
-}
 
 function initialiserBranchement() {
   if (!montage.composants || montage.composants.length < 4) {
@@ -2282,13 +2076,26 @@ function initialiserBranchement() {
   }));
 
   if (!branchement.oscilloscope) {
-    branchement.oscilloscope = { id: 'osc', x: WB - 180, y: 150, rotation: 0, w: 160, h: 130 };
+    branchement.oscilloscope = {
+      id: 'osc', x: WB - 180, y: 150,
+      rotation: 0, w: 160, h: 130
+    };
     branchement.oscilloPlace = true;
   }
 
   updateConnexionsFilsBranchement();
   drawBranchement();
   updateHintBranchement();
+}
+
+function ajouterOscilloscope() {
+  if (branchement.oscilloPlace) {
+    alert('⚠️ L\'oscilloscope est déjà placé. Déplace-le si nécessaire.');
+    return;
+  }
+  branchement.oscilloscope = { id: 'osc', x: WB - 180, y: 150, rotation: 0, w: 160, h: 130 };
+  branchement.oscilloPlace = true;
+  drawBranchement(); updateHintBranchement();
 }
 
 function getBornesOscillo() {
@@ -2377,7 +2184,7 @@ function drawBranchement() {
     ctxB.translate(-c.x, -c.y);
     if (c.type === 'pile') drawPileB(c.x, c.y, TAILLE.pile.w, TAILLE.pile.h, c.valeur);
     else if (c.type === 'resistance') drawResistanceB(c.x, c.y, TAILLE.resistance.w, TAILLE.resistance.h, c.valeur);
-    else if (c.type === 'bobine') drawBobineB(c.x, c.y, TAILLE.bobine.w, TAILLE.bobine.h, c.valeur);
+    else if (c.type === 'condensateur') drawCondensateurB(c.x, c.y, TAILLE.condensateur.w, TAILLE.condensateur.h, c.valeur);
     else if (c.type === 'interrupteur') drawInterrupteurB(c.x, c.y, TAILLE.interrupteur.w, TAILLE.interrupteur.h);
     ctxB.restore();
   });
@@ -2423,7 +2230,7 @@ function drawPileB(cx, cy, w, h, valeur) {
   ctxB.fillStyle = '#4caf50'; ctxB.font = 'bold 24px Arial'; ctxB.textAlign = 'center'; ctxB.textBaseline = 'middle';
   ctxB.fillText('+', cx, cy - 20);
   ctxB.fillStyle = '#f44336'; ctxB.fillText('−', cx, cy + 20);
-  ctxB.fillStyle = '#fff'; ctxB.font = 'bold 13px monospace'; ctxB.fillText(valeur || '6 V', cx, cy + 1);
+  ctxB.fillStyle = '#fff'; ctxB.font = 'bold 13px monospace'; ctxB.fillText(valeur || '9 V', cx, cy + 1);
   ctxB.textBaseline = 'alphabetic';
 }
 
@@ -2436,59 +2243,23 @@ function drawResistanceB(cx, cy, w, h, valeur) {
   for (let i = 0; i < 6; i++) ctxB.lineTo(cx - w/2 + 10 + seg * (i+1), cy + (i % 2 === 0 ? -8 : 8));
   ctxB.stroke();
   ctxB.fillStyle = '#fff'; ctxB.font = 'bold 12px monospace'; ctxB.textAlign = 'center'; ctxB.textBaseline = 'middle';
-  ctxB.fillText(valeur || '100 Ω', cx, cy); ctxB.textBaseline = 'alphabetic';
+  ctxB.fillText(valeur || '1 kΩ', cx, cy); ctxB.textBaseline = 'alphabetic';
 }
 
-function drawBobineB(cx, cy, w, h, valeur) {
-  ctxB.fillStyle = '#1a1a2e'; ctxB.strokeStyle = '#B87333'; ctxB.lineWidth = 3;
-  ctxB.beginPath(); ctxB.roundRect(cx - w/2, cy - h/2, w, h, 10); ctxB.fill(); ctxB.stroke();
-
-  const noyauW = w - 30;
-  const noyauH = 18;
-  const gradNoyau = ctxB.createLinearGradient(cx - noyauW/2, cy, cx + noyauW/2, cy);
-  gradNoyau.addColorStop(0, '#3a4250');
-  gradNoyau.addColorStop(0.4, '#8a92a0');
-  gradNoyau.addColorStop(0.6, '#b8bfcc');
-  gradNoyau.addColorStop(1, '#3a4250');
-  ctxB.fillStyle = gradNoyau;
+function drawCondensateurB(cx, cy, w, h, valeur) {
+  ctxB.fillStyle = '#1a1a2e'; ctxB.strokeStyle = '#4fc3f7'; ctxB.lineWidth = 3;
+  ctxB.beginPath(); ctxB.roundRect(cx - w/2, cy - h/2, w, h, 8); ctxB.fill(); ctxB.stroke();
+  ctxB.strokeStyle = '#fff'; ctxB.lineWidth = 3;
   ctxB.beginPath();
-  ctxB.roundRect(cx - noyauW/2, cy - noyauH/2, noyauW, noyauH, noyauH/2);
-  ctxB.fill();
-  ctxB.strokeStyle = '#2a323e'; ctxB.lineWidth = 1.5; ctxB.stroke();
-
-  const nbSpires = 10;
-  const espacement = noyauW / nbSpires;
-  const spireRx = espacement / 2 + 1;
-  const spireRy = 26;
-
-  for (let i = 0; i < nbSpires; i++) {
-    const x = cx - noyauW/2 + espacement * (i + 0.5);
-    const gradSpire = ctxB.createRadialGradient(x - spireRx * 0.4, cy - spireRy * 0.3, 1, x, cy, spireRx * 1.4);
-    gradSpire.addColorStop(0, '#F5B072');
-    gradSpire.addColorStop(0.5, '#B87333');
-    gradSpire.addColorStop(1, '#6B3E1A');
-    ctxB.strokeStyle = gradSpire;
-    ctxB.lineWidth = 3;
-    ctxB.beginPath();
-    ctxB.ellipse(x, cy, spireRx, spireRy, 0, 0, Math.PI * 2);
-    ctxB.stroke();
-    ctxB.strokeStyle = 'rgba(255, 220, 180, 0.5)';
-    ctxB.lineWidth = 1.5;
-    ctxB.beginPath();
-    ctxB.ellipse(x, cy - 3, spireRx * 0.7, spireRy * 0.8, 0, Math.PI * 1.15, Math.PI * 1.85);
-    ctxB.stroke();
-  }
-
-  ctxB.strokeStyle = '#B87333'; ctxB.lineWidth = 3; ctxB.lineCap = 'round';
-  ctxB.beginPath();
-  ctxB.moveTo(cx - w/2, cy - 8);
-  ctxB.lineTo(cx - noyauW/2, cy - 4);
-  ctxB.moveTo(cx + w/2, cy + 8);
-  ctxB.lineTo(cx + noyauW/2, cy + 4);
+  ctxB.moveTo(cx - 15, cy - 18); ctxB.lineTo(cx - 15, cy + 18);
+  ctxB.moveTo(cx + 15, cy - 18); ctxB.lineTo(cx + 15, cy + 18);
   ctxB.stroke();
-
-  ctxB.fillStyle = '#fff'; ctxB.font = 'bold 12px monospace'; ctxB.textAlign = 'center'; ctxB.textBaseline = 'middle';
-  ctxB.fillText(valeur || '1 H', cx, cy + h/2 - 10); ctxB.textBaseline = 'alphabetic';
+  const bornes = getBornes({ id: 'tmp', type: 'condensateur', x: cx, y: cy, rotation: 0 });
+  ctxB.fillStyle = '#4caf50'; ctxB.font = 'bold 18px Arial'; ctxB.textAlign = 'center'; ctxB.textBaseline = 'middle';
+  ctxB.fillText('+', bornes[0].x + 22, bornes[0].y);
+  ctxB.fillStyle = '#f44336'; ctxB.fillText('−', bornes[1].x + 22, bornes[1].y);
+  ctxB.fillStyle = '#fff'; ctxB.font = 'bold 12px monospace';
+  ctxB.fillText(valeur || '100 µF', cx, cy + h/2 - 8); ctxB.textBaseline = 'alphabetic';
 }
 
 function drawInterrupteurB(cx, cy, w, h) {
@@ -2676,17 +2447,15 @@ function verifierBranchement() {
   }
   checks.push({ ok: true, txt: 'Les 2 voies de l\'oscilloscope sont connectées' });
 
-  const typeCible = mesureChoisie === 'UR' ? 'resistance' : 'bobine';
-  const cible = branchement.composants.find(c => c.type === typeCible);
-  if (!cible) {
-    checks.push({ ok: false, txt: `Composant ${typeCible} introuvable` });
+  const condensateur = branchement.composants.find(c => c.type === 'condensateur');
+  if (!condensateur) {
+    checks.push({ ok: false, txt: 'Condensateur introuvable' });
     afficherMessageBranchement(msg, checks, false); return;
   }
 
-  const bornesC = getBornes(cible);
+  const bornesC = getBornes(condensateur);
   const borneCPlus = bornesC[0];
   const borneCMoins = bornesC[1];
-  const nomCible = mesureChoisie === 'UR' ? 'la résistance R' : 'la bobine L';
 
   let filVoie1 = null, filVoie2 = null, autreExt1 = null, autreExt2 = null;
   branchement.fils.forEach(fil => {
@@ -2695,12 +2464,12 @@ function verifierBranchement() {
   });
 
   if (!filVoie1) { checks.push({ ok: false, txt: 'La Voie 1 (+) n\'est pas branchée' }); toutOK = false; }
-  else if (autreExt1 === borneCPlus.id) checks.push({ ok: true, txt: `Voie 1 (+) bien branchée sur la borne + de ${nomCible}` });
-  else { checks.push({ ok: false, txt: `Voie 1 (+) branchée sur ${identifierComp(autreExt1)} — elle doit être sur la borne + de ${nomCible}` }); toutOK = false; }
+  else if (autreExt1 === borneCPlus.id) checks.push({ ok: true, txt: 'Voie 1 (+) bien branchée sur la borne + du condensateur' });
+  else { checks.push({ ok: false, txt: `Voie 1 (+) branchée sur ${identifierComp(autreExt1)} — elle doit être sur la borne + du condensateur` }); toutOK = false; }
 
   if (!filVoie2) { checks.push({ ok: false, txt: 'La Voie 2 (−) n\'est pas branchée' }); toutOK = false; }
-  else if (autreExt2 === borneCMoins.id) checks.push({ ok: true, txt: `Voie 2 (−) bien branchée sur la borne − de ${nomCible}` });
-  else { checks.push({ ok: false, txt: `Voie 2 (−) branchée sur ${identifierComp(autreExt2)} — elle doit être sur la borne − de ${nomCible}` }); toutOK = false; }
+  else if (autreExt2 === borneCMoins.id) checks.push({ ok: true, txt: 'Voie 2 (−) bien branchée sur la borne − du condensateur' });
+  else { checks.push({ ok: false, txt: `Voie 2 (−) branchée sur ${identifierComp(autreExt2)} — elle doit être sur la borne − du condensateur` }); toutOK = false; }
 
   afficherMessageBranchement(msg, checks, toutOK);
 }
@@ -2711,7 +2480,7 @@ function identifierComp(borneId) {
   if (!borne) return 'rien';
   const comp = branchement.composants.find(c => c.id === borne.composantId);
   if (!comp) return borne.composantId === 'osc' ? 'l\'oscilloscope' : 'inconnu';
-  const labels = { pile: 'la pile', resistance: 'la résistance', bobine: 'la bobine', interrupteur: 'l\'interrupteur' };
+  const labels = { pile: 'la pile', resistance: 'la résistance', condensateur: 'le condensateur', interrupteur: 'l\'interrupteur' };
   return labels[comp.type] || comp.type;
 }
 
@@ -2738,9 +2507,10 @@ function changerSousOnglet(nom) {
   document.querySelectorAll('.sous-onglet').forEach(b => b.classList.toggle('active', b.dataset.sous === nom));
   document.querySelectorAll('.sous-onglet-contenu').forEach(c => c.classList.remove('active'));
   document.getElementById('sous-' + nom).classList.add('active');
+
   setTimeout(() => {
     if (nom === 'recap') { initRecapEditable(); drawRecapCourbe(); initTauInteractif(); }
-    if (nom === 'charge') { initCourbesVides(); majTextesCourbes(); }
+    if (nom === 'charge') { initCourbesVides(); }
     if (nom === 'conclusion') { chargerConclusionDepuisStorage(); }
   }, 50);
 }
@@ -2749,33 +2519,33 @@ let courbesComparaison = [];
 
 function initRecapEditable() {
   const inputR = document.getElementById('inputR');
-  const inputL = document.getElementById('inputL');
-  if (!inputR || !inputL) return;
+  const inputC = document.getElementById('inputC');
+  if (!inputR || !inputC) return;
   if (!inputR.dataset.bound) {
     inputR.addEventListener('input', () => { majTau(); drawRecapCourbe(); });
-    inputL.addEventListener('input', () => { majTau(); drawRecapCourbe(); });
+    inputC.addEventListener('input', () => { majTau(); drawRecapCourbe(); });
     inputR.dataset.bound = '1';
   }
   majTau();
 }
 
 function majTau() {
-  const R = parseFloat(document.getElementById('inputR').value) || 100;
-  const L = parseFloat(document.getElementById('inputL').value) || 1;
-  const tau = L / R;
+  const R = parseFloat(document.getElementById('inputR').value) || 1000;
+  const C = parseFloat(document.getElementById('inputC').value) || 100;
+  const tau = R * C * 1e-6;
   const tauMs = tau * 1000;
   const el = document.getElementById('valeurTau');
-  if (el) el.textContent = tauMs >= 1000 ? (tauMs / 1000).toFixed(2) + ' s' : tauMs.toFixed(1) + ' ms';
+  if (el) el.textContent = tauMs >= 1000 ? (tauMs / 1000).toFixed(2) + ' s' : tauMs.toFixed(0) + ' ms';
 }
 
 function ajouterCourbeComparaison() {
-  const R = parseFloat(document.getElementById('inputR').value) || 100;
-  const L = parseFloat(document.getElementById('inputL').value) || 1;
+  const R = parseFloat(document.getElementById('inputR').value) || 1000;
+  const C = parseFloat(document.getElementById('inputC').value) || 100;
   const couleurs = ['#4fc3f7', '#ff9800', '#e91e63', '#9c27b0', '#00bcd4'];
   const couleur = couleurs[courbesComparaison.length % couleurs.length];
-  courbesComparaison.push({ R, L, couleur });
+  courbesComparaison.push({ R, C, couleur });
   document.getElementById('recapLegende').style.display = 'flex';
-  document.getElementById('legendeCourante').textContent = `R=${R}Ω, L=${L}H (τ=${((L/R)*1000).toFixed(1)} ms)`;
+  document.getElementById('legendeCourante').textContent = `R=${R}Ω, C=${C}µF (τ=${(R*C*1e-6*1000).toFixed(0)} ms)`;
   drawRecapCourbe();
   jouerSon('pose');
 }
@@ -2783,14 +2553,14 @@ function ajouterCourbeComparaison() {
 function reinitialiserComparaison() {
   courbesComparaison = [];
   document.getElementById('recapLegende').style.display = 'none';
-  document.getElementById('inputR').value = 100;
-  document.getElementById('inputL').value = 1;
+  document.getElementById('inputR').value = 1000;
+  document.getElementById('inputC').value = 100;
   majTau();
   drawRecapCourbe();
 }
 
 // ============================================================
-//  📊 COURBES RÉCAP — Mode ÉTABLISSEMENT / RUPTURE
+//  📊 COURBES RÉCAP — Mode CHARGE / DÉCHARGE
 // ============================================================
 let modeCourbe = 'charge';
 
@@ -2799,15 +2569,15 @@ window.changerModeCourbe = function(mode) {
   document.getElementById('btnModeCharge').classList.toggle('active', mode === 'charge');
   document.getElementById('btnModeDecharge').classList.toggle('active', mode === 'decharge');
 
-  const formuleUR = document.getElementById('formuleUR');
-  const formuleUL = document.getElementById('formuleUL');
+  const formuleUC = document.getElementById('formuleUC');
+  const formuleI = document.getElementById('formuleI');
 
   if (mode === 'charge') {
-    formuleUR.innerHTML = 'U_R(t) = E · (1 − e^(−t/τ))';
-    formuleUL.innerHTML = 'U_L(t) = E · e^(−t/τ)';
+    formuleUC.innerHTML = 'U_C(t) = E · (1 − e^(−t/τ))';
+    formuleI.innerHTML = 'i(t) = (E/R) · e^(−t/τ)';
   } else {
-    formuleUR.innerHTML = 'U_R(t) = E · e^(−t/τ)';
-    formuleUL.innerHTML = 'U_L(t) = −E · e^(−t/τ)';
+    formuleUC.innerHTML = 'U_C(t) = E · e^(−t/τ)';
+    formuleI.innerHTML = 'i(t) = (E/R) · e^(−t/τ)';
   }
 
   jouerSon('connect');
@@ -2815,22 +2585,23 @@ window.changerModeCourbe = function(mode) {
 };
 
 function drawRecapCourbe() {
-  const R = parseFloat(document.getElementById('inputR')?.value) || 100;
-  const L = parseFloat(document.getElementById('inputL')?.value) || 1;
-  const E = 6;
-  const T = L / R;
-  const tMax = Math.min(0.1, 6 * T);
+  const R = parseFloat(document.getElementById('inputR')?.value) || 1000;
+  const C = parseFloat(document.getElementById('inputC')?.value) || 100;
+  const E = 9;
+  const T = R * C * 1e-6;
+  const tMax = Math.min(0.5, 6 * T);
+  const Imax = E / R;
 
-  drawCourbeUR('recapCourbeUR', R, L, E, T, tMax, modeCourbe);
-  drawCourbeUL('recapCourbeUL', R, L, E, T, tMax, modeCourbe);
+  drawCourbeUC('recapCourbeUC', R, C, E, T, tMax, modeCourbe);
+  drawCourbeI('recapCourbeI', R, C, E, T, tMax, Imax, modeCourbe);
 
-  courbesComparaison.forEach(({ R, L, couleur }) => {
-    const Tcomp = L / R;
-    drawCourbeComparaisonUR('recapCourbeUR', R, L, E, Tcomp, tMax, couleur);
+  courbesComparaison.forEach(({ R, C, couleur }) => {
+    const Tcomp = R * C * 1e-6;
+    drawCourbeComparaisonUC('recapCourbeUC', R, C, E, Tcomp, tMax, couleur);
   });
 }
 
-function drawCourbeUR(canvasId, R, L, E, T, tMax, mode) {
+function drawCourbeUC(canvasId, R, C, E, T, tMax, mode) {
   const c = document.getElementById(canvasId);
   if (!c) return;
   const ctx2 = c.getContext('2d');
@@ -2843,7 +2614,7 @@ function drawCourbeUR(canvasId, R, L, E, T, tMax, mode) {
   ctx2.fillStyle = '#000';
   ctx2.fillRect(0, 0, cw, ch);
 
-  ctx2.strokeStyle = 'rgba(255, 235, 59, 0.15)';
+  ctx2.strokeStyle = 'rgba(79, 195, 247, 0.15)';
   ctx2.lineWidth = 1;
   for (let i = 0; i <= 5; i++) {
     const y = mH + hauteur * i / 5;
@@ -2854,14 +2625,14 @@ function drawCourbeUR(canvasId, R, L, E, T, tMax, mode) {
     ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke();
   }
 
-  ctx2.strokeStyle = 'rgba(255, 235, 59, 0.7)';
+  ctx2.strokeStyle = 'rgba(79, 195, 247, 0.7)';
   ctx2.lineWidth = 1.5;
   ctx2.beginPath();
   ctx2.moveTo(mG, mH + hauteur); ctx2.lineTo(mG + largeur, mH + hauteur);
   ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
   ctx2.stroke();
 
-  ctx2.fillStyle = '#ffeb3b';
+  ctx2.fillStyle = '#4fc3f7';
   ctx2.font = 'bold 9px "Courier New", monospace';
   ctx2.textAlign = 'right';
   ctx2.textBaseline = 'middle';
@@ -2878,16 +2649,16 @@ function drawCourbeUR(canvasId, R, L, E, T, tMax, mode) {
     ctx2.fillText(t.toFixed(0), mG + largeur * i / 4, mH + hauteur + 4);
   }
 
-  ctx2.fillStyle = '#ffeb3b';
+  ctx2.fillStyle = '#4fc3f7';
   ctx2.font = 'bold 9px "Courier New", monospace';
   ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
   ctx2.fillText('V', cw - 4, 4);
   ctx2.textAlign = 'right'; ctx2.textBaseline = 'bottom';
   ctx2.fillText('ms', mG + largeur, ch - 4);
 
-  ctx2.strokeStyle = '#ffeb3b';
+  ctx2.strokeStyle = '#4fc3f7';
   ctx2.lineWidth = 2.5;
-  ctx2.shadowColor = '#ffeb3b';
+  ctx2.shadowColor = '#4fc3f7';
   ctx2.shadowBlur = 8;
   ctx2.beginPath();
   for (let i = 0; i <= 300; i++) {
@@ -2924,7 +2695,7 @@ function drawCourbeUR(canvasId, R, L, E, T, tMax, mode) {
   }
 }
 
-function drawCourbeUL(canvasId, R, L, E, T, tMax, mode) {
+function drawCourbeI(canvasId, R, C, E, T, tMax, Imax, mode) {
   const c = document.getElementById(canvasId);
   if (!c) return;
   const ctx2 = c.getContext('2d');
@@ -2932,14 +2703,12 @@ function drawCourbeUL(canvasId, R, L, E, T, tMax, mode) {
   const mG = 40, mD = 10, mH = 20, mB = 30;
   const largeur = cw - mG - mD;
   const hauteur = ch - mH - mB;
-  const Umax = E * 1.15;
-  const Umin = -E * 1.15;
-  const amplitude = Umax - Umin;
+  const Iplot = Imax * 1.15;
 
   ctx2.fillStyle = '#000';
   ctx2.fillRect(0, 0, cw, ch);
 
-  ctx2.strokeStyle = 'rgba(79, 195, 247, 0.15)';
+  ctx2.strokeStyle = 'rgba(233, 30, 99, 0.15)';
   ctx2.lineWidth = 1;
   for (let i = 0; i <= 5; i++) {
     const y = mH + hauteur * i / 5;
@@ -2950,51 +2719,46 @@ function drawCourbeUL(canvasId, R, L, E, T, tMax, mode) {
     ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke();
   }
 
-  const yZero = mH + hauteur * Umax / amplitude;
-
-  ctx2.strokeStyle = 'rgba(79, 195, 247, 0.7)';
+  ctx2.strokeStyle = 'rgba(233, 30, 99, 0.7)';
   ctx2.lineWidth = 1.5;
   ctx2.beginPath();
-  ctx2.moveTo(mG, yZero); ctx2.lineTo(mG + largeur, yZero);
+  ctx2.moveTo(mG, mH + hauteur); ctx2.lineTo(mG + largeur, mH + hauteur);
   ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
   ctx2.stroke();
 
-  ctx2.fillStyle = '#4fc3f7';
+  ctx2.fillStyle = '#e91e63';
   ctx2.font = 'bold 9px "Courier New", monospace';
   ctx2.textAlign = 'right';
   ctx2.textBaseline = 'middle';
   for (let i = 0; i <= 4; i++) {
-    const v = Umax - amplitude * i / 4;
+    const v = (Iplot * (1 - i / 4)) * 1000;
     const y = mH + hauteur * i / 4;
     ctx2.fillText(v.toFixed(1), mG - 3, y);
   }
 
-  ctx2.textAlign = 'center';
-  ctx2.textBaseline = 'top';
+  ctx2.textAlign = 'center'; ctx2.textBaseline = 'top';
   for (let i = 0; i <= 4; i++) {
     const t = tMax * i / 4 * 1000;
     ctx2.fillText(t.toFixed(0), mG + largeur * i / 4, mH + hauteur + 4);
   }
 
-  ctx2.fillStyle = '#4fc3f7';
+  ctx2.fillStyle = '#e91e63';
   ctx2.font = 'bold 9px "Courier New", monospace';
   ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
-  ctx2.fillText('V', cw - 4, 4);
+  ctx2.fillText('mA', cw - 4, 4);
   ctx2.textAlign = 'right'; ctx2.textBaseline = 'bottom';
   ctx2.fillText('ms', mG + largeur, ch - 4);
 
-  ctx2.strokeStyle = '#4fc3f7';
+  ctx2.strokeStyle = '#e91e63';
   ctx2.lineWidth = 2.5;
-  ctx2.shadowColor = '#4fc3f7';
+  ctx2.shadowColor = '#e91e63';
   ctx2.shadowBlur = 8;
   ctx2.beginPath();
   for (let i = 0; i <= 300; i++) {
     const t = tMax * i / 300;
-    let U;
-    if (mode === 'charge') U = E * Math.exp(-t / T);
-    else U = -E * Math.exp(-t / T);
+    const I = Imax * Math.exp(-t / T);
     const x = mG + largeur * t / tMax;
-    const y = mH + hauteur - hauteur * (U - Umin) / amplitude;
+    const y = mH + hauteur - hauteur * I / Iplot;
     if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
   }
   ctx2.stroke();
@@ -3002,8 +2766,8 @@ function drawCourbeUL(canvasId, R, L, E, T, tMax, mode) {
 
   if (T < tMax) {
     const xTau = mG + largeur * T / tMax;
-    const U_tau = mode === 'charge' ? E * 0.368 : -E * 0.368;
-    const yTau = mH + hauteur - hauteur * (U_tau - Umin) / amplitude;
+    const I_tau = Imax * 0.368;
+    const yTau = mH + hauteur - hauteur * I_tau / Iplot;
 
     ctx2.strokeStyle = '#ff9800';
     ctx2.lineWidth = 1.5;
@@ -3022,7 +2786,7 @@ function drawCourbeUL(canvasId, R, L, E, T, tMax, mode) {
   }
 }
 
-function drawCourbeComparaisonUR(canvasId, R, L, E, T, tMax, couleur) {
+function drawCourbeComparaisonUC(canvasId, R, C, E, T, tMax, couleur) {
   const c = document.getElementById(canvasId);
   if (!c) return;
   const ctx2 = c.getContext('2d');
@@ -3054,7 +2818,7 @@ function drawCourbeComparaisonUR(canvasId, R, L, E, T, tMax, couleur) {
 //  📊 MESURE INTERACTIVE DE τ
 // ============================================================
 function initTauInteractif() {
-  const canvas = document.getElementById('recapCourbeUR');
+  const canvas = document.getElementById('recapCourbeUC');
   if (!canvas || canvas.dataset.tauBound) return;
   canvas.dataset.tauBound = '1';
 
@@ -3067,7 +2831,7 @@ function initTauInteractif() {
     const mG = 40, mD = 10, mH = 20, mB = 30;
     const largeur = cw - mG - mD;
     const hauteur = ch - mH - mB;
-    const E = 6, tMax = 0.1, T = 0.01, Umax = E * 1.15;
+    const E = 9, tMax = 0.5, T = 0.1, Umax = E * 1.15;
 
     if (xClic < mG || xClic > mG + largeur || yClic < mH || yClic > mH + hauteur) return;
 
@@ -3102,10 +2866,10 @@ function initTauInteractif() {
     if (res) {
       res.classList.add('show');
       const ecart = Math.abs(meilleurT - T);
-      const reussi = ecart < 0.003;
-      res.innerHTML = `📌 Tu as cliqué à t ≈ <strong>${(meilleurT * 1000).toFixed(1)} ms</strong> — ` +
-        (reussi ? `🎯 Bravo ! Tu es tout près de <strong>τ = ${(T * 1000).toFixed(1)} ms</strong> !`
-                : `Regarde le marqueur orange : τ est à <strong>10 ms</strong> (${modeCourbe === 'charge' ? '63 %' : '37 %'} de I_max).`);
+      const reussi = ecart < 0.03;
+      res.innerHTML = `📌 Tu as cliqué à t ≈ <strong>${(meilleurT * 1000).toFixed(0)} ms</strong> — ` +
+        (reussi ? `🎯 Bravo ! Tu es tout près de <strong>τ = ${(T * 1000).toFixed(0)} ms</strong> !`
+                : `Regarde le marqueur orange : τ est à <strong>100 ms</strong> (${modeCourbe === 'charge' ? '63 %' : '37 %'} de E).`);
     }
     jouerSon('connect');
   });
@@ -3128,49 +2892,36 @@ function initCourbeVideSpecifique(id) {
   ctx2.textBaseline = 'alphabetic';
 }
 
-// ============================================================
-//  COURBES RL : U_R et U_L (Onglet Établissement vs Rupture)
-// ============================================================
-function drawCourbeRL(ctx2, cw, ch, type, grandeur = 'UR') {
+function drawCourbeTheorique(ctx2, cw, ch, type) {
   const mG = 50, mD = 20, mH = 30, mB = 35;
   const largeur = cw - mG - mD;
   const hauteur = ch - mH - mB;
-  const E = 6;
-  const tMax = 0.05;
-  const Umax = E * 1.1;
-  const Umin = -E * 0.6;
-  const amplitude = Umax - Umin;
-
+  const E = 9, tMax = 0.5, Umax = E * 1.1;
   ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
   ctx2.strokeStyle = 'rgba(76, 175, 80, 0.15)'; ctx2.lineWidth = 1;
   for (let i = 0; i <= 10; i++) { const y = mH + (hauteur * i / 10); ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
   for (let i = 0; i <= 10; i++) { const x = mG + (largeur * i / 10); ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
-
-  const yZero = mH + hauteur - hauteur * (-Umin) / amplitude;
   ctx2.strokeStyle = 'rgba(76, 175, 80, 0.6)'; ctx2.lineWidth = 1.5;
   ctx2.beginPath();
-  ctx2.moveTo(mG, yZero); ctx2.lineTo(mG + largeur, yZero);
+  ctx2.moveTo(mG, mH + hauteur); ctx2.lineTo(mG + largeur, mH + hauteur);
   ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
   ctx2.stroke();
-
   ctx2.fillStyle = '#4caf50'; ctx2.font = 'bold 10px "Courier New", monospace';
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'middle';
+  for (let i = 0; i <= 5; i++) {
+    const u = (Umax * i / 5);
+    const y = mH + hauteur - (hauteur * i / 5);
+    ctx2.fillText(u.toFixed(1) + ' V', mG - 6, y);
+  }
   ctx2.textAlign = 'center'; ctx2.textBaseline = 'top';
   for (let i = 0; i <= 5; i++) {
     const t = (tMax * i / 5);
     const x = mG + (largeur * i / 5);
     ctx2.fillText((t * 1000).toFixed(0) + ' ms', x, mH + hauteur + 6);
   }
-
-  ctx2.textAlign = 'right'; ctx2.textBaseline = 'middle';
-  for (let i = 0; i <= 5; i++) {
-    const u = Umax - (Umax - Umin) * i / 5;
-    const y = mH + hauteur * i / 5;
-    ctx2.fillText(u.toFixed(1) + ' V', mG - 6, y);
-  }
-
   ctx2.setLineDash([3, 3]); ctx2.strokeStyle = 'rgba(255, 213, 79, 0.4)'; ctx2.lineWidth = 1;
   for (let k = 1; k <= 5; k++) {
-    const tK = k * 0.01;
+    const tK = k * 0.1;
     if (tK > tMax) break;
     const xK = mG + (largeur * tK / tMax);
     ctx2.beginPath(); ctx2.moveTo(xK, mH); ctx2.lineTo(xK, mH + hauteur); ctx2.stroke();
@@ -3180,74 +2931,65 @@ function drawCourbeRL(ctx2, cw, ch, type, grandeur = 'UR') {
     ctx2.fillText(k + 'τ', xK, mH + 2);
   }
   ctx2.setLineDash([]);
-
   ctx2.strokeStyle = type === 'charge' ? '#ffeb3b' : '#ff9800';
   ctx2.lineWidth = 3;
   ctx2.shadowColor = type === 'charge' ? '#ffeb3b' : '#ff9800';
   ctx2.shadowBlur = 10;
   ctx2.beginPath();
-  const T = 0.01;
+  const T = 0.1;
   for (let i = 0; i <= 200; i++) {
     const t = (tMax * i / 200);
     let U;
-    if (grandeur === 'UR') {
-      if (type === 'charge') U = E * (1 - Math.exp(-t / T));
-      else U = E * Math.exp(-t / T);
-    } else {
-      if (type === 'charge') U = E * Math.exp(-t / T);
-      else U = -E * Math.exp(-t / T);
-    }
+    if (type === 'charge') U = E * (1 - Math.exp(-t / T));
+    else U = E * Math.exp(-t / T);
     const x = mG + (largeur * t / tMax);
-    const y = mH + hauteur - hauteur * (U - Umin) / amplitude;
+    const y = mH + hauteur - (hauteur * U / Umax);
     if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
   }
   ctx2.stroke(); ctx2.shadowBlur = 0;
-
   ctx2.fillStyle = type === 'charge' ? '#ffeb3b' : '#ff9800';
   ctx2.font = 'bold 11px "Courier New", monospace';
   ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
-  ctx2.fillText(grandeur === 'UR' ? 'U_R(t) [V]' : 'U_L(t) [V]', cw - 8, 8);
+  ctx2.fillText('U_C(t) [V]', cw - 8, 8);
 }
 
 let animCourbeRAF = null;
 
 function animerCourbe(type) {
   if (animCourbeRAF) cancelAnimationFrame(animCourbeRAF);
-  const T = 0.01, E = 6;
+  const T = 0.1, E = 9;
   const c1 = document.getElementById('courbeCharge');
   const c2 = document.getElementById('courbeDecharge');
-  const grandeur = mesureChoisie;
-
-  if (type === 'charge' || type === 'cycle') drawCourbeRL(c1.getContext('2d'), c1.width, c1.height, 'charge', grandeur);
-  if (type === 'decharge' || type === 'cycle') drawCourbeRL(c2.getContext('2d'), c2.width, c2.height, 'decharge', grandeur);
+  if (type === 'charge' || type === 'cycle') drawCourbeTheorique(c1.getContext('2d'), c1.width, c1.height, 'charge');
+  if (type === 'decharge' || type === 'cycle') drawCourbeTheorique(c2.getContext('2d'), c2.width, c2.height, 'decharge');
   if (type === 'charge') initCourbeVideSpecifique('courbeDecharge');
   if (type === 'decharge') initCourbeVideSpecifique('courbeCharge');
 
   let startTime = performance.now();
   function animer(now) {
     const elapsed = (now - startTime) / 1000;
-    let t = elapsed * 0.25;
+    let t = elapsed * 0.5;
     if (type === 'cycle') {
       const cycleT = elapsed % 2;
       if (cycleT < 1) {
-        const tc = cycleT * 0.25;
-        animerCourbeAvecProgression('courbeCharge', 'charge', tc, T, E, grandeur);
-        drawCourbeRL(c2.getContext('2d'), c2.width, c2.height, 'decharge', grandeur);
+        const tc = cycleT * 0.5;
+        animerCourbeAvecProgression('courbeCharge', 'charge', tc, T, E);
+        drawCourbeTheorique(c2.getContext('2d'), c2.width, c2.height, 'decharge');
       } else {
-        const td = (cycleT - 1) * 0.25;
-        animerCourbeAvecProgression('courbeDecharge', 'decharge', td, T, E, grandeur);
-        drawCourbeRL(c1.getContext('2d'), c1.width, c1.height, 'charge', grandeur);
+        const td = (cycleT - 1) * 0.5;
+        animerCourbeAvecProgression('courbeDecharge', 'decharge', td, T, E);
+        drawCourbeTheorique(c1.getContext('2d'), c1.width, c1.height, 'charge');
       }
     } else {
       const canvasId = type === 'charge' ? 'courbeCharge' : 'courbeDecharge';
-      animerCourbeAvecProgression(canvasId, type, t, T, E, grandeur);
+      animerCourbeAvecProgression(canvasId, type, t, T, E);
     }
     animCourbeRAF = requestAnimationFrame(animer);
   }
   animCourbeRAF = requestAnimationFrame(animer);
 }
 
-function animerCourbeAvecProgression(canvasId, type, t, T, E, grandeur) {
+function animerCourbeAvecProgression(canvasId, type, t, T, E) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
   const ctx2 = canvas.getContext('2d');
@@ -3255,15 +2997,9 @@ function animerCourbeAvecProgression(canvasId, type, t, T, E, grandeur) {
   const mG = 50, mD = 20, mH = 30, mB = 35;
   const largeur = cw - mG - mD;
   const hauteur = ch - mH - mB;
-  const tMax = 0.05;
-  const Umax = E * 1.1;
-  const Umin = -E * 0.6;
-  const amplitude = Umax - Umin;
-
-  drawCourbeRL(ctx2, cw, ch, type, grandeur);
-
-  ctx2.strokeStyle = '#fff';
-  ctx2.lineWidth = 4;
+  const tMax = 0.5, Umax = E * 1.1;
+  drawCourbeTheorique(ctx2, cw, ch, type);
+  ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 4;
   ctx2.shadowColor = type === 'charge' ? '#ffeb3b' : '#ff9800';
   ctx2.shadowBlur = 15;
   ctx2.beginPath();
@@ -3271,29 +3007,18 @@ function animerCourbeAvecProgression(canvasId, type, t, T, E, grandeur) {
   for (let i = 0; i <= nbPts; i++) {
     const tCur = (t * i / nbPts);
     let U;
-    if (grandeur === 'UR') {
-      if (type === 'charge') U = E * (1 - Math.exp(-tCur / T));
-      else U = E * Math.exp(-tCur / T);
-    } else {
-      if (type === 'charge') U = E * Math.exp(-tCur / T);
-      else U = -E * Math.exp(-tCur / T);
-    }
+    if (type === 'charge') U = E * (1 - Math.exp(-tCur / T));
+    else U = E * Math.exp(-tCur / T);
     const x = mG + (largeur * tCur / tMax);
-    const y = mH + hauteur - hauteur * (U - Umin) / amplitude;
+    const y = mH + hauteur - (hauteur * U / Umax);
     if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
   }
   ctx2.stroke(); ctx2.shadowBlur = 0;
-
   let UActuel;
-  if (grandeur === 'UR') {
-    if (type === 'charge') UActuel = E * (1 - Math.exp(-t / T));
-    else UActuel = E * Math.exp(-t / T);
-  } else {
-    if (type === 'charge') UActuel = E * Math.exp(-t / T);
-    else UActuel = -E * Math.exp(-t / T);
-  }
+  if (type === 'charge') UActuel = E * (1 - Math.exp(-t / T));
+  else UActuel = E * Math.exp(-t / T);
   const xP = mG + (largeur * Math.min(t, tMax) / tMax);
-  const yP = mH + hauteur - hauteur * (UActuel - Umin) / amplitude;
+  const yP = mH + hauteur - (hauteur * UActuel / Umax);
   const grad = ctx2.createRadialGradient(xP, yP, 2, xP, yP, 18);
   grad.addColorStop(0, type === 'charge' ? 'rgba(255, 235, 59, 0.9)' : 'rgba(255, 152, 0, 0.9)');
   grad.addColorStop(1, 'rgba(255, 235, 59, 0)');
@@ -3304,87 +3029,8 @@ function animerCourbeAvecProgression(canvasId, type, t, T, E, grandeur) {
   ctx2.beginPath(); ctx2.arc(xP, yP, 7, 0, Math.PI * 2); ctx2.fill(); ctx2.stroke();
 }
 
-// ============================================================
-//  LOI DES MAILLES : U_R + U_L = E
-// ============================================================
-function afficherLoiMailles() {
-  const canvas = document.getElementById('courbeCharge');
-  if (!canvas) return;
-  const ctx2 = canvas.getContext('2d');
-  const cw = canvas.width, ch = canvas.height;
-  const mG = 50, mD = 20, mH = 30, mB = 35;
-  const largeur = cw - mG - mD;
-  const hauteur = ch - mH - mB;
-  const E = 6, tMax = 0.05, T = 0.01;
-  const Umax = E * 1.2;
-
-  ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
-  ctx2.strokeStyle = 'rgba(76, 175, 80, 0.15)'; ctx2.lineWidth = 1;
-  for (let i = 0; i <= 10; i++) { const y = mH + (hauteur * i / 10); ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
-  for (let i = 0; i <= 10; i++) { const x = mG + (largeur * i / 10); ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
-  ctx2.strokeStyle = 'rgba(76, 175, 80, 0.6)'; ctx2.lineWidth = 1.5;
-  ctx2.beginPath(); ctx2.moveTo(mG, mH + hauteur); ctx2.lineTo(mG + largeur, mH + hauteur);
-  ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur); ctx2.stroke();
-
-  const gradX = (t) => mG + largeur * t / tMax;
-  const gradY = (u) => mH + hauteur - hauteur * u / Umax;
-
-  ctx2.strokeStyle = '#ffeb3b'; ctx2.lineWidth = 3;
-  ctx2.beginPath();
-  for (let i = 0; i <= 200; i++) {
-    const t = tMax * i / 200;
-    const U = E * (1 - Math.exp(-t / T));
-    const x = gradX(t), y = gradY(U);
-    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
-  }
-  ctx2.stroke();
-
-  ctx2.strokeStyle = '#4fc3f7'; ctx2.lineWidth = 3;
-  ctx2.beginPath();
-  for (let i = 0; i <= 200; i++) {
-    const t = tMax * i / 200;
-    const U = E * Math.exp(-t / T);
-    const x = gradX(t), y = gradY(U);
-    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
-  }
-  ctx2.stroke();
-
-  ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 2.5; ctx2.setLineDash([8, 5]);
-  ctx2.beginPath();
-  for (let i = 0; i <= 200; i++) {
-    const t = tMax * i / 200;
-    const U = E;
-    const x = gradX(t), y = gradY(U);
-    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
-  }
-  ctx2.stroke();
-  ctx2.setLineDash([]);
-
-  ctx2.font = 'bold 11px "Courier New", monospace';
-  ctx2.textAlign = 'left'; ctx2.textBaseline = 'top';
-  ctx2.fillStyle = '#ffeb3b'; ctx2.fillText('U_R(t)', mG + 10, mH + 5);
-  ctx2.fillStyle = '#4fc3f7'; ctx2.fillText('U_L(t)', mG + 10, mH + 22);
-  ctx2.fillStyle = '#fff'; ctx2.fillText('U_R + U_L = E = 6 V', mG + 10, mH + 39);
-
-  ctx2.fillStyle = '#4caf50'; ctx2.textAlign = 'center';
-  for (let i = 0; i <= 5; i++) {
-    const x = mG + largeur * i / 5;
-    ctx2.fillText((tMax * i / 5 * 1000).toFixed(0) + ' ms', x, mH + hauteur + 6);
-  }
-  ctx2.textAlign = 'right'; ctx2.textBaseline = 'middle';
-  for (let i = 0; i <= 5; i++) {
-    const u = Umax - Umax * i / 5;
-    ctx2.fillText(u.toFixed(1) + ' V', mG - 6, mH + hauteur * i / 5);
-  }
-
-  jouerSon('valide');
-}
-
-// ============================================================
-//  APPLICATIONS RL
-// ============================================================
 function voirAnimationAppli(type) {
-  const canvasId = { electroaimant: 'animElectroaimant', relais: 'animRelais', freinage: 'animFreinage', transformateur: 'animTransformateur' }[type];
+  const canvasId = { flash: 'animFlash', clignotant: 'animClignotant', minuterie: 'animMinuterie', supercaps: 'animSupercaps' }[type];
   const zone = document.getElementById('canvas-' + type);
   if (!zone) return;
   zone.classList.add('show');
@@ -3393,20 +3039,19 @@ function voirAnimationAppli(type) {
   let startTime = performance.now();
   function animer(now) {
     const elapsed = (now - startTime) / 1000;
-    drawAppliRL(canvas, type, elapsed);
+    drawAppli(canvas, type, elapsed);
     requestAnimationFrame(animer);
   }
   requestAnimationFrame(animer);
 }
 
-function drawAppliRL(canvas, type, elapsed) {
+function drawAppli(canvas, type, elapsed) {
   const ctx2 = canvas.getContext('2d');
   const cw = canvas.width, ch = canvas.height;
   const mG = 40, mD = 15, mH = 20, mB = 25;
   const largeur = cw - mG - mD;
   const hauteur = ch - mH - mB;
-  const E = 6, Umax = E * 1.1;
-
+  const E = 9, Umax = E * 1.1;
   ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
   ctx2.strokeStyle = 'rgba(76, 175, 80, 0.1)';
   for (let i = 0; i <= 10; i++) { const y = mH + (hauteur * i / 10); ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
@@ -3416,50 +3061,62 @@ function drawAppliRL(canvas, type, elapsed) {
   ctx2.moveTo(mG, mH + hauteur); ctx2.lineTo(mG + largeur, mH + hauteur);
   ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
   ctx2.stroke();
-
   ctx2.lineWidth = 2.5;
   ctx2.beginPath();
-  const tMax = 0.05;
+  const tMax = type === 'flash' ? 2 : (type === 'clignotant' ? 1 : 0.5);
   for (let i = 0; i <= 200; i++) {
     const t = (tMax * i / 200);
     let U;
-    if (type === 'electroaimant') {
-      U = E * (1 - Math.exp(-t / 0.01));
-    } else if (type === 'relais') {
-      const c = t % 0.04;
-      if (c < 0.02) U = E * (1 - Math.exp(-c / 0.004));
-      else U = E * Math.exp(-(c - 0.02) / 0.004);
-    } else if (type === 'freinage') {
-      U = E * Math.exp(-t / 0.02);
+    if (type === 'flash') {
+      if (t < 1.8) U = E * (1 - Math.exp(-t / 0.4));
+      else if (t < 1.9) U = E * Math.exp(-(t - 1.8) / 0.02);
+      else U = 0;
+    } else if (type === 'clignotant') {
+      const c = t % 1;
+      if (c < 0.5) U = E * (1 - Math.exp(-c / 0.1));
+      else U = E * Math.exp(-(c - 0.5) / 0.1);
+    } else if (type === 'minuterie') {
+      if (t < 0.5) U = E * (1 - Math.exp(-t / 0.1));
+      else U = E;
     } else {
-      U = Math.abs(E * Math.sin(2 * Math.PI * t / 0.02) * (1 - Math.exp(-t / 0.01)));
+      const c = t % 0.5;
+      if (c < 0.25) U = E * (1 - Math.exp(-c / 0.05));
+      else U = E * Math.exp(-(c - 0.25) / 0.05);
     }
     const x = mG + (largeur * t / tMax);
     const y = mH + hauteur - (hauteur * U / Umax);
     if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
   }
-  ctx2.strokeStyle = type === 'electroaimant' ? '#ff5722' : (type === 'relais' ? '#4fc3f7' : (type === 'freinage' ? '#9c27b0' : '#ffeb3b'));
-  ctx2.shadowColor = ctx2.strokeStyle;
-  ctx2.shadowBlur = 10;
+  ctx2.strokeStyle = type === 'flash' ? '#ffeb3b' : (type === 'clignotant' ? '#ff9800' : (type === 'minuterie' ? '#4caf50' : '#42a5f5'));
+  ctx2.shadowColor = ctx2.strokeStyle; ctx2.shadowBlur = 10;
   ctx2.stroke(); ctx2.shadowBlur = 0;
-
   const tActuel = elapsed % tMax;
   let UActuel;
-  if (type === 'electroaimant') UActuel = E * (1 - Math.exp(-tActuel / 0.01));
-  else if (type === 'relais') { const c = tActuel % 0.04; UActuel = c < 0.02 ? E * (1 - Math.exp(-c / 0.004)) : E * Math.exp(-(c - 0.02) / 0.004); }
-  else if (type === 'freinage') UActuel = E * Math.exp(-tActuel / 0.02);
-  else UActuel = Math.abs(E * Math.sin(2 * Math.PI * tActuel / 0.02) * (1 - Math.exp(-tActuel / 0.01)));
-
+  if (type === 'flash') {
+    if (tActuel < 1.8) UActuel = E * (1 - Math.exp(-tActuel / 0.4));
+    else if (tActuel < 1.9) UActuel = E * Math.exp(-(tActuel - 1.8) / 0.02);
+    else UActuel = 0;
+  } else if (type === 'clignotant') {
+    const c = tActuel % 1;
+    if (c < 0.5) UActuel = E * (1 - Math.exp(-c / 0.1));
+    else UActuel = E * Math.exp(-(c - 0.5) / 0.1);
+  } else if (type === 'minuterie') {
+    if (tActuel < 0.5) UActuel = E * (1 - Math.exp(-tActuel / 0.1));
+    else UActuel = E;
+  } else {
+    const c = tActuel % 0.5;
+    if (c < 0.25) UActuel = E * (1 - Math.exp(-c / 0.05));
+    else UActuel = E * Math.exp(-(c - 0.25) / 0.05);
+  }
   const xP = mG + (largeur * tActuel / tMax);
   const yP = mH + hauteur - (hauteur * UActuel / Umax);
   ctx2.fillStyle = ctx2.strokeStyle;
   ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 2;
   ctx2.beginPath(); ctx2.arc(xP, yP, 5, 0, Math.PI * 2); ctx2.fill(); ctx2.stroke();
-
   ctx2.fillStyle = '#4caf50';
   ctx2.font = 'bold 10px "Courier New", monospace';
   ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
-  ctx2.fillText('i(t)', cw - 8, 8);
+  ctx2.fillText('U_C(t)', cw - 8, 8);
 }
 
 // ============================================================
@@ -3495,9 +3152,9 @@ function validerQCM(num) {
   });
   const estCorrect = rep === bonneReponse.dataset.value;
   const explications = {
-    1: "On mesure U_R car U_R = R·i. La tension aux bornes de la résistance est directement PROPORTIONNELLE au courant : en observant U_R, on observe i(t) × R. Aux bornes de la bobine, U_L = L·di/dt ne donne pas directement le courant.",
-    2: "τ = L / R = 2 / 200 = 0,01 s = 10 ms. Ne pas confondre avec τ = R × C du circuit RC !",
-    3: "τ = L / R. Si R augmente (L constant), τ DIMINUE. Le courant s'établit plus rapidement car la résistance freine davantage le courant."
+    1: "L'interrupteur doit être ouvert au départ pour éviter que le condensateur se charge dès le branchement. On le ferme uniquement au moment de l'expérience (t = 0).",
+    2: "Un voltmètre (et donc l'oscilloscope) se branche toujours EN DÉRIVATION sur le composant dont on veut mesurer la tension. Le brancher en série empêcherait le courant de circuler.",
+    3: "On mesure U_C car c'est la tension aux bornes du condensateur qui nous intéresse pour tracer sa courbe de charge."
   };
   if (estCorrect) {
     item.classList.add('correct');
@@ -3520,7 +3177,7 @@ function validerQCM(num) {
 // ============================================================
 //  CONCLUSION
 // ============================================================
-const STORAGE_KEY = 'tp_rl_conclusion_v1';
+const STORAGE_KEY = 'tp_rc_conclusion_v1';
 
 function chargerConclusionDepuisStorage() {
   try {
@@ -3568,39 +3225,39 @@ function verifierConclusion() {
     5: document.getElementById('concl-5').value.trim().toLowerCase()
   };
   const accepte = {
-    1: ['10ms', '0.01s', '0,01s', '10e-3s', '1e-2s'],
-    2: ['0.038a', '0,038a', '0.0378a', '0.038', '38ma', '37.8ma', '0.0378', '63%', '0.63*0.06'],
-    3: ['0.022a', '0,022a', '0.0222a', '0.022', '22ma', '22.2ma', '0.0222', '37%', '0.37*0.06'],
-    4: ['lent'],
+    1: ['100ms', '0.1s', '0,1s', '100e-3s', '1e-1s'],
+    2: ['5.67v', '5,7v', '5.7v', '5.6v', '5.67', '5.7', '5.6', '63%', '0.63*9'],
+    3: ['3.33v', '3,3v', '3.3v', '3.32v', '3.33', '3.3', '37%', '0.37*9'],
+    4: ['lente'],
     5: null
   };
   let score = 0;
   const total = 5;
 
   const ok1 = accepte[1].some(r => reponses[1].includes(r));
-  marquerChamp(1, ok1, ok1 ? '✅ Exact ! τ = L / R = 1 / 100 = 0,01 s = 10 ms.' : '❌ τ = L / R = 1 H / 100 Ω = 0,01 s = 10 ms.');
+  marquerChamp(1, ok1, ok1 ? '✅ Exact ! τ = R × C = 1000 × 100×10⁻⁶ = 0,1 s = 100 ms.' : '❌ τ = R × C = 1000 Ω × 100×10⁻⁶ F = 0,1 s = 100 ms.');
   if (ok1) score++;
 
   const ok2 = accepte[2].some(r => reponses[2].includes(r));
-  marquerChamp(2, ok2, ok2 ? '✅ Exact ! I_max = E/R = 6/100 = 0,06 A. i(τ) ≈ 0,63 × 0,06 = 0,038 A.' : '❌ I_max = E/R = 0,06 A. i(τ) = I_max × (1 − e⁻¹) ≈ 0,63 × 0,06 = 0,038 A (38 mA).');
+  marquerChamp(2, ok2, ok2 ? '✅ Exact ! U_C(τ) = 9 × (1 − e⁻¹) ≈ 5,7 V, soit 63 % de E.' : '❌ U_C(τ) = E × (1 − e⁻¹) ≈ 0,63 × 9 ≈ 5,7 V (63 % de E).');
   if (ok2) score++;
 
   const ok3 = accepte[3].some(r => reponses[3].includes(r));
-  marquerChamp(3, ok3, ok3 ? '✅ Exact ! i(τ) = I_max × e⁻¹ ≈ 0,37 × 0,06 = 0,022 A.' : '❌ i(τ) = I_max × e⁻¹ ≈ 0,37 × 0,06 = 0,022 A (22 mA).');
+  marquerChamp(3, ok3, ok3 ? '✅ Exact ! U_C(τ) = 9 × e⁻¹ ≈ 3,3 V, soit 37 % de E.' : '❌ U_C(τ) = E × e⁻¹ ≈ 0,37 × 9 ≈ 3,3 V (37 % de E).');
   if (ok3) score++;
 
-  const ok4 = reponses[4] === 'lent';
-  marquerChamp(4, ok4, ok4 ? '✅ Exact ! Plus τ est grand, plus l\'établissement du courant est lent.' : '❌ Plus τ est grand, plus l\'établissement du courant est LENT.');
+  const ok4 = reponses[4] === 'lente';
+  marquerChamp(4, ok4, ok4 ? '✅ Exact ! Plus τ est grand, plus la charge est lente.' : '❌ Plus τ est grand, plus la charge est LENTE.');
   if (ok4) score++;
 
   const ok5 = reponses[5].length >= 3;
-  marquerChamp(5, ok5, ok5 ? '✅ Bien ! Cette application utilise bien un circuit RL.' : '❌ Réponse trop courte. Cite une application vue dans l\'onglet « Applications ».');
+  marquerChamp(5, ok5, ok5 ? '✅ Bien ! Cette application utilise bien un circuit RC.' : '❌ Réponse trop courte. Cite une application vue dans l\'onglet « Applications ».');
   if (ok5) score++;
 
   const resultat = document.getElementById('conclusionResultat');
   resultat.className = 'conclusion-resultat show ' + (score === total ? 'success' : 'partiel');
   if (score === total) {
-    resultat.innerHTML = `<strong>🎉 Parfait ! ${score}/${total} — Ta conclusion est complète.</strong><br>Tu as bien compris le comportement du circuit RL et la signification de la constante de temps τ.`;
+    resultat.innerHTML = `<strong>🎉 Parfait ! ${score}/${total} — Ta conclusion est complète.</strong><br>Tu as bien compris le comportement du circuit RC et la signification de la constante de temps τ.`;
   } else {
     resultat.innerHTML = `<strong>📊 Score : ${score}/${total}</strong><br>Corrige les réponses marquées en rouge, puis revalide.`;
   }
@@ -3622,26 +3279,26 @@ function afficherConclusionFinale(rep, score, total) {
   const texte = document.getElementById('conclusionTexte');
   const appli = document.getElementById('concl-5').value.trim();
   texte.innerHTML = `
-<strong>Conclusion du TP RL</strong>
+<strong>Conclusion du TP RC</strong>
 
-Nous avons réalisé un circuit RL composé d'une pile (E = 6 V), d'une résistance
-(R = 100 Ω), d'une bobine (L = 1 H) et d'un interrupteur K. L'oscilloscope,
-branché en dérivation aux bornes de la résistance, nous a permis d'observer
-la courbe du courant i(t) pendant l'établissement et la rupture.
+Nous avons réalisé un circuit RC composé d'une pile (E = 9 V), d'une résistance
+(R = 1 kΩ), d'un condensateur (C = 100 µF) et d'un interrupteur K. L'oscilloscope,
+branché en dérivation aux bornes du condensateur, nous a permis de tracer la
+courbe U_C(t) lors de la charge et de la décharge.
 
 La constante de temps théorique du circuit est :
-<strong>τ = L / R = 1 / 100 = 0,01 s = 10 ms</strong>.
+<strong>τ = R × C = 1000 × 100×10⁻⁶ = 0,1 s = 100 ms</strong>.
 
-À t = τ, lors de l'<strong>établissement</strong>, le courant atteint 63 % de I_max = E/R = 0,06 A,
-soit environ <strong>0,038 A</strong> (38 mA). Lors de la <strong>rupture</strong>, il
-redescend à 37 % de I_max, soit environ <strong>0,022 A</strong> (22 mA).
+À t = τ, lors de la <strong>charge</strong>, la tension aux bornes du condensateur
+atteint 63 % de E, soit environ <strong>5,7 V</strong>. Lors de la <strong>décharge</strong>,
+elle est descendue à 37 % de E, soit environ <strong>3,3 V</strong>.
 
-Nous avons observé que plus la constante de temps τ est grande, plus l'établissement
-(et la rupture) du courant est <strong>lent</strong>.
+Nous avons observé que plus la constante de temps τ est grande, plus la charge
+(et la décharge) du condensateur est <strong>lente</strong>.
 
-Cette expérience nous a permis de vérifier la relation <strong>τ = L / R</strong>
-et de comprendre le rôle de la bobine dans de nombreuses applications
-pratiques telles que ${appli ? '<strong>' + appli + '</strong>' : 'les électroaimants, les relais et les transformateurs'}.
+Cette expérience nous a permis de vérifier la relation <strong>τ = R × C</strong>
+et de comprendre le rôle du condensateur dans de nombreuses applications
+pratiques telles que ${appli ? '<strong>' + appli + '</strong>' : 'le flash d\'un appareil photo, le clignotant d\'une voiture ou les minuteries'}.
 
 <em>Score obtenu : ${score}/${total}</em>
   `.trim();
@@ -3672,17 +3329,54 @@ function reinitialiserConclusion() {
 function imprimerConclusion() {
   const texte = document.getElementById('conclusionTexte').innerText;
   const fenetre = window.open('', '_blank');
-  fenetre.document.write(`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
-    <title>Ma conclusion — TP RL</title>
+  fenetre.document.write(`
+    <!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+    <title>Ma conclusion — TP RC</title>
     <style>
       body { font-family: Georgia, serif; max-width: 700px; margin: 40px auto; padding: 20px; line-height: 1.7; color: #1a1a1a; }
       h1 { font-size: 22px; border-bottom: 2px solid #A8853F; padding-bottom: 10px; }
       pre { white-space: pre-wrap; font-family: Georgia, serif; font-size: 14.5px; }
       @media print { body { margin: 20px; } }
     </style></head><body>
-    <h1>✍️ Ma conclusion — TP RL</h1>
+    <h1>✍️ Ma conclusion — TP RC</h1>
     <pre>${texte.replace(/</g, '&lt;')}</pre>
-</body></html>`);
+    <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+    authDomain: "lfakm-87dec.firebaseapp.com",
+    projectId: "lfakm-87dec",
+    storageBucket: "lfakm-87dec.firebasestorage.app",
+    messagingSenderId: "739517262614",
+    appId: "1:739517262614:web:14abd3538427960c527e37"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  onAuthStateChanged(auth, (user) => {
+    // ⚠️ Si une redirection mobile est en cours, on ne fait rien
+    if (window.__lfakmRedirectingMobile) {
+      document.body.classList.add('auth-ok');
+      return;
+    }
+
+    if (!user) {
+      setTimeout(() => {
+        if (!auth.currentUser) {
+          const cible = encodeURIComponent(window.location.pathname + window.location.search);
+          window.location.replace('../identification.html?redirect=' + cible);
+        }
+      }, 300);
+    } else {
+      document.body.classList.add('auth-ok');
+    }
+  });
+</script>
+</body></html>
+  `);
   fenetre.document.close();
   setTimeout(() => fenetre.print(), 400);
 }
@@ -3693,7 +3387,7 @@ function telechargerConclusion() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'conclusion_tp_rl.txt';
+  a.download = 'conclusion_tp_rc.txt';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -3701,12 +3395,12 @@ function telechargerConclusion() {
 }
 
 // ============================================================
-//  CERTIFICAT
+//  🎓 CERTIFICAT
 // ============================================================
 function genererCertificat() {
   const nom = (document.getElementById('certificatNom').value || '').trim() || 'Élève';
   const date = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-  const tauVal = document.getElementById('valeurTau')?.textContent || '10 ms';
+  const tauVal = document.getElementById('valeurTau')?.textContent || '100 ms';
   const qcmScore = Object.values(qcmValides).filter(v => v).length + '/3';
   const conclusion = document.getElementById('conclusionTexte')?.innerText || '—';
 
@@ -3719,7 +3413,7 @@ function genererCertificat() {
   const fenetre = window.open('', '_blank');
   fenetre.document.write(`
     <!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
-    <title>Certificat — TP RL</title>
+    <title>Certificat — TP RC</title>
     <style>
       @page { size: A4; margin: 15mm; }
       body { font-family: Georgia, serif; color: #1a1a1a; line-height: 1.6; }
@@ -3736,7 +3430,7 @@ function genererCertificat() {
       .case .val { font-size: 16px; color: #1B2A4A; font-family: 'Courier New', monospace; font-weight: bold; margin-top: 3px; }
       .montage-zone { text-align: center; margin: 25px 0; }
       .montage-zone h3 { font-size: 14px; color: #1B2A4A; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-      .montage-zone img { max-width: 100%; border: 2px solid #B87333; border-radius: 8px; }
+      .montage-zone img { max-width: 100%; border: 2px solid #4fc3f7; border-radius: 8px; }
       .conclusion-bloc { background: #F7F5F0; padding: 18px 22px; border-radius: 6px; font-size: 13px; line-height: 1.6; margin: 20px 0; }
       .conclusion-bloc h3 { font-size: 14px; color: #1B2A4A; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
       .signatures { display: flex; justify-content: space-between; margin-top: 40px; font-size: 13px; }
@@ -3751,19 +3445,19 @@ function genererCertificat() {
         <h1>🏫 Lycée Franco-Arabe de Kermadiabel</h1>
         <p>Département de Physique-Chimie — Travaux Pratiques</p>
       </div>
-      <div class="titre-cert">CERTIFICAT DE RÉUSSITE — TP RL</div>
+      <div class="titre-cert">CERTIFICAT DE RÉUSSITE</div>
       <div class="nom">${nom}</div>
       <div class="intro">
-        a réalisé avec succès l'ensemble des étapes du <strong>TP sur le circuit RL</strong>
-        (établissement et rupture du courant dans une bobine), dans le cadre du programme de Physique-Chimie.
+        a réalisé avec succès l'ensemble des étapes du <strong>TP sur le circuit RC</strong>
+        (charge et décharge d'un condensateur), dans le cadre du programme de Physique-Chimie.
       </div>
       <div class="grille">
         <div class="case"><div class="lab">Constante de temps τ</div><div class="val">${tauVal}</div></div>
         <div class="case"><div class="lab">Score QCM</div><div class="val">${qcmScore}</div></div>
         <div class="case"><div class="lab">Date</div><div class="val">${date}</div></div>
-        <div class="case"><div class="lab">Relation vérifiée</div><div class="val">τ = L / R</div></div>
+        <div class="case"><div class="lab">Relation vérifiée</div><div class="val">τ = R × C</div></div>
       </div>
-      ${montageImg ? ('<div class="montage-zone"><h3>📸 Montage réalisé</h3><img src="' + montageImg + '" alt="Montage"></div>') : ''}
+      ${montageImg ? '<div class="montage-zone"><h3>📸 Montage réalisé</h3><img src="' + montageImg + '" alt="Montage"></div>' : ''}
       <div class="conclusion-bloc">
         <h3>📝 Conclusion de l'élève</h3>
         <div>${conclusion.replace(/</g, '&lt;').substring(0, 800)}</div>
@@ -3772,107 +3466,72 @@ function genererCertificat() {
         <div class="signature"><div class="ligne">Signature de l'élève</div></div>
         <div class="signature"><div class="ligne">Signature du professeur</div></div>
       </div>
-      <div class="pied">Ce certificat atteste de la réalisation complète du TP RL — Simulateur numérique LFAKM</div>
+      <div class="pied">Ce certificat atteste de la réalisation complète du TP RC — Simulateur numérique LFAKM</div>
     </div>
     <div class="no-print"><button onclick="window.print()">🖨️ Imprimer / Enregistrer en PDF</button></div>
     </body></html>
-    <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
-      authDomain: "lfakm-87dec.firebaseapp.com",
-      projectId: "lfakm-87dec",
-      storageBucket: "lfakm-87dec.firebasestorage.app",
-      messagingSenderId: "739517262614",
-      appId: "1:739517262614:web:14abd3538427960c527e37"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    onAuthStateChanged(auth, (user) => {
-      if (window.__lfakmRedirectingMobile) {
-        document.body.classList.add('auth-ok');
-        return;
-      }
-      if (!user) {
-        setTimeout(() => {
-          if (!auth.currentUser) {
-            const cible = encodeURIComponent(window.location.pathname + window.location.search);
-            window.location.replace('../identification.html?redirect=' + cible);
-          }
-        }, 300);
-      } else {
-        document.body.classList.add('auth-ok');
-      }
-    });
-  </script>
-</body>
-</html>
   `);
   fenetre.document.close();
   jouerSon('jingle');
 }
 
 // ============================================================
-//  EXERCICES GUIDÉS
+//  🧮 EXERCICES GUIDÉS
 // ============================================================
 function verifierExo1() {
   const rep = document.getElementById('exo1-rep').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, '');
   const fb = document.getElementById('exo1-fb');
   const input = document.getElementById('exo1-rep');
-  const ok = ['10ms', '0.01s', '0,01s', '10e-3s', '0.01', '10'].some(r => rep === r);
+  const ok = ['100ms', '0.1s', '0,1s', '100e-3s', '100'].some(r => rep === r);
   input.classList.remove('correct', 'incorrect');
   input.classList.add(ok ? 'correct' : 'incorrect');
   fb.className = 'exercice-feedback show ' + (ok ? 'success' : 'error');
   if (ok) {
-    fb.innerHTML = `<strong>✅ Bravo !</strong> τ = L / R = 2 / 200 = 0,01 s = <strong>10 ms</strong>.<br>💡 Le courant s'établit lentement à cause de la bobine.`;
+    fb.innerHTML = `<strong>✅ Bravo !</strong> τ = R × C = 2000 × 50×10⁻⁶ = 0,1 s = <strong>100 ms</strong>.<br>💡 Même τ que le TP ! (R doublée, C divisée par 2 → produit inchangé)`;
     document.getElementById('exo-1').classList.add('reussi');
     jouerSon('valide');
   } else {
-    fb.innerHTML = `<strong>❌ Presque !</strong> Rappel :<br>τ = L / R = <strong>2 H</strong> / <strong>200 Ω</strong> = 0,01 s = <strong>10 ms</strong>.`;
+    fb.innerHTML = `<strong>❌ Presque !</strong> Rappel :<br>τ = R × C = <strong>2000 Ω</strong> × <strong>50×10⁻⁶ F</strong> = 0,1 s = <strong>100 ms</strong>.<br>N'oublie pas de convertir R en ohms et C en farads !`;
     document.getElementById('exo-1').classList.add('echoue');
     jouerSon('erreur');
   }
 }
 
 function verifierExo2() {
-  const rep = document.getElementById('exo2-rep').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, '').replace('a', '');
+  const rep = document.getElementById('exo2-rep').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, '').replace('v', '');
   const fb = document.getElementById('exo2-fb');
   const input = document.getElementById('exo2-rep');
-  const vals = ['0.038', '0.0378', '0.038', '38', '0.04'];
+  const vals = ['3.79', '3.8', '3.78', '3.7'];
   const ok = vals.some(r => rep === r || rep.startsWith(r));
   input.classList.remove('correct', 'incorrect');
   input.classList.add(ok ? 'correct' : 'incorrect');
   fb.className = 'exercice-feedback show ' + (ok ? 'success' : 'error');
   if (ok) {
-    fb.innerHTML = `<strong>✅ Exact !</strong> I_max = E/R = 12/200 = 0,06 A. i(τ) ≈ 0,63 × 0,06 = <strong>0,038 A = 38 mA</strong>.`;
+    fb.innerHTML = `<strong>✅ Exact !</strong> U_C(τ) = E × (1 − e⁻¹) ≈ 6 × 0,63 ≈ <strong>3,79 V</strong>.<br>💡 C'est bien 63 % de E : 0,63 × 6 = 3,78 V.`;
     document.getElementById('exo-2').classList.add('reussi');
     jouerSon('valide');
   } else {
-    fb.innerHTML = `<strong>❌ Rappel :</strong> I_max = E/R = 12/200 = 0,06 A.<br>i(τ) = I_max × (1 − e⁻¹) ≈ 0,63 × 0,06 = <strong>0,038 A (38 mA)</strong>.`;
+    fb.innerHTML = `<strong>❌ Rappel :</strong> U_C(τ) = E × (1 − e⁻¹).<br>Or e⁻¹ ≈ 0,37, donc (1 − e⁻¹) ≈ <strong>0,63</strong>.<br>Donc U_C(τ) ≈ 0,63 × 6 = <strong>3,79 V</strong>.`;
     document.getElementById('exo-2').classList.add('echoue');
     jouerSon('erreur');
   }
 }
 
 function verifierExo3() {
-  const rep = document.getElementById('exo3-rep').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, '').replace('j', '');
+  const rep = document.getElementById('exo3-rep').value.trim().toLowerCase().replace(',', '.').replace(/\s/g, '');
   const fb = document.getElementById('exo3-fb');
   const input = document.getElementById('exo3-rep');
-  const vals = ['2.25', '2,25', '2.3'];
-  const ok = vals.some(r => rep === r || rep.startsWith(r));
+  const vals = ['5k', '5kohm', '5000', '5000ohm'];
+  const ok = vals.some(r => rep.includes(r));
   input.classList.remove('correct', 'incorrect');
   input.classList.add(ok ? 'correct' : 'incorrect');
   fb.className = 'exercice-feedback show ' + (ok ? 'success' : 'error');
   if (ok) {
-    fb.innerHTML = `<strong>✅ Bravo !</strong> E_mag = ½ × L × i² = ½ × 0,5 × 3² = ½ × 0,5 × 9 = <strong>2,25 J</strong>.`;
+    fb.innerHTML = `<strong>✅ Bravo !</strong> R = τ / C = 0,5 / (100×10⁻⁶) = 5000 Ω = <strong>5 kΩ</strong>.<br>💡 Vérification : 5000 × 100×10⁻⁶ = 0,5 s ✓`;
     document.getElementById('exo-3').classList.add('reussi');
     jouerSon('valide');
   } else {
-    fb.innerHTML = `<strong>❌ Rappel :</strong> E_mag = ½ × L × i².<br>E_mag = ½ × 0,5 × 3² = ½ × 0,5 × 9 = <strong>2,25 J</strong>.`;
+    fb.innerHTML = `<strong>❌ Rappel :</strong> τ = R × C → R = τ / C.<br>R = 0,5 / (100×10⁻⁶) = 0,5 / 0,0001 = <strong>5000 Ω = 5 kΩ</strong>.`;
     document.getElementById('exo-3').classList.add('echoue');
     jouerSon('erreur');
   }
@@ -3903,7 +3562,7 @@ window.addEventListener('load', () => {
     }
   });
 
-  console.log('✅ Simulateur RL V7.0 — Boutons ÉTABLISSEMENT/RUPTURE + 2 courbes simultanées');
+  console.log('✅ Simulateur RC V7.0 — Boutons CHARGE/DÉCHARGE + 2 courbes simultanées');
 });
 
 if (!CanvasRenderingContext2D.prototype.roundRect) {

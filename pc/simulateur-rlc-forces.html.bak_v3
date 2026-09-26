@@ -1,0 +1,3751 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TP RLC forcé — Oscillations électriques forcées | LFAKM</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="manifest" href="../assets/manifest.json">
+<meta name="theme-color" content="#0f766e">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
+    --slate: #5B6472; --line: rgba(27,42,74,0.14);
+    --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --success: #2e7d32; --warning: #f39c12; --danger: #d9534f; --info: #3498db;
+    --rlc: #0f766e; --rlc-light: #5eead4; --rlc-dark: #134e4a;
+    --gbf: #7c3aed; --gbf-light: #a78bfa;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { overflow-x: hidden; max-width: 100vw; }
+  body { font-family: var(--sans); background: var(--paper); color: #1a1a1a; line-height: 1.55; min-height: 100vh; }
+  .top-nav { background: var(--ink-deep); color: #fff; padding: 8px 20px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .top-nav .nav-links { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
+  .top-nav a { color: #fff; text-decoration: none; font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: 4px; transition: background 0.2s; }
+  .top-nav a:hover { background: rgba(255,255,255,0.15); }
+  .top-nav .title { font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--gbf-light); }
+  .top-nav .son-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; font-size: 16px; padding: 4px 10px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+  .top-nav .son-btn:hover { background: rgba(255,255,255,0.25); }
+  .top-nav .son-btn.off { opacity: 0.4; }
+  .steps-bar { background: #fff; padding: 15px 20px; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .steps-container { max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; position: relative; gap: 8px; }
+  .steps-container::before { content: ''; position: absolute; top: 22px; left: 40px; right: 40px; height: 2px; background: var(--line); z-index: 0; }
+  .step-item { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; position: relative; z-index: 1; flex: 1; transition: opacity 0.2s; min-width: 0; }
+  .step-item.locked { cursor: not-allowed; opacity: 0.5; }
+  .step-circle { width: 44px; height: 44px; border-radius: 50%; background: #fff; border: 3px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: var(--slate); transition: all 0.3s; flex-shrink: 0; }
+  .step-item.active .step-circle { border-color: var(--gbf); background: var(--gbf); color: #fff; box-shadow: 0 0 0 6px rgba(124, 58, 237, 0.15); }
+  .step-item.done .step-circle { border-color: var(--success); background: var(--success); color: #fff; }
+  .step-label { font-size: 11px; font-weight: 700; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; text-align: center; transition: color 0.2s; white-space: nowrap; }
+  .step-item.active .step-label { color: var(--gbf); }
+  .step-item.done .step-label { color: var(--success); }
+  @media (max-width: 700px) {
+    .step-label { font-size: 9px; }
+    .step-circle { width: 34px; height: 34px; font-size: 14px; }
+    .steps-container::before { top: 17px; left: 25px; right: 25px; }
+  }
+  .main-content { max-width: 1100px; margin: 0 auto; padding: 30px 20px 60px; width: 100%; overflow-x: hidden; }
+  .etape { display: none; }
+  .etape.active { display: block; animation: fadeIn 0.4s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .etape-header { text-align: center; margin-bottom: 30px; }
+  .etape-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gbf); margin-bottom: 8px; }
+  .etape-title { font-family: var(--serif); font-size: 32px; color: var(--ink); margin-bottom: 10px; }
+  .etape-subtitle { font-size: 15px; color: var(--slate); max-width: 720px; margin: 0 auto; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+  .card-title { font-family: var(--serif); font-size: 20px; color: var(--ink); margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+  .card-title .icon { font-size: 26px; }
+  .card-subtitle { font-size: 13px; color: var(--slate); margin-bottom: 20px; }
+  .objectif-box { background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%); border-left: 5px solid var(--gbf); border-radius: 8px; padding: 18px 20px; margin-bottom: 20px; }
+  .objectif-box .label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gbf); margin-bottom: 6px; }
+  .objectif-box .text { font-size: 15px; color: var(--ink); line-height: 1.6; }
+  .composants-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; max-width: 100%; }
+  .composant-card { background: #f9f7f2; border: 2px solid var(--line); border-radius: 10px; padding: 18px 15px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; }
+  .composant-card:hover { border-color: var(--gbf); background: #fff; transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,0.08); }
+  .composant-card .symbol { font-size: 42px; margin-bottom: 8px; display: block; line-height: 1; }
+  .composant-card .name { font-weight: 700; font-size: 14px; color: var(--ink); margin-bottom: 4px; }
+  .composant-card .value { font-size: 12px; color: var(--gbf); font-weight: 700; font-family: 'Courier New', monospace; }
+  .composant-card .click-hint { position: absolute; top: 6px; right: 8px; font-size: 10px; color: var(--slate); opacity: 0.6; }
+  .notions-list { list-style: none; padding: 0; }
+  .notions-list li { padding: 12px 15px 12px 45px; background: #f9f7f2; border-radius: 8px; margin-bottom: 8px; font-size: 14px; line-height: 1.5; position: relative; color: var(--ink); }
+  .notions-list li::before { content: '✓'; position: absolute; left: 15px; top: 12px; color: var(--gbf); font-weight: 800; font-size: 18px; }
+  .notions-list li strong { color: var(--gbf); font-family: 'Courier New', monospace; }
+  .actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 30px; flex-wrap: wrap; }
+  @media (max-width: 600px) { .actions { flex-direction: column; } .actions .btn { width: 100%; } }
+  .btn { padding: 14px 28px; border-radius: 10px; border: none; font-family: var(--sans); font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; justify-content: center; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary { background: linear-gradient(135deg, var(--rlc) 0%, var(--rlc-dark) 100%); color: #fff; box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3); }
+  .btn-primary:hover:not(:disabled) { transform: translateY(-2px); }
+  .btn-secondary { background: #fff; color: var(--ink); border: 2px solid var(--line); }
+  .btn-secondary:hover:not(:disabled) { border-color: var(--rlc); color: var(--rlc); }
+  .btn-gbf { background: linear-gradient(135deg, var(--gbf) 0%, #5b21b6 100%); color: #fff; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3); }
+  .btn-gbf:hover:not(:disabled) { transform: translateY(-2px); }
+
+  .regime-box { background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%); border: 2px solid var(--gbf); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+  .regime-box h4 { font-family: var(--serif); font-size: 18px; color: #5b21b6; margin-bottom: 8px; }
+  .regime-box .intro { font-size: 14px; color: var(--ink); line-height: 1.6; margin-bottom: 15px; }
+  .regime-option { display: flex; gap: 15px; padding: 15px; background: #fff; border: 2px solid var(--line); border-radius: 10px; margin-bottom: 10px; cursor: pointer; transition: all 0.15s; }
+  .regime-option:hover { border-color: var(--gbf); }
+  .regime-option.actif { border-color: var(--gbf); background: #f5f3ff; box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15); }
+  .regime-radio { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line); background: #fff; flex-shrink: 0; margin-top: 2px; position: relative; }
+  .regime-option.actif .regime-radio { border-color: var(--gbf); }
+  .regime-option.actif .regime-radio::after { content: ''; position: absolute; inset: 2px; border-radius: 50%; background: var(--gbf); }
+  .regime-texte { flex: 1; min-width: 0; }
+  .regime-titre { font-size: 15px; font-weight: 800; color: var(--ink); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .regime-desc { font-size: 13px; color: var(--slate); line-height: 1.55; }
+  .regime-badge { display: inline-block; font-size: 11px; padding: 2px 8px; background: var(--gbf); color: #fff; border-radius: 4px; font-weight: 700; margin-left: 8px; }
+  .regime-input-zone { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; padding: 12px; background: #f9f7f2; border-radius: 8px; }
+  .regime-input-zone label { font-size: 13px; font-weight: 700; color: var(--ink); }
+  .regime-input-zone input { padding: 8px 12px; border: 2px solid var(--line); border-radius: 6px; font-family: 'Courier New', monospace; font-size: 14px; font-weight: 700; width: 100px; }
+  .regime-input-zone input:focus { outline: none; border-color: var(--gbf); }
+
+  .montage-layout { display: grid; grid-template-columns: 280px 1fr; gap: 15px; margin-bottom: 20px; max-width: 100%; }
+  @media (max-width: 900px) { .montage-layout { grid-template-columns: 1fr !important; } .toolbox { position: static !important; } .canvas-montage { min-height: 400px; } }
+  .toolbox { background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 15px; height: fit-content; position: sticky; top: 100px; }
+  .toolbox-title { font-family: var(--serif); font-size: 16px; color: var(--ink); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid var(--line); display: flex; align-items: center; gap: 8px; }
+  .toolbox-grid { display: flex; flex-direction: column; gap: 8px; }
+  .outil-btn { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #f9f7f2; border: 2px solid var(--line); border-radius: 10px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 700; color: var(--ink); text-align: left; transition: all 0.15s; }
+  .outil-btn:hover:not(:disabled) { background: #fff; border-color: var(--gbf); color: var(--gbf); transform: translateX(3px); }
+  .outil-btn.used { opacity: 0.5; cursor: not-allowed; }
+  .outil-btn.used:hover { transform: none; border-color: var(--line); color: var(--ink); background: #f9f7f2; }
+  .outil-btn .icon { font-size: 22px; flex-shrink: 0; }
+  .outil-btn.wire-btn { background: rgba(76, 175, 80, 0.1); border-color: rgba(76, 175, 80, 0.4); color: #2e7d32; }
+  .outil-btn.wire-btn:hover { background: rgba(76, 175, 80, 0.2); border-color: #4caf50; }
+  .outil-btn.gbf-btn { background: rgba(124, 58, 237, 0.1); border-color: rgba(124, 58, 237, 0.5); color: #5b21b6; }
+  .outil-btn.gbf-btn:hover { background: rgba(124, 58, 237, 0.2); border-color: #7c3aed; }
+  .outil-btn.danger { background: #fff5f5; border-color: rgba(217, 83, 79, 0.4); color: #d9534f; }
+  .outil-btn.danger:hover { background: #fff; border-color: #d9534f; }
+  .montage-right { display: flex; flex-direction: column; gap: 15px; min-width: 0; }
+  .schema-cible { background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%); border: 2px solid var(--gbf); border-radius: 12px; padding: 15px; text-align: center; }
+  .schema-cible h4 { font-family: var(--serif); font-size: 15px; color: var(--ink); margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .schema-cible svg { width: 100%; max-width: 480px; height: auto; display: block; margin: 0 auto; }
+  .canvas-montage { background: #000; border: 2px solid var(--gbf); border-radius: 12px; padding: 5px; position: relative; min-height: 500px; overflow: hidden; }
+  .canvas-montage canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: default; max-width: 100%; }
+  .canvas-hint { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.85); color: var(--gbf-light); font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(124, 58, 237, 0.4); pointer-events: none; white-space: nowrap; max-width: 95%; transition: background 0.3s; }
+  .montage-progress { display: flex; gap: 12px; justify-content: center; background: #fff; border: 2px solid var(--line); border-radius: 10px; padding: 12px 20px; flex-wrap: wrap; }
+  .progress-item { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--ink); }
+  .progress-item .count { background: var(--gbf); color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 800; font-family: 'Courier New', monospace; }
+  .progress-item.done .count { background: var(--success); }
+  .verif-message { border-radius: 10px; padding: 15px 20px; font-size: 14px; line-height: 1.6; display: none; margin-top: 15px; }
+  .verif-message.show { display: block; }
+  .verif-message.success { background: #e8f5e9; border-left: 4px solid var(--success); color: #1b5e20; }
+  .verif-message.error { background: #ffebee; border-left: 4px solid var(--danger); color: #b71c1c; }
+  .verif-message ul { margin: 8px 0 0 0; padding: 0; list-style: none; }
+  .verif-message li { margin-bottom: 4px; list-style: none; position: relative; padding-left: 20px; }
+  .verif-message li::before { position: absolute; left: 0; font-weight: 700; }
+  .verif-message li.ok::before { content: '✅'; }
+  .verif-message li.ko::before { content: '❌'; }
+
+  .analyse-layout { background: #fff; border: 2px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 20px; max-width: 100%; }
+  .sous-onglets { display: flex; background: #f9f7f2; border-bottom: 2px solid var(--line); flex-wrap: wrap; }
+  .sous-onglet { flex: 1; min-width: 110px; padding: 14px 10px; background: transparent; border: none; border-bottom: 3px solid transparent; color: var(--slate); font-family: var(--sans); font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .sous-onglet:hover { background: rgba(124, 58, 237, 0.06); color: var(--ink); }
+  .sous-onglet.active { color: var(--gbf); border-bottom-color: var(--gbf); background: #fff; }
+  .sous-onglet-contenu { display: none; padding: 25px; }
+  .sous-onglet-contenu.active { display: block; animation: fadeIn 0.3s ease-out; }
+  @media (max-width: 700px) { .sous-onglet { min-width: 90px; font-size: 11px; padding: 10px 4px; } .sous-onglet-contenu { padding: 15px; } }
+  .recap-header { text-align: center; margin-bottom: 25px; }
+  .recap-header h3 { font-family: var(--serif); font-size: 24px; color: var(--ink); margin-bottom: 8px; }
+  .recap-header p { font-size: 14px; color: var(--slate); max-width: 640px; margin: 0 auto; }
+  .recap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; max-width: 100%; }
+  @media (max-width: 700px) { .recap-grid { grid-template-columns: 1fr !important; } }
+  .recap-card { background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%); border: 2px solid var(--gbf); border-radius: 10px; padding: 18px 15px; text-align: center; }
+  .recap-card .recap-icon { font-size: 32px; margin-bottom: 6px; display: block; }
+  .recap-card .recap-label { font-size: 11px; text-transform: uppercase; color: var(--slate); letter-spacing: 1px; font-weight: 700; margin-bottom: 4px; }
+  .recap-card .recap-value { font-family: 'Courier New', monospace; font-size: 20px; font-weight: 800; color: var(--ink); }
+  .recap-card .recap-formule { font-family: 'Courier New', monospace; font-size: 11px; color: var(--slate); margin-top: 8px; line-height: 1.5; padding-top: 8px; border-top: 1px dashed rgba(124,58,237,0.25); text-align: left; }
+  .recap-card-editable { position: relative; padding-bottom: 18px; }
+  .recap-input { width: 100px; padding: 6px 8px; margin-top: 4px; border: 2px solid var(--gbf); border-radius: 6px; font-family: 'Courier New', monospace; font-size: 16px; font-weight: 800; color: var(--ink); text-align: center; background: #fff; max-width: 100%; }
+  .recap-input:focus { outline: none; border-color: var(--brass); box-shadow: 0 0 0 3px rgba(168,133,63,0.15); }
+  .recap-unit { font-family: 'Courier New', monospace; font-size: 13px; color: var(--slate); font-weight: 700; margin-left: 3px; }
+  .recap-courbe { background: #000; border-radius: 10px; border: 2px solid var(--gbf); padding: 10px; margin-bottom: 20px; }
+  .recap-courbe { position: relative; }
+.recap-courbe canvas { display: block; width: 100%; height: auto; max-height: 340px; cursor: crosshair; max-width: 100%; }
+  .info-encadre { background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%); border-left: 5px solid var(--gbf); border-radius: 8px; padding: 15px 20px; font-size: 14px; line-height: 1.6; color: var(--ink); margin-top: 15px; }
+  .info-encadre strong { color: var(--gbf); }
+  .charge-decharge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; max-width: 100%; }
+  @media (max-width: 800px) { .charge-decharge-grid { grid-template-columns: 1fr !important; } }
+  .courbe-box { background: #000; border-radius: 10px; padding: 10px; border: 2px solid var(--gbf); }
+  .courbe-box h4 { color: var(--gbf-light); font-family: var(--serif); font-size: 16px; margin-bottom: 8px; text-align: center; }
+  .courbe-box canvas { display: block; width: 100%; height: auto; max-height: 250px; max-width: 100%; }
+  .courbe-formule { background: #f9f7f2; border-radius: 8px; padding: 12px 15px; margin-top: 10px; font-family: 'Courier New', monospace; font-size: 13px; color: var(--ink); text-align: center; border-left: 4px solid var(--gbf); }
+  .courbe-controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .btn-courbe { padding: 12px 22px; border-radius: 8px; border: none; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-courbe.charge { background: linear-gradient(135deg, var(--gbf), var(--gbf-light)); color: #fff; box-shadow: 0 3px 10px rgba(124, 58, 237, 0.4); }
+  .btn-courbe:hover { transform: translateY(-2px); }
+  .btn-courbe:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .applis-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 100%; }
+  @media (max-width: 500px) { .applis-grid { grid-template-columns: 1fr !important; } }
+  .appli-card { background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 20px; transition: all 0.2s; display: flex; flex-direction: column; gap: 12px; }
+  .appli-card:hover { border-color: var(--gbf); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+  .appli-header { display: flex; align-items: center; gap: 12px; }
+  .appli-icon { font-size: 36px; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%); }
+  .appli-title { font-family: var(--serif); font-size: 17px; color: var(--ink); font-weight: 700; margin-bottom: 3px; }
+  .appli-subtitle { font-size: 12px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; }
+  .appli-desc { font-size: 13.5px; color: var(--ink); line-height: 1.6; }
+  .appli-desc strong { color: var(--gbf); }
+  .qcm-header { text-align: center; margin-bottom: 25px; }
+  .qcm-header h3 { font-family: var(--serif); font-size: 22px; color: var(--ink); margin-bottom: 8px; }
+  .qcm-header p { font-size: 14px; color: var(--slate); }
+  .qcm-item { background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 20px; margin-bottom: 18px; transition: all 0.3s; }
+  .qcm-item.correct { border-color: var(--success); background: #f1f8f3; }
+  .qcm-item.incorrect { border-color: var(--danger); background: #fdf2f2; }
+  .qcm-question-num { display: inline-block; background: var(--gbf); color: #fff; font-weight: 800; font-size: 13px; padding: 3px 12px; border-radius: 20px; margin-bottom: 12px; }
+  .qcm-question-texte { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 15px; line-height: 1.5; }
+  .qcm-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .qcm-option { display: flex; align-items: center; gap: 10px; padding: 12px 15px; background: #f9f7f2; border: 2px solid transparent; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 14px; color: var(--ink); text-align: left; transition: all 0.15s; width: 100%; }
+  .qcm-option:hover:not(:disabled) { background: #fff; border-color: var(--gbf); }
+  .qcm-option.selected { background: #ede9fe; border-color: var(--gbf); font-weight: 700; }
+  .qcm-option.correct { background: #e8f5e9; border-color: var(--success); font-weight: 700; }
+  .qcm-option.incorrect { background: #ffebee; border-color: var(--danger); }
+  .qcm-option:disabled { cursor: not-allowed; }
+  .qcm-option .qcm-lettre { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: #fff; border: 2px solid var(--line); font-weight: 800; font-size: 13px; flex-shrink: 0; }
+  .qcm-option.selected .qcm-lettre { background: var(--gbf); color: #fff; border-color: var(--gbf); }
+  .qcm-option.correct .qcm-lettre { background: var(--success); color: #fff; border-color: var(--success); }
+  .qcm-option.incorrect .qcm-lettre { background: var(--danger); color: #fff; border-color: var(--danger); }
+  .qcm-feedback { border-radius: 8px; padding: 12px 15px; font-size: 13.5px; line-height: 1.6; display: none; }
+  .qcm-feedback.show { display: block; }
+  .qcm-feedback.success { background: #e8f5e9; border-left: 4px solid var(--success); color: #1b5e20; }
+  .qcm-feedback.error { background: #ffebee; border-left: 4px solid var(--danger); color: #b71c1c; }
+  .qcm-btn-valider { padding: 12px 20px; background: linear-gradient(135deg, var(--gbf), #5b21b6); color: #fff; border: none; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-top: 10px; }
+  .qcm-btn-valider:disabled { opacity: 0.4; cursor: not-allowed; }
+  .conclusion-progress { background: #f9f7f2; border-radius: 10px; padding: 12px 18px; margin-bottom: 18px; display: flex; align-items: center; gap: 15px; }
+  .progress-barre { flex: 1; height: 10px; background: #e0e0e0; border-radius: 5px; overflow: hidden; }
+  .progress-remplissage { height: 100%; background: linear-gradient(90deg, var(--gbf), var(--gbf-light)); width: 0%; transition: width 0.4s ease; border-radius: 5px; }
+  .progress-texte { font-family: 'Courier New', monospace; font-size: 14px; font-weight: 800; color: var(--gbf); min-width: 50px; text-align: right; }
+  .conclusion-form { background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 20px; }
+  .conclusion-champ { margin-bottom: 22px; }
+  .conclusion-champ label { display: flex; align-items: center; gap: 10px; font-size: 14.5px; font-weight: 700; color: var(--ink); margin-bottom: 6px; cursor: pointer; }
+  .champ-num { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: var(--gbf); color: #fff; font-size: 13px; font-weight: 800; flex-shrink: 0; }
+  .champ-indice { font-size: 12px; color: var(--slate); font-style: italic; margin: 0 0 8px 36px; line-height: 1.45; }
+  .conclusion-champ input, .conclusion-champ select { width: 100%; padding: 12px 14px; border: 2px solid var(--line); border-radius: 8px; font-family: inherit; font-size: 14px; color: var(--ink); background: #f9f7f2; transition: all 0.2s; }
+  .conclusion-champ input:focus, .conclusion-champ select:focus { outline: none; border-color: var(--gbf); background: #fff; box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12); }
+  .conclusion-champ input.correct, .conclusion-champ select.correct { border-color: var(--success); background: #f1f8f3; }
+  .conclusion-champ input.incorrect, .conclusion-champ select.incorrect { border-color: var(--danger); background: #fdf2f2; }
+  .champ-feedback { font-size: 12.5px; margin-top: 6px; line-height: 1.5; display: none; padding: 8px 12px; border-radius: 6px; }
+  .champ-feedback.show { display: block; }
+  .champ-feedback.success { background: #e8f5e9; color: #1b5e20; border-left: 3px solid var(--success); }
+  .champ-feedback.error { background: #ffebee; color: #b71c1c; border-left: 3px solid var(--danger); }
+  .conclusion-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+  .conclusion-resultat { margin-top: 20px; padding: 15px 20px; border-radius: 10px; font-size: 14px; line-height: 1.6; display: none; }
+  .conclusion-resultat.show { display: block; }
+  .conclusion-resultat.success { background: #e8f5e9; border-left: 5px solid var(--success); color: #1b5e20; }
+  .conclusion-resultat.partiel { background: #fff8e1; border-left: 5px solid var(--warning); color: #7a5a00; }
+  .conclusion-finale { display: none; margin-top: 25px; background: #fff; border: 2px solid var(--success); border-radius: 12px; padding: 22px; }
+  .conclusion-finale.show { display: block; }
+  .conclusion-finale h4 { font-family: var(--serif); font-size: 18px; color: var(--ink); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 2px solid var(--line); }
+  .conclusion-texte { font-size: 14.5px; line-height: 1.7; color: var(--ink); background: #f9f7f2; border-radius: 8px; padding: 18px 20px; margin-bottom: 15px; white-space: pre-line; }
+  .conclusion-texte strong { color: var(--gbf); }
+  .conclusion-finale-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .certificat-zone { background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%); border: 3px solid var(--gbf); border-radius: 12px; padding: 25px; margin-top: 25px; text-align: center; }
+  .certificat-zone h3 { font-family: var(--serif); font-size: 20px; color: var(--ink); margin-bottom: 8px; }
+  .certificat-zone p { font-size: 14px; color: var(--slate); margin-bottom: 15px; }
+  .certificat-nom { padding: 10px 16px; border: 2px solid var(--line); border-radius: 8px; font-family: inherit; font-size: 15px; width: 280px; max-width: 100%; margin: 8px auto 15px; display: block; text-align: center; background: #fff; }
+  .certificat-nom:focus { outline: none; border-color: var(--gbf); }
+  .exercice-card { background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 22px; margin-bottom: 22px; }
+  .exercice-card.reussi { border-color: var(--success); background: #f1f8f3; }
+  .exercice-card.echoue { border-color: var(--danger); background: #fdf2f2; }
+  .exercice-entete { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .exercice-num { background: var(--gbf); color: #fff; font-weight: 800; font-size: 15px; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .exercice-titre { font-family: var(--serif); font-size: 17px; color: var(--ink); font-weight: 700; }
+  .exercice-enonce { background: #f9f7f2; border-left: 4px solid var(--gbf); border-radius: 6px; padding: 12px 15px; font-size: 14px; line-height: 1.6; color: var(--ink); margin-bottom: 14px; }
+  .exercice-etapes { list-style: none; padding: 0; margin-bottom: 15px; }
+  .exercice-etapes li { padding: 10px 12px 10px 40px; background: #fff; border: 1px solid var(--line); border-radius: 6px; margin-bottom: 6px; font-size: 13.5px; line-height: 1.5; position: relative; color: var(--ink); }
+  .exercice-etapes li::before { content: '→'; position: absolute; left: 15px; color: var(--gbf); font-weight: 800; font-size: 16px; }
+  .exercice-input-zone { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+  .exercice-input { padding: 11px 14px; border: 2px solid var(--line); border-radius: 8px; font-family: 'Courier New', monospace; font-size: 15px; font-weight: 700; color: var(--ink); background: #fff; flex: 1; min-width: 150px; }
+  .exercice-input.correct { border-color: var(--success); background: #f1f8f3; }
+  .exercice-input.incorrect { border-color: var(--danger); background: #fdf2f2; }
+  .exercice-feedback { margin-top: 10px; padding: 10px 14px; border-radius: 6px; font-size: 13.5px; line-height: 1.5; display: none; }
+  .exercice-feedback.show { display: block; }
+  .exercice-feedback.success { background: #e8f5e9; color: #1b5e20; border-left: 4px solid var(--success); }
+  .exercice-feedback.error { background: #ffebee; color: #b71c1c; border-left: 4px solid var(--danger); }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 15px; }
+  .modal-overlay.show { display: flex; }
+  .modal-box { background: #fff; border-radius: 12px; padding: 25px; max-width: 540px; width: 100%; }
+  .modal-box h3 { font-family: var(--serif); font-size: 20px; color: var(--ink); margin-bottom: 12px; }
+  .modal-content { font-size: 14px; line-height: 1.6; color: var(--ink); }
+  .modal-content p { margin-bottom: 8px; }
+  .modal-content code { background: #f9f7f2; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 13px; color: var(--brass); }
+  .modal-btn { margin-top: 18px; padding: 10px 20px; background: var(--gbf); color: #fff; border: none; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+  
+  .freq-control { background: #fff; border: 2px solid var(--gbf); border-radius: 10px; padding: 15px 20px; margin-bottom: 20px; }
+  .freq-control .ligne { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+  .freq-control label { font-size: 13px; font-weight: 700; color: var(--ink); }
+  .freq-control input[type="range"] { flex: 1; min-width: 200px; accent-color: var(--gbf); }
+  .freq-control .valeur { font-family: 'Courier New', monospace; font-size: 18px; font-weight: 800; color: var(--gbf); min-width: 100px; text-align: right; }
+  .freq-control .info { font-size: 12px; color: var(--slate); margin-top: 8px; font-style: italic; }
+</style>
+<script>
+  // Redirection automatique vers la version mobile du simulateur
+  (function() {
+    const ua = navigator.userAgent || '';
+    const isMobile = /Android|iPhone|iPad|iPod|Mobile|Opera Mini|IEMobile/i.test(ua)
+                     || (window.innerWidth <= 900 && 'ontouchstart' in window);
+    if (!isMobile) return;
+
+    const map = {
+      'simulateur-circuits-libre.html': 'simulateur-circuits-libre-mobile.html',
+      'simulateur-dosage.html':         'simulateur-dosage-mobile.html',
+      'simulateur-interferences.html':  'simulateur-interferences-mobile.html',
+      'simulateur-lentilles.html':      'simulateur-lentilles-mobile.html',
+      'simulateur-rc.html':             'simulateur-rc-mobile.html',
+      'simulateur-rl.html':             'simulateur-rl-mobile.html',
+      'simulateur-rlc-forces.html':     'simulateur-rlc-forces-mobile.html',
+      'simulateur-rlc.html':            'simulateur-rlc-mobile.html'
+    };
+
+    const path = window.location.pathname.split('/').pop();
+    const target = map[path];
+    if (target) {
+      window.location.replace('../mobile/' + target);
+    }
+  })();
+</script>
+  <script src="../assets/detect-mobile.js" defer></script>
+<style>
+  /* 🔒 Cache le body tant que la vérification auth n'est pas terminée */
+  body { visibility: hidden; }
+  body.auth-ok { visibility: visible; }
+</style>
+</head>
+<body>
+
+<div class="top-nav">
+  <div class="title">🟣 TP RLC forcé — Oscillations électriques forcées</div>
+  <div class="nav-links">
+    <button class="son-btn" id="sonToggle" onclick="toggleSon()" title="Activer/désactiver les sons">🔊</button>
+    <a href="../pc/simulateur-rlc.html">← RLC libre</a>
+    <a href="../pc/labo-pc.html">Labo PC</a>
+    <a href="../index.html">🏠 Accueil</a>
+    <a href="../mobile/simulateur-rlc-forces-mobile.html" class="pc">📱 Mobile</a>
+  </div>
+</div>
+
+<div class="steps-bar">
+  <div class="steps-container">
+    <div class="step-item" data-step="1" onclick="allerEtape(1)">
+      <div class="step-circle">1</div>
+      <div class="step-label">Matériel</div>
+    </div>
+    <div class="step-item active" data-step="2" onclick="allerEtape(2)">
+      <div class="step-circle">2</div>
+      <div class="step-label">Montage</div>
+    </div>
+    <div class="step-item locked" data-step="3" onclick="allerEtape(3)">
+      <div class="step-circle">3</div>
+      <div class="step-label">Mesures</div>
+    </div>
+    <div class="step-item locked" data-step="4" onclick="allerEtape(4)">
+      <div class="step-circle">4</div>
+      <div class="step-label">Analyse</div>
+    </div>
+  </div>
+</div>
+
+<div class="main-content">
+
+  <!-- ===== ÉTAPE 1 ===== -->
+  <section class="etape" id="etape-1">
+    <div class="etape-header">
+      <div class="etape-eyebrow">Étape 1 sur 4</div>
+      <h1 class="etape-title">📦 Présentation du matériel</h1>
+      <p class="etape-subtitle">
+        Découvre le circuit RLC <strong>forcé</strong> : un générateur basse fréquence (GBF) impose
+        une tension sinusoïdale. On étudie la réponse du circuit en fonction de la fréquence.
+      </p>
+    </div>
+
+    <div class="objectif-box">
+      <div class="label">🎯 Objectif du TP</div>
+      <div class="text">
+        Étudier la <strong>résonance d'intensité</strong> d'un circuit RLC série alimenté par un GBF,
+        tracer la courbe <strong>i(f)</strong> et déterminer la fréquence de résonance <strong>f₀</strong>,
+        la bande passante <strong>Δf</strong> et le facteur de qualité <strong>Q</strong>.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">🔧</span> Composants du circuit</div>
+      <div class="card-subtitle">Clique sur un composant pour découvrir son rôle.</div>
+      <div class="composants-grid">
+        <div class="composant-card" onclick="ouvrirModal('gbf')">
+          <span class="click-hint">👆</span><span class="symbol">🔊</span>
+          <div class="name">GBF</div><div class="value">tension sinusoïdale</div>
+        </div>
+        <div class="composant-card" onclick="ouvrirModal('condensateur')">
+          <span class="click-hint">👆</span><span class="symbol">⚡</span>
+          <div class="name">Condensateur</div><div class="value">C variable</div>
+        </div>
+        <div class="composant-card" onclick="ouvrirModal('bobine')">
+          <span class="click-hint">👆</span><span class="symbol">🌀</span>
+          <div class="name">Bobine</div><div class="value">L = 0,1 H</div>
+        </div>
+        <div class="composant-card" onclick="ouvrirModal('resistance')">
+          <span class="click-hint">👆</span><span class="symbol">📏</span>
+          <div class="name">Résistance</div><div class="value">R variable</div>
+        </div>
+        <div class="composant-card" onclick="ouvrirModal('oscillo')">
+          <span class="click-hint">👆</span><span class="symbol">📺</span>
+          <div class="name">Oscilloscope</div><div class="value">2 voies</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="regime-box">
+      <h4>🎬 Choisis un niveau de résistance</h4>
+      <div class="intro">
+        La <strong>résistance R</strong> du circuit contrôle l'<strong>acuité de la résonance</strong>.
+        Plus R est petite, plus la résonance est <strong>aiguë</strong> (Q élevé), plus R est grande,
+        plus la résonance est <strong>plate</strong> (Q faible).
+        <br><br>
+        👇 <strong>Choisis un cas ci-dessous</strong>.
+      </div>
+
+      <div class="regime-option actif" id="resOptFaible" onclick="choisirR('faible')">
+        <div class="regime-radio"></div>
+        <div class="regime-texte">
+          <div class="regime-titre">
+            1️⃣ Résonance aiguë
+            <span class="regime-badge">R = 10 Ω</span>
+          </div>
+          <div class="regime-desc">
+            <strong>R faible</strong> → facteur de qualité <strong>élevé</strong> (Q ≈ 10).
+            La courbe i(f) présente un <strong>pic très marqué</strong>.
+            <br><em>🎯 Analogie : accord parfait d'un instrument de musique.</em>
+          </div>
+        </div>
+      </div>
+
+      <div class="regime-option" id="resOptMoyen" onclick="choisirR('moyen')">
+        <div class="regime-radio"></div>
+        <div class="regime-texte">
+          <div class="regime-titre">
+            2️⃣ Résonance moyenne
+            <span class="regime-badge">R = 50 Ω</span>
+          </div>
+          <div class="regime-desc">
+            <strong>R modérée</strong> → <strong>Q ≈ 2</strong>. Pic bien visible mais plus large.
+          </div>
+        </div>
+      </div>
+
+      <div class="regime-option" id="resOptForte" onclick="choisirR('forte')">
+        <div class="regime-radio"></div>
+        <div class="regime-texte">
+          <div class="regime-titre">
+            3️⃣ Résonance plate
+            <span class="regime-badge">R = 200 Ω</span>
+          </div>
+          <div class="regime-desc">
+            <strong>R grande</strong> → <strong>Q faible</strong>. Courbe i(f) presque plate : la résonance
+            devient difficile à observer.
+          </div>
+        </div>
+      </div>
+
+      <div class="regime-option" id="resOptPerso" onclick="choisirR('perso')">
+        <div class="regime-radio"></div>
+        <div class="regime-texte">
+          <div class="regime-titre">
+            4️⃣ Personnalisé
+            <span class="regime-badge">R = à choisir</span>
+          </div>
+          <div class="regime-desc">Explore librement entre 5 Ω et 500 Ω.</div>
+          <div class="regime-input-zone" onclick="event.stopPropagation();">
+            <label for="inputRPerso">R = </label>
+            <input type="number" id="inputRPerso" value="100" min="5" max="500" step="5" onchange="majRPersonnalise()">
+            <span style="font-family: 'Courier New', monospace; font-weight: 700; color: var(--slate);">Ω</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 15px; padding: 12px 15px; background: #fff; border-radius: 8px; border: 1px dashed var(--gbf); font-size: 13px; line-height: 1.55;">
+        <strong style="color: var(--gbf);">📐 Rappel :</strong> en RLC forcé, la fréquence propre est
+        <code style="background: #f9f7f2; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace;">f₀ = 1/(2π√(LC))</code>.
+        Le facteur de qualité vaut <code style="background: #f9f7f2; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace;">Q = (1/R)·√(L/C)</code>.
+      </div>
+    </div>
+
+    <div class="card" style="border-left: 5px solid var(--gbf);">
+      <div class="card-title"><span class="icon">📚</span> Notions à connaître</div>
+      <ul class="notions-list">
+        <li>En régime forcé, le circuit oscille à la <strong>fréquence du GBF</strong>, pas à sa fréquence propre.</li>
+        <li>Le GBF impose : <strong>u(t) = U_m · cos(2πft)</strong></li>
+        <li>Résonance d'intensité : <strong>i est maximal quand f = f₀</strong></li>
+        <li>Fréquence propre : <strong>f₀ = 1 / (2π√(LC))</strong></li>
+        <li>Facteur de qualité : <strong>Q = f₀ / Δf</strong> (Δf = bande passante à −3 dB)</li>
+        <li>À la résonance : <strong>u et i sont en phase</strong> (impédance minimale = R).</li>
+        <li>Plus <strong>R est petite</strong>, plus Q est grand, plus la résonance est aiguë.</li>
+      </ul>
+    </div>
+
+    <div class="actions">
+      <a href="../pc/simulateur-rlc.html" class="btn btn-secondary">← RLC libre</a>
+      <button class="btn btn-gbf" onclick="allerEtape(2)">➡️ Passer au montage</button>
+    </div>
+  </section>
+
+  <!-- ===== ÉTAPE 2 : MONTAGE ===== -->
+  <section class="etape active" id="etape-2">
+    <div class="etape-header">
+      <div class="etape-eyebrow">Étape 2 sur 4</div>
+      <h1 class="etape-title">🛠️ Montage du circuit RLC forcé</h1>
+      <p class="etape-subtitle">
+        Construis le circuit : GBF en série avec <strong>bobine + résistance + condensateur</strong>,
+        et place l'oscilloscope pour visualiser u(t) et i(t).
+      </p>
+    </div>
+
+    <div class="objectif-box">
+      <div class="label">🎯 Mission</div>
+      <div class="text">
+        Place les <strong>4 composants</strong> (GBF, L, R, C) et connecte-les avec au moins
+        <strong>4 fils</strong> pour former une boucle RLC série alimentée par le GBF.
+      </div>
+    </div>
+
+    <div class="montage-layout">
+      <div class="toolbox">
+        <div class="toolbox-title">🧰 Boîte à outils</div>
+        <div class="toolbox-grid">
+          <button class="outil-btn gbf-btn" id="btn-gbf" onclick="ajouterComposant('gbf')">
+            <span class="icon">🔊</span><span>GBF (générateur)</span>
+          </button>
+          <button class="outil-btn" id="btn-condensateur" onclick="ajouterComposant('condensateur')">
+            <span class="icon">⚡</span><span>Condensateur C</span>
+          </button>
+          <button class="outil-btn" id="btn-bobine" onclick="ajouterComposant('bobine')">
+            <span class="icon">🌀</span><span>Bobine (0,1 H)</span>
+          </button>
+          <button class="outil-btn" id="btn-resistance" onclick="ajouterComposant('resistance')">
+            <span class="icon">📏</span><span>Résistance variable</span>
+          </button>
+          <button class="outil-btn wire-btn" onclick="ajouterFil()">
+            <span class="icon">🧵</span><span>➕ Ajouter un fil</span>
+          </button>
+          <button class="outil-btn danger" onclick="supprimerDernierComposant()">
+            <span class="icon">✖</span><span>Supprimer le dernier composant</span>
+          </button>
+          <button class="outil-btn danger" onclick="effacerTout()">
+            <span class="icon">🗑</span><span>Tout effacer</span>
+          </button>
+        </div>
+        <div style="margin-top: 15px; padding: 10px; background: #f9f7f2; border-radius: 8px; font-size: 12px; color: var(--slate); line-height: 1.5;">
+          <strong style="color: var(--ink);">💡 Comment faire :</strong><br>
+          1. Clique sur un composant pour l'ajouter<br>
+          2. Clique sur <strong>⟳</strong> pour tourner<br>
+          3. Glisse les poignées des fils vers les bornes<br>
+          4. <strong>Clic droit</strong> sur un composant ou un fil → supprimer
+        </div>
+      </div>
+
+      <div class="montage-right">
+        <div class="schema-cible">
+          <h4>📐 Schéma à réaliser (RLC série avec GBF)</h4>
+          <svg viewBox="0 0 500 260" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fil supérieur (de GBF à R, puis R à C) -->
+  <line x1="80" y1="60" x2="150" y2="60" stroke="#a78bfa" stroke-width="3"/>
+  <line x1="220" y1="60" x2="420" y2="60" stroke="#a78bfa" stroke-width="3"/>
+  
+  <!-- Fil du bas (de GBF à L, puis L à C) -->
+  <line x1="80" y1="200" x2="200" y2="200" stroke="#a78bfa" stroke-width="3"/>
+  <line x1="320" y1="200" x2="420" y2="200" stroke="#a78bfa" stroke-width="3"/>
+  
+  <!-- Fils verticaux (gauche : GBF, droite : C) -->
+  <line x1="80" y1="60" x2="80" y2="90" stroke="#a78bfa" stroke-width="3"/>
+  <line x1="80" y1="150" x2="80" y2="200" stroke="#a78bfa" stroke-width="3"/>
+  <line x1="420" y1="60" x2="420" y2="100" stroke="#a78bfa" stroke-width="3"/>
+  <line x1="420" y1="160" x2="420" y2="200" stroke="#a78bfa" stroke-width="3"/>
+  
+  <!-- GBF (générateur) sur le fil gauche -->
+  <g transform="translate(80, 120)">
+    <circle cx="0" cy="0" r="26" fill="#fff" stroke="#7c3aed" stroke-width="3"/>
+    <path d="M -15 0 Q -7.5 -12 0 0 Q 7.5 12 15 0" fill="none" stroke="#7c3aed" stroke-width="2.5"/>
+    <text x="-38" y="-8" text-anchor="middle" font-size="11" fill="#7c3aed" font-weight="bold">+</text>
+    <text x="-38" y="14" text-anchor="middle" font-size="11" fill="#7c3aed" font-weight="bold">−</text>
+  </g>
+  <text x="80" y="80" text-anchor="middle" font-size="11" fill="#7c3aed" font-weight="bold">GBF ~</text>
+  
+  <!-- Résistance sur le fil du haut -->
+  <rect x="150" y="45" width="70" height="30" fill="#fff" stroke="#ffd54f" stroke-width="2.5" rx="4"/>
+  <path d="M 160 60 L 170 50 L 180 70 L 190 50 L 200 70 L 210 60" stroke="#ffd54f" stroke-width="2.5" fill="none"/>
+  <text x="185" y="35" text-anchor="middle" font-size="12" fill="#b45309" font-weight="bold">R</text>
+  
+  <!-- Bobine sur le fil du BAS (entre x=200 et x=320) -->
+  <g stroke="#B87333" stroke-width="3" fill="none">
+    <!-- 4 boucles de spire -->
+    <path d="M 200 200 
+             Q 215 180 230 200 
+             Q 245 180 260 200 
+             Q 275 180 290 200 
+             Q 305 180 320 200"/>
+  </g>
+  <text x="260" y="180" text-anchor="middle" font-size="12" fill="#8B4513" font-weight="bold">L</text>
+  
+  <!-- Condensateur sur le fil droit -->
+  <rect x="400" y="100" width="40" height="60" fill="#fff" stroke="#4fc3f7" stroke-width="2.5" rx="4"/>
+  <line x1="412" y1="112" x2="412" y2="148" stroke="#4fc3f7" stroke-width="3"/>
+  <line x1="428" y1="112" x2="428" y2="148" stroke="#4fc3f7" stroke-width="3"/>
+  <text x="420" y="90" text-anchor="middle" font-size="12" fill="#0288d1" font-weight="bold">C</text>
+  
+  <!-- Flèche de courant i sur le fil du haut -->
+  <path d="M 240 40 L 260 40 L 255 34 M 260 40 L 255 46" stroke="#e91e63" stroke-width="2" fill="none"/>
+  <text x="275" y="42" font-size="11" fill="#e91e63" font-weight="bold" font-style="italic">i</text>
+  
+  <!-- Légende -->
+  <text x="250" y="245" text-anchor="middle" font-size="11" fill="#7c3aed" font-weight="bold" font-style="italic">Boucle RLC série — régime forcé</text>
+</svg>
+        </div>
+
+        <div class="canvas-montage">
+          <canvas id="canvasMontage" width="900" height="600"></canvas>
+          <div class="canvas-hint" id="canvasHint">👈 Clique sur les composants dans la boîte à outils</div>
+        </div>
+
+        <div class="montage-progress">
+          <div class="progress-item" id="progComposants">
+            🔧 Composants <span class="count" id="countComposants">0/4</span>
+          </div>
+          <div class="progress-item" id="progFils">
+            🧵 Fils connectés <span class="count" id="countFils">0/4</span>
+          </div>
+        </div>
+
+        <div class="verif-message" id="verifMessage"></div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="allerEtape(1)">← Étape précédente</button>
+      <button class="btn btn-gbf" onclick="verifierMontage()">✅ Vérifier mon montage</button>
+    </div>
+  </section>
+
+  <!-- ===== ÉTAPE 3 : MESURES ===== -->
+  <section class="etape" id="etape-3">
+    <div class="etape-header">
+      <div class="etape-eyebrow">Étape 3 sur 4</div>
+      <h1 class="etape-title">📺 Brancher l'oscilloscope</h1>
+      <p class="etape-subtitle">
+        Branche l'oscilloscope pour visualiser la tension du GBF (voie 1) et la tension aux bornes
+        de R (voie 2, image du courant).
+      </p>
+    </div>
+
+    <div class="message-3a" style="background:linear-gradient(135deg,#ede9fe,#f5f3ff);border-left:5px solid var(--gbf);border-radius:8px;padding:15px 20px;margin-bottom:15px;font-size:14px;line-height:1.6;color:#5b21b6;">
+      <strong>🎯 Mission :</strong> branche les voies de l'oscilloscope sur le GBF et sur R.
+      <div style="background:#fff;border-radius:6px;padding:10px 14px;margin-top:10px;font-family:'Courier New',monospace;font-size:13px;line-height:1.7;color:var(--ink);">
+        <div><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-weight:700;margin-right:8px;background:#ffeb3b;color:#1a1a2e;">Voie 1 (+)</span> → borne <strong>+ du GBF</strong></div>
+        <div style="margin-top:6px;"><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-weight:700;margin-right:8px;background:#4fc3f7;color:#1a1a2e;">Voie 2 (−)</span> → bornes de <strong>R</strong> (image de i)</div>
+      </div>
+      <div style="margin-top:10px;font-size:12px;opacity:0.85;">
+        💡 <strong>Ton montage est conservé à l'identique.</strong> Pose l'oscilloscope puis branche ses voies.
+      </div>
+    </div>
+
+    <div class="branchement-layout" style="display:grid;grid-template-columns:280px 1fr;gap:15px;">
+      <div class="appareil-zone" style="background:linear-gradient(135deg,#5b21b6,#7c3aed);border:2px solid #a78bfa;border-radius:12px;padding:15px;text-align:center;color:#fff;">
+        <h4 style="font-family:var(--serif);font-size:14px;margin-bottom:12px;color:#fff;">🧰 Appareil à ajouter</h4>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <button class="outil-btn gbf-btn" id="btn-oscillo-3" onclick="poserOscilloscope()" style="justify-content:center;">
+            <span class="icon">📺</span><span>Poser l'oscilloscope</span>
+          </button>
+          <button class="outil-btn wire-btn" onclick="ajouterFilBranchement()" style="justify-content:center;">
+            <span class="icon">🧵</span><span>➕ Ajouter un fil</span>
+          </button>
+        </div>
+        <div style="margin-top:15px;padding:10px;background:rgba(255,255,255,0.1);border-radius:8px;font-size:11.5px;line-height:1.5;">
+          <strong>💡 Rappel :</strong><br>
+          L'oscilloscope est un <strong>voltmètre différentiel</strong> : branche-le <strong>en dérivation</strong>.<br><br>
+          <strong>🖱️ Déplaçable :</strong> l'oscilloscope peut être déplacé avec la souris.
+        </div>
+      </div>
+
+      <div class="montage-right">
+        <div class="canvas-montage">
+          <canvas id="canvasBranchement" width="900" height="600"></canvas>
+          <div class="canvas-hint" id="canvasHintBranchement">📺 Pose l'oscilloscope puis branche ses voies</div>
+        </div>
+        <div class="verif-message" id="verifBranchement"></div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="allerEtape(2)">← Étape précédente</button>
+      <button class="btn btn-gbf" onclick="verifierBranchement()">✅ Vérifier le branchement</button>
+    </div>
+  </section>
+
+  <!-- ===== ÉTAPE 4 : ANALYSE ===== -->
+  <section class="etape" id="etape-4">
+    <div class="etape-header">
+      <div class="etape-eyebrow">Étape 4 sur 4</div>
+      <h1 class="etape-title">🎓 Analyse & Conclusion</h1>
+      <p class="etape-subtitle">
+        Étudier la <strong>résonance d'intensité</strong>, déterminer f₀, Δf, Q et comparer
+        avec les valeurs théoriques.
+      </p>
+    </div>
+
+    <div class="analyse-layout">
+      <div class="sous-onglets">
+        <button class="sous-onglet active" data-sous="recap" onclick="changerSousOnglet('recap')">📊 Récapitulatif</button>
+        <button class="sous-onglet" data-sous="resonance" onclick="changerSousOnglet('resonance')">🎯 Résonance i(f)</button>
+        <button class="sous-onglet" data-sous="phase" onclick="changerSousOnglet('phase')">🔄 Déphasage</button>
+        <button class="sous-onglet" data-sous="applis" onclick="changerSousOnglet('applis')">🌍 Applications</button>
+        <button class="sous-onglet" data-sous="qcm" onclick="changerSousOnglet('qcm')">🛡️ Questions</button>
+        <button class="sous-onglet" data-sous="conclusion" onclick="changerSousOnglet('conclusion')">✍️ Ma conclusion</button>
+        <button class="sous-onglet" data-sous="exercices" onclick="changerSousOnglet('exercices')">🧮 Exercices guidés</button>
+      </div>
+
+      <!-- Onglet 4.1 : Récap -->
+      <div class="sous-onglet-contenu active" id="sous-recap">
+        <div class="recap-header">
+          <h3>📊 Récapitulatif de ton expérience</h3>
+          <p>Voici les grandeurs caractéristiques avec leurs formules et valeurs calculées.</p>
+        </div>
+
+        <div class="freq-control">
+          <div class="ligne">
+            <label for="freqGBF">🔊 Fréquence du GBF :</label>
+            <input type="range" id="freqGBF" min="10" max="500" step="1" value="159" oninput="majFrequenceGBF(this.value)">
+            <span class="valeur" id="valeurFreqGBF">159 Hz</span>
+          </div>
+          <div class="ligne" style="margin-top:10px;">
+            <label>⚙️ Pulsation :</label>
+            <span class="valeur" id="valeurOmegaGBF" style="color:var(--gbf);">≈ 1000 rad/s</span>
+          </div>
+          <div class="info">💡 Ajuste la fréquence du GBF pour observer l'effet sur l'impédance et le courant.</div>
+        </div>
+
+        <div class="recap-grid" id="recapGrid">
+          <div class="recap-card">
+            <span class="recap-icon">🔊</span>
+            <div class="recap-label">Tension GBF</div>
+            <div class="recap-value" id="valeurUm">6.0 V</div>
+            <div class="recap-formule">Amplitude fixe : <strong style="color:var(--gbf);">U_m = 6 V</strong></div>
+          </div>
+          <div class="recap-card recap-card-editable">
+            <span class="recap-icon">📏</span>
+            <div class="recap-label">Résistance R</div>
+            <input type="number" id="inputR" class="recap-input" value="50" min="5" max="500" step="5">
+            <span class="recap-unit">Ω</span>
+          </div>
+          <div class="recap-card recap-card-editable">
+            <span class="recap-icon">🌀</span>
+            <div class="recap-label">Bobine L</div>
+            <input type="number" id="inputL" class="recap-input" value="0.1" min="0.01" max="1" step="0.01">
+            <span class="recap-unit">H</span>
+          </div>
+          <div class="recap-card recap-card-editable">
+            <span class="recap-icon">⚡</span>
+            <div class="recap-label">Condensateur C</div>
+            <input type="number" id="inputC" class="recap-input" value="10" min="1" max="100" step="1">
+            <span class="recap-unit">µF</span>
+          </div>
+          <div class="recap-card">
+            <span class="recap-icon">📡</span>
+            <div class="recap-label">Fréquence GBF f</div>
+            <div class="recap-value" id="valeurFGBF" style="color:var(--gbf);">159 Hz</div>
+            <div class="recap-formule">Pulsation : ω = 2πf<br>= <strong style="color:var(--gbf);" id="formOmegaGBF">1000 rad/s</strong></div>
+          </div>
+          <div class="recap-card">
+            <span class="recap-icon">⚙️</span>
+            <div class="recap-label">Impédance Z(f)</div>
+            <div class="recap-value" id="valeurZf" style="color:var(--gbf);">50 Ω</div>
+            <div class="recap-formule">
+              Z = √(R² + (Lω − 1/(Cω))²)<br>
+              = <strong style="color:var(--gbf);" id="formZf">50 Ω</strong>
+            </div>
+          </div>
+          <div class="recap-card">
+            <span class="recap-icon">🔌</span>
+            <div class="recap-label">Courant efficace I(f)</div>
+            <div class="recap-value" id="valeurIf" style="color:var(--gbf);">120 mA</div>
+            <div class="recap-formule">
+              I = U_m/Z<br>
+              = <strong style="color:var(--gbf);" id="formIf">120 mA</strong>
+            </div>
+          </div>
+          <div class="recap-card">
+            <span class="recap-icon">📐</span>
+            <div class="recap-label">Déphasage φ(f)</div>
+            <div class="recap-value" id="valeurPhiF" style="color:var(--gbf);">0.0°</div>
+            <div class="recap-formule">
+              φ = arctan((Lω − 1/(Cω))/R)<br>
+              = <strong style="color:var(--gbf);" id="formPhiF">0.0°</strong>
+            </div>
+          </div>
+        </div>
+
+        <h4 style="font-family: var(--serif); font-size: 17px; color: var(--ink); margin: 20px 0 12px;">🧮 Grandeurs caractéristiques</h4>
+
+        <div class="recap-grid" id="recapGrid2">
+          <div class="recap-card">
+            <span class="recap-icon">🎯</span>
+            <div class="recap-label">Fréquence propre f₀</div>
+            <div class="recap-value" id="valeurF0">159.2 Hz</div>
+            <div class="recap-formule">
+              f₀ = 1/(2π√(L·C))<br>
+              = <strong style="color:var(--gbf);" id="formF0Res">159.2 Hz</strong>
+            </div>
+          </div>
+          <div class="recap-card">
+            <span class="recap-icon">📊</span>
+            <div class="recap-label">Facteur de qualité Q</div>
+            <div class="recap-value" id="valeurQ">2.0</div>
+            <div class="recap-formule">
+              Q = (1/R)·√(L/C)<br>
+              = <strong style="color:var(--gbf);" id="formQRes">2.0</strong>
+            </div>
+          </div>
+          <div class="recap-card">
+            <span class="recap-icon">📉</span>
+            <div class="recap-label">Bande passante Δf</div>
+            <div class="recap-value" id="valeurDeltaF">79.6 Hz</div>
+            <div class="recap-formule">
+              Δf = f₀/Q<br>
+              = <strong style="color:var(--gbf);" id="formDfRes">79.6 Hz</strong>
+            </div>
+          </div>
+          <div class="recap-card">
+            <span class="recap-icon">⏱️</span>
+            <div class="recap-label">Pulsation propre ω₀</div>
+            <div class="recap-value" id="valeurW0">1000 rad/s</div>
+            <div class="recap-formule">
+              ω₀ = 2π·f₀ = 1/√(L·C)<br>
+              = <strong style="color:var(--gbf);" id="formW0Res">1000 rad/s</strong>
+            </div>
+          </div>
+        </div>
+
+        <h4 style="font-family: var(--serif); font-size: 16px; color: var(--ink); margin: 20px 0 12px; text-align:center;">🎯 Courbe de résonance i(f)</h4>
+<div style="text-align:center; margin-bottom: 8px;">
+  <span style="font-size: 13px; color: var(--slate); font-style: italic;">💡 Survole ou clique sur la courbe pour lire les valeurs (f, i)</span>
+</div>
+<div class="recap-courbe" style="position: relative;">
+  <canvas id="recapCourbe" width="800" height="320"></canvas>
+  <div id="tooltipCourbe" style="position: absolute; background: rgba(15,23,42,0.95); color: #fff; padding: 8px 12px; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 13px; pointer-events: none; display: none; z-index: 10; border: 1px solid #e91e63; white-space: nowrap;">
+    <div style="font-weight: bold; color: #e91e63; margin-bottom: 4px;">📊 Point de la courbe</div>
+    <div id="tooltipContenu"></div>
+  </div>
+</div>
+
+        <div class="info-encadre">
+          <strong>💡 Remarque :</strong> à la fréquence de résonance f = f₀, l'impédance du circuit
+          est minimale (Z = R), l'intensité est maximale et le courant est <strong>en phase</strong>
+          avec la tension du GBF.
+        </div>
+      </div>
+
+      <!-- Onglet 4.2 : Résonance -->
+      <div class="sous-onglet-contenu" id="sous-resonance">
+        <div class="recap-header">
+          <h3>🎯 Résonance d'intensité</h3>
+          <p>Compare les courbes i(f) pour différentes valeurs de R.</p>
+        </div>
+
+        <div style="background: #000; border-radius: 10px; border: 2px solid var(--gbf); padding: 10px; margin-bottom: 20px;">
+          <canvas id="courbeResonance" width="900" height="360" style="display:block; width:100%; height:auto; max-width:100%;"></canvas>
+        </div>
+
+        <div class="courbe-controls">
+          <button class="btn-courbe charge" onclick="afficherResonance()">🎯 Afficher i(f)</button>
+        </div>
+
+        <div class="info-encadre">
+          <strong>💡 À retenir :</strong><br>
+          • À la résonance : <strong>i_max = U_m / R</strong>, u et i sont <strong>en phase</strong>.<br>
+          • Bande passante : <strong>Δf = f₀ / Q</strong>.<br>
+          • Plus R est petite, plus Q est grand, plus le pic est aigu.
+        </div>
+      </div>
+
+      <!-- Onglet 4.3 : Phase -->
+      <div class="sous-onglet-contenu" id="sous-phase">
+        <div class="recap-header">
+          <h3>🔄 Déphasage u-i selon la fréquence</h3>
+          <p>Observe comment i se décale par rapport à u quand on change la fréquence.</p>
+        </div>
+
+        <div class="charge-decharge-grid">
+          <div>
+            <div class="courbe-box">
+              <h4>🔊 f &lt; f₀ — circuit capacitif</h4>
+              <canvas id="courbeBasFreq" width="500" height="220"></canvas>
+            </div>
+            <div class="courbe-formule">u est en <strong>retard</strong> sur i (φ &lt; 0)</div>
+          </div>
+          <div>
+            <div class="courbe-box">
+              <h4>🎯 f = f₀ — résonance</h4>
+              <canvas id="courbeResFreq" width="500" height="220"></canvas>
+            </div>
+            <div class="courbe-formule">u et i sont <strong>en phase</strong> (φ = 0)</div>
+          </div>
+          <div>
+            <div class="courbe-box">
+              <h4>🌀 f &gt; f₀ — circuit inductif</h4>
+              <canvas id="courbeHautFreq" width="500" height="220"></canvas>
+            </div>
+            <div class="courbe-formule">u est en <strong>avance</strong> sur i (φ &gt; 0)</div>
+          </div>
+        </div>
+
+        <div class="courbe-controls">
+          <button class="btn-courbe charge" onclick="afficherPhases()">🔄 Afficher les 3 cas</button>
+        </div>
+
+        <div class="info-encadre">
+          <strong>💡 À retenir :</strong><br>
+          • f &lt; f₀ : le condensateur domine → déphasage négatif.<br>
+          • f = f₀ : <strong>résonance</strong>, impédance purement résistive.<br>
+          • f &gt; f₀ : la bobine domine → déphasage positif.
+        </div>
+      </div>
+
+      <!-- Onglet 4.4 : Applications -->
+      <div class="sous-onglet-contenu" id="sous-applis">
+        <div class="recap-header">
+          <h3>🌍 Applications de la résonance</h3>
+          <p>La résonance RLC est partout en électronique et au-delà.</p>
+        </div>
+
+        <div class="applis-grid">
+          <div class="appli-card">
+            <div class="appli-header">
+              <span class="appli-icon">📻</span>
+              <div>
+                <div class="appli-title">Récepteur radio</div>
+                <div class="appli-subtitle">Sélectivité des stations</div>
+              </div>
+            </div>
+            <div class="appli-desc">
+              Le circuit LC accordé sélectionne une fréquence. <strong>Q élevé</strong> → bonne sélectivité.
+            </div>
+          </div>
+          <div class="appli-card">
+            <div class="appli-header">
+              <span class="appli-icon">📡</span>
+              <div>
+                <div class="appli-title">Antennes</div>
+                <div class="appli-subtitle">Résonance accordée</div>
+              </div>
+            </div>
+            <div class="appli-desc">
+              Les antennes sont accordées à la fréquence d'émission pour maximiser le rayonnement.
+            </div>
+          </div>
+          <div class="appli-card">
+            <div class="appli-header">
+              <span class="appli-icon">🔊</span>
+              <div>
+                <div class="appli-title">Enceintes audio</div>
+                <div class="appli-subtitle">Filtres passifs</div>
+              </div>
+            </div>
+            <div class="appli-desc">
+              Les <strong>filtres RLC</strong> séparent les graves des aigus dans les enceintes.
+            </div>
+          </div>
+          <div class="appli-card">
+            <div class="appli-header">
+              <span class="appli-icon">🏥</span>
+              <div>
+                <div class="appli-title">IRM / Résonance magnétique</div>
+                <div class="appli-subtitle">Principe de la RMN</div>
+              </div>
+            </div>
+            <div class="appli-desc">
+              Les noyaux atomiques ont une fréquence de résonance caractéristique, exploitée en imagerie médicale.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Onglet 4.5 : QCM -->
+      <div class="sous-onglet-contenu" id="sous-qcm">
+        <div class="qcm-header">
+          <h3>🛡️ Questions de compréhension</h3>
+          <p>Réponds aux 3 questions pour valider ta compréhension.</p>
+        </div>
+
+        <div class="qcm-item" id="qcm-1">
+          <div class="qcm-question-num">Question 1 / 3</div>
+          <div class="qcm-question-texte">À la résonance d'intensité, quelles sont les propriétés du circuit ?</div>
+          <div class="qcm-options">
+            <button class="qcm-option" data-q="1" data-value="a">
+              <span class="qcm-lettre">A</span>
+              <span>L'impédance est maximale, i est minimale</span>
+            </button>
+            <button class="qcm-option" data-q="1" data-value="b" data-correct="1">
+              <span class="qcm-lettre">B</span>
+              <span>L'impédance vaut R, i est maximale et u et i sont en phase</span>
+            </button>
+            <button class="qcm-option" data-q="1" data-value="c">
+              <span class="qcm-lettre">C</span>
+              <span>Le circuit se comporte comme un circuit purement capacitif</span>
+            </button>
+          </div>
+          <button class="qcm-btn-valider" onclick="validerQCM(1)" disabled>Valider ma réponse</button>
+          <div class="qcm-feedback" id="feedback-1"></div>
+        </div>
+
+        <div class="qcm-item" id="qcm-2">
+          <div class="qcm-question-num">Question 2 / 3</div>
+          <div class="qcm-question-texte">
+            Pour <strong>L = 0,1 H</strong> et <strong>C = 10 µF</strong>, que vaut la fréquence propre f₀ ?
+          </div>
+          <div class="qcm-options">
+            <button class="qcm-option" data-q="2" data-value="a">
+              <span class="qcm-lettre">A</span>
+              <span>f₀ ≈ 100 Hz</span>
+            </button>
+            <button class="qcm-option" data-q="2" data-value="b" data-correct="1">
+              <span class="qcm-lettre">B</span>
+              <span>f₀ ≈ 159 Hz</span>
+            </button>
+            <button class="qcm-option" data-q="2" data-value="c">
+              <span class="qcm-lettre">C</span>
+              <span>f₀ ≈ 500 Hz</span>
+            </button>
+          </div>
+          <button class="qcm-btn-valider" onclick="validerQCM(2)" disabled>Valider ma réponse</button>
+          <div class="qcm-feedback" id="feedback-2"></div>
+        </div>
+
+        <div class="qcm-item" id="qcm-3">
+          <div class="qcm-question-num">Question 3 / 3</div>
+          <div class="qcm-question-texte">
+            Comment varie l'<strong>acuité de la résonance</strong> quand on <strong>augmente R</strong> ?
+          </div>
+          <div class="qcm-options">
+            <button class="qcm-option" data-q="3" data-value="a">
+              <span class="qcm-lettre">A</span>
+              <span>La résonance devient plus aiguë (Q augmente)</span>
+            </button>
+            <button class="qcm-option" data-q="3" data-value="b" data-correct="1">
+              <span class="qcm-lettre">B</span>
+              <span>La résonance devient plus plate (Q diminue)</span>
+            </button>
+            <button class="qcm-option" data-q="3" data-value="c">
+              <span class="qcm-lettre">C</span>
+              <span>La résonance ne change pas</span>
+            </button>
+          </div>
+          <button class="qcm-btn-valider" onclick="validerQCM(3)" disabled>Valider ma réponse</button>
+          <div class="qcm-feedback" id="feedback-3"></div>
+        </div>
+      </div>
+
+      <!-- Onglet 4.6 : Conclusion -->
+      <div class="sous-onglet-contenu" id="sous-conclusion">
+        <div class="recap-header">
+          <h3>✍️ Ma conclusion</h3>
+          <p>Rédige ta conclusion en t'aidant des indices. Elle sera vérifiée automatiquement.</p>
+        </div>
+
+        <div class="conclusion-progress">
+          <span style="font-size: 13px; font-weight: 700; color: var(--ink);">Progression :</span>
+          <div class="progress-barre">
+            <div class="progress-remplissage" id="progressRemplissage"></div>
+          </div>
+          <div class="progress-texte" id="progressTexte">0/5</div>
+        </div>
+
+        <div class="conclusion-form">
+          <div class="conclusion-champ">
+            <label for="concl-1"><span class="champ-num">1</span> Quelle est la fréquence propre f₀ du circuit (L = 0,1 H, C = 10 µF) ?</label>
+            <div class="champ-indice">💡 f₀ = 1/(2π√(LC))</div>
+            <input type="text" id="concl-1" placeholder="Ta réponse (ex : 159 Hz)" autocomplete="off">
+            <div class="champ-feedback" id="fb-1"></div>
+          </div>
+          <div class="conclusion-champ">
+            <label for="concl-2"><span class="champ-num">2</span> Que vaut l'impédance du circuit à la résonance ?</label>
+            <div class="champ-indice">💡 U_C et U_L se compensent</div>
+            <input type="text" id="concl-2" placeholder="Ta réponse" autocomplete="off">
+            <div class="champ-feedback" id="fb-2"></div>
+          </div>
+          <div class="conclusion-champ">
+            <label for="concl-3"><span class="champ-num">3</span> À la résonance, comment sont u(t) et i(t) ?</label>
+            <div class="champ-indice">💡 Pense au déphasage</div>
+            <select id="concl-3">
+              <option value="">— Choisis —</option>
+              <option value="phase">En phase</option>
+              <option value="retard">u en retard sur i</option>
+              <option value="avance">u en avance sur i</option>
+            </select>
+            <div class="champ-feedback" id="fb-3"></div>
+          </div>
+          <div class="conclusion-champ">
+            <label for="concl-4"><span class="champ-num">4</span> Comment évolue la bande passante Δf quand R diminue ?</label>
+            <div class="champ-indice">💡 Δf = f₀/Q et Q = (1/R)√(L/C)</div>
+            <select id="concl-4">
+              <option value="">— Choisis —</option>
+              <option value="augmente">Δf augmente</option>
+              <option value="diminue">Δf diminue</option>
+              <option value="constante">Δf reste constante</option>
+            </select>
+            <div class="champ-feedback" id="fb-4"></div>
+          </div>
+          <div class="conclusion-champ">
+            <label for="concl-5"><span class="champ-num">5</span> Cite une application concrète de la résonance RLC.</label>
+            <div class="champ-indice">💡 Regarde l'onglet « Applications »</div>
+            <input type="text" id="concl-5" placeholder="Ta réponse" autocomplete="off">
+            <div class="champ-feedback" id="fb-5"></div>
+          </div>
+
+          <div class="conclusion-actions">
+            <button class="btn btn-gbf" onclick="verifierConclusion()">✅ Vérifier ma conclusion</button>
+            <button class="btn btn-secondary" onclick="reinitialiserConclusion()">↺ Recommencer</button>
+          </div>
+
+          <div class="conclusion-resultat" id="conclusionResultat"></div>
+        </div>
+
+        <div class="conclusion-finale" id="conclusionFinale">
+          <h4>📝 Ta conclusion rédigée</h4>
+          <div class="conclusion-texte" id="conclusionTexte"></div>
+          <div class="conclusion-finale-actions">
+            <button class="btn btn-gbf" onclick="imprimerConclusion()">🖨️ Imprimer / PDF</button>
+            <button class="btn btn-secondary" onclick="telechargerConclusion()">💾 Télécharger (.txt)</button>
+          </div>
+        </div>
+
+        <div class="certificat-zone" id="certificatZone">
+          <h3>🎓 Certificat de réussite du TP RLC forcé</h3>
+          <p>Félicitations ! Saisis ton nom pour générer ton certificat.</p>
+          <input type="text" class="certificat-nom" id="certificatNom" placeholder="Ton nom et prénom" maxlength="60">
+          <div class="conclusion-finale-actions" style="justify-content:center;">
+            <button class="btn btn-gbf" onclick="genererCertificat()">🎓 Générer mon certificat</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Onglet 4.7 : Exercices -->
+      <div class="sous-onglet-contenu" id="sous-exercices">
+        <div class="recap-header">
+          <h3>🧮 Exercices guidés</h3>
+          <p>Applique ce que tu as appris avec 3 exercices progressifs.</p>
+        </div>
+
+        <div class="exercice-card" id="exo-1">
+  <div class="exercice-entete">
+    <div class="exercice-num">1</div>
+    <div class="exercice-titre">Calculer f₀</div>
+  </div>
+  <div class="exercice-enonce">
+    Un circuit RLC série utilise <strong>L = 0,5 H</strong> et <strong>C = 20 µF</strong>.
+    Quelle est la fréquence propre f₀ ?
+  </div>
+  <ul class="exercice-etapes">
+    <li>Formule : <strong>f₀ = 1/(2π√(L·C))</strong></li>
+    <li>L·C = 0,5 × 20×10⁻⁶ = <strong>10⁻⁵ s²</strong></li>
+    <li>√(L·C) ≈ <strong>3,16×10⁻³ s</strong></li>
+    <li>À toi de calculer : f₀ = 1/(2π × 3,16×10⁻³) ≈ <strong>? Hz</strong></li>
+  </ul>
+  <div class="exercice-input-zone">
+    <input type="text" class="exercice-input" id="exo1-rep" placeholder="Ta réponse (ex : XX Hz)">
+    <button class="btn btn-gbf" style="padding:10px 18px;font-size:13px;" onclick="verifierExo1()">Vérifier</button>
+  </div>
+  <div class="exercice-feedback" id="exo1-fb"></div>
+</div>
+
+<div class="exercice-card" id="exo-2">
+  <div class="exercice-entete">
+    <div class="exercice-num">2</div>
+    <div class="exercice-titre">Calculer Q et Δf</div>
+  </div>
+  <div class="exercice-enonce">
+    Pour le même circuit (L = 0,5 H, C = 20 µF, f₀ ≈ 50 Hz) avec <strong>R = 100 Ω</strong>,
+    calculez Q puis Δf.
+  </div>
+  <ul class="exercice-etapes">
+    <li>Formule : <strong>Q = (1/R)·√(L/C)</strong></li>
+    <li>R = 100 Ω, L/C = 0,5 / 20×10⁻⁶ = <strong>25 000</strong></li>
+    <li>√(L/C) ≈ <strong>158,1</strong></li>
+    <li>À toi de calculer : Q = (1/100) × 158,1 ≈ <strong>? </strong></li>
+    <li>Puis : Δf = f₀/Q ≈ <strong>? Hz</strong></li>
+  </ul>
+  <div class="exercice-input-zone">
+    <input type="text" class="exercice-input" id="exo2-rep" placeholder="Ta réponse Q (ex : X,XX)">
+    <button class="btn btn-gbf" style="padding:10px 18px;font-size:13px;" onclick="verifierExo2()">Vérifier</button>
+  </div>
+  <div class="exercice-feedback" id="exo2-fb"></div>
+</div>
+
+<div class="exercice-card" id="exo-3">
+  <div class="exercice-entete">
+    <div class="exercice-num">3</div>
+    <div class="exercice-titre">Identifier le déphasage</div>
+  </div>
+  <div class="exercice-enonce">
+    À une fréquence <strong>deux fois plus grande</strong> que f₀, le circuit est-il
+    capacitif, inductif ou résistif ?
+  </div>
+  <ul class="exercice-etapes">
+    <li>Rappel : si f &lt; f₀, le condensateur domine</li>
+    <li>Rappel : si f = f₀, c'est la résonance</li>
+    <li>À toi de raisonner : si f &gt; f₀, quel composant domine ?</li>
+  </ul>
+  <div class="exercice-input-zone">
+    <select class="exercice-input" id="exo3-rep">
+      <option value="">— Choisis —</option>
+      <option value="capacitif">Capacitif</option>
+      <option value="inductif">Inductif</option>
+      <option value="resonance">À la résonance</option>
+    </select>
+    <button class="btn btn-gbf" style="padding:10px 18px;font-size:13px;" onclick="verifierExo3()">Vérifier</button>
+  </div>
+  <div class="exercice-feedback" id="exo3-fb"></div>
+      </div>
+
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="allerEtape(3)">← Étape précédente</button>
+    </div>
+  </section>
+
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target === this) fermerModal();">
+  <div class="modal-box">
+    <h3 id="modalTitle">Titre</h3>
+    <div class="modal-content" id="modalContent">Contenu</div>
+    <button class="modal-btn" onclick="fermerModal()">Compris !</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  EXPLICATIONS
+// ============================================================
+const EXPLICATIONS = {
+  gbf: { title: '🔊 GBF — Générateur Basse Fréquence', content: `<p>Délivre une tension sinusoïdale <strong>u(t) = U_m·cos(2πft)</strong> avec f réglable.</p><p>C'est la <strong>source</strong> qui force le circuit à osciller à sa fréquence.</p><p><strong>Branchement :</strong> en série avec le circuit RLC.</p>` },
+  condensateur: { title: '⚡ Condensateur (C)', content: `<p>Impédance : <code>Z_C = 1/(Cω)</code></p><p>Diminue quand f augmente.</p>` },
+  bobine: { title: '🌀 Bobine (L = 0,1 H)', content: `<p>Impédance : <code>Z_L = Lω</code></p><p>Augmente quand f augmente.</p>` },
+  resistance: { title: '📏 Résistance variable (R)', content: `<p>Dissipe l'énergie par effet Joule.</p><p>Contrôle l'<strong>acuité de la résonance</strong> : plus R est petite, plus Q est grand.</p><p><code>Q = (1/R)·√(L/C)</code></p>` },
+  oscillo: { title: '📺 Oscilloscope 2 voies', content: `<p>Voie 1 : tension du GBF u(t).</p><p>Voie 2 : tension aux bornes de R (image de i car U_R = R·i).</p>` }
+};
+
+function ouvrirModal(cle) {
+  const exp = EXPLICATIONS[cle];
+  if (!exp) return;
+  document.getElementById('modalTitle').innerHTML = exp.title;
+  document.getElementById('modalContent').innerHTML = exp.content;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function fermerModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fermerModal(); });
+
+// ============================================================
+//  ÉTAT GLOBAL
+// ============================================================
+let choixRes = 'moyen';
+let R = 50, L = 0.1, C = 10;
+let freqGBF = 159;
+const Um = 6;
+const FREQ_MIN = 10, FREQ_MAX = 500;
+
+// ============================================================
+//  🔊 SON
+// ============================================================
+let sonActif = localStorage.getItem('tp_rlcf_son_actif') !== 'false';
+let audioCtx = null;
+function initAudio() { if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} } }
+function jouerSon(type) {
+  if (!sonActif) return;
+  initAudio();
+  if (!audioCtx) return;
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const t = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  const sons = {
+    'pose':    { freq: 520, dur: 0.08, type: 'sine',     vol: 0.12, sweep: 120 },
+    'connect': { freq: 660, dur: 0.10, type: 'triangle', vol: 0.10, sweep: 180 },
+    'valide':  { freq: 880, dur: 0.18, type: 'sine',     vol: 0.14, sweep: 220 },
+    'erreur':  { freq: 220, dur: 0.20, type: 'square',   vol: 0.08, sweep: -60 },
+    'jingle':  { freq: 660, dur: 0.5,  type: 'sine',     vol: 0.12, sweep: 440 }
+  };
+  const s = sons[type] || sons['pose'];
+  osc.type = s.type;
+  osc.frequency.setValueAtTime(s.freq, t);
+  osc.frequency.linearRampToValueAtTime(s.freq + s.sweep, t + s.dur);
+  gain.gain.setValueAtTime(s.vol, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + s.dur);
+  osc.start(t); osc.stop(t + s.dur);
+  if (type === 'jingle') {
+    setTimeout(() => jouerNote(880, 0.12, 'sine', 0.10), 120);
+    setTimeout(() => jouerNote(1100, 0.20, 'sine', 0.10), 240);
+  }
+}
+function jouerNote(freq, dur, type, vol) {
+  if (!sonActif || !audioCtx) return;
+  const t = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.type = type; osc.frequency.setValueAtTime(freq, t);
+  gain.gain.setValueAtTime(vol, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  osc.start(t); osc.stop(t + dur);
+}
+function toggleSon() {
+  sonActif = !sonActif;
+  localStorage.setItem('tp_rlcf_son_actif', sonActif);
+  const btn = document.getElementById('sonToggle');
+  if (btn) { btn.textContent = sonActif ? '🔊' : '🔇'; btn.classList.toggle('off', !sonActif); }
+  if (sonActif) jouerSon('valide');
+}
+
+// ============================================================
+//  CHOIX DE R
+// ============================================================
+function choisirR(niveau) {
+  choixRes = niveau;
+  ['faible', 'moyen', 'forte', 'perso'].forEach(r => {
+    const id = 'resOpt' + (r === 'faible' ? 'Faible' : r === 'moyen' ? 'Moyen' : r === 'forte' ? 'Forte' : 'Perso');
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('actif', r === niveau);
+  });
+  if (niveau === 'faible') R = 10;
+  else if (niveau === 'moyen') R = 50;
+  else if (niveau === 'forte') R = 200;
+  else {
+    const inp = document.getElementById('inputRPerso');
+    R = inp ? Math.max(5, Math.min(500, parseFloat(inp.value) || 100)) : 100;
+  }
+  const inputR = document.getElementById('inputR');
+  if (inputR) inputR.value = R;
+  majAffichage();
+  jouerSon('connect');
+}
+
+function majRPersonnalise() {
+  if (choixRes !== 'perso') return;
+  const inp = document.getElementById('inputRPerso');
+  R = Math.max(5, Math.min(500, parseFloat(inp.value) || 100));
+  const inputR = document.getElementById('inputR');
+  if (inputR) inputR.value = R;
+  majAffichage();
+  jouerSon('connect');
+}
+
+function majFrequenceGBF(val) {
+  freqGBF = parseFloat(val) || 159;
+  const slider = document.getElementById('freqGBF');
+  if (slider && parseFloat(slider.value) !== freqGBF) slider.value = freqGBF;
+  majAffichage();
+  drawRecapCourbe();
+}
+
+// ============================================================
+//  AFFICHAGE DES GRANDEURS
+// ============================================================
+function calculerF0(L, C) { return 1 / (2 * Math.PI * Math.sqrt(L * C * 1e-6)); }
+
+function calculerImpedance(f, R, L, C) {
+  const omega = 2 * Math.PI * f;
+  const C_farad = C * 1e-6;
+  const XL = L * omega;
+  const XC = 1 / (C_farad * omega);
+  const Z = Math.sqrt(R * R + (XL - XC) * (XL - XC));
+  const phi = Math.atan2(XL - XC, R);
+  return { Z, phi, XL, XC, omega };
+}
+
+function calculerCourantAmplitude(f, R, L, C) {
+  const { Z } = calculerImpedance(f, R, L, C);
+  return Um / Z;
+}
+
+function majAffichage() {
+  const f0 = calculerF0(L, C);
+  const Q = (1 / R) * Math.sqrt(L / (C * 1e-6));
+  const deltaF = f0 / Q;
+  const w0 = 2 * Math.PI * f0;
+  
+  const imp = calculerImpedance(freqGBF, R, L, C);
+  const iF = Um / imp.Z;
+  const phiDeg = imp.phi * 180 / Math.PI;
+  const omegaGBF = 2 * Math.PI * freqGBF;
+
+  const setTxt = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+
+  setTxt('valeurFreqGBF', freqGBF.toFixed(0) + ' Hz');
+  setTxt('valeurOmegaGBF', '≈ ' + omegaGBF.toFixed(0) + ' rad/s');
+  setTxt('valeurFGBF', freqGBF.toFixed(0) + ' Hz');
+  setTxt('formOmegaGBF', omegaGBF.toFixed(0) + ' rad/s');
+
+  setTxt('valeurZf', imp.Z.toFixed(1) + ' Ω');
+  setTxt('formZf', imp.Z.toFixed(1) + ' Ω');
+  setTxt('valeurIf', (iF * 1000).toFixed(0) + ' mA');
+  setTxt('formIf', (iF * 1000).toFixed(0) + ' mA');
+  setTxt('valeurPhiF', phiDeg.toFixed(1) + '°');
+  setTxt('formPhiF', phiDeg.toFixed(1) + '°');
+
+  setTxt('valeurF0', f0.toFixed(1) + ' Hz');
+  setTxt('valeurQ', Q.toFixed(1));
+  setTxt('valeurDeltaF', deltaF.toFixed(1) + ' Hz');
+  setTxt('valeurW0', w0.toFixed(0) + ' rad/s');
+
+  setTxt('formF0Res', f0.toFixed(1) + ' Hz');
+  setTxt('formQRes', Q.toFixed(1));
+  setTxt('formDfRes', deltaF.toFixed(1) + ' Hz');
+  setTxt('formW0Res', w0.toFixed(0) + ' rad/s');
+}
+
+// ============================================================
+//  NAVIGATION
+// ============================================================
+let etapeActuelle = 2;
+let etapesDebloquees = [1, 2];
+
+function allerEtape(n) {
+  if (!etapesDebloquees.includes(n)) {
+    alert('🔒 Tu dois d\'abord valider cette étape avant de continuer.');
+    return;
+  }
+  document.querySelectorAll('.etape').forEach(e => e.classList.remove('active'));
+  const cible = document.getElementById('etape-' + n);
+  if (cible) cible.classList.add('active');
+  document.querySelectorAll('.step-item').forEach(item => {
+    const step = parseInt(item.dataset.step);
+    item.classList.remove('active', 'done');
+    if (step === n) item.classList.add('active');
+    else if (step < n) item.classList.add('done');
+    if (!etapesDebloquees.includes(step)) item.classList.add('locked');
+    else item.classList.remove('locked');
+  });
+  etapeActuelle = n;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (n === 3) setTimeout(() => { initialiserBranchement(); }, 100);
+  if (n === 4) {
+    setTimeout(() => {
+      initRecapEditable();
+      majAffichage();
+      drawRecapCourbe();
+      chargerConclusionDepuisStorage();
+    }, 100);
+  }
+}
+
+function debloquerEtape(n) { if (!etapesDebloquees.includes(n)) etapesDebloquees.push(n); }
+
+// ============================================================
+//  ÉTAPE 2 : MONTAGE
+// ============================================================
+const canvas = document.getElementById('canvasMontage');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+let montage = {
+  composants: [], fils: [],
+  composantEnDrag: null, poigneeEnDrag: null,
+  offsetDrag: { x: 0, y: 0 },
+  prochainIdComp: 1, prochainIdFil: 1,
+  filSelectionne: null
+};
+
+const TAILLE = {
+  gbf: { w: 110, h: 100 },
+  condensateur: { w: 80, h: 90 },
+  bobine: { w: 120, h: 80 },
+  resistance: { w: 110, h: 40 }
+};
+
+const DIST_CONNEXION = 55;
+const DIST_SNAP = 65;
+
+function ajouterComposant(type) {
+  const exist = montage.composants.find(c => c.type === type);
+  if (exist) { alert('⚠️ Tu as déjà placé ce composant !'); return; }
+  const index = montage.composants.length;
+  const positionsParDefaut = [
+    { x: 150, y: 200 }, { x: 400, y: 200 },
+    { x: 650, y: 200 }, { x: 400, y: 400 }
+  ];
+  const pos = positionsParDefaut[index] || { x: 400, y: 300 };
+  const composant = {
+    id: 'c' + montage.prochainIdComp++,
+    type: type, x: pos.x, y: pos.y, rotation: 0,
+    valeur: type === 'gbf' ? '~' : type === 'condensateur' ? 'C' : type === 'bobine' ? '0.1 H' : 'R'
+  };
+  montage.composants.push(composant);
+  const btn = document.getElementById('btn-' + type);
+  if (btn) btn.classList.add('used');
+  jouerSon('pose');
+  drawMontage(); updateProgress(); updateCanvasHint();
+}
+
+// ⚠️ NOUVEAU : Suppression du dernier composant
+function supprimerDernierComposant() {
+  if (montage.composants.length === 0) {
+    alert('Aucun composant à supprimer.');
+    return;
+  }
+  const dernier = montage.composants[montage.composants.length - 1];
+  if (!confirm(`Supprimer le dernier composant (${dernier.type}) ?`)) return;
+  
+  const btn = document.getElementById('btn-' + dernier.type);
+  if (btn) btn.classList.remove('used');
+  
+  montage.composants = montage.composants.filter(c => c.id !== dernier.id);
+  
+  // Supprime les fils connectés
+  montage.fils = montage.fils.filter(f => {
+    if (f.de && f.de.startsWith(dernier.id + '-')) return false;
+    if (f.vers && f.vers.startsWith(dernier.id + '-')) return false;
+    return true;
+  });
+  
+  updateConnexionsFils();
+  drawMontage();
+  updateProgress();
+  updateCanvasHint();
+  jouerSon('erreur');
+}
+
+function ajouterFil() {
+  // Position horizontale en bas de l'écran
+  // Les fils s'empilent de gauche à droite pour ne pas se superposer
+  const nbFils = montage.fils.length;
+  const margeGauche = 80;
+  const margeBas = 60;         // Distance depuis le bas du canvas
+  const espacementX = 40;      // Espacement horizontal entre les fils
+  const longueur = 180;
+  
+  // Position de départ (côté gauche du fil)
+  const x1 = margeGauche + (nbFils % 6) * espacementX + Math.floor(nbFils / 6) * 220;
+  const y1 = H - margeBas - Math.floor(nbFils / 6) * 30;
+  
+  const fil = {
+    id: 'f' + montage.prochainIdFil++,
+    x1: x1, y1: y1,
+    x2: x1 + longueur, y2: y1,   // Horizontal : y identiques
+    de: null, vers: null
+  };
+  
+  montage.fils.push(fil);
+  montage.filSelectionne = fil.id;
+  updateConnexionsFils();
+  jouerSon('pose');
+  drawMontage(); 
+  updateProgress();
+}
+
+function getBornes(composant) {
+  const t = TAILLE[composant.type];
+  if (!t) return [];
+  const rotation = ((composant.rotation || 0) % 360 + 360) % 360;
+  const angle = rotation * Math.PI / 180;
+  const cos = Math.cos(angle), sin = Math.sin(angle);
+  const longueur = t.w;
+  const pointsLocaux = [
+    { id: composant.id + '-L', lx: -longueur / 2, ly: 0 },
+    { id: composant.id + '-R', lx:  longueur / 2, ly: 0 }
+  ];
+  return pointsLocaux.map(pt => ({
+    id: pt.id, composantId: composant.id,
+    x: composant.x + pt.lx * cos - pt.ly * sin,
+    y: composant.y + pt.lx * sin + pt.ly * cos
+  }));
+}
+
+function getToutesLesBornes() {
+  const t = [];
+  montage.composants.forEach(c => getBornes(c).forEach(b => t.push(b)));
+  return t;
+}
+
+function getBorneById(id) { return getToutesLesBornes().find(b => b.id === id); }
+
+function updateConnexionsFils() {
+  const bornes = getToutesLesBornes();
+  montage.fils.forEach(fil => {
+    fil.de = null; fil.vers = null;
+    let meilleurDe = null, meilleurDeDist = DIST_CONNEXION;
+    let meilleurVers = null, meilleurVersDist = DIST_CONNEXION;
+    bornes.forEach(b => {
+      const d1 = Math.hypot(b.x - fil.x1, b.y - fil.y1);
+      if (d1 < meilleurDeDist) { meilleurDeDist = d1; meilleurDe = b.id; }
+      const d2 = Math.hypot(b.x - fil.x2, b.y - fil.y2);
+      if (d2 < meilleurVersDist) { meilleurVersDist = d2; meilleurVers = b.id; }
+    });
+    if (meilleurDe && meilleurVers) {
+      const b1 = getBorneById(meilleurDe);
+      const b2 = getBorneById(meilleurVers);
+      if (b1 && b2 && b1.composantId === b2.composantId) {
+        if (meilleurDeDist <= meilleurVersDist) meilleurVers = null;
+        else meilleurDe = null;
+      }
+    }
+    fil.de = meilleurDe; fil.vers = meilleurVers;
+  });
+}
+
+function drawMontage() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0a0a1a'; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = 'rgba(124,58,237,0.08)'; ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+  montage.fils.forEach(fil => drawFil(fil));
+  montage.composants.forEach(c => drawComposant(c));
+  montage.composants.forEach(c => getBornes(c).forEach(b => drawBorne(b)));
+  if (montage.composantEnDrag || montage.poigneeEnDrag) canvas.style.cursor = 'grabbing';
+  else if (montage.filSelectionne) canvas.style.cursor = 'pointer';
+  else canvas.style.cursor = 'default';
+}
+
+function drawFil(fil) {
+  const sel = montage.filSelectionne === fil.id;
+  const branche = fil.de && fil.vers;
+  ctx.strokeStyle = sel ? '#ffd54f' : (branche ? '#4caf50' : '#a78bfa');
+  ctx.lineWidth = sel ? 7 : 5; ctx.lineCap = 'round';
+  ctx.shadowColor = ctx.strokeStyle; ctx.shadowBlur = sel ? 12 : 6;
+  ctx.beginPath(); ctx.moveTo(fil.x1, fil.y1); ctx.lineTo(fil.x2, fil.y2); ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = fil.de ? '#4caf50' : '#888';
+  ctx.beginPath(); ctx.arc(fil.x1, fil.y1, 7, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = fil.vers ? '#4caf50' : '#888';
+  ctx.beginPath(); ctx.arc(fil.x2, fil.y2, 7, 0, Math.PI * 2); ctx.fill();
+  if (sel) {
+    const pulse = (Math.sin(Date.now() / 300) + 1) / 2;
+    drawPoigneeFil(fil.x1, fil.y1, pulse);
+    drawPoigneeFil(fil.x2, fil.y2, pulse);
+  }
+}
+
+function drawPoigneeFil(x, y, pulse) {
+  const grad = ctx.createRadialGradient(x, y, 2, x, y, 24 + pulse * 6);
+  grad.addColorStop(0, `rgba(255, 213, 79, ${0.5 + pulse * 0.4})`);
+  grad.addColorStop(1, 'rgba(255, 213, 79, 0)');
+  ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(x, y, 24 + pulse * 6, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#ffd54f'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.arc(x, y, 11, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+}
+
+function drawComposant(c) {
+  const t = TAILLE[c.type];
+  const isDragging = montage.composantEnDrag && montage.composantEnDrag.id === c.id;
+  if (isDragging) { ctx.shadowColor = '#a78bfa'; ctx.shadowBlur = 15; }
+  ctx.save();
+  ctx.translate(c.x, c.y);
+  ctx.rotate((c.rotation || 0) * Math.PI / 180);
+  ctx.translate(-c.x, -c.y);
+  if (c.type === 'gbf') drawGBF(c.x, c.y, t.w, t.h);
+  else if (c.type === 'condensateur') drawCondensateur(c.x, c.y, t.w, t.h, c.valeur);
+  else if (c.type === 'bobine') drawBobine(c.x, c.y, t.w, t.h, c.valeur);
+  else if (c.type === 'resistance') drawResistance(c.x, c.y, t.w, t.h, c.valeur);
+  ctx.restore();
+  ctx.shadowBlur = 0;
+  drawPoigneeRotation(c);
+}
+
+function drawPoigneeRotation(c) {
+  const t = TAILLE[c.type];
+  const angle = (c.rotation || 0) * Math.PI / 180;
+  const offsetY = -t.h / 2 - 25;
+  const hx = c.x + offsetY * Math.sin(angle);
+  const hy = c.y - offsetY * Math.cos(angle);
+  ctx.fillStyle = '#a78bfa'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(hx, hy, 12, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 14px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('⟳', hx, hy + 1); ctx.textBaseline = 'alphabetic';
+}
+
+function drawGBF(cx, cy, w, h) {
+  ctx.fillStyle = '#1a1a2e'; 
+  ctx.strokeStyle = '#7c3aed'; 
+  ctx.lineWidth = 3;
+  ctx.beginPath(); 
+  ctx.roundRect(cx - w/2, cy - h/2, w, h, 12); 
+  ctx.fill(); 
+  ctx.stroke();
+  const grad = ctx.createRadialGradient(cx, cy, 5, cx, cy, w/2);
+  grad.addColorStop(0, 'rgba(124,58,237,0.15)');
+  grad.addColorStop(1, 'rgba(124,58,237,0)');
+  ctx.fillStyle = grad;
+  ctx.beginPath(); 
+  ctx.roundRect(cx - w/2 + 3, cy - h/2 + 3, w - 6, h - 6, 10); 
+  ctx.fill();
+  ctx.strokeStyle = '#a78bfa'; 
+  ctx.lineWidth = 3;
+  ctx.shadowColor = '#a78bfa';
+  ctx.shadowBlur = 8;
+  ctx.beginPath();
+  for (let i = -30; i <= 30; i++) {
+    const x = cx + i;
+    const y = cy - 18 * Math.sin(i * Math.PI / 15);
+    if (i === -30) ctx.moveTo(x, y); 
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#fff'; 
+  ctx.font = 'bold 13px monospace'; 
+  ctx.textAlign = 'center'; 
+  ctx.textBaseline = 'middle';
+  ctx.fillText('GBF ~', cx, cy + h/2 - 14);
+  ctx.fillStyle = '#a78bfa'; 
+  ctx.font = 'bold 14px Arial'; 
+  ctx.textAlign = 'center';
+  ctx.fillText('+', cx - w/2 - 14, cy - h/4);
+  ctx.fillText('−', cx - w/2 - 14, cy + h/4);
+}
+
+function drawCondensateur(cx, cy, w, h, valeur) {
+  ctx.fillStyle = '#1a1a2e'; ctx.strokeStyle = '#4fc3f7'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 8); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - 15, cy - 18); ctx.lineTo(cx - 15, cy + 18);
+  ctx.moveTo(cx + 15, cy - 18); ctx.lineTo(cx + 15, cy + 18);
+  ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(valeur, cx, cy + h/2 - 8); ctx.textBaseline = 'alphabetic';
+}
+
+function drawBobine(cx, cy, w, h, valeur) {
+  ctx.fillStyle = '#1a1a2e'; ctx.strokeStyle = '#B87333'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 10); ctx.fill(); ctx.stroke();
+  const noyauW = w - 30, noyauH = 18;
+  const gradN = ctx.createLinearGradient(cx - noyauW/2, cy, cx + noyauW/2, cy);
+  gradN.addColorStop(0, '#3a4250'); gradN.addColorStop(0.5, '#b8bfcc'); gradN.addColorStop(1, '#3a4250');
+  ctx.fillStyle = gradN;
+  ctx.beginPath(); ctx.roundRect(cx - noyauW/2, cy - noyauH/2, noyauW, noyauH, noyauH/2); ctx.fill();
+  const nbSpires = 10, espacement = noyauW / nbSpires;
+  for (let i = 0; i < nbSpires; i++) {
+    const x = cx - noyauW/2 + espacement * (i + 0.5);
+    const gradS = ctx.createRadialGradient(x - 2, cy - 8, 1, x, cy, 8);
+    gradS.addColorStop(0, '#F5B072'); gradS.addColorStop(1, '#6B3E1A');
+    ctx.strokeStyle = gradS; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.ellipse(x, cy, espacement/2 + 1, 26, 0, 0, Math.PI * 2); ctx.stroke();
+  }
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(valeur, cx, cy + h/2 - 10); ctx.textBaseline = 'alphabetic';
+}
+
+function drawResistance(cx, cy, w, h, valeur) {
+  ctx.fillStyle = '#1a1a2e'; ctx.strokeStyle = '#ffd54f'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.roundRect(cx - w/2, cy - h/2, w, h, 6); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = '#ffd54f'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(cx - w/2 + 10, cy);
+  const seg = (w - 20) / 6;
+  for (let i = 0; i < 6; i++) ctx.lineTo(cx - w/2 + 10 + seg * (i+1), cy + (i % 2 === 0 ? -8 : 8));
+  ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(valeur, cx, cy); ctx.textBaseline = 'alphabetic';
+}
+
+function drawBorne(b) {
+  const estConnectee = montage.fils.some(f => f.de === b.id || f.vers === b.id);
+  if (estConnectee) {
+    const grad = ctx.createRadialGradient(b.x, b.y, 2, b.x, b.y, 18);
+    grad.addColorStop(0, 'rgba(76, 175, 80, 0.6)'); grad.addColorStop(1, 'rgba(76, 175, 80, 0)');
+    ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(b.x, b.y, 18, 0, Math.PI * 2); ctx.fill();
+  } else {
+    const pulse = (Math.sin(Date.now() / 500) + 1) / 2;
+    const grad = ctx.createRadialGradient(b.x, b.y, 2, b.x, b.y, 12 + pulse * 5);
+    grad.addColorStop(0, `rgba(167, 139, 250, ${0.3 + pulse * 0.3})`); grad.addColorStop(1, 'rgba(167, 139, 250, 0)');
+    ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(b.x, b.y, 12 + pulse * 5, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.fillStyle = estConnectee ? '#4caf50' : '#fff';
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(b.x, b.y, 8, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+}
+
+// ============================================================
+//  INTERACTIONS MONTAGE
+// ============================================================
+canvas.addEventListener('mousedown', e => { const p = getCanvasCoords(e, false); handlePointerDown(p.x, p.y); });
+canvas.addEventListener('mousemove', e => { const p = getCanvasCoords(e, false); handlePointerMove(p.x, p.y); });
+canvas.addEventListener('mouseup', handlePointerUp);
+canvas.addEventListener('mouseleave', handlePointerUp);
+canvas.addEventListener('touchstart', e => { e.preventDefault(); const p = getCanvasCoords(e, true); handlePointerDown(p.x, p.y); }, { passive: false });
+canvas.addEventListener('touchmove', e => { e.preventDefault(); const p = getCanvasCoords(e, true); handlePointerMove(p.x, p.y); }, { passive: false });
+canvas.addEventListener('touchend', e => { e.preventDefault(); handlePointerUp(); });
+
+// ⚠️ AMÉLIORATION : clic droit supprime composant OU fil
+canvas.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  const p = getCanvasCoords(e, false);
+  
+  // Priorité 1 : composant
+  const comp = trouverComposantProche(p.x, p.y);
+  if (comp) {
+    if (confirm(`Supprimer le ${comp.type} ?`)) {
+      const btn = document.getElementById('btn-' + comp.type);
+      if (btn) btn.classList.remove('used');
+      montage.composants = montage.composants.filter(c => c.id !== comp.id);
+      montage.fils = montage.fils.filter(f => {
+        if (f.de && f.de.startsWith(comp.id + '-')) return false;
+        if (f.vers && f.vers.startsWith(comp.id + '-')) return false;
+        return true;
+      });
+      updateConnexionsFils(); drawMontage(); updateProgress(); updateCanvasHint();
+      jouerSon('erreur');
+    }
+    return;
+  }
+  
+  // Priorité 2 : fil
+  const fil = trouverFilProche(p.x, p.y);
+  if (fil) {
+    if (confirm('Supprimer ce fil ?')) {
+      montage.fils = montage.fils.filter(f => f.id !== fil.id);
+      if (montage.filSelectionne === fil.id) montage.filSelectionne = null;
+      updateConnexionsFils(); drawMontage(); updateProgress(); updateCanvasHint();
+      jouerSon('erreur');
+    }
+  }
+});
+
+function getCanvasCoords(e, isTouch) {
+  const rect = canvas.getBoundingClientRect();
+  const canvasRatio = canvas.width / canvas.height;
+  const rectRatio = rect.width / rect.height;
+  let rw, rh, ox, oy;
+  if (rectRatio > canvasRatio) { rh = rect.height; rw = rh * canvasRatio; ox = (rect.width - rw) / 2; oy = 0; }
+  else { rw = rect.width; rh = rw / canvasRatio; ox = 0; oy = (rect.height - rh) / 2; }
+  let cx, cy;
+  if (isTouch) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
+  else { cx = e.clientX; cy = e.clientY; }
+  return { x: (cx - rect.left - ox) * (canvas.width / rw), y: (cy - rect.top - oy) * (canvas.height / rh) };
+}
+
+function handlePointerDown(x, y) {
+  for (const c of montage.composants) {
+    const t = TAILLE[c.type];
+    const angle = (c.rotation || 0) * Math.PI / 180;
+    const offsetY = -t.h / 2 - 25;
+    const hx = c.x + offsetY * Math.sin(angle);
+    const hy = c.y - offsetY * Math.cos(angle);
+    if (Math.hypot(hx - x, hy - y) < 18) {
+      c.rotation = ((c.rotation || 0) + 90) % 360;
+      updateConnexionsFils(); drawMontage(); updateProgress(); return;
+    }
+  }
+  if (montage.filSelectionne) {
+  const fil = montage.fils.find(f => f.id === montage.filSelectionne);
+  if (fil) {
+    const dA = Math.hypot(fil.x1 - x, fil.y1 - y);
+    const dB = Math.hypot(fil.x2 - x, fil.y2 - y);
+    if (dA < 28) { 
+      montage.poigneeEnDrag = { filId: fil.id, cote: 'A' }; 
+      fil.de = null;    // ⚠️ AJOUT
+      return; 
+    }
+    if (dB < 28) { 
+      montage.poigneeEnDrag = { filId: fil.id, cote: 'B' }; 
+      fil.vers = null;  // ⚠️ AJOUT
+      return; 
+    }
+  }
+}
+  const filClique = trouverFilProche(x, y);
+  if (filClique) { montage.filSelectionne = filClique.id; drawMontage(); return; }
+  const comp = trouverComposantProche(x, y);
+  if (comp) { montage.composantEnDrag = comp; montage.offsetDrag = { x: x - comp.x, y: y - comp.y }; montage.filSelectionne = null; drawMontage(); return; }
+  montage.filSelectionne = null;
+  drawMontage();
+}
+
+function handlePointerMove(x, y) {
+  if (montage.poigneeEnDrag) {
+  const fil = montage.fils.find(f => f.id === montage.poigneeEnDrag.filId);
+  if (fil) {
+    const borne = trouverBorneProche(x, y, DIST_SNAP);
+    let fx = Math.max(10, Math.min(W - 10, x));
+    let fy = Math.max(10, Math.min(H - 10, y));
+    if (borne) { fx = borne.x; fy = borne.y; }
+    if (montage.poigneeEnDrag.cote === 'A') { fil.x1 = fx; fil.y1 = fy; }
+    else { fil.x2 = fx; fil.y2 = fy; }
+    // ⚠️ SUPPRIMÉ : updateConnexionsFils(); updateProgress();
+  }
+  drawMontage(); return;
+}
+  if (montage.composantEnDrag) {
+    montage.composantEnDrag.x = Math.max(80, Math.min(W - 80, x - montage.offsetDrag.x));
+    montage.composantEnDrag.y = Math.max(80, Math.min(H - 80, y - montage.offsetDrag.y));
+    updateConnexionsFils(); drawMontage(); return;
+  }
+  drawMontage();
+}
+
+function handlePointerUp() {
+  const avait = montage.composantEnDrag || montage.poigneeEnDrag;
+  montage.composantEnDrag = null;
+  montage.poigneeEnDrag = null;
+  if (avait) { updateConnexionsFils(); updateProgress(); drawMontage(); }
+}
+
+function trouverBorneProche(x, y, maxD) {
+  let best = null, minD = maxD;
+  getToutesLesBornes().forEach(b => {
+    const d = Math.hypot(b.x - x, b.y - y);
+    if (d < minD) { minD = d; best = b; }
+  });
+  return best;
+}
+
+function trouverFilProche(x, y) {
+  let best = null, minD = 15;
+  montage.fils.forEach(f => {
+    const d = distancePointSegment(x, y, f.x1, f.y1, f.x2, f.y2);
+    if (d < minD) { minD = d; best = f; }
+  });
+  return best;
+}
+
+function trouverComposantProche(x, y) {
+  for (let i = montage.composants.length - 1; i >= 0; i--) {
+    const c = montage.composants[i];
+    const t = TAILLE[c.type];
+    const dx = x - c.x, dy = y - c.y;
+    const angle = -(c.rotation || 0) * Math.PI / 180;
+    const cos = Math.cos(angle), sin = Math.sin(angle);
+    const lx = dx * cos - dy * sin, ly = dx * sin + dy * cos;
+    const w = (c.rotation % 180 === 0) ? t.w : t.h;
+    const h = (c.rotation % 180 === 0) ? t.h : t.w;
+    if (Math.abs(lx) < w/2 + 10 && Math.abs(ly) < h/2 + 10) return c;
+  }
+  return null;
+}
+
+function distancePointSegment(px, py, x1, y1, x2, y2) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len2 = dx * dx + dy * dy;
+  if (len2 === 0) return Math.hypot(px - x1, py - y1);
+  let t = ((px - x1) * dx + (py - y1) * dy) / len2;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+}
+
+function updateProgress() {
+  const nbC = montage.composants.length;
+  const nbF = montage.fils.filter(f => f.de && f.vers).length;
+  document.getElementById('countComposants').textContent = `${nbC}/4`;
+  document.getElementById('countFils').textContent = `${nbF}/4`;
+  document.getElementById('progComposants').classList.toggle('done', nbC === 4);
+  document.getElementById('progFils').classList.toggle('done', nbF >= 4);
+}
+
+function updateCanvasHint() {
+  const hint = document.getElementById('canvasHint');
+  if (montage.composants.length === 0) hint.textContent = '👈 Clique sur les composants dans la boîte à outils';
+  else if (montage.composants.length < 4) hint.textContent = `👈 Encore ${4 - montage.composants.length} composant(s) à placer`;
+  else if (montage.fils.filter(f => f.de && f.vers).length < 4) hint.textContent = '🔗 Glisse les poignées des fils vers les bornes';
+  else hint.textContent = '✅ Clique sur « Vérifier mon montage »';
+}
+
+function effacerTout() {
+  if (!confirm('Effacer tout ?')) return;
+  montage.composants = []; montage.fils = []; montage.filSelectionne = null;
+  montage.prochainIdComp = 1; montage.prochainIdFil = 1;
+  document.querySelectorAll('.outil-btn').forEach(b => b.classList.remove('used'));
+  drawMontage(); updateProgress(); updateCanvasHint();
+  document.getElementById('verifMessage').classList.remove('show');
+}
+
+function verifierMontage() {
+  const msg = document.getElementById('verifMessage');
+  const checks = [];
+  let toutOK = true;
+  const attendus = ['gbf', 'condensateur', 'bobine', 'resistance'];
+  const presents = montage.composants.map(c => c.type);
+  const compOK = attendus.every(t => presents.includes(t));
+
+  if (compOK) checks.push({ ok: true, txt: 'Les 4 composants sont présents (GBF, C, L, R)' });
+  else {
+    const manq = attendus.filter(t => !presents.includes(t));
+    checks.push({ ok: false, txt: `Composants manquants : ${manq.join(', ')}` }); toutOK = false;
+  }
+
+  if (compOK) {
+    const sansFil = [];
+    montage.composants.forEach(c => getBornes(c).forEach(b => {
+      const ok = montage.fils.some(f => f.de === b.id || f.vers === b.id);
+      if (!ok) sansFil.push(b.id);
+    }));
+    if (sansFil.length === 0) checks.push({ ok: true, txt: 'Toutes les bornes sont connectées' });
+    else { checks.push({ ok: false, txt: `${sansFil.length} borne(s) non connectée(s)` }); toutOK = false; }
+  }
+
+  const filsOK = montage.fils.filter(f => f.de && f.vers).length;
+  if (filsOK >= 4) checks.push({ ok: true, txt: `Fils correctement connectés (${filsOK})` });
+  else { checks.push({ ok: false, txt: `Il manque ${4 - filsOK} fil(s)` }); toutOK = false; }
+
+  msg.classList.remove('success', 'error');
+  msg.classList.add('show', toutOK ? 'success' : 'error');
+  let html = toutOK ? `<strong>🎉 Bravo, ton montage RLC forcé est validé !</strong><ul>` : `<strong>⚠️ Presque ! Vérifie :</strong><ul>`;
+  checks.forEach(c => html += `<li class="${c.ok ? 'ok' : 'ko'}">${c.txt}</li>`);
+  html += `</ul>`;
+  if (toutOK) {
+    html += `<div style="margin-top: 15px; text-align: center;">
+      <button class="btn btn-gbf" onclick="debloquerEtape(3); allerEtape(3);">➡️ Passer au branchement</button>
+    </div>`;
+    debloquerEtape(3);
+    jouerSon('valide');
+  } else jouerSon('erreur');
+  msg.innerHTML = html;
+}
+
+// ============================================================
+//  ÉTAPE 3 : BRANCHEMENT
+// ============================================================
+const canvasB = document.getElementById('canvasBranchement');
+const ctxB = canvasB.getContext('2d');
+const WB = canvasB.width, HB = canvasB.height;
+
+let branchement = {
+  composants: [],
+  fils: [],
+  oscilloscope: null,
+  prochainIdFil: 100,
+  poigneeEnDrag: null, filSelectionne: null,
+  oscilloEnDrag: null, offsetDragOscillo: { x: 0, y: 0 },
+  oscilloPlace: false
+};
+
+function initialiserBranchement() {
+  branchement.composants = JSON.parse(JSON.stringify(montage.composants));
+  
+  branchement.fils = (montage.fils || []).map(fil => ({
+    id: 'fb' + (branchement.prochainIdFil++),
+    x1: fil.x1, y1: fil.y1, x2: fil.x2, y2: fil.y2,
+    de: fil.de, vers: fil.vers
+  }));
+  
+  drawBranchement();
+  updateHintBranchement();
+}
+
+function poserOscilloscope() {
+  if (branchement.oscilloscope) return;
+  branchement.oscilloscope = { id: 'osc', x: 100, y: 100, rotation: 0, w: 160, h: 120 };
+  branchement.oscilloPlace = true;
+  const btn = document.getElementById('btn-oscillo-3');
+  if (btn) { 
+    btn.classList.add('used'); 
+    btn.disabled = true; 
+    btn.innerHTML = '<span class="icon">✅</span><span>Oscilloscope posé</span>';
+  }
+  jouerSon('pose');
+  drawBranchement();
+  updateHintBranchement();
+}
+
+function getBornesOscillo() {
+  if (!branchement.oscilloscope) return [];
+  const o = branchement.oscilloscope;
+  const angle = (o.rotation || 0) * Math.PI / 180;
+  const cos = Math.cos(angle), sin = Math.sin(angle);
+  return [
+    { id: 'osc-1', composantId: 'osc', x: o.x + (-o.w/2) * cos - (-o.h/4) * sin, y: o.y + (-o.w/2) * sin + (-o.h/4) * cos },
+    { id: 'osc-2', composantId: 'osc', x: o.x + (-o.w/2) * cos - (o.h/4) * sin, y: o.y + (-o.w/2) * sin + (o.h/4) * cos }
+  ];
+}
+
+function getToutesLesBornesB() {
+  const t = [];
+  branchement.composants.forEach(c => getBornes(c).forEach(b => t.push(b)));
+  getBornesOscillo().forEach(b => t.push(b));
+  return t;
+}
+
+function getBorneByIdB(id) { return getToutesLesBornesB().find(b => b.id === id); }
+
+function updateConnexionsFilsBranchement() {
+  const bornes = getToutesLesBornesB();
+  branchement.fils.forEach(fil => {
+    const borneDeExiste = fil.de ? bornes.find(b => b.id === fil.de) : null;
+    const borneVersExiste = fil.vers ? bornes.find(b => b.id === fil.vers) : null;
+    
+    if (borneDeExiste) { fil.x1 = borneDeExiste.x; fil.y1 = borneDeExiste.y; }
+    if (borneVersExiste) { fil.x2 = borneVersExiste.x; fil.y2 = borneVersExiste.y; }
+    
+    if (!borneDeExiste) {
+      let mD = null, mDDist = DIST_CONNEXION;
+      bornes.forEach(b => {
+        const d = Math.hypot(b.x - fil.x1, b.y - fil.y1);
+        if (d < mDDist) { mDDist = d; mD = b.id; }
+      });
+      fil.de = mD;
+    }
+    if (!borneVersExiste) {
+      let mV = null, mVDist = DIST_CONNEXION;
+      bornes.forEach(b => {
+        const d = Math.hypot(b.x - fil.x2, b.y - fil.y2);
+        if (d < mVDist) { mVDist = d; mV = b.id; }
+      });
+      fil.vers = mV;
+    }
+  });
+}
+
+function ajouterFilBranchement() {
+  if (!branchement.oscilloPlace) { 
+    alert('⚠️ Pose d\'abord l\'oscilloscope.'); 
+    return; 
+  }
+  
+  // Les fils de branchement apparaissent aussi en bas, horizontaux
+  const nbFils = branchement.fils.length;
+  const margeGauche = 80;
+  const margeBas = 60;
+  const espacementX = 40;
+  const longueur = 180;
+  
+  const x1 = margeGauche + (nbFils % 6) * espacementX + Math.floor(nbFils / 6) * 220;
+  const y1 = HB - margeBas - Math.floor(nbFils / 6) * 30;
+  
+  const fil = {
+    id: 'fb' + branchement.prochainIdFil++,
+    x1: x1, y1: y1,
+    x2: x1 + longueur, y2: y1,   // Horizontal : même y
+    de: null, vers: null
+  };
+  
+  branchement.fils.push(fil);
+  branchement.filSelectionne = fil.id;
+  jouerSon('pose');
+  updateConnexionsFilsBranchement();
+  drawBranchement();
+}
+
+function drawBranchement() {
+  ctxB.clearRect(0, 0, WB, HB);
+  ctxB.fillStyle = '#0a0a1a'; ctxB.fillRect(0, 0, WB, HB);
+  ctxB.strokeStyle = 'rgba(124,58,237,0.08)'; ctxB.lineWidth = 1;
+  for (let x = 0; x < WB; x += 40) { ctxB.beginPath(); ctxB.moveTo(x, 0); ctxB.lineTo(x, HB); ctxB.stroke(); }
+  for (let y = 0; y < HB; y += 40) { ctxB.beginPath(); ctxB.moveTo(0, y); ctxB.lineTo(WB, y); ctxB.stroke(); }
+  branchement.fils.forEach(fil => drawFilB(fil));
+  branchement.composants.forEach(c => {
+    const t = TAILLE[c.type];
+    ctxB.save();
+    ctxB.translate(c.x, c.y); ctxB.rotate((c.rotation || 0) * Math.PI / 180); ctxB.translate(-c.x, -c.y);
+    if (c.type === 'gbf') drawGBFB(c.x, c.y, t.w, t.h);
+    else if (c.type === 'condensateur') drawCondensateurB(c.x, c.y, t.w, t.h, c.valeur);
+    else if (c.type === 'bobine') drawBobineB(c.x, c.y, t.w, t.h, c.valeur);
+    else if (c.type === 'resistance') drawResistanceB(c.x, c.y, t.w, t.h, c.valeur);
+    ctxB.restore();
+  });
+  branchement.composants.forEach(c => getBornes(c).forEach(b => drawBorneB(b, false)));
+  if (branchement.oscilloscope) {
+    drawOscilloB(branchement.oscilloscope);
+    getBornesOscillo().forEach(b => drawBorneB(b, 'osc'));
+  }
+}
+
+function drawFilB(fil) {
+  const sel = branchement.filSelectionne === fil.id;
+  const branche = fil.de && fil.vers;
+  ctxB.strokeStyle = sel ? '#ffd54f' : (branche ? '#4caf50' : '#a78bfa');
+  ctxB.lineWidth = sel ? 7 : 5; ctxB.lineCap = 'round';
+  ctxB.shadowColor = ctxB.strokeStyle; ctxB.shadowBlur = sel ? 12 : 6;
+  ctxB.beginPath(); ctxB.moveTo(fil.x1, fil.y1); ctxB.lineTo(fil.x2, fil.y2); ctxB.stroke();
+  ctxB.shadowBlur = 0;
+  ctxB.fillStyle = fil.de ? '#4caf50' : '#888';
+  ctxB.beginPath(); ctxB.arc(fil.x1, fil.y1, 7, 0, Math.PI * 2); ctxB.fill();
+  ctxB.fillStyle = fil.vers ? '#4caf50' : '#888';
+  ctxB.beginPath(); ctxB.arc(fil.x2, fil.y2, 7, 0, Math.PI * 2); ctxB.fill();
+  if (sel) {
+    const pulse = (Math.sin(Date.now() / 300) + 1) / 2;
+    drawPoigneeFilB(fil.x1, fil.y1, pulse);
+    drawPoigneeFilB(fil.x2, fil.y2, pulse);
+  }
+}
+
+function drawPoigneeFilB(x, y, pulse) {
+  const grad = ctxB.createRadialGradient(x, y, 2, x, y, 24 + pulse * 6);
+  grad.addColorStop(0, `rgba(255, 213, 79, ${0.5 + pulse * 0.4})`);
+  grad.addColorStop(1, 'rgba(255, 213, 79, 0)');
+  ctxB.fillStyle = grad; ctxB.beginPath(); ctxB.arc(x, y, 24 + pulse * 6, 0, Math.PI * 2); ctxB.fill();
+  ctxB.fillStyle = '#ffd54f'; ctxB.strokeStyle = '#fff'; ctxB.lineWidth = 2.5;
+  ctxB.beginPath(); ctxB.arc(x, y, 11, 0, Math.PI * 2); ctxB.fill(); ctxB.stroke();
+}
+
+function drawGBFB(cx, cy, w, h) {
+  ctxB.fillStyle = '#1a1a2e'; 
+  ctxB.strokeStyle = '#7c3aed'; 
+  ctxB.lineWidth = 3;
+  ctxB.beginPath(); 
+  ctxB.roundRect(cx - w/2, cy - h/2, w, h, 12); 
+  ctxB.fill(); 
+  ctxB.stroke();
+  const grad = ctxB.createRadialGradient(cx, cy, 5, cx, cy, w/2);
+  grad.addColorStop(0, 'rgba(124,58,237,0.15)');
+  grad.addColorStop(1, 'rgba(124,58,237,0)');
+  ctxB.fillStyle = grad;
+  ctxB.beginPath(); 
+  ctxB.roundRect(cx - w/2 + 3, cy - h/2 + 3, w - 6, h - 6, 10); 
+  ctxB.fill();
+  ctxB.strokeStyle = '#a78bfa'; 
+  ctxB.lineWidth = 3;
+  ctxB.shadowColor = '#a78bfa'; 
+  ctxB.shadowBlur = 8;
+  ctxB.beginPath();
+  for (let i = -30; i <= 30; i++) {
+    const x = cx + i;
+    const y = cy - 18 * Math.sin(i * Math.PI / 15);
+    if (i === -30) ctxB.moveTo(x, y); 
+    else ctxB.lineTo(x, y);
+  }
+  ctxB.stroke();
+  ctxB.shadowBlur = 0;
+  ctxB.fillStyle = '#fff'; 
+  ctxB.font = 'bold 13px monospace'; 
+  ctxB.textAlign = 'center'; 
+  ctxB.textBaseline = 'middle';
+  ctxB.fillText('GBF ~', cx, cy + h/2 - 14);
+  ctxB.fillStyle = '#a78bfa'; 
+  ctxB.font = 'bold 14px Arial'; 
+  ctxB.textAlign = 'center';
+  ctxB.fillText('+', cx - w/2 - 14, cy - h/4);
+  ctxB.fillText('−', cx - w/2 - 14, cy + h/4);
+}
+
+function drawCondensateurB(cx, cy, w, h, v) {
+  ctxB.fillStyle = '#1a1a2e'; ctxB.strokeStyle = '#4fc3f7'; ctxB.lineWidth = 3;
+  ctxB.beginPath(); ctxB.roundRect(cx - w/2, cy - h/2, w, h, 8); ctxB.fill(); ctxB.stroke();
+  ctxB.strokeStyle = '#fff'; ctxB.lineWidth = 3;
+  ctxB.beginPath();
+  ctxB.moveTo(cx - 15, cy - 18); ctxB.lineTo(cx - 15, cy + 18);
+  ctxB.moveTo(cx + 15, cy - 18); ctxB.lineTo(cx + 15, cy + 18);
+  ctxB.stroke();
+  ctxB.fillStyle = '#fff'; ctxB.font = 'bold 12px monospace'; ctxB.textAlign = 'center'; ctxB.textBaseline = 'middle';
+  ctxB.fillText(v || 'C', cx, cy + h/2 - 8); ctxB.textBaseline = 'alphabetic';
+}
+
+function drawBobineB(cx, cy, w, h, v) {
+  ctxB.fillStyle = '#1a1a2e'; ctxB.strokeStyle = '#B87333'; ctxB.lineWidth = 3;
+  ctxB.beginPath(); ctxB.roundRect(cx - w/2, cy - h/2, w, h, 10); ctxB.fill(); ctxB.stroke();
+  const nW = w - 30, nH = 18;
+  ctxB.fillStyle = '#5B6472';
+  ctxB.beginPath(); ctxB.roundRect(cx - nW/2, cy - nH/2, nW, nH, nH/2); ctxB.fill();
+  const nb = 10, esp = nW / nb;
+  for (let i = 0; i < nb; i++) {
+    const x = cx - nW/2 + esp * (i + 0.5);
+    ctxB.strokeStyle = '#B87333'; ctxB.lineWidth = 3;
+    ctxB.beginPath(); ctxB.ellipse(x, cy, esp/2 + 1, 26, 0, 0, Math.PI * 2); ctxB.stroke();
+  }
+  ctxB.fillStyle = '#fff'; ctxB.font = 'bold 12px monospace'; ctxB.textAlign = 'center'; ctxB.textBaseline = 'middle';
+  ctxB.fillText(v || 'L', cx, cy + h/2 - 10); ctxB.textBaseline = 'alphabetic';
+}
+
+function drawResistanceB(cx, cy, w, h, v) {
+  ctxB.fillStyle = '#1a1a2e'; ctxB.strokeStyle = '#ffd54f'; ctxB.lineWidth = 3;
+  ctxB.beginPath(); ctxB.roundRect(cx - w/2, cy - h/2, w, h, 6); ctxB.fill(); ctxB.stroke();
+  ctxB.strokeStyle = '#ffd54f'; ctxB.lineWidth = 2;
+  ctxB.beginPath(); ctxB.moveTo(cx - w/2 + 10, cy);
+  const seg = (w - 20) / 6;
+  for (let i = 0; i < 6; i++) ctxB.lineTo(cx - w/2 + 10 + seg * (i+1), cy + (i % 2 === 0 ? -8 : 8));
+  ctxB.stroke();
+  ctxB.fillStyle = '#fff'; ctxB.font = 'bold 12px monospace'; ctxB.textAlign = 'center'; ctxB.textBaseline = 'middle';
+  ctxB.fillText(v || 'R', cx, cy); ctxB.textBaseline = 'alphabetic';
+}
+
+function drawOscilloB(o) {
+  ctxB.fillStyle = '#0f766e'; 
+  ctxB.strokeStyle = branchement.oscilloEnDrag ? '#ffd54f' : '#5eead4'; 
+  ctxB.lineWidth = branchement.oscilloEnDrag ? 4 : 3;
+  ctxB.beginPath(); 
+  ctxB.roundRect(o.x - o.w/2, o.y - o.h/2, o.w, o.h, 10); 
+  ctxB.fill(); 
+  ctxB.stroke();
+  ctxB.fillStyle = '#000'; ctxB.strokeStyle = '#4caf50'; ctxB.lineWidth = 2;
+  ctxB.beginPath(); ctxB.rect(o.x - 25, o.y - 25, 80, 50); ctxB.fill(); ctxB.stroke();
+  ctxB.strokeStyle = 'rgba(76, 175, 80, 0.4)'; ctxB.lineWidth = 1;
+  for (let i = 1; i < 3; i++) { ctxB.beginPath(); ctxB.moveTo(o.x - 25 + i * 26.67, o.y - 25); ctxB.lineTo(o.x - 25 + i * 26.67, o.y + 25); ctxB.stroke(); }
+  for (let i = 1; i < 2; i++) { ctxB.beginPath(); ctxB.moveTo(o.x - 25, o.y - 25 + i * 25); ctxB.lineTo(o.x + 55, o.y - 25 + i * 25); ctxB.stroke(); }
+  ctxB.fillStyle = '#fff'; ctxB.font = 'bold 11px monospace'; ctxB.textAlign = 'center'; ctxB.textBaseline = 'middle';
+  ctxB.fillText('OSCILLO', o.x, o.y - o.h/2 + 13);
+  ctxB.fillStyle = '#4fc3f7'; ctxB.font = 'bold 9px monospace'; ctxB.textAlign = 'left';
+  ctxB.fillText('Voie 1 (+)', o.x - o.w/2 + 6, o.y - o.h/4);
+  ctxB.fillStyle = '#ffeb3b'; ctxB.fillText('Voie 2 (−)', o.x - o.w/2 + 6, o.y + o.h/4);
+  if (branchement.oscilloEnDrag) {
+    ctxB.fillStyle = 'rgba(255,213,79,0.4)';
+    ctxB.beginPath(); ctxB.arc(o.x, o.y, o.w/2 + 8, 0, Math.PI * 2); ctxB.fill();
+  }
+}
+
+function drawBorneB(b, type) {
+  const connectee = branchement.fils.some(f => f.de === b.id || f.vers === b.id);
+  if (type === 'osc') ctxB.fillStyle = b.id === 'osc-1' ? '#4fc3f7' : '#ffeb3b';
+  else if (type === 'gbf') ctxB.fillStyle = connectee ? '#4caf50' : '#a78bfa';
+  else ctxB.fillStyle = connectee ? '#4caf50' : '#fff';
+  ctxB.strokeStyle = '#000'; ctxB.lineWidth = 2;
+  ctxB.beginPath(); ctxB.arc(b.x, b.y, 9, 0, Math.PI * 2); ctxB.fill(); ctxB.stroke();
+}
+
+canvasB.addEventListener('mousedown', e => { const p = getCanvasCoordsB(e, false); handlePointerDownB(p.x, p.y); });
+canvasB.addEventListener('mousemove', e => { const p = getCanvasCoordsB(e, false); handlePointerMoveB(p.x, p.y); });
+canvasB.addEventListener('mouseup', handlePointerUpB);
+canvasB.addEventListener('mouseleave', handlePointerUpB);
+canvasB.addEventListener('touchstart', e => { e.preventDefault(); const p = getCanvasCoordsB(e, true); handlePointerDownB(p.x, p.y); }, { passive: false });
+canvasB.addEventListener('touchmove', e => { e.preventDefault(); const p = getCanvasCoordsB(e, true); handlePointerMoveB(p.x, p.y); }, { passive: false });
+canvasB.addEventListener('touchend', e => { e.preventDefault(); handlePointerUpB(); });
+
+// ⚠️ NOUVEAU : clic droit sur fil dans étape 3 pour supprimer
+canvasB.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  const p = getCanvasCoordsB(e, false);
+  const fil = trouverFilProcheB(p.x, p.y);
+  if (fil) {
+    if (confirm('Supprimer ce fil ?')) {
+      branchement.fils = branchement.fils.filter(f => f.id !== fil.id);
+      if (branchement.filSelectionne === fil.id) branchement.filSelectionne = null;
+      updateConnexionsFilsBranchement();
+      drawBranchement();
+      jouerSon('erreur');
+    }
+  }
+});
+
+function getCanvasCoordsB(e, isTouch) {
+  const rect = canvasB.getBoundingClientRect();
+  const ratio = canvasB.width / canvasB.height;
+  const rectRatio = rect.width / rect.height;
+  let rw, rh, ox, oy;
+  if (rectRatio > ratio) { rh = rect.height; rw = rh * ratio; ox = (rect.width - rw) / 2; oy = 0; }
+  else { rw = rect.width; rh = rw / ratio; ox = 0; oy = (rect.height - rh) / 2; }
+  let cx, cy;
+  if (isTouch) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
+  else { cx = e.clientX; cy = e.clientY; }
+  return { x: (cx - rect.left - ox) * (canvasB.width / rw), y: (cy - rect.top - oy) * (canvasB.height / rh) };
+}
+
+function handlePointerDownB(x, y) {
+  // ⚠️ PRIORITÉ 1 : Drag de l'oscilloscope
+  if (branchement.oscilloscope) {
+    const o = branchement.oscilloscope;
+    if (Math.abs(x - o.x) < o.w/2 + 5 && Math.abs(y - o.y) < o.h/2 + 5) {
+      branchement.oscilloEnDrag = o;
+      branchement.offsetDragOscillo = { x: x - o.x, y: y - o.y };
+      branchement.filSelectionne = null;
+      branchement.poigneeEnDrag = null;
+      canvasB.style.cursor = 'grabbing';
+      drawBranchement();
+      return;
+    }
+  }
+  
+  // ⚠️ PRIORITÉ 2 : Poignée d'un fil sélectionné
+  if (branchement.filSelectionne) {
+    const fil = branchement.fils.find(f => f.id === branchement.filSelectionne);
+    if (fil) {
+      const dA = Math.hypot(fil.x1 - x, fil.y1 - y);
+      const dB = Math.hypot(fil.x2 - x, fil.y2 - y);
+      if (dA < 28) { 
+        branchement.poigneeEnDrag = { filId: fil.id, cote: 'A' }; 
+        fil.de = null;   // libère la borne côté A
+        return; 
+      }
+      if (dB < 28) { 
+        branchement.poigneeEnDrag = { filId: fil.id, cote: 'B' }; 
+        fil.vers = null; // libère la borne côté B
+        return; 
+      }
+    }
+  }
+  
+  // PRIORITÉ 3 : Sélection d'un fil
+  const f = trouverFilProcheB(x, y);
+  if (f) { 
+    branchement.filSelectionne = f.id; 
+    drawBranchement(); 
+    return; 
+  }
+  
+  branchement.filSelectionne = null;
+  drawBranchement();
+}
+
+function handlePointerMoveB(x, y) {
+  // 1. Drag d'une poignée de fil
+  if (branchement.poigneeEnDrag) {
+    const fil = branchement.fils.find(f => f.id === branchement.poigneeEnDrag.filId);
+    if (fil) {
+      const b = trouverBorneProcheB(x, y, DIST_SNAP);
+      let fx = Math.max(10, Math.min(WB - 10, x));
+      let fy = Math.max(10, Math.min(HB - 10, y));
+      if (b) { fx = b.x; fy = b.y; }
+      if (branchement.poigneeEnDrag.cote === 'A') { fil.x1 = fx; fil.y1 = fy; }
+      else { fil.x2 = fx; fil.y2 = fy; }
+    }
+    drawBranchement();
+    return;
+  }
+  
+  // 2. Drag de l'oscilloscope
+  if (branchement.oscilloEnDrag) {
+    branchement.oscilloEnDrag.x = Math.max(
+      branchement.oscilloEnDrag.w/2 + 10,
+      Math.min(WB - branchement.oscilloEnDrag.w/2 - 10, x - branchement.offsetDragOscillo.x)
+    );
+    branchement.oscilloEnDrag.y = Math.max(
+      branchement.oscilloEnDrag.h/2 + 10,
+      Math.min(HB - branchement.oscilloEnDrag.h/2 - 10, y - branchement.offsetDragOscillo.y)
+    );
+    
+    // Les fils connectés à l'oscilloscope le suivent
+    branchement.fils.forEach(fil => {
+      if (fil.de === 'osc-1' || fil.de === 'osc-2') {
+        const borne = getBornesOscillo().find(b => b.id === fil.de);
+        if (borne) { fil.x1 = borne.x; fil.y1 = borne.y; }
+      }
+      if (fil.vers === 'osc-1' || fil.vers === 'osc-2') {
+        const borne = getBornesOscillo().find(b => b.id === fil.vers);
+        if (borne) { fil.x2 = borne.x; fil.y2 = borne.y; }
+      }
+    });
+    
+    drawBranchement();
+    return;
+  }
+  
+  // 3. Curseur "move" quand on survole l'oscilloscope
+  if (branchement.oscilloscope) {
+    const o = branchement.oscilloscope;
+    if (Math.abs(x - o.x) < o.w/2 + 5 && Math.abs(y - o.y) < o.h/2 + 5) {
+      canvasB.style.cursor = 'move';
+    } else {
+      canvasB.style.cursor = 'default';
+    }
+  }
+  
+  drawBranchement();
+}
+
+function handlePointerUpB() {
+  const avaitDrag = branchement.poigneeEnDrag || branchement.oscilloEnDrag;
+  branchement.poigneeEnDrag = null;
+  branchement.oscilloEnDrag = null;
+  canvasB.style.cursor = 'default';  // ⚠️ Reset curseur
+  if (avaitDrag) {
+    updateConnexionsFilsBranchement();
+    drawBranchement();
+  }
+}
+
+function trouverBorneProcheB(x, y, maxD) {
+  let best = null, minD = maxD;
+  getToutesLesBornesB().forEach(b => {
+    const d = Math.hypot(b.x - x, b.y - y);
+    if (d < minD) { minD = d; best = b; }
+  });
+  return best;
+}
+
+function trouverFilProcheB(x, y) {
+  let best = null, minD = 15;
+  branchement.fils.forEach(f => {
+    const d = distancePointSegment(x, y, f.x1, f.y1, f.x2, f.y2);
+    if (d < minD) { minD = d; best = f; }
+  });
+  return best;
+}
+
+function updateHintBranchement() {
+  const h = document.getElementById('canvasHintBranchement');
+  if (!h) return;
+  if (!branchement.oscilloPlace) {
+    h.textContent = '📺 Pose l\'oscilloscope avec le bouton à gauche';
+    h.style.background = 'rgba(217, 83, 79, 0.9)';
+    h.style.color = '#fff';
+  } else {
+    h.textContent = '🔗 Branche les voies de l\'oscilloscope puis clique sur « Vérifier »';
+    h.style.background = 'rgba(0, 0, 0, 0.85)';
+    h.style.color = 'var(--gbf-light)';
+  }
+}
+
+function verifierBranchement() {
+  const msg = document.getElementById('verifBranchement');
+  const checks = [];
+  let toutOK = true;
+
+  if (!branchement.oscilloPlace) {
+    checks.push({ ok: false, txt: 'Oscilloscope non posé' });
+    toutOK = false;
+    msg.classList.remove('success', 'error');
+    msg.classList.add('show', 'error');
+    msg.innerHTML = '<strong>⚠️ Pose d\'abord l\'oscilloscope.</strong><ul>' + checks.map(c => `<li class="${c.ok ? 'ok' : 'ko'}">${c.txt}</li>`).join('') + '</ul>';
+    jouerSon('erreur');
+    return;
+  }
+  checks.push({ ok: true, txt: 'Oscilloscope posé' });
+
+  const fils = branchement.fils.filter(f => f.de && f.vers);
+  const filVoie1 = fils.find(f => f.de === 'osc-1' || f.vers === 'osc-1');
+  if (filVoie1) {
+    const autreExt = filVoie1.de === 'osc-1' ? filVoie1.vers : filVoie1.de;
+    const borne = getBorneByIdB(autreExt);
+    const gbf = branchement.composants.find(c => c.type === 'gbf');
+    if (borne && gbf && borne.composantId === gbf.id) {
+      checks.push({ ok: true, txt: 'Voie 1 (+) branchée sur le GBF' });
+    } else {
+      checks.push({ ok: false, txt: 'Voie 1 (+) doit être branchée sur le GBF' });
+      toutOK = false;
+    }
+  } else {
+    checks.push({ ok: false, txt: 'Voie 1 (+) non connectée' });
+    toutOK = false;
+  }
+
+  const filVoie2 = fils.find(f => f.de === 'osc-2' || f.vers === 'osc-2');
+  if (filVoie2) {
+    const autreExt = filVoie2.de === 'osc-2' ? filVoie2.vers : filVoie2.de;
+    const borne = getBorneByIdB(autreExt);
+    const resistance = branchement.composants.find(c => c.type === 'resistance');
+    if (borne && resistance && borne.composantId === resistance.id) {
+      checks.push({ ok: true, txt: 'Voie 2 (−) branchée sur la résistance R (image de i)' });
+    } else {
+      checks.push({ ok: false, txt: 'Voie 2 (−) doit être branchée sur la résistance R' });
+      toutOK = false;
+    }
+  } else {
+    checks.push({ ok: false, txt: 'Voie 2 (−) non connectée' });
+    toutOK = false;
+  }
+
+  msg.classList.remove('success', 'error');
+  msg.classList.add('show', toutOK ? 'success' : 'error');
+  let html = toutOK ? `<strong>🎉 Branchement validé !</strong><ul>` : `<strong>⚠️ Vérifie :</strong><ul>`;
+  checks.forEach(c => html += `<li class="${c.ok ? 'ok' : 'ko'}">${c.txt}</li>`);
+  html += '</ul>';
+  if (toutOK) {
+    html += `<div style="margin-top: 15px; text-align: center;">
+      <button class="btn btn-gbf" onclick="debloquerEtape(4); allerEtape(4);">➡️ Passer à l'analyse</button>
+    </div>`;
+    debloquerEtape(4);
+    jouerSon('valide');
+  } else jouerSon('erreur');
+  msg.innerHTML = html;
+}
+
+// ============================================================
+//  ÉTAPE 4 : SOUS-ONGLETS
+// ============================================================
+function changerSousOnglet(nom) {
+  document.querySelectorAll('.sous-onglet').forEach(b => b.classList.toggle('active', b.dataset.sous === nom));
+  document.querySelectorAll('.sous-onglet-contenu').forEach(c => c.classList.remove('active'));
+  document.getElementById('sous-' + nom).classList.add('active');
+  setTimeout(() => {
+    if (nom === 'recap') { 
+  initRecapEditable(); 
+  majAffichage(); 
+  drawRecapCourbe(); 
+  initRecapCourbeInteractif();  // ⚠️ NOUVEAU
+}
+    if (nom === 'phase') { initCourbesPhasesVides(); }
+    if (nom === 'phase') { afficherPhases(); }
+    if (nom === 'conclusion') { chargerConclusionDepuisStorage(); }
+  }, 50);
+}
+
+function initRecapEditable() {
+  const iR = document.getElementById('inputR');
+  const iL = document.getElementById('inputL');
+  const iC = document.getElementById('inputC');
+  if (!iR || !iL || !iC) return;
+  if (!iR.dataset.bound) {
+    iR.addEventListener('input', () => {
+      const val = parseFloat(iR.value);
+      R = isNaN(val) ? 50 : Math.max(5, Math.min(500, val));
+      if (isNaN(val)) iR.value = 50;
+      majAffichage(); drawRecapCourbe();
+    });
+    iL.addEventListener('input', () => {
+      const val = parseFloat(iL.value);
+      L = isNaN(val) ? 0.1 : Math.max(0.01, Math.min(1, val));
+      if (isNaN(val)) iL.value = 0.1;
+      majAffichage(); drawRecapCourbe();
+    });
+    iC.addEventListener('input', () => {
+      const val = parseFloat(iC.value);
+      C = isNaN(val) ? 10 : Math.max(1, Math.min(100, val));
+      if (isNaN(val)) iC.value = 10;
+      majAffichage(); drawRecapCourbe();
+    });
+    iR.dataset.bound = '1';
+  }
+  majAffichage();
+}
+
+function drawRecapCourbe() {
+  const canvas = document.getElementById('recapCourbe');
+  if (!canvas) return;
+  const ctx2 = canvas.getContext('2d');
+  const cw = canvas.width, ch = canvas.height;
+  const mG = 70, mD = 20, mH = 30, mB = 50;
+  const largeur = cw - mG - mD;
+  const hauteur = ch - mH - mB;
+
+  ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
+  ctx2.strokeStyle = 'rgba(124,58,237,0.15)'; ctx2.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) { const y = mH + hauteur * i / 10; ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
+  for (let i = 0; i <= 10; i++) { const x = mG + largeur * i / 10; ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
+
+  ctx2.strokeStyle = 'rgba(124,58,237,0.6)'; ctx2.lineWidth = 1.5;
+  ctx2.beginPath();
+  ctx2.moveTo(mG, mH + hauteur); ctx2.lineTo(mG + largeur, mH + hauteur);
+  ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
+  ctx2.stroke();
+
+  const iMaxPlot = (Um / R) * 1.15;
+
+  ctx2.fillStyle = '#a78bfa'; ctx2.font = 'bold 10px "Courier New", monospace';
+  ctx2.textAlign = 'center'; ctx2.textBaseline = 'top';
+  for (let i = 0; i <= 5; i++) {
+    const f = FREQ_MIN + (FREQ_MAX - FREQ_MIN) * i / 5;
+    ctx2.fillText(f.toFixed(0) + ' Hz', mG + largeur * i / 5, mH + hauteur + 8);
+  }
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'middle';
+  for (let i = 0; i <= 4; i++) {
+    const val = iMaxPlot * (1 - i / 4);
+    ctx2.fillText((val * 1000).toFixed(0) + ' mA', mG - 6, mH + hauteur * i / 4);
+  }
+
+  ctx2.strokeStyle = '#a78bfa'; ctx2.lineWidth = 3;
+  ctx2.shadowColor = '#a78bfa'; ctx2.shadowBlur = 10;
+  ctx2.beginPath();
+  for (let i = 0; i <= 400; i++) {
+    const f = FREQ_MIN + (FREQ_MAX - FREQ_MIN) * i / 400;
+    const im = calculerCourantAmplitude(f, R, L, C);
+    const x = mG + largeur * i / 400;
+    const y = mH + hauteur - (hauteur * im / iMaxPlot);
+    if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke(); ctx2.shadowBlur = 0;
+
+  const f0 = calculerF0(L, C);
+  if (f0 >= FREQ_MIN && f0 <= FREQ_MAX) {
+    const xF0 = mG + largeur * (f0 - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
+    ctx2.strokeStyle = '#f59e0b'; ctx2.lineWidth = 2; ctx2.setLineDash([5, 4]);
+    ctx2.beginPath(); ctx2.moveTo(xF0, mH); ctx2.lineTo(xF0, mH + hauteur); ctx2.stroke();
+    ctx2.setLineDash([]);
+    ctx2.fillStyle = '#f59e0b'; ctx2.font = 'bold 11px "Courier New", monospace';
+    ctx2.textAlign = 'center'; ctx2.textBaseline = 'bottom';
+    ctx2.fillText('f₀ = ' + f0.toFixed(0) + ' Hz', xF0, mH - 4);
+  }
+
+  if (freqGBF >= FREQ_MIN && freqGBF <= FREQ_MAX) {
+    const xFGBF = mG + largeur * (freqGBF - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
+    const iGBF = calculerCourantAmplitude(freqGBF, R, L, C);
+    const yFGBF = mH + hauteur - (hauteur * iGBF / iMaxPlot);
+    ctx2.strokeStyle = '#e91e63'; ctx2.lineWidth = 2;
+    ctx2.beginPath(); ctx2.moveTo(xFGBF, mH); ctx2.lineTo(xFGBF, mH + hauteur); ctx2.stroke();
+    const grad = ctx2.createRadialGradient(xFGBF, yFGBF, 2, xFGBF, yFGBF, 18);
+    grad.addColorStop(0, 'rgba(233,30,99,0.9)');
+    grad.addColorStop(1, 'rgba(233,30,99,0)');
+    ctx2.fillStyle = grad;
+    ctx2.beginPath(); ctx2.arc(xFGBF, yFGBF, 18, 0, Math.PI * 2); ctx2.fill();
+    ctx2.fillStyle = '#e91e63';
+    ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 2;
+    ctx2.beginPath(); ctx2.arc(xFGBF, yFGBF, 7, 0, Math.PI * 2); ctx2.fill(); ctx2.stroke();
+  }
+
+  const Q = (1 / R) * Math.sqrt(L / (C * 1e-6));
+  const deltaF = f0 / Q;
+  const f1 = f0 - deltaF / 2, f2 = f0 + deltaF / 2;
+  const f1Affiche = Math.max(f1, FREQ_MIN);
+  const f2Affiche = Math.min(f2, FREQ_MAX);
+  if (f2Affiche > f1Affiche) {
+    const iBP = (Um / R) / Math.sqrt(2);
+    const yBP = mH + hauteur - (hauteur * iBP / iMaxPlot);
+    ctx2.strokeStyle = 'rgba(94,234,212,0.7)'; ctx2.lineWidth = 1.5; ctx2.setLineDash([3, 3]);
+    ctx2.beginPath();
+    ctx2.moveTo(mG, yBP); ctx2.lineTo(mG + largeur, yBP);
+    ctx2.stroke();
+    ctx2.setLineDash([]);
+    ctx2.fillStyle = '#5eead4'; ctx2.font = 'bold 9px "Courier New", monospace';
+    ctx2.textAlign = 'left'; ctx2.textBaseline = 'bottom';
+    ctx2.fillText('i_max/√2 (−3 dB)', mG + 6, yBP - 3);
+  }
+
+  ctx2.fillStyle = '#a78bfa'; ctx2.font = 'bold 12px "Courier New", monospace';
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
+  ctx2.fillText('i(f) [mA]', cw - 8, 8);
+  
+  ctx2.fillStyle = '#e91e63'; ctx2.font = 'bold 10px "Courier New", monospace';
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
+  ctx2.fillText('● f GBF = ' + freqGBF.toFixed(0) + ' Hz', cw - 8, 24);
+
+// ============================================================
+//  INTERACTIVITÉ DE LA COURBE i(f) — TOOLTIP AU SURVOL
+// ============================================================
+let recapCourbeLiee = false;
+let dernierMarqueur = null;
+
+function initRecapCourbeInteractif() {
+  const canvas = document.getElementById('recapCourbe');
+  const tooltip = document.getElementById('tooltipCourbe');
+  const tooltipContenu = document.getElementById('tooltipContenu');
+  if (!canvas || !tooltip || !tooltipContenu) return;
+  
+  // Évite d'attacher plusieurs fois les écouteurs
+  if (recapCourbeLiee) return;
+  recapCourbeLiee = true;
+  
+  canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const xClic = (e.clientX - rect.left) * scaleX;
+    const yClic = (e.clientY - rect.top) * scaleY;
+    
+    const mG = 70, mD = 20, mH = 30, mB = 50;
+    const largeur = canvas.width - mG - mD;
+    const hauteur = canvas.height - mH - mB;
+    
+    // Vérifie qu'on est dans la zone de tracé
+    if (xClic < mG || xClic > mG + largeur || yClic < mH || yClic > mH + hauteur) {
+      tooltip.style.display = 'none';
+      dernierMarqueur = null;
+      drawRecapCourbe();
+      return;
+    }
+    
+    // Convertit en fréquence
+    const f = FREQ_MIN + (FREQ_MAX - FREQ_MIN) * (xClic - mG) / largeur;
+    const iVal = calculerCourantAmplitude(f, R, L, C);
+    
+    // Affiche le tooltip
+    tooltipContenu.innerHTML = `
+      <div>f = <strong>${f.toFixed(1)} Hz</strong></div>
+      <div>i = <strong>${(iVal * 1000).toFixed(1)} mA</strong></div>
+    `;
+    tooltip.style.display = 'block';
+    
+    // Positionne le tooltip intelligemment (évite les bords)
+    const tooltipX = Math.min(rect.width - 150, e.clientX - rect.left + 15);
+    const tooltipY = Math.max(0, e.clientY - rect.top - 60);
+    tooltip.style.left = tooltipX + 'px';
+    tooltip.style.top = tooltipY + 'px';
+    
+    // Mémorise le point pour le redessiner
+    dernierMarqueur = { f, i: iVal };
+    drawRecapCourbe();
+    drawMarqueurCurseur(canvas, f, iVal);
+  });
+  
+  canvas.addEventListener('mouseleave', () => {
+    tooltip.style.display = 'none';
+    dernierMarqueur = null;
+    drawRecapCourbe();
+  });
+  
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const xClic = (e.clientX - rect.left) * scaleX;
+    
+    const mG = 70, mD = 20;
+    const largeur = canvas.width - mG - mD;
+    if (xClic < mG || xClic > mG + largeur) return;
+    
+    const f = FREQ_MIN + (FREQ_MAX - FREQ_MIN) * (xClic - mG) / largeur;
+    const iVal = calculerCourantAmplitude(f, R, L, C);
+    
+    // Affiche en bas (info persistante)
+    const info = document.getElementById('infoCourbeCliquee');
+    if (!info) {
+      const div = document.createElement('div');
+      div.id = 'infoCourbeCliquee';
+      div.style.cssText = 'margin-top: 12px; padding: 10px 14px; background: #fff; border: 2px solid #e91e63; border-radius: 8px; font-family: "Courier New", monospace; font-size: 14px; color: #1a1a1a;';
+      canvas.parentElement.appendChild(div);
+    }
+    document.getElementById('infoCourbeCliquee').innerHTML = `
+      📌 <strong>Point sélectionné :</strong> 
+      <span style="color: #e91e63;">f = ${f.toFixed(1)} Hz</span>, 
+      <span style="color: #a78bfa;">i = ${(iVal * 1000).toFixed(1)} mA</span>
+    `;
+    jouerSon('valide');
+  });
+}
+
+function drawMarqueurCurseur(canvas, f, iVal) {
+  const ctx2 = canvas.getContext('2d');
+  const mG = 70, mD = 20, mH = 30, mB = 50;
+  const largeur = canvas.width - mG - mD;
+  const hauteur = canvas.height - mH - mB;
+  
+  const iMaxPlot = (Um / R) * 1.15;
+  const x = mG + largeur * (f - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
+  const y = mH + hauteur - (hauteur * iVal / iMaxPlot);
+  
+  // Réticule vertical
+  ctx2.strokeStyle = 'rgba(233,30,99,0.5)';
+  ctx2.lineWidth = 1;
+  ctx2.setLineDash([4, 4]);
+  ctx2.beginPath();
+  ctx2.moveTo(x, mH);
+  ctx2.lineTo(x, mH + hauteur);
+  ctx2.stroke();
+  
+  // Réticule horizontal
+  ctx2.beginPath();
+  ctx2.moveTo(mG, y);
+  ctx2.lineTo(mG + largeur, y);
+  ctx2.stroke();
+  ctx2.setLineDash([]);
+  
+  // Point sur la courbe
+  const grad = ctx2.createRadialGradient(x, y, 2, x, y, 14);
+  grad.addColorStop(0, 'rgba(233,30,99,0.8)');
+  grad.addColorStop(1, 'rgba(233,30,99,0)');
+  ctx2.fillStyle = grad;
+  ctx2.beginPath();
+  ctx2.arc(x, y, 14, 0, Math.PI * 2);
+  ctx2.fill();
+  
+  ctx2.fillStyle = '#e91e63';
+  ctx2.strokeStyle = '#fff';
+  ctx2.lineWidth = 2;
+  ctx2.beginPath();
+  ctx2.arc(x, y, 6, 0, Math.PI * 2);
+  ctx2.fill();
+  ctx2.stroke();
+  
+  // Étiquette
+  ctx2.fillStyle = '#fff';
+  ctx2.font = 'bold 11px "Courier New", monospace';
+  ctx2.textAlign = 'left';
+  ctx2.textBaseline = 'bottom';
+  ctx2.fillText(`(${f.toFixed(0)} Hz, ${(iVal * 1000).toFixed(0)} mA)`, x + 10, y - 8);
+}
+}
+
+function afficherResonance() {
+  // ============================================================
+//  INTERACTIVITÉ DE LA COURBE i(f) — TOOLTIP AU SURVOL
+// ============================================================
+let recapCourbeLiee = false;
+
+function initRecapCourbeInteractif() {
+  const canvas = document.getElementById('recapCourbe');
+  const tooltip = document.getElementById('tooltipCourbe');
+  const tooltipContenu = document.getElementById('tooltipContenu');
+  if (!canvas || !tooltip || !tooltipContenu) return;
+  
+  if (recapCourbeLiee) return;
+  recapCourbeLiee = true;
+  
+  canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const xClic = (e.clientX - rect.left) * scaleX;
+    const yClic = (e.clientY - rect.top) * scaleY;
+    
+    const mG = 70, mD = 20, mH = 30, mB = 50;
+    const largeur = canvas.width - mG - mD;
+    const hauteur = canvas.height - mH - mB;
+    
+    if (xClic < mG || xClic > mG + largeur || yClic < mH || yClic > mH + hauteur) {
+      tooltip.style.display = 'none';
+      drawRecapCourbe();
+      return;
+    }
+    
+    const f = FREQ_MIN + (FREQ_MAX - FREQ_MIN) * (xClic - mG) / largeur;
+    const iVal = calculerCourantAmplitude(f, R, L, C);
+    
+    tooltipContenu.innerHTML = `
+      <div>f = <strong>${f.toFixed(1)} Hz</strong></div>
+      <div>i = <strong>${(iVal * 1000).toFixed(1)} mA</strong></div>
+    `;
+    tooltip.style.display = 'block';
+    
+    const tooltipX = Math.min(rect.width - 150, e.clientX - rect.left + 15);
+    const tooltipY = Math.max(0, e.clientY - rect.top - 60);
+    tooltip.style.left = tooltipX + 'px';
+    tooltip.style.top = tooltipY + 'px';
+    
+    drawRecapCourbe();
+    drawMarqueurCurseur(canvas, f, iVal);
+  });
+  
+  canvas.addEventListener('mouseleave', () => {
+    tooltip.style.display = 'none';
+    drawRecapCourbe();
+  });
+  
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const xClic = (e.clientX - rect.left) * scaleX;
+    
+    const mG = 70, mD = 20;
+    const largeur = canvas.width - mG - mD;
+    if (xClic < mG || xClic > mG + largeur) return;
+    
+    const f = FREQ_MIN + (FREQ_MAX - FREQ_MIN) * (xClic - mG) / largeur;
+    const iVal = calculerCourantAmplitude(f, R, L, C);
+    
+    let info = document.getElementById('infoCourbeCliquee');
+    if (!info) {
+      info = document.createElement('div');
+      info.id = 'infoCourbeCliquee';
+      info.style.cssText = 'margin-top: 12px; padding: 10px 14px; background: #fff; border: 2px solid #e91e63; border-radius: 8px; font-family: "Courier New", monospace; font-size: 14px; color: #1a1a1a;';
+      canvas.parentElement.appendChild(info);
+    }
+    info.innerHTML = `
+      📌 <strong>Point sélectionné :</strong> 
+      <span style="color: #e91e63;">f = ${f.toFixed(1)} Hz</span>, 
+      <span style="color: #a78bfa;">i = ${(iVal * 1000).toFixed(1)} mA</span>
+    `;
+    jouerSon('valide');
+  });
+}
+
+function drawMarqueurCurseur(canvas, f, iVal) {
+  const ctx2 = canvas.getContext('2d');
+  const mG = 70, mD = 20, mH = 30, mB = 50;
+  const largeur = canvas.width - mG - mD;
+  const hauteur = canvas.height - mH - mB;
+  
+  const iMaxPlot = (Um / R) * 1.15;
+  const x = mG + largeur * (f - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
+  const y = mH + hauteur - (hauteur * iVal / iMaxPlot);
+  
+  ctx2.strokeStyle = 'rgba(233,30,99,0.5)';
+  ctx2.lineWidth = 1;
+  ctx2.setLineDash([4, 4]);
+  ctx2.beginPath();
+  ctx2.moveTo(x, mH);
+  ctx2.lineTo(x, mH + hauteur);
+  ctx2.stroke();
+  
+  ctx2.beginPath();
+  ctx2.moveTo(mG, y);
+  ctx2.lineTo(mG + largeur, y);
+  ctx2.stroke();
+  ctx2.setLineDash([]);
+  
+  const grad = ctx2.createRadialGradient(x, y, 2, x, y, 14);
+  grad.addColorStop(0, 'rgba(233,30,99,0.8)');
+  grad.addColorStop(1, 'rgba(233,30,99,0)');
+  ctx2.fillStyle = grad;
+  ctx2.beginPath();
+  ctx2.arc(x, y, 14, 0, Math.PI * 2);
+  ctx2.fill();
+  
+  ctx2.fillStyle = '#e91e63';
+  ctx2.strokeStyle = '#fff';
+  ctx2.lineWidth = 2;
+  ctx2.beginPath();
+  ctx2.arc(x, y, 6, 0, Math.PI * 2);
+  ctx2.fill();
+  ctx2.stroke();
+  
+  ctx2.fillStyle = '#fff';
+  ctx2.font = 'bold 11px "Courier New", monospace';
+  ctx2.textAlign = 'left';
+  ctx2.textBaseline = 'bottom';
+  ctx2.fillText(`(${f.toFixed(0)} Hz, ${(iVal * 1000).toFixed(0)} mA)`, x + 10, y - 8);
+}
+  const canvas = document.getElementById('courbeResonance');
+  if (!canvas) return;
+  const ctx2 = canvas.getContext('2d');
+  const cw = canvas.width, ch = canvas.height;
+  const mG = 70, mD = 20, mH = 30, mB = 50;
+  const largeur = cw - mG - mD, hauteur = ch - mH - mB;
+
+  ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cw, ch);
+  ctx2.strokeStyle = 'rgba(124,58,237,0.15)'; ctx2.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) { const y = mH + hauteur * i / 10; ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); }
+  for (let i = 0; i <= 10; i++) { const x = mG + largeur * i / 10; ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); }
+
+  ctx2.strokeStyle = 'rgba(124,58,237,0.6)'; ctx2.lineWidth = 1.5;
+  ctx2.beginPath();
+  ctx2.moveTo(mG, mH + hauteur); ctx2.lineTo(mG + largeur, mH + hauteur);
+  ctx2.moveTo(mG, mH); ctx2.lineTo(mG, mH + hauteur);
+  ctx2.stroke();
+
+  ctx2.fillStyle = '#a78bfa'; ctx2.font = 'bold 10px "Courier New", monospace';
+  ctx2.textAlign = 'center'; ctx2.textBaseline = 'top';
+  for (let i = 0; i <= 5; i++) {
+    const f = FREQ_MIN + (FREQ_MAX - FREQ_MIN) * i / 5;
+    ctx2.fillText(f.toFixed(0) + ' Hz', mG + largeur * i / 5, mH + hauteur + 8);
+  }
+
+  const iMaxRef = Um / 10;
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'middle';
+  for (let i = 0; i <= 4; i++) {
+    const val = iMaxRef * 1.15 * (1 - i / 4);
+    ctx2.fillText((val * 1000).toFixed(0) + ' mA', mG - 6, mH + hauteur * i / 4);
+  }
+
+  const courbes = [
+    { R: 10,  couleur: '#5eead4', label: 'R = 10 Ω (Q ≈ 10, aiguë)' },
+    { R: 50,  couleur: '#a78bfa', label: 'R = 50 Ω (Q ≈ 2, moyenne)' },
+    { R: 200, couleur: '#f59e0b', label: 'R = 200 Ω (Q ≈ 0.5, plate)' }
+  ];
+
+  courbes.forEach(g => {
+    ctx2.strokeStyle = g.couleur; ctx2.lineWidth = 3;
+    ctx2.shadowColor = g.couleur; ctx2.shadowBlur = 8;
+    ctx2.beginPath();
+    for (let i = 0; i <= 500; i++) {
+      const f = FREQ_MIN + (FREQ_MAX - FREQ_MIN) * i / 500;
+      const im = calculerCourantAmplitude(f, g.R, L, C);
+      const x = mG + largeur * i / 500;
+      const y = mH + hauteur - (hauteur * im / (iMaxRef * 1.15));
+      if (i === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+    }
+    ctx2.stroke(); ctx2.shadowBlur = 0;
+  });
+
+  const f0 = calculerF0(L, C);
+  if (f0 >= FREQ_MIN && f0 <= FREQ_MAX) {
+    const xF0 = mG + largeur * (f0 - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
+    ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 1.5; ctx2.setLineDash([5, 4]);
+    ctx2.beginPath(); ctx2.moveTo(xF0, mH); ctx2.lineTo(xF0, mH + hauteur); ctx2.stroke();
+    ctx2.setLineDash([]);
+    ctx2.fillStyle = '#fff'; ctx2.font = 'bold 11px "Courier New", monospace';
+    ctx2.textAlign = 'center'; ctx2.textBaseline = 'bottom';
+    ctx2.fillText('f₀ = ' + f0.toFixed(0) + ' Hz', xF0, mH - 4);
+  }
+
+  ctx2.font = 'bold 11px "Courier New", monospace';
+  ctx2.textAlign = 'right'; ctx2.textBaseline = 'top';
+  courbes.forEach((c, i) => {
+    ctx2.fillStyle = c.couleur;
+    ctx2.fillText('● ' + c.label, cw - 8, 8 + i * 18);
+  });
+
+  jouerSon('valide');
+}
+
+// ============================================================
+//  INITIALISATION DES COURBES DE DÉPHASAGE (vides)
+// ============================================================
+function initCourbesPhasesVides() {
+  const cas = [
+    { canvas: 'courbeBasFreq', couleur: '#4fc3f7' },
+    { canvas: 'courbeResFreq', couleur: '#4caf50' },
+    { canvas: 'courbeHautFreq', couleur: '#f59e0b' }
+  ];
+  
+  cas.forEach(c => {
+    const canvas = document.getElementById(c.canvas);
+    if (!canvas) return;
+    const ctx2 = canvas.getContext('2d');
+    const cw = canvas.width, ch = canvas.height;
+    
+    // Fond noir
+    ctx2.fillStyle = '#000';
+    ctx2.fillRect(0, 0, cw, ch);
+    
+    // Message
+    ctx2.fillStyle = c.couleur;
+    ctx2.font = 'bold 14px "Courier New", monospace';
+    ctx2.textAlign = 'center';
+    ctx2.textBaseline = 'middle';
+    ctx2.fillText('▶ Clique sur « Afficher les 3 cas »', cw / 2, ch / 2);
+    ctx2.textBaseline = 'alphabetic';
+  });
+}
+let animPhaseRAF = null;
+
+function afficherPhases() {
+  if (animPhaseRAF) cancelAnimationFrame(animPhaseRAF);
+  
+  const f0 = calculerF0(L, C);
+  const cas = [
+    { canvas: 'courbeBasFreq', f: f0 * 0.5, couleur: '#4fc3f7' },
+    { canvas: 'courbeResFreq', f: f0,        couleur: '#4caf50' },
+    { canvas: 'courbeHautFreq', f: f0 * 1.5, couleur: '#f59e0b' }
+  ];
+  
+  const duree = 1500;
+  const startTime = performance.now();
+  
+  function animer(now) {
+    const elapsed = now - startTime;
+    const progression = Math.min(elapsed / duree, 1);
+    
+    cas.forEach(c => {
+      const canvas = document.getElementById(c.canvas);
+      if (canvas) drawPhaseAnimee(canvas, c, progression);
+    });
+    
+    if (progression < 1) {
+      animPhaseRAF = requestAnimationFrame(animer);
+    } else {
+      animPhaseRAF = null;
+    }
+  }
+  
+  animPhaseRAF = requestAnimationFrame(animer);
+  jouerSon('valide');
+}
+
+function drawPhaseAnimee(canvas, c, progression) {
+  const ctx2 = canvas.getContext('2d');
+  const cw = canvas.width, ch = canvas.height;
+  const mG = 40, mD = 15, mH = 20, mB = 25;
+  const largeur = cw - mG - mD, hauteur = ch - mH - mB;
+  
+  ctx2.fillStyle = '#000'; 
+  ctx2.fillRect(0, 0, cw, ch);
+  
+  ctx2.strokeStyle = 'rgba(124,58,237,0.15)';
+  for (let i = 0; i <= 10; i++) { 
+    const y = mH + hauteur * i / 10; 
+    ctx2.beginPath(); ctx2.moveTo(mG, y); ctx2.lineTo(mG + largeur, y); ctx2.stroke(); 
+  }
+  for (let i = 0; i <= 10; i++) { 
+    const x = mG + largeur * i / 10; 
+    ctx2.beginPath(); ctx2.moveTo(x, mH); ctx2.lineTo(x, mH + hauteur); ctx2.stroke(); 
+  }
+  
+  ctx2.strokeStyle = 'rgba(124,58,237,0.6)'; 
+  ctx2.lineWidth = 1.5;
+  ctx2.beginPath();
+  ctx2.moveTo(mG, mH + hauteur / 2); 
+  ctx2.lineTo(mG + largeur, mH + hauteur / 2);
+  ctx2.moveTo(mG, mH); 
+  ctx2.lineTo(mG, mH + hauteur);
+  ctx2.stroke();
+  
+  const T = 1 / c.f;
+  const nbPts = 400;
+  const nMax = Math.floor(nbPts * progression);
+  
+  ctx2.strokeStyle = '#a78bfa'; 
+  ctx2.lineWidth = 2;
+  ctx2.beginPath();
+  for (let i = 0; i <= nMax; i++) {
+    const t = 2 * T * i / nbPts;
+    const u = Math.cos(2 * Math.PI * c.f * t);
+    const x = mG + largeur * i / nbPts;
+    const y = mH + hauteur / 2 - (hauteur / 2.4) * u;
+    if (i === 0) ctx2.moveTo(x, y); 
+    else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke();
+  
+  const { Z, phi } = calculerImpedance(c.f, R, L, C);
+  const imax = Um / Z;
+  ctx2.strokeStyle = c.couleur; 
+  ctx2.lineWidth = 2;
+  ctx2.shadowColor = c.couleur; 
+  ctx2.shadowBlur = 6;
+  ctx2.beginPath();
+  for (let i = 0; i <= nMax; i++) {
+    const t = 2 * T * i / nbPts;
+    const ii = imax * Math.cos(2 * Math.PI * c.f * t - phi);
+    const x = mG + largeur * i / nbPts;
+    const y = mH + hauteur / 2 - (hauteur / 2.4) * (ii / (Um / R));
+    if (i === 0) ctx2.moveTo(x, y); 
+    else ctx2.lineTo(x, y);
+  }
+  ctx2.stroke(); 
+  ctx2.shadowBlur = 0;
+  
+  if (nMax > 0 && progression < 1) {
+    const tTete = 2 * T * nMax / nbPts;
+    const uTete = Math.cos(2 * Math.PI * c.f * tTete);
+    const xTete = mG + largeur * nMax / nbPts;
+    const yTeteU = mH + hauteur / 2 - (hauteur / 2.4) * uTete;
+    ctx2.fillStyle = '#a78bfa';
+    ctx2.beginPath(); ctx2.arc(xTete, yTeteU, 5, 0, Math.PI * 2); ctx2.fill();
+    
+    const iTete = imax * Math.cos(2 * Math.PI * c.f * tTete - phi);
+    const yTeteI = mH + hauteur / 2 - (hauteur / 2.4) * (iTete / (Um / R));
+    ctx2.fillStyle = c.couleur;
+    ctx2.beginPath(); ctx2.arc(xTete, yTeteI, 5, 0, Math.PI * 2); ctx2.fill();
+  }
+  
+  ctx2.fillStyle = '#a78bfa'; 
+  ctx2.font = 'bold 10px "Courier New", monospace';
+  ctx2.textAlign = 'right'; 
+  ctx2.textBaseline = 'top';
+  ctx2.fillText('u(t)', cw - 6, 6);
+  ctx2.fillStyle = c.couleur;
+  ctx2.fillText('i(t)', cw - 6, 20);
+  
+  const phiDeg = phi * 180 / Math.PI;
+  ctx2.fillStyle = '#fff'; 
+  ctx2.font = 'bold 10px monospace';
+  ctx2.textAlign = 'left'; 
+  ctx2.textBaseline = 'top';
+  ctx2.fillText('φ = ' + phiDeg.toFixed(1) + '°', mG + 4, 6);
+}
+
+// ============================================================
+//  QCM
+// ============================================================
+let qcmReponses = { 1: null, 2: null, 3: null };
+let qcmValides = { 1: false, 2: false, 3: false };
+
+document.querySelectorAll('.qcm-option').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const q = parseInt(btn.dataset.q);
+    if (qcmValides[q]) return;
+    document.querySelectorAll(`.qcm-option[data-q="${q}"]`).forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    qcmReponses[q] = btn.dataset.value;
+    const bv = btn.closest('.qcm-item').querySelector('.qcm-btn-valider');
+    if (bv) bv.disabled = false;
+  });
+});
+
+function validerQCM(num) {
+  if (qcmValides[num]) return;
+  const rep = qcmReponses[num];
+  if (!rep) return;
+  const item = document.getElementById('qcm-' + num);
+  const fb = document.getElementById('feedback-' + num);
+  const options = document.querySelectorAll(`.qcm-option[data-q="${num}"]`);
+  const correct = document.querySelector(`.qcm-option[data-q="${num}"][data-correct="1"]`);
+  options.forEach(o => {
+    o.disabled = true;
+    if (o.dataset.correct === '1') o.classList.add('correct');
+    else if (o.dataset.value === rep) o.classList.add('incorrect');
+  });
+  const estCorrect = rep === correct.dataset.value;
+  const expl = {
+    1: "À la résonance : Z = R (minimum), i = U_m/R (maximum), et u et i sont en phase.",
+    2: "f₀ = 1/(2π√(0,1×10×10⁻⁶)) = 1/(2π×10⁻³) ≈ 159,2 Hz.",
+    3: "Q = (1/R)·√(L/C). Quand R augmente, Q diminue, la résonance s'aplatit."
+  };
+  if (estCorrect) {
+    item.classList.add('correct');
+    fb.className = 'qcm-feedback success show';
+    fb.innerHTML = `<strong>✅ Bravo !</strong><br>${expl[num]}`;
+    qcmValides[num] = true; jouerSon('valide');
+  } else {
+    item.classList.add('incorrect');
+    fb.className = 'qcm-feedback error show';
+    fb.innerHTML = `<strong>❌ Pas tout à fait.</strong><br>Bonne réponse : <strong>${correct.textContent.trim().substring(1).trim()}</strong><br><br>${expl[num]}`;
+    qcmValides[num] = true; jouerSon('erreur');
+  }
+}
+
+// ============================================================
+//  CONCLUSION
+// ============================================================
+const STORAGE_KEY = 'tp_rlcf_conclusion_v1';
+
+function chargerConclusionDepuisStorage() {
+  try {
+    const d = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    ['1','2','3','4','5'].forEach(n => { const el = document.getElementById('concl-'+n); if (el && d['c'+n]) el.value = d['c'+n]; });
+    majProgression();
+  } catch(e) {}
+}
+
+function sauverConclusionDansStorage() {
+  const d = {};
+  ['1','2','3','4','5'].forEach(n => { const el = document.getElementById('concl-'+n); d['c'+n] = el ? el.value : ''; });
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch(e) {}
+}
+
+function majProgression() {
+  let n = 0;
+  for (let i = 1; i <= 5; i++) { const el = document.getElementById('concl-'+i); if (el && el.value.trim()) n++; }
+  const pct = n / 5 * 100;
+  const b = document.getElementById('progressRemplissage');
+  const t = document.getElementById('progressTexte');
+  if (b) b.style.width = pct + '%';
+  if (t) t.textContent = n + '/5';
+  sauverConclusionDansStorage();
+}
+
+function verifierConclusion() {
+  const c1 = document.getElementById('concl-1').value.trim().toLowerCase().replace(',', '.');
+  const c2 = document.getElementById('concl-2').value.trim().toLowerCase();
+  const c3 = document.getElementById('concl-3').value;
+  const c4 = document.getElementById('concl-4').value;
+  const c5 = document.getElementById('concl-5').value.trim().toLowerCase();
+  let score = 0, total = 5;
+
+  const ok1 = /15[0-9]|160/.test(c1);
+  marquer(1, ok1, ok1 ? '✅ Exact ! f₀ ≈ 159 Hz.' : '❌ f₀ = 1/(2π√(LC)) ≈ 159,2 Hz.');
+  if (ok1) score++;
+
+  const ok2 = c2.includes('r') && (c2.includes('r=') || c2.includes('= r') || c2 === 'r' || c2.includes('égale à r') || c2.includes('resistance'));
+  marquer(2, ok2, ok2 ? '✅ Exact ! À la résonance, Z = R.' : '❌ À la résonance, l\'impédance vaut R (les réactances se compensent).');
+  if (ok2) score++;
+
+  const ok3 = c3 === 'phase';
+  marquer(3, ok3, ok3 ? '✅ Exact ! u et i sont en phase à la résonance.' : '❌ À la résonance, u et i sont en phase.');
+  if (ok3) score++;
+
+  const ok4 = c4 === 'diminue';
+  marquer(4, ok4, ok4 ? '✅ Exact ! Si R diminue, Q augmente donc Δf diminue.' : '❌ Si R diminue, Q augmente donc Δf = f₀/Q diminue.');
+  if (ok4) score++;
+
+  const ok5 = c5.length >= 3;
+  marquer(5, ok5, ok5 ? '✅ Bien !' : '❌ Réponse trop courte.');
+  if (ok5) score++;
+
+  const res = document.getElementById('conclusionResultat');
+  res.className = 'conclusion-resultat show ' + (score === total ? 'success' : 'partiel');
+  res.innerHTML = score === total ? `<strong>🎉 Parfait ! ${score}/${total}</strong>` : `<strong>📊 Score : ${score}/${total}</strong><br>Corrige les erreurs.`;
+  if (score >= 3) afficherConclusionFinale(score, total);
+  jouerSon(score === total ? 'jingle' : (score >= 3 ? 'valide' : 'erreur'));
+}
+
+function marquer(n, ok, msg) {
+  const c = document.getElementById('concl-'+n);
+  const fb = document.getElementById('fb-'+n);
+  c.classList.remove('correct', 'incorrect');
+  c.classList.add(ok ? 'correct' : 'incorrect');
+  fb.className = 'champ-feedback show ' + (ok ? 'success' : 'error');
+  fb.innerHTML = msg;
+}
+
+function afficherConclusionFinale(score, total) {
+  const zone = document.getElementById('conclusionFinale');
+  const texte = document.getElementById('conclusionTexte');
+  const f0 = calculerF0(L, C);
+  const Q = (1 / R) * Math.sqrt(L / (C * 1e-6));
+  const df = f0 / Q;
+
+  texte.innerHTML = `
+<strong>Conclusion du TP RLC forcé</strong>
+
+Nous avons étudié un circuit RLC série alimenté par un GBF délivrant une tension sinusoïdale d'amplitude U_m = 6 V.
+
+Le circuit présente une <strong>fréquence propre</strong> :
+<strong>f₀ = 1/(2π√(LC)) = ${f0.toFixed(1)} Hz</strong>
+
+À cette fréquence, on observe la <strong>résonance d'intensité</strong> :
+• L'impédance est minimale : Z = R = ${R} Ω
+• L'intensité est maximale : i_max = U_m/R = ${(Um/R*1000).toFixed(0)} mA
+• u et i sont en phase
+
+Nous avons déterminé le <strong>facteur de qualité</strong> :
+<strong>Q = (1/R)·√(L/C) = ${Q.toFixed(1)}</strong>
+
+Et la <strong>bande passante</strong> à −3 dB :
+<strong>Δf = f₀/Q = ${df.toFixed(1)} Hz</strong>
+
+Plus R est petite, plus la résonance est aiguë (Q grand) et plus la bande passante est étroite.
+En dehors de la résonance, on observe un déphasage entre u et i :
+• f &lt; f₀ : circuit capacitif (u en retard sur i)
+• f &gt; f₀ : circuit inductif (u en avance sur i)
+
+Cette expérience illustre le principe de la <strong>sélectivité en fréquence</strong>, utilisé
+notamment dans les récepteurs radio et les filtres audio.
+
+<em>Score obtenu : ${score}/${total}</em>
+  `.trim();
+  zone.classList.add('show');
+  zone.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function reinitialiserConclusion() {
+  ['1','2','3','4','5'].forEach(n => {
+    const el = document.getElementById('concl-'+n);
+    if (el) { el.value = ''; el.classList.remove('correct', 'incorrect'); }
+    const fb = document.getElementById('fb-'+n);
+    if (fb) { fb.className = 'champ-feedback'; fb.innerHTML = ''; }
+  });
+  document.getElementById('conclusionResultat').className = 'conclusion-resultat';
+  document.getElementById('conclusionFinale').classList.remove('show');
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  majProgression();
+}
+
+function imprimerConclusion() {
+  const t = document.getElementById('conclusionTexte').innerText;
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Conclusion RLC forcé</title>
+    <style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:20px;line-height:1.7;}
+    h1{font-size:22px;border-bottom:2px solid #7c3aed;padding-bottom:10px;color:#5b21b6;}
+    pre{white-space:pre-wrap;font-family:Georgia,serif;font-size:14.5px;}</style></head>
+    <body><h1>🟣 Ma conclusion — TP RLC forcé</h1>
+    <pre>${t.replace(/</g,'&lt;')}</pre><script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+    authDomain: "lfakm-87dec.firebaseapp.com",
+    projectId: "lfakm-87dec",
+    storageBucket: "lfakm-87dec.firebasestorage.app",
+    messagingSenderId: "739517262614",
+    appId: "1:739517262614:web:14abd3538427960c527e37"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  onAuthStateChanged(auth, (user) => {
+    // ⚠️ Si une redirection mobile est en cours, on ne fait rien
+    if (window.__lfakmRedirectingMobile) {
+      document.body.classList.add('auth-ok');
+      return;
+    }
+
+    if (!user) {
+      setTimeout(() => {
+        if (!auth.currentUser) {
+          const cible = encodeURIComponent(window.location.pathname + window.location.search);
+          window.location.replace('../identification.html?redirect=' + cible);
+        }
+      }, 300);
+    } else {
+      document.body.classList.add('auth-ok');
+    }
+  });
+<\/script>
+</body></html>`);
+  w.document.close();
+  setTimeout(() => w.print(), 400);
+}
+
+function telechargerConclusion() {
+  const t = document.getElementById('conclusionTexte').innerText;
+  const blob = new Blob([t], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'conclusion_rlc_force.txt';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function genererCertificat() {
+  const nom = (document.getElementById('certificatNom').value || '').trim() || 'Élève';
+  const date = new Date().toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
+  const qcm = Object.values(qcmValides).filter(v => v).length + '/3';
+  const f0 = calculerF0(L, C);
+  const Q = (1 / R) * Math.sqrt(L / (C * 1e-6));
+  const conclusion = document.getElementById('conclusionTexte')?.innerText || '—';
+
+  let montageImg = '';
+  try {
+    const c = document.getElementById('canvasMontage');
+    if (c) montageImg = c.toDataURL('image/png');
+  } catch (e) {}
+
+  const blocMontage = montageImg
+    ? `<div style="text-align:center;margin:25px 0;">
+        <h3 style="font-size:14px;color:#1B2A4A;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;">📸 Montage réalisé</h3>
+        <img src="${montageImg}" style="max-width:100%;border:2px solid #7c3aed;border-radius:8px;" alt="Montage RLC forcé">
+      </div>`
+    : '';
+
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Certificat RLC forcé</title>
+    <style>@page{size:A4;margin:15mm;} body{font-family:Georgia,serif;color:#1a1a1a;line-height:1.6;}
+    .cert{border:4px double #7c3aed;padding:35px 40px;max-width:780px;margin:0 auto;}
+    .entete{text-align:center;border-bottom:3px solid #7c3aed;padding-bottom:15px;margin-bottom:25px;}
+    .entete h1{font-size:24px;color:#1B2A4A;margin-bottom:6px;}
+    .entete p{font-size:13px;color:#5B6472;font-style:italic;}
+    .titre{text-align:center;font-size:26px;color:#7c3aed;margin:20px 0;letter-spacing:2px;}
+    .nom{text-align:center;font-size:22px;font-weight:bold;color:#1B2A4A;padding:12px;border-bottom:2px dashed #7c3aed;margin:15px 0 25px;}
+    .intro{text-align:center;font-size:14px;margin-bottom:25px;}
+    .grille{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:20px 0;}
+    .case{background:#F7F5F0;border-left:4px solid #7c3aed;padding:10px 15px;}
+    .case .lab{font-size:11px;text-transform:uppercase;color:#5B6472;letter-spacing:1px;font-weight:bold;}
+    .case .val{font-size:16px;color:#1B2A4A;font-family:'Courier New',monospace;font-weight:bold;margin-top:3px;}
+    .bloc{background:#F7F5F0;padding:18px 22px;border-radius:6px;font-size:13px;margin:20px 0;}
+    .sig{display:flex;justify-content:space-between;margin-top:40px;font-size:13px;}
+    .sig .l{border-top:1px solid #5B6472;width:200px;margin-top:40px;padding-top:6px;color:#5B6472;text-align:center;}
+    .pied{text-align:center;font-size:11px;color:#5B6472;margin-top:30px;font-style:italic;}
+    .np{text-align:center;margin:20px auto;} .np button{padding:12px 24px;background:#7c3aed;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;}</style></head><body>
+    <div class="cert">
+      <div class="entete"><h1>🏫 Lycée Franco-Arabe de Kermadiabel</h1><p>Département de Physique-Chimie — Travaux Pratiques</p></div>
+      <div class="titre">CERTIFICAT — TP RLC FORCÉ</div>
+      <div class="nom">${nom}</div>
+      <div class="intro">a réalisé avec succès le TP sur les <strong>oscillations électriques forcées</strong> (résonance RLC).</div>
+      <div class="grille">
+        <div class="case"><div class="lab">Fréquence propre f₀</div><div class="val">${f0.toFixed(1)} Hz</div></div>
+        <div class="case"><div class="lab">Facteur Q</div><div class="val">${Q.toFixed(1)}</div></div>
+        <div class="case"><div class="lab">Résistance R</div><div class="val">${R} Ω</div></div>
+        <div class="case"><div class="lab">Fréquence GBF</div><div class="val">${freqGBF.toFixed(0)} Hz</div></div>
+        <div class="case"><div class="lab">Score QCM</div><div class="val">${qcm}</div></div>
+        <div class="case"><div class="lab">Date</div><div class="val">${date}</div></div>
+      </div>
+      ${blocMontage}
+      <div class="bloc"><strong>📝 Conclusion de l'élève</strong><br>${conclusion.replace(/</g,'&lt;').substring(0,800)}</div>
+      <div class="sig"><div class="l">Signature élève</div><div class="l">Signature professeur</div></div>
+      <div class="pied">Certificat — Simulateur RLC forcé LFAKM</div>
+    </div>
+    <div class="np"><button onclick="window.print()">🖨️ Imprimer / PDF</button></div>
+    </body></html>`);
+  w.document.close();
+  jouerSon('jingle');
+}
+
+// ============================================================
+//  EXERCICES
+// ============================================================
+function verifierExo1() {
+  const rep = document.getElementById('exo1-rep').value.trim().toLowerCase().replace(',','.').replace(/\s/g,'');
+  const ok = /50|50\./.test(rep);
+  const fb = document.getElementById('exo1-fb');
+  const inp = document.getElementById('exo1-rep');
+  inp.classList.remove('correct','incorrect'); inp.classList.add(ok ? 'correct' : 'incorrect');
+  fb.className = 'exercice-feedback show ' + (ok ? 'success' : 'error');
+  if (ok) {
+    fb.innerHTML = `<strong>✅ Bravo !</strong> f₀ = 1/(2π√(0,5×20×10⁻⁶)) ≈ <strong>50,3 Hz</strong>.`;
+    document.getElementById('exo-1').classList.add('reussi'); jouerSon('valide');
+  } else {
+    fb.innerHTML = `<strong>❌ Presque !</strong> L·C = 10⁻⁵ s², √(LC) ≈ 3,16 ms, f₀ = 1/(2π × 3,16 ms) ≈ <strong>50,3 Hz</strong>.`;
+    document.getElementById('exo-1').classList.add('echoue'); jouerSon('erreur');
+  }
+}
+
+function verifierExo2() {
+  const rep = document.getElementById('exo2-rep').value.trim().toLowerCase().replace(',','.');
+  const ok = /1\.5|1\.6|1\.58|1,6|1,58/.test(rep);
+  const fb = document.getElementById('exo2-fb');
+  const inp = document.getElementById('exo2-rep');
+  inp.classList.remove('correct','incorrect'); inp.classList.add(ok ? 'correct' : 'incorrect');
+  fb.className = 'exercice-feedback show ' + (ok ? 'success' : 'error');
+  if (ok) {
+    fb.innerHTML = `<strong>✅ Exact !</strong> Q ≈ 1,58 et Δf = 50/1,58 ≈ <strong>31,7 Hz</strong>.`;
+    document.getElementById('exo-2').classList.add('reussi'); jouerSon('valide');
+  } else {
+    fb.innerHTML = `<strong>❌ Rappel :</strong> Q = (1/100)·√(0,5/20×10⁻⁶) = (1/100)·√25000 ≈ (1/100)·158 ≈ <strong>1,58</strong>.`;
+    document.getElementById('exo-2').classList.add('echoue'); jouerSon('erreur');
+  }
+}
+
+function verifierExo3() {
+  const rep = document.getElementById('exo3-rep').value;
+  const ok = rep === 'inductif';
+  const fb = document.getElementById('exo3-fb');
+  const inp = document.getElementById('exo3-rep');
+  inp.classList.remove('correct','incorrect'); inp.classList.add(ok ? 'correct' : 'incorrect');
+  fb.className = 'exercice-feedback show ' + (ok ? 'success' : 'error');
+  if (ok) {
+    fb.innerHTML = `<strong>✅ Exact !</strong> f &gt; f₀ → la bobine domine → circuit <strong>inductif</strong>.`;
+    document.getElementById('exo-3').classList.add('reussi'); jouerSon('valide');
+  } else {
+    fb.innerHTML = `<strong>❌ Rappel :</strong> f &gt; f₀ → Z_L &gt; Z_C → circuit <strong>inductif</strong> (u en avance sur i).`;
+    document.getElementById('exo-3').classList.add('echoue'); jouerSon('erreur');
+  }
+}
+
+// ============================================================
+//  INTERACTIVITÉ DE LA COURBE i(f) — TOOLTIP AU SURVOL
+// ============================================================
+let recapCourbeLiee = false;
+
+function initRecapCourbeInteractif() {
+  const canvas = document.getElementById('recapCourbe');
+  const tooltip = document.getElementById('tooltipCourbe');
+  const tooltipContenu = document.getElementById('tooltipContenu');
+  if (!canvas || !tooltip || !tooltipContenu) return;
+  
+  if (recapCourbeLiee) return;
+  recapCourbeLiee = true;
+  
+  canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const xClic = (e.clientX - rect.left) * scaleX;
+    const yClic = (e.clientY - rect.top) * (canvas.height / rect.height);
+    
+    const mG = 70, mD = 20, mH = 30, mB = 50;
+    const largeur = canvas.width - mG - mD;
+    const hauteur = canvas.height - mH - mB;
+    
+    if (xClic < mG || xClic > mG + largeur || yClic < mH || yClic > mH + hauteur) {
+      tooltip.style.display = 'none';
+      drawRecapCourbe();
+      return;
+    }
+    
+    const f = FREQ_MIN + (FREQ_MAX - FREQ_MIN) * (xClic - mG) / largeur;
+    const iVal = calculerCourantAmplitude(f, R, L, C);
+    
+    tooltipContenu.innerHTML = `
+      <div>f = <strong>${f.toFixed(1)} Hz</strong></div>
+      <div>i = <strong>${(iVal * 1000).toFixed(1)} mA</strong></div>
+    `;
+    tooltip.style.display = 'block';
+    
+    const tooltipX = Math.min(rect.width - 150, e.clientX - rect.left + 15);
+    const tooltipY = Math.max(0, e.clientY - rect.top - 60);
+    tooltip.style.left = tooltipX + 'px';
+    tooltip.style.top = tooltipY + 'px';
+    
+    drawRecapCourbe();
+    drawMarqueurCurseur(canvas, f, iVal);
+  });
+  
+  canvas.addEventListener('mouseleave', () => {
+    tooltip.style.display = 'none';
+    drawRecapCourbe();
+  });
+  
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const xClic = (e.clientX - rect.left) * scaleX;
+    
+    const mG = 70, mD = 20;
+    const largeur = canvas.width - mG - mD;
+    if (xClic < mG || xClic > mG + largeur) return;
+    
+    const f = FREQ_MIN + (FREQ_MAX - FREQ_MIN) * (xClic - mG) / largeur;
+    const iVal = calculerCourantAmplitude(f, R, L, C);
+    
+    let info = document.getElementById('infoCourbeCliquee');
+    if (!info) {
+      info = document.createElement('div');
+      info.id = 'infoCourbeCliquee';
+      info.style.cssText = 'margin-top: 12px; padding: 10px 14px; background: #fff; border: 2px solid #e91e63; border-radius: 8px; font-family: "Courier New", monospace; font-size: 14px; color: #1a1a1a;';
+      canvas.parentElement.appendChild(info);
+    }
+    info.innerHTML = `
+      📌 <strong>Point sélectionné :</strong> 
+      <span style="color: #e91e63;">f = ${f.toFixed(1)} Hz</span>, 
+      <span style="color: #a78bfa;">i = ${(iVal * 1000).toFixed(1)} mA</span>
+    `;
+    jouerSon('valide');
+  });
+}
+
+function drawMarqueurCurseur(canvas, f, iVal) {
+  const ctx2 = canvas.getContext('2d');
+  const mG = 70, mD = 20, mH = 30, mB = 50;
+  const largeur = canvas.width - mG - mD;
+  const hauteur = canvas.height - mH - mB;
+  
+  const iMaxPlot = (Um / R) * 1.15;
+  const x = mG + largeur * (f - FREQ_MIN) / (FREQ_MAX - FREQ_MIN);
+  const y = mH + hauteur - (hauteur * iVal / iMaxPlot);
+  
+  ctx2.strokeStyle = 'rgba(233,30,99,0.5)';
+  ctx2.lineWidth = 1;
+  ctx2.setLineDash([4, 4]);
+  ctx2.beginPath();
+  ctx2.moveTo(x, mH);
+  ctx2.lineTo(x, mH + hauteur);
+  ctx2.stroke();
+  
+  ctx2.beginPath();
+  ctx2.moveTo(mG, y);
+  ctx2.lineTo(mG + largeur, y);
+  ctx2.stroke();
+  ctx2.setLineDash([]);
+  
+  const grad = ctx2.createRadialGradient(x, y, 2, x, y, 14);
+  grad.addColorStop(0, 'rgba(233,30,99,0.8)');
+  grad.addColorStop(1, 'rgba(233,30,99,0)');
+  ctx2.fillStyle = grad;
+  ctx2.beginPath();
+  ctx2.arc(x, y, 14, 0, Math.PI * 2);
+  ctx2.fill();
+  
+  ctx2.fillStyle = '#e91e63';
+  ctx2.strokeStyle = '#fff';
+  ctx2.lineWidth = 2;
+  ctx2.beginPath();
+  ctx2.arc(x, y, 6, 0, Math.PI * 2);
+  ctx2.fill();
+  ctx2.stroke();
+  
+  ctx2.fillStyle = '#fff';
+  ctx2.font = 'bold 11px "Courier New", monospace';
+  ctx2.textAlign = 'left';
+  ctx2.textBaseline = 'bottom';
+  ctx2.fillText(`(${f.toFixed(0)} Hz, ${(iVal * 1000).toFixed(0)} mA)`, x + 10, y - 8);
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+window.addEventListener('load', () => {
+  allerEtape(2);
+  drawMontage();
+  updateProgress();
+  updateCanvasHint();
+  majAffichage();
+
+  const slider = document.getElementById('freqGBF');
+  if (slider) {
+    slider.addEventListener('input', e => majFrequenceGBF(e.target.value));
+    majFrequenceGBF(slider.value);
+  }
+
+  const btnSon = document.getElementById('sonToggle');
+  if (btnSon) {
+    btnSon.textContent = sonActif ? '🔊' : '🔇';
+    btnSon.classList.toggle('off', !sonActif);
+  }
+
+  ['concl-1','concl-2','concl-3','concl-4','concl-5'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.addEventListener('input', majProgression); el.addEventListener('change', majProgression); }
+  });
+
+  // ⚠️ AJOUT : Init de l'interactivité de la courbe i(f)
+  setTimeout(() => initRecapCourbeInteractif(), 500);
+
+    // ⚠️ AJOUT : Initialise les courbes de déphasage vides au démarrage
+  setTimeout(() => initCourbesPhasesVides(), 300);
+  console.log('✅ Simulateur RLC forcé V2.2 — Interactivité courbe i(f)');
+});
+
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    this.beginPath();
+    this.moveTo(x + r, y);
+    this.arcTo(x + w, y, x + w, y + h, r);
+    this.arcTo(x + w, y + h, x, y + h, r);
+    this.arcTo(x, y + h, x, y, r);
+    this.arcTo(x, y, x + w, y, r);
+    this.closePath();
+    return this;
+  };
+}
+</script>
+
+
+<script type="module">
+  // 🔒 Protection de la page : redirection vers identification si non connecté
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+    authDomain: "lfakm-87dec.firebaseapp.com",
+    projectId: "lfakm-87dec",
+    storageBucket: "lfakm-87dec.firebasestorage.app",
+    messagingSenderId: "739517262614",
+    appId: "1:739517262614:web:14abd3538427960c527e37"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  onAuthStateChanged(auth, (user) => {
+    if (window.__lfakmRedirectingMobile) {
+      document.body.classList.add('auth-ok');
+      return;
+    }
+    if (!user) {
+      setTimeout(() => {
+        if (!auth.currentUser) {
+          const cible = encodeURIComponent(window.location.pathname + window.location.search);
+          window.location.replace('../identification.html?redirect=' + cible);
+        }
+      }, 300);
+    } else {
+      document.body.classList.add('auth-ok');
+    }
+  });
+</script>
+</body>
+</html>

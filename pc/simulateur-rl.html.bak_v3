@@ -3672,7 +3672,8 @@ function reinitialiserConclusion() {
 function imprimerConclusion() {
   const texte = document.getElementById('conclusionTexte').innerText;
   const fenetre = window.open('', '_blank');
-  fenetre.document.write(`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+  fenetre.document.write(`
+    <!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
     <title>Ma conclusion — TP RL</title>
     <style>
       body { font-family: Georgia, serif; max-width: 700px; margin: 40px auto; padding: 20px; line-height: 1.7; color: #1a1a1a; }
@@ -3682,7 +3683,43 @@ function imprimerConclusion() {
     </style></head><body>
     <h1>✍️ Ma conclusion — TP RL</h1>
     <pre>${texte.replace(/</g, '&lt;')}</pre>
-</body></html>`);
+    <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+    authDomain: "lfakm-87dec.firebaseapp.com",
+    projectId: "lfakm-87dec",
+    storageBucket: "lfakm-87dec.firebasestorage.app",
+    messagingSenderId: "739517262614",
+    appId: "1:739517262614:web:14abd3538427960c527e37"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  onAuthStateChanged(auth, (user) => {
+    // ⚠️ Si une redirection mobile est en cours, on ne fait rien
+    if (window.__lfakmRedirectingMobile) {
+      document.body.classList.add('auth-ok');
+      return;
+    }
+
+    if (!user) {
+      setTimeout(() => {
+        if (!auth.currentUser) {
+          const cible = encodeURIComponent(window.location.pathname + window.location.search);
+          window.location.replace('../identification.html?redirect=' + cible);
+        }
+      }, 300);
+    } else {
+      document.body.classList.add('auth-ok');
+    }
+  });
+<\/script>
+</body></html>
+  `);
   fenetre.document.close();
   setTimeout(() => fenetre.print(), 400);
 }
@@ -3763,7 +3800,7 @@ function genererCertificat() {
         <div class="case"><div class="lab">Date</div><div class="val">${date}</div></div>
         <div class="case"><div class="lab">Relation vérifiée</div><div class="val">τ = L / R</div></div>
       </div>
-      ${montageImg ? ('<div class="montage-zone"><h3>📸 Montage réalisé</h3><img src="' + montageImg + '" alt="Montage"></div>') : ''}
+      ${montageImg ? '<div class="montage-zone"><h3>📸 Montage réalisé</h3><img src="' + montageImg + '" alt="Montage"></div>' : ''}
       <div class="conclusion-bloc">
         <h3>📝 Conclusion de l'élève</h3>
         <div>${conclusion.replace(/</g, '&lt;').substring(0, 800)}</div>
@@ -3776,41 +3813,6 @@ function genererCertificat() {
     </div>
     <div class="no-print"><button onclick="window.print()">🖨️ Imprimer / Enregistrer en PDF</button></div>
     </body></html>
-    <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
-      authDomain: "lfakm-87dec.firebaseapp.com",
-      projectId: "lfakm-87dec",
-      storageBucket: "lfakm-87dec.firebasestorage.app",
-      messagingSenderId: "739517262614",
-      appId: "1:739517262614:web:14abd3538427960c527e37"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    onAuthStateChanged(auth, (user) => {
-      if (window.__lfakmRedirectingMobile) {
-        document.body.classList.add('auth-ok');
-        return;
-      }
-      if (!user) {
-        setTimeout(() => {
-          if (!auth.currentUser) {
-            const cible = encodeURIComponent(window.location.pathname + window.location.search);
-            window.location.replace('../identification.html?redirect=' + cible);
-          }
-        }, 300);
-      } else {
-        document.body.classList.add('auth-ok');
-      }
-    });
-  </script>
-</body>
-</html>
   `);
   fenetre.document.close();
   jouerSon('jingle');
@@ -3922,5 +3924,40 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
 }
 </script>
 
+
+<script type="module">
+  // 🔒 Protection de la page : redirection vers identification si non connecté
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+    authDomain: "lfakm-87dec.firebaseapp.com",
+    projectId: "lfakm-87dec",
+    storageBucket: "lfakm-87dec.firebasestorage.app",
+    messagingSenderId: "739517262614",
+    appId: "1:739517262614:web:14abd3538427960c527e37"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  onAuthStateChanged(auth, (user) => {
+    if (window.__lfakmRedirectingMobile) {
+      document.body.classList.add('auth-ok');
+      return;
+    }
+    if (!user) {
+      setTimeout(() => {
+        if (!auth.currentUser) {
+          const cible = encodeURIComponent(window.location.pathname + window.location.search);
+          window.location.replace('../identification.html?redirect=' + cible);
+        }
+      }, 300);
+    } else {
+      document.body.classList.add('auth-ok');
+    }
+  });
+</script>
 </body>
 </html>
