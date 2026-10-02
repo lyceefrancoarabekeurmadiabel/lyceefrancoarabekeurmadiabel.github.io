@@ -1,4 +1,4 @@
-// Service worker du site LFAKM
+﻿// Service worker du site LFAKM
 // Rôle : rendre le site "installable" comme une application, et garder en cache
 // la coquille des pages déjà visitées pour un accès partiellement hors-ligne.
 // Stratégie "réseau en priorité" : on va TOUJOURS chercher la dernière version
@@ -6,22 +6,22 @@
 // Ne touche JAMAIS aux données dynamiques (Firestore, Cloudinary) qui doivent
 // toujours venir du réseau pour rester à jour.
 
-const CACHE_NAME = 'lfakm-cache-v4';
+const CACHE_NAME = 'lfakm-cache-v5';
 
 const urlsToCache = [
-  'index.html',
-  'pc/ressources.html',
-  'mobile/index-mobile.html',
-  'mobile/actualites-mobile.html',
-  'mobile/ressources-mobile.html',
-  'mobile/historique-mobile.html',
-  'identification.html',
-  'inscription.html',
-  'actualites.html',
-  'historique.html',
-  'assets/manifest.json',
-  'icons/icon-192.png',
-  'icons/icon-512.png'
+  '/',
+  '/',
+  '/',
+  '/',
+  '/',
+  '/',
+  '/',
+  '/',
+  '/',
+  '/',
+  '/',
+  '/',
+  '/'
 ];
 
 self.addEventListener('install', (event) => {

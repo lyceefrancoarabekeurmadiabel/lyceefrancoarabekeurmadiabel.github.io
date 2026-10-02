@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -3414,6 +3414,16 @@ function imprimerConclusion() {
     }
   });
 <\/script>
+<script>
+  // ✅ Enregistrement du Service Worker (mode hors-ligne)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('../service-worker.js', { scope: '../' })
+        .then(reg => console.log('✅ Service worker enregistré. Portée :', reg.scope))
+        .catch(err => console.warn('❌ Service worker non enregistré :', err));
+    });
+  }
+</script>
 </body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 400);
@@ -3488,7 +3498,17 @@ function genererCertificat() {
       <div class="pied">Certificat — Simulateur RLC forcé LFAKM</div>
     </div>
     <div class="np"><button onclick="window.print()">🖨️ Imprimer / PDF</button></div>
-    </body></html>`);
+    <script>
+  // ✅ Enregistrement du Service Worker (mode hors-ligne)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('../service-worker.js', { scope: '../' })
+        .then(reg => console.log('✅ Service worker enregistré. Portée :', reg.scope))
+        .catch(err => console.warn('❌ Service worker non enregistré :', err));
+    });
+  }
+</script>
+</body></html>`);
   w.document.close();
   jouerSon('jingle');
 }
@@ -3757,6 +3777,16 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
       document.body.classList.add('auth-ok');
     }
   });
+</script>
+<script>
+  // ✅ Enregistrement du Service Worker (mode hors-ligne)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('../service-worker.js', { scope: '../' })
+        .then(reg => console.log('✅ Service worker enregistré. Portée :', reg.scope))
+        .catch(err => console.warn('❌ Service worker non enregistré :', err));
+    });
+  }
 </script>
 </body>
 </html>

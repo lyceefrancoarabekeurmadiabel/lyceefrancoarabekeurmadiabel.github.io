@@ -427,5 +427,15 @@
     if (!estOuvert) dropdown.classList.add('show');
   });
 </script>
+<script>
+  // ✅ Enregistrement du Service Worker (mode hors-ligne)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('../service-worker.js', { scope: '../' })
+        .then(reg => console.log('✅ Service worker enregistré. Portée :', reg.scope))
+        .catch(err => console.warn('❌ Service worker non enregistré :', err));
+    });
+  }
+</script>
 </body>
 </html>
