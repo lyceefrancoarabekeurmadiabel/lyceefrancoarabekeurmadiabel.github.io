@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>IA & Études — LFAKM</title>
+<link rel="manifest" href="../assets/manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="apple-touch-icon" href="../icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
+    --slate: #5B6472; --line: rgba(27,42,74,0.14);
+    --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --gov-purple: #6a4c93;
+    --success: #2e7d32;
+    --danger: #d9534f;
+    --warning: #f39c12;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { overflow-x: hidden; max-width: 100vw; }
+  body { font-family: var(--sans); background: var(--paper); color: #1a1a1a; line-height: 1.6; padding-bottom: env(safe-area-inset-bottom); }
+
+  header {
+    background: var(--paper); border-bottom: 1px solid var(--line); padding: 10px 14px;
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 64px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; min-width: 0; flex: 1; }
+  .brand-mark { width: 40px; height: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
+  .brand-text { min-width: 0; flex: 1; }
+  .brand-name { font-family: var(--serif); font-weight: 700; font-size: 13px; color: var(--ink); line-height: 1.2; }
+  .brand-tag { font-size: 9.5px; color: var(--slate); letter-spacing: 0.5px; margin-top: 1px; }
+  .header-btn {
+    background: var(--ink-deep); color: #fff; text-decoration: none; font-size: 12px; font-weight: 600;
+    padding: 10px 14px; border-radius: 8px; min-height: 44px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: none; cursor: pointer; font-family: var(--sans);
+  }
+
+  .hero { background: linear-gradient(135deg, var(--ink-deep) 0%, var(--ink) 100%); color: #fff; padding: 30px 20px 36px; text-align: center; }
+  .hero h1 { font-family: var(--serif); font-size: 24px; line-height: 1.25; margin-bottom: 8px; }
+  .hero p { font-size: 13px; opacity: 0.85; line-height: 1.5; }
+
+  .wrap { padding: 16px 12px 30px; max-width: 700px; margin: 0 auto; }
+
+  .content-section { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .content-section h2 { font-family: var(--serif); color: var(--ink); font-size: 18px; margin-bottom: 14px; border-left: 4px solid var(--brass); padding-left: 12px; line-height: 1.3; }
+  .content-section p { font-size: 14px; color: #333; line-height: 1.65; margin-bottom: 12px; }
+
+  /* COMPARAISON */
+  .compare-card { border-radius: 10px; padding: 16px; border: 2px solid; margin-bottom: 12px; }
+  .compare-card.bad { border-color: var(--danger); background: #fef5f5; }
+  .compare-card.mid { border-color: var(--warning); background: #fffbf0; }
+  .compare-card.good { border-color: var(--success); background: #f0f9f0; }
+  .compare-card h3 { font-family: var(--serif); font-size: 16px; margin-bottom: 8px; }
+  .compare-card.bad h3 { color: var(--danger); }
+  .compare-card.mid h3 { color: var(--warning); }
+  .compare-card.good h3 { color: var(--success); }
+  .compare-card p { font-size: 13.5px; color: #444; margin-bottom: 8px; line-height: 1.55; }
+  .compare-card .example { background: rgba(0,0,0,0.04); padding: 10px 12px; border-radius: 6px; font-size: 12.5px; font-style: italic; color: #555; line-height: 1.5; }
+
+  /* PRINCIPES */
+  .principes-list { list-style: none; padding: 0; }
+  .principes-list li { padding: 10px 0 10px 32px; position: relative; border-bottom: 1px solid var(--line); font-size: 13.5px; line-height: 1.55; }
+  .principes-list li:last-child { border-bottom: none; }
+  .principes-list li::before { content: "✓"; position: absolute; left: 0; top: 10px; color: var(--success); font-weight: 700; font-size: 16px; }
+  .principes-list li strong { color: var(--ink); }
+
+  /* EXEMPLES QUESTION */
+  .question-example { background: #f9f9f9; border-left: 4px solid var(--slate); border-radius: 6px; padding: 12px 14px; margin-bottom: 10px; font-size: 13.5px; }
+  .question-example.bad { border-left-color: var(--danger); }
+  .question-example.good { border-left-color: var(--success); background: #f0f9f0; }
+  .question-example .label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block; }
+  .question-example.bad .label { color: var(--danger); }
+  .question-example.good .label { color: var(--success); }
+  .question-example .question { font-style: italic; color: #333; }
+
+  /* LIMITES */
+  .limite-item { background: #fffbf0; border: 1px solid #f0d99a; border-radius: 8px; padding: 12px; margin-bottom: 8px; }
+  .limite-item h4 { font-size: 13.5px; color: #856404; margin-bottom: 4px; }
+  .limite-item p { font-size: 12.5px; color: #665; margin: 0; line-height: 1.5; }
+
+  /* RÈGLES */
+  .regles-list { list-style: none; padding: 0; }
+  .regles-list li { padding: 8px 0 8px 28px; position: relative; font-size: 13.5px; line-height: 1.55; }
+  .regles-list li::before { content: ""; position: absolute; left: 0; top: 10px; width: 18px; height: 18px; border-radius: 50%; }
+  .regles-list li.autorise::before { background: var(--success); content: "✓"; color: #fff; font-size: 11px; text-align: center; line-height: 18px; font-weight: 700; }
+  .regles-list li.interdit::before { background: var(--danger); content: "✕"; color: #fff; font-size: 11px; text-align: center; line-height: 18px; font-weight: 700; }
+
+  /* RESSOURCES */
+  .ressource-card { display: block; text-decoration: none; color: inherit; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 14px; margin-bottom: 10px; transition: all 0.2s; }
+  .ressource-card:active { border-color: var(--brass); background: #fdf8f0; }
+  .ressource-card h4 { font-size: 14px; color: var(--ink); margin-bottom: 4px; }
+  .ressource-card p { font-size: 12.5px; color: var(--slate); margin: 0; line-height: 1.5; }
+  .ressource-card-warning { border-color: var(--warning); background: #fffbf0; }
+
+  /* AVERTISSEMENT DEEPSEEK */
+  .avertissement-deepseek { margin-top: 16px; padding: 16px; background: #fffbf0; border: 1px solid #f0d99a; border-left: 4px solid var(--warning); border-radius: 8px; }
+  .avertissement-deepseek h3 { font-family: var(--serif); font-size: 15px; color: #856404; margin-bottom: 10px; }
+  .avertissement-deepseek p { font-size: 13px; color: #555; margin-bottom: 10px; line-height: 1.6; }
+  .avertissement-deepseek ul { list-style: none; padding: 0; margin: 10px 0; }
+  .avertissement-deepseek ul li { padding: 6px 0; font-size: 12.5px; color: #444; line-height: 1.55; border-bottom: 1px solid rgba(243, 156, 18, 0.15); }
+  .avertissement-deepseek ul li:last-child { border-bottom: none; }
+  .avertissement-deepseek ul li strong { color: #856404; }
+  .avertissement-conclusion { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(243, 156, 18, 0.3); font-size: 13px; }
+
+  footer { background: var(--ink-deep); color: #B7BCC9; padding: 30px 16px; text-align: center; font-size: 12px; line-height: 1.7; margin-top: 20px; }
+  footer a { color: #B7BCC9; text-decoration: none; }
+  footer a.pc-link { display: inline-block; margin-top: 14px; padding: 10px 16px; border: 1px solid rgba(183,188,201,0.3); border-radius: 8px; font-size: 12px; }
+</style>
+<meta name="author" content="Djiby Tall - LFAKM">
+<meta name="copyright" content="© 2026 Lycée Franco Arabe de Keur Madiabel. Tous droits réservés.">
+</head>
+<body>
+
+<header>
+  <a href="index-mobile.html" class="brand">
+    <div class="brand-mark"><img src="../logo-header.png" alt="LFAKM"></div>
+    <div class="brand-text">
+      <div class="brand-name">Lycée Franco Arabe de Keur Madiabel</div>
+      <div class="brand-tag">Excellence & Savoir</div>
+    </div>
+  </a>
+  <a href="ressources-mobile.html" class="header-btn">← Retour</a>
+</header>
+
+<section class="hero">
+  <h1>🤖 L'IA au service des études</h1>
+  <p>Guide d'utilisation éthique et efficace de l'intelligence artificielle pour les élèves et les professeurs du LFAKM.</p>
+</section>
+
+<div class="wrap">
+
+  <!-- INTRODUCTION -->
+  <div class="content-section">
+    <h2>🎯 Pourquoi ce guide ?</h2>
+    <p>L'intelligence artificielle (IA) est devenue un outil incontournable dans le monde éducatif. Bien utilisée, elle peut <strong>t'aider à mieux comprendre</strong>, à <strong>progresser</strong> et à <strong>gagner du temps</strong> dans tes révisions.</p>
+    <p>Mais mal utilisée, elle peut <strong>te faire régresser</strong> : copier une réponse sans comprendre ne t'apprend rien, et te met en difficulté le jour de l'examen.</p>
+    <p>Ce guide t'explique <strong>comment utiliser l'IA intelligemment</strong>, en respectant les règles de ton établissement.</p>
+  </div>
+
+  <!-- LES 3 FAÇONS -->
+  <div class="content-section">
+    <h2>📊 Les 3 façons d'utiliser une IA</h2>
+    <p>Face à un exercice, il y a trois attitudes possibles. Une seule est vraiment utile pour ton apprentissage.</p>
+
+    <div class="compare-card bad">
+      <h3>❌ La mauvaise</h3>
+      <p>Tu copies la réponse donnée par l'IA sans comprendre. Tu rends un travail parfait… mais tu n'as rien appris.</p>
+      <div class="example">« Résous cette équation : 2x + 5 = 13 »<br>→ L'IA donne « x = 4 »<br>→ Tu copies. <strong>Fin de l'histoire.</strong></div>
+    </div>
+
+    <div class="compare-card mid">
+      <h3>⚠️ La moyenne</h3>
+      <p>Tu demandes la réponse, puis tu la recopies avec tes propres mots. Tu as l'air d'avoir compris, mais tu ne saurais pas refaire seul.</p>
+      <div class="example">« Résous cette équation : 2x + 5 = 13 »<br>→ L'IA donne « x = 4 »<br>→ Tu écris « on trouve x = 4 ». <strong>Tu ne sais toujours pas résoudre.</strong></div>
+    </div>
+
+    <div class="compare-card good">
+      <h3>✅ La bonne</h3>
+      <p>Tu demandes à l'IA de t'<strong>expliquer la méthode</strong>. Tu appliques ensuite toi-même, étape par étape. C'est plus long, mais tu progresses vraiment.</p>
+      <div class="example">« Explique-moi la méthode pour résoudre une équation du type 2x + 5 = 13, sans donner la réponse. »<br>→ L'IA t'explique les étapes.<br>→ <strong>Tu appliques toi-même.</strong></div>
+    </div>
+  </div>
+
+  <!-- PRINCIPES DU TUTEUR -->
+  <div class="content-section">
+    <h2>🧠 Les principes du tuteur socratique</h2>
+    <p>Quand tu utilises une IA pour tes études, demande-lui de jouer le rôle d'un <strong>tuteur</strong>, pas d'un distributeur de réponses.</p>
+
+    <ul class="principes-list">
+      <li><strong>Ne me donne jamais la réponse finale.</strong> Si je te demande une solution, refuse et propose de me guider.</li>
+      <li><strong>Pose-moi des questions.</strong> Demande-moi ce que j'ai déjà essayé, ce que je comprends, où je bloque.</li>
+      <li><strong>Explique-moi la méthode.</strong> Donne-moi la règle, un exemple différent, puis laisse-moi réappliquer à mon exercice.</li>
+      <li><strong>Donne-moi des indices progressifs.</strong> Commence par un petit indice, puis un peu plus précis, sans jamais donner la solution.</li>
+      <li><strong>Encourage-moi.</strong> Dis-moi quand je suis sur la bonne voie, aide-moi à prendre confiance.</li>
+    </ul>
+
+    <p style="margin-top:14px; background:#f0f9f0; padding:12px; border-radius:8px; border-left:4px solid var(--success); font-size:13px;">
+      💡 <strong>Astuce :</strong> Copie ces règles dans ton message quand tu utilises une IA. Par exemple : <em>« Tu es un tuteur. Ne me donne jamais la réponse, guide-moi par des questions. »</em>
+    </p>
+  </div>
+
+  <!-- EXEMPLES DE QUESTIONS -->
+  <div class="content-section">
+    <h2>💬 Comment formuler ses questions</h2>
+    <p>La façon dont tu poses ta question change complètement la qualité de la réponse.</p>
+
+    <h3 style="font-size:14px; color:var(--ink); margin:16px 0 8px;">❌ Questions à éviter</h3>
+    <div class="question-example bad">
+      <span class="label">Ne fais pas ça</span>
+      <div class="question">« Donne-moi la réponse de l'exercice 3 page 45. »</div>
+    </div>
+    <div class="question-example bad">
+      <span class="label">Ne fais pas ça</span>
+      <div class="question">« Écris-moi une dissertation sur la liberté. »</div>
+    </div>
+
+    <h3 style="font-size:14px; color:var(--ink); margin:16px 0 8px;">✅ Questions à privilégier</h3>
+    <div class="question-example good">
+      <span class="label">Bonne approche</span>
+      <div class="question">« Je bloque sur l'exercice 3 page 45. Peux-tu m'expliquer la méthode à utiliser, sans me donner la solution ? »</div>
+    </div>
+    <div class="question-example good">
+      <span class="label">Bonne approche</span>
+      <div class="question">« Aide-moi à construire un plan de dissertation sur la liberté. Propose-moi 3 axes possibles et demande-moi de choisir. »</div>
+    </div>
+    <div class="question-example good">
+      <span class="label">Bonne approche</span>
+      <div class="question">« Voici mon raisonnement pour cet exercice : [ton raisonnement]. Est-ce que je suis sur la bonne voie ? Où ai-je fait une erreur ? »</div>
+    </div>
+  </div>
+
+  <!-- LIMITES -->
+  <div class="content-section">
+    <h2>⚠️ Les limites de l'IA</h2>
+    <p>L'IA est un outil puissant, mais elle a des limites importantes :</p>
+
+    <div class="limite-item">
+      <h4>🤥 Elle peut se tromper</h4>
+      <p>L'IA invente parfois des faits, des dates, des formules. Vérifie toujours avec ton cours.</p>
+    </div>
+    <div class="limite-item">
+      <h4>📚 Elle n'a pas lu ton cours</h4>
+      <p>Elle ne connaît pas ton programme exact, ni les attentes de ton professeur.</p>
+    </div>
+    <div class="limite-item">
+      <h4>🎓 Elle ne remplace pas le prof</h4>
+      <p>Ton professeur connaît ton niveau, tes difficultés. L'IA non.</p>
+    </div>
+    <div class="limite-item">
+      <h4>🧠 Elle ne pense pas</h4>
+      <p>Elle prédit des mots. Elle ne comprend pas vraiment ce qu'elle dit.</p>
+    </div>
+  </div>
+
+  <!-- RÈGLES LFAKM -->
+  <div class="content-section">
+    <h2>📋 Règles d'usage au LFAKM</h2>
+    <p>Ce qui est <strong>autorisé</strong> et <strong>interdit</strong> :</p>
+
+    <ul class="regles-list">
+      <li class="autorise"><strong>Utiliser l'IA pour comprendre un concept</strong> que tu n'as pas saisi en classe.</li>
+      <li class="autorise"><strong>Demander des explications de méthode</strong> (comment résoudre, comment structurer).</li>
+      <li class="autorise"><strong>Vérifier ton raisonnement</strong> après avoir cherché par toi-même.</li>
+      <li class="autorise"><strong>T'entraîner avec des exercices supplémentaires</strong> générés par l'IA.</li>
+      <li class="interdit"><strong>Copier-coller une réponse</strong> générée par l'IA dans un devoir.</li>
+      <li class="interdit"><strong>Faire rédiger un devoir entier</strong> par l'IA.</li>
+      <li class="interdit"><strong>Utiliser l'IA pendant un contrôle</strong> ou un examen.</li>
+      <li class="interdit"><strong>Présenter un travail de l'IA comme le tien</strong> sans le mentionner.</li>
+    </ul>
+
+    <p style="margin-top:14px; background:#fef5f5; padding:12px; border-radius:8px; border-left:4px solid var(--danger); font-size:13px;">
+      ⚠️ <strong>Rappel :</strong> Le plagiat (copier le travail de quelqu'un d'autre, y compris une IA) est une faute grave qui peut entraîner des sanctions.
+    </p>
+  </div>
+
+  <!-- RESSOURCES -->
+  <div class="content-section">
+    <h2>🌐 IA à connaître</h2>
+    <p>Quelques IA que tu peux utiliser pour tes études :</p>
+
+    <a href="https://gemini.google.com" target="_blank" rel="noopener" class="ressource-card">
+      <h4>🔵 Gemini</h4>
+      <p>Google — compte Google requis. Gratuit. Accessible au Sénégal.</p>
+    </a>
+    <a href="https://chat.openai.com" target="_blank" rel="noopener" class="ressource-card">
+      <h4>🟢 ChatGPT</h4>
+      <p>OpenAI — version gratuite disponible. Accessible au Sénégal.</p>
+    </a>
+    <a href="https://claude.ai" target="_blank" rel="noopener" class="ressource-card">
+      <h4>🟠 Claude</h4>
+      <p>Anthropic — version gratuite, très bon pour les explications.</p>
+    </a>
+    <a href="https://www.perplexity.ai" target="_blank" rel="noopener" class="ressource-card">
+      <h4>🔍 Perplexity</h4>
+      <p>Recherche augmentée par IA, avec sources citées.</p>
+    </a>
+    <a href="https://chat.deepseek.com" target="_blank" rel="noopener" class="ressource-card ressource-card-warning">
+      <h4>🐋 DeepSeek</h4>
+      <p>Puissant et gratuit via l'application ou le site web. <strong>Voir avertissement ci-dessous.</strong></p>
+    </a>
+
+    <div class="avertissement-deepseek">
+      <h3>🐋 À propos de DeepSeek — à lire attentivement</h3>
+      <p>DeepSeek est une IA puissante et <strong>gratuite via son application</strong> ou son site web. Elle peut t'aider efficacement dans tes études. Cependant :</p>
+      
+      <ul>
+        <li><strong>⚠️ Serveurs hébergés en Chine</strong> — Tes données sont stockées sur des serveurs chinois. Réfléchis à ce que tu partages.</li>
+        <li><strong>⚠️ Restreint dans plusieurs pays</strong> — France, Italie, Corée du Sud, Australie ont limité son usage.</li>
+        <li><strong>⚠️ API payante</strong> — Pour un usage développeur, l'accès est payant. Le chat gratuit ne concerne que l'application.</li>
+        <li><strong>💡 Recommandation</strong> — Utilise-le <strong>uniquement via l'application ou le site</strong>, et <strong>jamais pour partager des informations personnelles</strong>.</li>
+      </ul>
+
+      <p class="avertissement-conclusion">
+        <strong>En résumé :</strong> DeepSeek peut être un bon outil, mais son usage doit être <strong>conscient et prudent</strong>. Comme toutes les IA, il ne remplace pas ton propre raisonnement.
+      </p>
+    </div>
+
+    <p style="margin-top:16px; font-size:12px; color:var(--slate); text-align:center;">
+      ⚠️ Le LFAKM n'est affilié à aucun de ces services.
+    </p>
+  </div>
+
+  <!-- CONCLUSION -->
+  <div class="content-section" style="background: linear-gradient(135deg, #f7f5f0 0%, #f0ede5 100%); border-left: 4px solid var(--brass);">
+    <h2>🎓 En résumé</h2>
+    <p>L'IA est un <strong>outil</strong>, pas un <strong>remplaçant</strong>. Elle peut t'aider à comprendre, à progresser et à gagner du temps — mais seulement si tu l'utilises <strong>pour apprendre</strong>, pas pour <strong>éviter d'apprendre</strong>.</p>
+    <p style="margin-bottom:0;">La vraie réussite, c'est quand tu peux <strong>refaire l'exercice seul</strong>, sans l'IA, et l'expliquer à quelqu'un d'autre. C'est ça, apprendre. 💪</p>
+  </div>
+
+</div>
+
+<footer>
+  <div>© 2026 Lycée Franco Arabe de Keur Madiabel</div>
+  <a href="#" onclick="window.showContact(); return false;">📞 Contacter le Proviseur</a>
+  <br>
+  <a class="pc-link" href="../pc/assistant.html">🖥️ Voir la version ordinateur</a>
+</footer>
+
+<script>
+  // Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('../service-worker.js', { scope: '../' })
+        .then(reg => console.log('✅ Service worker enregistré. Portée :', reg.scope))
+        .catch(err => console.warn('❌ Service worker non enregistré :', err));
+    });
+  }
+
+  // Contact Proviseur
+  window.showContact = () => {
+    alert("Consultez la version ordinateur pour contacter le Proviseur.");
+  };
+</script>
+
+</body>
+</html>
