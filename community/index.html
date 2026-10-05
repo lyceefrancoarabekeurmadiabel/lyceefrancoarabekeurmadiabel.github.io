@@ -7,35 +7,13 @@
   <link rel="icon" type="image/png" href="../assets/favicon.png">
   <link rel="stylesheet" href="../assets/style-menu.css">
   <link rel="stylesheet" href="css/community.css">
+  <link rel="stylesheet" href="css/menu.css">
   <link rel="manifest" href="../assets/manifest.json">
   <meta name="theme-color" content="#1B2A4A">
   <meta name="author" content="Djiby Tall - LFAKM">
   <meta name="copyright" content="© 2026 LFAKM. Tous droits réservés.">
 </head>
 <body>
-
-  <header>
-    <div class="wrap nav-row">
-      <a href="../index.html" class="brand">
-        <div class="brand-mark"><img src="../logo-header.png" alt="LFAKM"></div>
-        <div>
-          <div class="brand-name">Lycée Franco Arabe<br>de Keur Madiabel</div>
-          <div class="brand-tag">Excellence & Savoir</div>
-        </div>
-      </a>
-      <nav>
-        <ul id="main-menu">
-          <li><a href="../index.html">Accueil</a></li>
-          <li><a href="../actualites.html">Actualités</a></li>
-          <li><a href="../pc/ressources.html">Ressources</a></li>
-          <li><a href="index.html" class="active">👥 Communauté</a></li>
-          <li id="user-profile" class="profile-info"></li>
-          <li><a href="../identification.html" id="auth-link" class="nav-cta">Connexion</a></li>
-        </ul>
-      </nav>
-      <button class="menu-toggle" id="menu-toggle-btn" aria-label="Menu">☰</button>
-    </div>
-  </header>
 
   <main class="community-hub">
     <div class="community-header">
@@ -72,32 +50,25 @@
   </footer>
 
   <script type="module">
-    import { 
-      auth, onAuthStateChanged, getCurrentProfile, 
-      estPersonnel, afficherProfilHeader 
-    } from './js/community-common.js';
+  import { initialiserMenuComplet } from './js/menu.js';
+  await initialiserMenuComplet();
+  
+  // Le reste du code de la page (logique des cartes, masquage Espace Profs si non-prof)
+  import { auth, db, doc, getDoc, onAuthStateChanged } from './js/community-common.js';
+  
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = '../identification.html';
+      return;
+    }
+    const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+    const profile = snap.data();
 
-    document.getElementById('menu-toggle-btn').onclick = () => 
-      document.getElementById('main-menu').classList.toggle('show');
-
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = '../identification.html';
-        return;
-      }
-      const profile = await getCurrentProfile(user);
-      if (!profile) {
-        window.location.href = '../identification.html';
-        return;
-      }
-
-      afficherProfilHeader(profile);
-
-      // Afficher la carte "Espace Professeurs" uniquement pour le personnel
-      if (estPersonnel(profile)) {
-        document.getElementById('card-profs').style.display = 'flex';
-      }
-    });
-  </script>
+    // Masquer la carte Espace Profs si l'utilisateur n'est pas prof/admin
+    const estProf = ['professeur', 'intendant', 'censeur', 'proviseur', 'admin'].includes(profile.role);
+    const cardProfs = document.getElementById('card-profs');
+    if (!estProf && cardProfs) cardProfs.style.display = 'none';
+  });
+</script>
 </body>
 </html>
