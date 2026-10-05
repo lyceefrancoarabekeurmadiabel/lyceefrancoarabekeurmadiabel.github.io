@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Espace Professeurs — LFAKM</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../assets/style-menu.css">
+<link rel="stylesheet" href="css/community.css">
+<link rel="stylesheet" href="css/menu.css">
+<link rel="manifest" href="../assets/manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<meta name="author" content="Djiby Tall - LFAKM">
+
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
+    --slate: #5B6472; --line: rgba(27,42,74,0.14); --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --success: #2e7d32; --danger: #B3402A;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; }
+
+  /* HERO */
+  .page-hero { background: var(--ink-deep); color:#EFE9DC; padding: 60px 0; text-align: center; }
+  .page-hero h1 { font-family: var(--serif); font-size: 38px; margin-bottom: 12px; }
+  .page-hero p { font-size: 15px; opacity: 0.85; }
+
+  /* LAYOUT */
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+  .profs-container { padding: 40px 0 60px; }
+
+  /* BOUTON UPLOAD */
+  .publish-btn-container { display: flex; justify-content: flex-end; margin-bottom: 25px; }
+  .btn-publish {
+    background: var(--brass); color: #fff; border: none;
+    padding: 12px 24px; border-radius: 6px; font-weight: 700;
+    cursor: pointer; font-family: var(--sans); font-size: 14px;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-publish:hover { background: #96743a; }
+
+  /* RECHERCHE */
+  .search-bar {
+    width: 100%; padding: 14px 18px; border: 1px solid var(--line);
+    border-radius: 8px; font-family: var(--sans); font-size: 14px;
+    margin-bottom: 20px; background: #fff;
+  }
+  .search-bar:focus { outline: none; border-color: var(--brass); }
+
+  /* FILTRES */
+  .filters-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 25px; }
+  .filters-row select {
+    padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px;
+    font-family: var(--sans); font-size: 13px; background: #fff; color: var(--ink);
+    cursor: pointer; min-width: 180px;
+  }
+  .filters-row select:focus { outline: none; border-color: var(--brass); }
+
+  /* GRILLE */
+  .resources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 18px;
+  }
+
+  .resource-card {
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    transition: box-shadow 0.2s, transform 0.2s;
+    display: flex; flex-direction: column;
+  }
+  .resource-card:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.07); transform: translateY(-2px); }
+
+  .resource-type-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 12px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 12px;
+    background: #e3f2fd; color: #1565c0;
+    align-self: flex-start;
+  }
+  .resource-type-badge.cours      { background: #e3f2fd; color: #1565c0; }
+  .resource-type-badge.td         { background: #e8f5e9; color: #2e7d32; }
+  .resource-type-badge.exercices  { background: #fff3e0; color: #e65100; }
+  .resource-type-badge.examen     { background: #fdecea; color: #B3402A; }
+  .resource-type-badge.fiche      { background: #f3e5f5; color: #6a1b9a; }
+
+  .resource-card h3 {
+    font-family: var(--serif); font-size: 18px; color: var(--ink);
+    line-height: 1.3; margin-bottom: 8px;
+  }
+  .resource-card .description {
+    color: #555; font-size: 13px; line-height: 1.5; margin-bottom: 12px;
+    flex: 1;
+  }
+  .resource-meta {
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    font-size: 11px; color: var(--slate); margin-bottom: 8px;
+  }
+  .resource-actions {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;
+  }
+  .btn-download {
+    background: var(--ink); color: #fff; border: none;
+    padding: 8px 16px; border-radius: 6px; font-weight: 700;
+    cursor: pointer; font-size: 12px; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-download:hover { background: var(--ink-deep); }
+
+  .btn-delete {
+    background: transparent; border: 1px solid var(--line);
+    color: var(--slate); padding: 6px 12px; border-radius: 4px;
+    cursor: pointer; font-size: 12px; font-family: var(--sans);
+  }
+  .btn-delete { border-color: var(--danger); color: var(--danger); }
+  .btn-delete:hover { background: var(--danger); color: #fff; }
+
+  /* BADGES */
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .badge-admin { background: #fdecea; color: #B3402A; }
+  .badge-prof { background: #e3f2fd; color: #1565c0; }
+  .badge-mat { background: #f5f5f5; color: var(--slate); }
+
+  /* EMPTY / LOADER */
+  .empty-state {
+    text-align: center; color: var(--slate); padding: 60px 20px;
+    font-size: 14px; background: #fff; border-radius: 10px;
+    border: 1px dashed var(--line); grid-column: 1 / -1;
+  }
+  .empty-state .icon { font-size: 48px; display: block; margin-bottom: 15px; }
+  .loader { text-align: center; padding: 40px; color: var(--slate); font-style: italic; grid-column: 1 / -1; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(16,25,46,0.7);
+    z-index: 2000; align-items: flex-start; justify-content: center;
+    padding: 20px; overflow-y: auto;
+  }
+  .modal-overlay.show { display: flex; }
+
+  .modal-box {
+    background: #fff; border-radius: 12px; padding: 28px;
+    width: 100%; max-width: 600px; margin-top: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  }
+  .modal-box h2 {
+    font-family: var(--serif); color: var(--ink); margin-bottom: 20px;
+    font-size: 22px;
+  }
+  .modal-box .field { margin-bottom: 16px; }
+  .modal-box label {
+    display: block; font-size: 12px; font-weight: 700;
+    color: var(--slate); margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .modal-box input[type="text"],
+  .modal-box select,
+  .modal-box textarea {
+    width: 100%; padding: 11px 14px; border: 1px solid var(--line);
+    border-radius: 6px; font-family: var(--sans); font-size: 14px;
+    background: #fff; color: var(--ink);
+  }
+  .modal-box input:focus, .modal-box select:focus, .modal-box textarea:focus {
+    outline: none; border-color: var(--brass);
+  }
+  .modal-box textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
+
+  .modal-actions {
+    display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;
+  }
+  .btn-primary {
+    background: var(--ink); color: #fff; border: none;
+    padding: 11px 24px; border-radius: 6px; font-weight: 700;
+    cursor: pointer; font-family: var(--sans); font-size: 13px;
+  }
+  .btn-primary:hover { background: var(--ink-deep); }
+  .btn-primary:disabled { opacity: 0.6; cursor: wait; }
+  .btn-ghost {
+    background: transparent; border: 1px solid var(--line);
+    color: var(--slate); padding: 11px 24px; border-radius: 6px;
+    cursor: pointer; font-family: var(--sans); font-size: 13px;
+  }
+  .btn-ghost:hover { background: #f5f5f5; color: var(--ink); }
+
+  /* FOOTER */
+  footer {
+    background: var(--ink-deep); color: #B7BCC9; padding: 25px 20px 20px;
+    text-align: center; font-size: 12px; margin-top: 30px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .page-hero h1 { font-size: 26px; }
+    .resources-grid { grid-template-columns: 1fr; }
+    .filters-row select { min-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<section class="page-hero">
+  <div class="wrap">
+    <h1>👩‍🏫 Espace Professeurs</h1>
+    <p>Partage de ressources pédagogiques entre enseignants du LFAKM.</p>
+  </div>
+</section>
+
+<main class="wrap profs-container">
+
+  <div class="publish-btn-container" id="publish-btn-container" style="display:none;">
+    <button class="btn-publish" id="open-publish-modal">
+      📤 Partager une ressource
+    </button>
+  </div>
+
+  <input type="text" id="search-bar" class="search-bar" placeholder="🔍 Rechercher une ressource par titre...">
+
+  <div class="filters-row">
+    <select id="filter-matiere">
+      <option value="all">📚 Toutes les matières</option>
+      <option value="maths">📐 Mathématiques</option>
+      <option value="francais">📖 Français</option>
+      <option value="anglais">🇬🇧 Anglais</option>
+      <option value="arabe">🕌 Arabe</option>
+      <option value="svt">🧬 SVT</option>
+      <option value="physique">⚗️ Physique-Chimie</option>
+      <option value="histoire">🌍 Histoire-Géo</option>
+      <option value="philosophie">💭 Philosophie</option>
+      <option value="eps">⚽ EPS</option>
+      <option value="religion">📿 Éducation Religieuse</option>
+      <option value="autre">📌 Autre</option>
+    </select>
+
+    <select id="filter-type">
+      <option value="all">📋 Tous les types</option>
+      <option value="cours">📘 Cours</option>
+      <option value="td">✏️ TD</option>
+      <option value="exercices">🎯 Exercices</option>
+      <option value="examen">📝 Sujets d'examen</option>
+      <option value="fiche">📄 Fiches pédagogiques</option>
+    </select>
+  </div>
+
+  <div id="resources-grid" class="resources-grid">
+    <div class="loader">⏳ Chargement des ressources...</div>
+  </div>
+
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="publish-modal">
+  <div class="modal-box">
+    <h2>📤 Partager une ressource</h2>
+
+    <div class="field">
+      <label>Titre de la ressource</label>
+      <input type="text" id="res-titre" placeholder="Ex : Fiche méthode - Résolution d'équations" maxlength="200">
+    </div>
+
+    <div class="field">
+      <label>Matière</label>
+      <select id="res-matiere">
+        <option value="">— Choisir —</option>
+        <option value="maths">📐 Mathématiques</option>
+        <option value="francais">📖 Français</option>
+        <option value="anglais">🇬🇧 Anglais</option>
+        <option value="arabe">🕌 Arabe</option>
+        <option value="svt">🧬 SVT</option>
+        <option value="physique">⚗️ Physique-Chimie</option>
+        <option value="histoire">🌍 Histoire-Géo</option>
+        <option value="philosophie">💭 Philosophie</option>
+        <option value="eps">⚽ EPS</option>
+        <option value="religion">📿 Éducation Religieuse</option>
+        <option value="autre">📌 Autre</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Type de ressource</label>
+      <select id="res-type">
+        <option value="">— Choisir —</option>
+        <option value="cours">📘 Cours</option>
+        <option value="td">✏️ TD</option>
+        <option value="exercices">🎯 Exercices</option>
+        <option value="examen">📝 Sujet d'examen</option>
+        <option value="fiche">📄 Fiche pédagogique</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Description courte (facultatif)</label>
+      <textarea id="res-description" placeholder="Décris brièvement le contenu..." maxlength="500"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Fichier (PDF, Word, image — max 20 Mo)</label>
+      <input type="file" id="res-fichier" accept=".pdf,.doc,.docx,image/*" style="font-size:13px;">
+      <div id="res-fichier-preview" style="margin-top:8px; font-size:12px; color:var(--slate);"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cancel-publish">Annuler</button>
+      <button class="btn-primary" id="confirm-publish">📤 Partager</button>
+    </div>
+    <span id="publish-status" style="display:block; margin-top:10px; font-size:13px;"></span>
+  </div>
+</div>
+
+<footer style="background: var(--ink-deep, #10192E); color: #B7BCC9; padding: 25px 20px 20px; text-align: center; font-size: 12px; margin-top: 30px;">
+  <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; margin-bottom: 10px;">
+    <a href="index.html" style="color: #A8853F; text-decoration: none; font-weight: 700;">👥 Communauté</a>
+    <a href="#" onclick="window.showContact(); return false;" style="color: #B7BCC9; text-decoration: none;">📞 Contacter le Proviseur</a>
+  </div>
+  <div style="font-size: 11px; opacity: 0.7;">
+    © 2026 Lycée Franco Arabe de Keur Madiabel — Site conçu par <strong>Djiby Tall</strong>
+  </div>
+</footer>
+
+<script type="module">
+  import { initialiserMenuComplet } from './js/menu.js';
+  await initialiserMenuComplet();
+  import './js/professeurs.js';
+</script>
+</body>
+</html>
