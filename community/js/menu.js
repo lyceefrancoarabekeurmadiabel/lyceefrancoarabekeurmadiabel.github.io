@@ -2,7 +2,7 @@
  *  🏫 LFAKM — Menu unifié pour le module Communauté
  *  Fichier : community/js/menu.js
  *  Rôle : injecte le header + drawer mobile
- *         Gère burger, sous-menu, profil, rôle
+ *         Gère burger, sous-menu Communauté, profil, rôle
  * ============================================================ */
 
 import { 
@@ -30,8 +30,18 @@ function construireMenu() {
           <li><a href="../index.html">Accueil</a></li>
           <li><a href="../actualites.html">Actualités</a></li>
           <li><a href="../pc/ressources.html">Ressources</a></li>
-          <li><a href="index.html">👥 Communauté</a></li>
-          <li><a href="forum.html">💬 Forum</a></li>
+          
+          <!-- Sous-menu Communauté (regroupe tout) -->
+          <li class="community-item">
+            <span class="community-trigger">👥 Communauté ▾</span>
+            <div class="community-dropdown">
+              <a href="index.html">🏠 Accueil communauté</a>
+              <a href="forum.html">💬 Forum</a>
+              <a href="blog.html">📝 Blog du lycée</a>
+              <a href="professeurs.html">👩‍🏫 Espace Professeurs</a>
+            </div>
+          </li>
+          
           <li id="user-profile" class="profile-info"></li>
           <li><a href="../identification.html" class="nav-cta" id="auth-link">Se connecter</a></li>
         </ul>
@@ -59,8 +69,10 @@ function construireMenu() {
 
       <div class="separator"></div>
 
-      <a href="index.html">👥 Communauté</a>
+      <a href="index.html">🏠 Accueil communauté</a>
       <a href="forum.html">💬 Forum</a>
+      <a href="blog.html">📝 Blog du lycée</a>
+      <a href="professeurs.html">👩‍🏫 Espace Professeurs</a>
 
       <div class="separator"></div>
 
@@ -82,7 +94,10 @@ export async function initialiserMenuComplet() {
   // 2. Gestion du burger + drawer
   initialiserDrawer();
 
-  // 3. Gestion de l'authentification
+  // 3. Gestion du sous-menu Communauté (desktop hover / mobile clic)
+  initialiserSousMenu();
+
+  // 4. Gestion de l'authentification
   initialiserAuth();
 }
 
@@ -116,6 +131,31 @@ function initialiserDrawer() {
   // Fermer le drawer quand on clique sur un lien
   drawer.querySelectorAll('a').forEach(link => {
     link.addEventListener('click', closeDrawer);
+  });
+}
+
+/* ------------------------------------------------------------
+ *  GESTION DU SOUS-MENU COMMUNAUTÉ
+ * ------------------------------------------------------------ */
+function initialiserSousMenu() {
+  // Sur mobile : clic pour ouvrir/fermer le sous-menu
+  document.addEventListener('click', (e) => {
+    if (window.innerWidth > 900) return;
+    const trigger = e.target.closest('.community-trigger');
+    if (!trigger) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const item = trigger.closest('.community-item');
+    if (item) item.classList.toggle('open');
+  });
+
+  // Fermer les sous-menus ouverts au clic ailleurs
+  document.addEventListener('click', (e) => {
+    if (window.innerWidth > 900) return;
+    if (e.target.closest('.community-item')) return;
+    document.querySelectorAll('.community-item.open').forEach(el => {
+      el.classList.remove('open');
+    });
   });
 }
 

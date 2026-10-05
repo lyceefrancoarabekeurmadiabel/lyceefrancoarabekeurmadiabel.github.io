@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Article — Blog LFAKM</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../assets/style-menu.css">
+<link rel="stylesheet" href="css/community.css">
+<link rel="stylesheet" href="css/menu.css">
+<link rel="manifest" href="../assets/manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
+    --slate: #5B6472; --line: rgba(27,42,74,0.14); --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --success: #2e7d32; --danger: #B3402A;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; }
+
+  .wrap { max-width: 800px; margin: 0 auto; padding: 0 20px; }
+  .article-container { padding: 30px 0 60px; }
+
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--slate); text-decoration: none; font-size: 13px;
+    font-weight: 600; margin-bottom: 20px;
+  }
+  .back-link:hover { color: var(--brass); }
+
+  /* ARTICLE */
+  .article-header {
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    padding: 32px; margin-bottom: 25px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+  }
+  .article-header h1 {
+    font-family: var(--serif); font-size: 32px; color: var(--ink);
+    line-height: 1.25; margin-bottom: 15px;
+  }
+  .article-meta {
+    display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+    font-size: 13px; color: var(--slate); margin-bottom: 15px;
+  }
+  .article-image {
+    width: 100%; max-height: 400px; object-fit: cover;
+    border-radius: 10px; margin-top: 20px;
+  }
+
+  /* CONTENU */
+  .article-content {
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    padding: 32px; font-size: 16px; line-height: 1.8;
+    color: #333; white-space: pre-wrap;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    margin-bottom: 25px;
+  }
+
+  /* BADGES */
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .badge-admin { background: #fdecea; color: #B3402A; }
+  .badge-prof { background: #e3f2fd; color: #1565c0; }
+  .badge-cat { background: #f5f5f5; color: var(--slate); }
+
+  /* COMMENTAIRES */
+  .comments-section {
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    padding: 28px; box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+  }
+  .comments-section h2 {
+    font-family: var(--serif); color: var(--ink); margin-bottom: 20px;
+    font-size: 22px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .comments-section h2 .count {
+    font-size: 14px; color: var(--brass); font-weight: 700;
+  }
+
+  .comment-card {
+    background: #fafafa; border: 1px solid var(--line); border-radius: 8px;
+    padding: 15px 18px; margin-bottom: 12px;
+  }
+  .comment-header {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 8px; margin-bottom: 8px;
+    font-size: 12px; color: var(--slate);
+  }
+  .comment-header strong { color: var(--ink); font-size: 14px; }
+  .comment-content {
+    color: #333; font-size: 14px; line-height: 1.6; white-space: pre-wrap;
+    margin-bottom: 8px;
+  }
+  .comment-actions {
+    display: flex; gap: 8px; font-size: 12px;
+  }
+  .btn-edit, .btn-delete {
+    background: transparent; border: 1px solid var(--line);
+    color: var(--slate); padding: 4px 10px; border-radius: 4px;
+    cursor: pointer; font-size: 11px; font-family: var(--sans);
+  }
+  .btn-edit:hover { background: #f5f5f5; color: var(--ink); }
+  .btn-delete { border-color: var(--danger); color: var(--danger); }
+  .btn-delete:hover { background: var(--danger); color: #fff; }
+
+  /* FORMULAIRE COMMENTAIRE */
+  .form-comment {
+    margin-top: 25px; padding-top: 20px;
+    border-top: 1px dashed var(--line);
+  }
+  .form-comment h3 {
+    font-family: var(--serif); color: var(--ink); margin-bottom: 12px;
+    font-size: 18px;
+  }
+  .form-comment textarea {
+    width: 100%; padding: 12px 14px; border: 1px solid var(--line);
+    border-radius: 6px; font-family: var(--sans); font-size: 14px;
+    min-height: 100px; resize: vertical; margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .form-comment textarea:focus { outline: none; border-color: var(--brass); }
+
+  .btn-primary {
+    background: var(--ink); color: #fff; border: none;
+    padding: 11px 22px; border-radius: 6px; font-weight: 700;
+    cursor: pointer; font-family: var(--sans); font-size: 13px;
+  }
+  .btn-primary:hover { background: var(--ink-deep); }
+  .btn-primary:disabled { opacity: 0.6; cursor: wait; }
+
+  .empty-state {
+    text-align: center; color: var(--slate); padding: 40px 20px;
+    font-style: italic; font-size: 14px;
+  }
+  .loader { text-align: center; padding: 40px; color: var(--slate); font-style: italic; }
+
+  footer {
+    background: var(--ink-deep); color: #B7BCC9; padding: 40px;
+    text-align: center; font-size: 13px; margin-top: 50px;
+  }
+
+  @media (max-width: 768px) {
+    .article-header { padding: 22px; }
+    .article-header h1 { font-size: 22px; }
+    .article-content { padding: 22px; font-size: 15px; }
+    .comments-section { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<main class="wrap article-container">
+
+  <a href="blog.html" class="back-link">← Retour au blog</a>
+
+  <div id="article-container">
+    <div class="loader">⏳ Chargement de l'article...</div>
+  </div>
+
+  <div id="comments-section" style="display:none;">
+    <div class="comments-section">
+      <h2>💬 Commentaires <span class="count" id="comments-count">0</span></h2>
+      <div id="comments-list"></div>
+
+      <div class="form-comment">
+        <h3>✍️ Laisser un commentaire</h3>
+        <textarea id="comment-content" placeholder="Ton commentaire... (max 1000 caractères)" maxlength="1000"></textarea>
+        <button class="btn-primary" id="publish-comment-btn">📤 Publier le commentaire</button>
+        <span id="comment-status" style="margin-left:12px; font-size:12px;"></span>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer style="background: var(--ink-deep, #10192E); color: #B7BCC9; padding: 25px 20px 20px; text-align: center; font-size: 12px; margin-top: 30px;">
+  <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; margin-bottom: 10px;">
+    <a href="index.html" style="color: #A8853F; text-decoration: none; font-weight: 700;">👥 Communauté</a>
+    <a href="#" onclick="window.showContact(); return false;" style="color: #B7BCC9; text-decoration: none;">📞 Contacter le Proviseur</a>
+  </div>
+  <div style="font-size: 11px; opacity: 0.7;">
+    © 2026 Lycée Franco Arabe de Keur Madiabel — Site conçu par <strong>Djiby Tall</strong>
+  </div>
+</footer>
+
+<script type="module">
+  import { initialiserMenuComplet } from './js/menu.js';
+  await initialiserMenuComplet();
+  import './js/blog-article.js';
+</script>
+</body>
+</html>

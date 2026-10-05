@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog du lycée — LFAKM</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../assets/style-menu.css">
+<link rel="stylesheet" href="css/community.css">
+<link rel="stylesheet" href="css/menu.css">
+<link rel="manifest" href="../assets/manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<meta name="author" content="Djiby Tall - LFAKM">
+<meta name="copyright" content="© 2026 LFAKM. Tous droits réservés.">
+
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
+    --slate: #5B6472; --line: rgba(27,42,74,0.14); --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --success: #2e7d32; --danger: #B3402A;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; }
+
+  /* HERO */
+  .page-hero { background: var(--ink-deep); color:#EFE9DC; padding: 60px 0; text-align: center; }
+  .page-hero h1 { font-family: var(--serif); font-size: 38px; margin-bottom: 12px; }
+  .page-hero p { font-size: 15px; opacity: 0.85; }
+
+  /* LAYOUT */
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+  .blog-container { padding: 40px 0 60px; }
+
+  /* BOUTON PUBLIER */
+  .publish-btn-container {
+    display: flex; justify-content: flex-end; margin-bottom: 25px;
+  }
+  .btn-publish {
+    background: var(--brass); color: #fff; border: none;
+    padding: 12px 24px; border-radius: 6px; font-weight: 700;
+    cursor: pointer; font-family: var(--sans); font-size: 14px;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: background 0.2s;
+  }
+  .btn-publish:hover { background: #96743a; }
+
+  /* FILTRES */
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px; margin-bottom: 30px;
+  }
+  .cat-btn {
+    background: #fff; border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px 10px; text-align: center; cursor: pointer;
+    font-family: var(--sans); font-size: 13px; font-weight: 600;
+    color: var(--ink); transition: all 0.2s;
+  }
+  .cat-btn:hover { border-color: var(--brass); transform: translateY(-2px); }
+  .cat-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .cat-btn .cat-icon { display: block; font-size: 20px; margin-bottom: 4px; }
+
+  /* RECHERCHE */
+  .search-bar {
+    width: 100%; padding: 14px 18px; border: 1px solid var(--line);
+    border-radius: 8px; font-family: var(--sans); font-size: 14px;
+    margin-bottom: 25px; background: #fff;
+  }
+  .search-bar:focus { outline: none; border-color: var(--brass); }
+
+  /* ARTICLE CARD */
+  .post-card {
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    overflow: hidden; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .post-card:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.07); transform: translateY(-2px); }
+
+  .post-card-image {
+    width: 100%; height: 200px; object-fit: cover;
+    background: #f0f0f0; display: block;
+  }
+
+  .post-card-body { padding: 22px; }
+  .post-card h3 {
+    font-family: var(--serif); font-size: 22px; color: var(--ink);
+    line-height: 1.3; margin-bottom: 10px;
+  }
+  .post-card h3 a { color: inherit; text-decoration: none; }
+  .post-card h3 a:hover { color: var(--brass); }
+
+  .post-meta {
+    display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+    font-size: 12px; color: var(--slate); margin-bottom: 12px;
+  }
+  .post-excerpt {
+    color: #444; font-size: 14px; line-height: 1.6; margin-bottom: 15px;
+  }
+
+  .post-actions {
+    display: flex; gap: 8px; align-items: center;
+  }
+  .btn-read {
+    background: var(--ink); color: #fff; border: none;
+    padding: 8px 18px; border-radius: 6px; font-weight: 700;
+    cursor: pointer; font-size: 13px; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-read:hover { background: var(--ink-deep); }
+
+  .btn-edit, .btn-delete {
+    background: transparent; border: 1px solid var(--line);
+    color: var(--slate); padding: 6px 12px; border-radius: 4px;
+    cursor: pointer; font-size: 12px; font-family: var(--sans);
+  }
+  .btn-edit:hover { background: #f5f5f5; color: var(--ink); }
+  .btn-delete { border-color: var(--danger); color: var(--danger); }
+  .btn-delete:hover { background: var(--danger); color: #fff; }
+
+  /* BADGES */
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .badge-admin { background: #fdecea; color: #B3402A; }
+  .badge-prof { background: #e3f2fd; color: #1565c0; }
+  .badge-cat { background: #f5f5f5; color: var(--slate); }
+
+  /* EMPTY / LOADER */
+  .empty-state {
+    text-align: center; color: var(--slate); padding: 60px 20px;
+    font-size: 14px; background: #fff; border-radius: 10px;
+    border: 1px dashed var(--line);
+  }
+  .empty-state .icon { font-size: 48px; display: block; margin-bottom: 15px; }
+  .loader { text-align: center; padding: 40px; color: var(--slate); font-style: italic; }
+
+  /* MODAL DE PUBLICATION */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(16,25,46,0.7);
+    z-index: 2000; align-items: flex-start; justify-content: center;
+    padding: 20px; overflow-y: auto;
+  }
+  .modal-overlay.show { display: flex; }
+
+  .modal-box {
+    background: #fff; border-radius: 12px; padding: 28px;
+    width: 100%; max-width: 600px; margin-top: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  }
+  .modal-box h2 {
+    font-family: var(--serif); color: var(--ink); margin-bottom: 20px;
+    font-size: 22px;
+  }
+  .modal-box .field { margin-bottom: 16px; }
+  .modal-box label {
+    display: block; font-size: 12px; font-weight: 700;
+    color: var(--slate); margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .modal-box input[type="text"],
+  .modal-box input[type="url"],
+  .modal-box select,
+  .modal-box textarea {
+    width: 100%; padding: 11px 14px; border: 1px solid var(--line);
+    border-radius: 6px; font-family: var(--sans); font-size: 14px;
+    background: #fff; color: var(--ink);
+  }
+  .modal-box input:focus, .modal-box select:focus, .modal-box textarea:focus {
+    outline: none; border-color: var(--brass);
+  }
+  .modal-box textarea { min-height: 200px; resize: vertical; line-height: 1.6; }
+
+  .modal-actions {
+    display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;
+  }
+  .btn-primary {
+    background: var(--ink); color: #fff; border: none;
+    padding: 11px 24px; border-radius: 6px; font-weight: 700;
+    cursor: pointer; font-family: var(--sans); font-size: 13px;
+  }
+  .btn-primary:hover { background: var(--ink-deep); }
+  .btn-primary:disabled { opacity: 0.6; cursor: wait; }
+  .btn-ghost {
+    background: transparent; border: 1px solid var(--line);
+    color: var(--slate); padding: 11px 24px; border-radius: 6px;
+    cursor: pointer; font-family: var(--sans); font-size: 13px;
+  }
+  .btn-ghost:hover { background: #f5f5f5; color: var(--ink); }
+
+  /* FOOTER */
+  footer {
+    background: var(--ink-deep); color: #B7BCC9; padding: 40px;
+    text-align: center; font-size: 13px; margin-top: 50px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .page-hero h1 { font-size: 26px; }
+    .post-card-image { height: 160px; }
+    .post-card h3 { font-size: 18px; }
+    .post-card-body { padding: 16px; }
+    .categories-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+  }
+</style>
+</head>
+<body>
+
+<section class="page-hero">
+  <div class="wrap">
+    <h1>📝 Blog du lycée</h1>
+    <p>Articles, projets et vie scolaire du Lycée Franco Arabe de Keur Madiabel.</p>
+  </div>
+</section>
+
+<main class="wrap blog-container">
+
+  <!-- Bouton Publier (visible pour profs + admin) -->
+  <div class="publish-btn-container" id="publish-btn-container" style="display:none;">
+    <button class="btn-publish" id="open-publish-modal">
+      ✍️ Publier un article
+    </button>
+  </div>
+
+  <!-- Recherche -->
+  <input type="text" id="search-bar" class="search-bar" placeholder="🔍 Rechercher un article par titre...">
+
+  <!-- Filtres par catégorie -->
+  <div class="categories-grid" id="categories-grid"></div>
+
+  <!-- Liste des articles -->
+  <div id="posts-list">
+    <div class="loader">⏳ Chargement des articles...</div>
+  </div>
+
+</main>
+
+<!-- MODAL DE PUBLICATION -->
+<div class="modal-overlay" id="publish-modal">
+  <div class="modal-box">
+    <h2>✍️ Publier un nouvel article</h2>
+
+    <div class="field">
+      <label>Titre de l'article</label>
+      <input type="text" id="post-titre" placeholder="Ex : Comment réussir son année de Seconde" maxlength="200">
+    </div>
+
+    <div class="field">
+      <label>Catégorie</label>
+      <select id="post-categorie">
+        <option value="">— Choisir —</option>
+        <option value="pedagogie">📚 Pédagogie</option>
+        <option value="vie-scolaire">🏫 Vie scolaire</option>
+        <option value="temoignages">💬 Témoignages</option>
+        <option value="projets">🚀 Projets</option>
+        <option value="actualites">📰 Actualités</option>
+        <option value="culture">🎭 Culture</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>URL de l'image de couverture (facultatif)</label>
+      <input type="url" id="post-image" placeholder="https://...">
+    </div>
+
+    <div class="field">
+      <label>Contenu de l'article</label>
+      <textarea id="post-contenu" placeholder="Écris ton article ici (max 20000 caractères)..." maxlength="20000"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cancel-publish">Annuler</button>
+      <button class="btn-primary" id="confirm-publish">📤 Publier</button>
+    </div>
+    <span id="publish-status" style="display:block; margin-top:10px; font-size:13px;"></span>
+  </div>
+</div>
+
+<footer style="background: var(--ink-deep, #10192E); color: #B7BCC9; padding: 25px 20px 20px; text-align: center; font-size: 12px; margin-top: 30px;">
+  <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; margin-bottom: 10px;">
+    <a href="index.html" style="color: #A8853F; text-decoration: none; font-weight: 700;">👥 Communauté</a>
+    <a href="#" onclick="window.showContact(); return false;" style="color: #B7BCC9; text-decoration: none;">📞 Contacter le Proviseur</a>
+  </div>
+  <div style="font-size: 11px; opacity: 0.7;">
+    © 2026 Lycée Franco Arabe de Keur Madiabel — Site conçu par <strong>Djiby Tall</strong>
+  </div>
+</footer>
+
+<script type="module">
+  import { initialiserMenuComplet } from './js/menu.js';
+  await initialiserMenuComplet();
+  import './js/blog.js';
+</script>
+</body>
+</html>
