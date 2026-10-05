@@ -1,6 +1,7 @@
 /* ============================================================
  *  🏫 LFAKM — Blog du lycée
  *  Fichier : community/js/blog.js
+ *  Rôle : liste des articles + publication + édition + upload image
  * ============================================================ */
 
 import { 
@@ -21,6 +22,14 @@ const CATEGORIES = [
   { id: 'actualites',    nom: 'Actualités',    icon: '📰' },
   { id: 'culture',       nom: 'Culture',       icon: '🎭' }
 ];
+
+const CLOUDINARY_CLOUD = 'kgjydhyi';
+const CLOUDINARY_PRESET = 'lfakm_ressources';
+const TAILLE_MAX_IMAGE = 10 * 1024 * 1024; // 10 Mo
+
+/* ============================================================
+ *  ÉTAT GLOBAL
+ * ============================================================ */
 
 let currentUser = null;
 let currentProfile = null;
@@ -152,7 +161,6 @@ function creerCarteArticle(article) {
   const badge = obtenirBadgeRole(article.auteurRole);
   const peutModifier = currentUser.uid === article.auteurId || peutModerer(currentProfile);
 
-  // Extrait : 250 premiers caractères
   const extrait = (article.contenu || '').substring(0, 250) + ((article.contenu || '').length > 250 ? '...' : '');
 
   card.innerHTML = `
@@ -189,7 +197,7 @@ function creerCarteArticle(article) {
     };
   }
 
-  // Bouton Modifier (ouvre le modal avec les données pré-remplies)
+  // Bouton Modifier
   const editBtn = card.querySelector('[data-action="edit"]');
   if (editBtn) {
     editBtn.onclick = () => ouvrirModalEdition(article);
@@ -235,6 +243,31 @@ function attacherEvenements() {
 
   // Publier
   document.getElementById('confirm-publish').onclick = publierArticle;
+
+  // Aperçu de l'image
+  const imageInput = document.getElementById('post-image-file');
+  if (imageInput) {
+    imageInput.addEventListener('change', async () => {
+      const preview = document.getElementById('post-image-preview');
+      const f = imageInput.files[0];
+      if (!f) { preview.innerHTML = ''; return; }
+
+      const tailleMo = (f.size / 1024 / 1024).toFixed(2);
+      preview.innerHTML = `📷 <strong>${f.name}</strong> (${tailleMo} Mo) — <em>compression...</em>`;
+
+      try {
+        const compresse = await compresserImage(f);
+        const tailleC = (compresse.size / 1024 / 1024).toFixed(2);
+        const gain = ((1 - compresse.size / f.size) * 100).toFixed(0);
+        preview.innerHTML = `📷 <strong>${f.name}</strong> — 
+          <span style="color:#B3402A;text-decoration:line-through;">${tailleMo} Mo</span> → 
+          <span style="color:#2e7d32;font-weight:700;">${tailleC} Mo</span> 
+          <span style="color:var(--slate);">(−${gain}%)</span>`;
+      } catch (err) {
+        preview.innerHTML = `📷 <strong>${f.name}</strong> (${tailleMo} Mo)`;
+      }
+    });
+  }
 }
 
 /* ============================================================
@@ -245,9 +278,13 @@ function fermerModal() {
   document.getElementById('publish-modal').classList.remove('show');
   document.getElementById('post-titre').value = '';
   document.getElementById('post-categorie').value = '';
+  const fi = document.getElementById('post-image-file');
+  if (fi) fi.value = '';
   document.getElementById('post-image').value = '';
   document.getElementById('post-contenu').value = '';
   document.getElementById('publish-status').textContent = '';
+  const prev = document.getElementById('post-image-preview');
+  if (prev) prev.innerHTML = '';
 }
 
 /* ============================================================
@@ -260,8 +297,8 @@ async function publierArticle() {
 
   const titre = document.getElementById('post-titre').value.trim();
   const categorie = document.getElementById('post-categorie').value;
-  const image = document.getElementById('post-image').value.trim();
   const contenu = document.getElementById('post-contenu').value.trim();
+  const fichierImage = document.getElementById('post-image-file')?.files[0];
 
   // Validations
   if (!titre)      { status.style.color = 'var(--danger)'; status.textContent = '⚠️ Le titre est obligatoire.'; return; }
@@ -269,19 +306,46 @@ async function publierArticle() {
   if (!contenu)    { status.style.color = 'var(--danger)'; status.textContent = '⚠️ Le contenu est obligatoire.'; return; }
   if (titre.length > 200)    { status.style.color = 'var(--danger)'; status.textContent = '⚠️ Titre trop long (max 200).'; return; }
   if (contenu.length > 20000){ status.style.color = 'var(--danger)'; status.textContent = '⚠️ Contenu trop long (max 20000).'; return; }
+  if (fichierImage && fichierImage.size > TAILLE_MAX_IMAGE) {
+    status.style.color = 'var(--danger)';
+    status.textContent = '⚠️ Image trop lourde (max 10 Mo).';
+    return;
+  }
 
   btn.disabled = true;
   btn.textContent = '📤 Publication...';
   status.textContent = '';
 
   try {
-    await addDoc(collection(db, 'blog_posts'), {
-      titre, categorie, image, contenu,
+    const articleData = {
+      titre, categorie, contenu,
       auteurId: currentUser.uid,
       auteurNom: `${currentProfile.prenom} ${currentProfile.nom}`,
       auteurRole: currentProfile.role,
       date: serverTimestamp()
-    });
+    };
+
+    // Upload image si présente
+    if (fichierImage) {
+      status.textContent = '🗜️ Compression...';
+      const compresse = await compresserImage(fichierImage);
+
+      status.textContent = '📤 Upload de l\'image...';
+      const fd = new FormData();
+      fd.append('file', compresse, 'cover.jpg');
+      fd.append('upload_preset', CLOUDINARY_PRESET);
+
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/auto/upload`, {
+        method: 'POST',
+        body: fd
+      });
+      const data = await res.json();
+
+      if (!data.secure_url) throw new Error("Échec de l'upload de l'image");
+      articleData.image = data.secure_url;
+    }
+
+    await addDoc(collection(db, 'blog_posts'), articleData);
 
     fermerModal();
   } catch (err) {
@@ -301,8 +365,17 @@ async function publierArticle() {
 function ouvrirModalEdition(article) {
   document.getElementById('post-titre').value = article.titre || '';
   document.getElementById('post-categorie').value = article.categorie || '';
-  document.getElementById('post-image').value = article.image || '';
   document.getElementById('post-contenu').value = article.contenu || '';
+  const fi = document.getElementById('post-image-file');
+  if (fi) fi.value = '';
+  document.getElementById('post-image').value = article.image || '';
+  
+  const preview = document.getElementById('post-image-preview');
+  if (preview) {
+    preview.innerHTML = article.image
+      ? `<div style="margin-top:6px;">Image actuelle :<br><img src="${article.image}" style="max-width:200px; border-radius:6px; margin-top:4px;"></div>`
+      : '';
+  }
 
   document.getElementById('publish-modal').classList.add('show');
 
@@ -312,8 +385,8 @@ function ouvrirModalEdition(article) {
   btn.onclick = async () => {
     const titre = document.getElementById('post-titre').value.trim();
     const categorie = document.getElementById('post-categorie').value;
-    const image = document.getElementById('post-image').value.trim();
     const contenu = document.getElementById('post-contenu').value.trim();
+    const fichierImage = document.getElementById('post-image-file')?.files[0];
     const status = document.getElementById('publish-status');
 
     if (!titre || !categorie || !contenu) {
@@ -322,13 +395,34 @@ function ouvrirModalEdition(article) {
       return;
     }
 
+    const updates = { titre, categorie, contenu, dateModif: serverTimestamp() };
+
+    // Nouvelle image uploadée ?
+    if (fichierImage) {
+      try {
+        status.textContent = '🗜️ Compression...';
+        const compresse = await compresserImage(fichierImage);
+
+        status.textContent = '📤 Upload...';
+        const fd = new FormData();
+        fd.append('file', compresse, 'cover.jpg');
+        fd.append('upload_preset', CLOUDINARY_PRESET);
+
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/auto/upload`, {
+          method: 'POST', body: fd
+        });
+        const data = await res.json();
+        if (data.secure_url) updates.image = data.secure_url;
+      } catch (err) {
+        status.style.color = 'var(--danger)';
+        status.textContent = '❌ Erreur upload : ' + err.message;
+        return;
+      }
+    }
+
     try {
-      await updateDoc(doc(db, 'blog_posts', article.id), {
-        titre, categorie, image, contenu,
-        dateModif: serverTimestamp()
-      });
+      await updateDoc(doc(db, 'blog_posts', article.id), updates);
       fermerModal();
-      // Restaurer le bouton
       btn.textContent = '📤 Publier';
       btn.onclick = publierArticle;
     } catch (err) {
@@ -336,6 +430,39 @@ function ouvrirModalEdition(article) {
       status.textContent = '❌ Erreur : ' + err.message;
     }
   };
+}
+
+/* ============================================================
+ *  COMPRESSION D'IMAGE (Canvas)
+ * ============================================================ */
+
+function compresserImage(file, maxWidth = 1600, qualite = 0.75) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxWidth) {
+          height = Math.round(height * (maxWidth / width));
+          width = maxWidth;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => blob ? resolve(blob) : reject(new Error('Échec compression')),
+          'image/jpeg',
+          qualite
+        );
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 console.log('✅ Blog LFAKM chargé');
