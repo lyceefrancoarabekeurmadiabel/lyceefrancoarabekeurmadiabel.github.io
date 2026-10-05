@@ -155,9 +155,22 @@
 
 /* ============================================================
  *  SOUS-MENU COMMUNAUTÉ (header desktop)
+ *  Anti hover-gap : pont invisible + pas de margin-top
  * ============================================================ */
 .community-item {
   position: relative;
+}
+
+/* Pont invisible entre le lien et le menu (évite le hover gap) */
+.community-item::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: -10px;
+  right: -10px;
+  height: 15px;
+  background: transparent;
+  pointer-events: auto;
 }
 
 .community-trigger {
@@ -186,8 +199,8 @@
   box-shadow: 0 5px 20px rgba(0,0,0,0.12);
   min-width: 230px;
   z-index: 100;
-  padding: 6px 0;
-  margin-top: 6px;
+  padding: 12px 0 6px;    /* Padding interne au lieu de margin-top */
+  margin-top: 0;
 }
 
 .community-item:hover .community-dropdown {
