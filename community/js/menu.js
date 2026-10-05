@@ -1,206 +1,196 @@
 /* ============================================================
  *  🏫 LFAKM — Menu unifié pour le module Communauté
  *  Fichier : community/js/menu.js
- *  Rôle : injecte le ruban + gère le burger + sous-menus
+ *  Rôle : injecte le header + drawer mobile
+ *         Gère burger, sous-menu, profil, rôle
  * ============================================================ */
 
-import { auth, db, getCurrentProfile, onAuthStateChanged, afficherProfilHeader } 
-  from './community-common.js';
+import { 
+  auth, onAuthStateChanged, getCurrentProfile, signOut 
+} from './community-common.js';
 
 /* ------------------------------------------------------------
- *  CONSTRUCTION DU MENU
+ *  CONSTRUCTION DU MENU (Header desktop + Drawer mobile)
  * ------------------------------------------------------------ */
-function construireMenu(profile) {
-  const isAdmin = profile && ['admin', 'proviseur', 'censeur'].includes(profile.role);
-  const isGouvernement = profile && ['president', 'ministre_communication'].includes(profile.role);
-
+function construireMenu() {
   return `
-    <header>
-      <div class="nav-row">
-        <div class="menu-toggle" id="burger-btn">☰</div>
-        <a href="../index.html" class="brand">
-          <div class="brand-mark"><img src="../logo-header.png" alt="LFAKM"></div>
-          <div>
-            <div class="brand-name">Lycée Franco Arabe de Keur Madiabel</div>
-            <div class="brand-tag">Excellence & Savoir</div>
-          </div>
-        </a>
-        <nav>
-          <ul id="menu">
-            <li><a href="../index.html">Accueil</a></li>
-            <li><a href="../actualites.html">Actualités</a></li>
-            <li><a href="../pc/ressources.html">Ressources</a></li>
-            
-            <!-- Sous-menu Communauté -->
-            <li class="community-item">
-              <span class="community-trigger">👥 Communauté ▾</span>
-              <div class="community-dropdown">
-                <a href="index.html">🏠 Accueil communauté</a>
-                <a href="forum.html">💬 Forum</a>
-                <a href="professeurs.html">👩‍🏫 Espace Professeurs</a>
-                <a href="blog.html">📝 Blog du lycée</a>
-              </div>
-            </li>
-            
-            <li id="user-profile" class="profile-info"></li>
-            <li><a href="../identification.html" class="nav-cta" id="auth-link">Se connecter</a></li>
-          </ul>
-        </nav>
-      </div>
-    </header>
+  <!-- ============ HEADER DESKTOP ============ -->
+  <header id="lfakm-header">
+    <div class="nav-row">
+      <div class="menu-toggle" id="burger-btn">☰</div>
+      <a href="../index.html" class="brand">
+        <div class="brand-mark"><img src="../logo-header.png" alt="LFAKM"></div>
+        <div>
+          <div class="brand-name">Lycée Franco Arabe de Keur Madiabel</div>
+          <div class="brand-tag">Excellence & Savoir</div>
+        </div>
+      </a>
+      <nav class="desktop-nav">
+        <ul id="menu-desktop">
+          <li><a href="../index.html">Accueil</a></li>
+          <li><a href="../actualites.html">Actualités</a></li>
+          <li><a href="../pc/ressources.html">Ressources</a></li>
+          <li><a href="index.html">👥 Communauté</a></li>
+          <li><a href="forum.html">💬 Forum</a></li>
+          <li id="user-profile" class="profile-info"></li>
+          <li><a href="../identification.html" class="nav-cta" id="auth-link">Se connecter</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ============ DRAWER MOBILE ============ -->
+  <div class="drawer-backdrop" id="drawer-backdrop"></div>
+  <aside class="drawer" id="drawer">
+    <div class="drawer-header">
+      <h2>Menu</h2>
+      <button class="drawer-close" id="drawer-close" aria-label="Fermer">×</button>
+    </div>
+
+    <div class="drawer-user" id="drawer-user" style="display:none;">
+      <div class="name" id="drawer-user-name"></div>
+      <div class="role" id="drawer-user-role"></div>
+    </div>
+
+    <nav class="drawer-nav">
+      <a href="../index.html">🏠 Accueil</a>
+      <a href="../actualites.html">📰 Actualités</a>
+      <a href="../pc/ressources.html" class="connecte-only">📚 Ressources</a>
+
+      <div class="separator"></div>
+
+      <a href="index.html">👥 Communauté</a>
+      <a href="forum.html">💬 Forum</a>
+
+      <div class="separator"></div>
+
+      <a href="#" id="drawer-auth-link" class="primary">🔐 Se connecter</a>
+    </nav>
+
+    <div class="drawer-footer">LFAKM — Communauté</div>
+  </aside>
   `;
 }
 
 /* ------------------------------------------------------------
- *  CSS DES SOUS-MENUS (injecté dynamiquement)
+ *  INITIALISATION DU MENU
  * ------------------------------------------------------------ */
-function injecterCSSMenu() {
-  const style = document.createElement('style');
-  style.textContent = `
-    /* Sous-menu Communauté */
-    .community-item { position: relative; }
-    .community-dropdown {
-      display: none;
-      position: absolute;
-      top: 100%;
-      right: 0;
-      background: #fff;
-      border: 1px solid rgba(27,42,74,0.14);
-      border-radius: 6px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      min-width: 220px;
-      z-index: 100;
-      padding: 5px 0;
-    }
-    .community-dropdown a {
-      display: block;
-      padding: 10px 15px;
-      color: #1B2A4A;
-      font-size: 13px;
-      text-decoration: none;
-      transition: background 0.2s;
-    }
-    .community-dropdown a:hover {
-      background: #f5f5f5;
-      color: #A8853F;
-    }
-    .community-item:hover .community-dropdown {
-      display: block;
-    }
-    .community-trigger {
-      font-size: 13px;
-      font-weight: 600;
-      color: #1B2A4A;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .community-trigger.active { color: #A8853F; }
-    
-    /* Mobile : sous-menu au clic */
-    @media (max-width: 900px) {
-      .community-dropdown {
-        position: static;
-        box-shadow: none;
-        border: none;
-        padding-left: 20px;
-      }
-      .community-item.open .community-dropdown {
-        display: block;
-      }
-    }
-  `;
-  document.head.appendChild(style);
+export async function initialiserMenuComplet() {
+  // 1. Injecter le menu en haut du <body>
+  document.body.insertAdjacentHTML('afterbegin', construireMenu());
+
+  // 2. Gestion du burger + drawer
+  initialiserDrawer();
+
+  // 3. Gestion de l'authentification
+  initialiserAuth();
 }
 
 /* ------------------------------------------------------------
- *  MARQUER LE LIEN ACTIF
+ *  GESTION DU DRAWER MOBILE
  * ------------------------------------------------------------ */
-function marquerLienActif() {
-  const path = window.location.pathname;
-  const page = path.substring(path.lastIndexOf('/') + 1);
-
-  if (page === 'index.html' || page === '' || page === 'community/') {
-    // On est sur le hub → marquer le trigger
-    const trigger = document.querySelector('.community-trigger');
-    if (trigger) trigger.classList.add('active');
-  } else if (['forum.html', 'thread.html', 'professeurs.html', 'blog.html'].includes(page)) {
-    const trigger = document.querySelector('.community-trigger');
-    if (trigger) trigger.classList.add('active');
-
-    // Marquer le lien actif dans le sous-menu
-    const dropdown = document.querySelector('.community-dropdown');
-    if (dropdown) {
-      dropdown.querySelectorAll('a').forEach(a => {
-        const href = a.getAttribute('href');
-        if (href === page) {
-          a.style.fontWeight = '700';
-          a.style.color = '#A8853F';
-        }
-      });
-    }
-  }
-}
-
-/* ------------------------------------------------------------
- *  GESTION DU BURGER + SOUS-MENUS MOBILE
- * ------------------------------------------------------------ */
-function initialiserNavigation() {
+function initialiserDrawer() {
   const burgerBtn = document.getElementById('burger-btn');
-  const menu = document.getElementById('menu');
+  const drawer = document.getElementById('drawer');
+  const backdrop = document.getElementById('drawer-backdrop');
+  const closeBtn = document.getElementById('drawer-close');
 
-  if (burgerBtn && menu) {
-    burgerBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      menu.classList.toggle('show');
-    });
+  if (!burgerBtn || !drawer || !backdrop || !closeBtn) return;
 
-    document.addEventListener('click', (e) => {
-      if (menu.classList.contains('show') && !menu.contains(e.target) && !burgerBtn.contains(e.target)) {
-        menu.classList.remove('show');
-      }
-    });
-
-    menu.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => menu.classList.remove('show'));
-    });
+  function openDrawer() {
+    drawer.classList.add('show');
+    backdrop.classList.add('show');
+    document.body.style.overflow = 'hidden';
   }
 
-  // Sous-menu Communauté sur mobile (clic)
-  document.addEventListener('click', (e) => {
-    if (window.innerWidth > 900) return;
-    const trigger = e.target.closest('.community-trigger');
-    if (!trigger) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const item = trigger.closest('.community-item');
-    if (item) item.classList.toggle('open');
+  function closeDrawer() {
+    drawer.classList.remove('show');
+    backdrop.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  burgerBtn.addEventListener('click', openDrawer);
+  closeBtn.addEventListener('click', closeDrawer);
+  backdrop.addEventListener('click', closeDrawer);
+
+  // Fermer le drawer quand on clique sur un lien
+  drawer.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', closeDrawer);
   });
 }
 
 /* ------------------------------------------------------------
- *  INITIALISATION
+ *  GESTION DE L'AUTHENTIFICATION
  * ------------------------------------------------------------ */
-export async function initialiserMenuComplet() {
-  // Injecter le CSS
-  injecterCSSMenu();
-
-  // Construire le menu (avec profile null au départ, on mettra à jour après auth)
-  const headerHTML = construireMenu(null);
-  document.body.insertAdjacentHTML('afterbegin', headerHTML);
-
-  // Gestion burger
-  initialiserNavigation();
-
-  // Marquer le lien actif
-  marquerLienActif();
-
-  // Mettre à jour après auth
+function initialiserAuth() {
   onAuthStateChanged(auth, async (user) => {
+    const authLink = document.getElementById('auth-link');
+    const drawerAuthLink = document.getElementById('drawer-auth-link');
+    const profileSpan = document.getElementById('user-profile');
+    const drawerUser = document.getElementById('drawer-user');
+    const drawerName = document.getElementById('drawer-user-name');
+    const drawerRole = document.getElementById('drawer-user-role');
+
     if (user) {
       const profile = await getCurrentProfile(user);
-      afficherProfilHeader(profile);
+      if (!profile) return;
+
+      // --- Profil desktop ---
+      if (profileSpan) {
+        profileSpan.innerHTML = `
+          <span class="profile-name">👤 ${profile.prenom} ${profile.nom}</span>
+          <span class="profile-role">${profile.role}</span>
+        `;
+        profileSpan.style.display = 'flex';
+      }
+
+      // --- Profil drawer mobile ---
+      if (drawerUser && drawerName && drawerRole) {
+        drawerUser.style.display = 'block';
+        drawerName.textContent = `👤 ${profile.prenom} ${profile.nom}`;
+        drawerRole.textContent = profile.role;
+      }
+
+      // --- Lien Ressources (visible si connecté) ---
+      document.querySelectorAll('.connecte-only').forEach(el => {
+        el.style.display = 'flex';
+      });
+
+      // --- Bouton Déconnexion ---
+      if (authLink) {
+        authLink.textContent = 'Déconnexion';
+        authLink.onclick = (e) => {
+          e.preventDefault();
+          signOut(auth).then(() => window.location.reload());
+        };
+      }
+      if (drawerAuthLink) {
+        drawerAuthLink.textContent = '🚪 Se déconnecter';
+        drawerAuthLink.onclick = (e) => {
+          e.preventDefault();
+          signOut(auth).then(() => window.location.reload());
+        };
+      }
+
     } else {
-      afficherProfilHeader(null);
+      // --- Non connecté ---
+      if (profileSpan) profileSpan.style.display = 'none';
+      if (drawerUser) drawerUser.style.display = 'none';
+
+      document.querySelectorAll('.connecte-only').forEach(el => {
+        el.style.display = 'none';
+      });
+
+      if (authLink) {
+        authLink.textContent = 'Se connecter';
+        authLink.href = '../identification.html';
+        authLink.onclick = null;
+      }
+      if (drawerAuthLink) {
+        drawerAuthLink.textContent = '🔐 Se connecter';
+        drawerAuthLink.href = '../identification.html';
+        drawerAuthLink.onclick = null;
+      }
     }
   });
 }

@@ -1,79 +1,346 @@
 /* ============================================================
- *  🏫 LFAKM — Styles du menu unifié
+ *  🏫 LFAKM — Menu unifié (Header desktop + Drawer mobile)
  *  Fichier : community/css/menu.css
  * ============================================================ */
 
-/* Sous-menu Communauté */
-.community-item {
-  position: relative;
+:root {
+  --ink: #1B2A4A;
+  --ink-deep: #10192E;
+  --paper: #F7F5F0;
+  --brass: #A8853F;
+  --slate: #5B6472;
+  --line: rgba(27,42,74,0.14);
+  --serif: 'Source Serif 4', Georgia, serif;
+  --sans: 'Inter', sans-serif;
 }
 
-.community-trigger {
+* { -webkit-tap-highlight-color: transparent; }
+
+/* ============================================================
+ *  HEADER DESKTOP
+ * ============================================================ */
+#lfakm-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  height: 84px;
+  display: flex;
+  align-items: center;
+}
+
+#lfakm-header .nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+#lfakm-header .brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+#lfakm-header .brand-mark {
+  width: 55px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+#lfakm-header .brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+#lfakm-header .brand-name {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+#lfakm-header .brand-tag {
+  font-size: 10px;
+  color: var(--slate);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+#lfakm-header .desktop-nav {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex: 1;
+}
+
+#lfakm-header .desktop-nav ul {
+  display: flex;
+  gap: 18px;
+  list-style: none;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+#lfakm-header .desktop-nav a {
   font-size: 13px;
   font-weight: 600;
-  color: var(--ink, #1B2A4A);
-  cursor: pointer;
-  white-space: nowrap;
-  display: inline-block;
-  padding: 6px 0;
-}
-
-.community-trigger.active {
-  color: var(--brass, #A8853F);
-}
-
-.community-dropdown {
-  display: none;
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background: #fff;
-  border: 1px solid var(--line, rgba(27,42,74,0.14));
-  border-radius: 6px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  min-width: 220px;
-  z-index: 100;
-  padding: 5px 0;
-}
-
-.community-item:hover .community-dropdown {
-  display: block;
-}
-
-.community-dropdown a {
-  display: block;
-  padding: 10px 15px;
-  color: var(--ink, #1B2A4A);
-  font-size: 13px;
+  color: var(--ink);
   text-decoration: none;
-  transition: background 0.2s;
+  white-space: nowrap;
+  transition: color 0.2s;
 }
 
-.community-dropdown a:hover {
-  background: #f5f5f5;
-  color: var(--brass, #A8853F);
+#lfakm-header .desktop-nav a:hover {
+  color: var(--brass);
 }
 
-.community-dropdown a.active {
+#lfakm-header .profile-info {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.2;
+}
+
+#lfakm-header .profile-name {
   font-weight: 700;
-  color: var(--brass, #A8853F);
-  background: #fafafa;
+  color: var(--brass);
+  font-size: 14px;
 }
 
-/* Mobile : sous-menu au clic */
+#lfakm-header .profile-role {
+  font-size: 11px;
+  color: var(--slate);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#lfakm-header .nav-cta {
+  background: var(--ink-deep);
+  color: #fff !important;
+  padding: 10px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+  text-decoration: none;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Burger caché sur desktop */
+#lfakm-header .menu-toggle {
+  display: none;
+  font-size: 30px;
+  cursor: pointer;
+  color: var(--ink);
+  background: none;
+  border: none;
+  padding: 4px 8px;
+}
+
+/* ============================================================
+ *  DRAWER MOBILE
+ * ============================================================ */
+.drawer-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1900;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.drawer-backdrop.show {
+  display: block;
+  opacity: 1;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 82%;
+  max-width: 340px;
+  height: 100vh;
+  height: 100dvh;
+  background: var(--paper);
+  z-index: 2000;
+  transition: right 0.3s ease;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer.show {
+  right: 0;
+}
+
+.drawer-header {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.drawer-header h2 {
+  font-family: var(--serif);
+  font-size: 16px;
+  color: var(--ink);
+  margin: 0;
+}
+
+.drawer-close {
+  background: none;
+  border: none;
+  font-size: 26px;
+  cursor: pointer;
+  color: var(--ink);
+  padding: 4px 10px;
+  line-height: 1;
+}
+
+.drawer-user {
+  padding: 14px 18px;
+  background: #f1ece1;
+  font-size: 13px;
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0 !important;
+  min-height: 0 !important;
+  max-height: 100px !important;
+  margin-bottom: 0 !important;    /* ⬅️ AJOUT : pas de marge sous le profil */
+}
+
+.drawer-user .name {
+  font-weight: 700;
+  color: var(--brass);
+}
+
+.drawer-user .role {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--slate);
+  margin-top: 4px;
+}
+
+.drawer-nav {
+  padding: 8px 0 !important;
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;   /* ⬅️ ALIGNE EN HAUT */
+  width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+.drawer-nav a,
+.drawer-nav button {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 14px 18px !important;
+  color: #1B2A4A !important;
+  background: transparent !important;
+  text-decoration: none !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  border: none !important;
+  width: 100% !important;
+  text-align: left !important;
+  font-family: var(--sans) !important;
+  cursor: pointer !important;
+  min-height: 48px !important;
+  /* ⬇️ CES 4 LIGNES SONT LA CLÉ */
+  position: static !important;
+  left: auto !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+.drawer-nav a:active {
+  background: #f0f0f0;
+}
+
+.drawer-nav a.primary {
+  color: var(--brass);
+}
+
+.drawer-nav .separator {
+  height: 1px;
+  background: var(--line);
+  margin: 8px 18px;
+}
+
+.drawer-footer {
+  padding: 14px 18px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  color: var(--slate);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+ *  RESPONSIVE : Mobile
+ * ============================================================ */
 @media (max-width: 900px) {
-  .community-dropdown {
-    position: static;
-    box-shadow: none;
-    border: none;
-    padding-left: 20px;
-    background: transparent;
+  #lfakm-header {
+    height: 64px;
+    padding: 0 14px;
   }
-  .community-item.open .community-dropdown {
+
+  #lfakm-header .nav-row {
+    padding: 0;
+    gap: 10px;
+  }
+
+  #lfakm-header .brand-mark {
+    width: 40px;
+    height: 40px;
+  }
+
+  #lfakm-header .brand-name {
+    font-size: 13px;
+  }
+
+  #lfakm-header .brand-tag {
+    font-size: 9.5px;
+  }
+
+  #lfakm-header .menu-toggle {
     display: block;
   }
-  .community-trigger {
-    display: block;
-    padding: 8px 0;
+
+  #lfakm-header .desktop-nav {
+    display: none;
+  }
+}
+
+/* Cacher le drawer sur desktop */
+@media (min-width: 901px) {
+  .drawer,
+  .drawer-backdrop {
+    display: none !important;
   }
 }
