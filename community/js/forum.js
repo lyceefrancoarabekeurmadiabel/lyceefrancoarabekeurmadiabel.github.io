@@ -382,7 +382,7 @@ function creerCarteThread(threadId, data) {
         await updateDoc(doc(db, 'forum_threads', threadId), {
           likesCount: increment(-1)
         });
-      } else {
+            } else {
         await setDoc(likeRef, {
           date: serverTimestamp(),
           userNom: `${currentProfile.prenom} ${currentProfile.nom}`
@@ -390,6 +390,19 @@ function creerCarteThread(threadId, data) {
         await updateDoc(doc(db, 'forum_threads', threadId), {
           likesCount: increment(1)
         });
+
+        // ⬇️ AJOUTER : Notifier l'auteur du thread
+        if (data.auteurId && data.auteurId !== currentUser.uid) {
+          const { creerNotification } = await import('./notifications.js');
+          await creerNotification({
+            destinataireId: data.auteurId,
+            type: 'like',
+            message: `a liké ton sujet "${data.titre}"`,
+            lien: `thread.html?id=${threadId}`,
+            auteurId: currentUser.uid,
+            auteurNom: `${currentProfile.prenom} ${currentProfile.nom}`
+          });
+        }
       }
     } catch (err) {
       console.error('Erreur like:', err);

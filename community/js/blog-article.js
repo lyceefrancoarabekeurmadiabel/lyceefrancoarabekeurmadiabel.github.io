@@ -230,13 +230,30 @@ function attacherFormulaire() {
     btn.textContent = '📤 Publication...';
 
     try {
-      await addDoc(collection(db, 'blog_posts', articleId, 'comments'), {
+            await addDoc(collection(db, 'blog_posts', articleId, 'comments'), {
         contenu,
         auteurId: currentUser.uid,
         auteurNom: `${currentProfile.prenom} ${currentProfile.nom}`,
         auteurRole: currentProfile.role,
         date: serverTimestamp()
       });
+
+      // ⬇️ AJOUTER : Notifier l'auteur de l'article
+      const articleSnap = await getDoc(doc(db, 'blog_posts', articleId));
+      if (articleSnap.exists()) {
+        const article = articleSnap.data();
+        if (article.auteurId && article.auteurId !== currentUser.uid) {
+          const { creerNotification } = await import('./notifications.js');
+          await creerNotification({
+            destinataireId: article.auteurId,
+            type: 'commentaire',
+            message: `a commenté ton article "${article.titre}"`,
+            lien: `blog-article.html?id=${articleId}`,
+            auteurId: currentUser.uid,
+            auteurNom: `${currentProfile.prenom} ${currentProfile.nom}`
+          });
+        }
+      }
 
       textarea.value = '';
       status.style.color = 'var(--success)';

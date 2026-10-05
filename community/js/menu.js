@@ -42,6 +42,20 @@ function construireMenu() {
             </div>
           </li>
           
+                    <li class="notif-item" id="notif-item" style="display:none; position:relative;">
+            <button class="notif-btn" id="notif-btn" title="Notifications">
+              🔔 <span class="notif-badge" id="notif-badge" style="display:none;">0</span>
+            </button>
+            <div class="notif-dropdown" id="notif-dropdown">
+              <div class="notif-header">
+                <h3>🔔 Notifications</h3>
+                <button id="notif-mark-all-read" class="notif-mark-all">Tout marquer comme lu</button>
+              </div>
+              <div class="notif-list" id="notif-list">
+                <div class="notif-empty">Aucune notification</div>
+              </div>
+            </div>
+          </li>
           <li id="user-profile" class="profile-info"></li>
           <li><a href="../identification.html" class="nav-cta" id="auth-link">Se connecter</a></li>
         </ul>
@@ -76,6 +90,9 @@ function construireMenu() {
 
       <div class="separator"></div>
 
+      <a href="notifications.html" class="notif-drawer-link">
+        🔔 Notifications <span id="notif-count-drawer" class="notif-badge-drawer" style="display:none;">0</span>
+      </a>
       <a href="#" id="drawer-auth-link" class="primary">🔐 Se connecter</a>
     </nav>
 
@@ -202,6 +219,16 @@ function initialiserAuth() {
       document.querySelectorAll('.connecte-only').forEach(el => {
         el.style.display = 'flex';
       });
+
+            // --- Afficher la cloche de notifications ---
+      const notifItem = document.getElementById('notif-item');
+      if (notifItem) {
+        notifItem.style.display = 'block';
+        // Initialiser les notifications
+        import('./notifications.js').then(mod => {
+          mod.initialiserNotifications(profile.uid || currentUser?.uid);
+        }).catch(err => console.warn('Erreur chargement notifications:', err));
+      }
 
       // --- Bouton Déconnexion ---
       if (authLink) {

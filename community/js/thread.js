@@ -479,11 +479,24 @@ function attacherFormulaire() {
         replyData.fichierType = fichierFinal.type;
       }
 
-      await addDoc(collection(db, 'forum_threads', threadId, 'replies'), replyData);
+            await addDoc(collection(db, 'forum_threads', threadId, 'replies'), replyData);
 
       await updateDoc(doc(db, 'forum_threads', threadId), {
         nbReponses: increment(1)
       });
+
+      // ⬇️ AJOUTER : Notifier l'auteur du thread
+      if (threadData && threadData.auteurId && threadData.auteurId !== currentUser.uid) {
+        const { creerNotification } = await import('./notifications.js');
+        await creerNotification({
+          destinataireId: threadData.auteurId,
+          type: 'reponse',
+          message: `a répondu à ton sujet "${threadData.titre}"`,
+          lien: `thread.html?id=${threadId}`,
+          auteurId: currentUser.uid,
+          auteurNom: `${currentProfile.prenom} ${currentProfile.nom}`
+        });
+      }
 
       textarea.value = '';
       if (fichierInput) fichierInput.value = '';
