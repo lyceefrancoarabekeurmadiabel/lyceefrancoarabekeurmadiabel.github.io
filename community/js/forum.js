@@ -5,8 +5,9 @@
 
 import { 
   auth, db, onAuthStateChanged, getCurrentProfile, escapeHtml, formatDate,
-  collection, doc, addDoc, deleteDoc, onSnapshot, query, 
-  where, orderBy, serverTimestamp, peutModerer, afficherProfilHeader
+  collection, doc, addDoc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot, 
+  query, where, orderBy, serverTimestamp, increment, 
+  peutModerer, afficherProfilHeader
 } from './community-common.js';
 
 /* ============================================================
@@ -48,6 +49,9 @@ let currentProfile = null;
 let currentUser = null;
 let activeCategorie = 'all';
 let unsubscribeThreads = null;
+let activeTri = 'recent';        // recent | populaires | repondus
+let filtreMesSujets = false;
+let searchTerm = '';
 
 /* ============================================================
  *  AUTHENTIFICATION
@@ -75,6 +79,7 @@ onAuthStateChanged(auth, async (user) => {
 
 function initialiserForum() {
   afficherCategories();
+  afficherBarreOutils();   // ⬅️ NOUVEAU
   remplirSelects();
   chargerThreads();
 
@@ -109,6 +114,65 @@ function afficherCategories() {
       chargerThreads();
     };
     grid.appendChild(btn);
+  });
+}
+
+/* ============================================================
+ *  BARRE D'OUTILS (tri + recherche + mes sujets)
+ * ============================================================ */
+
+function afficherBarreOutils() {
+  const container = document.querySelector('.forum-container');
+  const formCard = document.getElementById('new-thread-card');
+
+  if (!container || !formCard) return;
+
+  // Chercher si la barre existe déjà
+  if (document.getElementById('toolbar-forum')) return;
+
+  const toolbar = document.createElement('div');
+  toolbar.id = 'toolbar-forum';
+  toolbar.style.cssText = `
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    margin-bottom: 20px; padding: 14px; background: #fff;
+    border: 1px solid var(--line); border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  `;
+
+  toolbar.innerHTML = `
+    <input type="text" id="forum-search" placeholder="🔍 Rechercher un sujet..." 
+           style="flex: 1; min-width: 180px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 6px; font-family: var(--sans); font-size: 13px;">
+    
+    <select id="forum-tri" style="padding: 10px 14px; border: 1px solid var(--line); border-radius: 6px; font-family: var(--sans); font-size: 13px; background: #fff;">
+      <option value="recent">🕐 Plus récents</option>
+      <option value="populaires">👍 Plus likés</option>
+      <option value="repondus">💬 Plus répondus</option>
+    </select>
+    
+    <button id="forum-mes-sujets" style="padding: 10px 14px; border: 1px solid var(--line); border-radius: 6px; font-family: var(--sans); font-size: 13px; background: #fff; cursor: pointer; font-weight: 600; color: var(--ink);">
+      👤 Mes sujets
+    </button>
+  `;
+
+  // Insérer avant le formulaire de création
+  formCard.parentNode.insertBefore(toolbar, formCard);
+
+  // Événements
+  document.getElementById('forum-search').addEventListener('input', (e) => {
+    searchTerm = e.target.value.trim();
+    chargerThreads();
+  });
+
+  document.getElementById('forum-tri').addEventListener('change', (e) => {
+    activeTri = e.target.value;
+    chargerThreads();
+  });
+
+  document.getElementById('forum-mes-sujets').addEventListener('click', (e) => {
+    filtreMesSujets = !filtreMesSujets;
+    e.target.style.background = filtreMesSujets ? 'var(--ink)' : '#fff';
+    e.target.style.color = filtreMesSujets ? '#fff' : 'var(--ink)';
+    chargerThreads();
   });
 }
 
@@ -165,30 +229,58 @@ function chargerThreads() {
   if (activeCategorie === 'all') {
     q = query(threadsRef, orderBy('date', 'desc'));
   } else {
-    q = query(
-      threadsRef,
-      where('categorie', '==', activeCategorie),
-      orderBy('date', 'desc')
-    );
+    q = query(threadsRef, where('categorie', '==', activeCategorie), orderBy('date', 'desc'));
   }
 
   unsubscribeThreads = onSnapshot(q, (snap) => {
     list.innerHTML = '';
 
-    if (snap.empty) {
-      list.innerHTML = '<div class="empty-state">Aucun sujet pour le moment. Sois le premier à en créer un ! ✍️</div>';
+    let threads = [];
+    snap.forEach(d => threads.push({ id: d.id, ...d.data() }));
+
+    // Filtre "Mes sujets"
+    if (filtreMesSujets) {
+      threads = threads.filter(t => t.auteurId === currentUser.uid);
+    }
+
+    // Filtre recherche
+    if (searchTerm) {
+      threads = threads.filter(t => 
+        (t.titre || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (t.contenu || '').toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Tri
+    if (activeTri === 'populaires') {
+      threads.sort((a, b) => (b.likesCount || 0) - (a.likesCount || 0));
+    } else if (activeTri === 'repondus') {
+      threads.sort((a, b) => (b.nbReponses || 0) - (a.nbReponses || 0));
+    } else {
+      threads.sort((a, b) => {
+        const da = a.date?.toDate ? a.date.toDate() : new Date(0);
+        const dbb = b.date?.toDate ? b.date.toDate() : new Date(0);
+        return dbb - da;
+      });
+    }
+
+    // Épinglés en haut (sauf si filtre actif)
+    if (activeTri === 'recent' && !searchTerm) {
+      const epingles = threads.filter(t => t.epingle === true);
+      const autres = threads.filter(t => t.epingle !== true);
+      threads = [...epingles, ...autres];
+    }
+
+    if (threads.length === 0) {
+      list.innerHTML = '<div class="empty-state">Aucun sujet trouvé.</div>';
       return;
     }
 
-    snap.forEach(docSnap => {
-      const data = docSnap.data();
-      list.appendChild(creerCarteThread(docSnap.id, data));
-    });
+    threads.forEach(t => list.appendChild(creerCarteThread(t.id, t)));
   }, (err) => {
     console.error('Erreur Firestore:', err);
     list.innerHTML = `<div class="empty-state" style="color:var(--danger);">
-      ⚠️ Erreur : ${escapeHtml(err.message)}<br>
-      <small>Vérifie que les règles Firestore pour "forum_threads" sont publiées.</small>
+      ⚠️ Erreur : ${escapeHtml(err.message)}
     </div>`;
   });
 }
@@ -200,11 +292,13 @@ function chargerThreads() {
 function creerCarteThread(threadId, data) {
   const card = document.createElement('div');
   card.className = 'thread-card';
+  if (data.epingle) card.style.borderLeft = '4px solid var(--brass)';
 
   const cat = CATEGORIES.find(c => c.id === data.categorie);
   const classe = CLASSES.find(c => c.id === data.classe);
   const badge = obtenirBadgeRole(data.auteurRole);
   const peutSupprimer = currentUser.uid === data.auteurId || peutModerer(currentProfile);
+  const peutEpingler = peutModerer(currentProfile);
 
   // Pièce jointe
   let pieceJointeHtml = '';
@@ -229,10 +323,11 @@ function creerCarteThread(threadId, data) {
     }
   }
 
-    card.innerHTML = `
+  card.innerHTML = `
     <h3>
+      ${data.epingle ? '<span style="color:var(--brass);">📌</span> ' : ''}
       <a href="thread.html?id=${threadId}" 
-         style="color:inherit; text-decoration:none; display:inline-block;"
+         style="color:inherit; text-decoration:none;"
          onmouseover="this.style.color='var(--brass)'"
          onmouseout="this.style.color='inherit'">
         ${escapeHtml(data.titre)}
@@ -247,24 +342,87 @@ function creerCarteThread(threadId, data) {
     </div>
     <div class="thread-content">${escapeHtml(data.contenu)}</div>
     ${pieceJointeHtml}
-    <div style="margin-top:8px; font-size:12px; color:var(--slate);">
-      💬 ${data.nbReponses || 0} réponse${(data.nbReponses || 0) > 1 ? 's' : ''}
-    </div>
-    <div class="thread-actions" style="margin-top:12px;">
+    <div class="thread-actions" style="margin-top:12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+      <button class="btn-like" data-action="like" style="background: transparent; border: 1px solid var(--line); color: var(--ink); padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+        👍 <span data-role="likes-count">${data.likesCount || 0}</span>
+      </button>
       <a href="thread.html?id=${threadId}" 
          class="btn-primary" 
-         style="text-decoration:none; padding:8px 16px; font-size:12px; display:inline-block;">
-        💬 Voir & Répondre
+         style="text-decoration:none; padding:8px 16px; font-size:12px; display:inline-flex; align-items:center; gap:6px;">
+        💬 ${data.nbReponses || 0} réponse${(data.nbReponses || 0) > 1 ? 's' : ''}
       </a>
-      ${peutSupprimer ? `<button class="btn-danger" data-action="delete">🗑 Supprimer</button>` : ''}
+      ${peutEpingler ? `<button class="btn-ghost" data-action="epingle" style="padding:6px 12px; font-size:12px; border:1px solid var(--line); border-radius:4px; cursor:pointer; background:transparent; color:var(--slate);">${data.epingle ? '📌 Désépingler' : '📌 Épingler'}</button>` : ''}
+      ${peutSupprimer ? `<button class="btn-danger" data-action="delete" style="padding:6px 12px; font-size:12px;">🗑 Supprimer</button>` : ''}
     </div>
   `;
 
+  // === Bouton LIKE ===
+  const likeBtn = card.querySelector('[data-action="like"]');
+  const likesCountSpan = card.querySelector('[data-role="likes-count"]');
+  
+  // Vérifier si déjà liké (dans le sous-dossier likes/{uid})
+  const likeRef = doc(db, 'forum_threads', threadId, 'likes', currentUser.uid);
+  onSnapshot(likeRef, (likeSnap) => {
+    if (likeSnap.exists()) {
+      likeBtn.style.background = 'var(--brass)';
+      likeBtn.style.color = '#fff';
+      likeBtn.style.borderColor = 'var(--brass)';
+    } else {
+      likeBtn.style.background = 'transparent';
+      likeBtn.style.color = 'var(--ink)';
+      likeBtn.style.borderColor = 'var(--line)';
+    }
+  });
+
+  likeBtn.onclick = async () => {
+    try {
+      const likeSnap = await getDoc(likeRef);
+      if (likeSnap.exists()) {
+        await deleteDoc(likeRef);
+        await updateDoc(doc(db, 'forum_threads', threadId), {
+          likesCount: increment(-1)
+        });
+      } else {
+        await setDoc(likeRef, {
+          date: serverTimestamp(),
+          userNom: `${currentProfile.prenom} ${currentProfile.nom}`
+        });
+        await updateDoc(doc(db, 'forum_threads', threadId), {
+          likesCount: increment(1)
+        });
+      }
+    } catch (err) {
+      console.error('Erreur like:', err);
+    }
+  };
+
+  // === Bouton ÉPINGLER ===
+  const epingleBtn = card.querySelector('[data-action="epingle"]');
+  if (epingleBtn) {
+    epingleBtn.onclick = async () => {
+      try {
+        await updateDoc(doc(db, 'forum_threads', threadId), {
+          epingle: !data.epingle
+        });
+      } catch (err) {
+        alert('Erreur : ' + err.message);
+      }
+    };
+  }
+
+  // === Bouton SUPPRIMER ===
   const deleteBtn = card.querySelector('[data-action="delete"]');
   if (deleteBtn) {
     deleteBtn.onclick = async () => {
       if (!confirm('Supprimer définitivement ce sujet ?')) return;
       try {
+        // Supprimer les likes d'abord
+        const likesSnap = await getDocs(collection(db, 'forum_threads', threadId, 'likes'));
+        for (const l of likesSnap.docs) await deleteDoc(l.ref);
+        // Supprimer les réponses
+        const repliesSnap = await getDocs(collection(db, 'forum_threads', threadId, 'replies'));
+        for (const r of repliesSnap.docs) await deleteDoc(r.ref);
+        // Supprimer le thread
         await deleteDoc(doc(db, 'forum_threads', threadId));
       } catch (err) {
         alert('Erreur : ' + err.message);
