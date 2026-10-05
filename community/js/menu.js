@@ -113,16 +113,23 @@ function initialiserDrawer() {
   if (!burgerBtn || !drawer || !backdrop || !closeBtn) return;
 
   function openDrawer() {
-    drawer.classList.add('show');
-    backdrop.classList.add('show');
-    document.body.style.overflow = 'hidden';
-  }
+  drawer.classList.add('show');
+  backdrop.classList.add('show');
+  document.body.classList.add('drawer-open');
+  // Sauvegarder la position de scroll actuelle
+  document.body.dataset.scrollY = window.scrollY;
+}
 
-  function closeDrawer() {
-    drawer.classList.remove('show');
-    backdrop.classList.remove('show');
-    document.body.style.overflow = '';
+function closeDrawer() {
+  drawer.classList.remove('show');
+  backdrop.classList.remove('show');
+  document.body.classList.remove('drawer-open');
+  // Restaurer la position de scroll
+  const scrollY = document.body.dataset.scrollY;
+  if (scrollY) {
+    window.scrollTo(0, parseInt(scrollY));
   }
+}
 
   burgerBtn.addEventListener('click', openDrawer);
   closeBtn.addEventListener('click', closeDrawer);
