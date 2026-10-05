@@ -6,12 +6,18 @@
  * ============================================================ */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { 
+  getAuth, onAuthStateChanged, signOut 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { 
   getFirestore, collection, doc, getDoc, getDocs, 
-  addDoc, updateDoc, deleteDoc, onSnapshot, 
+  addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, 
   query, where, orderBy, limit, serverTimestamp, increment
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* ============================================================
+ *  CONFIGURATION FIREBASE
+ * ============================================================ */
 
 export const firebaseConfig = {
   apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
@@ -94,9 +100,13 @@ export function afficherProfilHeader(profile) {
   }
 }
 
-// Ré-exports Firestore pour simplifier les imports
+/* ============================================================
+ *  RÉ-EXPORTS FIRESTORE
+ *  Permet aux autres fichiers d'importer tout depuis community-common.js
+ * ============================================================ */
+
 export { 
-  collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
+  collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc,
   onSnapshot, query, where, orderBy, limit, serverTimestamp, increment,
   onAuthStateChanged, signOut
 };
