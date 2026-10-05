@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forum — Communauté LFAKM</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../assets/style-menu.css">
+<link rel="stylesheet" href="css/community.css">
+<link rel="manifest" href="../assets/manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<meta name="author" content="Djiby Tall - LFAKM">
+<meta name="copyright" content="© 2026 LFAKM. Tous droits réservés.">
+
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
+    --slate: #5B6472; --line: rgba(27,42,74,0.14); --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --gov-purple: #6a4c93; --success: #2e7d32; --danger: #B3402A;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; }
+
+  /* HEADER */
+  header { position:sticky; top:0; z-index:1000; background:var(--paper); border-bottom:1px solid var(--line); height: 84px; display: flex; align-items: center; }
+  .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; max-width:1180px; margin:0 auto; padding:0 24px; }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); width: 220px; flex-shrink: 0; }
+  .brand-mark { width:55px; height:45px; display:flex; align-items:center; justify-content:center; flex-shrink: 0; }
+  .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
+  .brand-name { font-family:var(--serif); font-weight:700; font-size:14px; color:var(--ink); line-height: 1.3; text-align: center; }
+  .brand-tag { font-size: 10px; color: var(--slate); text-align: center; margin-top: 2px; letter-spacing: 0.5px; white-space: nowrap; }
+  nav { flex: 1; display: flex; justify-content: flex-end; align-items: center; }
+  nav ul { display:flex; gap:18px; list-style:none; align-items: center; justify-content: flex-end; }
+  nav a { font-size:13px; font-weight:600; color:var(--ink); text-decoration:none; white-space: nowrap; display: flex; align-items: center; }
+  nav a:hover, nav a.active { color: var(--brass); }
+  nav a.active { font-weight: 700; }
+  .profile-info { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; font-size: 13px; }
+  .profile-name { font-weight: 700; color: var(--brass); font-size: 14px; }
+  .profile-role { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; }
+  #user-profile { display: none; }
+  .nav-cta { background: var(--ink-deep); color:#fff !important; padding:10px 18px; font-size:12px; font-weight:600; border-radius:4px; text-decoration:none; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
+  .menu-toggle { display: none; font-size: 30px; cursor: pointer; }
+
+  @media (max-width: 900px) {
+    .menu-toggle { display: block; }
+    nav ul { display: none; position: absolute; top: 84px; left: 0; width: 100%; flex-direction: column; background: #fff; padding: 20px; gap: 15px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-bottom: 2px solid var(--line); z-index: 999; }
+    nav ul.show { display: flex; }
+    .brand-name { font-size: 13px; }
+  }
+
+  /* HERO */
+  .page-hero { background: var(--ink-deep); color:#EFE9DC; padding: 60px 0; text-align: center; }
+  .page-hero h1 { font-family: var(--serif); font-size: 38px; margin-bottom: 12px; }
+  .page-hero p { font-size: 15px; opacity: 0.85; }
+
+  /* LAYOUT */
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+  .forum-container { padding: 40px 0 60px; }
+
+  /* CATEGORIES GRID */
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 30px;
+  }
+  .cat-btn {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 12px;
+    text-align: center;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    transition: all 0.2s;
+  }
+  .cat-btn:hover { border-color: var(--brass); transform: translateY(-2px); }
+  .cat-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .cat-btn .cat-icon { display: block; font-size: 22px; margin-bottom: 6px; }
+
+  /* FORM CARD */
+  .form-card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 22px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+  .form-card h3 { font-family: var(--serif); color: var(--ink); margin-bottom: 16px; font-size: 20px; }
+  .form-card input[type="text"], .form-card select, .form-card textarea {
+    width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 6px;
+    font-family: var(--sans); font-size: 14px; margin-bottom: 12px; background: #fff; color: var(--ink);
+  }
+  .form-card input:focus, .form-card select:focus, .form-card textarea:focus { outline: none; border-color: var(--brass); }
+  .form-card textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+
+  .btn-primary {
+    background: var(--ink); color: #fff; border: none; padding: 12px 24px; border-radius: 6px;
+    font-weight: 700; cursor: pointer; font-family: var(--sans); font-size: 13px; transition: background 0.2s;
+  }
+  .btn-primary:hover { background: var(--ink-deep); }
+  .btn-primary:disabled { opacity: 0.6; cursor: wait; }
+  .btn-brass { background: var(--brass); color: #fff; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 700; cursor: pointer; font-family: var(--sans); font-size: 13px; }
+
+  /* THREAD CARD */
+  .thread-card {
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    padding: 20px 22px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .thread-card:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.07); transform: translateY(-2px); }
+  .thread-card h3 { font-family: var(--serif); color: var(--ink); margin-bottom: 8px; font-size: 19px; line-height: 1.3; }
+  .thread-meta { font-size: 12px; color: var(--slate); margin-bottom: 12px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .thread-content { color: #333; font-size: 14px; line-height: 1.6; margin-bottom: 12px; white-space: pre-wrap; }
+  .thread-actions { display: flex; gap: 8px; flex-wrap: wrap; font-size: 12px; align-items: center; }
+
+  /* BADGES */
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .badge-admin { background: #fdecea; color: #B3402A; }
+  .badge-prof { background: #e3f2fd; color: #1565c0; }
+  .badge-eleve { background: #e8f5e9; color: #2e7d32; }
+  .badge-cat { background: #f5f5f5; color: var(--slate); }
+
+  .btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--slate); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: var(--sans); transition: all 0.2s; }
+  .btn-ghost:hover { background: #f0f0f0; color: var(--ink); }
+  .btn-danger { background: var(--danger); color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: var(--sans); }
+  .btn-danger:hover { background: #8f3220; }
+
+  .empty-state { text-align: center; color: var(--slate); padding: 50px 20px; font-style: italic; font-size: 14px; }
+
+  .loader { text-align: center; padding: 40px; color: var(--slate); font-style: italic; }
+
+  footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav-row">
+    <div class="menu-toggle" id="burger-btn">☰</div>
+    <a href="../index.html" class="brand">
+      <div class="brand-mark"><img src="../logo-header.png" alt="LFAKM"></div>
+      <div>
+        <div class="brand-name">Lycée Franco Arabe de Keur Madiabel</div>
+        <div class="brand-tag">Excellence & Savoir</div>
+      </div>
+    </a>
+    <nav>
+      <ul id="menu">
+        <li><a href="../index.html">Accueil</a></li>
+        <li><a href="../actualites.html">Actualités</a></li>
+        <li><a href="../pc/ressources.html">Ressources</a></li>
+        <li><a href="index.html">Communauté</a></li>
+        <li><a href="forum.html" class="active">💬 Forum</a></li>
+        <li id="user-profile" class="profile-info"></li>
+        <li><a href="../identification.html" class="nav-cta" id="auth-link">Se connecter</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="wrap">
+    <h1>💬 Forum d'échange</h1>
+    <p>Pose tes questions, aide les autres, discute avec les profs et l'administration.</p>
+  </div>
+</section>
+
+<main class="wrap forum-container">
+
+  <!-- Catégories -->
+  <div class="categories-grid" id="categories-grid"></div>
+
+  <!-- Formulaire de création -->
+  <div class="form-card" id="new-thread-card">
+    <h3>✍️ Nouveau sujet</h3>
+    <input type="text" id="thread-titre" placeholder="Titre de ton sujet (max 200 caractères)" maxlength="200">
+    <div class="form-row">
+      <select id="thread-categorie">
+        <option value="">— Choisir une catégorie —</option>
+      </select>
+      <select id="thread-classe">
+        <option value="tous">Toutes les classes</option>
+      </select>
+    </div>
+    <textarea id="thread-contenu" placeholder="Décris ta question ou ton sujet (max 5000 caractères)" maxlength="5000"></textarea>
+
+    <!-- Pièce jointe -->
+    <div style="margin-bottom:12px;">
+      <label style="display:block; font-size:12px; font-weight:700; color:var(--slate); margin-bottom:6px;">
+        📎 Pièce jointe (facultatif — image, PDF ou Word, max 15 Mo)
+      </label>
+      <input type="file" id="thread-fichier" accept="image/*,.pdf,.doc,.docx" style="font-size:13px;">
+      <div id="fichier-preview" style="margin-top:8px; font-size:12px; color:var(--slate);"></div>
+    </div>
+
+    <button class="btn-primary" id="publish-btn">📤 Publier le sujet</button>
+    <span id="form-status" style="margin-left:12px; font-size:12px;"></span>
+  </div>
+
+  <!-- Liste des threads -->
+  <div id="threads-list">
+    <div class="loader">⏳ Chargement des sujets...</div>
+  </div>
+
+</main>
+
+<footer>© 2026 Lycée Franco Arabe de Keur Madiabel — Site conçu par <strong>Djiby Tall</strong></footer>
+
+<script type="module" src="js/forum.js"></script>
+
+<script type="module" src="js/forum.js"></script>
+
+<script>
+  // ============================================================
+  //  Menu burger — amélioré avec fermeture au clic extérieur
+  // ============================================================
+  (function() {
+    const burgerBtn = document.getElementById('burger-btn');
+    const menu = document.getElementById('menu');
+
+    if (!burgerBtn || !menu) return;
+
+    burgerBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      menu.classList.toggle('show');
+    });
+
+    document.addEventListener('click', function(e) {
+      if (menu.classList.contains('show') && !menu.contains(e.target) && !burgerBtn.contains(e.target)) {
+        menu.classList.remove('show');
+      }
+    });
+
+    menu.querySelectorAll('a').forEach(function(link) {
+      link.addEventListener('click', function() {
+        menu.classList.remove('show');
+      });
+    });
+  })();
+
+  // ============================================================
+  //  Aperçu du fichier AVANT publication (avec info compression)
+  // ============================================================
+  document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('thread-fichier');
+    const preview = document.getElementById('fichier-preview');
+    if (!input || !preview) return;
+
+    input.addEventListener('change', async function() {
+      const f = input.files[0];
+      if (!f) { preview.innerHTML = ''; return; }
+
+      const tailleOriginale = (f.size / 1024 / 1024).toFixed(2);
+
+      // Si c'est une image (pas GIF), on montre la compression estimée
+      if (f.type.startsWith('image/') && f.type !== 'image/gif') {
+        preview.innerHTML = '📎 <strong>' + f.name + '</strong> (' + tailleOriginale + ' Mo) — <em>🗜️ compression en cours...</em>';
+
+        try {
+          const compresse = await compresserImageApercu(f);
+          const tailleCompressee = (compresse.size / 1024 / 1024).toFixed(2);
+          const gain = ((1 - compresse.size / f.size) * 100).toFixed(0);
+          preview.innerHTML = '📎 <strong>' + f.name + '</strong> — ' +
+            '<span style="color:#B3402A;text-decoration:line-through;">' + tailleOriginale + ' Mo</span> → ' +
+            '<span style="color:#2e7d32;font-weight:700;">' + tailleCompressee + ' Mo</span> ' +
+            '<span style="color:var(--slate);">(−' + gain + '%)</span>';
+        } catch (err) {
+          preview.innerHTML = '📎 <strong>' + f.name + '</strong> (' + tailleOriginale + ' Mo)';
+        }
+      } else {
+        preview.innerHTML = '📎 <strong>' + f.name + '</strong> (' + tailleOriginale + ' Mo)';
+      }
+    });
+  });
+
+  // ============================================================
+  //  Version allégée de la compression pour l'aperçu
+  // ============================================================
+  function compresserImageApercu(file, maxWidth, qualite) {
+    maxWidth = maxWidth || 1600;
+    qualite = qualite || 0.75;
+    return new Promise(function(resolve, reject) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          let width = img.width;
+          let height = img.height;
+          if (width > maxWidth) {
+            height = Math.round(height * (maxWidth / width));
+            width = maxWidth;
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          canvas.toBlob(function(blob) {
+            if (blob) resolve(blob);
+            else reject(new Error('Echec compression'));
+          }, 'image/jpeg', qualite);
+        };
+        img.onerror = function() { reject(new Error('Image invalide')); };
+        img.src = e.target.result;
+      };
+      reader.onerror = function() { reject(new Error('Lecture impossible')); };
+      reader.readAsDataURL(file);
+    });
+  }
+</script>
+</body>
+</html>

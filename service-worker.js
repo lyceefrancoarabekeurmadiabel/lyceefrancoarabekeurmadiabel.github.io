@@ -6,22 +6,28 @@
 // Ne touche JAMAIS aux données dynamiques (Firestore, Cloudinary) qui doivent
 // toujours venir du réseau pour rester à jour.
 
-const CACHE_NAME = 'lfakm-cache-v5';
+const CACHE_NAME = 'lfakm-cache-v8';
 
 const urlsToCache = [
-  '/',
-  '/',
-  '/',
-  '/',
-  '/',
-  '/',
-  '/',
-  '/',
-  '/',
-  '/',
-  '/',
-  '/',
-  '/'
+  './',
+  './index.html',
+  './identification.html',
+  './inscription.html',
+  './actualites.html',
+  './historique.html',
+  './assets/style-menu.css',
+  './assets/detect-mobile.js',
+  './assets/favicon.png',
+  './assets/manifest.json',
+  './logo-header.png',
+  './icons/icon-192.png',
+  './community/index.html',
+  './community/css/community.css',
+  './community/js/community-common.js',
+  './community/forum.html',
+  './community/js/forum.js',
+  './community/thread.html',
+  './community/js/thread.js'
 ];
 
 self.addEventListener('install', (event) => {

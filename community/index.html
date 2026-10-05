@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Communauté — LFAKM</title>
+  <link rel="icon" type="image/png" href="../assets/favicon.png">
+  <link rel="stylesheet" href="../assets/style-menu.css">
+  <link rel="stylesheet" href="css/community.css">
+  <link rel="manifest" href="../assets/manifest.json">
+  <meta name="theme-color" content="#1B2A4A">
+  <meta name="author" content="Djiby Tall - LFAKM">
+  <meta name="copyright" content="© 2026 LFAKM. Tous droits réservés.">
+</head>
+<body>
+
+  <header>
+    <div class="wrap nav-row">
+      <a href="../index.html" class="brand">
+        <div class="brand-mark"><img src="../logo-header.png" alt="LFAKM"></div>
+        <div>
+          <div class="brand-name">Lycée Franco Arabe<br>de Keur Madiabel</div>
+          <div class="brand-tag">Excellence & Savoir</div>
+        </div>
+      </a>
+      <nav>
+        <ul id="main-menu">
+          <li><a href="../index.html">Accueil</a></li>
+          <li><a href="../actualites.html">Actualités</a></li>
+          <li><a href="../pc/ressources.html">Ressources</a></li>
+          <li><a href="index.html" class="active">👥 Communauté</a></li>
+          <li id="user-profile" class="profile-info"></li>
+          <li><a href="../identification.html" id="auth-link" class="nav-cta">Connexion</a></li>
+        </ul>
+      </nav>
+      <button class="menu-toggle" id="menu-toggle-btn" aria-label="Menu">☰</button>
+    </div>
+  </header>
+
+  <main class="community-hub">
+    <div class="community-header">
+      <h1>👥 Communauté LFAKM</h1>
+      <p>Échange, partage et apprends avec les membres du lycée.</p>
+    </div>
+
+    <div class="community-grid">
+      <a href="forum.html" class="community-card">
+        <span class="card-icon">💬</span>
+        <h2>Forum d'échange</h2>
+        <p>Pose tes questions, aide les autres, discute avec les profs et l'administration.</p>
+        <span class="card-cta">Accéder →</span>
+      </a>
+
+      <a href="professeurs.html" class="community-card" id="card-profs" style="display:none;">
+        <span class="card-icon">👩‍🏫</span>
+        <h2>Espace Professeurs</h2>
+        <p>Partage de ressources pédagogiques entre enseignants.</p>
+        <span class="card-cta">Accéder →</span>
+      </a>
+
+      <a href="blog.html" class="community-card">
+        <span class="card-icon">📝</span>
+        <h2>Blog du lycée</h2>
+        <p>Articles longs, actualités, projets et vie scolaire.</p>
+        <span class="card-cta">Accéder →</span>
+      </a>
+    </div>
+  </main>
+
+  <footer style="background:var(--ink-deep);color:#B7BCC9;padding:40px;text-align:center;font-size:13px;margin-top:60px;">
+    © 2026 Lycée Franco Arabe de Keur Madiabel
+  </footer>
+
+  <script type="module">
+    import { 
+      auth, onAuthStateChanged, getCurrentProfile, 
+      estPersonnel, afficherProfilHeader 
+    } from './js/community-common.js';
+
+    document.getElementById('menu-toggle-btn').onclick = () => 
+      document.getElementById('main-menu').classList.toggle('show');
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = '../identification.html';
+        return;
+      }
+      const profile = await getCurrentProfile(user);
+      if (!profile) {
+        window.location.href = '../identification.html';
+        return;
+      }
+
+      afficherProfilHeader(profile);
+
+      // Afficher la carte "Espace Professeurs" uniquement pour le personnel
+      if (estPersonnel(profile)) {
+        document.getElementById('card-profs').style.display = 'flex';
+      }
+    });
+  </script>
+</body>
+</html>
