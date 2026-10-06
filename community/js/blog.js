@@ -36,6 +36,7 @@ let currentProfile = null;
 let activeCategorie = 'all';
 let searchTerm = '';
 let unsubscribePosts = null;
+let quill = null;   // Instance Quill pour l'éditeur riche
 
 /* ============================================================
  *  AUTHENTIFICATION
@@ -69,6 +70,36 @@ function initialiserBlog() {
   afficherCategories();
   chargerArticles();
   attacherEvenements();
+  initialiserQuill();
+}
+
+/* ============================================================
+ *  INITIALISER L'ÉDITEUR RICHE QUILL
+ * ============================================================ */
+
+function initialiserQuill() {
+  const editorEl = document.getElementById('quill-editor');
+  if (!editorEl || typeof Quill === 'undefined') {
+    console.warn('Quill non disponible');
+    return;
+  }
+
+  quill = new Quill('#quill-editor', {
+    theme: 'snow',
+    placeholder: 'Écris ton article ici... Utilise la barre d\'outils pour formater ton texte.',
+    modules: {
+      toolbar: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+        [{ 'align': [] }],
+        ['blockquote', 'code-block'],
+        ['link', 'image'],
+        ['clean']
+      ]
+    }
+  });
 }
 
 /* ============================================================
@@ -161,7 +192,16 @@ function creerCarteArticle(article) {
   const badge = obtenirBadgeRole(article.auteurRole);
   const peutModifier = currentUser.uid === article.auteurId || peutModerer(currentProfile);
 
-  const extrait = (article.contenu || '').substring(0, 250) + ((article.contenu || '').length > 250 ? '...' : '');
+  // Extraire le TEXTE pur du HTML (enlever toutes les balises)
+function extraireTexte(html) {
+  if (!html) return '';
+  const temp = document.createElement('div');
+  temp.innerHTML = html;
+  return (temp.textContent || temp.innerText || '').trim();
+}
+
+const textePur = extraireTexte(article.contenu);
+const extrait = textePur.substring(0, 250) + (textePur.length > 250 ? '...' : '');
 
   card.innerHTML = `
     ${article.image ? `<img src="${escapeHtml(article.image)}" alt="${escapeHtml(article.titre)}" class="post-card-image" onerror="this.style.display='none'">` : ''}
@@ -285,6 +325,8 @@ function fermerModal() {
   document.getElementById('publish-status').textContent = '';
   const prev = document.getElementById('post-image-preview');
   if (prev) prev.innerHTML = '';
+  // Vider l'éditeur Quill
+  if (quill) quill.root.innerHTML = '';
 }
 
 /* ============================================================
@@ -297,7 +339,8 @@ async function publierArticle() {
 
   const titre = document.getElementById('post-titre').value.trim();
   const categorie = document.getElementById('post-categorie').value;
-  const contenu = document.getElementById('post-contenu').value.trim();
+    // Récupérer le contenu depuis Quill (HTML)
+  const contenu = quill ? quill.root.innerHTML.trim() : document.getElementById('post-contenu').value.trim();
   const fichierImage = document.getElementById('post-image-file')?.files[0];
 
   // Validations
@@ -365,6 +408,10 @@ async function publierArticle() {
 function ouvrirModalEdition(article) {
   document.getElementById('post-titre').value = article.titre || '';
   document.getElementById('post-categorie').value = article.categorie || '';
+  // Remplir Quill avec le contenu HTML existant
+  if (quill) {
+    quill.root.innerHTML = article.contenu || '';
+  }
   document.getElementById('post-contenu').value = article.contenu || '';
   const fi = document.getElementById('post-image-file');
   if (fi) fi.value = '';

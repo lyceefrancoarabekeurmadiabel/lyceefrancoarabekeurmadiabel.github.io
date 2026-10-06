@@ -1,6 +1,7 @@
 /* ============================================================
  *  🏫 LFAKM — Page de lecture d'un article du blog
  *  Fichier : community/js/blog-article.js
+ *  Rôle : article + commentaires riches + réponses imbriquées
  * ============================================================ */
 
 import { 
@@ -8,6 +9,10 @@ import {
   collection, doc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, 
   query, orderBy, serverTimestamp, peutModerer
 } from './community-common.js';
+
+/* ============================================================
+ *  CONFIGURATION
+ * ============================================================ */
 
 const CATEGORIES = [
   { id: 'pedagogie',     nom: 'Pédagogie',     icon: '📚' },
@@ -18,13 +23,30 @@ const CATEGORIES = [
   { id: 'culture',       nom: 'Culture',       icon: '🎭' }
 ];
 
+/* ============================================================
+ *  LISTE D'EMOJIS
+ * ============================================================ */
+
+const EMOJIS = {
+  'Visages': ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','😉','😊','😇','🥰','😍','🤩','😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🤐','🤨','😐','😑','😶','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🥵','🥶','😵','🤯','🤠','🥳','😎','🤓','🧐','😕','😟','🙁','😮','😯','😲','😳','🥺','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','😈','👿','💀','💩','🤡','👹','👺','👻','👽','👾','🤖'],
+  'Gestes': ['👋','🤚','🖐️','✋','🖖','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','👍','👎','✊','👊','🤛','🤜','👏','🙌','👐','🤲','🤝','🙏','✍️','💅','🤳','💪','🦾','🦿','🦵','🦶','👂','🦻','👃','🧠','🫀','🫁','🦷','🦴','👀','👁️','👅','👄'],
+  'Coeurs': ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟','♥️','💯','💢','💥','💫','💦','💨','💬','💭'],
+  'Objets': ['📚','📖','📝','✏️','🖊️','🖋️','📕','📗','📘','📙','📓','📔','📒','📄','📃','📑','📊','📈','📉','🗒️','🗓️','📅','📆','📇','📋','📁','📂','🗂️','📌','📍','📎','🖇️','📏','📐','✂️','🗃️','🗄️','🗑️','🔒','🔓','🔑','🔨','⚒️','🛠️','⛏️','🔧','🔩','⚙️','🧰','🧲','⚗️','🧪','🧬','🔬','🔭','📡','💡','🔦','🏆','🥇','🥈','🥉','🎖️','🏅','🎗️','🎫','🎟️','🎪','🎭','🎨','🎬','🎤','🎧','🎼','🎹','🥁','🎷','🎺','🎸','🎻','🎲','🎯','🎮','🧩'],
+  'Symboles': ['✅','❌','❓','❗','💯','🔴','🟠','🟡','🟢','🔵','🟣','⚫','⚪','⭐','🌟','✨','⚡','🔥','💧','🌊','🎉','🎊','🎈','🎁','🏁','🚩','🏴','⚠️','🚨','⛔','🚫','♻️','🔄','🔄','🔙','🔚','🔛','🔜','🔝']
+};
+
+/* ============================================================
+ *  ÉTAT GLOBAL
+ * ============================================================ */
+
 let currentUser = null;
 let currentProfile = null;
 let articleId = null;
 let unsubscribeComments = null;
+let quillComment = null;
 
 /* ============================================================
- *  INITIALISATION
+ *  AUTHENTIFICATION
  * ============================================================ */
 
 onAuthStateChanged(auth, async (user) => {
@@ -50,6 +72,7 @@ onAuthStateChanged(auth, async (user) => {
 
   chargerArticle();
   chargerCommentaires();
+  initialiserQuillCommentaire();
   attacherFormulaire();
 });
 
@@ -75,6 +98,10 @@ function chargerArticle() {
   });
 }
 
+/* ============================================================
+ *  AFFICHAGE DE L'ARTICLE
+ * ============================================================ */
+
 function creerArticle(id, article) {
   const div = document.createElement('div');
 
@@ -95,7 +122,21 @@ function creerArticle(id, article) {
       ${article.image ? `<img src="${escapeHtml(article.image)}" alt="${escapeHtml(article.titre)}" class="article-image" onerror="this.style.display='none'">` : ''}
     </div>
 
-    <div class="article-content">${escapeHtml(article.contenu)}</div>
+    <div class="article-content ql-editor">${article.contenu || ''}</div>
+
+    <!-- Boutons de partage -->
+    <div style="margin-bottom:25px; padding:16px; background:#f9f7f2; border-radius:10px; border:1px solid var(--line);">
+      <div style="font-size:12px; font-weight:700; color:var(--slate); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px;">
+        📤 Partager cet article
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="share-btn share-whatsapp" data-reseau="whatsapp" style="background:#25D366; color:#fff; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; font-weight:700; font-size:12px;">💬 WhatsApp</button>
+        <button class="share-btn share-facebook" data-reseau="facebook" style="background:#1877F2; color:#fff; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; font-weight:700; font-size:12px;">📘 Facebook</button>
+        <button class="share-btn share-twitter" data-reseau="twitter" style="background:#000; color:#fff; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; font-weight:700; font-size:12px;">🐦 Twitter / X</button>
+        <button class="share-btn share-linkedin" data-reseau="linkedin" style="background:#0A66C2; color:#fff; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; font-weight:700; font-size:12px;">💼 LinkedIn</button>
+        <button class="share-btn share-copy" data-reseau="copy" style="background:#f5f5f5; color:var(--ink); border:1px solid var(--line); padding:10px 16px; border-radius:6px; cursor:pointer; font-weight:700; font-size:12px;">🔗 Copier le lien</button>
+      </div>
+    </div>
 
     ${peutModifier ? `
       <div style="margin-bottom:25px; display:flex; gap:8px;">
@@ -104,14 +145,12 @@ function creerArticle(id, article) {
     ` : ''}
   `;
 
-  // Bouton Supprimer
+  // === Bouton Supprimer ===
   const delBtn = div.querySelector('#delete-article-btn');
   if (delBtn) {
     delBtn.onclick = async () => {
       if (!confirm('Supprimer définitivement cet article ET ses commentaires ?')) return;
       try {
-        const commentsSnap = await getDoc(doc(db, 'blog_posts', articleId));
-        // Supprimer les commentaires en premier
         const comments = collection(db, 'blog_posts', articleId, 'comments');
         const commentsList = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js')
           .then(m => m.getDocs(comments));
@@ -126,8 +165,48 @@ function creerArticle(id, article) {
     };
   }
 
+  // === Boutons de partage ===
+  const urlActuelle = window.location.href;
+  const titreArticle = article.titre;
+
+  div.querySelectorAll('.share-btn').forEach(btn => {
+    btn.onclick = async () => {
+      const reseau = btn.dataset.reseau;
+      let shareUrl = '';
+
+      if (reseau === 'whatsapp') {
+        shareUrl = `https://wa.me/?text=${encodeURIComponent(`📖 ${titreArticle}\n\n${urlActuelle}`)}`;
+      } else if (reseau === 'facebook') {
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(urlActuelle)}`;
+      } else if (reseau === 'twitter') {
+        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`📖 ${titreArticle}`)}&url=${encodeURIComponent(urlActuelle)}`;
+      } else if (reseau === 'linkedin') {
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(urlActuelle)}`;
+      } else if (reseau === 'copy') {
+        try {
+          await navigator.clipboard.writeText(urlActuelle);
+          btn.textContent = '✅ Lien copié !';
+          setTimeout(() => {
+            btn.innerHTML = '🔗 Copier le lien';
+          }, 2000);
+        } catch (err) {
+          prompt('Copie ce lien :', urlActuelle);
+        }
+        return;
+      }
+
+      if (shareUrl) {
+        window.open(shareUrl, '_blank', 'noopener,noreferrer,width=600,height=600');
+      }
+    };
+  });
+
   return div;
 }
+
+/* ============================================================
+ *  BADGE DE RÔLE
+ * ============================================================ */
 
 function obtenirBadgeRole(role) {
   if (['admin', 'proviseur', 'censeur'].includes(role)) {
@@ -135,6 +214,9 @@ function obtenirBadgeRole(role) {
   }
   if (['professeur', 'intendant'].includes(role)) {
     return '<span class="badge badge-prof">Prof</span>';
+  }
+  if (role === 'eleve') {
+    return '<span class="badge badge-eleve">Élève</span>';
   }
   return '';
 }
@@ -162,11 +244,37 @@ function chargerCommentaires() {
       return;
     }
 
-    comments.forEach(c => {
-      list.appendChild(creerCommentaire(c));
+    // Séparer parents et réponses
+    const parents = comments.filter(c => !c.parentId);
+    const reponses = comments.filter(c => c.parentId);
+
+    parents.forEach(parent => {
+      const parentCard = creerCommentaire(parent);
+
+      // Trouver les réponses à ce commentaire
+      const reponsesEnfant = reponses.filter(r => r.parentId === parent.id);
+
+      if (reponsesEnfant.length > 0) {
+        const reponsesContainer = document.createElement('div');
+        reponsesContainer.style.cssText = 'margin-left:30px; margin-top:10px; padding-left:15px; border-left:3px solid var(--brass);';
+
+        reponsesEnfant.forEach(reponse => {
+          const reponseCard = creerCommentaire(reponse);
+          reponseCard.style.background = '#fafafa';
+          reponsesContainer.appendChild(reponseCard);
+        });
+
+        parentCard.appendChild(reponsesContainer);
+      }
+
+      list.appendChild(parentCard);
     });
   });
 }
+
+/* ============================================================
+ *  CRÉATION D'UN COMMENTAIRE
+ * ============================================================ */
 
 function creerCommentaire(comment) {
   const div = document.createElement('div');
@@ -180,14 +288,17 @@ function creerCommentaire(comment) {
       <span><strong>${escapeHtml(comment.auteurNom)}</strong> ${badge}</span>
       <span>🕐 ${formatDate(comment.date)}</span>
     </div>
-    <div class="comment-content">${escapeHtml(comment.contenu)}</div>
-    ${peutSupprimer ? `
-      <div class="comment-actions">
+    <div class="comment-content ql-editor" style="padding:0; background:transparent; border:none;">${comment.contenu || ''}</div>
+    <div class="comment-actions">
+      <button class="btn-reply" data-action="reply" style="background:transparent; border:1px solid var(--line); color:var(--slate); padding:4px 10px; border-radius:4px; cursor:pointer; font-size:11px; font-family:var(--sans); margin-right:6px;">💬 Répondre</button>
+      ${peutSupprimer ? `
         <button class="btn-delete" data-action="delete">🗑 Supprimer</button>
-      </div>
-    ` : ''}
+      ` : ''}
+    </div>
+    <div class="reply-form-container" data-role="reply-container" style="display:none; margin-top:12px; padding:12px; background:#f9f7f2; border-radius:8px;"></div>
   `;
 
+  // Bouton SUPPRIMER
   const delBtn = div.querySelector('[data-action="delete"]');
   if (delBtn) {
     delBtn.onclick = async () => {
@@ -200,27 +311,212 @@ function creerCommentaire(comment) {
     };
   }
 
+  // === Bouton RÉPONDRE ===
+  const replyBtn = div.querySelector('[data-action="reply"]');
+  const replyContainer = div.querySelector('[data-role="reply-container"]');
+
+  if (replyBtn && replyContainer) {
+    replyBtn.onclick = () => {
+      // Toggle
+      if (replyContainer.style.display === 'block') {
+        replyContainer.style.display = 'none';
+        return;
+      }
+
+      replyContainer.style.display = 'block';
+      replyContainer.innerHTML = `
+        <div data-role="reply-quill" style="background:#fff; border-radius:6px; min-height:80px; margin-bottom:8px;"></div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+          <button class="btn-primary" data-role="reply-publish" style="font-size:12px; padding:8px 16px;">📤 Publier la réponse</button>
+          <button class="btn-emoji" data-role="reply-emoji" style="background:#f5f5f5; border:1px solid var(--line); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:14px;">😀</button>
+          <button class="btn-ghost" data-role="reply-cancel" style="font-size:12px; padding:8px 16px; background:transparent; border:1px solid var(--line); border-radius:6px; cursor:pointer; color:var(--slate);">Annuler</button>
+        </div>
+        <div data-role="reply-emoji-picker" style="display:none; margin-top:8px; padding:12px; background:#fff; border:1px solid var(--line); border-radius:8px; max-width:400px;"></div>
+        <div data-role="reply-status" style="margin-top:6px; font-size:12px;"></div>
+      `;
+
+      // Initialiser Quill pour la réponse
+      const replyQuillEl = replyContainer.querySelector('[data-role="reply-quill"]');
+      let replyQuill = null;
+      if (replyQuillEl && typeof Quill !== 'undefined') {
+        replyQuill = new Quill(replyQuillEl, {
+          theme: 'snow',
+          placeholder: 'Écris ta réponse...',
+          modules: {
+            toolbar: [
+              ['bold', 'italic', 'underline', 'strike'],
+              [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+              ['link'],
+              ['clean']
+            ]
+          }
+        });
+      }
+
+      // Bouton emoji
+      const replyEmojiBtn = replyContainer.querySelector('[data-role="reply-emoji"]');
+      const replyEmojiPicker = replyContainer.querySelector('[data-role="reply-emoji-picker"]');
+      if (replyEmojiBtn && replyEmojiPicker && replyQuill) {
+        replyEmojiBtn.onclick = (e) => {
+          e.preventDefault();
+          if (replyEmojiPicker.style.display === 'none' || !replyEmojiPicker.style.display) {
+            afficherEmojis(replyEmojiPicker, replyQuill);
+            replyEmojiPicker.style.display = 'block';
+          } else {
+            replyEmojiPicker.style.display = 'none';
+          }
+        };
+      }
+
+      // Annuler
+      replyContainer.querySelector('[data-role="reply-cancel"]').onclick = () => {
+        replyContainer.style.display = 'none';
+        replyContainer.innerHTML = '';
+      };
+
+      // Publier
+      replyContainer.querySelector('[data-role="reply-publish"]').onclick = async () => {
+        const contenuHtml = replyQuill ? replyQuill.root.innerHTML.trim() : '';
+        const contenuTexte = replyQuill ? replyQuill.getText().trim() : '';
+        const status = replyContainer.querySelector('[data-role="reply-status"]');
+
+        if (!contenuTexte || contenuTexte.length === 0) {
+          status.style.color = 'var(--danger)';
+          status.textContent = '⚠️ Écris quelque chose.';
+          return;
+        }
+        if (contenuTexte.length > 1000) {
+          status.style.color = 'var(--danger)';
+          status.textContent = '⚠️ Trop long (max 1000).';
+          return;
+        }
+
+        try {
+          await addDoc(collection(db, 'blog_posts', articleId, 'comments'), {
+            contenu: contenuHtml,
+            contenuTexte: contenuTexte,
+            parentId: comment.id,
+            auteurId: currentUser.uid,
+            auteurNom: `${currentProfile.prenom} ${currentProfile.nom}`,
+            auteurRole: currentProfile.role,
+            date: serverTimestamp()
+          });
+
+          // Notifier l'auteur du commentaire parent
+          if (comment.auteurId && comment.auteurId !== currentUser.uid) {
+            try {
+              const { creerNotification } = await import('./notifications.js');
+              await creerNotification({
+                destinataireId: comment.auteurId,
+                type: 'commentaire',
+                message: `a répondu à ton commentaire`,
+                lien: `blog-article.html?id=${articleId}`,
+                auteurId: currentUser.uid,
+                auteurNom: `${currentProfile.prenom} ${currentProfile.nom}`
+              });
+            } catch (notifErr) {
+              console.warn('Erreur notification:', notifErr);
+            }
+          }
+
+          replyContainer.style.display = 'none';
+          replyContainer.innerHTML = '';
+        } catch (err) {
+          status.style.color = 'var(--danger)';
+          status.textContent = '❌ Erreur : ' + err.message;
+        }
+      };
+    };
+  }
+
   return div;
 }
 
 /* ============================================================
- *  FORMULAIRE DE COMMENTAIRE
+ *  INITIALISER QUILL POUR LES COMMENTAIRES PRINCIPAUX
+ * ============================================================ */
+
+function initialiserQuillCommentaire() {
+  const editorEl = document.getElementById('quill-comment');
+  if (!editorEl || typeof Quill === 'undefined') {
+    console.warn('Quill non disponible pour les commentaires');
+    return;
+  }
+
+  quillComment = new Quill('#quill-comment', {
+    theme: 'snow',
+    placeholder: 'Ton commentaire...',
+    modules: {
+      toolbar: [
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+        ['blockquote', 'link'],
+        ['clean']
+      ]
+    }
+  });
+
+  // Bouton emoji
+  const emojiBtn = document.getElementById('btn-emoji-comment');
+  const emojiPicker = document.getElementById('emoji-picker-comment');
+  if (emojiBtn && emojiPicker) {
+    emojiBtn.onclick = (e) => {
+      e.preventDefault();
+      if (emojiPicker.style.display === 'none' || !emojiPicker.style.display) {
+        afficherEmojis(emojiPicker, quillComment);
+        emojiPicker.style.display = 'block';
+      } else {
+        emojiPicker.style.display = 'none';
+      }
+    };
+  }
+}
+
+/* ============================================================
+ *  AFFICHER LES EMOJIS
+ * ============================================================ */
+
+function afficherEmojis(container, quillInstance) {
+  let html = '<div class="emoji-grid">';
+  for (const [categorie, emojis] of Object.entries(EMOJIS)) {
+    html += `<div class="emoji-category">${categorie}</div>`;
+    emojis.forEach(e => {
+      html += `<button class="emoji-btn" data-emoji="${e}">${e}</button>`;
+    });
+  }
+  html += '</div>';
+  container.innerHTML = html;
+  container.querySelectorAll('.emoji-btn').forEach(btn => {
+    btn.onclick = (ev) => {
+      ev.preventDefault();
+      const emoji = btn.dataset.emoji;
+      const range = quillInstance.getSelection(true);
+      quillInstance.insertText(range.index, emoji);
+      quillInstance.setSelection(range.index + emoji.length);
+    };
+  });
+}
+
+/* ============================================================
+ *  FORMULAIRE DE COMMENTAIRE PRINCIPAL
  * ============================================================ */
 
 function attacherFormulaire() {
   const btn = document.getElementById('publish-comment-btn');
-  const textarea = document.getElementById('comment-content');
   const status = document.getElementById('comment-status');
 
-  btn.onclick = async () => {
-    const contenu = textarea.value.trim();
+  if (!btn) return;
 
-    if (!contenu) {
+  btn.onclick = async () => {
+    const contenuHtml = quillComment ? quillComment.root.innerHTML.trim() : '';
+    const contenuTexte = quillComment ? quillComment.getText().trim() : '';
+
+    if (!contenuTexte || contenuTexte.length === 0) {
       status.style.color = 'var(--danger)';
       status.textContent = '⚠️ Écris un commentaire.';
       return;
     }
-    if (contenu.length > 1000) {
+    if (contenuTexte.length > 1000) {
       status.style.color = 'var(--danger)';
       status.textContent = '⚠️ Trop long (max 1000).';
       return;
@@ -230,32 +526,20 @@ function attacherFormulaire() {
     btn.textContent = '📤 Publication...';
 
     try {
-            await addDoc(collection(db, 'blog_posts', articleId, 'comments'), {
-        contenu,
+      await addDoc(collection(db, 'blog_posts', articleId, 'comments'), {
+        contenu: contenuHtml,
+        contenuTexte: contenuTexte,
         auteurId: currentUser.uid,
         auteurNom: `${currentProfile.prenom} ${currentProfile.nom}`,
         auteurRole: currentProfile.role,
         date: serverTimestamp()
       });
 
-      // ⬇️ AJOUTER : Notifier l'auteur de l'article
-      const articleSnap = await getDoc(doc(db, 'blog_posts', articleId));
-      if (articleSnap.exists()) {
-        const article = articleSnap.data();
-        if (article.auteurId && article.auteurId !== currentUser.uid) {
-          const { creerNotification } = await import('./notifications.js');
-          await creerNotification({
-            destinataireId: article.auteurId,
-            type: 'commentaire',
-            message: `a commenté ton article "${article.titre}"`,
-            lien: `blog-article.html?id=${articleId}`,
-            auteurId: currentUser.uid,
-            auteurNom: `${currentProfile.prenom} ${currentProfile.nom}`
-          });
-        }
-      }
+      // Reset
+      if (quillComment) quillComment.root.innerHTML = '';
+      const picker = document.getElementById('emoji-picker-comment');
+      if (picker) picker.style.display = 'none';
 
-      textarea.value = '';
       status.style.color = 'var(--success)';
       status.textContent = '✅ Commentaire publié !';
       setTimeout(() => { status.textContent = ''; }, 3000);
