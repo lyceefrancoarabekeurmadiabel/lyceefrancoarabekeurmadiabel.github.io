@@ -1,14 +1,14 @@
 /* ============================================================
  *  🏫 LFAKM — Page d'un sujet du forum
  *  Fichier : community/js/thread.js
- *  Rôle : affiche le sujet + réponses + pièces jointes
  * ============================================================ */
 
 import { 
   auth, db, onAuthStateChanged, getCurrentProfile, escapeHtml, formatDate,
   collection, doc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, 
   query, where, orderBy, limit, serverTimestamp, increment,
-  peutModerer, afficherProfilHeader
+  peutModerer, afficherProfilHeader,
+  creerEditeurRiche, afficherEmojis
 } from './community-common.js';
 
 /* ============================================================
@@ -43,7 +43,7 @@ const MAX_REPONSES = 100;
 
 const CLOUDINARY_CLOUD = 'kgjydhyi';
 const CLOUDINARY_PRESET = 'lfakm_ressources';
-const TAILLE_MAX_FICHIER = 15 * 1024 * 1024; // 15 Mo
+const TAILLE_MAX_FICHIER = 15 * 1024 * 1024;
 
 /* ============================================================
  *  ÉTAT GLOBAL
@@ -57,6 +57,7 @@ let allReplies = [];
 let displayedCount = LIMITE_REPONSES;
 let unsubscribeThread = null;
 let unsubscribeReplies = null;
+let quillReply = null;
 
 /* ============================================================
  *  INITIALISATION
@@ -91,7 +92,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 /* ============================================================
- *  CHARGEMENT DU SUJET PRINCIPAL
+ *  CHARGEMENT DU SUJET
  * ============================================================ */
 
 function chargerThread() {
@@ -115,7 +116,7 @@ function chargerThread() {
 }
 
 /* ============================================================
- *  AFFICHAGE DU SUJET PRINCIPAL
+ *  SUJET PRINCIPAL
  * ============================================================ */
 
 function creerSujetPrincipal(id, data) {
@@ -158,7 +159,7 @@ function creerSujetPrincipal(id, data) {
       ${classe ? `<span class="badge badge-cat">🏫 ${classe.nom}</span>` : ''}
       <span>🕐 ${formatDate(data.date)}</span>
     </div>
-    <div class="thread-content">${escapeHtml(data.contenu)}</div>
+    <div class="thread-content ql-editor" style="padding:0; background:transparent; border:none;">${data.contenu || ''}</div>
     ${pieceJointeHtml}
     ${peutSupprimer ? `
       <div style="margin-top:16px;">
@@ -171,7 +172,6 @@ function creerSujetPrincipal(id, data) {
     delBtn.onclick = async () => {
       if (!confirm('Supprimer définitivement ce sujet ET toutes ses réponses ?')) return;
       try {
-        const repliesSnap = await getDoc(doc(db, 'forum_threads', threadId));
         const replies = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js')
           .then(m => m.getDocs(collection(db, 'forum_threads', threadId, 'replies')));
         for (const r of replies.docs) {
@@ -261,7 +261,6 @@ function creerCarteReponse(reply) {
   const estAuteur = currentUser.uid === reply.auteurId;
   const peutSupprimer = estAuteur || peutModerer(currentProfile);
 
-  // Pièce jointe
   let pieceJointeHtml = '';
   if (reply.fichierUrl) {
     const estImage = (reply.fichierType || '').startsWith('image/')
@@ -292,7 +291,7 @@ function creerCarteReponse(reply) {
         <span class="reply-date">🕐 ${formatDate(reply.date)}</span>
       </div>
     </div>
-    <div class="reply-content" data-role="content">${escapeHtml(reply.contenu)}</div>
+    <div class="reply-content ql-editor" data-role="content" style="padding:0; background:transparent; border:none;">${reply.contenu || ''}</div>
     ${pieceJointeHtml}
     <div class="reply-actions">
       ${estAuteur ? `<button class="btn-edit" data-action="edit">✏️ Modifier</button>` : ''}
@@ -336,7 +335,7 @@ function activerEdition(card, reply) {
   const editForm = document.createElement('div');
   editForm.className = 'edit-form';
   editForm.innerHTML = `
-    <textarea data-role="edit-textarea">${escapeHtml(reply.contenu)}</textarea>
+    <div data-role="edit-quill" style="background:#fff; border-radius:6px; min-height:100px; margin-bottom:8px;"></div>
     <div style="display:flex; gap:8px;">
       <button class="btn-primary" data-action="save" style="font-size:12px; padding:8px 16px;">💾 Enregistrer</button>
       <button class="btn-edit" data-action="cancel">Annuler</button>
@@ -345,20 +344,34 @@ function activerEdition(card, reply) {
   `;
   card.appendChild(editForm);
 
-  const textarea = editForm.querySelector('[data-role="edit-textarea"]');
-  textarea.focus();
-  textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+  const editQuillEl = editForm.querySelector('[data-role="edit-quill"]');
+  let editQuill = null;
+  if (editQuillEl && typeof Quill !== 'undefined') {
+    editQuill = new Quill(editQuillEl, {
+      theme: 'snow',
+      modules: {
+        toolbar: [
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+          ['link'],
+          ['clean']
+        ]
+      }
+    });
+    editQuill.root.innerHTML = reply.contenu || '';
+  }
 
   editForm.querySelector('[data-action="save"]').onclick = async () => {
-    const nouveau = textarea.value.trim();
+    const nouveau = editQuill ? editQuill.root.innerHTML.trim() : '';
+    const nouveauTexte = editQuill ? editQuill.getText().trim() : '';
     const status = editForm.querySelector('[data-role="edit-status"]');
 
-    if (!nouveau) {
+    if (!nouveauTexte || nouveauTexte.length === 0) {
       status.style.color = 'var(--danger)';
       status.textContent = '⚠️ Le contenu ne peut pas être vide.';
       return;
     }
-    if (nouveau.length > 3000) {
+    if (nouveauTexte.length > 3000) {
       status.style.color = 'var(--danger)';
       status.textContent = '⚠️ Trop long (max 3000).';
       return;
@@ -367,6 +380,7 @@ function activerEdition(card, reply) {
     try {
       await updateDoc(doc(db, 'forum_threads', threadId, 'replies', reply.id), {
         contenu: nouveau,
+        contenuTexte: nouveauTexte,
         dateModif: serverTimestamp()
       });
     } catch (err) {
@@ -387,13 +401,38 @@ function activerEdition(card, reply) {
  * ============================================================ */
 
 function attacherFormulaire() {
+  // Initialiser Quill
+  quillReply = creerEditeurRiche('#quill-reply', {
+    placeholder: 'Écris ta réponse...',
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      ['blockquote', 'link'],
+      ['clean']
+    ]
+  });
+
+  // Bouton emoji
+  const emojiBtn = document.getElementById('btn-emoji-reply');
+  const emojiPicker = document.getElementById('emoji-picker-reply');
+  if (emojiBtn && emojiPicker && quillReply) {
+    emojiBtn.onclick = (e) => {
+      e.preventDefault();
+      if (emojiPicker.style.display === 'none' || !emojiPicker.style.display) {
+        afficherEmojis(emojiPicker, quillReply);
+        emojiPicker.style.display = 'block';
+      } else {
+        emojiPicker.style.display = 'none';
+      }
+    };
+  }
+
   const btn = document.getElementById('publish-reply-btn');
-  const textarea = document.getElementById('reply-content');
   const status = document.getElementById('reply-status');
   const fichierInput = document.getElementById('reply-fichier');
   const preview = document.getElementById('reply-fichier-preview');
 
-  // Aperçu du fichier
+  // Aperçu fichier
   if (fichierInput) {
     fichierInput.addEventListener('change', async () => {
       const f = fichierInput.files[0];
@@ -421,15 +460,16 @@ function attacherFormulaire() {
   }
 
   btn.onclick = async () => {
-    const contenu = textarea.value.trim();
+    const contenu = quillReply ? quillReply.root.innerHTML.trim() : '';
+    const contenuTexte = quillReply ? quillReply.getText().trim() : '';
     const fichier = fichierInput?.files[0];
 
-    if (!contenu) {
+    if (!contenuTexte || contenuTexte.length === 0) {
       status.style.color = 'var(--danger)';
       status.textContent = '⚠️ Écris quelque chose avant de publier.';
       return;
     }
-    if (contenu.length > 3000) {
+    if (contenuTexte.length > 3000) {
       status.style.color = 'var(--danger)';
       status.textContent = '⚠️ Trop long (max 3000 caractères).';
       return;
@@ -447,13 +487,13 @@ function attacherFormulaire() {
     try {
       const replyData = {
         contenu,
+        contenuTexte,
         auteurId: currentUser.uid,
         auteurNom: `${currentProfile.prenom} ${currentProfile.nom}`,
         auteurRole: currentProfile.role,
         date: serverTimestamp()
       };
 
-      // Upload fichier si présent
       if (fichier) {
         status.textContent = '🗜️ Compression...';
         let fichierFinal = fichier;
@@ -479,28 +519,31 @@ function attacherFormulaire() {
         replyData.fichierType = fichierFinal.type;
       }
 
-            await addDoc(collection(db, 'forum_threads', threadId, 'replies'), replyData);
+      await addDoc(collection(db, 'forum_threads', threadId, 'replies'), replyData);
 
       await updateDoc(doc(db, 'forum_threads', threadId), {
         nbReponses: increment(1)
       });
 
-      // ⬇️ AJOUTER : Notifier l'auteur du thread
+      // Notifier l'auteur du thread
       if (threadData && threadData.auteurId && threadData.auteurId !== currentUser.uid) {
-        const { creerNotification } = await import('./notifications.js');
-        await creerNotification({
-          destinataireId: threadData.auteurId,
-          type: 'reponse',
-          message: `a répondu à ton sujet "${threadData.titre}"`,
-          lien: `thread.html?id=${threadId}`,
-          auteurId: currentUser.uid,
-          auteurNom: `${currentProfile.prenom} ${currentProfile.nom}`
-        });
+        try {
+          const { creerNotification } = await import('./notifications.js');
+          await creerNotification({
+            destinataireId: threadData.auteurId,
+            type: 'reponse',
+            message: `a répondu à ton sujet "${threadData.titre}"`,
+            lien: `thread.html?id=${threadId}`,
+            auteurId: currentUser.uid,
+            auteurNom: `${currentProfile.prenom} ${currentProfile.nom}`
+          });
+        } catch (notifErr) { /* silencieux */ }
       }
 
-      textarea.value = '';
+      if (quillReply) quillReply.root.innerHTML = '';
       if (fichierInput) fichierInput.value = '';
       if (preview) preview.innerHTML = '';
+      if (emojiPicker) emojiPicker.style.display = 'none';
 
       status.style.color = 'var(--success)';
       status.textContent = '✅ Réponse publiée !';
@@ -517,7 +560,7 @@ function attacherFormulaire() {
 }
 
 /* ============================================================
- *  COMPRESSION D'IMAGE (Canvas)
+ *  COMPRESSION D'IMAGE
  * ============================================================ */
 
 function compresserImage(file, maxWidth = 1600, qualite = 0.75) {

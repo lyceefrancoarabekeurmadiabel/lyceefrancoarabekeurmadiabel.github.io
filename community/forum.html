@@ -12,6 +12,8 @@
 <meta name="theme-color" content="#1B2A4A">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 <meta name="author" content="Djiby Tall - LFAKM">
 <meta name="copyright" content="© 2026 LFAKM. Tous droits réservés.">
 
@@ -133,7 +135,26 @@
   .loader { text-align: center; padding: 40px; color: var(--slate); font-style: italic; }
 
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
-</style>
+  /* Éditeur Quill */
+  #quill-thread {
+    font-family: var(--sans);
+    font-size: 14px;
+  }
+  #quill-thread .ql-editor {
+    min-height: 150px;
+    line-height: 1.6;
+  }
+  #quill-thread .ql-toolbar {
+    border-radius: 6px 6px 0 0;
+    background: #f9f7f2;
+    border-color: var(--line);
+  }
+  #quill-thread .ql-container {
+    border-radius: 0 0 6px 6px;
+    border-color: var(--line);
+    font-family: var(--sans);
+  }
+  </style>
 </head>
 <body>
 
@@ -162,7 +183,13 @@
         <option value="tous">Toutes les classes</option>
       </select>
     </div>
-    <textarea id="thread-contenu" placeholder="Décris ta question ou ton sujet (max 5000 caractères)" maxlength="5000"></textarea>
+        <div id="quill-thread" style="background:#fff; border-radius:6px; min-height:150px; margin-bottom:12px;"></div>
+    <input type="hidden" id="thread-contenu" value="">
+    <div style="margin-bottom:12px; display:flex; gap:10px; align-items:center;">
+      <button type="button" id="btn-emoji-thread" style="background:#f5f5f5; border:1px solid var(--line); padding:8px 14px; border-radius:6px; cursor:pointer; font-size:14px;">😀</button>
+      <small style="color:var(--slate); font-size:12px;">Emojis + formatage disponibles</small>
+    </div>
+    <div id="emoji-picker-thread" style="display:none; margin-bottom:12px; padding:12px; background:#fff; border:1px solid var(--line); border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); max-width:400px;"></div>
 
     <!-- Pièce jointe -->
     <div style="margin-bottom:12px;">

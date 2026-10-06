@@ -105,6 +105,126 @@ export function afficherProfilHeader(profile) {
  *  Permet aux autres fichiers d'importer tout depuis community-common.js
  * ============================================================ */
 
+/* ============================================================
+ *  ÉDITEUR RICHE PARTAGÉ (Quill + Emoji Picker)
+ * ============================================================ */
+
+/** Liste des emojis par catégorie */
+export const EMOJIS = {
+  'Visages': ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','😉','😊','😇','🥰','😍','🤩','😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🤐','🤨','😐','😑','😶','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🥵','🥶','😵','🤯','🤠','🥳','😎','🤓','🧐','😕','😟','🙁','😮','😯','😲','😳','🥺','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','😈','👿','💀','💩','🤡','👹','👺','👻','👽','👾','🤖'],
+  'Gestes': ['👋','🤚','🖐️','✋','🖖','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','👇','☝️','👍','👎','✊','👊','🤛','🤜','👏','🙌','👐','🤲','🤝','🙏','✍️','💅','🤳','💪','👂','👃','🧠','👀','👁️','👅','👄'],
+  'Coeurs': ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟','♥️','💯','💢','💥','💫','💦','💨','💬','💭'],
+  'École': ['📚','📖','📝','✏️','🖊️','🖋️','📕','📗','📘','📙','📓','📔','📒','📄','📃','📑','📊','📈','📉','🗒️','🗓️','📅','📆','📋','📁','📂','🗂️','📌','📍','📎','🖇️','📏','📐','✂️','🎓','🎒','🖍️','🖌️'],
+  'Sciences': ['🔬','🔭','🧪','🧬','⚗️','🔍','🔎','💡','🔦','📡','🧠','🫀','🫁','🦷','🦴','🦠','🧫','🧯','🔋','🔌','💻','🖥️','⌨️','🖱️','💾','💿','📀','🎥','📷','📸'],
+  'Symboles': ['✅','❌','❓','❗','💯','🔴','🟠','🟡','🟢','🔵','🟣','⚫','⚪','⭐','🌟','✨','⚡','🔥','💧','🌊','🎉','🎊','🎈','🎁','🏁','🚩','🏴','⚠️','🚨','⛔','🚫','♻️','🔄','🔙','🔚','🔛','🔜','🔝','💤','💭','💬']
+};
+
+/** Affiche un picker d'emojis dans un container, insère dans Quill */
+export function afficherEmojis(container, quillInstance) {
+  // En-tête avec titre + bouton fermer
+  let html = `
+    <div class="emoji-header">
+      <span class="emoji-title">😀 Emojis</span>
+      <button type="button" class="emoji-close" title="Fermer">×</button>
+    </div>
+    <div class="emoji-scroll">
+  `;
+
+  // Grille d'emojis avec scroll
+  for (const [categorie, emojis] of Object.entries(EMOJIS)) {
+    html += `<div class="emoji-category">${categorie}</div>`;
+    html += '<div class="emoji-grid">';
+    emojis.forEach(e => {
+      html += `<button type="button" class="emoji-btn" data-emoji="${e}">${e}</button>`;
+    });
+    html += '</div>';
+  }
+  html += '</div>';
+  container.innerHTML = html;
+
+  // Événements emojis
+  container.querySelectorAll('.emoji-btn').forEach(btn => {
+    btn.onclick = (ev) => {
+      ev.preventDefault();
+      const emoji = btn.dataset.emoji;
+      const range = quillInstance.getSelection(true);
+      quillInstance.insertText(range.index, emoji);
+      quillInstance.setSelection(range.index + emoji.length);
+    };
+  });
+
+  // Bouton fermer
+  const closeBtn = container.querySelector('.emoji-close');
+  if (closeBtn) {
+    closeBtn.onclick = (ev) => {
+      ev.preventDefault();
+      container.style.display = 'none';
+    };
+  }
+
+  // Focus sur le scroll pour navigation clavier
+  const scrollEl = container.querySelector('.emoji-scroll');
+  if (scrollEl) {
+    // Empêcher la fermeture du picker lors du scroll
+    scrollEl.addEventListener('wheel', (ev) => {
+      ev.stopPropagation();
+    }, { passive: true });
+  }
+}
+
+/** Initialise un éditeur Quill avec la config standard LFAKM */
+export function creerEditeurRiche(selector, options = {}) {
+  if (typeof Quill === 'undefined') {
+    console.warn('Quill non disponible');
+    return null;
+  }
+
+  const {
+    placeholder = 'Écris ici...',
+    toolbar = [
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      ['blockquote', 'link'],
+      ['clean']
+    ],
+    minHeight = 100
+  } = options;
+
+  const editorEl = document.querySelector(selector);
+  if (!editorEl) return null;
+
+  const quill = new Quill(selector, {
+    theme: 'snow',
+    placeholder,
+    modules: { toolbar }
+  });
+
+  return quill;
+}
+
+/** Crée une barre d'outils standard (Quill + bouton emoji) */
+export function creerBarreOutilsQuill(idQuill, idEmojiBtn, idEmojiPicker) {
+  const emojiBtn = document.getElementById(idEmojiBtn);
+  const emojiPicker = document.getElementById(idEmojiPicker);
+  const quillEl = document.getElementById(idQuill);
+
+  if (!emojiBtn || !emojiPicker) return;
+
+  emojiBtn.onclick = (e) => {
+    e.preventDefault();
+    if (emojiPicker.style.display === 'none' || !emojiPicker.style.display) {
+      // Récupérer l'instance Quill depuis l'élément DOM
+      const quillInstance = quillEl && quillEl.__quill;
+      if (quillInstance) {
+        afficherEmojis(emojiPicker, quillInstance);
+        emojiPicker.style.display = 'block';
+      }
+    } else {
+      emojiPicker.style.display = 'none';
+    }
+  };
+}
+
 export { 
   collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc,
   onSnapshot, query, where, orderBy, limit, serverTimestamp, increment,

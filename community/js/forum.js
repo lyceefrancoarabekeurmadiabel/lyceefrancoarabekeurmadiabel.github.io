@@ -7,7 +7,8 @@ import {
   auth, db, onAuthStateChanged, getCurrentProfile, escapeHtml, formatDate,
   collection, doc, addDoc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot, 
   query, where, orderBy, serverTimestamp, increment, 
-  peutModerer, afficherProfilHeader
+  peutModerer, afficherProfilHeader,
+  creerEditeurRiche, afficherEmojis
 } from './community-common.js';
 
 /* ============================================================
@@ -39,7 +40,7 @@ const CLASSES = [
 
 const CLOUDINARY_CLOUD = 'kgjydhyi';
 const CLOUDINARY_PRESET = 'lfakm_ressources';
-const TAILLE_MAX_FICHIER = 15 * 1024 * 1024; // 15 Mo
+const TAILLE_MAX_FICHIER = 15 * 1024 * 1024;
 
 /* ============================================================
  *  ÉTAT GLOBAL
@@ -49,9 +50,10 @@ let currentProfile = null;
 let currentUser = null;
 let activeCategorie = 'all';
 let unsubscribeThreads = null;
-let activeTri = 'recent';        // recent | populaires | repondus
+let activeTri = 'recent';
 let filtreMesSujets = false;
 let searchTerm = '';
+let quillThread = null;
 
 /* ============================================================
  *  AUTHENTIFICATION
@@ -79,11 +81,42 @@ onAuthStateChanged(auth, async (user) => {
 
 function initialiserForum() {
   afficherCategories();
-  afficherBarreOutils();   // ⬅️ NOUVEAU
+  afficherBarreOutils();
   remplirSelects();
   chargerThreads();
+  initialiserQuillThread();
 
   document.getElementById('publish-btn').onclick = publierThread;
+}
+
+/* ============================================================
+ *  INITIALISER QUILL
+ * ============================================================ */
+
+function initialiserQuillThread() {
+  quillThread = creerEditeurRiche('#quill-thread', {
+    placeholder: 'Décris ta question ou ton sujet...',
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      ['blockquote', 'link'],
+      ['clean']
+    ]
+  });
+
+  const emojiBtn = document.getElementById('btn-emoji-thread');
+  const emojiPicker = document.getElementById('emoji-picker-thread');
+  if (emojiBtn && emojiPicker && quillThread) {
+    emojiBtn.onclick = (e) => {
+      e.preventDefault();
+      if (emojiPicker.style.display === 'none' || !emojiPicker.style.display) {
+        afficherEmojis(emojiPicker, quillThread);
+        emojiPicker.style.display = 'block';
+      } else {
+        emojiPicker.style.display = 'none';
+      }
+    };
+  }
 }
 
 /* ============================================================
@@ -118,7 +151,7 @@ function afficherCategories() {
 }
 
 /* ============================================================
- *  BARRE D'OUTILS (tri + recherche + mes sujets)
+ *  BARRE D'OUTILS
  * ============================================================ */
 
 function afficherBarreOutils() {
@@ -126,8 +159,6 @@ function afficherBarreOutils() {
   const formCard = document.getElementById('new-thread-card');
 
   if (!container || !formCard) return;
-
-  // Chercher si la barre existe déjà
   if (document.getElementById('toolbar-forum')) return;
 
   const toolbar = document.createElement('div');
@@ -154,10 +185,8 @@ function afficherBarreOutils() {
     </button>
   `;
 
-  // Insérer avant le formulaire de création
   formCard.parentNode.insertBefore(toolbar, formCard);
 
-  // Événements
   document.getElementById('forum-search').addEventListener('input', (e) => {
     searchTerm = e.target.value.trim();
     chargerThreads();
@@ -181,7 +210,6 @@ function afficherBarreOutils() {
  * ============================================================ */
 
 function remplirSelects() {
-  // Catégories
   const selCat = document.getElementById('thread-categorie');
   selCat.innerHTML = '<option value="">— Choisir une catégorie —</option>';
   CATEGORIES.forEach(c => {
@@ -191,7 +219,6 @@ function remplirSelects() {
     selCat.appendChild(opt);
   });
 
-  // Classes
   const selClasse = document.getElementById('thread-classe');
   if (currentProfile.role === 'eleve') {
     const saClasse = CLASSES.find(c => c.id === currentProfile.niveau);
@@ -214,7 +241,7 @@ function remplirSelects() {
 }
 
 /* ============================================================
- *  CHARGEMENT DES THREADS (temps réel)
+ *  CHARGEMENT DES THREADS
  * ============================================================ */
 
 function chargerThreads() {
@@ -238,12 +265,10 @@ function chargerThreads() {
     let threads = [];
     snap.forEach(d => threads.push({ id: d.id, ...d.data() }));
 
-    // Filtre "Mes sujets"
     if (filtreMesSujets) {
       threads = threads.filter(t => t.auteurId === currentUser.uid);
     }
 
-    // Filtre recherche
     if (searchTerm) {
       threads = threads.filter(t => 
         (t.titre || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -251,7 +276,6 @@ function chargerThreads() {
       );
     }
 
-    // Tri
     if (activeTri === 'populaires') {
       threads.sort((a, b) => (b.likesCount || 0) - (a.likesCount || 0));
     } else if (activeTri === 'repondus') {
@@ -264,7 +288,6 @@ function chargerThreads() {
       });
     }
 
-    // Épinglés en haut (sauf si filtre actif)
     if (activeTri === 'recent' && !searchTerm) {
       const epingles = threads.filter(t => t.epingle === true);
       const autres = threads.filter(t => t.epingle !== true);
@@ -300,7 +323,6 @@ function creerCarteThread(threadId, data) {
   const peutSupprimer = currentUser.uid === data.auteurId || peutModerer(currentProfile);
   const peutEpingler = peutModerer(currentProfile);
 
-  // Pièce jointe
   let pieceJointeHtml = '';
   if (data.fichierUrl) {
     const estImage = (data.fichierType || '').startsWith('image/')
@@ -340,7 +362,7 @@ function creerCarteThread(threadId, data) {
       ${classe ? `<span class="badge badge-cat">🏫 ${classe.nom}</span>` : ''}
       <span>🕐 ${formatDate(data.date)}</span>
     </div>
-    <div class="thread-content">${escapeHtml(data.contenu)}</div>
+    <div class="thread-content ql-editor" style="padding:0; background:transparent; border:none;">${data.contenu || ''}</div>
     ${pieceJointeHtml}
     <div class="thread-actions" style="margin-top:12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
       <button class="btn-like" data-action="like" style="background: transparent; border: 1px solid var(--line); color: var(--ink); padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
@@ -356,11 +378,8 @@ function creerCarteThread(threadId, data) {
     </div>
   `;
 
-  // === Bouton LIKE ===
+  // Bouton LIKE
   const likeBtn = card.querySelector('[data-action="like"]');
-  const likesCountSpan = card.querySelector('[data-role="likes-count"]');
-  
-  // Vérifier si déjà liké (dans le sous-dossier likes/{uid})
   const likeRef = doc(db, 'forum_threads', threadId, 'likes', currentUser.uid);
   onSnapshot(likeRef, (likeSnap) => {
     if (likeSnap.exists()) {
@@ -382,7 +401,7 @@ function creerCarteThread(threadId, data) {
         await updateDoc(doc(db, 'forum_threads', threadId), {
           likesCount: increment(-1)
         });
-            } else {
+      } else {
         await setDoc(likeRef, {
           date: serverTimestamp(),
           userNom: `${currentProfile.prenom} ${currentProfile.nom}`
@@ -391,17 +410,18 @@ function creerCarteThread(threadId, data) {
           likesCount: increment(1)
         });
 
-        // ⬇️ AJOUTER : Notifier l'auteur du thread
         if (data.auteurId && data.auteurId !== currentUser.uid) {
-          const { creerNotification } = await import('./notifications.js');
-          await creerNotification({
-            destinataireId: data.auteurId,
-            type: 'like',
-            message: `a liké ton sujet "${data.titre}"`,
-            lien: `thread.html?id=${threadId}`,
-            auteurId: currentUser.uid,
-            auteurNom: `${currentProfile.prenom} ${currentProfile.nom}`
-          });
+          try {
+            const { creerNotification } = await import('./notifications.js');
+            await creerNotification({
+              destinataireId: data.auteurId,
+              type: 'like',
+              message: `a liké ton sujet "${data.titre}"`,
+              lien: `thread.html?id=${threadId}`,
+              auteurId: currentUser.uid,
+              auteurNom: `${currentProfile.prenom} ${currentProfile.nom}`
+            });
+          } catch (notifErr) { /* silencieux */ }
         }
       }
     } catch (err) {
@@ -409,7 +429,7 @@ function creerCarteThread(threadId, data) {
     }
   };
 
-  // === Bouton ÉPINGLER ===
+  // Bouton ÉPINGLER
   const epingleBtn = card.querySelector('[data-action="epingle"]');
   if (epingleBtn) {
     epingleBtn.onclick = async () => {
@@ -423,19 +443,21 @@ function creerCarteThread(threadId, data) {
     };
   }
 
-  // === Bouton SUPPRIMER ===
+  // Bouton SUPPRIMER
   const deleteBtn = card.querySelector('[data-action="delete"]');
   if (deleteBtn) {
     deleteBtn.onclick = async () => {
       if (!confirm('Supprimer définitivement ce sujet ?')) return;
       try {
-        // Supprimer les likes d'abord
-        const likesSnap = await getDocs(collection(db, 'forum_threads', threadId, 'likes'));
-        for (const l of likesSnap.docs) await deleteDoc(l.ref);
-        // Supprimer les réponses
-        const repliesSnap = await getDocs(collection(db, 'forum_threads', threadId, 'replies'));
-        for (const r of repliesSnap.docs) await deleteDoc(r.ref);
-        // Supprimer le thread
+        const likesSnap = await getDoc(collection(db, 'forum_threads', threadId, 'likes'));
+        const likes = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js')
+          .then(m => m.getDocs(collection(db, 'forum_threads', threadId, 'likes')));
+        for (const l of likes.docs) await deleteDoc(l.ref);
+        
+        const replies = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js')
+          .then(m => m.getDocs(collection(db, 'forum_threads', threadId, 'replies')));
+        for (const r of replies.docs) await deleteDoc(r.ref);
+        
         await deleteDoc(doc(db, 'forum_threads', threadId));
       } catch (err) {
         alert('Erreur : ' + err.message);
@@ -473,15 +495,16 @@ async function publierThread() {
   const titre = document.getElementById('thread-titre').value.trim();
   const categorie = document.getElementById('thread-categorie').value;
   const classe = document.getElementById('thread-classe').value;
-  const contenu = document.getElementById('thread-contenu').value.trim();
+  const contenu = quillThread ? quillThread.root.innerHTML.trim() : '';
+  const contenuTexte = quillThread ? quillThread.getText().trim() : '';
   const fichierInput = document.getElementById('thread-fichier');
   let fichier = fichierInput.files[0];
 
   if (!titre)         { status.style.color = 'var(--danger)'; status.textContent = '⚠️ Le titre est obligatoire.'; return; }
   if (!categorie)     { status.style.color = 'var(--danger)'; status.textContent = '⚠️ Choisis une catégorie.'; return; }
-  if (!contenu)       { status.style.color = 'var(--danger)'; status.textContent = '⚠️ Le contenu est obligatoire.'; return; }
+  if (!contenuTexte || contenuTexte.length === 0) { status.style.color = 'var(--danger)'; status.textContent = '⚠️ Le contenu est obligatoire.'; return; }
   if (titre.length > 200)   { status.style.color = 'var(--danger)'; status.textContent = '⚠️ Titre trop long (max 200).'; return; }
-  if (contenu.length > 5000){ status.style.color = 'var(--danger)'; status.textContent = '⚠️ Contenu trop long (max 5000).'; return; }
+  if (contenuTexte.length > 5000){ status.style.color = 'var(--danger)'; status.textContent = '⚠️ Contenu trop long (max 5000).'; return; }
   if (fichier && fichier.size > TAILLE_MAX_FICHIER) {
     status.style.color = 'var(--danger)';
     status.textContent = '⚠️ Fichier trop volumineux (max 15 Mo).';
@@ -493,30 +516,29 @@ async function publierThread() {
   status.textContent = '';
 
   try {
-    // ✅ Compression des images avant upload
     if (fichier && fichier.type.startsWith('image/') && fichier.type !== 'image/gif') {
       status.textContent = '🗜️ Compression de l\'image...';
       const original = fichier.size;
       const compresse = await compresserImage(fichier);
       if (compresse && compresse.size < original) {
         fichier = compresse;
-        const gain = ((1 - compresse.size / original) * 100).toFixed(0);
-        console.log(`🗜️ Image compressée : ${(original/1024).toFixed(0)} Ko → ${(compresse.size/1024).toFixed(0)} Ko (−${gain}%)`);
       }
     }
 
     const threadData = {
       titre,
       contenu,
+      contenuTexte,
       categorie,
       classe,
       auteurId: currentUser.uid,
       auteurNom: `${currentProfile.prenom} ${currentProfile.nom}`,
       auteurRole: currentProfile.role,
+      likesCount: 0,
+      nbReponses: 0,
       date: serverTimestamp()
     };
 
-    // Upload Cloudinary
     if (fichier) {
       status.textContent = '📤 Envoi du fichier...';
       const fd = new FormData();
@@ -538,13 +560,14 @@ async function publierThread() {
 
     await addDoc(collection(db, 'forum_threads'), threadData);
 
-    // Reset
     document.getElementById('thread-titre').value = '';
     document.getElementById('thread-categorie').value = '';
-    document.getElementById('thread-contenu').value = '';
+    if (quillThread) quillThread.root.innerHTML = '';
     if (fichierInput) fichierInput.value = '';
     const preview = document.getElementById('fichier-preview');
     if (preview) preview.innerHTML = '';
+    const picker = document.getElementById('emoji-picker-thread');
+    if (picker) picker.style.display = 'none';
 
     status.style.color = 'var(--success)';
     status.textContent = '✅ Sujet publié !';
@@ -560,42 +583,27 @@ async function publierThread() {
 }
 
 /* ============================================================
- *  COMPRESSION D'IMAGE (Canvas natif)
+ *  COMPRESSION D'IMAGE
  * ============================================================ */
 
-/**
- * Compresse une image côté navigateur avant upload.
- * @param {File} file — le fichier image original
- * @param {number} maxWidth — largeur max en pixels (défaut : 1600)
- * @param {number} qualite — qualité JPEG entre 0 et 1 (défaut : 0.75)
- * @returns {Promise<File>} — un nouveau File compressé en JPEG
- */
 function compresserImage(file, maxWidth = 1600, qualite = 0.75) {
   return new Promise((resolve) => {
     const reader = new FileReader();
-
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
-        // Calcul des nouvelles dimensions en gardant les proportions
         let { width, height } = img;
         if (width > maxWidth) {
           height = Math.round(height * (maxWidth / width));
           width = maxWidth;
         }
-
-        // Création du canvas et dessin de l'image redimensionnée
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-
-        // Export en JPEG compressé
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
         canvas.toBlob(
           (blob) => {
             if (!blob) { resolve(file); return; }
-            // Renommer en .jpg pour cohérence
             const nouveauNom = file.name.replace(/\.[^.]+$/, '') + '.jpg';
             const fichierCompresse = new File([blob], nouveauNom, { type: 'image/jpeg' });
             resolve(fichierCompresse);
@@ -604,11 +612,9 @@ function compresserImage(file, maxWidth = 1600, qualite = 0.75) {
           qualite
         );
       };
-
-      img.onerror = () => resolve(file);  // En cas d'erreur, on garde l'original
+      img.onerror = () => resolve(file);
       img.src = e.target.result;
     };
-
     reader.onerror = () => resolve(file);
     reader.readAsDataURL(file);
   });

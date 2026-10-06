@@ -6,7 +6,7 @@
 // Ne touche JAMAIS aux données dynamiques (Firestore, Cloudinary) qui doivent
 // toujours venir du réseau pour rester à jour.
 
-const CACHE_NAME = 'lfakm-cache-v17';
+const CACHE_NAME = 'lfakm-cache-v20';
 
 const urlsToCache = [
   './',
