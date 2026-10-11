@@ -3,6 +3,7 @@
  *  Fichier : community/js/thread.js
  * ============================================================ */
 
+import './signalement.js';
 import { 
   auth, db, onAuthStateChanged, getCurrentProfile, escapeHtml, formatDate,
   collection, doc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, 
@@ -296,6 +297,7 @@ function creerCarteReponse(reply) {
     <div class="reply-actions">
       ${estAuteur ? `<button class="btn-edit" data-action="edit">✏️ Modifier</button>` : ''}
       ${peutSupprimer ? `<button class="btn-delete" data-action="delete">🗑 Supprimer</button>` : ''}
+      <button class="btn-ghost" data-action="signaler" style="background:transparent; border:1px solid var(--line); color:var(--slate); padding:6px 12px; border-radius:4px; cursor:pointer; font-size:11px; font-family:var(--sans);">🚩 Signaler</button>
     </div>
   `;
 
@@ -317,6 +319,12 @@ function creerCarteReponse(reply) {
         alert('Erreur : ' + err.message);
       }
     };
+  }
+
+    // Bouton SIGNALER
+  const signalerBtn = card.querySelector('[data-action="signaler"]');
+  if (signalerBtn) {
+    signalerBtn.onclick = () => window.ouvrirModalSignalement('reply', reply.id, threadId, 'Réponse', reply.contenu);
   }
 
   return card;

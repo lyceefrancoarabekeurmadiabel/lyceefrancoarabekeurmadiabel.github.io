@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modération — Administration LFAKM</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../assets/style-menu.css">
+<link rel="stylesheet" href="css/community.css">
+<link rel="stylesheet" href="css/menu.css">
+<link rel="manifest" href="../assets/manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
+    --slate: #5B6472; --line: rgba(27,42,74,0.14); --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --success: #2e7d32; --danger: #B3402A; --warning: #e67e22;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; }
+
+  /* HERO */
+  .page-hero { background: #7a1f1f; color:#fff; padding: 50px 0; text-align: center; }
+  .page-hero h1 { font-family: var(--serif); font-size: 32px; margin-bottom: 10px; }
+  .page-hero p { font-size: 14px; opacity: 0.9; }
+
+  /* LAYOUT */
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+  .modo-container { padding: 30px 0 60px; }
+
+  /* STATS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 25px;
+  }
+  .stat-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--brass);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .stat-value { font-size: 26px; font-weight: 800; color: var(--ink); }
+  .stat-label { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-card.danger { border-left-color: var(--danger); }
+  .stat-card.success { border-left-color: var(--success); }
+
+  /* FILTRES */
+  .filters-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    background: #fff;
+    border: 1px solid var(--line);
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    font-family: var(--sans);
+    transition: all 0.2s;
+  }
+  .filter-btn:hover { border-color: var(--brass); }
+  .filter-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  /* SIGNALEMENT CARD */
+  .signal-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    border-left: 4px solid var(--danger);
+  }
+  .signal-card.traite {
+    border-left-color: var(--success);
+    opacity: 0.7;
+  }
+  .signal-card.ignore {
+    border-left-color: var(--slate);
+    opacity: 0.6;
+  }
+
+  .signal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .signal-type-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: #fdecea;
+    color: var(--danger);
+  }
+  .signal-type-badge.thread { background: #e3f2fd; color: #1565c0; }
+  .signal-type-badge.reply { background: #e8f5e9; color: #2e7d32; }
+  .signal-type-badge.blog_post { background: #f3e5f5; color: #6a1b9a; }
+  .signal-type-badge.blog_comment { background: #fff3e0; color: #e65100; }
+  .signal-type-badge.prof_resource { background: #e0f7fa; color: #00695c; }
+
+  .signal-date { font-size: 11px; color: var(--slate); }
+
+  .signal-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .signal-info-item {
+    font-size: 13px;
+  }
+  .signal-info-label {
+    font-size: 11px;
+    color: var(--slate);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .signal-info-value {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .signal-raison {
+    background: #fdf6f6;
+    border: 1px solid rgba(179,64,42,0.2);
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #333;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .signal-raison strong {
+    color: var(--danger);
+    font-weight: 700;
+  }
+
+  .signal-apercu {
+    background: #f9f7f2;
+    border-left: 3px solid var(--brass);
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--slate);
+    font-style: italic;
+    margin-bottom: 12px;
+    max-height: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .signal-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .btn-action {
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 12px;
+    font-family: var(--sans);
+    border: none;
+    transition: all 0.2s;
+  }
+  .btn-voir {
+    background: #e3f2fd;
+    color: #1565c0;
+  }
+  .btn-voir:hover { background: #1565c0; color: #fff; }
+  .btn-ignorer {
+    background: #f5f5f5;
+    color: var(--slate);
+  }
+  .btn-ignorer:hover { background: var(--slate); color: #fff; }
+  .btn-supprimer {
+    background: var(--danger);
+    color: #fff;
+  }
+  .btn-supprimer:hover { background: #8f3220; }
+
+  .signal-status {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .signal-status.traite { background: #e8f5e9; color: var(--success); }
+  .signal-status.ignore { background: #f5f5f5; color: var(--slate); }
+
+  .empty-state {
+    text-align: center;
+    color: var(--slate);
+    padding: 60px 20px;
+    font-size: 14px;
+    background: #fff;
+    border-radius: 10px;
+    border: 1px dashed var(--line);
+  }
+  .empty-state .icon { font-size: 48px; display: block; margin-bottom: 15px; }
+  .loader { text-align: center; padding: 40px; color: var(--slate); font-style: italic; }
+
+  footer {
+    background: var(--ink-deep); color: #B7BCC9; padding: 25px 20px 20px;
+    text-align: center; font-size: 12px; margin-top: 30px;
+  }
+
+  @media (max-width: 600px) {
+    .page-hero h1 { font-size: 24px; }
+    .signal-info { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<section class="page-hero">
+  <div class="wrap">
+    <h1>🚩 Modération</h1>
+    <p>Gestion des signalements de la communauté LFAKM.</p>
+  </div>
+</section>
+
+<main class="wrap modo-container">
+
+  <!-- Stats -->
+  <div class="stats-grid" id="stats-container"></div>
+
+  <!-- Filtres -->
+  <div class="filters-row">
+    <button class="filter-btn active" data-filter="en_attente">⏳ En attente</button>
+    <button class="filter-btn" data-filter="traite">✅ Traités</button>
+    <button class="filter-btn" data-filter="ignore">🗑 Ignorés</button>
+    <button class="filter-btn" data-filter="all">📋 Tous</button>
+  </div>
+
+  <!-- Liste signalements -->
+  <div id="signalements-list">
+    <div class="loader">⏳ Chargement des signalements...</div>
+  </div>
+
+</main>
+
+<footer style="background: var(--ink-deep, #10192E); color: #B7BCC9; padding: 25px 20px 20px; text-align: center; font-size: 12px; margin-top: 30px;">
+  <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; margin-bottom: 10px;">
+    <a href="index.html" style="color: #A8853F; text-decoration: none; font-weight: 700;">👥 Communauté</a>
+    <a href="admin-gestion.html" style="color: #B7BCC9; text-decoration: none;">⚙️ Administration</a>
+  </div>
+  <div style="font-size: 11px; opacity: 0.7;">
+    © 2026 Lycée Franco Arabe de Keur Madiabel — Site conçu par <strong>Djiby Tall</strong>
+  </div>
+</footer>
+
+<script type="module">
+  import { initialiserMenuComplet } from './js/menu.js';
+  await initialiserMenuComplet();
+  import './js/admin-moderation.js';
+</script>
+</body>
+</html>

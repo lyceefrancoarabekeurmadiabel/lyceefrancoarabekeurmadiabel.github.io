@@ -341,6 +341,25 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    // ============================================================
+//  FONCTIONS UTILITAIRES — comparaison robuste (casse/accents/tirets)
+// ============================================================
+const normalize = (s) => {
+  if (!s) return '';
+  return s.toString()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+};
+const matchesAny = (value, array) => {
+  if (!Array.isArray(array)) return false;
+  const n = normalize(value);
+  return array.some(item => normalize(item) === n);
+};
+const isSameString = (a, b) => normalize(a) === normalize(b);
+// ============================================================
+
     let profile = null;
     function isAdmin(role) { return role === 'admin' || role === 'proviseur' || role === 'censeur'; }
     function escapeHtml(str) { const div = document.createElement('div'); div.textContent = str ?? ''; return div.innerHTML; }
@@ -589,9 +608,9 @@
             }
             const elevesSnap = await getDocs(query(collection(db, 'utilisateurs'), where('role', '==', 'eleve')));
             const eleves = [];
-            elevesSnap.forEach(doc => {
+                        elevesSnap.forEach(doc => {
                 const e = doc.data();
-                if (classesConcernees.includes(e.niveau)) {
+                if (matchesAny(e.niveau, classesConcernees)) {
                     eleves.push({ uid: doc.id, ...e });
                 }
             });
@@ -677,10 +696,10 @@
                     const dashIndex = parentSlug.indexOf('-');
                     const levelId = dashIndex === -1 ? parentSlug : parentSlug.substring(0, dashIndex);
                     let pertinent = false;
-                    if (role === 'eleve') {
-                        pertinent = profile.niveau === levelId;
+                                        if (role === 'eleve') {
+                        pertinent = isSameString(profile.niveau, levelId);
                     } else if (role === 'professeur') {
-                        pertinent = (profile.assignedClasses || []).includes(levelId);
+                        pertinent = matchesAny(levelId, profile.assignedClasses);
                     }
                     if (!pertinent) return;
                     const dv = d.data();
@@ -710,7 +729,7 @@
                     if (cards.length >= 10) return;
                     const n = d.data();
                     const dest = n.destinataire || 'tous';
-                    if (dest !== 'tous' && dest !== profile?.role && !isAdmin(profile?.role)) return;
+                    if (dest !== 'tous' && !isSameString(dest, profile?.role) && !isAdmin(profile?.role)) return;
                     const date = n.date?.toDate ? n.date.toDate().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
                     cards.push(`
                         <a class="actus-card" href="../actualites.html">
@@ -770,15 +789,15 @@
         const role = profile?.role;
         const profMats = profile?.disciplines || [];
         const cycleVisible = {};
-        document.querySelectorAll('.level').forEach(levelEl => {
+                document.querySelectorAll('.level').forEach(levelEl => {
             if (!levelEl) return;
             const lvlId = levelEl.dataset.level;
             const area = levelEl.dataset.area;
             let visible = true;
             if (role === 'professeur') {
-                visible = (profile.assignedClasses || []).includes(lvlId);
+                visible = matchesAny(lvlId, profile.assignedClasses);
             } else if (role === 'eleve') {
-                visible = profile.niveau === lvlId;
+                visible = isSameString(profile.niveau, lvlId);
             }
             levelEl.style.display = visible ? '' : 'none';
             if (visible) cycleVisible[area] = true;
@@ -787,7 +806,7 @@
                     if (!subjectEl) return;
                     let matVisible = true;
                     if (role === 'professeur') {
-                        matVisible = profMats.includes(subjectEl.dataset.mat);
+                        matVisible = matchesAny(subjectEl.dataset.mat, profMats);
                     }
                     subjectEl.dataset.roleAllowed = matVisible ? '1' : '0';
                     subjectEl.style.display = matVisible ? '' : 'none';
@@ -813,11 +832,11 @@
             const videoBtn = addBtn ? addBtn.nextElementSibling : null;
             const driveBtn = videoBtn ? videoBtn.nextElementSibling : null;
             
-            const subjectEl = ul.closest('.subject-accordion');
-            const matName = subjectEl ? subjectEl.querySelector('.subject-header')?.textContent?.toLowerCase() || '' : '';
+                        const subjectEl = ul.closest('.subject-accordion');
+            const matName = subjectEl ? subjectEl.dataset.mat : '';
 
             if (role === 'professeur' || isAdmin(role)) {
-                const showButtons = (role === 'professeur' && profMats.some(d => matName.includes(d.toLowerCase()))) || isAdmin(role);
+                const showButtons = (role === 'professeur' && matchesAny(matName, profMats)) || isAdmin(role);
                 if (addBtn && showButtons) addBtn.style.display = "block";
                 if (videoBtn && showButtons) videoBtn.style.display = "block";
                 if (driveBtn && showButtons) driveBtn.style.display = "block";
@@ -862,7 +881,7 @@
             const addBtn = document.getElementById(`devoiradd-${slug}`);
 
             if (addBtn) {
-                const showButton = (role === 'professeur' && profMats.includes(matName)) || isAdmin(role);
+                const showButton = (role === 'professeur' && matchesAny(matName, profMats)) || isAdmin(role);
                 addBtn.style.display = showButton ? "block" : "none";
             }
 
@@ -1497,13 +1516,13 @@
                         if (mat.toLowerCase().replace(/[^a-z0-9]/g, '') === matSlug) matName = mat;
                     });
 
-                    let allowed = false;
+                                        let allowed = false;
                     if (isAdminUser) {
                         allowed = true;
                     } else if (profile?.role === 'professeur') {
-                        allowed = profClasses.includes(levelId) && profMats.includes(matName);
+                        allowed = matchesAny(levelId, profClasses) && matchesAny(matName, profMats);
                     } else if (profile?.role === 'eleve') {
-                        allowed = niveau === levelId;
+                        allowed = isSameString(niveau, levelId);
                     }
 
                     if (!allowed) return;

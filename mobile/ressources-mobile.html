@@ -382,6 +382,25 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
+  // ============================================================
+//  FONCTIONS UTILITAIRES — comparaison robuste (casse/accents/tirets)
+// ============================================================
+const normalize = (s) => {
+  if (!s) return '';
+  return s.toString()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+};
+const matchesAny = (value, array) => {
+  if (!Array.isArray(array)) return false;
+  const n = normalize(value);
+  return array.some(item => normalize(item) === n);
+};
+const isSameString = (a, b) => normalize(a) === normalize(b);
+// ============================================================
+
   let profile = null;
   let currentCycle = 'college-area';
   let currentDevoirSlug = null;
@@ -575,13 +594,13 @@
       const lvlId = levelEl.dataset.level;
       const area = levelEl.dataset.area;
       let visible = true;
-      if (role === 'professeur') visible = (profile.assignedClasses || []).includes(lvlId);
-      else if (role === 'eleve') visible = profile.niveau === lvlId;
+      if (role === 'professeur') visible = matchesAny(lvlId, profile.assignedClasses);
+      else if (role === 'eleve') visible = isSameString(profile.niveau, lvlId);
       if (area !== currentCycle) visible = false;
       levelEl.style.display = visible ? '' : 'none';
       if (visible && role === 'professeur') {
         levelEl.querySelectorAll('.mat-accordion').forEach(matEl => {
-          matEl.style.display = profMats.includes(matEl.dataset.mat) ? '' : 'none';
+          matEl.style.display = matchesAny(matEl.dataset.mat, profMats) ? '' : 'none';
         });
       }
     });
@@ -603,7 +622,7 @@
       const subjectEl = ul.closest('.mat-accordion');
       const matName = subjectEl ? subjectEl.dataset.mat : '';
       if (role === 'professeur' || isAdmin(role)) {
-        const showButtons = (role === 'professeur' && profMats.includes(matName)) || isAdmin(role);
+        const showButtons = (role === 'professeur' && matchesAny(matName, profMats)) || isAdmin(role);
         if (addBtn && showButtons) addBtn.style.display = 'block';
         if (videoBtn && showButtons) videoBtn.style.display = 'block';
         if (driveBtn && showButtons) driveBtn.style.display = 'block';
@@ -637,7 +656,7 @@
       const matName = subjectEl ? subjectEl.dataset.mat : '';
       const addBtn = document.getElementById(`devoiradd-${slug}`);
       if (addBtn) {
-        const showButton = (role === 'professeur' && profMats.includes(matName)) || isAdmin(role);
+        const showButton = (role === 'professeur' && matchesAny(matName, profMats)) || isAdmin(role);
         addBtn.style.display = showButton ? 'block' : 'none';
       }
       onSnapshot(query(collection(db, 'ressources', slug, 'devoirs'), orderBy('date', 'desc')), (snap) => {
@@ -1030,7 +1049,7 @@
       const eleves = [];
       elevesSnap.forEach(doc => {
         const e = doc.data();
-        if (classesConcernees.includes(e.niveau)) eleves.push({ uid: doc.id, ...e });
+        if (matchesAny(e.niveau, classesConcernees)) eleves.push({ uid: doc.id, ...e });
       });
       eleves.sort((a, b) => `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`));
       const elevesParClasse = {};
@@ -1141,8 +1160,8 @@
           MATS_COL.forEach(mat => { if (mat.toLowerCase().replace(/[^a-z0-9]/g, '') === matSlug) matName = mat; });
           let allowed = false;
           if (isAdminUser) allowed = true;
-          else if (profile?.role === 'professeur') allowed = profClasses.includes(levelId) && profMats.includes(matName);
-          else if (profile?.role === 'eleve') allowed = niveau === levelId;
+          else if (profile?.role === 'professeur') allowed = matchesAny(levelId, profClasses) && matchesAny(matName, profMats);
+          else if (profile?.role === 'eleve') allowed = isSameString(niveau, levelId);
           if (!allowed) return;
           if (dv.titre && dv.titre.toLowerCase().includes(t)) {
             const level = structure.find(l => l.id === levelId);

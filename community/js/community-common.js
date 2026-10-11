@@ -75,6 +75,64 @@ export function estEleve(profile) {
   return profile && profile.role === 'eleve';
 }
 
+/* ============================================================
+ *  VÉRIFICATION DES DROITS DE MODÉRATION PAR CATÉGORIE
+ * ============================================================ */
+
+/**
+ * Vérifie si l'utilisateur peut modérer un contenu selon sa catégorie.
+ * 
+ * Règles :
+ * - Admin / Proviseur / Censeur : modération TOTALE
+ * - Professeur : modération selon sa matière + catégories transverses (Général, Orientation, etc.)
+ * - Élève : aucune modération
+ * 
+ * @param {Object} profile - Profil de l'utilisateur connecté
+ * @param {string} categorie - Catégorie du contenu (maths, francais, general, etc.)
+ * @returns {boolean}
+ */
+export function peutModererContenu(profile, categorie) {
+  if (!profile) return false;
+
+  // Admins : modération totale
+  if (['admin', 'proviseur', 'censeur'].includes(profile.role)) {
+    return true;
+  }
+
+  // Professeurs : modération selon matière
+  if (profile.role === 'professeur') {
+    // Catégories transverses = TOUS les profs peuvent modérer
+    const categoriesTransverses = [
+      'general', 'orientation', 'autres',
+      'pedagogie', 'vie-scolaire', 'actualites', 'culture'
+    ];
+    if (categoriesTransverses.includes(categorie)) {
+      return true;
+    }
+
+    // Catégories spécifiques = prof de cette matière uniquement
+    const disciplines = (profile.disciplines || []).map(d => d.toLowerCase());
+
+    const correspondances = {
+      'maths':       ['mathématiques', 'maths', 'math'],
+      'francais':    ['français', 'francais'],
+      'anglais':     ['anglais'],
+      'arabe':       ['arabe'],
+      'svt':         ['svt', 'sciences de la vie'],
+      'physique':    ['physique', 'chimie', 'physique-chimie', 'pc'],
+      'histoire':    ['histoire', 'géographie', 'histoire-géo'],
+      'philosophie': ['philosophie', 'philo'],
+      'eps':         ['eps', 'éducation physique', 'sport'],
+      'religion':    ['religion', 'éducation religieuse']
+    };
+
+    const motsCles = correspondances[categorie] || [];
+    return disciplines.some(d => motsCles.some(mot => d.includes(mot)));
+  }
+
+  return false;
+}
+
 /** Met à jour l'en-tête (header) avec le profil connecté */
 export function afficherProfilHeader(profile) {
   const profileSpan = document.getElementById('user-profile');
@@ -99,11 +157,6 @@ export function afficherProfilHeader(profile) {
     link.href = "../identification.html";
   }
 }
-
-/* ============================================================
- *  RÉ-EXPORTS FIRESTORE
- *  Permet aux autres fichiers d'importer tout depuis community-common.js
- * ============================================================ */
 
 /* ============================================================
  *  ÉDITEUR RICHE PARTAGÉ (Quill + Emoji Picker)
@@ -225,8 +278,14 @@ export function creerBarreOutilsQuill(idQuill, idEmojiBtn, idEmojiPicker) {
   };
 }
 
+/* ============================================================
+ *  RÉ-EXPORTS FIRESTORE
+ *  Permet aux autres fichiers d'importer tout depuis community-common.js
+ * ============================================================ */
+
 export { 
   collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc,
   onSnapshot, query, where, orderBy, limit, serverTimestamp, increment,
-  onAuthStateChanged, signOut
+  onAuthStateChanged, signOut,
+  peutModererContenu
 };

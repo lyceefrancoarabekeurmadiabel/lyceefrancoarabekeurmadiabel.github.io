@@ -4,6 +4,7 @@
  *  Rôle : article + commentaires riches + réponses imbriquées
  * ============================================================ */
 
+import './signalement.js';
 import { 
   auth, db, onAuthStateChanged, getCurrentProfile, escapeHtml, formatDate,
   collection, doc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, 
@@ -291,9 +292,10 @@ function creerCommentaire(comment) {
     <div class="comment-content ql-editor" style="padding:0; background:transparent; border:none;">${comment.contenu || ''}</div>
     <div class="comment-actions">
       <button class="btn-reply" data-action="reply" style="background:transparent; border:1px solid var(--line); color:var(--slate); padding:4px 10px; border-radius:4px; cursor:pointer; font-size:11px; font-family:var(--sans); margin-right:6px;">💬 Répondre</button>
-      ${peutSupprimer ? `
+            ${peutSupprimer ? `
         <button class="btn-delete" data-action="delete">🗑 Supprimer</button>
       ` : ''}
+      <button class="btn-reply" data-action="signaler" style="background:transparent; border:1px solid var(--line); color:var(--slate); padding:4px 10px; border-radius:4px; cursor:pointer; font-size:11px; font-family:var(--sans);">🚩 Signaler</button>
     </div>
     <div class="reply-form-container" data-role="reply-container" style="display:none; margin-top:12px; padding:12px; background:#f9f7f2; border-radius:8px;"></div>
   `;
@@ -427,6 +429,12 @@ function creerCommentaire(comment) {
         }
       };
     };
+  }
+
+    // Bouton SIGNALER
+  const signalerBtn = div.querySelector('[data-action="signaler"]');
+  if (signalerBtn) {
+    signalerBtn.onclick = () => window.ouvrirModalSignalement('blog_comment', comment.id, articleId, 'Commentaire blog', comment.contenu);
   }
 
   return div;

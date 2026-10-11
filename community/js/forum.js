@@ -3,6 +3,7 @@
  *  Fichier : community/js/forum.js
  * ============================================================ */
 
+import './signalement.js';
 import { 
   auth, db, onAuthStateChanged, getCurrentProfile, escapeHtml, formatDate,
   collection, doc, addDoc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot, 
@@ -375,6 +376,7 @@ function creerCarteThread(threadId, data) {
       </a>
       ${peutEpingler ? `<button class="btn-ghost" data-action="epingle" style="padding:6px 12px; font-size:12px; border:1px solid var(--line); border-radius:4px; cursor:pointer; background:transparent; color:var(--slate);">${data.epingle ? '📌 Désépingler' : '📌 Épingler'}</button>` : ''}
       ${peutSupprimer ? `<button class="btn-danger" data-action="delete" style="padding:6px 12px; font-size:12px;">🗑 Supprimer</button>` : ''}
+      <button class="btn-ghost" data-action="signaler" style="padding:6px 12px; font-size:12px; border:1px solid var(--line); border-radius:4px; cursor:pointer; background:transparent; color:var(--slate);">🚩 Signaler</button>
     </div>
   `;
 
@@ -463,6 +465,12 @@ function creerCarteThread(threadId, data) {
         alert('Erreur : ' + err.message);
       }
     };
+  }
+
+    // Bouton SIGNALER
+  const signalerBtn = card.querySelector('[data-action="signaler"]');
+  if (signalerBtn) {
+    signalerBtn.onclick = () => window.ouvrirModalSignalement('thread', threadId, null, data.titre, data.contenu);
   }
 
   return card;
