@@ -607,7 +607,13 @@ function goToClass(levelId, mat) {
 
 // --- Index de recherche (cours, TD, devoirs) ---
 const searchIndex = new Map();
-const indexSet = (kind, slug, items) => searchIndex.set(kind + '|' + slug, items);
+const indexSet = (kind, slug, items) => {
+  searchIndex.set(kind + '|' + slug, items);
+  // ✅ Rafraîchir le menu matières si la recherche est initialisée
+  if (typeof window._majMatieresSearch === 'function') {
+    try { window._majMatieresSearch(); } catch (e) {}
+  }
+};
 const matLabelFromSlug = (slug) => {
   const ms = slug.slice(slug.indexOf('-') + 1);
   for (const l of structure) for (const m of l.mats) if (m.toLowerCase().replace(/[^a-z0-9]/g, '') === ms) return m;
@@ -1647,6 +1653,8 @@ document.querySelectorAll('.cycle-tab').forEach(t => {
           </div>`;
       }).join('') + (res.length > 50 ? `<p style="text-align:center;font-size:12px;color:var(--slate);">… et ${res.length - 50} autres résultats. Précisez votre recherche.</p>` : '');
     };
+        // ✅ Exposer la mise à jour du menu matières
+    window._majMatieresSearch = majMatieres;
     let timer = null;
     const lancer = () => { clearTimeout(timer); timer = setTimeout(run, 150); };
     searchBar.addEventListener('input', lancer);

@@ -174,6 +174,9 @@
   .search-result-line .sr-actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
   .search-result-line .sr-goto { border:none; cursor:pointer; font-family:inherit; background:var(--ink-deep); }
   .search-result-line .sr-online { color:var(--slate); font-weight:600; font-size:12px; }
+  .search-result-line .sr-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .search-result-line .sr-goto { border: none; cursor: pointer; font-family: inherit; background: var(--ink-deep); }
+  .search-result-line .sr-online { color: var(--slate); font-weight: 600; font-size: 12px; }
 
   #eleves-search { width:100%; padding:10px 14px; border:1px solid var(--line); border-radius:8px; margin-bottom:10px; font-family:inherit; font-size:14px; background:#fff; }
   .eleve-ligne { display:block; padding:8px 0; border-bottom:1px solid #f0f0f0; }
@@ -1018,7 +1021,12 @@ function initSearch() {
     matSel.value = [...mats].includes(cur) ? cur : '';
   };
   const run = () => {
+        list.addEventListener('click', (e) => {
+      const b = e.target.closest('.sr-goto');
+      if (b) goToClass(b.dataset.level, b.dataset.mat);
+    });
     majMatieres();
+  }
     const t = normalize(bar.value), fm = matSel.value, ft = typeSel.value;
     if (!t && !fm && !ft) { zone.style.display = 'none'; none.style.display = 'none'; return; }
     const res = [];
@@ -1033,7 +1041,7 @@ function initSearch() {
     if (!res.length) { list.innerHTML = ''; none.style.display = 'block'; return; }
     none.style.display = 'none';
     const affiches = res.slice(0, 50);
-    list.innerHTML = affiches.map(r => {
+        list.innerHTML = affiches.map(r => {
       const info = structure.find(l => l.id === r.levelId);
       const [ico, lib] = LABEL[r.kind];
       return `<div class="search-result-line"><div class="info">
@@ -1050,12 +1058,15 @@ function initSearch() {
   bar.addEventListener('input', lancer);
   matSel.addEventListener('change', run);
   typeSel.addEventListener('change', run);
+      list.addEventListener('click', (e) => {
+      const b = e.target.closest('.sr-goto');
+      if (b) goToClass(b.dataset.level, b.dataset.mat);
+    });
   list.addEventListener('click', (e) => {
     const b = e.target.closest('.sr-goto');
     if (b) goToClass(b.dataset.level, b.dataset.mat);
   });
   majMatieres();
-}
 
 /* ---------- Notifications, hors-ligne, installation ---------- */
 function toast(msg, onClick, ms = 8000) {
