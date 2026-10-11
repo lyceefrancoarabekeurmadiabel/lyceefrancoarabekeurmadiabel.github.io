@@ -146,6 +146,68 @@
   #no-results-search { display: none; text-align: center; padding: 30px; color: var(--slate); background: #fff; border-radius: 10px; border: 1px dashed var(--line); font-size: 15px; }
 
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
+
+  /* ===== Extensions LFAKM : badges, échéances, recherche, contacts, notifications ===== */
+  .hdr-title { display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap; min-width:0; }
+  .new-slot { display:inline-flex; }
+  .new-count { background:#d9534f; color:#fff; font-size:10px; font-weight:700; padding:2px 8px; border-radius:999px; white-space:nowrap; letter-spacing:.2px; }
+  .new-badge { background:#d9534f; color:#fff; font-size:9px; font-weight:700; padding:2px 6px; border-radius:4px; margin-left:6px; vertical-align:middle; letter-spacing:.4px; }
+
+  .dl-pill { display:inline-block; font-size:10px; font-weight:700; padding:2px 8px; border-radius:999px; white-space:nowrap; vertical-align:middle; }
+  .dl-ok { background:#e8f1fb; color:#1d5fa8; }
+  .dl-soon { background:#fff4d6; color:#8a6100; }
+  .dl-urgent { background:#ffe3d1; color:#b34100; }
+  .dl-late { background:#fde2e1; color:#b3261e; }
+  .dv-notif-card .dl-pill { display:inline-block; margin-top:4px; }
+
+  .rendu-count { display:inline-block; font-size:12px; font-weight:700; color:var(--ink); background:#f1ece1; padding:4px 10px; border-radius:999px; margin:2px 6px 4px 0; }
+  .rendu-count.complete { background:#e3f3e5; color:#2e7d32; }
+  .rendu-summary { font-size:12px; padding:8px 10px; background:#f7f5f0; border:1px solid var(--line); border-radius:8px; margin-bottom:8px; }
+  .rendu-summary a { color:var(--brass); font-weight:700; text-decoration:none; }
+  .nr-list { display:none; flex-wrap:wrap; gap:4px 12px; margin-top:6px; color:var(--slate); }
+
+  .flash { animation:lfflash 1.6s ease; }
+  @keyframes lfflash { 0%,60% { box-shadow:0 0 0 3px rgba(168,133,63,.6); } 100% { box-shadow:0 0 0 0 rgba(168,133,63,0); } }
+
+  #search-filters { display:flex; gap:8px; }
+  #search-filters select { flex:1; min-width:0; padding:10px 12px; border:1px solid var(--line); border-radius:8px; background:#fff; font-family:inherit; font-size:13px; color:var(--ink); }
+  .search-result-line .sr-actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .search-result-line .sr-goto { border:none; cursor:pointer; font-family:inherit; background:var(--ink-deep); }
+  .search-result-line .sr-online { color:var(--slate); font-weight:600; font-size:12px; }
+
+  #eleves-search { width:100%; padding:10px 14px; border:1px solid var(--line); border-radius:8px; margin-bottom:10px; font-family:inherit; font-size:14px; background:#fff; }
+  .eleve-ligne { display:block; padding:8px 0; border-bottom:1px solid #f0f0f0; }
+  .eleve-ligne:last-child { border-bottom:none; }
+  .el-top { display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; }
+  .eleve-ligne .eleve-nom { font-size:14px; font-weight:500; }
+  .eleve-ligne .eleve-actions { display:flex; gap:6px; }
+  .eleve-ligne .eleve-actions button { font-size:11px; padding:6px 10px; border:none; border-radius:6px; cursor:pointer; font-family:inherit; font-weight:600; }
+  .btn-contact { background:var(--ink-deep); color:#fff; }
+  .eleve-contact { display:none; margin-top:8px; padding:8px 10px; background:#f7f5f0; border-radius:8px; }
+  .eleve-ligne.ct-open .eleve-contact { display:block; }
+  .ct-line { display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; padding:6px 0; font-size:12px; }
+  .ct-line + .ct-line { border-top:1px solid #ece7da; }
+  .ct-who { font-weight:600; color:var(--ink); }
+  .ct-who small { display:block; font-weight:400; color:var(--slate); }
+  .ct-btns { display:flex; gap:6px; }
+  .ct-btn { font-size:11px; font-weight:700; text-decoration:none; padding:7px 10px; border-radius:6px; background:var(--ink-deep); color:#fff; white-space:nowrap; }
+  .ct-btn.ct-wa { background:#1f9d55; }
+  .ct-none { font-size:12px; color:var(--slate); }
+
+  #notif-bar { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; background:#fff7e0; border:1px solid #ecd9a0; border-radius:10px; padding:10px 14px; margin:0 0 16px; font-size:13px; color:#5c4300; }
+  #notif-bar .nb-btns { display:flex; gap:6px; }
+  #notif-bar button { border:none; border-radius:6px; padding:8px 12px; font-family:inherit; font-weight:700; font-size:12px; cursor:pointer; background:#ecd9a0; color:#3d2d00; }
+  #notif-bar #notif-yes { background:var(--brass); color:#fff; }
+  #lf-toasts { position:fixed; top:12px; left:50%; transform:translateX(-50%); z-index:5000; display:flex; flex-direction:column; gap:8px; width:min(92vw,420px); }
+  .lf-toast { display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--ink-deep); color:#fff; padding:12px 14px; border-radius:10px; font-size:13px; box-shadow:0 8px 24px rgba(0,0,0,.25); }
+  .lf-toast.clickable { cursor:pointer; }
+  .lf-toast button { background:none; border:none; color:#B7BCC9; font-size:16px; cursor:pointer; padding:2px 6px; }
+  #offline-banner { display:none; position:fixed; left:0; right:0; bottom:0; z-index:4000; background:var(--ink-deep); color:#fff; font-size:12px; text-align:center; padding:8px 12px calc(8px + env(safe-area-inset-bottom, 0px)); }
+  #offline-banner.show { display:block; }
+
+  #search-filters { max-width:600px; margin:-24px auto 30px; padding:0 20px; }
+  #notif-bar { max-width:1060px; margin:16px auto; }
+  .eleve-ligne .eleve-nom { font-size:14px; }
 </style>
 <script src="../assets/detect-mobile.js" defer></script>
 <meta name="author" content="Djiby Tall - LFAKM">
@@ -310,6 +372,7 @@
   <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; margin-bottom: 10px;">
     <a href="../community/index.html" style="color: #A8853F; text-decoration: none; font-weight: 700;">👥 Communauté</a>
     <a href="#" onclick="window.showContact(); return false;" style="color: #B7BCC9; text-decoration: none;">📞 Contacter le Proviseur</a>
+    <a href="#" data-install onclick="return window.installApp();" style="display:none;color:#B7BCC9;text-decoration:none;">📲 Installer l'application</a>
   </div>
   <div style="font-size: 11px; opacity: 0.7;">
     © 2026 Lycée Franco Arabe de Keur Madiabel — Site conçu par <strong>Djiby Tall</strong>
@@ -326,7 +389,7 @@
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, getDocs, setDoc, deleteDoc, collection, collectionGroup, addDoc, onSnapshot, serverTimestamp, orderBy, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, getDoc, getDocs, setDoc, deleteDoc, collection, collectionGroup, addDoc, onSnapshot, serverTimestamp, orderBy, query, where, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
@@ -339,7 +402,11 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
+    // ✅ Cache local persistant : les listes déjà consultées restent lisibles hors connexion
+const db = (() => {
+    try { return initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) }); }
+    catch (err) { console.warn('Cache hors-ligne indisponible :', err.message); return getFirestore(app); }
+})();
 
     // ============================================================
 //  FONCTIONS UTILITAIRES — comparaison robuste (casse/accents/tirets)
@@ -384,8 +451,724 @@ const isSameString = (a, b) => normalize(a) === normalize(b);
         { area: "lycee-area", id: "tla2", name: "Terminale LA 2", mats: ["Mathématiques", "Philosophie", "Français", "Arabe", "Anglais", "Histoire-Géo", "EPS"] }
     ];
 
+/* ============================================================
+ *  ✨ EXTENSIONS LFAKM — bloc commun PC + mobile (v2026.10)
+ *  • Badges « Nouveau » + compteurs par matière et par classe
+ *  • Échéances (J-2, en retard) + suivi des rendus (12/30 ont rendu)
+ *  • Recherche élargie : cours, TD, devoirs + filtres matière / type
+ *  • Mes élèves : recherche par nom + contact rapide (appel / WhatsApp)
+ *  • Mémorisation du dernier onglet et de la dernière classe ouverte
+ *  • Notifications (nouveau devoir / actualité) + mode hors-ligne
+ *  • Écouteurs Firestore limités aux classes visibles (et libérés)
+ * ============================================================ */
+const PAGE = 'pc';
+const IS_MOBILE = PAGE === 'mobile';
+const PROFIL_URL = 'profil-eleve.html?uid=';
+const ACTUS_URL = '../actualites.html';
+const ELEVES_FAST_QUERY = true;   // false = ancienne méthode (lecture de tous les élèves)
+const NEW_DAYS = 7;               // durée d'affichage du badge « Nouveau »
+const LEVEL_SEL = '.level[data-level], .level-accordion[data-level]';
+const SUBJ_SEL = '.subject-accordion, .mat-accordion';
+const matSlugOf = (m) => m.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+/* ---------- Petits utilitaires ---------- */
+const attr = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const safeUrl = (u) => {
+  try { const x = new URL(String(u || ''), location.href); return (x.protocol === 'https:' || x.protocol === 'http:') ? x.href : '#'; }
+  catch (e) { return '#'; }
+};
+const store = {
+  _k(k) { return `lfakm.${auth.currentUser?.uid || 'anon'}.${k}`; },
+  get(k) { try { return localStorage.getItem(this._k(k)); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(this._k(k), v); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(this._k(k)); } catch (e) {} }
+};
+const tsToDate = (ts) => (ts && typeof ts.toDate === 'function') ? ts.toDate() : (ts instanceof Date ? ts : null);
+function docDate(snap) {
+  const d = tsToDate(snap.data({ serverTimestamps: 'estimate' }).date);
+  return d || (snap.metadata && snap.metadata.hasPendingWrites ? new Date() : null);
+}
+const isRecent = (d) => !!d && (Date.now() - d.getTime()) < NEW_DAYS * 864e5;
+const NEW_PILL = '<span class="new-badge">NOUVEAU</span>';
+const byName = (a, b) => `${a.nom || ''} ${a.prenom || ''}`.localeCompare(`${b.nom || ''} ${b.prenom || ''}`);
+const classOrder = (id) => { const i = structure.findIndex(l => l.id === id); return i < 0 ? 999 : i; };
+const matLabelFromSlug = (slug) => {
+  const ms = slug.slice(slug.indexOf('-') + 1);
+  for (const l of structure) for (const m of l.mats) if (matSlugOf(m) === ms) return m;
+  return ms;
+};
+
+/* ---------- Échéances ---------- */
+function deadlineInfo(str, now = new Date()) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(str || '');
+  if (!m) return null;
+  const lim = new Date(+m[1], +m[2] - 1, +m[3]);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const n = Math.round((lim - today) / 864e5);
+  if (n < 0) return { n, late: true, cls: 'late', label: n === -1 ? '⏰ En retard (hier)' : `⏰ En retard (${-n} j)` };
+  if (n === 0) return { n, late: false, cls: 'urgent', label: "⏳ À rendre aujourd'hui" };
+  if (n === 1) return { n, late: false, cls: 'urgent', label: '⏳ À rendre demain' };
+  if (n <= 3) return { n, late: false, cls: 'soon', label: `⏳ Dans ${n} jours` };
+  return { n, late: false, cls: 'ok', label: `📅 Dans ${n} jours` };
+}
+const dlPill = (str) => { const i = deadlineInfo(str); return i ? `<span class="dl-pill dl-${i.cls}">${i.label}</span>` : ''; };
+const fmtLimite = (str) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(str || ''); return m ? `${m[3]}/${m[2]}/${m[1]}` : 'non précisé'; };
+async function lateFlag(slug, devoirId) {
+  try { const s = await getDoc(doc(db, 'ressources', slug, 'devoirs', devoirId)); return !!deadlineInfo(s.data()?.dateLimite)?.late; }
+  catch (e) { return false; }
+}
+
+/* ---------- Écouteurs Firestore : suivis et libérés ---------- */
+const UI_LISTENERS = [];   // liés à l'affichage (vidés à chaque reconstruction)
+const WATCHERS = [];       // globaux (notifications)
+let listenerScope = null;
+function snapT(...args) {
+  if (args.length === 2 && typeof args[1] === 'function') {
+    args.push((err) => console.warn('Écoute Firestore interrompue :', err.code || err.message));
+  }
+  const unsub = onSnapshot(...args);
+  (listenerScope || UI_LISTENERS).push(unsub);
+  return unsub;
+}
+function clearListeners() { UI_LISTENERS.splice(0).forEach(u => { try { u(); } catch (e) {} }); }
+
+/* ---------- Badges « Nouveau » ---------- */
+const newCounts = {};
+function paintBadge(slot, n, title) {
+  if (!slot) return;
+  slot.innerHTML = n > 0 ? `<span class="new-count" data-n="${n}" title="${attr(title || '')}">${n} nouveau${n > 1 ? 'x' : ''}</span>` : '';
+}
+function setNew(slug, kind, n) {
+  const c = (newCounts[slug] = newCounts[slug] || {});
+  c[kind] = n;
+  const total = (c.cours || 0) + (c.td || 0) + (c.devoirs || 0);
+  const probe = document.getElementById('devoirs-' + slug) || document.getElementById('cours-' + slug);
+  const subj = probe && probe.closest(SUBJ_SEL);
+  if (!subj) return;
+  paintBadge(subj.querySelector('.new-slot'), total, `${c.cours || 0} cours · ${c.td || 0} TD · ${c.devoirs || 0} devoir(s)`);
+  const lvl = subj.closest(LEVEL_SEL);
+  if (!lvl) return;
+  let sum = 0;
+  lvl.querySelectorAll(SUBJ_SEL).forEach(s => { sum += +(s.querySelector('.new-slot .new-count')?.dataset.n || 0); });
+  paintBadge(lvl.querySelector('.new-slot'), sum, `${sum} nouveauté(s) sur les 7 derniers jours`);
+}
+
+/* ---------- Mémorisation de l'état (classe, matière, cycle) ---------- */
+function rememberOpen(el) {
+  if (!el || !el.classList) return;
+  const lvl = el.matches(LEVEL_SEL) ? el : el.closest(LEVEL_SEL);
+  if (!lvl) return;
+  const id = lvl.dataset.level;
+  const open = el.classList.contains('open');
+  if (el === lvl) {
+    if (open) store.set('openLevel', id); else if (store.get('openLevel') === id) store.del('openLevel');
+  } else if (el.matches(SUBJ_SEL)) {
+    const k = 'openMat:' + id;
+    if (open) store.set(k, el.dataset.mat); else if (store.get(k) === el.dataset.mat) store.del(k);
+  }
+}
+function restoreOpenState() {
+  const lvls = [...document.querySelectorAll(LEVEL_SEL)].filter(l => l.style.display !== 'none');
+  if (!lvls.length) return;
+  const id = store.get('openLevel');
+  let lvl = lvls.find(l => l.dataset.level === id);
+  if (!lvl && profile?.role === 'eleve' && lvls.length === 1) lvl = lvls[0];
+  if (!lvl) return;
+  lvl.classList.add('open');
+  const mat = store.get('openMat:' + lvl.dataset.level);
+  if (mat) lvl.querySelectorAll(SUBJ_SEL).forEach(s => { if (s.dataset.mat === mat && s.style.display !== 'none') s.classList.add('open'); });
+}
+function goToClass(levelId, mat) {
+  const info = structure.find(l => l.id === levelId);
+  if (IS_MOBILE && info && info.area !== currentCycle) document.querySelector(`.cycle-tab[data-cycle="${info.area}"]`)?.click();
+  const lvl = document.querySelector(`.level[data-level="${levelId}"], .level-accordion[data-level="${levelId}"]`);
+  if (!lvl) return;
+  lvl.classList.add('open');
+  const subj = [...lvl.querySelectorAll(SUBJ_SEL)].find(s => s.dataset.mat === mat);
+  if (subj) subj.classList.add('open');
+  rememberOpen(lvl); if (subj) rememberOpen(subj);
+  const target = subj || lvl;
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  target.classList.add('flash');
+  setTimeout(() => target.classList.remove('flash'), 1800);
+}
+
+/* ---------- Élèves : lecture unique, mise en cache, lecture ciblée ---------- */
+let _elevesPromise = null;
+const _chunk = (a, n) => { const r = []; for (let i = 0; i < a.length; i += n) r.push(a.slice(i, i + n)); return r; };
+async function _loadEleves() {
+  const role = profile?.role;
+  const lireTous = async () => {
+    const snap = await getDocs(query(collection(db, 'utilisateurs'), where('role', '==', 'eleve')));
+    const out = []; snap.forEach(d => out.push({ uid: d.id, ...d.data() })); return out;
+  };
+  if (role === 'professeur') {
+    const assignees = profile.assignedClasses || [];
+    if (ELEVES_FAST_QUERY) {
+      const ids = structure.filter(l => matchesAny(l.id, assignees)).map(l => l.id);
+      if (!ids.length) return [];
+      try {
+        const variantes = [...new Set(ids.flatMap(id => [id, id.toUpperCase()]))];
+        const out = [];
+        for (const part of _chunk(variantes, 10)) {
+          const snap = await getDocs(query(collection(db, 'utilisateurs'), where('role', '==', 'eleve'), where('niveau', 'in', part)));
+          snap.forEach(d => out.push({ uid: d.id, ...d.data() }));
+        }
+        if (out.length) return out;
+      } catch (err) { console.warn('Lecture ciblée impossible, lecture complète :', err.message); }
+    }
+    return (await lireTous()).filter(e => matchesAny(e.niveau, assignees));
+  }
+  const ids = structure.map(l => l.id);
+  return (await lireTous()).filter(e => matchesAny(e.niveau, ids));
+}
+function getEleves(force = false) {
+  if (force || !_elevesPromise) _elevesPromise = _loadEleves().catch(e => { _elevesPromise = null; throw e; });
+  return _elevesPromise;
+}
+
+/* ---------- Contact rapide ---------- */
+function normPhone(raw) {
+  let d = String(raw || '').replace(/\D/g, '');
+  if (!d) return '';
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.length === 9) d = '221' + d;
+  else if (d.length === 10 && d.startsWith('0')) d = '221' + d.slice(1);
+  return d.length >= 11 ? d : '';
+}
+function contactLine(label, nom, tel, msg) {
+  const n = normPhone(tel);
+  if (!n) return '';
+  return `<div class="ct-line"><span class="ct-who">${label}${nom ? ' — ' + escapeHtml(nom) : ''}<small>${escapeHtml(tel)}</small></span>` +
+    `<span class="ct-btns"><a class="ct-btn" href="tel:+${n}">📞 Appeler</a>` +
+    `<a class="ct-btn ct-wa" href="https://wa.me/${n}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">💬 WhatsApp</a></span></div>`;
+}
+function contactsHtml(e, classe) {
+  const f = e.famille || {};
+  const nomEleve = [e.prenom, e.nom].filter(Boolean).join(' ');
+  const msgParent = `Bonjour, je vous contacte depuis le Lycée Franco Arabe de Keur Madiabel au sujet de ${nomEleve} (${classe}).`;
+  const msgEleve = `Bonjour ${e.prenom || ''}, c'est ${profile?.prenom || ''} ${profile?.nom || ''} du Lycée Franco Arabe de Keur Madiabel.`.replace(/\s+/g, ' ');
+  return contactLine('Père / tuteur', f.pereNom, f.pereTel, msgParent) +
+         contactLine('Mère / tutrice', f.mereNom, f.mereTel, msgParent) +
+         contactLine('Élève', '', e.telephone, msgEleve);
+}
+
+/* ---------- « Mes élèves » ---------- */
+function ligneEleve(e, classeNom) {
+  const nom = `${e.prenom || ''} ${e.nom || ''}`.trim();
+  return `<div class="eleve-ligne" data-nom="${attr(normalize(nom))}">
+    <div class="el-top"><span class="eleve-nom">${escapeHtml(nom)}</span>
+      <div class="eleve-actions">
+        <button class="btn-contact" onclick="this.closest('.eleve-ligne').classList.toggle('ct-open')">📞 Contacts</button>
+        <button class="btn-profile" onclick="window.location.href='${PROFIL_URL}${encodeURIComponent(e.uid)}'">📊 Profil</button>
+      </div></div>
+    <div class="eleve-contact">${contactsHtml(e, classeNom) || '<span class="ct-none">Aucun numéro renseigné pour cet élève.</span>'}</div>
+  </div>`;
+}
+async function chargerMesEleves() {
+  const accordeon = document.getElementById('eleves-accordeon');
+  const section = document.getElementById('eleves-section');
+  if (!accordeon || !section || !profile) return;
+  if (!(profile.role === 'professeur' || isAdmin(profile.role))) return;
+  accordeon.innerHTML = '<p style="color:gray;font-size:13px;">Chargement des élèves...</p>';
+  try {
+    const eleves = [...(await getEleves())].sort(byName);
+    const parClasse = {};
+    eleves.forEach(e => {
+      const info = structure.find(l => isSameString(l.id, e.niveau));
+      const key = info ? info.id : e.niveau;
+      (parClasse[key] = parClasse[key] || []).push(e);
+    });
+    const cycleActuel = IS_MOBILE ? (document.querySelector('.cycle-tab.active')?.dataset.cycle || currentCycle) : null;
+    accordeon.innerHTML = '';
+    let nb = 0;
+    Object.keys(parClasse).sort((a, b) => classOrder(a) - classOrder(b)).forEach(id => {
+      const info = structure.find(l => l.id === id);
+      if (IS_MOBILE && (!info || info.area !== cycleActuel)) return;
+      nb++;
+      const liste = parClasse[id];
+      const nom = info ? info.name : id;
+      const lignes = liste.map(e => ligneEleve(e, nom)).join('');
+      const exportBtn = `<div style="text-align:right;margin-bottom:10px;"><button class="devoir-btn btn-export" onclick="window.exporterListeClasse('${id}')">📥 Télécharger la liste (Excel)</button></div>`;
+      const div = document.createElement('div');
+      if (IS_MOBILE) {
+        div.className = 'level-accordion'; div.style.marginBottom = '8px';
+        div.innerHTML = `<div class="level-header" onclick="window.toggleAccordion(this)"><span>${escapeHtml(nom)} (${liste.length})</span><span class="icon">▾</span></div>
+          <div class="level-body"><div style="padding:12px 16px;">${exportBtn}${lignes}</div></div>`;
+      } else {
+        div.className = 'classe-eleve';
+        div.innerHTML = `<div class="classe-header" onclick="this.parentElement.classList.toggle('open')"><span>${escapeHtml(nom)} (${liste.length} élèves)</span><span>▼</span></div>
+          <div class="classe-eleve-content">${exportBtn}${lignes}</div>`;
+      }
+      accordeon.appendChild(div);
+    });
+    if (nb === 0) {
+      if (IS_MOBILE) { section.style.display = 'none'; }
+      else { accordeon.innerHTML = '<p style="color:gray;">Aucun élève trouvé dans vos classes affectées.</p>'; section.style.display = 'block'; }
+      return;
+    }
+    section.style.display = 'block';
+    const bar = document.createElement('input');
+    bar.type = 'search'; bar.id = 'eleves-search'; bar.placeholder = '🔍 Rechercher un élève par nom…';
+    bar.addEventListener('input', () => {
+      const q = normalize(bar.value);
+      accordeon.querySelectorAll('.eleve-ligne').forEach(l => { l.style.display = (!q || l.dataset.nom.includes(q)) ? '' : 'none'; });
+      accordeon.querySelectorAll(IS_MOBILE ? '.level-accordion' : '.classe-eleve').forEach(c => {
+        const vis = [...c.querySelectorAll('.eleve-ligne')].some(l => l.style.display !== 'none');
+        c.style.display = (!q || vis) ? '' : 'none';
+        if (q && vis) c.classList.add('open');
+      });
+    });
+    accordeon.prepend(bar);
+  } catch (err) {
+    accordeon.innerHTML = `<p style="color:red;font-size:13px;">Erreur : ${escapeHtml(err.message)}</p>`;
+    section.style.display = 'block';
+  }
+}
+window.exporterListeClasse = async (niveau) => {
+  try {
+    const eleves = (await getEleves()).filter(e => isSameString(e.niveau, niveau)).sort(byName);
+    const headers = ["Prénom", "Nom", "Classe", "Téléphone", "Email", "Père/Tuteur", "Tél. Père", "Mère/Tutrice", "Tél. Mère", "Adresse"];
+    const rows = eleves.map(e => [
+      e.prenom || '', e.nom || '', e.niveau || '', e.telephone || '', e.email || '',
+      e.famille?.pereNom || '', e.famille?.pereTel || '',
+      e.famille?.mereNom || '', e.famille?.mereTel || '', e.famille?.adresse || ''
+    ]);
+    const classeInfo = structure.find(l => l.id === niveau);
+    const nomClasse = classeInfo ? classeInfo.name : niveau;
+    const filename = `LFAKM-${nomClasse.replace(/[^a-z0-9]/gi, '_')}-${new Date().toISOString().slice(0, 10)}`;
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+    ws['!cols'] = headers.map(() => ({ wch: 18 }));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Liste");
+    XLSX.writeFile(wb, filename + '.xlsx');
+  } catch (err) { alert("Erreur lors de l'export : " + err.message); }
+};
+
+/* ---------- Cours, TD et devoirs (écoute uniquement des classes visibles) ---------- */
+const searchIndex = new Map();   // "kind|slug" -> éléments consultables par la recherche
+const indexSet = (kind, slug, items) => searchIndex.set(kind + '|' + slug, items);
+const estMasque = (el) => !!el && el.style.display === 'none';
+
+function syncDocs() {
+  const role = profile?.role;
+  const profMats = profile?.disciplines || [];
+  document.querySelectorAll('.doc-list').forEach(ul => {
+    const slug = ul.id.replace(/^cours-|^td-/, '');
+    const type = ul.id.startsWith('cours-') ? 'cours' : 'td';
+    const levelEl = ul.closest(LEVEL_SEL);
+    const subjectEl = ul.closest(SUBJ_SEL);
+    if (estMasque(levelEl) || estMasque(subjectEl)) return;
+    const matName = subjectEl ? subjectEl.dataset.mat : '';
+    const addBtn = ul.nextElementSibling;
+    const videoBtn = addBtn ? addBtn.nextElementSibling : null;
+    const driveBtn = videoBtn ? videoBtn.nextElementSibling : null;
+    if (role === 'professeur' || isAdmin(role)) {
+      const showButtons = (role === 'professeur' && matchesAny(matName, profMats)) || isAdmin(role);
+      if (addBtn && showButtons) addBtn.style.display = 'block';
+      if (videoBtn && showButtons) videoBtn.style.display = 'block';
+      if (driveBtn && showButtons) driveBtn.style.display = 'block';
+    }
+    try {
+      snapT(query(collection(db, 'ressources', slug, type), orderBy('date', 'desc')), (snap) => {
+        ul.innerHTML = snap.empty ? '<li style="color:gray;border:none;background:none;">Aucun fichier</li>' : '';
+        const items = []; let nNew = 0;
+        snap.forEach(docSnap => {
+          const d = docSnap.data();
+          const when = docDate(docSnap);
+          const recent = isRecent(when);
+          if (recent) nNew++;
+          items.push({ kind: type, slug, levelId: slug.split('-')[0], matName, titre: d.titre || '', url: d.url || '', date: when, isNew: recent });
+          const icon = d.type === 'video' ? '🎥' : d.type === 'drive' ? '🔗' : '📄';
+          const li = document.createElement('li');
+          li.innerHTML = `<a href="${attr(safeUrl(d.url))}" target="_blank" rel="noopener">${icon} ${escapeHtml(d.titre)}${recent ? ' ' + NEW_PILL : ''}</a>`;
+          if (role === 'professeur' || isAdmin(role)) {
+            const del = document.createElement('button');
+            del.innerHTML = '✕'; del.className = 'delete-btn';
+            del.onclick = () => { if (!confirm('Supprimer ?')) return; deleteDoc(doc(db, 'ressources', slug, type, docSnap.id)); };
+            li.appendChild(del);
+          }
+          ul.appendChild(li);
+        });
+        indexSet(type, slug, items);
+        setNew(slug, type, nNew);
+      });
+    } catch (err) { console.warn('Erreur sync docs:', err.message); }
+  });
+}
+
+function attachRenduCounter(slug, devoirId, el) {
+  const levelId = slug.split('-')[0];
+  let n = 0, total = null;
+  const paint = () => {
+    el.textContent = total === null ? `📥 ${n} rendu${n > 1 ? 's' : ''}` : `📥 ${n}/${total} ont rendu`;
+    el.classList.toggle('complete', total !== null && total > 0 && n >= total);
+  };
+  paint();
+  snapT(collection(db, 'ressources', slug, 'devoirs', devoirId, 'rendus'), (snap) => { n = snap.size; paint(); });
+  getEleves().then(list => { total = list.filter(e => isSameString(e.niveau, levelId)).length; paint(); }).catch(() => {});
+}
+
+function syncDevoirs() {
+  const role = profile?.role;
+  const profMats = profile?.disciplines || [];
+  document.querySelectorAll('.devoirs-list').forEach(container => {
+    const slug = container.id.replace(/^devoirs-/, '');
+    const levelEl = container.closest(LEVEL_SEL);
+    const subjectEl = container.closest(SUBJ_SEL);
+    if (estMasque(levelEl) || estMasque(subjectEl)) return;
+    const matName = subjectEl ? subjectEl.dataset.mat : '';
+    const addBtn = document.getElementById(`devoiradd-${slug}`);
+    if (addBtn) {
+      const showButton = (role === 'professeur' && matchesAny(matName, profMats)) || isAdmin(role);
+      addBtn.style.display = showButton ? 'block' : 'none';
+    }
+    try {
+      snapT(query(collection(db, 'ressources', slug, 'devoirs'), orderBy('date', 'desc')), (snap) => {
+        // libère les écouteurs de l'affichage précédent de cette liste
+        container.querySelectorAll('[data-rendus-box]').forEach(b => { if (b._unsub) { b._unsub(); b._unsub = null; } });
+        (container._scope || []).forEach(u => { try { u(); } catch (e) {} });
+        const scope = container._scope = [];
+        listenerScope = scope;
+        try {
+          container.innerHTML = snap.empty ? '<p style="color:gray;font-size:12px;">Aucun devoir pour le moment</p>' : '';
+          const items = []; let nNew = 0;
+          snap.forEach(devDoc => {
+            const dv = devDoc.data();
+            const dvType = dv.type || 'fichier';
+            const when = docDate(devDoc);
+            const recent = isRecent(when);
+            if (recent) nNew++;
+            items.push({ kind: 'devoir', slug, levelId: slug.split('-')[0], matName, titre: dv.titre || '', url: dv.fichierUrl || dv.googleDocUrl || '', date: when, isNew: recent });
+            const item = document.createElement('div');
+            item.className = 'devoir-item';
+            const typeBadge = dvType === 'qcm' ? ' <span style="font-size:10px;color:var(--brass);font-weight:700;">QCM</span>'
+              : dvType === 'mixte' ? ' <span style="font-size:10px;color:#4D6BFE;font-weight:700;">Mixte</span>' : '';
+            item.innerHTML = `<h6>📌 ${escapeHtml(dv.titre)}${typeBadge}${recent ? ' ' + NEW_PILL : ''}</h6>
+              <div class="devoir-meta">📅 À rendre pour le ${escapeHtml(fmtLimite(dv.dateLimite))} ${dlPill(dv.dateLimite)} — proposé par ${escapeHtml(dv.profNom || 'le professeur')}</div>
+              ${dv.consignes ? `<p style="font-size:13px;margin-bottom:8px;white-space:pre-line;">${escapeHtml(dv.consignes)}</p>` : ''}
+              ${dv.googleDocUrl ? `<p style="margin-bottom:8px;"><a href="${attr(safeUrl(dv.googleDocUrl))}" target="_blank" rel="noopener">📄 Ouvrir le document Google Doc</a></p>` : ''}
+              ${dv.fichierUrl ? `<p style="margin-bottom:8px;"><a href="${attr(safeUrl(dv.fichierUrl))}" target="_blank" rel="noopener">📎 ${escapeHtml(dv.fichierNom || 'Fichier joint')}</a></p>` : ''}`;
+            if (role === 'eleve') {
+              const responseArea = document.createElement('div');
+              item.appendChild(responseArea);
+              if (dvType === 'qcm') renderQcmForStudent(slug, devDoc.id, dv, responseArea);
+              else if (dvType === 'mixte') renderMixteForStudent(slug, devDoc.id, dv, responseArea);
+              else checkRendu(slug, devDoc.id, responseArea);
+            } else if (role === 'professeur' || isAdmin(role)) {
+              if (role === 'professeur') {
+                const cnt = document.createElement('span');
+                cnt.className = 'rendu-count';
+                item.appendChild(cnt);
+                attachRenduCounter(slug, devDoc.id, cnt);
+                item.appendChild(document.createElement('br'));
+              }
+              const rendusBox = document.createElement('div');
+              rendusBox.setAttribute('data-rendus-box', '1');
+              rendusBox.style.display = 'none';
+              rendusBox.style.marginTop = '8px';
+              const voirBtn = document.createElement('button');
+              voirBtn.className = 'devoir-btn btn-voir-rendus';
+              voirBtn.textContent = 'Voir les rendus';
+              voirBtn.onclick = () => {
+                const showing = rendusBox.style.display === 'block';
+                rendusBox.style.display = showing ? 'none' : 'block';
+                if (!showing) loadRendus(slug, devDoc.id, rendusBox, dv);
+                else if (rendusBox._unsub) { rendusBox._unsub(); rendusBox._unsub = null; }
+              };
+              item.appendChild(voirBtn);
+              const exportBtn = document.createElement('button');
+              exportBtn.className = 'devoir-btn ' + (IS_MOBILE ? 'btn-export' : 'btn-voir-rendus');
+              if (!IS_MOBILE) exportBtn.style.background = '#2e7d32';
+              exportBtn.textContent = '📥 Exporter les notes';
+              exportBtn.onclick = () => exportNotes(slug, devDoc.id, dv);
+              item.appendChild(exportBtn);
+              const delBtn = document.createElement('button');
+              delBtn.className = 'devoir-btn btn-suppr-devoir';
+              delBtn.textContent = '✕ Supprimer';
+              delBtn.onclick = () => { if (!confirm('Supprimer ce devoir ?')) return; deleteDoc(doc(db, 'ressources', slug, 'devoirs', devDoc.id)); };
+              item.appendChild(delBtn);
+              item.appendChild(rendusBox);
+            }
+            container.appendChild(item);
+          });
+          indexSet('devoir', slug, items);
+          setNew(slug, 'devoirs', nNew);
+        } finally { listenerScope = null; }
+      });
+    } catch (err) { console.warn('Erreur sync devoirs:', err.message); }
+  });
+}
+
+function loadRendus(slug, devoirId, container, dv) {
+  const bareme = dv.bareme || 20;
+  if (!container) return;
+  const levelId = slug.split('-')[0];
+  if (container._unsub) { container._unsub(); container._unsub = null; }
+  try {
+    container._unsub = snapT(collection(db, 'ressources', slug, 'devoirs', devoirId, 'rendus'), async (snap) => {
+      if (!container) return;
+      const uids = new Set();
+      snap.forEach(r => uids.add(r.id));
+      container.innerHTML = '';
+      const summary = document.createElement('div');
+      summary.className = 'rendu-summary';
+      summary.textContent = `📥 ${uids.size} rendu${uids.size > 1 ? 's' : ''}`;
+      const body = document.createElement('div');
+      container.appendChild(summary);
+      container.appendChild(body);
+      body.innerHTML = snap.empty ? '<p style="font-size:12px;color:gray;">Aucun rendu pour le moment</p>' : '';
+      snap.forEach(rd => {
+        const d = rd.data();
+        const p = document.createElement('div');
+        p.className = 'rendu-item';
+        const retard = d.enRetard ? ' <span class="dl-pill dl-late">⏰ en retard</span>' : '';
+        if (dv.type === 'qcm' || (dv.type === 'mixte' && d.reponses)) {
+          const note = d.note ?? '-';
+          p.innerHTML = `${escapeHtml(d.eleveNom)} — Note QCM : <b>${note}/${bareme}</b>${retard}`;
+          if (d.url) p.innerHTML += ` — <a href="${attr(safeUrl(d.url))}" target="_blank" rel="noopener">Voir fichier</a>`;
+        } else {
+          const noteId = `note-${rd.id}`;
+          p.innerHTML = `<a href="${attr(safeUrl(d.url))}" target="_blank" rel="noopener">📄 ${escapeHtml(d.eleveNom)}</a>${retard}
+            <input type="number" id="${noteId}" value="${d.note ?? ''}" min="0" max="${bareme}" step="0.5" placeholder="/${bareme}" style="width:60px;padding:4px;margin-left:6px;border:1px solid #ccc;border-radius:4px;">
+            <button class="devoir-btn btn-voir-rendus" data-note-id="${noteId}">Noter</button>
+            <button class="devoir-btn btn-profile" onclick="window.location.href='${PROFIL_URL}${encodeURIComponent(rd.id)}'">📊 Profil</button>`;
+        }
+        body.appendChild(p);
+      });
+      if (dv.type !== 'qcm') {
+        body.querySelectorAll('button[data-note-id]').forEach(btn => {
+          btn.onclick = async () => {
+            const input = document.getElementById(btn.dataset.noteId);
+            const uid = btn.dataset.noteId.replace('note-', '');
+            const note = parseFloat(input.value);
+            if (isNaN(note) || note < 0 || note > bareme) { alert(`Entrez une note entre 0 et ${bareme}.`); return; }
+            await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), { note }, { merge: true });
+          };
+        });
+      }
+      try {
+        const eleves = (await getEleves()).filter(e => isSameString(e.niveau, levelId));
+        const non = eleves.filter(e => !uids.has(e.uid)).sort(byName);
+        summary.innerHTML = `<b>📥 ${uids.size}/${eleves.length} ont rendu</b>` +
+          (non.length ? ` — <a href="#" class="nr-toggle">voir les ${non.length} qui n'ont pas rendu</a><div class="nr-list">${non.map(e => `<span>${escapeHtml(`${e.prenom || ''} ${e.nom || ''}`.trim())}</span>`).join('')}</div>` : ' ✅');
+        const t = summary.querySelector('.nr-toggle');
+        if (t) t.onclick = (ev) => { ev.preventDefault(); const l = summary.querySelector('.nr-list'); l.style.display = l.style.display === 'flex' ? 'none' : 'flex'; };
+      } catch (e) { /* le résumé simple reste affiché */ }
+    });
+  } catch (err) { container.innerHTML = '<p style="color:gray;">Erreur de chargement des rendus.</p>'; }
+}
+
+async function exportNotes(slug, devoirId, dv) {
+  const bareme = dv.bareme || 20;
+  const niveauId = slug.split('-')[0];
+  try {
+    const rendusSnap = await getDocs(collection(db, 'ressources', slug, 'devoirs', devoirId, 'rendus'));
+    const rendusParUid = {};
+    rendusSnap.forEach(rd => { rendusParUid[rd.id] = rd.data(); });
+    let eleves = [];
+    try { eleves = (await getEleves()).filter(e => isSameString(e.niveau, niveauId)); }
+    catch (err) { eleves = Object.entries(rendusParUid).map(([uid, d]) => ({ uid, prenom: '', nom: d.eleveNom || '' })); }
+    if (eleves.length === 0) { alert("Aucun élève trouvé pour cette classe."); return; }
+    eleves = [...eleves].sort(byName);
+    const rows = eleves.map(e => {
+      const rd = rendusParUid[e.uid];
+      const nomComplet = rd?.eleveNom || `${e.prenom || ''} ${e.nom || ''}`.trim();
+      return [nomComplet, rd?.note ?? '', bareme, rd ? (rd.enRetard ? 'Rendu en retard' : 'Rendu') : 'Non rendu'];
+    });
+    const headers = ["Élève", "Note", "Barème", "Statut"];
+    const filename = `Notes-${dv.titre.replace(/[^a-z0-9]/gi, '_')}-${new Date().toISOString().slice(0, 10)}`;
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+    ws['!cols'] = [{ wch: 28 }, { wch: 10 }, { wch: 10 }, { wch: 16 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Notes");
+    XLSX.writeFile(wb, filename + '.xlsx');
+  } catch (err) { alert("Erreur lors de l'export : " + err.message); }
+}
+
+/* ---------- Recherche élargie (cours + TD + devoirs) ---------- */
+function initSearch() {
+  const bar = document.getElementById('search-bar');
+  if (!bar || bar.dataset.ready) return;
+  bar.dataset.ready = '1';
+  bar.placeholder = IS_MOBILE ? '🔍 Rechercher un cours, un TD, un devoir…' : 'Rechercher un cours, un TD ou un devoir...';
+  const zone = document.getElementById('search-results-zone');
+  const list = document.getElementById('search-results-list');
+  const none = document.getElementById('no-results-search');
+  if (!zone || !list || !none) return;
+  const h = zone.querySelector('h3'); if (h) h.textContent = '🔍 Résultats de la recherche :';
+  none.textContent = 'Aucun résultat ne correspond à votre recherche.';
+  const filters = document.createElement('div');
+  filters.id = 'search-filters';
+  filters.innerHTML = '<select id="search-mat" aria-label="Filtrer par matière"><option value="">Toutes les matières</option></select>' +
+    '<select id="search-type" aria-label="Filtrer par type"><option value="">Cours, TD et devoirs</option><option value="cours">Cours</option><option value="td">TD</option><option value="devoir">Devoirs</option></select>';
+  (bar.closest('.search-container, .search-wrap') || bar.parentElement).insertAdjacentElement('afterend', filters);
+  const matSel = filters.querySelector('#search-mat');
+  const typeSel = filters.querySelector('#search-type');
+  const LABEL = { cours: ['📘', 'Cours'], td: ['📝', 'TD'], devoir: ['📌', 'Devoir'] };
+  let derniereListe = '';
+  const majMatieres = () => {
+    const mats = new Set();
+    searchIndex.forEach(items => items.forEach(it => { if (it.matName) mats.add(it.matName); }));
+    const cle = [...mats].sort().join('|');
+    if (cle === derniereListe) return;
+    derniereListe = cle;
+    const cur = matSel.value;
+    matSel.innerHTML = '<option value="">Toutes les matières</option>' + [...mats].sort((a, b) => a.localeCompare(b)).map(m => `<option value="${attr(m)}">${escapeHtml(m)}</option>`).join('');
+    matSel.value = [...mats].includes(cur) ? cur : '';
+  };
+  const run = () => {
+    majMatieres();
+    const t = normalize(bar.value), fm = matSel.value, ft = typeSel.value;
+    if (!t && !fm && !ft) { zone.style.display = 'none'; none.style.display = 'none'; return; }
+    const res = [];
+    searchIndex.forEach(items => items.forEach(it => {
+      if (fm && it.matName !== fm) return;
+      if (ft && it.kind !== ft) return;
+      if (t && !normalize(it.titre).includes(t)) return;
+      res.push(it);
+    }));
+    res.sort((a, b) => (b.date ? b.date.getTime() : 0) - (a.date ? a.date.getTime() : 0));
+    zone.style.display = 'block';
+    if (!res.length) { list.innerHTML = ''; none.style.display = 'block'; return; }
+    none.style.display = 'none';
+    const affiches = res.slice(0, 50);
+    list.innerHTML = affiches.map(r => {
+      const info = structure.find(l => l.id === r.levelId);
+      const [ico, lib] = LABEL[r.kind];
+      return `<div class="search-result-line"><div class="info">
+          <h4>${ico} ${escapeHtml(r.titre)}${r.isNew ? ' ' + NEW_PILL : ''}</h4>
+          <p>${escapeHtml(r.matName)} - ${escapeHtml(info ? info.name : r.levelId)} • ${lib}${r.date ? ' • 📅 ' + r.date.toLocaleDateString('fr-FR') : ''}</p>
+        </div><div class="sr-actions">
+          ${r.url ? `<a href="${attr(safeUrl(r.url))}" target="_blank" rel="noopener" class="open-btn">📂 Ouvrir</a>` : `<span class="sr-online">Devoir en ligne</span>`}
+          <button type="button" class="open-btn sr-goto" data-level="${attr(r.levelId)}" data-mat="${attr(r.matName)}">📍 Dans la classe</button>
+        </div></div>`;
+    }).join('') + (res.length > 50 ? `<p style="text-align:center;font-size:12px;color:var(--slate);">… et ${res.length - 50} autres résultats. Précisez votre recherche.</p>` : '');
+  };
+  let timer = null;
+  const lancer = () => { clearTimeout(timer); timer = setTimeout(run, 150); };
+  bar.addEventListener('input', lancer);
+  matSel.addEventListener('change', run);
+  typeSel.addEventListener('change', run);
+  list.addEventListener('click', (e) => {
+    const b = e.target.closest('.sr-goto');
+    if (b) goToClass(b.dataset.level, b.dataset.mat);
+  });
+  majMatieres();
+}
+
+/* ---------- Notifications, hors-ligne, installation ---------- */
+function toast(msg, onClick, ms = 8000) {
+  let box = document.getElementById('lf-toasts');
+  if (!box) { box = document.createElement('div'); box.id = 'lf-toasts'; document.body.appendChild(box); }
+  const t = document.createElement('div');
+  t.className = 'lf-toast'; t.setAttribute('role', 'status');
+  const span = document.createElement('span'); span.textContent = msg; t.appendChild(span);
+  const x = document.createElement('button');
+  x.type = 'button'; x.textContent = '✕'; x.setAttribute('aria-label', 'Fermer');
+  x.onclick = (e) => { e.stopPropagation(); t.remove(); };
+  t.appendChild(x);
+  if (onClick) { t.classList.add('clickable'); t.onclick = () => { t.remove(); onClick(); }; }
+  box.appendChild(t);
+  setTimeout(() => t.remove(), ms);
+}
+async function notifier(title, body, tag, onClick) {
+  const visible = document.visibilityState === 'visible';
+  const ok = ('Notification' in window) && Notification.permission === 'granted' && store.get('notif') !== '0';
+  if (visible || !ok) { toast(`${title} — ${body}`, onClick); return; }
+  try {
+    const opts = { body, tag, icon: '../assets/favicon.png', data: { url: location.href } };
+    const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration();
+    if (reg && reg.showNotification) await reg.showNotification(title, opts);
+    else new Notification(title, opts);
+  } catch (e) { toast(`${title} — ${body}`, onClick); }
+}
+function initNotifBar() {
+  if (!('Notification' in window) || Notification.permission !== 'default' || store.get('notifDismissed')) return;
+  if (document.getElementById('notif-bar')) return;
+  const host = document.getElementById('content-area');
+  if (!host) return;
+  const bar = document.createElement('div');
+  bar.id = 'notif-bar';
+  bar.innerHTML = `<span>🔔 Être prévenu dès qu'un nouveau devoir ou une actualité est publié ?</span>
+    <span class="nb-btns"><button type="button" id="notif-yes">Activer</button><button type="button" id="notif-no" aria-label="Plus tard">✕</button></span>`;
+  host.parentElement.insertBefore(bar, host);
+  bar.querySelector('#notif-yes').onclick = async () => {
+    try {
+      const r = await Notification.requestPermission();
+      if (r === 'granted') { store.set('notif', '1'); toast('🔔 Notifications activées.'); }
+    } catch (e) {}
+    bar.remove();
+  };
+  bar.querySelector('#notif-no').onclick = () => { store.set('notifDismissed', '1'); bar.remove(); };
+}
+function stopWatchers() { WATCHERS.splice(0).forEach(u => { try { u(); } catch (e) {} }); }
+function startWatchers() {
+  stopWatchers();
+  if (!profile) return;
+  const role = profile.role;
+  if (role !== 'eleve' && role !== 'professeur') return;
+  let premierDevoirs = true, premierActus = true;
+  if (role === 'eleve') {
+    WATCHERS.push(onSnapshot(query(collectionGroup(db, 'devoirs'), orderBy('date', 'desc'), limit(30)), (snap) => {
+      if (premierDevoirs) { if (!snap.metadata.fromCache) premierDevoirs = false; return; }
+      snap.docChanges().forEach(ch => {
+        if (ch.type !== 'added' || ch.doc.metadata.hasPendingWrites) return;
+        const slug = ch.doc.ref.parent.parent.id;
+        const levelId = slug.split('-')[0];
+        if (!isSameString(profile.niveau, levelId)) return;
+        const dv = ch.doc.data();
+        const mat = matLabelFromSlug(slug);
+        notifier('📌 Nouveau devoir', `${dv.titre || ''} — ${mat}${dv.dateLimite ? ' (à rendre le ' + fmtLimite(dv.dateLimite) + ')' : ''}`, 'devoir-' + ch.doc.id, () => goToClass(levelId, mat));
+      });
+    }, () => {}));
+  }
+  WATCHERS.push(onSnapshot(query(collection(db, 'actualites'), orderBy('date', 'desc'), limit(10)), (snap) => {
+    if (premierActus) { if (!snap.metadata.fromCache) premierActus = false; return; }
+    snap.docChanges().forEach(ch => {
+      if (ch.type !== 'added' || ch.doc.metadata.hasPendingWrites) return;
+      const n = ch.doc.data();
+      const dest = n.destinataire || 'tous';
+      if (dest !== 'tous' && !isSameString(dest, role)) return;
+      notifier('📰 Nouvelle actualité', n.titre || '', 'actu-' + ch.doc.id, () => { window.location.href = ACTUS_URL; });
+    });
+  }, () => {}));
+}
+function initOffline() {
+  if (document.getElementById('offline-banner')) return;
+  const bar = document.createElement('div');
+  bar.id = 'offline-banner';
+  bar.textContent = '📴 Hors ligne — vous consultez les dernières données enregistrées sur cet appareil.';
+  document.body.appendChild(bar);
+  const maj = () => bar.classList.toggle('show', !navigator.onLine);
+  window.addEventListener('online', maj);
+  window.addEventListener('offline', maj);
+  maj();
+}
+let _installEvt = null;
+const _isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const _standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+const _showInstall = (v) => document.querySelectorAll('[data-install]').forEach(b => { b.style.display = v ? '' : 'none'; });
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); _installEvt = e; _showInstall(true); });
+window.addEventListener('appinstalled', () => { _installEvt = null; _showInstall(false); });
+window.installApp = () => {
+  if (_installEvt) { _installEvt.prompt(); _installEvt.userChoice.finally(() => { _installEvt = null; _showInstall(false); }); }
+  else toast("Pour installer : touchez « Partager » puis « Sur l'écran d'accueil » (iPhone), ou le menu ⋮ du navigateur puis « Installer l'application ».", null, 12000);
+  return false;
+};
+if (_isIOS && !_standalone) setTimeout(() => _showInstall(true), 0);
+
+function initFeatures() {
+  initSearch();
+  initOffline();
+  initNotifBar();
+  startWatchers();
+}
+
+
     window.toggleAccordion = (element) => {
         element.parentElement.classList.toggle('open');
+        try { rememberOpen(element.parentElement); } catch (e) {}
     };
 
     function buildUI() {
@@ -400,12 +1183,12 @@ const isSameString = (a, b) => normalize(a) === normalize(b);
             html += `<h2 class="cycle-title" data-area="${cycle.key}"><span>${cycle.label}</span><img src="../logo-section.png" alt=""></h2>`;
             levels.forEach(l => {
                 html += `<div class="accordion-item level" data-level="${l.id}" data-area="${cycle.key}">
-                            <div class="accordion-header" onclick="toggleAccordion(this)">${l.name} <span>+</span></div>
+                            <div class="accordion-header" onclick="toggleAccordion(this)"><span class="hdr-title">${l.name}<span class="new-slot"></span></span> <span>+</span></div>
                             <div class="accordion-content">`;
                 l.mats.forEach(m => {
                     const slugMat = m.toLowerCase().replace(/[^a-z0-9]/g, '');
                     html += `<div class="subject-accordion" data-mat="${m}">
-                                <div class="subject-header" onclick="toggleAccordion(this)">${m} <span>▼</span></div>
+                                <div class="subject-header" onclick="toggleAccordion(this)"><span class="hdr-title">${m}<span class="new-slot"></span></span> <span>▼</span></div>
                                 <div class="subject-content">
                                     <div class="subject-grid">
                                         <div class="doc-col"><h5>Cours</h5><ul class="doc-list" id="cours-${l.id}-${slugMat}"></ul><button class="add-btn" onclick="window.up('cours-${l.id}-${slugMat}')">+ Ajouter (petit fichier)</button><button class="add-btn" onclick="window.addVideo('cours-${l.id}-${slugMat}')">🎥 Lien vidéo YouTube</button><button class="add-btn" onclick="window.addDrive('cours-${l.id}-${slugMat}')">🔗 Lien Drive/OneDrive</button></div>
@@ -546,6 +1329,8 @@ const isSameString = (a, b) => normalize(a) === normalize(b);
             applyLevelVisibility();
             syncDocs();
             syncDevoirs();
+            restoreOpenState();
+            initFeatures();
 
             // ✅ AJOUT 1 : Afficher la section des laboratoires pour les utilisateurs connectés
             const labosSection = document.getElementById('labos-public-section');
@@ -595,91 +1380,6 @@ const isSameString = (a, b) => normalize(a) === normalize(b);
     }
 });
 
-    async function chargerMesEleves() {
-        const accordeon = document.getElementById('eleves-accordeon');
-        if (!accordeon) return;
-        accordeon.innerHTML = '<p style="color:gray;">Chargement des élèves...</p>';
-        try {
-            let classesConcernees = [];
-            if (profile.role === 'professeur') {
-                classesConcernees = profile.assignedClasses || [];
-            } else {
-                classesConcernees = structure.map(l => l.id);
-            }
-            const elevesSnap = await getDocs(query(collection(db, 'utilisateurs'), where('role', '==', 'eleve')));
-            const eleves = [];
-                        elevesSnap.forEach(doc => {
-                const e = doc.data();
-                if (matchesAny(e.niveau, classesConcernees)) {
-                    eleves.push({ uid: doc.id, ...e });
-                }
-            });
-            eleves.sort((a, b) => `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`));
-            const elevesParClasse = {};
-            eleves.forEach(e => {
-                if (!elevesParClasse[e.niveau]) elevesParClasse[e.niveau] = [];
-                elevesParClasse[e.niveau].push(e);
-            });
-            accordeon.innerHTML = '';
-            const classesTriees = Object.keys(elevesParClasse).sort();
-            classesTriees.forEach(niveau => {
-                const classeInfo = structure.find(l => l.id === niveau);
-                const nomClasse = classeInfo ? classeInfo.name : niveau;
-                const classeDiv = document.createElement('div');
-                classeDiv.className = 'classe-eleve';
-                classeDiv.innerHTML = `
-                    <div class="classe-header" onclick="this.parentElement.classList.toggle('open')">${nomClasse} (${elevesParClasse[niveau].length} élèves) <span>▼</span></div>
-                    <div class="classe-eleve-content">
-                        <div style="text-align:right; margin-bottom:10px;">
-                            <button class="btn-export" onclick="window.exporterListeClasse('${niveau}')">📥 Télécharger la liste (Excel)</button>
-                        </div>
-                        ${elevesParClasse[niveau].map(e => `
-                            <div class="eleve-ligne">
-                                <span class="eleve-nom">${escapeHtml(e.prenom)} ${escapeHtml(e.nom)}</span>
-                                <div class="eleve-actions">
-                                    <button class="btn-profile" onclick="window.location.href='profil-eleve.html?uid=${e.uid}'">📊 Profil</button>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>`;
-                accordeon.appendChild(classeDiv);
-            });
-            if (classesTriees.length === 0) {
-                accordeon.innerHTML = '<p style="color:gray;">Aucun élève trouvé dans vos classes affectées.</p>';
-            }
-        } catch (err) {
-            accordeon.innerHTML = `<p style="color:red;">Erreur : ${err.message}</p>`;
-        }
-    }
-
-    window.exporterListeClasse = async (niveau) => {
-        try {
-            const elevesSnap = await getDocs(query(collection(db, 'utilisateurs'), where('role', '==', 'eleve'), where('niveau', '==', niveau)));
-            const eleves = [];
-            elevesSnap.forEach(doc => {
-                const e = doc.data();
-                eleves.push({ uid: doc.id, ...e });
-            });
-            eleves.sort((a, b) => `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`));
-            const headers = ["Prénom", "Nom", "Classe", "Téléphone", "Email", "Père/Tuteur", "Tél. Père", "Mère/Tutrice", "Tél. Mère", "Adresse"];
-            const rows = eleves.map(e => [
-                e.prenom || '', e.nom || '', e.niveau || '', e.telephone || '', e.email || '',
-                e.famille?.pereNom || '', e.famille?.pereTel || '',
-                e.famille?.mereNom || '', e.famille?.mereTel || '', e.famille?.adresse || ''
-            ]);
-            const classeInfo = structure.find(l => l.id === niveau);
-            const nomClasse = classeInfo ? classeInfo.name : niveau;
-            const filename = `LFAKM-${nomClasse.replace(/[^a-z0-9]/gi, '_')}-${new Date().toISOString().slice(0, 10)}`;
-            const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-            ws['!cols'] = headers.map(() => ({ wch: 18 }));
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Liste");
-            XLSX.writeFile(wb, filename + '.xlsx');
-        } catch (err) {
-            alert('Erreur lors de l\'export: ' + err.message);
-        }
-    };
-
     function loadDevoirsStrip() {
         const zone = document.getElementById('devoirs-strip');
         const role = profile?.role;
@@ -710,6 +1410,7 @@ const isSameString = (a, b) => normalize(a) === normalize(b);
                             <h4>📌 ${escapeHtml(dv.titre)}</h4>
                             <span>${level ? level.name : ''}</span>
                             <span>Déposé le ${dateStr}</span>
+                            ${dlPill(dv.dateLimite)}
                         </div>`);
                 });
                 zone.innerHTML = cards.length === 0 ? '' : `<h3>🔔 Derniers devoirs</h3><div class="actus-scroll">${cards.join('')}</div>`;
@@ -819,140 +1520,6 @@ const isSameString = (a, b) => normalize(a) === normalize(b);
         });
     }
 
-    function syncDocs() {
-        const role = profile?.role;
-        const profMats = profile?.disciplines || [];
-
-        document.querySelectorAll('.doc-list').forEach(ul => {
-            if (!ul) return;
-            const slug = ul.id.replace(/^cours-|^td-/, '');
-            const type = ul.id.startsWith('cours-') ? 'cours' : 'td';
-            
-            const addBtn = ul.nextElementSibling;
-            const videoBtn = addBtn ? addBtn.nextElementSibling : null;
-            const driveBtn = videoBtn ? videoBtn.nextElementSibling : null;
-            
-                        const subjectEl = ul.closest('.subject-accordion');
-            const matName = subjectEl ? subjectEl.dataset.mat : '';
-
-            if (role === 'professeur' || isAdmin(role)) {
-                const showButtons = (role === 'professeur' && matchesAny(matName, profMats)) || isAdmin(role);
-                if (addBtn && showButtons) addBtn.style.display = "block";
-                if (videoBtn && showButtons) videoBtn.style.display = "block";
-                if (driveBtn && showButtons) driveBtn.style.display = "block";
-            }
-
-            try {
-                onSnapshot(query(collection(db, 'ressources', slug, type), orderBy('date', 'desc')), (snap) => {
-                    if (!ul) return;
-                    ul.innerHTML = snap.empty ? '<li style="color:gray;border:none;background:none;">Aucun fichier</li>' : '';
-                    snap.forEach(docSnap => {
-                        const d = docSnap.data();
-                        const icon = d.type === 'video' ? '🎥' : d.type === 'drive' ? '🔗' : '📄';
-                        const li = document.createElement('li');
-                        li.innerHTML = `<a href="${d.url}" target="_blank">${icon} ${escapeHtml(d.titre)}</a>`;
-                        if (role === 'professeur' || isAdmin(role)) {
-                            const del = document.createElement('button');
-                            del.innerHTML = '✕'; del.className = 'delete-btn';
-                            del.onclick = () => {
-                                if (!confirm('Supprimer ?')) return;
-                                deleteDoc(doc(db, 'ressources', slug, type, docSnap.id));
-                            };
-                            li.appendChild(del);
-                        }
-                        ul.appendChild(li);
-                    });
-                });
-            } catch (err) {
-                console.warn('Erreur sync docs:', err.message);
-            }
-        });
-    }
-
-    function syncDevoirs() {
-        const role = profile?.role;
-        const profMats = profile?.disciplines || [];
-
-        document.querySelectorAll('.devoirs-list').forEach(container => {
-            if (!container) return;
-            const slug = container.id.replace(/^devoirs-/, '');
-            const subjectEl = container.closest('.subject-accordion');
-            const matName = subjectEl ? subjectEl.dataset.mat : '';
-            const addBtn = document.getElementById(`devoiradd-${slug}`);
-
-            if (addBtn) {
-                const showButton = (role === 'professeur' && matchesAny(matName, profMats)) || isAdmin(role);
-                addBtn.style.display = showButton ? "block" : "none";
-            }
-
-            try {
-                onSnapshot(query(collection(db, 'ressources', slug, 'devoirs'), orderBy('date', 'desc')), (snap) => {
-                    if (!container) return;
-                    container.innerHTML = snap.empty ? '<p style="color:gray;font-size:12px;">Aucun devoir pour le moment</p>' : '';
-                    snap.forEach(devDoc => {
-                        const dv = devDoc.data();
-                        const dvType = dv.type || 'fichier';
-                        const item = document.createElement('div');
-                        item.className = 'devoir-item';
-                        item.innerHTML = `<h6>📌 ${escapeHtml(dv.titre)}${dvType === 'qcm' ? ' <span style="font-size:10px; color:var(--brass); font-weight:700;">QCM</span>' : dvType === 'mixte' ? ' <span style="font-size:10px; color:#4D6BFE; font-weight:700;">Mixte</span>' : ''}</h6>
-                            <div class="devoir-meta">📅 À rendre pour le ${dv.dateLimite || 'non précisé'} — proposé par ${dv.profNom || 'le professeur'}</div>
-                            ${dv.consignes ? `<p style="font-size:13px; margin-bottom:8px;">${dv.consignes}</p>` : ''}
-                            ${dv.googleDocUrl ? `<p style="margin-bottom:8px;"><a href="${dv.googleDocUrl}" target="_blank">📄 Ouvrir le document Google Doc</a></p>` : ''}
-                            ${dv.fichierUrl ? `<p style="margin-bottom:8px;"><a href="${dv.fichierUrl}" target="_blank">📎 ${dv.fichierNom || 'Fichier joint'}</a></p>` : ''}`;
-
-                        if (role === 'eleve') {
-                            const responseArea = document.createElement('div');
-                            item.appendChild(responseArea);
-                            
-                            if (dvType === 'qcm') {
-                                renderQcmForStudent(slug, devDoc.id, dv, responseArea);
-                            } else if (dvType === 'mixte') {
-                                renderMixteForStudent(slug, devDoc.id, dv, responseArea);
-                            } else {
-                                checkRendu(slug, devDoc.id, responseArea);
-                            }
-                        } else if (role === 'professeur' || isAdmin(role)) {
-                            const rendusBox = document.createElement('div');
-                            rendusBox.style.display = 'none';
-                            rendusBox.style.marginTop = '8px';
-
-                            const voirBtn = document.createElement('button');
-                            voirBtn.className = 'devoir-btn btn-voir-rendus';
-                            voirBtn.textContent = 'Voir les rendus';
-                            voirBtn.onclick = () => {
-                                const showing = rendusBox.style.display === 'block';
-                                rendusBox.style.display = showing ? 'none' : 'block';
-                                if (!showing) loadRendus(slug, devDoc.id, rendusBox, dv);
-                            };
-                            item.appendChild(voirBtn);
-
-                            const exportBtn = document.createElement('button');
-                            exportBtn.className = 'devoir-btn btn-voir-rendus';
-                            exportBtn.style.background = '#2e7d32';
-                            exportBtn.textContent = '📥 Exporter les notes';
-                            exportBtn.onclick = () => exportNotes(slug, devDoc.id, dv);
-                            item.appendChild(exportBtn);
-
-                            const delBtn = document.createElement('button');
-                            delBtn.className = 'devoir-btn btn-suppr-devoir';
-                            delBtn.textContent = '✕ Supprimer';
-                            delBtn.onclick = () => {
-                                if (!confirm('Supprimer ce devoir ?')) return;
-                                deleteDoc(doc(db, 'ressources', slug, 'devoirs', devDoc.id));
-                            };
-                            item.appendChild(delBtn);
-
-                            item.appendChild(rendusBox);
-                        }
-                        container.appendChild(item);
-                    });
-                });
-            } catch (err) {
-                console.warn('Erreur sync devoirs:', err.message);
-            }
-        });
-    }
-
     function renderMixteForStudent(slug, devoirId, dv, container) {
         const uid = auth.currentUser?.uid;
         if (!uid || !container) return;
@@ -966,7 +1533,7 @@ const isSameString = (a, b) => normalize(a) === normalize(b);
         container.appendChild(sectionQcm);
         container.appendChild(sectionFile);
 
-        onSnapshot(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), (snap) => {
+        snapT(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), (snap) => {
             if (!sectionQcm) return;
             if (snap.exists()) {
                 const d = snap.data();
@@ -1010,6 +1577,7 @@ const isSameString = (a, b) => normalize(a) === normalize(b);
                 await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
                     eleveNom: `${profile.prenom} ${profile.nom}`,
                     url: data.secure_url,
+                    enRetard: await lateFlag(slug, devoirId),
                     date: serverTimestamp()
                 }, { merge: true });
                 alert('✅ Fichier envoyé !');
@@ -1024,7 +1592,7 @@ const isSameString = (a, b) => normalize(a) === normalize(b);
         const uid = auth.currentUser?.uid;
         if (!uid || !statusDiv) return;
         try {
-            onSnapshot(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), (snap) => {
+            snapT(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), (snap) => {
                 if (!statusDiv) return;
                 if (snap.exists()) {
                     const d = snap.data();
@@ -1042,7 +1610,7 @@ const isSameString = (a, b) => normalize(a) === normalize(b);
         const uid = auth.currentUser?.uid;
         if (!uid || !container) return;
         try {
-            onSnapshot(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), (snap) => {
+            snapT(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), (snap) => {
                 if (!container) return;
                 if (snap.exists()) {
                     const d = snap.data();
@@ -1070,9 +1638,9 @@ const isSameString = (a, b) => normalize(a) === normalize(b);
         }
         let html = '';
         dv.questions.forEach((q, qi) => {
-            html += `<div style="margin-bottom:10px;"><p style="font-size:13px;font-weight:700;margin-bottom:6px;">${qi + 1}. ${q.texte}</p>`;
+            html += `<div style="margin-bottom:10px;"><p style="font-size:13px;font-weight:700;margin-bottom:6px;">${qi + 1}. ${escapeHtml(q.texte)}</p>`;
             q.options.forEach((opt, oi) => {
-                html += `<label style="display:block;font-size:13px;margin-bottom:4px;"><input type="radio" name="qcmrep-${devoirId}-${qi}" value="${oi}"> ${opt}</label>`;
+                html += `<label style="display:block;font-size:13px;margin-bottom:4px;"><input type="radio" name="qcmrep-${devoirId}-${qi}" value="${oi}"> ${escapeHtml(opt)}</label>`;
             });
             html += `</div>`;
         });
@@ -1097,84 +1665,11 @@ const isSameString = (a, b) => normalize(a) === normalize(b);
                 await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
                     eleveNom: `${profile.prenom} ${profile.nom}`,
                     reponses, score, note,
+                    enRetard: !!deadlineInfo(dv.dateLimite)?.late,
                     date: serverTimestamp()
                 }, { merge: true });
                 alert('✅ QCM envoyé !');
             };
-        }
-    }
-
-    function loadRendus(slug, devoirId, container, dv) {
-        const bareme = dv.bareme || 20;
-        if (!container) return;
-        try {
-            onSnapshot(collection(db, 'ressources', slug, 'devoirs', devoirId, 'rendus'), (snap) => {
-                if (!container) return;
-                container.innerHTML = snap.empty ? '<p style="font-size:12px;color:gray;">Aucun rendu pour le moment</p>' : '';
-                snap.forEach(rd => {
-                    const d = rd.data();
-                    const p = document.createElement('div');
-                    p.className = 'rendu-item';
-                    if (dv.type === 'qcm' || (dv.type === 'mixte' && d.reponses)) {
-                        let note = d.note ?? '-';
-                        p.innerHTML = `${escapeHtml(d.eleveNom)} — Note QCM : <b>${note}/${bareme}</b>`;
-                        if (d.url) p.innerHTML += ` — <a href="${d.url}" target="_blank">Voir fichier</a>`;
-                    } else {
-                        const noteId = `note-${rd.id}`;
-                        p.innerHTML = `<a href="${d.url}" target="_blank">📄 ${escapeHtml(d.eleveNom)}</a> —
-                            <input type="number" id="${noteId}" value="${d.note ?? ''}" min="0" max="${bareme}" step="0.5" placeholder="/${bareme}" style="width:55px;padding:3px;margin-left:6px;border:1px solid #ccc;border-radius:4px;">
-                            <button class="devoir-btn btn-voir-rendus" style="padding:3px 8px;font-size:10px;" data-note-id="${noteId}">Noter</button>
-                            <button class="devoir-btn btn-profile" style="padding:3px 8px;font-size:10px; margin-left:5px;" onclick="window.location.href='profil-eleve.html?uid=${rd.id}'">📊 Voir profil</button>`;
-                    }
-                    container.appendChild(p);
-                });
-                if (dv.type !== 'qcm') {
-                    container.querySelectorAll('button[data-note-id]').forEach(btn => {
-                        btn.onclick = async () => {
-                            const input = document.getElementById(btn.dataset.noteId);
-                            const uid = btn.dataset.noteId.replace('note-', '');
-                            const note = parseFloat(input.value);
-                            if (isNaN(note) || note < 0 || note > bareme) { alert(`Entrez une note entre 0 et ${bareme}.`); return; }
-                            await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), { note }, { merge: true });
-                        };
-                    });
-                }
-            });
-        } catch (err) {
-            if (container) container.innerHTML = '<p style="color:gray;">Erreur de chargement des rendus.</p>';
-        }
-    }
-
-    async function exportNotes(slug, devoirId, dv) {
-        const bareme = dv.bareme || 20;
-        const niveauId = slug.split('-')[0];
-        try {
-            const rendusSnap = await getDocs(collection(db, 'ressources', slug, 'devoirs', devoirId, 'rendus'));
-            const rendusParUid = {};
-            rendusSnap.forEach(rd => { rendusParUid[rd.id] = rd.data(); });
-            let eleves = [];
-            try {
-                const elevesSnap = await getDocs(query(collection(db, 'utilisateurs'), where('role', '==', 'eleve'), where('niveau', '==', niveauId)));
-                elevesSnap.forEach(e => eleves.push({ uid: e.id, ...e.data() }));
-            } catch (err) {
-                eleves = Object.entries(rendusParUid).map(([uid, d]) => ({ uid, prenom: '', nom: d.eleveNom || '' }));
-            }
-            if (eleves.length === 0) { alert("Aucun élève trouvé pour cette classe."); return; }
-            eleves.sort((a, b) => `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`));
-            const rows = eleves.map(e => {
-                const rd = rendusParUid[e.uid];
-                const nomComplet = rd?.eleveNom || `${e.prenom || ''} ${e.nom || ''}`.trim();
-                return [nomComplet, rd?.note ?? '', bareme, rd ? 'Rendu' : 'Non rendu'];
-            });
-            const headers = ["Élève", "Note", "Barème", "Statut"];
-            const filename = `Notes-${dv.titre.replace(/[^a-z0-9]/gi, '_')}-${new Date().toISOString().slice(0, 10)}`;
-            const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-            ws['!cols'] = [{ wch: 28 }, { wch: 10 }, { wch: 10 }, { wch: 12 }];
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Notes");
-            XLSX.writeFile(wb, filename + '.xlsx');
-        } catch (err) {
-            alert('Erreur lors de l\'export: ' + err.message);
         }
     }
 
@@ -1370,6 +1865,7 @@ const isSameString = (a, b) => normalize(a) === normalize(b);
                 await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
                     eleveNom: `${profile.prenom} ${profile.nom}`,
                     url: data.secure_url,
+                    enRetard: await lateFlag(slug, devoirId),
                     date: serverTimestamp()
                 }, { merge: true });
                 alert('✅ Devoir envoyé !');
@@ -1476,90 +1972,6 @@ const isSameString = (a, b) => normalize(a) === normalize(b);
         burgerBtn.onclick = () => {
             const menu = document.getElementById('menu');
             if (menu) menu.classList.toggle('show');
-        };
-    }
-
-    // RECHERCHE DIRECTE DES DEVOIRS
-    const searchBar = document.getElementById('search-bar');
-    const resultsZone = document.getElementById('search-results-zone');
-    const resultsList = document.getElementById('search-results-list');
-    const noResults = document.getElementById('no-results-search');
-
-    if (searchBar) {
-        searchBar.oninput = async (e) => {
-            const t = e.target.value.toLowerCase().trim();
-            
-            if (!t) {
-                resultsZone.style.display = 'none';
-                noResults.style.display = 'none';
-                return;
-            }
-
-            const results = [];
-            const niveau = profile?.niveau || '';
-            const profMats = profile?.disciplines || [];
-            const profClasses = profile?.assignedClasses || [];
-            const isAdminUser = profile && isAdmin(profile.role);
-
-            try {
-                const devoirsSnap = await getDocs(collectionGroup(db, 'devoirs'));
-                
-                devoirsSnap.forEach(devDoc => {
-                    const dv = devDoc.data();
-                    const parentSlug = devDoc.ref.parent.parent.id;
-                    const dashIndex = parentSlug.indexOf('-');
-                    const levelId = dashIndex === -1 ? parentSlug : parentSlug.substring(0, dashIndex);
-                    const matSlug = dashIndex === -1 ? '' : parentSlug.substring(dashIndex + 1);
-                    
-                    let matName = matSlug;
-                    MATS_COL.forEach(mat => {
-                        if (mat.toLowerCase().replace(/[^a-z0-9]/g, '') === matSlug) matName = mat;
-                    });
-
-                                        let allowed = false;
-                    if (isAdminUser) {
-                        allowed = true;
-                    } else if (profile?.role === 'professeur') {
-                        allowed = matchesAny(levelId, profClasses) && matchesAny(matName, profMats);
-                    } else if (profile?.role === 'eleve') {
-                        allowed = isSameString(niveau, levelId);
-                    }
-
-                    if (!allowed) return;
-
-                    if (dv.titre && dv.titre.toLowerCase().includes(t)) {
-                        const level = structure.find(l => l.id === levelId);
-                        const nomClasse = level ? level.name : levelId;
-                        results.push({ 
-                            titre: dv.titre, 
-                            classe: nomClasse, 
-                            matiere: matName, 
-                            date: dv.date?.toDate ? dv.date.toDate().toLocaleDateString('fr-FR') : '',
-                            url: dv.fichierUrl || dv.googleDocUrl || '',
-                        });
-                    }
-                });
-
-                if (results.length > 0) {
-                    resultsZone.style.display = 'block';
-                    noResults.style.display = 'none';
-                    resultsList.innerHTML = results.map(r => `
-                        <div class="search-result-line">
-                            <div class="info">
-                                <h4>📌 ${escapeHtml(r.titre)}</h4>
-                                <p>${escapeHtml(r.matiere)} - ${escapeHtml(r.classe)} • 📅 ${r.date}</p>
-                            </div>
-                            ${r.url ? `<a href="${r.url}" target="_blank" class="open-btn">📂 Ouvrir le devoir</a>` : `<span style="color:var(--slate); font-weight:600;">Devoir en ligne</span>`}
-                        </div>`).join('');
-                } else {
-                    resultsZone.style.display = 'block';
-                    resultsList.innerHTML = '';
-                    noResults.style.display = 'block';
-                }
-
-            } catch (err) {
-                console.warn('Erreur lors de la recherche :', err.message);
-            }
         };
     }
 
