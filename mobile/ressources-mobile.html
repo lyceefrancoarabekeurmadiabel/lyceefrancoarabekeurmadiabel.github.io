@@ -451,6 +451,8 @@ const isSameString = (a, b) => normalize(a) === normalize(b);
       applyLevelVisibility();   // ⬅️ applique les filtres
       syncDocs();               // ⬅️ RÉATTACHE les snapshots
       syncDevoirs();            // ⬅️ RÉATTACHE les snapshots
+      // ✅ Rafraîchir "Mes élèves" pour le cycle choisi
+      if (profile && (profile.role === 'professeur' || isAdmin(profile.role))) chargerMesEleves();
     });
   });
 
@@ -537,7 +539,6 @@ const isSameString = (a, b) => normalize(a) === normalize(b);
         if (profile.role === 'professeur' || isAdmin(profile.role)) {
           const elevesSection = document.getElementById('eleves-section');
           if (elevesSection) elevesSection.style.display = 'block';
-          chargerMesEleves();
         }
 
         if (profile.role === 'eleve') renderFicheFamille();
@@ -572,6 +573,9 @@ buildUI();
 applyLevelVisibility();
 syncDocs();
 syncDevoirs();
+
+// ✅ Charger "Mes élèves" une fois le cycle actif connu
+if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
 
       } catch (err) {
         console.warn('Erreur:', err);
@@ -1068,6 +1072,7 @@ syncDevoirs();
     alert('✅ Lien ajouté !');
   };
 
+    let elevesCache = null;
     async function chargerMesEleves() {
     const accordeon = document.getElementById('eleves-accordeon');
     const section = document.getElementById('eleves-section');
@@ -1080,12 +1085,12 @@ syncDevoirs();
       if (profile.role === 'professeur') classesConcernees = profile.assignedClasses || [];
       else classesConcernees = structure.map(l => l.id);
 
-      const elevesSnap = await getDocs(query(collection(db, 'utilisateurs'), where('role', '==', 'eleve')));
-      const eleves = [];
-      elevesSnap.forEach(doc => {
-        const e = doc.data();
-        if (matchesAny(e.niveau, classesConcernees)) eleves.push({ uid: doc.id, ...e });
-      });
+      if (!elevesCache) {
+        const elevesSnap = await getDocs(query(collection(db, 'utilisateurs'), where('role', '==', 'eleve')));
+        elevesCache = [];
+        elevesSnap.forEach(d => elevesCache.push({ uid: d.id, ...d.data() }));
+      }
+      const eleves = elevesCache.filter(e => matchesAny(e.niveau, classesConcernees));
       eleves.sort((a, b) => `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`));
 
       const elevesParClasse = {};
@@ -1105,8 +1110,7 @@ syncDevoirs();
       classesTriees.forEach(niveau => {
         const classeInfo = structure.find(l => l.id === niveau);
         // ✅ Filtrer : n'afficher que les classes du cycle actif
-        console.log(`🔍 Test filtre : niveau=${niveau}, classeInfo.area=${classeInfo?.area}, cycleActuel=${cycleActuel}, match=${classeInfo?.area === cycleActuel}`);
-if (!classeInfo || classeInfo.area !== cycleActuel) return;
+        if (!classeInfo || classeInfo.area !== cycleActuel) return;
         nbAffiches++;
         const nomClasse = classeInfo.name;
         const div = document.createElement('div');
