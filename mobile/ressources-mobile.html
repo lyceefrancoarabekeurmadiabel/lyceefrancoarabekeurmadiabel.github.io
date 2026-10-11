@@ -273,6 +273,18 @@
   .ct-none { font-size: 12px; color: var(--slate); }
   .flash { animation: lfflash 1.6s ease; }
   @keyframes lfflash { 0%,60% { box-shadow: 0 0 0 3px rgba(168,133,63,.6); } 100% { box-shadow: 0 0 0 0 rgba(168,133,63,0); } }
+  /* ===== VAGUE 3 — Toasts, notifications, install ===== */
+  #lf-toasts { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); z-index: 5000; display: flex; flex-direction: column; gap: 8px; width: min(92vw, 420px); pointer-events: none; }
+  .lf-toast { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--ink-deep); color: #fff; padding: 12px 14px; border-radius: 10px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,.25); pointer-events: auto; }
+  .lf-toast.clickable { cursor: pointer; }
+  .lf-toast button { background: none; border: none; color: #B7BCC9; font-size: 16px; cursor: pointer; padding: 2px 6px; }
+
+  #notif-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; background: #fff7e0; border: 1px solid #ecd9a0; border-radius: 10px; padding: 10px 14px; margin: 12px 0 16px; font-size: 13px; color: #5c4300; }
+  #notif-bar .nb-btns { display: flex; gap: 6px; }
+  #notif-bar button { border: none; border-radius: 6px; padding: 8px 12px; font-family: inherit; font-weight: 700; font-size: 12px; cursor: pointer; background: #ecd9a0; color: #3d2d00; }
+  #notif-bar #notif-yes { background: var(--brass); color: #fff; }
+
+  [data-install] { display: none; }
 </style>
 <meta name="author" content="Djiby Tall - LFAKM">
 <meta name="copyright" content="© 2026 Lycée Franco Arabe de Keur Madiabel. Tous droits réservés.">
@@ -328,8 +340,9 @@
 
 <footer style="background: var(--ink-deep, #10192E); color: #B7BCC9; padding: 25px 20px 20px; text-align: center; font-size: 12px; margin-top: 30px;">
   <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; margin-bottom: 10px;">
-    <a href="../community/index.html" style="color: #A8853F; text-decoration: none; font-weight: 700;">👥 Communauté</a>
+        <a href="../community/index.html" style="color: #A8853F; text-decoration: none; font-weight: 700;">👥 Communauté</a>
     <a href="#" onclick="window.showContact(); return false;" style="color: #B7BCC9; text-decoration: none;">📞 Contacter le Proviseur</a>
+    <a href="#" data-install onclick="return window.installApp();" style="color:#B7BCC9;text-decoration:none;">📲 Installer l'application</a>
   </div>
   <div style="font-size: 11px; opacity: 0.7;">
     © 2026 Lycée Franco Arabe de Keur Madiabel — Site conçu par <strong>Djiby Tall</strong>
@@ -601,6 +614,105 @@ const matLabelFromSlug = (slug) => {
   return ms;
 };
 // ============================================================
+// ============================================================
+//  VAGUE 3 — Toasts, notifications, install, restauration d'état
+// ============================================================
+const store = {
+  _k(k) { return `lfakm.${auth.currentUser?.uid || 'anon'}.${k}`; },
+  get(k) { try { return localStorage.getItem(this._k(k)); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(this._k(k), v); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(this._k(k)); } catch (e) {} }
+};
+
+// --- Toasts ---
+function toast(msg, onClick, ms = 8000) {
+  let box = document.getElementById('lf-toasts');
+  if (!box) { box = document.createElement('div'); box.id = 'lf-toasts'; document.body.appendChild(box); }
+  const t = document.createElement('div');
+  t.className = 'lf-toast'; t.setAttribute('role', 'status');
+  const span = document.createElement('span'); span.textContent = msg; t.appendChild(span);
+  const x = document.createElement('button');
+  x.type = 'button'; x.textContent = '✕'; x.setAttribute('aria-label', 'Fermer');
+  x.onclick = (e) => { e.stopPropagation(); t.remove(); };
+  t.appendChild(x);
+  if (onClick) { t.classList.add('clickable'); t.onclick = () => { t.remove(); onClick(); }; }
+  box.appendChild(t);
+  setTimeout(() => t.remove(), ms);
+}
+
+// --- Notifications navigateur ---
+async function notifier(title, body, tag, onClick) {
+  const visible = document.visibilityState === 'visible';
+  const ok = ('Notification' in window) && Notification.permission === 'granted' && store.get('notif') !== '0';
+  if (visible || !ok) { toast(`${title} — ${body}`, onClick); return; }
+  try {
+    const opts = { body, tag, icon: '../assets/favicon.png', data: { url: location.href } };
+    const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration();
+    if (reg && reg.showNotification) await reg.showNotification(title, opts);
+    else new Notification(title, opts);
+  } catch (e) { toast(`${title} — ${body}`, onClick); }
+}
+
+function initNotifBar() {
+  if (!('Notification' in window) || Notification.permission !== 'default' || store.get('notifDismissed')) return;
+  if (document.getElementById('notif-bar')) return;
+  const host = document.getElementById('content-area');
+  if (!host) return;
+  const bar = document.createElement('div');
+  bar.id = 'notif-bar';
+  bar.innerHTML = `<span>🔔 Être prévenu dès qu'un nouveau devoir ou une actualité est publié ?</span>
+    <span class="nb-btns"><button type="button" id="notif-yes">Activer</button><button type="button" id="notif-no" aria-label="Plus tard">✕</button></span>`;
+  host.parentElement.insertBefore(bar, host);
+  bar.querySelector('#notif-yes').onclick = async () => {
+    try {
+      const r = await Notification.requestPermission();
+      if (r === 'granted') { store.set('notif', '1'); toast('🔔 Notifications activées.'); }
+    } catch (e) {}
+    bar.remove();
+  };
+  bar.querySelector('#notif-no').onclick = () => { store.set('notifDismissed', '1'); bar.remove(); };
+}
+
+// --- Restauration de l'état ouvert (accordéons) ---
+function rememberOpen(el) {
+  if (!el || !el.classList) return;
+  const lvl = el.matches('.level-accordion') ? el : el.closest('.level-accordion');
+  if (!lvl) return;
+  const id = lvl.dataset.level;
+  const open = el.classList.contains('open');
+  if (el === lvl) {
+    if (open) store.set('openLevel', id); else if (store.get('openLevel') === id) store.del('openLevel');
+  } else if (el.matches('.mat-accordion')) {
+    const k = 'openMat:' + id;
+    if (open) store.set(k, el.dataset.mat); else if (store.get(k) === el.dataset.mat) store.del(k);
+  }
+}
+function restoreOpenState() {
+  const lvls = [...document.querySelectorAll('.level-accordion')].filter(l => l.style.display !== 'none');
+  if (!lvls.length) return;
+  const id = store.get('openLevel');
+  let lvl = lvls.find(l => l.dataset.level === id);
+  if (!lvl && profile?.role === 'eleve' && lvls.length === 1) lvl = lvls[0];
+  if (!lvl) return;
+  lvl.classList.add('open');
+  const mat = store.get('openMat:' + lvl.dataset.level);
+  if (mat) lvl.querySelectorAll('.mat-accordion').forEach(s => { if (s.dataset.mat === mat && s.style.display !== 'none') s.classList.add('open'); });
+}
+
+// --- Install PWA ---
+let _installEvt = null;
+const _isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const _standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+const _showInstall = (v) => document.querySelectorAll('[data-install]').forEach(b => { b.style.display = v ? '' : 'none'; });
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); _installEvt = e; _showInstall(true); });
+window.addEventListener('appinstalled', () => { _installEvt = null; _showInstall(false); });
+window.installApp = () => {
+  if (_installEvt) { _installEvt.prompt(); _installEvt.userChoice.finally(() => { _installEvt = null; _showInstall(false); }); }
+  else toast("Pour installer : touchez « Partager » puis « Sur l'écran d'accueil » (iPhone), ou le menu ⋮ du navigateur puis « Installer l'application ».", null, 12000);
+  return false;
+};
+if (_isIOS && !_standalone) setTimeout(() => _showInstall(true), 0);
+// ============================================================
   let profile = null;
   let currentCycle = 'college-area';
   let currentDevoirSlug = null;
@@ -629,7 +741,10 @@ const matLabelFromSlug = (slug) => {
     { area: "lycee-area", id: "tla2", name: "Terminale LA 2", mats: ["Mathématiques", "Philosophie", "Français", "Arabe", "Anglais", "Histoire-Géo", "EPS"] }
   ];
 
-  window.toggleAccordion = (element) => { element.parentElement.classList.toggle('open'); };
+    window.toggleAccordion = (element) => {
+    element.parentElement.classList.toggle('open');
+    try { rememberOpen(element.parentElement); } catch (e) {}
+  };
 
   const drawer = document.getElementById('drawer');
   const backdrop = document.getElementById('drawer-backdrop');
@@ -769,15 +884,17 @@ document.querySelectorAll('.cycle-tab').forEach(t => {
   t.classList.toggle('active', t.dataset.cycle === currentCycle);
 });
 
-buildUI();
-applyLevelVisibility();
-syncDocs();
-syncDevoirs();
-initOffline();
-initSearch();
+        buildUI();
+        applyLevelVisibility();
+        syncDocs();
+        syncDevoirs();
+        initOffline();
+        initSearch();
+        initNotifBar();
+        restoreOpenState();
 
-// ✅ Charger "Mes élèves" une fois le cycle actif connu
-if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
+        // ✅ Charger "Mes élèves" une fois le cycle actif connu
+        if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
 
       } catch (err) {
         console.warn('Erreur:', err);
@@ -908,13 +1025,17 @@ if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
         if (!container) return;
         container.innerHTML = snap.empty ? '<p style="color:gray;font-size:12px;">Aucun devoir pour le moment</p>' : '';
         let nNew = 0;
-                const items = [];
+                        const items = [];
+        const isFirst = !container.dataset.ready;
         snap.forEach(devDoc => {
           const dv = devDoc.data();
           const dvType = dv.type || 'fichier';
           const when = docDate(devDoc);
           const recent = isRecent(when);
           if (recent) nNew++;
+          if (isFirst && recent && role === 'eleve') {
+            notifier('📌 Nouveau devoir', `${dv.titre || ''} — ${matLabelFromSlug(slug)}`, 'devoir-' + devDoc.id, () => goToClass(slug.split('-')[0], matLabelFromSlug(slug)));
+          }
           items.push({ kind: 'devoir', slug, levelId: slug.split('-')[0], matName: matLabelFromSlug(slug), titre: dv.titre || '', url: dv.fichierUrl || dv.googleDocUrl || '', date: when, isNew: recent });
           const item = document.createElement('div');
           item.className = 'devoir-item';
@@ -966,8 +1087,9 @@ if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
           }
                     container.appendChild(item);
         });
-        indexSet('devoir', slug, items);
+                indexSet('devoir', slug, items);
         setNew(slug, 'devoirs', nNew);
+        container.dataset.ready = '1';
       });
     });
   }
