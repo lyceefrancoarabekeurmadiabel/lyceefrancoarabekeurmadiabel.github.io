@@ -226,6 +226,22 @@
   .qcm-question-block input[type=text] { margin-bottom: 6px; }
   .qcm-option-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
   .qcm-remove-q { position: absolute; top: 8px; right: 8px; background: none; border: none; color: var(--danger); cursor: pointer; font-weight: bold; font-size: 16px; }
+  
+  /* ===== VAGUE 1 — Badges, échéances, compteurs ===== */
+  .hdr-title { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
+  .new-slot { display: inline-flex; }
+  .new-count { background: #d9534f; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+  .new-badge { background: #d9534f; color: #fff; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
+  .dl-pill { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; vertical-align: middle; }
+  .dl-ok { background: #e8f1fb; color: #1d5fa8; }
+  .dl-soon { background: #fff4d6; color: #8a6100; }
+  .dl-urgent { background: #ffe3d1; color: #b34100; }
+  .dl-late { background: #fde2e1; color: #b3261e; }
+  .rendu-count { display: inline-block; font-size: 12px; font-weight: 700; color: var(--ink); background: #f1ece1; padding: 4px 10px; border-radius: 999px; margin: 2px 6px 4px 0; }
+  .rendu-count.complete { background: #e3f3e5; color: #2e7d32; }
+  .rendu-summary { font-size: 12px; padding: 8px 10px; background: #f7f5f0; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 8px; }
+  .rendu-summary a { color: var(--brass); font-weight: 700; text-decoration: none; }
+  .nr-list { display: none; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; color: var(--slate); }
 </style>
 <meta name="author" content="Djiby Tall - LFAKM">
 <meta name="copyright" content="© 2026 Lycée Franco Arabe de Keur Madiabel. Tous droits réservés.">
@@ -401,6 +417,84 @@ const matchesAny = (value, array) => {
 const isSameString = (a, b) => normalize(a) === normalize(b);
 // ============================================================
 
+// ============================================================
+//  VAGUE 1 — Fonctions utilitaires (badges, échéances, rendus)
+// ============================================================
+const NEW_DAYS = 7;
+const NEW_PILL = '<span class="new-badge">NOUVEAU</span>';
+const tsToDate = (ts) => (ts && typeof ts.toDate === 'function') ? ts.toDate() : (ts instanceof Date ? ts : null);
+function docDate(snap) {
+  const d = tsToDate(snap.data({ serverTimestamps: 'estimate' }).date);
+  return d || (snap.metadata && snap.metadata.hasPendingWrites ? new Date() : null);
+}
+const isRecent = (d) => !!d && (Date.now() - d.getTime()) < NEW_DAYS * 864e5;
+
+function deadlineInfo(str, now = new Date()) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(str || '');
+  if (!m) return null;
+  const lim = new Date(+m[1], +m[2] - 1, +m[3]);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const n = Math.round((lim - today) / 864e5);
+  if (n < 0) return { n, late: true, cls: 'late', label: n === -1 ? '⏰ En retard (hier)' : `⏰ En retard (${-n} j)` };
+  if (n === 0) return { n, late: false, cls: 'urgent', label: "⏳ À rendre aujourd'hui" };
+  if (n === 1) return { n, late: false, cls: 'urgent', label: '⏳ À rendre demain' };
+  if (n <= 3) return { n, late: false, cls: 'soon', label: `⏳ Dans ${n} jours` };
+  return { n, late: false, cls: 'ok', label: `📅 Dans ${n} jours` };
+}
+const dlPill = (str) => { const i = deadlineInfo(str); return i ? `<span class="dl-pill dl-${i.cls}">${i.label}</span>` : ''; };
+const fmtLimite = (str) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(str || ''); return m ? `${m[3]}/${m[2]}/${m[1]}` : 'non précisé'; };
+async function lateFlag(slug, devoirId) {
+  try { const s = await getDoc(doc(db, 'ressources', slug, 'devoirs', devoirId)); return !!deadlineInfo(s.data()?.dateLimite)?.late; }
+  catch (e) { return false; }
+}
+
+// --- Badges « Nouveau » ---
+const newCounts = {};
+function paintBadge(slot, n, title) {
+  if (!slot) return;
+  slot.innerHTML = n > 0 ? `<span class="new-count" data-n="${n}" title="${attr(title || '')}">${n} nouveau${n > 1 ? 'x' : ''}</span>` : '';
+}
+function setNew(slug, kind, n) {
+  const c = (newCounts[slug] = newCounts[slug] || {});
+  c[kind] = n;
+  const total = (c.cours || 0) + (c.td || 0) + (c.devoirs || 0);
+  const probe = document.getElementById('devoirs-' + slug) || document.getElementById('cours-' + slug);
+  const subj = probe && probe.closest('.mat-accordion');
+  if (!subj) return;
+  paintBadge(subj.querySelector('.new-slot'), total, `${c.cours || 0} cours · ${c.td || 0} TD · ${c.devoirs || 0} devoir(s)`);
+  const lvl = subj.closest('.level-accordion');
+  if (!lvl) return;
+  let sum = 0;
+  lvl.querySelectorAll('.mat-accordion').forEach(s => { sum += +(s.querySelector('.new-slot .new-count')?.dataset.n || 0); });
+  paintBadge(lvl.querySelector('.new-slot'), sum, `${sum} nouveauté(s) sur les 7 derniers jours`);
+}
+const attr = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+// --- Compteur de rendus par devoir ---
+const _elevesRenduPromises = {};
+function getElevesForRendu() {
+  if (!_elevesRenduPromises.all) {
+    _elevesRenduPromises.all = getDocs(query(collection(db, 'utilisateurs'), where('role', '==', 'eleve')))
+      .then(snap => { const out = []; snap.forEach(d => out.push({ uid: d.id, ...d.data() })); return out; });
+  }
+  return _elevesRenduPromises.all;
+}
+async function attachRenduCounter(slug, devoirId, el) {
+  const levelId = slug.split('-')[0];
+  let n = 0, total = null;
+  const paint = () => {
+    el.textContent = total === null ? `📥 ${n} rendu${n > 1 ? 's' : ''}` : `📥 ${n}/${total} ont rendu`;
+    el.classList.toggle('complete', total !== null && total > 0 && n >= total);
+  };
+  paint();
+  onSnapshot(collection(db, 'ressources', slug, 'devoirs', devoirId, 'rendus'), (snap) => { n = snap.size; paint(); });
+  try {
+    const list = await getElevesForRendu();
+    total = list.filter(e => isSameString(e.niveau, levelId)).length;
+    paint();
+  } catch (e) {}
+}
+// ============================================================
   let profile = null;
   let currentCycle = 'college-area';
   let currentDevoirSlug = null;
@@ -464,16 +558,16 @@ const isSameString = (a, b) => normalize(a) === normalize(b);
       return;
     }
     levels.forEach(l => {
-      html += `<div class="level-accordion" data-level="${l.id}" data-area="${l.area}">
+            html += `<div class="level-accordion" data-level="${l.id}" data-area="${l.area}">
         <div class="level-header" onclick="window.toggleAccordion(this)">
-          <span>${l.name}</span><span class="icon">▾</span>
+          <span class="hdr-title">${l.name}<span class="new-slot"></span></span><span class="icon">▾</span>
         </div>
         <div class="level-body">`;
       l.mats.forEach(m => {
         const slugMat = m.toLowerCase().replace(/[^a-z0-9]/g, '');
         html += `<div class="mat-accordion" data-mat="${m}">
           <div class="mat-header" onclick="window.toggleAccordion(this)">
-            <span>${m}</span><span class="icon">▾</span>
+            <span class="hdr-title">${m}<span class="new-slot"></span></span><span class="icon">▾</span>
           </div>
           <div class="mat-body">
             <div class="mat-section">
@@ -662,14 +756,18 @@ if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
         if (videoBtn && showButtons) videoBtn.style.display = 'block';
         if (driveBtn && showButtons) driveBtn.style.display = 'block';
       }
-      onSnapshot(query(collection(db, 'ressources', slug, type), orderBy('date', 'desc')), (snap) => {
+            onSnapshot(query(collection(db, 'ressources', slug, type), orderBy('date', 'desc')), (snap) => {
         if (!ul) return;
         ul.innerHTML = snap.empty ? '<li style="color:gray;border:none;background:none;">Aucun fichier</li>' : '';
+        let nNew = 0;
         snap.forEach(docSnap => {
           const d = docSnap.data();
+          const when = docDate(docSnap);
+          const recent = isRecent(when);
+          if (recent) nNew++;
           const icon = d.type === 'video' ? '🎥' : d.type === 'drive' ? '🔗' : '📄';
           const li = document.createElement('li');
-          li.innerHTML = `<a href="${d.url}" target="_blank">${icon} ${escapeHtml(d.titre)}</a>`;
+          li.innerHTML = `<a href="${d.url}" target="_blank">${icon} ${escapeHtml(d.titre)}${recent ? ' ' + NEW_PILL : ''}</a>`;
           if (role === 'professeur' || isAdmin(role)) {
             const del = document.createElement('button');
             del.innerHTML = '✕'; del.className = 'delete-btn';
@@ -678,6 +776,7 @@ if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
           }
           ul.appendChild(li);
         });
+        setNew(slug, type, nNew);
       });
     });
   }
@@ -694,19 +793,23 @@ if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
         const showButton = (role === 'professeur' && matchesAny(matName, profMats)) || isAdmin(role);
         addBtn.style.display = showButton ? 'block' : 'none';
       }
-      onSnapshot(query(collection(db, 'ressources', slug, 'devoirs'), orderBy('date', 'desc')), (snap) => {
+            onSnapshot(query(collection(db, 'ressources', slug, 'devoirs'), orderBy('date', 'desc')), (snap) => {
         if (!container) return;
         container.innerHTML = snap.empty ? '<p style="color:gray;font-size:12px;">Aucun devoir pour le moment</p>' : '';
+        let nNew = 0;
         snap.forEach(devDoc => {
           const dv = devDoc.data();
           const dvType = dv.type || 'fichier';
+          const when = docDate(devDoc);
+          const recent = isRecent(when);
+          if (recent) nNew++;
           const item = document.createElement('div');
           item.className = 'devoir-item';
           let headerBadge = '';
           if (dvType === 'qcm') headerBadge = ' <span style="font-size:10px;color:var(--brass);font-weight:700;">QCM</span>';
           else if (dvType === 'mixte') headerBadge = ' <span style="font-size:10px;color:#4D6BFE;font-weight:700;">Mixte</span>';
-          item.innerHTML = `<h6>📌 ${escapeHtml(dv.titre)}${headerBadge}</h6>
-            <div class="devoir-meta">📅 À rendre pour le ${dv.dateLimite || 'non précisé'} — proposé par ${escapeHtml(dv.profNom || 'le professeur')}</div>
+          item.innerHTML = `<h6>📌 ${escapeHtml(dv.titre)}${headerBadge}${recent ? ' ' + NEW_PILL : ''}</h6>
+            <div class="devoir-meta">📅 À rendre pour le ${escapeHtml(fmtLimite(dv.dateLimite))} ${dlPill(dv.dateLimite)} — proposé par ${escapeHtml(dv.profNom || 'le professeur')}</div>
             ${dv.consignes ? `<p>${escapeHtml(dv.consignes)}</p>` : ''}
             ${dv.googleDocUrl ? `<p><a href="${dv.googleDocUrl}" target="_blank">📄 Ouvrir le document Google Doc</a></p>` : ''}
             ${dv.fichierUrl ? `<p><a href="${dv.fichierUrl}" target="_blank">📎 ${escapeHtml(dv.fichierNom || 'Fichier joint')}</a></p>` : ''}`;
@@ -717,6 +820,13 @@ if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
             else if (dvType === 'mixte') renderMixteForStudent(slug, devDoc.id, dv, responseArea);
             else checkRendu(slug, devDoc.id, responseArea);
           } else if (role === 'professeur' || isAdmin(role)) {
+            if (role === 'professeur') {
+              const cnt = document.createElement('span');
+              cnt.className = 'rendu-count';
+              item.appendChild(cnt);
+              attachRenduCounter(slug, devDoc.id, cnt);
+              item.appendChild(document.createElement('br'));
+            }
             const rendusBox = document.createElement('div');
             rendusBox.style.display = 'none';
             rendusBox.style.marginTop = '8px';
@@ -743,6 +853,7 @@ if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
           }
           container.appendChild(item);
         });
+        setNew(slug, 'devoirs', nNew);
       });
     });
   }
@@ -858,19 +969,22 @@ if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
     }
   }
 
-  function loadRendus(slug, devoirId, container, dv) {
+    function loadRendus(slug, devoirId, container, dv) {
     const bareme = dv.bareme || 20;
     if (!container) return;
-    onSnapshot(collection(db, 'ressources', slug, 'devoirs', devoirId, 'rendus'), (snap) => {
+    onSnapshot(collection(db, 'ressources', slug, 'devoirs', devoirId, 'rendus'), async (snap) => {
       if (!container) return;
-      container.innerHTML = snap.empty ? '<p style="font-size:12px;color:gray;">Aucun rendu</p>' : '';
+            container.innerHTML = snap.empty ? '<p style="font-size:12px;color:gray;">Aucun rendu</p>' : '';
+      const uids = new Set();
+      snap.forEach(rd => uids.add(rd.id));
       snap.forEach(rd => {
         const d = rd.data();
         const p = document.createElement('div');
         p.className = 'rendu-item';
+        const retard = d.enRetard ? ' <span class="dl-pill dl-late">⏰ en retard</span>' : '';
         if (dv.type === 'qcm' || (dv.type === 'mixte' && d.reponses)) {
           let note = d.note ?? '-';
-          p.innerHTML = `${escapeHtml(d.eleveNom)} — Note QCM : <b>${note}/${bareme}</b>`;
+          p.innerHTML = `${escapeHtml(d.eleveNom)} — Note QCM : <b>${note}/${bareme}</b>${retard}`;
           if (d.url) p.innerHTML += ` — <a href="${d.url}" target="_blank">Voir fichier</a>`;
         } else {
           const noteId = `note-${rd.id}`;
@@ -881,7 +995,7 @@ if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
         }
         container.appendChild(p);
       });
-      if (dv.type !== 'qcm') {
+            if (dv.type !== 'qcm') {
         container.querySelectorAll('button[data-note-id]').forEach(btn => {
           btn.onclick = async () => {
             const input = document.getElementById(btn.dataset.noteId);
@@ -892,6 +1006,20 @@ if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
           };
         });
       }
+      // ✅ Liste des non-rendus
+      try {
+        const levelId = slug.split('-')[0];
+        const list = await getElevesForRendu();
+        const eleves = list.filter(e => isSameString(e.niveau, levelId)).sort((a, b) => `${a.nom || ''} ${a.prenom || ''}`.localeCompare(`${b.nom || ''} ${b.prenom || ''}`));
+        const non = eleves.filter(e => !uids.has(e.uid));
+        const summary = document.createElement('div');
+        summary.className = 'rendu-summary';
+        summary.innerHTML = `<b>📥 ${uids.size}/${eleves.length} ont rendu</b>` + 
+          (non.length ? ` — <a href="#" class="nr-toggle">voir les ${non.length} qui n'ont pas rendu</a><div class="nr-list">${non.map(e => `<span>${escapeHtml(`${e.prenom || ''} ${e.nom || ''}`.trim())}</span>`).join('')}</div>` : ' ✅');
+        container.prepend(summary);
+        const t = summary.querySelector('.nr-toggle');
+        if (t) t.onclick = (ev) => { ev.preventDefault(); const l = summary.querySelector('.nr-list'); l.style.display = l.style.display === 'flex' ? 'none' : 'flex'; };
+      } catch (e) {}
     });
   }
 
