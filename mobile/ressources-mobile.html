@@ -1068,14 +1068,18 @@ syncDevoirs();
     alert('✅ Lien ajouté !');
   };
 
-  async function chargerMesEleves() {
+    async function chargerMesEleves() {
     const accordeon = document.getElementById('eleves-accordeon');
-    if (!accordeon) return;
+    const section = document.getElementById('eleves-section');
+    if (!accordeon || !section) return;
+
     accordeon.innerHTML = '<p style="color:gray;font-size:13px;">Chargement...</p>';
+
     try {
       let classesConcernees = [];
       if (profile.role === 'professeur') classesConcernees = profile.assignedClasses || [];
       else classesConcernees = structure.map(l => l.id);
+
       const elevesSnap = await getDocs(query(collection(db, 'utilisateurs'), where('role', '==', 'eleve')));
       const eleves = [];
       elevesSnap.forEach(doc => {
@@ -1083,16 +1087,27 @@ syncDevoirs();
         if (matchesAny(e.niveau, classesConcernees)) eleves.push({ uid: doc.id, ...e });
       });
       eleves.sort((a, b) => `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`));
+
       const elevesParClasse = {};
       eleves.forEach(e => {
         if (!elevesParClasse[e.niveau]) elevesParClasse[e.niveau] = [];
         elevesParClasse[e.niveau].push(e);
       });
+
       accordeon.innerHTML = '';
       const classesTriees = Object.keys(elevesParClasse).sort();
+
+      // ✅ Lire le cycle actif depuis le DOM (plus fiable que currentCycle)
+      const activeTab = document.querySelector('.cycle-tab.active');
+      const cycleActuel = activeTab ? activeTab.dataset.cycle : currentCycle;
+
+      let nbAffiches = 0;
       classesTriees.forEach(niveau => {
         const classeInfo = structure.find(l => l.id === niveau);
-        const nomClasse = classeInfo ? classeInfo.name : niveau;
+        // ✅ Filtrer : n'afficher que les classes du cycle actif
+        if (!classeInfo || classeInfo.area !== cycleActuel) return;
+        nbAffiches++;
+        const nomClasse = classeInfo.name;
         const div = document.createElement('div');
         div.className = 'level-accordion';
         div.style.marginBottom = '8px';
@@ -1113,9 +1128,16 @@ syncDevoirs();
           </div>`;
         accordeon.appendChild(div);
       });
-      if (classesTriees.length === 0) accordeon.innerHTML = '<p style="color:gray;font-size:13px;">Aucun élève.</p>';
+
+      // ✅ Cacher complètement la section "Mes élèves" si aucun élève dans ce cycle
+      if (nbAffiches === 0) {
+        section.style.display = 'none';
+      } else {
+        section.style.display = 'block';
+      }
     } catch (err) {
       accordeon.innerHTML = `<p style="color:red;font-size:13px;">Erreur : ${err.message}</p>`;
+      section.style.display = 'block';
     }
   }
 
