@@ -242,6 +242,37 @@
   .rendu-summary { font-size: 12px; padding: 8px 10px; background: #f7f5f0; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 8px; }
   .rendu-summary a { color: var(--brass); font-weight: 700; text-decoration: none; }
   .nr-list { display: none; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; color: var(--slate); }
+  /* ===== VAGUE 2 — Hors-ligne, contacts, recherche ===== */
+  #offline-banner { display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 4000; background: var(--ink-deep); color: #fff; font-size: 12px; text-align: center; padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px)); }
+  #offline-banner.show { display: block; }
+
+  #search-filters { display: flex; gap: 8px; margin-top: 8px; }
+  #search-filters select { flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-family: inherit; font-size: 13px; color: var(--ink); }
+
+  .search-result-line .sr-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .search-result-line .sr-goto { border: none; cursor: pointer; font-family: inherit; background: var(--ink-deep); }
+  .search-result-line .sr-online { color: var(--slate); font-weight: 600; font-size: 12px; }
+
+  #eleves-search { width: 100%; padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 10px; font-family: inherit; font-size: 14px; background: #fff; }
+  .eleve-ligne { display: block; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+  .eleve-ligne:last-child { border-bottom: none; }
+  .el-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .eleve-ligne .eleve-nom { font-size: 14px; font-weight: 500; }
+  .eleve-ligne .eleve-actions { display: flex; gap: 6px; }
+  .eleve-ligne .eleve-actions button { font-size: 11px; padding: 6px 10px; border: none; border-radius: 6px; cursor: pointer; font-family: inherit; font-weight: 600; }
+  .btn-contact { background: var(--ink-deep); color: #fff; }
+  .eleve-contact { display: none; margin-top: 8px; padding: 8px 10px; background: #f7f5f0; border-radius: 8px; }
+  .eleve-ligne.ct-open .eleve-contact { display: block; }
+  .ct-line { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; padding: 6px 0; font-size: 12px; }
+  .ct-line + .ct-line { border-top: 1px solid #ece7da; }
+  .ct-who { font-weight: 600; color: var(--ink); }
+  .ct-who small { display: block; font-weight: 400; color: var(--slate); }
+  .ct-btns { display: flex; gap: 6px; }
+  .ct-btn { font-size: 11px; font-weight: 700; text-decoration: none; padding: 7px 10px; border-radius: 6px; background: var(--ink-deep); color: #fff; white-space: nowrap; }
+  .ct-btn.ct-wa { background: #1f9d55; }
+  .ct-none { font-size: 12px; color: var(--slate); }
+  .flash { animation: lfflash 1.6s ease; }
+  @keyframes lfflash { 0%,60% { box-shadow: 0 0 0 3px rgba(168,133,63,.6); } 100% { box-shadow: 0 0 0 0 rgba(168,133,63,0); } }
 </style>
 <meta name="author" content="Djiby Tall - LFAKM">
 <meta name="copyright" content="© 2026 Lycée Franco Arabe de Keur Madiabel. Tous droits réservés.">
@@ -494,6 +525,81 @@ async function attachRenduCounter(slug, devoirId, el) {
     paint();
   } catch (e) {}
 }
+
+// ============================================================
+//  VAGUE 2 — Hors-ligne, contacts, recherche élargie
+// ============================================================
+const PROFIL_URL = '../profil-eleve.html?uid=';
+const ACTUS_URL = 'actualites-mobile.html';
+const safeUrl = (u) => {
+  try { const x = new URL(String(u || ''), location.href); return (x.protocol === 'https:' || x.protocol === 'http:') ? x.href : '#'; }
+  catch (e) { return '#'; }
+};
+const byName = (a, b) => `${a.nom || ''} ${a.prenom || ''}`.localeCompare(`${b.nom || ''} ${b.prenom || ''}`);
+const classOrder = (id) => { const i = structure.findIndex(l => l.id === id); return i < 0 ? 999 : i; };
+
+// --- Hors-ligne ---
+function initOffline() {
+  if (document.getElementById('offline-banner')) return;
+  const bar = document.createElement('div');
+  bar.id = 'offline-banner';
+  bar.textContent = '📴 Hors ligne — vous consultez les dernières données enregistrées sur cet appareil.';
+  document.body.appendChild(bar);
+  const maj = () => bar.classList.toggle('show', !navigator.onLine);
+  window.addEventListener('online', maj);
+  window.addEventListener('offline', maj);
+  maj();
+}
+
+// --- Contact rapide (téléphone + WhatsApp) ---
+function normPhone(raw) {
+  let d = String(raw || '').replace(/\D/g, '');
+  if (!d) return '';
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.length === 9) d = '221' + d;
+  else if (d.length === 10 && d.startsWith('0')) d = '221' + d.slice(1);
+  return d.length >= 11 ? d : '';
+}
+function contactLine(label, nom, tel, msg) {
+  const n = normPhone(tel);
+  if (!n) return '';
+  return `<div class="ct-line"><span class="ct-who">${label}${nom ? ' — ' + escapeHtml(nom) : ''}<small>${escapeHtml(tel)}</small></span>` +
+    `<span class="ct-btns"><a class="ct-btn" href="tel:+${n}">📞 Appeler</a>` +
+    `<a class="ct-btn ct-wa" href="https://wa.me/${n}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">💬 WhatsApp</a></span></div>`;
+}
+function contactsHtml(e, classe) {
+  const f = e.famille || {};
+  const nomEleve = [e.prenom, e.nom].filter(Boolean).join(' ');
+  const msgParent = `Bonjour, je vous contacte depuis le Lycée Franco Arabe de Keur Madiabel au sujet de ${nomEleve} (${classe}).`;
+  const msgEleve = `Bonjour ${e.prenom || ''}, c'est ${profile?.prenom || ''} ${profile?.nom || ''} du Lycée Franco Arabe de Keur Madiabel.`.replace(/\s+/g, ' ');
+  return contactLine('Père / tuteur', f.pereNom, f.pereTel, msgParent) +
+         contactLine('Mère / tutrice', f.mereNom, f.mereTel, msgParent) +
+         contactLine('Élève', '', e.telephone, msgEleve);
+}
+
+// --- Navigation vers une classe/matière ---
+function goToClass(levelId, mat) {
+  const info = structure.find(l => l.id === levelId);
+  if (info && info.area !== currentCycle) document.querySelector(`.cycle-tab[data-cycle="${info.area}"]`)?.click();
+  const lvl = document.querySelector(`.level-accordion[data-level="${levelId}"]`);
+  if (!lvl) return;
+  lvl.classList.add('open');
+  const subj = [...lvl.querySelectorAll('.mat-accordion')].find(s => s.dataset.mat === mat);
+  if (subj) subj.classList.add('open');
+  const target = subj || lvl;
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  target.classList.add('flash');
+  setTimeout(() => target.classList.remove('flash'), 1800);
+}
+
+// --- Index de recherche (cours, TD, devoirs) ---
+const searchIndex = new Map();
+const indexSet = (kind, slug, items) => searchIndex.set(kind + '|' + slug, items);
+const matLabelFromSlug = (slug) => {
+  const ms = slug.slice(slug.indexOf('-') + 1);
+  for (const l of structure) for (const m of l.mats) if (m.toLowerCase().replace(/[^a-z0-9]/g, '') === ms) return m;
+  return ms;
+};
 // ============================================================
   let profile = null;
   let currentCycle = 'college-area';
@@ -667,6 +773,8 @@ buildUI();
 applyLevelVisibility();
 syncDocs();
 syncDevoirs();
+initOffline();
+initSearch();
 
 // ✅ Charger "Mes élèves" une fois le cycle actif connu
 if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
@@ -760,14 +868,16 @@ if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
         if (!ul) return;
         ul.innerHTML = snap.empty ? '<li style="color:gray;border:none;background:none;">Aucun fichier</li>' : '';
         let nNew = 0;
+                const items = [];
         snap.forEach(docSnap => {
           const d = docSnap.data();
           const when = docDate(docSnap);
           const recent = isRecent(when);
           if (recent) nNew++;
+          items.push({ kind: type, slug, levelId: slug.split('-')[0], matName: matLabelFromSlug(slug), titre: d.titre || '', url: d.url || '', date: when, isNew: recent });
           const icon = d.type === 'video' ? '🎥' : d.type === 'drive' ? '🔗' : '📄';
           const li = document.createElement('li');
-          li.innerHTML = `<a href="${d.url}" target="_blank">${icon} ${escapeHtml(d.titre)}${recent ? ' ' + NEW_PILL : ''}</a>`;
+          li.innerHTML = `<a href="${attr(safeUrl(d.url))}" target="_blank" rel="noopener">${icon} ${escapeHtml(d.titre)}${recent ? ' ' + NEW_PILL : ''}</a>`;
           if (role === 'professeur' || isAdmin(role)) {
             const del = document.createElement('button');
             del.innerHTML = '✕'; del.className = 'delete-btn';
@@ -776,6 +886,7 @@ if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
           }
           ul.appendChild(li);
         });
+        indexSet(type, slug, items);
         setNew(slug, type, nNew);
       });
     });
@@ -797,12 +908,14 @@ if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
         if (!container) return;
         container.innerHTML = snap.empty ? '<p style="color:gray;font-size:12px;">Aucun devoir pour le moment</p>' : '';
         let nNew = 0;
+                const items = [];
         snap.forEach(devDoc => {
           const dv = devDoc.data();
           const dvType = dv.type || 'fichier';
           const when = docDate(devDoc);
           const recent = isRecent(when);
           if (recent) nNew++;
+          items.push({ kind: 'devoir', slug, levelId: slug.split('-')[0], matName: matLabelFromSlug(slug), titre: dv.titre || '', url: dv.fichierUrl || dv.googleDocUrl || '', date: when, isNew: recent });
           const item = document.createElement('div');
           item.className = 'devoir-item';
           let headerBadge = '';
@@ -851,8 +964,9 @@ if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
             item.appendChild(delBtn);
             item.appendChild(rendusBox);
           }
-          container.appendChild(item);
+                    container.appendChild(item);
         });
+        indexSet('devoir', slug, items);
         setNew(slug, 'devoirs', nNew);
       });
     });
@@ -1135,7 +1249,7 @@ if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
     submitBtn.textContent = 'Publier le devoir';
   };
 
-  window.rendreDevoir = async (slug, devoirId) => {
+    window.rendreDevoir = async (slug, devoirId) => {
     const input = document.createElement('input');
     input.type = 'file'; input.accept = 'image/*,.pdf,.doc,.docx';
     input.onchange = async () => {
@@ -1147,7 +1261,7 @@ if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
         const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
         const data = await res.json();
         const uid = auth.currentUser.uid;
-        await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), { eleveNom: `${profile.prenom} ${profile.nom}`, url: data.secure_url, date: serverTimestamp() }, { merge: true });
+        await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), { eleveNom: `${profile.prenom} ${profile.nom}`, url: data.secure_url, enRetard: await lateFlag(slug, devoirId), date: serverTimestamp() }, { merge: true });
         alert('✅ Devoir envoyé !');
       } catch (e) { alert('❌ ' + e.message); }
     };
@@ -1235,29 +1349,33 @@ if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
       const cycleActuel = activeTab ? activeTab.dataset.cycle : currentCycle;
 
       let nbAffiches = 0;
-      classesTriees.forEach(niveau => {
+            classesTriees.forEach(niveau => {
         const classeInfo = structure.find(l => l.id === niveau);
-        // ✅ Filtrer : n'afficher que les classes du cycle actif
         if (!classeInfo || classeInfo.area !== cycleActuel) return;
         nbAffiches++;
         const nomClasse = classeInfo.name;
+        const liste = elevesParClasse[niveau];
+        const lignes = liste.map(e => {
+          const nom = `${e.prenom || ''} ${e.nom || ''}`.trim();
+          return `<div class="eleve-ligne" data-nom="${attr(normalize(nom))}">
+            <div class="el-top"><span class="eleve-nom">${escapeHtml(nom)}</span>
+              <div class="eleve-actions">
+                <button class="btn-contact" onclick="this.closest('.eleve-ligne').classList.toggle('ct-open')">📞 Contacts</button>
+                <button class="btn-profile" onclick="window.location.href='${PROFIL_URL}${encodeURIComponent(e.uid)}'">📊 Profil</button>
+              </div></div>
+            <div class="eleve-contact">${contactsHtml(e, nomClasse) || '<span class="ct-none">Aucun numéro renseigné pour cet élève.</span>'}</div>
+          </div>`;
+        }).join('');
         const div = document.createElement('div');
         div.className = 'level-accordion';
         div.style.marginBottom = '8px';
         div.innerHTML = `
           <div class="level-header" onclick="window.toggleAccordion(this)">
-            <span>${nomClasse} (${elevesParClasse[niveau].length})</span>
+            <span>${nomClasse} (${liste.length})</span>
             <span class="icon">▾</span>
           </div>
           <div class="level-body">
-            <div style="padding:12px 16px;">
-              ${elevesParClasse[niveau].map(e => `
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f0;">
-                  <span style="font-size:13px;">${escapeHtml(e.prenom)} ${escapeHtml(e.nom)}</span>
-                  <button class="devoir-btn btn-profile" onclick="window.location.href='../profil-eleve.html?uid=${e.uid}'">📊 Profil</button>
-                </div>
-              `).join('')}
-            </div>
+            <div style="padding:12px 16px;">${lignes}</div>
           </div>`;
         accordeon.appendChild(div);
       });
@@ -1267,6 +1385,23 @@ if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
         section.style.display = 'none';
       } else {
         section.style.display = 'block';
+      }
+            // ✅ Barre de recherche élève
+      if (nbAffiches > 0) {
+        const bar = document.createElement('input');
+        bar.type = 'search'; bar.id = 'eleves-search'; bar.placeholder = '🔍 Rechercher un élève par nom…';
+        bar.addEventListener('input', () => {
+          const q = normalize(bar.value);
+          accordeon.querySelectorAll('.eleve-ligne').forEach(l => {
+            l.style.display = (!q || l.dataset.nom.includes(q)) ? '' : 'none';
+          });
+          accordeon.querySelectorAll('.level-accordion').forEach(c => {
+            const vis = [...c.querySelectorAll('.eleve-ligne')].some(l => l.style.display !== 'none');
+            c.style.display = (!q || vis) ? '' : 'none';
+            if (q && vis) c.classList.add('open');
+          });
+        });
+        accordeon.prepend(bar);
       }
     } catch (err) {
       accordeon.innerHTML = `<p style="color:red;font-size:13px;">Erreur : ${err.message}</p>`;
@@ -1325,53 +1460,81 @@ if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
   const resultsList = document.getElementById('search-results-list');
   const noResults = document.getElementById('no-results-search');
 
-  if (searchBar) {
-    searchBar.oninput = async (e) => {
-      const t = e.target.value.toLowerCase().trim();
-      if (!t) { resultsZone.style.display = 'none'; noResults.style.display = 'none'; return; }
-      const results = [];
-      const niveau = profile?.niveau || '';
-      const profMats = profile?.disciplines || [];
-      const profClasses = profile?.assignedClasses || [];
-      const isAdminUser = profile && isAdmin(profile.role);
-      try {
-        const devoirsSnap = await getDocs(collectionGroup(db, 'devoirs'));
-        devoirsSnap.forEach(devDoc => {
-          const dv = devDoc.data();
-          const parentSlug = devDoc.ref.parent.parent.id;
-          const dashIndex = parentSlug.indexOf('-');
-          const levelId = dashIndex === -1 ? parentSlug : parentSlug.substring(0, dashIndex);
-          const matSlug = dashIndex === -1 ? '' : parentSlug.substring(dashIndex + 1);
-          let matName = matSlug;
-          MATS_COL.forEach(mat => { if (mat.toLowerCase().replace(/[^a-z0-9]/g, '') === matSlug) matName = mat; });
-          let allowed = false;
-          if (isAdminUser) allowed = true;
-          else if (profile?.role === 'professeur') allowed = matchesAny(levelId, profClasses) && matchesAny(matName, profMats);
-          else if (profile?.role === 'eleve') allowed = isSameString(niveau, levelId);
-          if (!allowed) return;
-          if (dv.titre && dv.titre.toLowerCase().includes(t)) {
-            const level = structure.find(l => l.id === levelId);
-            results.push({ titre: dv.titre, classe: level ? level.name : levelId, matiere: matName, date: dv.date?.toDate ? dv.date.toDate().toLocaleDateString('fr-FR') : '', url: dv.fichierUrl || dv.googleDocUrl || '' });
-          }
-        });
-        if (results.length > 0) {
-          resultsZone.style.display = 'block';
-          noResults.style.display = 'none';
-          resultsList.innerHTML = results.map(r => `
-            <div class="search-result-line">
-              <div>
-                <h4>📌 ${escapeHtml(r.titre)}</h4>
-                <p>${escapeHtml(r.matiere)} — ${escapeHtml(r.classe)} • 📅 ${r.date}</p>
-              </div>
-              ${r.url ? `<a href="${r.url}" target="_blank" class="open-btn">📂 Ouvrir</a>` : `<span style="color:var(--slate);font-weight:600;font-size:12px;">Devoir en ligne</span>`}
-            </div>`).join('');
-        } else {
-          resultsZone.style.display = 'block';
-          resultsList.innerHTML = '';
-          noResults.style.display = 'block';
-        }
-      } catch (err) { console.warn(err); }
+    // ============================================================
+  //  RECHERCHE ÉLARGIE — cours + TD + devoirs, avec filtres
+  // ============================================================
+  function initSearch() {
+    if (!searchBar || searchBar.dataset.ready) return;
+    searchBar.dataset.ready = '1';
+    searchBar.placeholder = '🔍 Rechercher un cours, un TD, un devoir…';
+    if (!resultsZone || !resultsList || !noResults) return;
+    const h = resultsZone.querySelector('h3'); if (h) h.textContent = '🔍 Résultats de la recherche :';
+    noResults.textContent = 'Aucun résultat ne correspond à votre recherche.';
+
+    // Créer la zone de filtres si elle n'existe pas
+    let filters = document.getElementById('search-filters');
+    if (!filters) {
+      filters = document.createElement('div');
+      filters.id = 'search-filters';
+      filters.innerHTML = '<select id="search-mat" aria-label="Filtrer par matière"><option value="">Toutes les matières</option></select>' +
+        '<select id="search-type" aria-label="Filtrer par type"><option value="">Cours, TD et devoirs</option><option value="cours">Cours</option><option value="td">TD</option><option value="devoir">Devoirs</option></select>';
+      (searchBar.closest('.search-wrap') || searchBar.parentElement).insertAdjacentElement('afterend', filters);
+    }
+    const matSel = filters.querySelector('#search-mat');
+    const typeSel = filters.querySelector('#search-type');
+    const LABEL = { cours: ['📘', 'Cours'], td: ['📝', 'TD'], devoir: ['📌', 'Devoir'] };
+    let derniereListe = '';
+    const majMatieres = () => {
+      const mats = new Set();
+      searchIndex.forEach(items => items.forEach(it => { if (it.matName) mats.add(it.matName); }));
+      const cle = [...mats].sort().join('|');
+      if (cle === derniereListe) return;
+      derniereListe = cle;
+      const cur = matSel.value;
+      matSel.innerHTML = '<option value="">Toutes les matières</option>' + [...mats].sort((a, b) => a.localeCompare(b)).map(m => `<option value="${attr(m)}">${escapeHtml(m)}</option>`).join('');
+      matSel.value = [...mats].includes(cur) ? cur : '';
     };
+    const run = () => {
+      majMatieres();
+      const t = normalize(searchBar.value), fm = matSel.value, ft = typeSel.value;
+      if (!t && !fm && !ft) { resultsZone.style.display = 'none'; noResults.style.display = 'none'; return; }
+      const res = [];
+      searchIndex.forEach(items => items.forEach(it => {
+        if (fm && it.matName !== fm) return;
+        if (ft && it.kind !== ft) return;
+        if (t && !normalize(it.titre).includes(t)) return;
+        res.push(it);
+      }));
+      res.sort((a, b) => (b.date ? b.date.getTime() : 0) - (a.date ? a.date.getTime() : 0));
+      resultsZone.style.display = 'block';
+      if (!res.length) { resultsList.innerHTML = ''; noResults.style.display = 'block'; return; }
+      noResults.style.display = 'none';
+      const affiches = res.slice(0, 50);
+      resultsList.innerHTML = affiches.map(r => {
+        const info = structure.find(l => l.id === r.levelId);
+        const [ico, lib] = LABEL[r.kind];
+        return `<div class="search-result-line">
+            <div>
+              <h4>${ico} ${escapeHtml(r.titre)}${r.isNew ? ' ' + NEW_PILL : ''}</h4>
+              <p>${escapeHtml(r.matName)} — ${escapeHtml(info ? info.name : r.levelId)} • ${lib}${r.date ? ' • 📅 ' + r.date.toLocaleDateString('fr-FR') : ''}</p>
+            </div>
+            <div class="sr-actions">
+              ${r.url ? `<a href="${attr(safeUrl(r.url))}" target="_blank" rel="noopener" class="open-btn">📂 Ouvrir</a>` : `<span class="sr-online">Devoir en ligne</span>`}
+              <button type="button" class="open-btn sr-goto" data-level="${attr(r.levelId)}" data-mat="${attr(r.matName)}">📍 Dans la classe</button>
+            </div>
+          </div>`;
+      }).join('') + (res.length > 50 ? `<p style="text-align:center;font-size:12px;color:var(--slate);">… et ${res.length - 50} autres résultats. Précisez votre recherche.</p>` : '');
+    };
+    let timer = null;
+    const lancer = () => { clearTimeout(timer); timer = setTimeout(run, 150); };
+    searchBar.addEventListener('input', lancer);
+    matSel.addEventListener('change', run);
+    typeSel.addEventListener('change', run);
+    resultsList.addEventListener('click', (e) => {
+      const b = e.target.closest('.sr-goto');
+      if (b) goToClass(b.dataset.level, b.dataset.mat);
+    });
+    majMatieres();
   }
 
   window.showContact = async () => {
