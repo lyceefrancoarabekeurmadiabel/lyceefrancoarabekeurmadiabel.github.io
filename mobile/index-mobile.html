@@ -173,6 +173,49 @@
   .admin-only,
   .gov-only,
   .connecte-only { display: none; }
+
+/* === MOBILE THEME CSS auto-ajouté === */
+#theme-toggle {
+  background: transparent; color: var(--ink, #1B2A4A); border: 1px solid var(--line, rgba(27,42,74,0.14));
+  border-radius: 8px; padding: 8px 12px; font-size: 18px; cursor: pointer;
+  font-family: inherit; min-height: 44px; min-width: 44px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+#theme-toggle:active { background: rgba(0,0,0,0.05); }
+
+[data-theme="dark"] {
+  --ink: #E8E4DC;
+  --ink-deep: #0A0F1C;
+  --paper: #14192B;
+  --brass: #D4AF5C;
+  --slate: #A0A6B8;
+  --line: rgba(232,228,220,0.15);
+  --success: #4CAF50;
+  --danger: #E57373;
+  --blue: #64B5F6;
+}
+[data-theme="dark"] body { background: var(--paper) !important; color: var(--ink) !important; }
+[data-theme="dark"] header { background: var(--paper) !important; border-color: var(--line) !important; }
+[data-theme="dark"] .hero,
+[data-theme="dark"] footer { background: var(--ink-deep) !important; }
+[data-theme="dark"] .brand-name { color: var(--ink) !important; }
+[data-theme="dark"] .brand-tag { color: var(--slate) !important; }
+[data-theme="dark"] .header-btn { background: var(--brass) !important; color: #0A0F1C !important; }
+[data-theme="dark"] .header-btn.secondary { background: transparent !important; color: var(--ink) !important; border-color: var(--line) !important; }
+[data-theme="dark"] .card { background: #1E2438 !important; color: var(--ink) !important; border-color: var(--line) !important; }
+[data-theme="dark"] .section-title { color: var(--ink) !important; }
+[data-theme="dark"] .drawer { background: #1E2438 !important; }
+[data-theme="dark"] .drawer-user { background: #232A40 !important; }
+[data-theme="dark"] .drawer-nav a,
+[data-theme="dark"] .drawer-nav button { color: var(--ink) !important; }
+[data-theme="dark"] .drawer-nav a:active,
+[data-theme="dark"] .drawer-nav button:active { background: #232A40 !important; }
+[data-theme="dark"] .drawer-header { border-color: var(--line) !important; }
+[data-theme="dark"] .drawer-footer { border-color: var(--line) !important; }
+[data-theme="dark"] #theme-toggle:active { background: rgba(255,255,255,0.08); }
+[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3 { color: var(--ink); }
+[data-theme="dark"] p { color: var(--slate); }
+
 </style>
 <meta name="author" content="Djiby Tall - LFAKM">
 <meta name="copyright" content="© 2026 Lycée Franco Arabe de Keur Madiabel. Tous droits réservés.">
@@ -190,6 +233,7 @@
     </div>
   </a>
   <div class="header-actions">
+    <button id="theme-toggle" type="button" aria-label="Basculer en mode sombre" title="Mode sombre">🌙</button>
     <button class="header-btn secondary" id="burger-btn" aria-label="Menu">☰</button>
   </div>
 </header>
@@ -428,6 +472,37 @@
       </div>`;
     document.body.appendChild(overlay);
   };
+</script>
+
+
+<!-- MOBILE THEME JS auto-ajouté -->
+<script>
+(function initTheme() {
+  const KEY = 'lfakm.theme';
+  const saved = localStorage.getItem(KEY);
+  if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  const btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+  const update = () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    btn.textContent = isDark ? '☀️' : '🌙';
+    btn.setAttribute('aria-label', isDark ? 'Basculer en mode clair' : 'Basculer en mode sombre');
+  };
+  update();
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem(KEY, 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem(KEY, 'dark');
+    }
+    update();
+  });
+})();
 </script>
 
 </body>
