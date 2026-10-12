@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
+    :root {
     --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
     --slate: #5B6472; --line: rgba(27,42,74,0.14);
     --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
@@ -21,6 +21,86 @@
     --danger: #d9534f;
     --blue: #3498db;
   }
+  /* ===== Mode sombre ===== */
+  [data-theme="dark"] {
+    --ink: #E8E4DC;
+    --ink-deep: #0A0F1C;
+    --paper: #14192B;
+    --brass: #D4AF5C;
+    --slate: #A0A6B8;
+    --line: rgba(232,228,220,0.15);
+    --success: #4CAF50;
+    --danger: #E57373;
+    --blue: #64B5F6;
+  }
+  [data-theme="dark"] body { background: var(--paper); color: var(--ink); }
+  [data-theme="dark"] header { background: var(--paper); border-color: var(--line); }
+  [data-theme="dark"] .hero,
+  [data-theme="dark"] footer { background: var(--ink-deep); }
+  [data-theme="dark"] .cycle-tabs,
+   
+  /* ✅ Onglets de cycle (Collège/Lycée) en mode sombre */
+  [data-theme="dark"] .cycle-tab {
+    background: transparent !important;
+    color: var(--slate) !important;
+  }
+  [data-theme="dark"] .cycle-tab.active {
+    background: var(--brass) !important;
+    color: #0A0F1C !important;
+  }
+  [data-theme="dark"] .cycle-tab:hover:not(.active) {
+    background: rgba(255,255,255,0.05) !important;
+    color: var(--ink) !important;
+  }
+  [data-theme="dark"] .level-accordion,
+  [data-theme="dark"] .level-header,
+  [data-theme="dark"] .mat-header,
+  [data-theme="dark"] .mat-body,
+  [data-theme="dark"] .search-result-line,
+  [data-theme="dark"] .devoir-item,
+  [data-theme="dark"] .modal-box,
+  [data-theme="dark"] #search-bar,
+  [data-theme="dark"] .drawer { background: #1E2438; color: var(--ink); border-color: var(--line); }
+    
+  /* ✅ Sélecteurs et champs de recherche en mode sombre */
+  [data-theme="dark"] #search-filters select,
+  [data-theme="dark"] #search-bar,
+  [data-theme="dark"] #eleves-search {
+    background: #232A40;
+    color: #E8E4DC;
+    border-color: var(--line);
+  }
+  [data-theme="dark"] select option {
+    background: #232A40;
+    color: #E8E4DC;
+  }
+  [data-theme="dark"] #search-filters select:focus,
+  [data-theme="dark"] #search-bar:focus,
+  [data-theme="dark"] #eleves-search:focus {
+    border-color: var(--brass);
+    outline: 2px solid var(--brass);
+    outline-offset: -1px;
+  }
+  [data-theme="dark"] .level-body,
+  [data-theme="dark"] .drawer-user { background: #181D2E; }
+  [data-theme="dark"] .mat-header { background: #232A40; }
+  [data-theme="dark"] .doc-list li { background: #232A40; border-color: var(--line); color: var(--ink); }
+  [data-theme="dark"] .doc-list li a { color: var(--ink); }
+  [data-theme="dark"] .drawer-nav a,
+  [data-theme="dark"] .drawer-nav button { color: var(--ink); }
+  [data-theme="dark"] .drawer-nav a:active,
+  [data-theme="dark"] .drawer-nav button:active { background: #232A40; }
+  [data-theme="dark"] .eleve-ligne { border-color: var(--line); }
+  [data-theme="dark"] .qcm-q-block label { background: #232A40; color: var(--ink); border-color: var(--line); }
+  [data-theme="dark"] #notif-bar { background: #2A2414; border-color: #5C4A1A; color: #E8D8A0; }
+  #theme-toggle {
+    background: transparent; color: var(--ink); border: 1px solid var(--line);
+    border-radius: 8px; padding: 8px 12px; font-size: 18px; cursor: pointer;
+    font-family: inherit; min-height: 44px; min-width: 44px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  #theme-toggle:active { background: rgba(0,0,0,0.05); }
+  [data-theme="dark"] #theme-toggle:active { background: rgba(255,255,255,0.08); }
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
   html, body { overflow-x: hidden; max-width: 100vw; }
   body { font-family: var(--sans); background: var(--paper); color: #1a1a1a; line-height: 1.55; min-height: 100vh; padding-bottom: env(safe-area-inset-bottom); }
@@ -300,7 +380,8 @@
       <div class="brand-tag">Excellence & Savoir</div>
     </div>
   </a>
-  <div class="header-actions">
+    <div class="header-actions">
+    <button id="theme-toggle" type="button" aria-label="Basculer en mode sombre" title="Mode sombre">🌙</button>
     <button class="header-btn secondary" id="burger-btn" aria-label="Menu">☰</button>
   </div>
 </header>
@@ -1683,6 +1764,34 @@ document.querySelectorAll('.cycle-tab').forEach(t => {
       </div>`;
     document.body.appendChild(overlay);
   };
+
+  // ============================================================
+  //  MODE SOMBRE
+  // ============================================================
+  (function initTheme() {
+    const KEY = 'lfakm.theme';
+    const saved = localStorage.getItem(KEY);
+    if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    const btn = document.getElementById('theme-toggle');
+    if (!btn) return;
+    const update = () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      btn.textContent = isDark ? '☀️' : '🌙';
+      btn.setAttribute('aria-label', isDark ? 'Basculer en mode clair' : 'Basculer en mode sombre');
+    };
+    update();
+    btn.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem(KEY, 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem(KEY, 'dark');
+      }
+      update();
+    });
+  })();
 
   console.log('✅ Ressources mobiles chargées');
 </script>
