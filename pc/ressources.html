@@ -990,83 +990,93 @@ async function exportNotes(slug, devoirId, dv) {
 }
 
 /* ---------- Recherche élargie (cours + TD + devoirs) ---------- */
-function initSearch() {
-  const bar = document.getElementById('search-bar');
-  if (!bar || bar.dataset.ready) return;
-  bar.dataset.ready = '1';
-  bar.placeholder = IS_MOBILE ? '🔍 Rechercher un cours, un TD, un devoir…' : 'Rechercher un cours, un TD ou un devoir...';
-  const zone = document.getElementById('search-results-zone');
-  const list = document.getElementById('search-results-list');
-  const none = document.getElementById('no-results-search');
-  if (!zone || !list || !none) return;
-  const h = zone.querySelector('h3'); if (h) h.textContent = '🔍 Résultats de la recherche :';
-  none.textContent = 'Aucun résultat ne correspond à votre recherche.';
-  const filters = document.createElement('div');
-  filters.id = 'search-filters';
-  filters.innerHTML = '<select id="search-mat" aria-label="Filtrer par matière"><option value="">Toutes les matières</option></select>' +
-    '<select id="search-type" aria-label="Filtrer par type"><option value="">Cours, TD et devoirs</option><option value="cours">Cours</option><option value="td">TD</option><option value="devoir">Devoirs</option></select>';
-  (bar.closest('.search-container, .search-wrap') || bar.parentElement).insertAdjacentElement('afterend', filters);
-  const matSel = filters.querySelector('#search-mat');
-  const typeSel = filters.querySelector('#search-type');
-  const LABEL = { cours: ['📘', 'Cours'], td: ['📝', 'TD'], devoir: ['📌', 'Devoir'] };
-  let derniereListe = '';
-  const majMatieres = () => {
-    const mats = new Set();
-    searchIndex.forEach(items => items.forEach(it => { if (it.matName) mats.add(it.matName); }));
-    const cle = [...mats].sort().join('|');
-    if (cle === derniereListe) return;
-    derniereListe = cle;
-    const cur = matSel.value;
-    matSel.innerHTML = '<option value="">Toutes les matières</option>' + [...mats].sort((a, b) => a.localeCompare(b)).map(m => `<option value="${attr(m)}">${escapeHtml(m)}</option>`).join('');
-    matSel.value = [...mats].includes(cur) ? cur : '';
-  };
-  const run = () => {
-        list.addEventListener('click', (e) => {
+  function initSearch() {
+    const bar = document.getElementById('search-bar');
+    if (!bar || bar.dataset.ready) return;
+    bar.dataset.ready = '1';
+    bar.placeholder = 'Rechercher un cours, un TD ou un devoir...';
+    const zone = document.getElementById('search-results-zone');
+    const list = document.getElementById('search-results-list');
+    const none = document.getElementById('no-results-search');
+    if (!zone || !list || !none) return;
+    const h = zone.querySelector('h3');
+    if (h) h.textContent = '🔍 Résultats de la recherche :';
+    none.textContent = 'Aucun résultat ne correspond à votre recherche.';
+
+    let filters = document.getElementById('search-filters');
+    if (!filters) {
+      filters = document.createElement('div');
+      filters.id = 'search-filters';
+      filters.innerHTML = '<select id="search-mat" aria-label="Filtrer par matière"><option value="">Toutes les matières</option></select>' +
+        '<select id="search-type" aria-label="Filtrer par type"><option value="">Cours, TD et devoirs</option><option value="cours">Cours</option><option value="td">TD</option><option value="devoir">Devoirs</option></select>';
+      (bar.closest('.search-container, .search-wrap') || bar.parentElement).insertAdjacentElement('afterend', filters);
+    }
+    const matSel = filters.querySelector('#search-mat');
+    const typeSel = filters.querySelector('#search-type');
+    const LABEL = { cours: ['📘', 'Cours'], td: ['📝', 'TD'], devoir: ['📌', 'Devoir'] };
+    let derniereListe = '';
+
+    const majMatieres = () => {
+      const mats = new Set();
+      // ✅ Afficher TOUTES les matières de structure
+      structure.forEach(lvl => lvl.mats.forEach(m => mats.add(m)));
+      // (et aussi celles qui sont indexées au cas où)
+      searchIndex.forEach(items => items.forEach(it => { if (it.matName) mats.add(it.matName); }));
+      const cle = [...mats].sort().join('|');
+      if (cle === derniereListe) return;
+      derniereListe = cle;
+      const cur = matSel.value;
+      matSel.innerHTML = '<option value="">Toutes les matières</option>' + [...mats].sort((a, b) => a.localeCompare(b)).map(m => `<option value="${attr(m)}">${escapeHtml(m)}</option>`).join('');
+      matSel.value = [...mats].includes(cur) ? cur : '';
+    };
+
+    const run = () => {
+      majMatieres();
+      const t = normalize(bar.value), fm = matSel.value, ft = typeSel.value;
+      if (!t && !fm && !ft) { zone.style.display = 'none'; none.style.display = 'none'; return; }
+      const res = [];
+      searchIndex.forEach(items => items.forEach(it => {
+        if (fm && it.matName !== fm) return;
+        if (ft && it.kind !== ft) return;
+        if (t && !normalize(it.titre).includes(t)) return;
+        res.push(it);
+      }));
+      res.sort((a, b) => (b.date ? b.date.getTime() : 0) - (a.date ? a.date.getTime() : 0));
+      zone.style.display = 'block';
+      if (!res.length) { list.innerHTML = ''; none.style.display = 'block'; return; }
+      none.style.display = 'none';
+      const affiches = res.slice(0, 50);
+      list.innerHTML = affiches.map(r => {
+        const info = structure.find(l => l.id === r.levelId);
+        const [ico, lib] = LABEL[r.kind];
+        return `<div class="search-result-line"><div class="info">
+            <h4>${ico} ${escapeHtml(r.titre)}${r.isNew ? ' ' + NEW_PILL : ''}</h4>
+            <p>${escapeHtml(r.matName)} - ${escapeHtml(info ? info.name : r.levelId)} • ${lib}${r.date ? ' • 📅 ' + r.date.toLocaleDateString('fr-FR') : ''}</p>
+          </div><div class="sr-actions">
+            ${r.url ? `<a href="${attr(safeUrl(r.url))}" target="_blank" rel="noopener" class="open-btn">📂 Ouvrir</a>` : `<span class="sr-online">Devoir en ligne</span>`}
+            <button type="button" class="open-btn sr-goto" data-level="${attr(r.levelId)}" data-mat="${attr(r.matName)}">📍 Dans la classe</button>
+          </div></div>`;
+      }).join('') + (res.length > 50 ? `<p style="text-align:center;font-size:12px;color:var(--slate);">… et ${res.length - 50} autres résultats. Précisez votre recherche.</p>` : '');
+    };
+
+    let timer = null;
+    const lancer = () => { clearTimeout(timer); timer = setTimeout(run, 150); };
+
+    bar.addEventListener('input', lancer);
+    matSel.addEventListener('change', run);
+    typeSel.addEventListener('change', run);
+    list.addEventListener('click', (e) => {
       const b = e.target.closest('.sr-goto');
       if (b) goToClass(b.dataset.level, b.dataset.mat);
     });
-    majMatieres();
+      majMatieres();
+    let tries = 0;
+    const refreshTimer = setInterval(() => {
+      tries++;
+      majMatieres();
+      if (tries >= 7) clearInterval(refreshTimer);
+    }, 1500);
   }
-    const t = normalize(bar.value), fm = matSel.value, ft = typeSel.value;
-    if (!t && !fm && !ft) { zone.style.display = 'none'; none.style.display = 'none'; return; }
-    const res = [];
-    searchIndex.forEach(items => items.forEach(it => {
-      if (fm && it.matName !== fm) return;
-      if (ft && it.kind !== ft) return;
-      if (t && !normalize(it.titre).includes(t)) return;
-      res.push(it);
-    }));
-    res.sort((a, b) => (b.date ? b.date.getTime() : 0) - (a.date ? a.date.getTime() : 0));
-    zone.style.display = 'block';
-    if (!res.length) { list.innerHTML = ''; none.style.display = 'block'; return; }
-    none.style.display = 'none';
-    const affiches = res.slice(0, 50);
-        list.innerHTML = affiches.map(r => {
-      const info = structure.find(l => l.id === r.levelId);
-      const [ico, lib] = LABEL[r.kind];
-      return `<div class="search-result-line"><div class="info">
-          <h4>${ico} ${escapeHtml(r.titre)}${r.isNew ? ' ' + NEW_PILL : ''}</h4>
-          <p>${escapeHtml(r.matName)} - ${escapeHtml(info ? info.name : r.levelId)} • ${lib}${r.date ? ' • 📅 ' + r.date.toLocaleDateString('fr-FR') : ''}</p>
-        </div><div class="sr-actions">
-          ${r.url ? `<a href="${attr(safeUrl(r.url))}" target="_blank" rel="noopener" class="open-btn">📂 Ouvrir</a>` : `<span class="sr-online">Devoir en ligne</span>`}
-          <button type="button" class="open-btn sr-goto" data-level="${attr(r.levelId)}" data-mat="${attr(r.matName)}">📍 Dans la classe</button>
-        </div></div>`;
-    }).join('') + (res.length > 50 ? `<p style="text-align:center;font-size:12px;color:var(--slate);">… et ${res.length - 50} autres résultats. Précisez votre recherche.</p>` : '');
-  };
-  let timer = null;
-  const lancer = () => { clearTimeout(timer); timer = setTimeout(run, 150); };
-  bar.addEventListener('input', lancer);
-  matSel.addEventListener('change', run);
-  typeSel.addEventListener('change', run);
-      list.addEventListener('click', (e) => {
-      const b = e.target.closest('.sr-goto');
-      if (b) goToClass(b.dataset.level, b.dataset.mat);
-    });
-  list.addEventListener('click', (e) => {
-    const b = e.target.closest('.sr-goto');
-    if (b) goToClass(b.dataset.level, b.dataset.mat);
-  });
-  majMatieres();
 
 /* ---------- Notifications, hors-ligne, installation ---------- */
 function toast(msg, onClick, ms = 8000) {
