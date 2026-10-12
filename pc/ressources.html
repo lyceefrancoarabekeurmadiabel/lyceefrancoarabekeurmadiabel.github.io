@@ -160,6 +160,110 @@
   }
   #theme-toggle:hover { background: rgba(0,0,0,0.05); }
   [data-theme="dark"] #theme-toggle:hover { background: rgba(255,255,255,0.08); }
+
+  
+  /* ===== A2 — Tri des devoirs ===== */
+  .devoirs-sort {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+    gap: 8px;
+    align-items: center;
+  }
+  .devoirs-sort select {
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 12px;
+    min-height: 36px;
+  }
+  [data-theme="dark"] .devoirs-sort select {
+    background: #232A40;
+    color: #E8E4DC;
+    border-color: var(--line);
+  }
+  [data-theme="dark"] .devoirs-sort select option {
+    background: #232A40;
+    color: #E8E4DC;
+  }
+
+    /* ===== A3 — Filtre "Devoirs à rendre" (élève) ===== */
+  .devoirs-filter {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .devoirs-filter button {
+    padding: 7px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--slate);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .devoirs-filter button:hover { background: #f7f5f0; }
+  .devoirs-filter button.active {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+  [data-theme="dark"] .devoirs-filter button {
+    background: #232A40;
+    color: #A0A6B8;
+    border-color: var(--line);
+  }
+  [data-theme="dark"] .devoirs-filter button:hover { background: #2A3150; }
+  [data-theme="dark"] .devoirs-filter button.active {
+    background: var(--brass);
+    color: #0A0F1C;
+    border-color: var(--brass);
+  }
+
+    /* ===== A4 — Indicateur vu/non vu ===== */
+  .doc-list li.seen .new-badge,
+  .devoir-item.seen .new-badge {
+    display: none;
+  }
+  .doc-list li.seen > a,
+  .devoir-item.seen h6 {
+    opacity: 0.75;
+  }
+    /* ===== A5 — Tout déplier / Tout replier ===== */
+  .expand-collapse-bar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .expand-collapse-bar button {
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .expand-collapse-bar button:hover { background: #f7f5f0; }
+  [data-theme="dark"] .expand-collapse-bar button {
+    background: #232A40;
+    color: #E8E4DC;
+    border-color: var(--line);
+  }
+  [data-theme="dark"] .expand-collapse-bar button:hover { background: #2A3150; }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: var(--sans); color: #1a1a1a; background: var(--paper); line-height:1.55; overflow-x: hidden; }
   header { position:sticky; top:0; z-index:1000; background:var(--paper); border-bottom:1px solid var(--line); height: 84px; display: flex; align-items: center; }
@@ -629,6 +733,40 @@ const store = {
   set(k, v) { try { localStorage.setItem(this._k(k), v); } catch (e) {} },
   del(k) { try { localStorage.removeItem(this._k(k)); } catch (e) {} }
 };
+/* ---------- Indicateur vu/non vu ---------- */
+const SEEN_KEY = 'lfakm.seen';
+function getSeenSet() {
+  try { const arr = JSON.parse(localStorage.getItem(SEEN_KEY) || '[]'); return new Set(arr); }
+  catch (e) { return new Set(); }
+}
+function saveSeenSet(set) {
+  try { localStorage.setItem(SEEN_KEY, JSON.stringify([...set])); } catch (e) {}
+}
+function markSeen(id) {
+  const s = getSeenSet();
+  s.add(id);
+  saveSeenSet(s);
+}
+function isSeen(id) {
+  return getSeenSet().has(id);
+}
+/* ---------- Tout déplier / Tout replier ---------- */
+function expandAllVisible() {
+  // Ouvre toutes les classes visibles
+  document.querySelectorAll(LEVEL_SEL).forEach(lvl => {
+    if (lvl.style.display !== 'none') {
+      lvl.classList.add('open');
+      // Ouvre toutes les matières de cette classe
+      lvl.querySelectorAll(SUBJ_SEL).forEach(subj => {
+        if (subj.style.display !== 'none') subj.classList.add('open');
+      });
+    }
+  });
+}
+function collapseAllVisible() {
+  document.querySelectorAll(LEVEL_SEL).forEach(lvl => lvl.classList.remove('open'));
+  document.querySelectorAll(SUBJ_SEL).forEach(subj => subj.classList.remove('open'));
+}
 const tsToDate = (ts) => (ts && typeof ts.toDate === 'function') ? ts.toDate() : (ts instanceof Date ? ts : null);
 function docDate(snap) {
   const d = tsToDate(snap.data({ serverTimestamps: 'estimate' }).date);
@@ -928,6 +1066,13 @@ function syncDocs() {
           const icon = d.type === 'video' ? '🎥' : d.type === 'drive' ? '🔗' : '📄';
           const li = document.createElement('li');
           li.innerHTML = `<a href="${attr(safeUrl(d.url))}" target="_blank" rel="noopener">${icon} ${escapeHtml(d.titre)}${recent ? ' ' + NEW_PILL : ''}</a>`;
+                    // ✅ Indicateur vu/non vu
+          const seenId = type + '-' + slug + '-' + docSnap.id;
+          if (isSeen(seenId)) li.classList.add('seen');
+          li.querySelector('a')?.addEventListener('click', () => {
+            markSeen(seenId);
+            li.classList.add('seen');
+          });
           if (role === 'professeur' || isAdmin(role)) {
             const del = document.createElement('button');
             del.innerHTML = '✕'; del.className = 'delete-btn';
@@ -977,9 +1122,85 @@ function syncDevoirs() {
         const scope = container._scope = [];
         listenerScope = scope;
         try {
-          container.innerHTML = snap.empty ? '<p style="color:gray;font-size:12px;">Aucun devoir pour le moment</p>' : '';
+                    container.innerHTML = snap.empty ? '<p style="color:gray;font-size:12px;">Aucun devoir pour le moment</p>' : '';
           const items = []; let nNew = 0;
-          snap.forEach(devDoc => {
+
+          // ✅ Menu de tri
+          const sortKey = 'sort-devoirs-' + slug;
+          const currentSort = (() => { try { return localStorage.getItem(sortKey) || 'recent'; } catch (e) { return 'recent'; } })();
+          if (!snap.empty) {
+            const sortBar = document.createElement('div');
+            sortBar.className = 'devoirs-sort';
+            sortBar.innerHTML = `<select aria-label="Trier les devoirs">
+              <option value="recent">📅 Plus récents</option>
+              <option value="echeance">⏰ Échéance proche</option>
+              <option value="nonrendus">📤 Non rendus d'abord</option>
+              <option value="nom">🔤 Nom (A→Z)</option>
+            </select>`;
+            const sel = sortBar.querySelector('select');
+            sel.value = currentSort;
+            sel.addEventListener('change', () => {
+              try { localStorage.setItem(sortKey, sel.value); } catch (e) {}
+            });
+            container.appendChild(sortBar);
+          }
+
+          
+          // ✅ Filtre pour élève : À rendre / Rendus
+          let devoirsFiltre = 'tous';
+          let uidsRendus = new Set();
+          if (role === 'eleve') {
+            const filtreKey = 'filtre-devoirs-' + slug;
+            devoirsFiltre = (() => { try { return localStorage.getItem(filtreKey) || 'tous'; } catch (e) { return 'tous'; } })();
+            const filterBar = document.createElement('div');
+            filterBar.className = 'devoirs-filter';
+            filterBar.innerHTML = `
+              <button type="button" data-f="tous" class="${devoirsFiltre === 'tous' ? 'active' : ''}">📋 Tous</button>
+              <button type="button" data-f="arendre" class="${devoirsFiltre === 'arendre' ? 'active' : ''}">⏳ À rendre</button>
+              <button type="button" data-f="rendus" class="${devoirsFiltre === 'rendus' ? 'active' : ''}">✅ Rendus</button>
+            `;
+            filterBar.querySelectorAll('button').forEach(b => {
+              b.addEventListener('click', () => {
+                const f = b.dataset.f;
+                try { localStorage.setItem(filtreKey, f); } catch (e) {}
+                filterBar.querySelectorAll('button').forEach(x => x.classList.toggle('active', x.dataset.f === f));
+                devoirsFiltre = f;
+                // Applique le filtre aux devoirs déjà affichés
+                container.querySelectorAll('.devoir-item[data-devoir-id]').forEach(item => {
+                  const uid = item.dataset.devoirId;
+                  const estRendu = uidsRendus.has(uid);
+                  let visible = true;
+                  if (f === 'arendre') visible = !estRendu;
+                  else if (f === 'rendus') visible = estRendu;
+                  item.style.display = visible ? '' : 'none';
+                });
+              });
+            });
+            container.appendChild(filterBar);
+          }
+
+                    // ✅ Trier les devoirs selon la préférence
+          const sortKey2 = 'sort-devoirs-' + slug;
+          const currentSort2 = (() => { try { return localStorage.getItem(sortKey2) || 'recent'; } catch (e) { return 'recent'; } })();
+          
+          const devoirsArray = [];
+          snap.forEach(doc => devoirsArray.push(doc));
+          
+          devoirsArray.sort((a, b) => {
+            const dvA = a.data(); const dvB = b.data();
+            if (currentSort2 === 'nom') {
+              return (dvA.titre || '').localeCompare(dvB.titre || '');
+            }
+            if (currentSort2 === 'echeance') {
+              const ea = deadlineInfo(dvA.dateLimite)?.n ?? 999;
+              const eb = deadlineInfo(dvB.dateLimite)?.n ?? 999;
+              return ea - eb;
+            }
+            const da = docDate(a); const db = docDate(b);
+            return (db ? db.getTime() : 0) - (da ? da.getTime() : 0);
+          });
+
+          devoirsArray.forEach(devDoc => {
             const dv = devDoc.data();
             const dvType = dv.type || 'fichier';
             const when = docDate(devDoc);
@@ -990,12 +1211,42 @@ function syncDevoirs() {
             item.className = 'devoir-item';
             const typeBadge = dvType === 'qcm' ? ' <span style="font-size:10px;color:var(--brass);font-weight:700;">QCM</span>'
               : dvType === 'mixte' ? ' <span style="font-size:10px;color:#4D6BFE;font-weight:700;">Mixte</span>' : '';
-            item.innerHTML = `<h6>📌 ${escapeHtml(dv.titre)}${typeBadge}${recent ? ' ' + NEW_PILL : ''}</h6>
+                        item.innerHTML = `<h6>📌 ${escapeHtml(dv.titre)}${typeBadge}${recent ? ' ' + NEW_PILL : ''}</h6>
               <div class="devoir-meta">📅 À rendre pour le ${escapeHtml(fmtLimite(dv.dateLimite))} ${dlPill(dv.dateLimite)} — proposé par ${escapeHtml(dv.profNom || 'le professeur')}</div>
               ${dv.consignes ? `<p style="font-size:13px;margin-bottom:8px;white-space:pre-line;">${escapeHtml(dv.consignes)}</p>` : ''}
               ${dv.googleDocUrl ? `<p style="margin-bottom:8px;"><a href="${attr(safeUrl(dv.googleDocUrl))}" target="_blank" rel="noopener">📄 Ouvrir le document Google Doc</a></p>` : ''}
               ${dv.fichierUrl ? `<p style="margin-bottom:8px;"><a href="${attr(safeUrl(dv.fichierUrl))}" target="_blank" rel="noopener">📎 ${escapeHtml(dv.fichierNom || 'Fichier joint')}</a></p>` : ''}`;
+
+            // ✅ Indicateur vu/non vu pour les devoirs (APRÈS le template)
+            const devoirSeenId = 'devoir-' + slug + '-' + devDoc.id;
+            if (isSeen(devoirSeenId)) item.classList.add('seen');
+            item.querySelectorAll('a, button').forEach(el => {
+              el.addEventListener('click', () => {
+                markSeen(devoirSeenId);
+                item.classList.add('seen');
+              }, { once: true });
+            });
+
+            // ✅ Marquer l'ID du devoir et vérifier s'il est rendu (élève)
             if (role === 'eleve') {
+              item.setAttribute('data-devoir-id', devDoc.id);
+              // On écoute le rendu pour savoir si l'élève a déjà rendu ce devoir
+              (async () => {
+                try {
+                  const r = await getDoc(doc(db, 'ressources', slug, 'devoirs', devDoc.id, 'rendus', auth.currentUser.uid));
+                  if (r.exists()) {
+                    uidsRendus.add(devDoc.id);
+                    // Si le filtre est "arendre" et que ce devoir est rendu, on le cache
+                    if (devoirsFiltre === 'arendre') item.style.display = 'none';
+                    // Si le filtre est "rendus" et que ce devoir est rendu, on l'affiche
+                    else if (devoirsFiltre === 'rendus') item.style.display = '';
+                  } else {
+                    // Non rendu
+                    if (devoirsFiltre === 'rendus') item.style.display = 'none';
+                  }
+                } catch (e) {}
+                            })();
+
               const responseArea = document.createElement('div');
               item.appendChild(responseArea);
               if (dvType === 'qcm') renderQcmForStudent(slug, devDoc.id, dv, responseArea);
@@ -1335,8 +1586,13 @@ function initFeatures() {
         try { rememberOpen(element.parentElement); } catch (e) {}
     };
 
-    function buildUI() {
+        function buildUI() {
         let html = '';
+        // ✅ Barre "Tout déplier / Tout replier"
+        html += `<div class="expand-collapse-bar">
+          <button type="button" onclick="window.expandAllVisible?.()">📂 Tout déplier</button>
+          <button type="button" onclick="window.collapseAllVisible?.()">📁 Tout replier</button>
+        </div>`;
         const cycles = [
             { key: 'college-area', label: 'Collège' },
             { key: 'lycee-area', label: 'Lycée' }
