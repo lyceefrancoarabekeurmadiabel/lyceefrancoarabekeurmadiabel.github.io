@@ -71,6 +71,32 @@
   .btn-action:hover { background: #96743a; }
   .btn-secondary { background: #5B6472; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; margin: 5px; font-size: 13px; }
   footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 50px; }
+
+/* ===== MODE SOMBRE (auto-ajouté) ===== */
+[data-theme="dark"] { --ink:#E8E4DC; --ink-deep:#0A0F1C; --paper:#14192B; --brass:#D4AF5C; --slate:#A0A6B8; --line:rgba(232,228,220,0.15); }
+[data-theme="dark"] body { background: var(--paper) !important; color: var(--ink) !important; }
+[data-theme="dark"] header { background: var(--paper) !important; border-bottom-color: var(--line) !important; }
+[data-theme="dark"] nav a { color: var(--ink) !important; }
+[data-theme="dark"] nav a:hover { color: var(--brass) !important; }
+[data-theme="dark"] .brand-name { color: var(--ink) !important; }
+[data-theme="dark"] .brand-tag { color: var(--slate) !important; }
+[data-theme="dark"] .card { background: #1E2438 !important; color: var(--ink) !important; border-color: var(--line) !important; }
+[data-theme="dark"] .card h3 { color: var(--ink) !important; }
+[data-theme="dark"] .card p { color: var(--slate) !important; }
+[data-theme="dark"] .section-title { color: var(--ink) !important; }
+[data-theme="dark"] .hero { background: #0A0F1C !important; }
+[data-theme="dark"] footer { background: #0A0F1C !important; }
+[data-theme="dark"] .actus-card { background: #1E2438 !important; border-color: var(--line) !important; }
+[data-theme="dark"] .actus-card-body h4 { color: var(--ink) !important; }
+[data-theme="dark"] .actus-card-body span { color: var(--slate) !important; }
+[data-theme="dark"] .labo-dropdown,
+[data-theme="dark"] .admin-dropdown { background: #1E2438 !important; border-color: var(--line) !important; }
+[data-theme="dark"] .labo-dropdown a,
+[data-theme="dark"] .admin-dropdown a { color: #E8E4DC !important; }
+[data-theme="dark"] .labo-trigger,
+[data-theme="dark"] .admin-trigger { color: #E8E4DC !important; }
+/* ===== FIN MODE SOMBRE ===== */
+
 </style>
 <style>
   /* 🔒 Cache le body tant que la vérification auth n'est pas terminée */
@@ -98,24 +124,27 @@
     <nav>
       <ul id="menu">
         <li><a href="../index.html">Accueil</a></li>
-        <li class="admin-item">
-          <span class="admin-trigger">⚙️ Admin</span>
-          <div class="admin-dropdown">
-            <a href="../admin-ine.html">📥 Import INE</a>
-            <a href="../admin-gestion.html">👥 Gestion</a>
-            <a href="../admin-news.html">📰 Actualités</a>
-            <a href="../feedback.html#tab-dashboard">📊 Retours</a>
-          </div>
-        </li>
         <li><a href="../historique.html">Historique</a></li>
         <li><a href="../actualites.html">Actualités</a></li>
-        <li class="labo-item"><a href="labo-svt.html" style="color: var(--brass); font-weight:700;">🧬 Labo SVT</a></li>
-        <li><a href="pc/ressources.html">Ressources</a></li>
-
-        <!-- 🎓 Lien Gouvernement scolaire -->
-        <li class="gov-item">
-          <a href="pc/publier-annonce.html">🎓 Gouvernement</a>
+        <li class="labo-item">
+          <span class="labo-trigger">📚 Pédagogie ▾</span>
+          <div class="labo-dropdown">
+            <a href="../pc/ressources.html">📚 Ressources</a>
+            <a href="../pc/labo-pc.html">🔬 Labo PC</a>
+            <a href="../pc/labo-maths.html">📐 Labo Maths</a>
+            <a href="../pc/labo-svt.html">🧬 Labo SVT</a>
+            <a href="../pc/assistant.html">🤖 IA &amp; Études</a>
+            <a href="../community/index.html">👥 Communauté</a>
+          </div>
         </li>
+        <li class="admin-item">
+          <span class="admin-trigger">🔒 Espace pro ▾</span>
+          <div class="admin-dropdown">
+            <a href="../admin-gestion.html">⚙️ Administration</a>
+            <a href="../pc/publier-annonce.html" class="gov-only">🎓 Gouvernement</a>
+          </div>
+        </li>
+        <li><button id="theme-toggle" type="button" aria-label="Basculer en mode sombre" title="Mode sombre">🌙</button></li>
         <li id="user-profile" class="profile-info" onclick="window.openProfil()" style="cursor:pointer;" title="Voir mon profil"></li>
         <li><a href="../identification.html" class="nav-cta" id="auth-link">Se connecter</a></li>
       </ul>
@@ -437,5 +466,106 @@
     });
   }
 </script>
+
+<!-- theme-complete auto-ajouté -->
+<style>
+
+/* === Mode sombre — Navigation et composants === */
+[data-theme="dark"] {
+  --ink: #E8E4DC;
+  --ink-deep: #0A0F1C;
+  --paper: #14192B;
+  --brass: #D4AF5C;
+  --slate: #A0A6B8;
+  --line: rgba(232,228,220,0.15);
+}
+[data-theme="dark"] body { background: var(--paper) !important; color: var(--ink) !important; }
+[data-theme="dark"] header { background: var(--paper) !important; border-bottom-color: var(--line) !important; }
+[data-theme="dark"] nav a { color: var(--ink) !important; }
+[data-theme="dark"] nav a:hover { color: var(--brass) !important; }
+[data-theme="dark"] .brand-name { color: var(--ink) !important; }
+[data-theme="dark"] .brand-tag { color: var(--slate) !important; }
+[data-theme="dark"] .menu-toggle { color: var(--ink) !important; }
+[data-theme="dark"] .card { background: #1E2438 !important; color: var(--ink) !important; border-color: var(--line) !important; }
+[data-theme="dark"] .card h3 { color: var(--ink) !important; }
+[data-theme="dark"] .card p { color: var(--slate) !important; }
+[data-theme="dark"] .section-title { color: var(--ink) !important; }
+[data-theme="dark"] .hero { background: #0A0F1C !important; }
+[data-theme="dark"] footer { background: #0A0F1C !important; }
+[data-theme="dark"] .actus-card { background: #1E2438 !important; border-color: var(--line) !important; }
+[data-theme="dark"] .actus-card-body h4 { color: var(--ink) !important; }
+[data-theme="dark"] .actus-card-body span { color: var(--slate) !important; }
+[data-theme="dark"] #theme-toggle { color: var(--ink) !important; border-color: var(--line) !important; }
+[data-theme="dark"] #theme-toggle:hover { background: rgba(255,255,255,0.08) !important; }
+[data-theme="dark"] .labo-trigger,
+[data-theme="dark"] .admin-trigger { color: #E8E4DC !important; }
+[data-theme="dark"] .labo-dropdown,
+[data-theme="dark"] .admin-dropdown { background: #1E2438 !important; border-color: var(--line) !important; }
+[data-theme="dark"] .labo-dropdown a,
+[data-theme="dark"] .admin-dropdown a { color: #E8E4DC !important; }
+[data-theme="dark"] .labo-dropdown a:hover,
+[data-theme="dark"] .admin-dropdown a:hover { background: #2A3150 !important; color: #D4AF5C !important; }
+[data-theme="dark"] .profile-name { color: var(--brass) !important; }
+[data-theme="dark"] .profile-role { color: var(--slate) !important; }
+[data-theme="dark"] .nav-cta { background: var(--brass) !important; color: #0A0F1C !important; }
+
+/* Mode sombre — Mobile : drawer */
+@media (max-width: 1024px) {
+  [data-theme="dark"] nav ul {
+    background: #1E2438 !important;
+    border-bottom-color: var(--line) !important;
+  }
+  [data-theme="dark"] nav ul a,
+  [data-theme="dark"] nav ul .admin-trigger,
+  [data-theme="dark"] nav ul .labo-trigger {
+    background: #232A40 !important;
+    color: #E8E4DC !important;
+  }
+  [data-theme="dark"] nav ul a:hover,
+  [data-theme="dark"] nav ul .admin-trigger:hover,
+  [data-theme="dark"] nav ul .labo-trigger:hover {
+    background: #2A3150 !important;
+  }
+  [data-theme="dark"] .admin-dropdown a,
+  [data-theme="dark"] .labo-dropdown a {
+    color: #A0A6B8 !important;
+  }
+  [data-theme="dark"] .admin-dropdown a:hover,
+  [data-theme="dark"] .labo-dropdown a:hover {
+    background: #2A3150 !important;
+    color: #E8E4DC !important;
+  }
+}
+
+</style>
+<script>
+(function initTheme() {
+  const KEY = 'lfakm.theme';
+  const saved = localStorage.getItem(KEY);
+  if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  const btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+  const update = () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    btn.textContent = isDark ? '☀️' : '🌙';
+    btn.setAttribute('aria-label', isDark ? 'Basculer en mode clair' : 'Basculer en mode sombre');
+  };
+  update();
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem(KEY, 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem(KEY, 'dark');
+    }
+    update();
+  });
+})();
+</script>
+
 </body>
 </html>
