@@ -2030,5 +2030,73 @@ document.querySelectorAll('.cycle-tab').forEach(t => {
   console.log('✅ Ressources mobiles chargées');
 </script>
 
+
+<!-- GROUP-B (B3+B4) auto-ajouté -->
+<script type="module">
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, collectionGroup, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+(function initGroupB() {
+  const auth = getAuth();
+  const db = getFirestore();
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    try {
+      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+      if (!snap.exists()) return;
+      const p = snap.data();
+
+      // ===== B4 — Message de bienvenue =====
+      const welcomeEl = document.getElementById('welcome-msg');
+      if (welcomeEl) {
+        const prenom = (p.prenom || '').trim();
+        const h = new Date().getHours();
+        const salut = h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir';
+        if (p.role === 'eleve') {
+          welcomeEl.textContent = `${salut} ${prenom} 👋 — Consulte tes cours et devoirs ci-dessous.`;
+        } else if (p.role === 'professeur') {
+          welcomeEl.textContent = `${salut} ${prenom} — Gérez vos classes et contenus ici.`;
+        } else if (['admin','proviseur','censeur'].includes(p.role)) {
+          welcomeEl.textContent = `${salut} — Espace d'administration LFAKM.`;
+        }
+      }
+
+      // ===== B3 — Rappels 24h =====
+      if (p.role !== 'eleve') return;
+      const niveau = p.niveau;
+      if (!niveau) return;
+
+      const today = new Date().toISOString().slice(0, 10);
+      const KEY = 'lfakm.reminders-checked';
+      if (localStorage.getItem(KEY) === today) return;
+
+      const snapDevoirs = await getDocs(collectionGroup(db, 'devoirs'));
+      const now = new Date();
+      const demain = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+      const rappels = [];
+
+      snapDevoirs.forEach(d => {
+        const slug = d.ref.parent.parent.id;
+        const levelId = slug.split('-')[0];
+        if (levelId !== niveau) return;
+        const dv = d.data();
+        if (!dv.dateLimite) return;
+        const lim = new Date(dv.dateLimite + 'T23:59:59');
+        if (lim >= now && lim <= demain) rappels.push(dv.titre);
+      });
+
+      if (rappels.length > 0 && 'Notification' in window && Notification.permission === 'granted') {
+        const msg = rappels.length === 1
+          ? `📌 "${rappels[0]}" à rendre avant demain !`
+          : `📌 ${rappels.length} devoirs à rendre avant demain !`;
+        new Notification('Rappel LFAKM', { body: msg, icon: '../assets/favicon.png' });
+      }
+      localStorage.setItem(KEY, today);
+    } catch (e) { console.warn('Erreur Group B :', e); }
+  });
+})();
+</script>
+
 </body>
 </html>

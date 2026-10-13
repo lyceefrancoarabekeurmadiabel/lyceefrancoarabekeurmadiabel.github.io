@@ -323,7 +323,12 @@
         snap.forEach(d => {
           const n = d.data();
           const dest = n.destinataire || 'tous';
-          if (dest !== 'tous' && dest !== profile?.role && !isAdmin(profile?.role)) return;
+          const classeActuelle = profile?.niveau || '';
+          const estPourClasse = dest === 'classe:' + classeActuelle;
+          const estAdminUser = isAdmin(profile?.role);
+          const estPourTous = dest === 'tous';
+          const estPourRole = dest === profile?.role;
+          if (!estPourTous && !estPourRole && !estPourClasse && !estAdminUser) return;
           const date = n.date?.toDate ? n.date.toDate().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
           const govBadge = n.sourceGouvernement ? `<span class="gov-badge">🎓 GOUVERNEMENT SCOLAIRE</span>` : '';
           cards.push(`
