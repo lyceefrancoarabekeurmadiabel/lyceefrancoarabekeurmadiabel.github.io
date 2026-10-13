@@ -550,6 +550,8 @@
     <a href="actualites-mobile.html">📰 Actualités</a>
     <a href="historique-mobile.html">🏫 Historique</a>
     <a href="ressources-mobile.html" class="connecte-only">📚 Ressources</a>
+    <!-- PROF-PUBLISH-LINK auto-ajouté -->
+    <a href="prof-news.html" class="prof-only">📢 Publier pour ma classe</a>
 
     <div class="separator"></div>
 
@@ -2094,6 +2096,37 @@ import { getFirestore, doc, getDoc, collectionGroup, getDocs } from "https://www
       }
       localStorage.setItem(KEY, today);
     } catch (e) { console.warn('Erreur Group B :', e); }
+  });
+})();
+</script>
+
+
+<!-- PROF-PUBLISH-JS auto-ajouté -->
+<style>
+  .prof-only { display: none !important; }
+</style>
+<script type="module">
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+(function showProfPublishLink() {
+  const auth = getAuth();
+  const db = getFirestore();
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    try {
+      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+      if (!snap.exists()) return;
+      const p = snap.data();
+
+      // Afficher le lien "Publier" uniquement aux professeurs
+      if (p.role === 'professeur') {
+        document.querySelectorAll('.prof-only').forEach(el => {
+          el.style.setProperty('display', 'block', 'important');
+        });
+      }
+    } catch (e) { console.warn('PROF-PUBLISH-LINK erreur:', e); }
   });
 })();
 </script>

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Publier pour ma classe — LFAKM</title>
+<link rel="stylesheet" href="assets/style-menu.css">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<meta name="theme-color" content="#1B2A4A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
+    --slate: #5B6472; --line: rgba(27,42,74,0.14);
+    --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --success: #2e7d32; --danger: #d9534f;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: var(--sans); background: var(--paper); color: var(--ink); line-height: 1.55; min-height: 100vh; }
+
+  header {
+    background: var(--paper); border-bottom: 1px solid var(--line); padding: 10px 24px;
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 64px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); }
+  .brand-mark { width: 48px; height: 42px; display: flex; align-items: center; }
+  .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
+  .brand-name { font-family: var(--serif); font-weight: 700; font-size: 14px; }
+  .brand-tag { font-size: 10px; color: var(--slate); }
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+  #theme-toggle { background: transparent; color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; font-size: 18px; cursor: pointer; min-height: 44px; }
+  .nav-back { background: var(--ink-deep); color: #fff; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; }
+
+  .wrap { max-width: 720px; margin: 0 auto; padding: 24px 20px 40px; }
+  .hero { background: var(--ink-deep); color: #EFE9DC; padding: 40px 20px; text-align: center; margin-bottom: 24px; }
+  .hero h1 { font-family: var(--serif); font-size: 28px; margin-bottom: 8px; }
+  .hero p { font-size: 14px; opacity: 0.85; }
+
+  .form-box { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+  .form-box h2 { font-family: var(--serif); font-size: 20px; margin-bottom: 20px; color: var(--ink); }
+  
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--slate); }
+  .field input, .field textarea { width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; font-family: inherit; font-size: 14px; background: #fff; color: var(--ink); }
+  .field textarea { min-height: 120px; resize: vertical; }
+  .field input:focus, .field textarea:focus { outline: none; border-color: var(--brass); }
+
+  .classes-list { display: flex; flex-wrap: wrap; gap: 10px; }
+  .classe-item { display: flex; align-items: center; gap: 8px; background: #f7f5f0; padding: 10px 14px; border-radius: 8px; cursor: pointer; transition: background 0.15s; font-size: 13px; font-weight: 600; }
+  .classe-item:hover { background: #f0ede5; }
+  .classe-item input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--brass); }
+  .classe-item.selected { background: var(--brass); color: #fff; }
+
+  .submit-btn { background: var(--ink-deep); color: #fff; border: none; padding: 14px 24px; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; width: 100%; min-height: 48px; transition: background 0.15s; }
+  .submit-btn:hover { background: var(--brass); }
+  .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .feedback { padding: 12px 16px; border-radius: 8px; margin-top: 12px; font-size: 13px; font-weight: 600; display: none; }
+  .feedback.success { background: #e3f3e5; color: var(--success); display: block; }
+  .feedback.error { background: #fde2e1; color: var(--danger); display: block; }
+
+  .actus-publiees { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+  .actus-publiees h2 { font-family: var(--serif); font-size: 20px; margin-bottom: 20px; color: var(--ink); }
+  .actu-publiee { border-bottom: 1px solid #f0f0f0; padding: 14px 0; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .actu-publiee:last-child { border-bottom: none; }
+  .actu-info h3 { font-size: 15px; color: var(--ink); margin-bottom: 4px; }
+  .actu-info p { font-size: 12px; color: var(--slate); }
+  .actu-info .dest { color: var(--brass); font-weight: 700; }
+  .btn-delete { background: none; border: 1px solid var(--danger); color: var(--danger); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 600; }
+  .btn-delete:hover { background: var(--danger); color: #fff; }
+
+  .empty-msg { text-align: center; padding: 40px 20px; color: var(--slate); font-size: 14px; }
+
+  /* Mode sombre */
+  [data-theme="dark"] {
+    --ink: #E8E4DC; --ink-deep: #0A0F1C; --paper: #14192B;
+    --brass: #D4AF5C; --slate: #A0A6B8; --line: rgba(232,228,220,0.15);
+  }
+  [data-theme="dark"] body { background: var(--paper); color: var(--ink); }
+  [data-theme="dark"] header { background: var(--paper); border-color: var(--line); }
+  [data-theme="dark"] .form-box,
+  [data-theme="dark"] .actus-publiees { background: #1E2438; border-color: var(--line); }
+  [data-theme="dark"] .field input,
+  [data-theme="dark"] .field textarea { background: #232A40; color: var(--ink); border-color: var(--line); }
+  [data-theme="dark"] .classe-item { background: #232A40; color: var(--ink); }
+  [data-theme="dark"] .classe-item:hover { background: #2A3150; }
+  [data-theme="dark"] .actu-publiee { border-color: var(--line); }
+  [data-theme="dark"] .hero { background: #0A0F1C; }
+  [data-theme="dark"] #theme-toggle { color: var(--ink); border-color: var(--line); }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="brand">
+    <div class="brand-mark"><img src="logo-header.png" alt="LFAKM"></div>
+    <div>
+      <div class="brand-name">Lycée Franco Arabe de Keur Madiabel</div>
+      <div class="brand-tag">Excellence &amp; Savoir</div>
+    </div>
+  </a>
+  <div class="header-actions">
+    <button id="theme-toggle" type="button" aria-label="Basculer en mode sombre">🌙</button>
+    <a href="index.html" class="nav-back">← Accueil</a>
+  </div>
+</header>
+
+<section class="hero">
+  <h1>📢 Publier pour ma classe</h1>
+  <p>Prévenez vos élèves d'une information importante (contrôle, sortie, devoir…).</p>
+</section>
+
+<div class="wrap">
+
+  <div class="form-box">
+    <h2>Nouvelle publication</h2>
+    <form id="news-form">
+      <div class="field">
+        <label>Titre *</label>
+        <input type="text" id="news-titre" placeholder="Ex : Contrôle de Maths reporté" required maxlength="200">
+      </div>
+      <div class="field">
+        <label>Contenu *</label>
+        <textarea id="news-contenu" placeholder="Écrivez votre message ici…" required maxlength="5000"></textarea>
+      </div>
+      <div class="field">
+        <label>Image (facultatif)</label>
+        <input type="file" id="news-image" accept="image/*">
+      </div>
+      <div class="field">
+        <label>Destinataires * (cochez une ou plusieurs classes)</label>
+        <div class="classes-list" id="classes-list">
+          <div class="empty-msg" style="padding:20px;font-size:13px;">Chargement…</div>
+        </div>
+      </div>
+      <button type="submit" class="submit-btn" id="submit-btn">📢 Publier pour les classes sélectionnées</button>
+      <div id="feedback" class="feedback"></div>
+    </form>
+  </div>
+
+  <div class="actus-publiees">
+    <h2>📋 Mes publications récentes</h2>
+    <div id="actus-list">
+      <div class="empty-msg">Chargement…</div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, collection, addDoc, deleteDoc, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+  authDomain: "lfakm-87dec.firebaseapp.com",
+  projectId: "lfakm-87dec",
+  storageBucket: "lfakm-87dec.firebasestorage.app",
+  messagingSenderId: "739517262614",
+  appId: "1:739517262614:web:14abd3538427960c527e37"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let profile = null;
+const CLASSES_NOMS = {
+  '6a': 'Sixième A', '6b': 'Sixième B', '6c': 'Sixième C',
+  '5a': 'Cinquième A', '5b': 'Cinquième B',
+  '4a': 'Quatrième A', '4b': 'Quatrième B',
+  '3a': 'Troisième A', '3b': 'Troisième B',
+  '2s2a': 'Seconde S2A', '1s2a': 'Première S2A', 'ts2a': 'Terminale S2A',
+  '2la': 'Seconde LA', '1la': 'Première LA',
+  'tla1': 'Terminale LA 1', 'tla2': 'Terminale LA 2'
+};
+
+function afficherFeedback(msg, type = 'success') {
+  const el = document.getElementById('feedback');
+  el.textContent = msg;
+  el.className = 'feedback ' + type;
+  setTimeout(() => { el.className = 'feedback'; }, 5000);
+}
+
+// ==== Chargement du profil et des classes ====
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = 'identification.html';
+    return;
+  }
+  const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+  if (!snap.exists()) {
+    alert('Profil introuvable.');
+    return;
+  }
+  profile = snap.data();
+
+  if (profile.role !== 'professeur' && !['admin','proviseur','censeur'].includes(profile.role)) {
+    alert('Cette page est réservée aux professeurs et administrateurs.');
+    window.location.href = 'index.html';
+    return;
+  }
+
+  afficherClasses();
+  chargerMesPublications();
+});
+
+// ==== Afficher les cases à cocher des classes ====
+function afficherClasses() {
+  const container = document.getElementById('classes-list');
+  const classes = profile.assignedClasses || [];
+  if (classes.length === 0) {
+    container.innerHTML = '<div class="empty-msg">Aucune classe assignée à votre profil.</div>';
+    return;
+  }
+  container.innerHTML = classes.map(id => `
+    <label class="classe-item">
+      <input type="checkbox" value="classe:${id}" data-classe="${id}">
+      <span>👥 ${CLASSES_NOMS[id] || id}</span>
+    </label>
+  `).join('');
+  container.querySelectorAll('input[type=checkbox]').forEach(cb => {
+    cb.addEventListener('change', (e) => {
+      e.target.closest('.classe-item').classList.toggle('selected', e.target.checked);
+    });
+  });
+}
+
+// ==== Formulaire de publication ====
+document.getElementById('news-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const titre = document.getElementById('news-titre').value.trim();
+  const contenu = document.getElementById('news-contenu').value.trim();
+  const imageFile = document.getElementById('news-image').files[0];
+  const classesCochees = Array.from(document.querySelectorAll('#classes-list input:checked'))
+    .map(cb => cb.value);
+
+  if (!titre || !contenu) {
+    afficherFeedback('Titre et contenu obligatoires.', 'error');
+    return;
+  }
+  if (classesCochees.length === 0) {
+    afficherFeedback('Cochez au moins une classe.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Publication en cours…';
+
+  try {
+        // Upload image si présente (Cloudinary) — AVEC COMPRESSION
+    let imageUrl = null;
+    if (imageFile) {
+      // Vérif taille origine (max 5 Mo)
+      if (imageFile.size > 5 * 1024 * 1024) {
+        throw new Error('Image trop volumineuse (max 5 Mo avant compression).');
+      }
+      // Compresser avant upload
+      const compressed = await compresserImage(imageFile, 800, 0.75);
+      const fd = new FormData();
+      fd.append('file', compressed);
+      fd.append('upload_preset', 'lfakm_ressources');
+      const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      imageUrl = data.secure_url;
+    }
+
+    // Créer UNE actu par classe
+    for (const dest of classesCochees) {
+      await addDoc(collection(db, 'actualites'), {
+        titre,
+        contenu,
+        destinataire: dest,
+        image: imageUrl,
+        auteurId: auth.currentUser.uid,
+        auteurNom: `${profile.prenom} ${profile.nom}`,
+        sourceProf: true,
+        date: serverTimestamp()
+      });
+    }
+
+    afficherFeedback(`✅ Publication envoyée à ${classesCochees.length} classe${classesCochees.length > 1 ? 's' : ''} !`);
+    document.getElementById('news-form').reset();
+    document.querySelectorAll('.classe-item').forEach(el => el.classList.remove('selected'));
+
+  } catch (err) {
+    afficherFeedback('❌ Erreur : ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '📢 Publier pour les classes sélectionnées';
+  }
+});
+
+// ==== Mes publications (avec suppression) ====
+function chargerMesPublications() {
+  const container = document.getElementById('actus-list');
+  const q = query(
+    collection(db, 'actualites'),
+    where('auteurId', '==', auth.currentUser.uid),
+    orderBy('date', 'desc')
+  );
+  onSnapshot(q, (snap) => {
+    if (snap.empty) {
+      container.innerHTML = '<div class="empty-msg">Aucune publication pour le moment.</div>';
+      return;
+    }
+    container.innerHTML = '';
+    snap.forEach(d => {
+      const n = d.data();
+      const dest = n.destinataire || '';
+      const classeId = dest.startsWith('classe:') ? dest.split(':')[1] : dest;
+      const date = n.date?.toDate ? n.date.toDate().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+      const div = document.createElement('div');
+      div.className = 'actu-publiee';
+      div.innerHTML = `
+        <div class="actu-info">
+          <h3>${escapeHtml(n.titre)}</h3>
+          <p>📅 ${date} — Destinataire : <span class="dest">${escapeHtml(CLASSES_NOMS[classeId] || classeId)}</span></p>
+        </div>
+        <button class="btn-delete" data-id="${d.id}">✕ Supprimer</button>
+      `;
+      container.appendChild(div);
+    });
+    container.querySelectorAll('.btn-delete').forEach(btn => {
+      btn.onclick = async () => {
+        if (!confirm('Supprimer cette publication ?')) return;
+        try {
+          await deleteDoc(doc(db, 'actualites', btn.dataset.id));
+        } catch (err) {
+          alert('Erreur : ' + err.message);
+        }
+      };
+    });
+  }, (err) => {
+    container.innerHTML = `<div class="empty-msg">Erreur de chargement : ${err.message}</div>`;
+  });
+}
+
+// ==== Compression d'image côté client (Canvas) ====
+function compresserImage(file, maxWidth = 800, qualite = 0.75) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        // Calculer les nouvelles dimensions
+        let { width, height } = img;
+        if (width > maxWidth) {
+          height = Math.round(height * (maxWidth / width));
+          width = maxWidth;
+        }
+        // Créer un canvas et dessiner l'image redimensionnée
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        // Convertir en JPEG compressé
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) return reject(new Error('Erreur de compression'));
+            // Créer un nouveau File (avec nom propre)
+            const compressedFile = new File([blob], 'actu-' + Date.now() + '.jpg', {
+              type: 'image/jpeg',
+              lastModified: Date.now()
+            });
+            resolve(compressedFile);
+          },
+          'image/jpeg',
+          qualite
+        );
+      };
+      img.onerror = () => reject(new Error('Image invalide'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('Erreur de lecture'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str ?? '';
+  return div.innerHTML;
+}
+
+// ==== Mode sombre ====
+(function initTheme() {
+  const KEY = 'lfakm.theme';
+  const saved = localStorage.getItem(KEY);
+  if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  const btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+  const update = () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    btn.textContent = isDark ? '☀️' : '🌙';
+  };
+  update();
+  btn.onclick = () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem(KEY, 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem(KEY, 'dark');
+    }
+    update();
+  };
+})();
+</script>
+
+</body>
+</html>

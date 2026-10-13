@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Labo Physique-Chimie — Mobile | LFAKM</title>
+<link rel="manifest" href="../assets/manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
+    --slate: #5B6472; --line: rgba(27,42,74,0.14);
+    --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --touch-size: 56px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { overflow-x: hidden; max-width: 100vw; }
+  body {
+    font-family: var(--sans);
+    background: var(--paper);
+    color: #1a1a1a;
+    line-height: 1.55;
+    min-height: 100vh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .top-nav {
+    background: var(--ink-deep);
+    color: #fff;
+    padding: 12px 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .top-nav a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.1);
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .top-nav a:active { background: rgba(255,255,255,0.25); }
+
+  .hero {
+    background: var(--ink-deep);
+    color: #EFE9DC;
+    padding: 30px 20px 40px;
+    text-align: center;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: 28px;
+    margin-bottom: 10px;
+    line-height: 1.2;
+  }
+  .hero p { font-size: 14px; opacity: 0.85; }
+
+  .wrap { padding: 20px 14px 40px; max-width: 700px; margin: 0 auto; }
+
+  .section-title {
+    font-family: var(--serif);
+    font-size: 20px;
+    color: var(--ink);
+    border-left: 5px solid var(--brass);
+    padding-left: 12px;
+    margin: 25px 0 15px;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    min-height: var(--touch-size);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .card:active {
+    transform: scale(0.98);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .card-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+    width: 48px;
+    text-align: center;
+  }
+  .card-body { flex: 1; min-width: 0; }
+  .card-body h3 {
+    font-size: 15px;
+    color: var(--ink);
+    margin-bottom: 3px;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .card-body p {
+    font-size: 12px;
+    color: var(--slate);
+    line-height: 1.4;
+  }
+  .card-arrow {
+    font-size: 20px;
+    color: var(--brass);
+    flex-shrink: 0;
+    font-weight: 700;
+  }
+
+  .info-box {
+    background: rgba(168,133,63,0.08);
+    border: 1px solid rgba(168,133,63,0.2);
+    border-radius: 10px;
+    padding: 14px;
+    margin: 20px 0;
+    font-size: 13px;
+    color: var(--slate);
+  }
+  .info-box strong { color: var(--ink); }
+
+  footer {
+    background: var(--ink-deep);
+    color: #B7BCC9;
+    padding: 25px 15px;
+    text-align: center;
+    font-size: 12px;
+  }
+
+/* === MOBILE THEME CSS auto-ajouté === */
+#theme-toggle {
+  background: transparent; color: var(--ink, #1B2A4A); border: 1px solid var(--line, rgba(27,42,74,0.14));
+  border-radius: 8px; padding: 8px 12px; font-size: 18px; cursor: pointer;
+  font-family: inherit; min-height: 44px; min-width: 44px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+#theme-toggle:active { background: rgba(0,0,0,0.05); }
+
+[data-theme="dark"] {
+  --ink: #E8E4DC;
+  --ink-deep: #0A0F1C;
+  --paper: #14192B;
+  --brass: #D4AF5C;
+  --slate: #A0A6B8;
+  --line: rgba(232,228,220,0.15);
+  --success: #4CAF50;
+  --danger: #E57373;
+  --blue: #64B5F6;
+}
+[data-theme="dark"] body { background: var(--paper) !important; color: var(--ink) !important; }
+[data-theme="dark"] header { background: var(--paper) !important; border-color: var(--line) !important; }
+[data-theme="dark"] .hero,
+[data-theme="dark"] footer { background: var(--ink-deep) !important; }
+[data-theme="dark"] .brand-name { color: var(--ink) !important; }
+[data-theme="dark"] .brand-tag { color: var(--slate) !important; }
+[data-theme="dark"] .header-btn { background: var(--brass) !important; color: #0A0F1C !important; }
+[data-theme="dark"] .header-btn.secondary { background: transparent !important; color: var(--ink) !important; border-color: var(--line) !important; }
+[data-theme="dark"] .card { background: #1E2438 !important; color: var(--ink) !important; border-color: var(--line) !important; }
+[data-theme="dark"] .section-title { color: var(--ink) !important; }
+[data-theme="dark"] .drawer { background: #1E2438 !important; }
+[data-theme="dark"] .drawer-user { background: #232A40 !important; }
+[data-theme="dark"] .drawer-nav a,
+[data-theme="dark"] .drawer-nav button { color: var(--ink) !important; }
+[data-theme="dark"] .drawer-nav a:active,
+[data-theme="dark"] .drawer-nav button:active { background: #232A40 !important; }
+[data-theme="dark"] .drawer-header { border-color: var(--line) !important; }
+[data-theme="dark"] .drawer-footer { border-color: var(--line) !important; }
+[data-theme="dark"] #theme-toggle:active { background: rgba(255,255,255,0.08); }
+[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3 { color: var(--ink); }
+[data-theme="dark"] p { color: var(--slate); }
+
+</style>
+<style>
+  /* 🔒 Cache le body tant que la vérification auth n'est pas terminée */
+  body { visibility: hidden; }
+  body.auth-ok { visibility: visible; }
+</style>
+<meta name="author" content="Djiby Tall - LFAKM">
+<meta name="copyright" content="© 2026 Lycée Franco Arabe de Keur Madiabel. Tous droits réservés.">
+<meta name="description" content="Site officiel du Lycée Franco Arabe de Keur Madiabel — Excellence & Savoir.">
+<script src="/clean-url.js"></script>
+</head>
+<body>
+
+<div class="top-nav">
+  <a href="../index.html">🏠 Accueil</a>
+  <a href="../pc/labo-pc.html">🖥️ Version PC</a>
+</div>
+
+<section class="hero">
+  <h1>🔬 Labo Physique-Chimie</h1>
+  <p>Simulateurs tactiles optimisés pour ton téléphone</p>
+</section>
+
+<div class="wrap">
+
+  <div class="info-box">
+    💡 <strong>Astuce :</strong> ces simulateurs sont optimisés pour l'écran tactile. Pour une version complète, utilise l'ordinateur.
+  </div>
+
+  <h2 class="section-title">⚡ Électricité</h2>
+  <div class="cards">
+    <a class="card" href="simulateur-circuits-libre-mobile.html">
+      <div class="card-icon">⚡</div>
+      <div class="card-body">
+        <h3>Atelier de circuits</h3>
+        <p>Circuit électrique libre : construis et teste</p>
+      </div>
+      <div class="card-arrow">›</div>
+    </a>
+
+    <a class="card" href="simulateur-rc-mobile.html">
+      <div class="card-icon">⚡</div>
+      <div class="card-body">
+        <h3>RC — Condensateur</h3>
+        <p>Charge et décharge d'un condensateur</p>
+      </div>
+      <div class="card-arrow">›</div>
+    </a>
+
+    <a class="card" href="simulateur-rl-mobile.html">
+      <div class="card-icon">🌀</div>
+      <div class="card-body">
+        <h3>RL — Bobine</h3>
+        <p>Établissement et rupture du courant</p>
+      </div>
+      <div class="card-arrow">›</div>
+    </a>
+
+    <a class="card" href="simulateur-rlc-mobile.html">
+      <div class="card-icon">🌊</div>
+      <div class="card-body">
+        <h3>RLC libre</h3>
+        <p>Oscillations libres amorties</p>
+      </div>
+      <div class="card-arrow">›</div>
+    </a>
+
+    <a class="card" href="simulateur-rlc-forces-mobile.html">
+      <div class="card-icon">🎵</div>
+      <div class="card-body">
+        <h3>RLC forcé</h3>
+        <p>Oscillations forcées et résonance</p>
+      </div>
+      <div class="card-arrow">›</div>
+    </a>
+  </div>
+
+  <h2 class="section-title">🧪 Chimie</h2>
+  <div class="cards">
+    <a class="card" href="simulateur-dosage-mobile.html">
+      <div class="card-icon">🧪</div>
+      <div class="card-body">
+        <h3>Dosage acido-basique</h3>
+        <p>Dosage pH-métrique et colorimétrique</p>
+      </div>
+      <div class="card-arrow">›</div>
+    </a>
+  </div>
+
+  <h2 class="section-title">🎯 Optique</h2>
+  <div class="cards">
+    <a class="card" href="simulateur-interferences-mobile.html">
+      <div class="card-icon">🎯</div>
+      <div class="card-body">
+        <h3>Interférences (Young)</h3>
+        <p>Fentes d'Young et franges d'interférence</p>
+      </div>
+      <div class="card-arrow">›</div>
+    </a>
+
+    <a class="card" href="simulateur-lentilles-mobile.html">
+      <div class="card-icon">🔭</div>
+      <div class="card-body">
+        <h3>Lentilles minces</h3>
+        <p>Construction d'images optiques</p>
+      </div>
+      <div class="card-arrow">›</div>
+    </a>
+  </div>
+
+</div>
+
+<footer style="background: var(--ink-deep, #10192E); color: #B7BCC9; padding: 25px 20px 20px; text-align: center; font-size: 12px; margin-top: 30px;">
+  <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; margin-bottom: 10px;">
+    <a href="../community/index.html" style="color: #A8853F; text-decoration: none; font-weight: 700;">👥 Communauté</a>
+    <a href="#" onclick="window.showContact(); return false;" style="color: #B7BCC9; text-decoration: none;">📞 Contacter le Proviseur</a>
+  </div>
+  <div style="font-size: 11px; opacity: 0.7;">
+    © 2026 Lycée Franco Arabe de Keur Madiabel — Site conçu par <strong>Djiby Tall</strong>
+  </div>
+</footer>
+
+<script type="module">
+/* ============================================================
+ *  🏫 LFAKM — Lycée Franco Arabe de Keur Madiabel
+ *  Auteur  : Djiby Tall
+ *  Année   : 2025-2026
+ *  Droits  : © 2026 LFAKM. Tous droits réservés.
+ * ============================================================ */
+
+
+  // 🔒 Protection : redirige vers la connexion si non authentifié
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+    authDomain: "lfakm-87dec.firebaseapp.com",
+    projectId: "lfakm-87dec",
+    storageBucket: "lfakm-87dec.firebasestorage.app",
+    messagingSenderId: "739517262614",
+    appId: "1:739517262614:web:14abd3538427960c527e37"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      // 🔒 Pas connecté → redirection vers identification
+      const cible = encodeURIComponent(window.location.pathname + window.location.search);
+      window.location.replace('../identification.html?redirect=' + cible);
+    } else {
+      // ✅ Connecté → on affiche la page
+      document.body.classList.add('auth-ok');
+    }
+  });
+// 🔒 Protection de la page
+</script>
+
+<!-- MOBILE THEME JS auto-ajouté -->
+<script>
+(function initTheme() {
+  const KEY = 'lfakm.theme';
+  const saved = localStorage.getItem(KEY);
+  if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  const btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+  const update = () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    btn.textContent = isDark ? '☀️' : '🌙';
+    btn.setAttribute('aria-label', isDark ? 'Basculer en mode clair' : 'Basculer en mode sombre');
+  };
+  update();
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem(KEY, 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem(KEY, 'dark');
+    }
+    update();
+  });
+})();
+</script>
+
+</body>
+</html>

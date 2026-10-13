@@ -152,6 +152,8 @@
             <a href="pc/publier-annonce.html" class="gov-only">🎓 Gouvernement</a>
           </div>
         </li>
+        <!-- PROF-PUBLISH-LINK auto-ajouté -->
+        <li class="prof-only"><a href="prof-news.html">📢 Publier pour ma classe</a></li>
         <li><button id="theme-toggle" type="button" aria-label="Basculer en mode sombre" title="Mode sombre">🌙</button></li>
         <li id="user-profile" class="profile-info" onclick="window.openProfil()" style="cursor:pointer;" title="Voir mon profil"></li>
         <li><a href="identification.html" class="nav-cta" id="auth-link">Se connecter</a></li>
@@ -502,6 +504,37 @@
       localStorage.setItem(KEY, 'dark');
     }
     update();
+  });
+})();
+</script>
+
+
+<!-- PROF-PUBLISH-JS auto-ajouté -->
+<style>
+  .prof-only { display: none !important; }
+</style>
+<script type="module">
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+(function showProfPublishLink() {
+  const auth = getAuth();
+  const db = getFirestore();
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    try {
+      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+      if (!snap.exists()) return;
+      const p = snap.data();
+
+      // Afficher le lien "Publier" uniquement aux professeurs
+      if (p.role === 'professeur') {
+        document.querySelectorAll('.prof-only').forEach(el => {
+          el.style.setProperty('display', 'block', 'important');
+        });
+      }
+    } catch (e) { console.warn('PROF-PUBLISH-LINK erreur:', e); }
   });
 })();
 </script>
