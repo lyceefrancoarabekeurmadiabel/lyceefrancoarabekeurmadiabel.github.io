@@ -1,7 +1,7 @@
 /**
  * Détection mobile et redirection automatique.
  * 
- * Usage : ajouter <script src="assets/detect-mobile.js" defer></script>
+ * Usage : ajouter <script src="/assets/detect-mobile.js" defer></script>
  *         dans la page PC à partir de laquelle on veut rediriger.
  *
  * ⚠️ Définit window.__lfakmRedirectingMobile = true avant de rediriger.
