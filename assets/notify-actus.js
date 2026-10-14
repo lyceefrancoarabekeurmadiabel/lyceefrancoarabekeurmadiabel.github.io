@@ -1,30 +1,50 @@
 /**
- * assets/notify-actus.js
- * =======================
- * Détecte les nouvelles actualités ciblant l'utilisateur connecté
- * et affiche :
- *   - Un badge rouge avec compteur sur le lien "Actualités"
- *   - Un point d'exclamation 🔴 à côté du lien
- *   - Un toast lors du premier chargement
+ * assets/notify-actus.js (v3)
+ * ============================
+ * Badge persistant sur les liens "Actualités".
  *
- * Utilise localStorage pour mémoriser la dernière consultation.
+ * Fonctionnement :
+ *   1. Compte les actus non vues ciblant l'utilisateur
+ *   2. Affiche un badge rouge avec le compteur (si > 0)
+ *   3. Le badge ne disparaît QUE lorsque l'utilisateur clique sur un lien "Actualités"
+ *   4. Utilise localStorage pour persister entre les sessions
  *
- * ⚠️ Nécessite Firebase déjà initialisé dans la page parente.
- *    Expose window.lfakmNotifierActus(db, auth, profile)
+ * Expose :
+ *   - window.lfakmNotifierActus(db, auth, profile)  → à appeler après le chargement du profil
+ *   - window.lfakmMarkActusAsSeen()                  → appelé automatiquement au clic
  */
 
 (function () {
   'use strict';
 
   const STORAGE_KEY = 'lfakm.lastSeenActu';
-  const NEW_DAYS = 7; // On considère une actu "nouvelle" si < 7 jours
+  const NEW_DAYS = 7;
+  let __observer = null;
+  let __currentCount = 0;
 
-  /**
-   * Vérifie si une actu cible l'utilisateur courant.
-   * @param {object} actu - Données de l'actu
-   * @param {object} profile - Profil utilisateur { role, niveau, uid }
-   * @returns {boolean}
-   */
+  // ============================================================
+  // Utilitaires localStorage
+  // ============================================================
+  function getStorageKey(uid, niveau) {
+    return `${STORAGE_KEY}.${uid}.${niveau || 'all'}`;
+  }
+
+  function getLastSeen(uid, niveau) {
+    try {
+      const v = localStorage.getItem(getStorageKey(uid, niveau));
+      return v ? parseInt(v, 10) : 0;
+    } catch (e) { return 0; }
+  }
+
+  function setLastSeen(uid, niveau) {
+    try {
+      localStorage.setItem(getStorageKey(uid, niveau), String(Date.now()));
+    } catch (e) {}
+  }
+
+  // ============================================================
+  // Détection des actus ciblant l'utilisateur
+  // ============================================================
   function isTargeted(actu, profile) {
     if (!actu || !actu.destinataire) return false;
     const dest = actu.destinataire;
@@ -33,9 +53,7 @@
     if (dest === 'professeur' && profile.role === 'professeur') return true;
     if (dest.startsWith('classe:')) {
       const classeId = dest.split(':')[1];
-      // Pour un élève : comparer avec son niveau
       if (profile.role === 'eleve' && profile.niveau === classeId) return true;
-      // Pour un prof : comparer avec ses classes assignées
       if (profile.role === 'professeur' && Array.isArray(profile.assignedClasses)) {
         return profile.assignedClasses.includes(classeId);
       }
@@ -43,65 +61,26 @@
     return false;
   }
 
-  /**
-   * Retourne la clé localStorage pour un utilisateur.
-   */
-  function getStorageKey(uid, niveau) {
-    return `${STORAGE_KEY}.${uid}.${niveau || 'all'}`;
-  }
-
-  /**
-   * Récupère le timestamp de dernière consultation.
-   */
-  function getLastSeen(uid, niveau) {
-    try {
-      const v = localStorage.getItem(getStorageKey(uid, niveau));
-      return v ? parseInt(v, 10) : 0;
-    } catch (e) {
-      return 0;
-    }
-  }
-
-  /**
-   * Met à jour le timestamp de dernière consultation.
-   */
-  function setLastSeen(uid, niveau) {
-    try {
-      localStorage.setItem(getStorageKey(uid, niveau), String(Date.now()));
-    } catch (e) {}
-  }
-
-  /**
-   * Compte les nouvelles actus pour l'utilisateur.
-   * @returns {Promise<{count: number, latest: object|null}>}
-   */
   async function countNewActus(db, profile) {
     if (!profile || !profile.uid) return { count: 0, latest: null };
 
-    const { collection, query, orderBy, getDocs, Timestamp } = 
+    const { collection, query, orderBy, getDocs } =
       await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
 
     const lastSeen = getLastSeen(profile.uid, profile.niveau);
     const sevenDaysAgo = Date.now() - NEW_DAYS * 864e5;
 
-    // On récupère les 30 dernières actus pour filtrer côté client
-    // (évite les problèmes d'index Firestore avec les filtres complexes)
-    const q = query(
-      collection(db, 'actualites'),
-      orderBy('date', 'desc')
-    );
-
+    const q = query(collection(db, 'actualites'), orderBy('date', 'desc'));
     const snap = await getDocs(q);
+
     let count = 0;
     let latest = null;
 
     snap.forEach((d) => {
       const actu = d.data();
       if (!isTargeted(actu, profile)) return;
-
       const ts = actu.date?.toDate ? actu.date.toDate().getTime() : 0;
       if (ts < sevenDaysAgo) return;
-
       if (ts > lastSeen) {
         count++;
         if (!latest || ts > latest.ts) {
@@ -113,26 +92,22 @@
     return { count, latest };
   }
 
-  /**
-   * Injecte un badge dans les liens "Actualités".
-   */
-  function injectBadge(count) {
-    // Supprimer les anciens badges
+  // ============================================================
+  // Injection du badge
+  // ============================================================
+  function removeBadge() {
     document.querySelectorAll('.lfakm-actu-badge').forEach((el) => el.remove());
+  }
 
-    if (count <= 0) return;
+  function injectBadge(count) {
+    removeBadge();
+    if (count <= 0) return 0;
 
-    // Trouver tous les liens vers actualites.html ou actualites-mobile.html
-    const selectors = [
-      'a[href*="actualites"]',
-      'a[href*="actualites-mobile"]',
-    ];
-    const links = document.querySelectorAll(selectors.join(','));
+    const links = document.querySelectorAll('a[href*="actualites"]');
+    let injected = 0;
 
     links.forEach((link) => {
-      // Ignorer si déjà traité
       if (link.querySelector('.lfakm-actu-badge')) return;
-      // Ignorer si c'est un lien vers une autre page (déjà redirigé)
       if (link.dataset.noBadge === '1') return;
 
       const badge = document.createElement('span');
@@ -152,27 +127,48 @@
         animation: lfakm-pulse 1.5s ease-in-out infinite;
       `;
       link.appendChild(badge);
+      injected++;
     });
 
-    // Ajouter l'animation CSS si pas déjà présente
     if (!document.getElementById('lfakm-badge-style')) {
       const style = document.createElement('style');
       style.id = 'lfakm-badge-style';
-      style.textContent = `
-        @keyframes lfakm-pulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.15); }
-        }
-      `;
+      style.textContent = `@keyframes lfakm-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }`;
       document.head.appendChild(style);
     }
+
+    return injected;
   }
 
-  /**
-   * Affiche un toast informatif.
-   */
-  function showToast(message, count) {
-    // Éviter les doublons
+  // ============================================================
+  // Clic sur un lien actualités → marquer comme vu + retirer le badge
+  // ============================================================
+  function attachClickHandler() {
+    // Retirer l'ancien listener si présent
+    document.removeEventListener('click', handleActusClick, true);
+    document.addEventListener('click', handleActusClick, true);
+  }
+
+  function handleActusClick(e) {
+    const link = e.target.closest('a[href*="actualites"]');
+    if (!link) return;
+
+    // Marquer comme vu
+    if (typeof window.lfakmMarkActusAsSeen === 'function') {
+      window.lfakmMarkActusAsSeen();
+    }
+
+    // Retirer le badge immédiatement
+    removeBadge();
+    __currentCount = 0;
+
+    console.log('[lfakm-notify] Actus marquées comme vues (clic)');
+  }
+
+  // ============================================================
+  // Toast (optionnel, informatif)
+  // ============================================================
+  function showToast(message) {
     if (document.querySelector('.lfakm-actu-toast')) return;
 
     const toast = document.createElement('div');
@@ -186,7 +182,7 @@
       top: 16px;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 5000;
+      z-index: 99999;
       background: #10192E;
       color: #fff;
       padding: 14px 18px;
@@ -202,15 +198,8 @@
       animation: lfakm-slideDown 0.3s ease-out;
     `;
     toast.onclick = (e) => {
-      if (e.target.tagName === 'BUTTON') {
-        toast.remove();
-        return;
-      }
-      // Naviguer vers les actus
-      const url = location.pathname.includes('/mobile/')
-        ? 'actualites-mobile.html'
-        : '/actualites.html';
-      window.location.href = url;
+      if (e.target.tagName === 'BUTTON') { toast.remove(); return; }
+      window.location.href = '/actualites.html';
     };
     toast.querySelector('button').onclick = (e) => {
       e.stopPropagation();
@@ -218,63 +207,86 @@
     };
     document.body.appendChild(toast);
 
-    // Animation CSS
     if (!document.getElementById('lfakm-toast-style')) {
       const style = document.createElement('style');
       style.id = 'lfakm-toast-style';
-      style.textContent = `
-        @keyframes lfakm-slideDown {
-          from { opacity: 0; transform: translate(-50%, -20px); }
-          to { opacity: 1; transform: translate(-50%, 0); }
-        }
-      `;
+      style.textContent = `@keyframes lfakm-slideDown { from { opacity: 0; transform: translate(-50%, -20px); } to { opacity: 1; transform: translate(-50%, 0); } }`;
       document.head.appendChild(style);
     }
 
-    // Auto-dismiss après 8s
-    setTimeout(() => {
-      if (toast.parentNode) toast.remove();
-    }, 8000);
+    setTimeout(() => { if (toast.parentNode) toast.remove(); }, 10000);
   }
 
-  /**
-   * Point d'entrée principal. À appeler après initialisation Firebase.
-   * @param {object} db - Firestore instance
-   * @param {object} auth - Auth instance
-   * @param {object} profile - Profil utilisateur { uid, role, niveau, assignedClasses }
-   * @param {object} options - { showToast: bool, injectBadge: bool }
-   */
-  window.lfakmNotifierActus = async function (db, auth, profile, options = {}) {
-    const opts = Object.assign({
-      showToast: true,
-      injectBadge: true,
-    }, options);
+  // ============================================================
+  // Observer le DOM : si les liens apparaissent plus tard, réinjecter
+  // ============================================================
+  function watchForLinks() {
+    if (__observer) return;
 
+    __observer = new MutationObserver(() => {
+      if (__currentCount > 0) {
+        injectBadge(__currentCount);
+      }
+    });
+
+    __observer.observe(document.body, { childList: true, subtree: true });
+
+    // Arrêter après 60 secondes (suffisant pour tout chargement dynamique)
+    setTimeout(() => {
+      if (__observer) {
+        __observer.disconnect();
+        __observer = null;
+      }
+    }, 60000);
+  }
+
+  // ============================================================
+  // Point d'entrée
+  // ============================================================
+  window.lfakmNotifierActus = async function (db, auth, profile, options = {}) {
+    const opts = Object.assign({ showToast: false, injectBadge: true }, options);
     if (!profile || !profile.uid) return;
 
     try {
+      // Attacher le listener de clic (une seule fois)
+      attachClickHandler();
+
       const { count, latest } = await countNewActus(db, profile);
-      if (count === 0) return;
+      __currentCount = count;
 
-      if (opts.injectBadge) injectBadge(count);
+      console.log('[lfakm-notify] Actus non vues:', count);
 
+      if (count === 0) {
+        removeBadge();
+        return;
+      }
+
+      if (opts.injectBadge) {
+        const injected = injectBadge(count);
+        console.log('[lfakm-notify] Badges injectés:', injected);
+
+        // Si aucun lien trouvé → observer le DOM
+        if (injected === 0) {
+          console.log('[lfakm-notify] Aucun lien trouvé, observer activé');
+          watchForLinks();
+        }
+      }
+
+      // Toast optionnel (par défaut OFF pour ne pas gêner)
       if (opts.showToast) {
         const msg = count === 1
           ? `📰 1 nouvelle actualité${latest?.titre ? ` : "${latest.titre}"` : ''}`
           : `📰 ${count} nouvelles actualités vous attendent`;
-        showToast(msg, count);
+        showToast(msg);
       }
-
-      // Exposer une fonction pour marquer comme vu
-      window.lfakmMarkActusAsSeen = () => setLastSeen(profile.uid, profile.niveau);
     } catch (e) {
-      console.warn('[notify-actus] Erreur:', e.message);
+      console.warn('[lfakm-notify] Erreur:', e.message);
     }
   };
 
-  /**
-   * Marque les actus comme vues (à appeler sur la page actualites.html).
-   */
+  // ============================================================
+  // Marquer comme vu (appelé au clic sur un lien actualités)
+  // ============================================================
   window.lfakmMarkActusAsSeen = function () {
     const uid = window.__lfakmCurrentUid;
     const niveau = window.__lfakmCurrentNiveau;
