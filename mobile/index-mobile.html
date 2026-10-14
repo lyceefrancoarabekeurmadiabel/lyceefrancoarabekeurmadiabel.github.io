@@ -539,5 +539,34 @@ import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10
 })();
 </script>
 
+
+<!-- FIX-MOBILE-ADMIN-ITEM auto-ajouté -->
+<script type="module">
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+(function fixMobileAdminItem() {
+  const auth = getAuth();
+  const db = getFirestore();
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    try {
+      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+      if (!snap.exists()) return;
+      const p = snap.data();
+      const role = p.role;
+      const estAdmin = ['admin', 'proviseur', 'censeur'].includes(role);
+      
+      // Cacher "Espace pro" pour les non-admins
+      if (!estAdmin) {
+        document.querySelectorAll('.admin-item').forEach(el => {
+          el.style.setProperty('display', 'none', 'important');
+        });
+      }
+    } catch (e) { console.warn('FIX-MOBILE erreur:', e); }
+  });
+})();
+</script>
+
 </body>
 </html>

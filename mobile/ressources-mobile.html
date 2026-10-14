@@ -1076,12 +1076,18 @@ if (_isIOS && !_standalone) setTimeout(() => _showInstall(true), 0);
         // ✅ Afficher les liens connectés
         document.querySelectorAll('.connecte-only').forEach(el => el.style.display = 'flex');
 
-        if (isAdmin(profile.role)) {
-          document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
-        }
-        if (isAdmin(profile.role) || profile.role === 'president' || profile.role === 'ministre_communication') {
-          document.querySelectorAll('.gov-only').forEach(el => el.style.display = 'flex');
-        }
+        // ✅ Cacher "Espace pro" pour les non-admins (avec !important)
+if (!isAdmin(profile.role)) {
+  document.querySelectorAll('.admin-item').forEach(el => {
+    el.style.setProperty('display', 'none', 'important');
+  });
+}
+if (isAdmin(profile.role)) {
+  document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
+}
+if (isAdmin(profile.role) || profile.role === 'president' || profile.role === 'ministre_communication') {
+  document.querySelectorAll('.gov-only').forEach(el => el.style.display = 'flex');
+}
 
         updateDrawerUser();
 
@@ -2127,6 +2133,35 @@ import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10
         });
       }
     } catch (e) { console.warn('PROF-PUBLISH-LINK erreur:', e); }
+  });
+})();
+</script>
+
+
+<!-- FIX-MOBILE-ADMIN-ITEM auto-ajouté -->
+<script type="module">
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+(function fixMobileAdminItem() {
+  const auth = getAuth();
+  const db = getFirestore();
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    try {
+      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+      if (!snap.exists()) return;
+      const p = snap.data();
+      const role = p.role;
+      const estAdmin = ['admin', 'proviseur', 'censeur'].includes(role);
+      
+      // Cacher "Espace pro" pour les non-admins
+      if (!estAdmin) {
+        document.querySelectorAll('.admin-item').forEach(el => {
+          el.style.setProperty('display', 'none', 'important');
+        });
+      }
+    } catch (e) { console.warn('FIX-MOBILE erreur:', e); }
   });
 })();
 </script>
