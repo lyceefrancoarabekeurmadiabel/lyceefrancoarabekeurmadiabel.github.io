@@ -91,7 +91,7 @@ export function estEleve(profile) {
  * @param {string} categorie - Catégorie du contenu (maths, francais, general, etc.)
  * @returns {boolean}
  */
-export function peutModererContenu(profile, categorie) {
+function peutModererContenu(profile, categorie) {
   if (!profile) return false;
 
   // Admins : modération totale
