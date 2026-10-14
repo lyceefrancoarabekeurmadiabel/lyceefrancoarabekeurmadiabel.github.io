@@ -159,6 +159,7 @@
 <meta name="copyright" content="© 2026 Lycée Franco Arabe de Keur Madiabel. Tous droits réservés.">
 <meta name="description" content="Site officiel du Lycée Franco Arabe de Keur Madiabel — Excellence & Savoir.">
 <script src="/clean-url.js"></script>
+  <script src="/assets/notify-actus.js" defer></script>
 </head>
 <body>
 
@@ -288,6 +289,22 @@
       try {
         const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
         profile = snap.exists() ? snap.data() : null;
+          // __LFAKM_NOTIFY_ACTUS_INJECTED__
+          window.__lfakmCurrentUid = user.uid;
+          window.__lfakmCurrentNiveau = profile?.niveau || null;
+          if (typeof window.lfakmNotifierActus === 'function') {
+            window.lfakmNotifierActus(db, auth, profile).catch(() => {});
+          // __LFAKM_MARK_SEEN_INJECTED__
+          setTimeout(() => {
+            if (typeof window.lfakmMarkActusAsSeen === 'function') {
+              window.lfakmMarkActusAsSeen();
+            }
+          }, 2000);
+          // __FIN_LFAKM_MARK_SEEN__
+
+          }
+          // __FIN_LFAKM_NOTIFY_ACTUS__
+
         if (!profile) return;
 
         userBox.style.display = 'block';

@@ -463,6 +463,7 @@
 <meta name="copyright" content="© 2026 Lycée Franco Arabe de Keur Madiabel. Tous droits réservés.">
 <meta name="description" content="Site officiel du Lycée Franco Arabe de Keur Madiabel — Excellence & Savoir.">
 <script src="/clean-url.js"></script>
+  <script src="/assets/notify-actus.js" defer></script>
 </head>
 <body>
 
@@ -1638,6 +1639,14 @@ function initFeatures() {
                 return;
             }
             profile = snap.data();
+
+          // __LFAKM_NOTIFY_ACTUS_INJECTED__
+          window.__lfakmCurrentUid = user.uid;
+          window.__lfakmCurrentNiveau = profile?.niveau || null;
+          if (typeof window.lfakmNotifierActus === 'function') {
+            window.lfakmNotifierActus(db, auth, profile).catch(() => {});
+          }
+          // __FIN_LFAKM_NOTIFY_ACTUS__
 
                 // ✅ AFFICHER le menu déroulant "Laboratoire" du ruban (utilisateur connecté)
                 document.querySelectorAll('.labo-item').forEach(el => el.style.display = 'block');
