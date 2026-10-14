@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Ressources — LFAKM</title>
-<link rel="manifest" href="../assets/manifest.json">
+<link rel="manifest" href="/assets/manifest.json">
 <meta name="theme-color" content="#1B2A4A">
-<link rel="icon" type="image/png" href="../assets/favicon.png">
-<link rel="apple-touch-icon" href="../icons/icon-192.png">
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -479,7 +479,7 @@
 
 <header>
   <a href="index-mobile.html" class="brand">
-    <div class="brand-mark"><img src="../logo-header.png" alt="LFAKM"></div>
+    <div class="brand-mark"><img src="/logo-header.png" alt="LFAKM"></div>
     <div class="brand-text">
       <div class="brand-name">Lycée Franco Arabe de Keur Madiabel</div>
       <div class="brand-tag">Excellence & Savoir</div>
@@ -526,7 +526,7 @@
 
 <footer style="background: var(--ink-deep, #10192E); color: #B7BCC9; padding: 25px 20px 20px; text-align: center; font-size: 12px; margin-top: 30px;">
   <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; margin-bottom: 10px;">
-        <a href="../community/index.html" style="color: #A8853F; text-decoration: none; font-weight: 700;">👥 Communauté</a>
+        <a href="/community/index.html" style="color: #A8853F; text-decoration: none; font-weight: 700;">👥 Communauté</a>
     <a href="#" onclick="window.showContact(); return false;" style="color: #B7BCC9; text-decoration: none;">📞 Contacter le Proviseur</a>
     <a href="#" data-install onclick="return window.installApp();" style="color:#B7BCC9;text-decoration:none;">📲 Installer l'application</a>
   </div>
@@ -562,11 +562,11 @@
 
     <div class="separator"></div>
 
-    <a href="../admin-gestion.html" class="admin-only">⚙️ Administration</a>
-    <a href="../admin-news.html" class="admin-only">📰 Publier une actu</a>
-    <a href="../feedback.html" class="admin-only">📊 Retours</a>
+    <a href="/admin-gestion.html" class="admin-only">⚙️ Administration</a>
+    <a href="/admin-news.html" class="admin-only">📰 Publier une actu</a>
+    <a href="/feedback.html" class="admin-only">📊 Retours</a>
 
-    <a href="../pc/publier-annonce.html" class="gov gov-only">🎓 Gouvernement</a>
+    <a href="/pc/publier-annonce.html" class="gov gov-only">🎓 Gouvernement</a>
 
     <div class="separator"></div>
 
@@ -730,7 +730,7 @@ async function attachRenduCounter(slug, devoirId, el) {
 // ============================================================
 //  VAGUE 2 — Hors-ligne, contacts, recherche élargie
 // ============================================================
-const PROFIL_URL = '../profil-eleve.html?uid=';
+const PROFIL_URL = '/pc/profil-eleve.html?uid=';
 const ACTUS_URL = 'actualites-mobile.html';
 const safeUrl = (u) => {
   try { const x = new URL(String(u || ''), location.href); return (x.protocol === 'https:' || x.protocol === 'http:') ? x.href : '#'; }
@@ -875,7 +875,7 @@ async function notifier(title, body, tag, onClick) {
   const ok = ('Notification' in window) && Notification.permission === 'granted' && store.get('notif') !== '0';
   if (visible || !ok) { toast(`${title} — ${body}`, onClick); return; }
   try {
-    const opts = { body, tag, icon: '../assets/favicon.png', data: { url: location.href } };
+    const opts = { body, tag, icon: '/assets/favicon.png', data: { url: location.href } };
     const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration();
     if (reg && reg.showNotification) await reg.showNotification(title, opts);
     else new Notification(title, opts);
@@ -1149,9 +1149,9 @@ document.querySelectorAll('.cycle-tab').forEach(t => {
 
       contentArea.innerHTML = `<div class="empty-msg">
         🔒 Cet espace est réservé aux élèves, professeurs et personnel.<br><br>
-        <a href="../identification.html" style="color:var(--brass);font-weight:700;">Se connecter</a>
+        <a href="/identification.html" style="color:var(--brass);font-weight:700;">Se connecter</a>
         ou
-        <a href="../inscription.html" style="color:var(--brass);font-weight:700;">créer un compte</a>
+        <a href="/inscription.html" style="color:var(--brass);font-weight:700;">créer un compte</a>
       </div>`;
 
       updateDrawerUser();
@@ -2098,7 +2098,7 @@ import { getFirestore, doc, getDoc, collectionGroup, getDocs } from "https://www
         const msg = rappels.length === 1
           ? `📌 "${rappels[0]}" à rendre avant demain !`
           : `📌 ${rappels.length} devoirs à rendre avant demain !`;
-        new Notification('Rappel LFAKM', { body: msg, icon: '../assets/favicon.png' });
+        new Notification('Rappel LFAKM', { body: msg, icon: '/assets/favicon.png' });
       }
       localStorage.setItem(KEY, today);
     } catch (e) { console.warn('Erreur Group B :', e); }
