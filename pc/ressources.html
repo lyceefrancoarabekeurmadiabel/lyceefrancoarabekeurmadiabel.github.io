@@ -2269,32 +2269,36 @@ function initFeatures() {
         };
     }
 
-    window.rendreDevoir = async (slug, devoirId) => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*,.pdf,.doc,.docx';
-        input.onchange = async () => {
-            if (input.files[0].size > 15 * 1024 * 1024) { alert("Fichier trop volumineux (max 15 Mo)."); return; }
-            try {
-                const fd = new FormData();
-                fd.append('file', input.files[0]);
-                fd.append('upload_preset', "lfakm_ressources");
-                const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
-                const data = await res.json();
-                const uid = auth.currentUser.uid;
-                await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
-                    eleveNom: `${profile.prenom} ${profile.nom}`,
-                    url: data.secure_url,
-                    enRetard: await lateFlag(slug, devoirId),
-                    date: serverTimestamp()
-                }, { merge: true });
-                alert('✅ Devoir envoyé !');
-            } catch (e) {
-                alert('❌ Erreur: ' + e.message);
-            }
-        };
-        input.click();
-    };
+    window.rendreDevoir = (slug, devoirId) => {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*,.pdf,.doc,.docx';
+  input.style.display = 'none';
+  document.body.appendChild(input);   // ✅ ajouté au DOM
+
+  input.click();   // ✅ clic immédiat = activation intacte
+
+  input.onchange = async () => {
+    if (!input.files || !input.files[0]) { input.remove(); return; }
+    if (input.files[0].size > 15 * 1024 * 1024) { alert("Fichier trop volumineux (max 15 Mo)."); input.remove(); return; }
+    try {
+      const fd = new FormData();
+      fd.append('file', input.files[0]);
+      fd.append('upload_preset', "lfakm_ressources");
+      const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      const uid = auth.currentUser.uid;
+      await setDoc(doc(db, 'ressources', slug, 'devoirs', devoirId, 'rendus', uid), {
+        eleveNom: `${profile.prenom} ${profile.nom}`,
+        url: data.secure_url,
+        enRetard: await lateFlag(slug, devoirId),
+        date: serverTimestamp()
+      }, { merge: true });
+      alert('✅ Devoir envoyé !');
+    } catch (e) { alert('❌ Erreur: ' + e.message); }
+    finally { input.remove(); }
+  };
+};
 
     function logActivite(action, cible) {
         try {
@@ -2307,33 +2311,45 @@ function initFeatures() {
         } catch (e) {}
     }
 
-    window.up = async (id) => {
-        const titre = prompt('Nom du document :');
-        if (!titre) return;
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.onchange = async () => {
-            if (input.files[0].size > 5 * 1024 * 1024) {
-                alert("Fichier trop volumineux pour un envoi direct (max 5 Mo). Pour un cours ou un TD plus lourd, utilisez plutôt le bouton 🔗 Lien Drive/OneDrive (ou 🎥 Lien vidéo YouTube pour une vidéo).");
-                return;
-            }
-            try {
-                const fd = new FormData();
-                fd.append('file', input.files[0]);
-                fd.append('upload_preset', "lfakm_ressources");
-                const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
-                const data = await res.json();
-                const type = id.startsWith('cours-') ? 'cours' : 'td';
-                const slug = id.replace(/^cours-|^td-/, '');
-                await addDoc(collection(db, 'ressources', slug, type), { titre, url: data.secure_url, date: serverTimestamp() });
-                try { logActivite('création', `${type === 'cours' ? 'Cours' : 'TD'} "${titre}" (${slug})`); } catch(e) {}
-                alert('✅ Document ajouté !');
-            } catch (e) {
-                alert('❌ Erreur: ' + e.message);
-            }
-        };
-        input.click();
-    };
+    window.up = (id) => {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.style.display = 'none';
+  document.body.appendChild(input);
+
+  // 1) Ouvre le sélecteur IMMÉDIATEMENT (activation utilisateur intacte)
+  input.click();
+
+  // 2) Demande le titre APRÈS le choix du fichier
+  input.onchange = async () => {
+    if (!input.files || !input.files[0]) { input.remove(); return; }
+    const titre = prompt('Nom du document :');
+    if (!titre) { input.remove(); return; }
+    if (input.files[0].size > 5 * 1024 * 1024) {
+      alert("Fichier trop volumineux (max 5 Mo). Pour un cours ou un TD plus lourd, utilisez plutôt le bouton 🔗 Lien Drive/OneDrive.");
+      input.remove();
+      return;
+    }
+    try {
+      const fd = new FormData();
+      fd.append('file', input.files[0]);
+      fd.append('upload_preset', "lfakm_ressources");
+      const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      const type = id.startsWith('cours-') ? 'cours' : 'td';
+      const slug = id.replace(/^cours-|^td-/, '');
+      await addDoc(collection(db, 'ressources', slug, type), {
+        titre, url: data.secure_url, date: serverTimestamp()
+      });
+      try { logActivite('création', `${type === 'cours' ? 'Cours' : 'TD'} "${titre}" (${slug})`); } catch(e) {}
+      alert('✅ Document ajouté !');
+    } catch (e) {
+      alert('❌ Erreur: ' + e.message);
+    } finally {
+      input.remove();
+    }
+  };
+};
 
     window.addVideo = async (id) => {
         const titre = prompt('Titre de la vidéo :');
