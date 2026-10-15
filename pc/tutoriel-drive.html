@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tutoriel — Ajouter un cours | LFAKM</title>
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+<link rel="manifest" href="/assets/manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<meta name="author" content="Djiby Tall - LFAKM">
+<meta name="copyright" content="© 2026 Lycée Franco Arabe de Keur Madiabel. Tous droits réservés.">
+<meta name="description" content="Tutoriel : comment ajouter un cours ou un TD sur l'espace pédagogique du LFAKM (Google Drive / OneDrive).">
+
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
+    --slate: #5B6472; --line: rgba(27,42,74,0.14);
+    --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+    --success: #2e7d32; --warning: #d4a017; --info: #4a90e2;
+  }
+  [data-theme="dark"] {
+    --ink: #E8E4DC; --ink-deep: #0A0F1C; --paper: #14192B; --brass: #D4AF5C;
+    --slate: #A0A6B8; --line: rgba(232,228,220,0.15);
+    --success: #4CAF50; --warning: #E0B84C; --info: #64B5F6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: var(--sans); background: var(--paper); color: #1a1a1a;
+    line-height: 1.6; min-height: 100vh; padding-bottom: env(safe-area-inset-bottom);
+  }
+  [data-theme="dark"] body { color: var(--ink); }
+
+  /* HEADER */
+  header {
+    background: var(--paper); border-bottom: 1px solid var(--line);
+    padding: 10px 14px; position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; min-height: 64px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; min-width: 0; flex: 1; }
+  .brand-mark { width: 42px; height: 42px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
+  .brand-text { min-width: 0; flex: 1; }
+  .brand-name { font-family: var(--serif); font-weight: 700; font-size: 13px; color: var(--ink); line-height: 1.2; }
+  .brand-tag { font-size: 9.5px; color: var(--slate); letter-spacing: 0.5px; margin-top: 1px; }
+  .back-btn {
+    background: var(--ink-deep); color: #fff; text-decoration: none; font-size: 12px;
+    font-weight: 600; padding: 10px 14px; border-radius: 8px; min-height: 44px;
+    display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;
+    font-family: var(--sans); border: none; cursor: pointer;
+  }
+  .back-btn:active { background: #050810; }
+  .back-btn.secondary { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  .header-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--ink-deep) 0%, #1B2A4A 100%);
+    color: #EFE9DC; padding: 44px 20px 48px; text-align: center;
+  }
+  .hero-icon { font-size: 50px; display: block; margin-bottom: 12px; }
+  .hero h1 { font-family: var(--serif); font-size: 28px; line-height: 1.25; margin-bottom: 12px; }
+  .hero p { font-size: 14.5px; opacity: 0.9; line-height: 1.55; max-width: 620px; margin: 0 auto; }
+
+  /* WRAP */
+  .wrap { max-width: 780px; margin: 0 auto; padding: 28px 16px 60px; }
+
+  /* INTRO */
+  .intro-card {
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    padding: 22px 24px; margin-bottom: 26px; font-size: 14.5px; color: var(--slate);
+    line-height: 1.7; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  [data-theme="dark"] .intro-card { background: #1E2438; }
+  .intro-card b { color: var(--ink); }
+
+  /* STEP */
+  .step {
+    display: flex; gap: 18px; margin-bottom: 22px;
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    padding: 22px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  [data-theme="dark"] .step { background: #1E2438; }
+  .step:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.09); transform: translateY(-1px); }
+  .step-num {
+    flex-shrink: 0; width: 48px; height: 48px;
+    background: var(--brass); color: #fff; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 21px; font-family: var(--serif);
+    box-shadow: 0 3px 8px rgba(168,133,63,0.35);
+  }
+  .step-content { flex: 1; min-width: 0; }
+  .step-content h3 {
+    font-family: var(--serif); color: var(--ink); font-size: 18px;
+    margin-bottom: 10px; line-height: 1.3;
+  }
+  .step-content p { font-size: 14.5px; color: var(--slate); line-height: 1.7; margin-bottom: 12px; }
+  .step-content p:last-child { margin-bottom: 0; }
+
+  /* CALLOUT */
+  .callout {
+    padding: 14px 18px; border-radius: 8px; font-size: 13.5px;
+    line-height: 1.65; margin: 12px 0;
+  }
+  .callout.info { background: #f0f7ff; border-left: 4px solid var(--info); color: #1a5490; }
+  .callout.warning { background: #fff4d6; border-left: 4px solid var(--warning); color: #8a6100; }
+  .callout.success { background: #e3f3e5; border-left: 4px solid var(--success); color: #1e5a23; }
+  [data-theme="dark"] .callout.info { background: #1a2a3d; color: #a3c8f0; }
+  [data-theme="dark"] .callout.warning { background: #3d3016; color: #f0d996; }
+  [data-theme="dark"] .callout.success { background: #1a3020; color: #a8d8b0; }
+
+  /* CODE */
+  code {
+    background: #f0f0f0; padding: 2px 7px; border-radius: 5px;
+    font-size: 12.5px; font-family: 'Consolas', 'Monaco', monospace; color: #333;
+    word-break: break-all;
+  }
+  [data-theme="dark"] code { background: #2A3150; color: #E8E4DC; }
+
+  /* PARTAGE DEMO */
+  .share-demo {
+    background: #fafafa; border: 1px solid #eee; border-radius: 8px;
+    padding: 14px 16px; margin: 12px 0; font-size: 13px; color: #333;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  [data-theme="dark"] .share-demo { background: #232A40; color: var(--ink); border-color: var(--line); }
+  .share-demo .pill {
+    background: #e8f0fe; color: #1a5490; padding: 5px 12px;
+    border-radius: 6px; font-weight: 600; font-size: 12.5px;
+  }
+  [data-theme="dark"] .share-demo .pill { background: #2A4A7A; color: #b8d4f0; }
+
+  /* BOUTON DÉMO */
+  .app-btn-demo {
+    display: inline-block; padding: 12px 20px; border: 1px dashed var(--brass);
+    border-radius: 8px; color: var(--ink); font-weight: 700; font-size: 13.5px;
+    background: #fefdf9; margin: 10px 0;
+  }
+  [data-theme="dark"] .app-btn-demo { background: #232A40; }
+
+  /* LISTE */
+  .step-list { padding-left: 20px; font-size: 14px; color: var(--slate); line-height: 1.9; }
+  .step-list li { margin-bottom: 5px; }
+  .step-list b { color: var(--ink); }
+
+  /* FINAL */
+  .final-card {
+    background: linear-gradient(135deg, #e3f3e5 0%, #d4eed8 100%);
+    border-left: 5px solid var(--success);
+    padding: 20px 24px; border-radius: 10px; margin-top: 30px;
+    font-size: 14.5px; color: #1e5a23; line-height: 1.7;
+  }
+  [data-theme="dark"] .final-card { background: linear-gradient(135deg, #1a3020 0%, #213a28 100%); color: #a8d8b0; }
+  .final-card b { font-size: 15.5px; }
+
+  /* DETAILS */
+  details {
+    background: #f7f5f0; border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px 20px; margin-top: 26px;
+  }
+  [data-theme="dark"] details { background: #1E2438; }
+  details summary {
+    cursor: pointer; font-weight: 700; font-size: 14px; color: var(--ink);
+    list-style: none; display: flex; align-items: center; gap: 8px;
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::before { content: '▶'; color: var(--brass); transition: transform 0.2s; font-size: 11px; }
+  details[open] summary::before { transform: rotate(90deg); }
+  details ul { padding-left: 22px; margin-top: 14px; font-size: 13.5px; color: var(--slate); line-height: 1.9; }
+  details ul li { margin-bottom: 8px; }
+  details ul b { color: var(--ink); }
+
+  /* BOUTONS */
+  .copy-bar { display: flex; gap: 10px; margin-top: 30px; flex-wrap: wrap; }
+  .copy-btn {
+    flex: 1; min-width: 200px;
+    padding: 13px 18px; border: 1px solid var(--line); background: #fff;
+    color: var(--ink); border-radius: 8px; font-family: var(--sans);
+    font-weight: 600; font-size: 13.5px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .copy-btn:hover { background: #f7f5f0; }
+  .copy-btn:active { transform: scale(0.98); }
+  .copy-btn.primary { background: var(--brass); color: #fff; border-color: var(--brass); }
+  .copy-btn.primary:hover { background: #96743a; }
+  [data-theme="dark"] .copy-btn { background: #232A40; }
+  [data-theme="dark"] .copy-btn.primary { background: var(--brass); color: #0A0F1C; }
+
+  /* FOOTER */
+  footer {
+    background: var(--ink-deep); color: #B7BCC9; padding: 30px 20px;
+    text-align: center; font-size: 12px; line-height: 1.7;
+  }
+  footer a { color: #A8853F; text-decoration: none; font-weight: 700; }
+  footer a:hover { text-decoration: underline; }
+  footer .foot-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 10px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: var(--ink-deep); color: #fff; padding: 12px 22px;
+    border-radius: 10px; font-size: 13px; font-weight: 600; z-index: 9999;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25); opacity: 0;
+    transition: opacity 0.25s, transform 0.25s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* RESPONSIVE */
+  @media (max-width: 700px) {
+    .brand-name { font-size: 11.5px; }
+    .brand-tag { font-size: 9px; }
+    .brand-mark { width: 36px; height: 36px; }
+    .hero { padding: 32px 16px 36px; }
+    .hero-icon { font-size: 42px; }
+    .hero h1 { font-size: 22px; }
+    .hero p { font-size: 13.5px; }
+    .wrap { padding: 20px 12px 50px; }
+    .step { padding: 18px 18px; gap: 14px; }
+    .step-num { width: 40px; height: 40px; font-size: 17px; }
+    .step-content h3 { font-size: 16px; }
+    .step-content p { font-size: 13.5px; }
+    .intro-card { padding: 18px 20px; font-size: 13.5px; }
+    .copy-btn { min-width: 100%; }
+    .back-btn span.full { display: none; }
+  }
+
+  @media (max-width: 480px) {
+    .back-btn { padding: 10px 10px; font-size: 11.5px; }
+    .hero h1 { font-size: 20px; }
+  }
+
+  /* IMPRESSION */
+  @media print {
+    header, footer, .copy-bar, .back-btn, .header-actions { display: none !important; }
+    body { background: #fff; color: #000; }
+    .hero { background: #1B2A4A !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 30px 20px; }
+    .hero h1, .hero p, .hero-icon { color: #fff !important; }
+    .step, .intro-card, details, .final-card, .callout {
+      box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    details { display: block; }
+    details > * { display: block !important; }
+    details[open] > ul, details > ul { display: block !important; }
+    .step-num { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="/pc/ressources.html" class="brand">
+    <div class="brand-mark"><img src="/logo-header.png" alt="LFAKM"></div>
+    <div class="brand-text">
+      <div class="brand-name">Lycée Franco Arabe de Keur Madiabel</div>
+      <div class="brand-tag">Excellence &amp; Savoir</div>
+    </div>
+  </a>
+  <div class="header-actions">
+    <button id="theme-toggle" class="back-btn secondary" type="button" aria-label="Mode sombre" title="Mode sombre" style="padding:10px 12px;font-size:16px;">🌙</button>
+    <a href="/pc/ressources.html" class="back-btn">← <span class="full">Retour aux ressources</span><span style="display:none;" class="short">Retour</span></a>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="hero-icon">📘</span>
+  <h1>Comment ajouter un cours ou un TD ?</h1>
+  <p>Guide pas à pas — Google Drive / OneDrive. Pour économiser le stockage du lycée, tous les cours sont hébergés sur votre espace personnel.</p>
+</section>
+
+<main class="wrap">
+
+  <div class="intro-card">
+    <b>💡 Pourquoi cette méthode ?</b><br>
+    Les fichiers stockés directement sur le serveur du site consomment un quota limité. En les hébergeant sur <b>votre Google Drive</b> (15 Go gratuits) ou <b>OneDrive</b> (5 Go gratuits), vous bénéficiez d'un espace quasi illimité, et les élèves y accèdent en un clic.
+  </div>
+
+  <!-- ÉTAPE 1 -->
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <h3>📤 Uploadez votre fichier sur Google Drive ou OneDrive</h3>
+      <p>Ouvrez <b>drive.google.com</b> (ou <b>onedrive.live.com</b>) sur votre ordinateur ou téléphone, puis :</p>
+      <ul class="step-list">
+        <li>Créez un dossier <code>LFAKM — Mes cours</code></li>
+        <li>Glissez-déposez votre fichier (PDF, Word, PowerPoint…)</li>
+        <li>Rangez par matière et par classe pour vous y retrouver</li>
+      </ul>
+      <div class="callout info">
+        💡 <b>Astuce :</b> vous n'avez pas besoin de renommer le fichier. Le titre que vous donnerez sur le site LFAKM sera celui affiché aux élèves.
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 2 -->
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <h3>🔓 Partagez le fichier en « Toute personne avec le lien »</h3>
+      <p><b>Clic droit</b> sur le fichier → <b>Partager</b> → dans le menu déroulant, choisissez <b>« Toute personne disposant du lien »</b> → cliquez sur <b>Copier le lien</b>.</p>
+
+      <div class="share-demo">
+        <span>👥</span>
+        <span>Partager avec :</span>
+        <span class="pill">Toute personne disposant du lien</span>
+        <span style="color: #666;">▼ Lecture</span>
+      </div>
+
+      <div class="callout warning">
+        ⚠️ <b>Important :</b> si vous laissez sur « Accès restreint », les élèves verront un message « <b>Accès refusé</b> ». Vérifiez bien ce réglage <b>avant</b> de copier le lien.
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 3 -->
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <h3>📋 Copiez le lien du fichier</h3>
+      <p>Après le partage, le lien ressemble à ceci :</p>
+      <p><code>https://drive.google.com/file/d/1AbC...xYz/view?usp=sharing</code></p>
+      <p>Vous pouvez aussi copier directement l'adresse depuis la <b>barre du navigateur</b> quand le fichier est ouvert.</p>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 4 -->
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <h3>📎 Ajoutez le lien sur le site LFAKM</h3>
+      <p>Rendez-vous sur la page <b>Ressources</b>, ouvrez la <b>classe</b> et la <b>matière</b> concernées, puis cliquez sur le bouton :</p>
+      <div class="app-btn-demo">📎 Ajouter un cours (Google Drive / OneDrive)</div>
+      <ul class="step-list">
+        <li>Donnez un <b>titre</b> clair (ex : « Chapitre 3 — Les alcools »)</li>
+        <li><b>Collez le lien</b> copié à l'étape 3 (Ctrl+V)</li>
+        <li>Cliquez sur <b>OK</b></li>
+      </ul>
+      <div class="callout success">
+        ✅ Le cours apparaît <b>immédiatement</b> dans la section « Cours » de la matière. Les élèves peuvent l'ouvrir ou le télécharger directement.
+      </div>
+    </div>
+  </div>
+
+  <!-- MESSAGE FINAL -->
+  <div class="final-card">
+    <b>🎉 C'est terminé !</b><br>
+    Vous pouvez répéter ces 4 étapes pour chaque cours ou TD. Aucune limite de quantité, aucune consommation du stockage du lycée.
+  </div>
+
+  <!-- ASTUCES -->
+  <details>
+    <summary>💡 Astuces bonus (cliquez pour voir)</summary>
+    <ul>
+      <li><b>Modifier un cours :</b> mettez simplement à jour le fichier dans votre Drive. Le lien reste le même, le contenu est mis à jour automatiquement pour les élèves.</li>
+      <li><b>Supprimer un cours :</b> supprimez le fichier de votre Drive, puis retirez le lien depuis le site (bouton ✕ à côté du cours).</li>
+      <li><b>Plusieurs fichiers pour une même leçon :</b> créez un <b>dossier Drive</b>, partagez-le en « Toute personne avec le lien », et collez le lien du dossier.</li>
+      <li><b>Vidéos :</b> utilisez plutôt le bouton <b>🎥 Lien vidéo YouTube</b> — c'est plus léger et plus rapide à charger.</li>
+      <li><b>Quota Drive gratuit :</b> 15 Go par compte Google, soit largement de quoi stocker toutes vos matières pendant plusieurs années.</li>
+      <li><b>OneDrive :</b> 5 Go gratuits, mais si votre lycée a un abonnement Microsoft 365, vous avez probablement 1 To.</li>
+    </ul>
+  </details>
+
+  <!-- BOUTONS -->
+  <div class="copy-bar">
+    <button class="copy-btn" onclick="window.print()">🖨️ Imprimer / Enregistrer en PDF</button>
+    <button class="copy-btn primary" onclick="copierTexte()">📋 Copier la version texte (WhatsApp / Mail)</button>
+  </div>
+
+</main>
+
+<footer>
+  <div class="foot-links">
+    <a href="/pc/ressources.html">📚 Retour aux ressources</a>
+    <a href="/actualites.html">📰 Actualités</a>
+    <a href="/index.html">🏠 Accueil</a>
+  </div>
+  <div style="font-size: 11px; opacity: 0.75;">
+    © 2026 Lycée Franco Arabe de Keur Madiabel — Site conçu par <strong>Djiby Tall</strong>
+  </div>
+</footer>
+
+<div class="toast" id="toast">✓ Copié !</div>
+
+<script>
+  /* ============================================================
+   *  Mode sombre — synchronisé avec le reste du site
+   * ============================================================ */
+  (function initTheme() {
+    const KEY = 'lfakm.theme';
+    const saved = localStorage.getItem(KEY);
+    if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+
+    const btn = document.getElementById('theme-toggle');
+    if (!btn) return;
+
+    const update = () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      btn.textContent = isDark ? '☀️' : '🌙';
+      btn.setAttribute('aria-label', isDark ? 'Basculer en mode clair' : 'Basculer en mode sombre');
+    };
+    update();
+
+    btn.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem(KEY, 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem(KEY, 'dark');
+      }
+      update();
+    });
+  })();
+
+  /* ============================================================
+   *  Copier la version texte — pour WhatsApp / Mail
+   * ============================================================ */
+  function copierTexte() {
+    const texte = `📘 TUTORIEL — Ajouter un cours sur LFAKM
+
+Pour économiser le stockage du site, tous les cours et TD sont hébergés sur VOTRE Google Drive ou OneDrive personnel.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ÉTAPE 1 — Upload du fichier
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Ouvrez drive.google.com (ou onedrive.live.com)
+• Créez un dossier « LFAKM — Mes cours »
+• Glissez-déposez votre fichier dedans
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ÉTAPE 2 — Partage public
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Clic droit sur le fichier → « Partager »
+• Menu déroulant → « Toute personne disposant du lien »
+• Cliquez sur « Copier le lien »
+
+⚠️  NE PAS laisser sur « Accès restreint »
+    Sinon les élèves verront « Accès refusé ».
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ÉTAPE 3 — Coller le lien sur LFAKM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Allez sur le site → Ressources
+• Ouvrez la classe puis la matière
+• Cliquez sur :
+     📎 Ajouter un cours (Google Drive / OneDrive)
+• Donnez un titre (ex : « Chapitre 3 — Les alcools »)
+• Collez le lien (Ctrl+V) → OK
+
+✅ Le cours apparaît immédiatement pour les élèves !
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 ASTUCES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Modifier un cours → mettez à jour le fichier Drive
+• Supprimer → supprimez de votre Drive + retirez du site
+• Vidéo → utilisez 🎥 Lien vidéo YouTube
+• Quota Drive gratuit : 15 Go par compte Google
+
+📧 Besoin d'aide ? Contactez l'administration.`;
+
+    navigator.clipboard.writeText(texte).then(() => {
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
+    }).catch(err => {
+      alert("Impossible de copier automatiquement. Sélectionnez le texte manuellement.\n\n" + err.message);
+      console.error(err);
+    });
+  }
+</script>
+
+</body>
+</html>
