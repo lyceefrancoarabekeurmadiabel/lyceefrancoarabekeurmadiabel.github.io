@@ -1027,19 +1027,39 @@ if (_isIOS && !_standalone) setTimeout(() => _showInstall(true), 0);
           </div>
           <div class="mat-body">
             <div class="mat-section">
-              <h5>Cours</h5>
-              <ul class="doc-list" id="cours-${l.id}-${slugMat}"></ul>
-              <button class="add-btn" onclick="window.up('cours-${l.id}-${slugMat}')">+ Ajouter (petit fichier)</button>
-              <button class="add-btn" onclick="window.addVideo('cours-${l.id}-${slugMat}')">🎥 Lien vidéo YouTube</button>
-              <button class="add-btn" onclick="window.addDrive('cours-${l.id}-${slugMat}')">🔗 Lien Drive/OneDrive</button>
-            </div>
+  <h5>Cours</h5>
+  
+  <!-- ✅ BANNIÈRE EXPLICATIVE POUR LES PROFS -->
+  <div class="prof-only" style="background: #fff7e0; border-left: 4px solid var(--brass); padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px; color: #5c4300; line-height: 1.5;">
+    <b>💡 Conseil :</b> Privilégiez le bouton <b>📂 Dossier Drive</b> pour vos cours. Cela évite de saturer le stockage du site et permet d'héberger plusieurs fichiers par chapitre.
+  </div>
+
+  <ul class="doc-list" id="cours-${l.id}-${slugMat}"></ul>
+  
+  <!-- ✅ BOUTON DRIVE MIS EN AVANT -->
+  <button class="add-btn" onclick="window.addDrive('cours-${l.id}-${slugMat}')" style="background: var(--brass); color: #fff; border: none; font-size: 13px; padding: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(168,133,63,0.3); margin-bottom: 8px;">📂 RECOMMANDÉ : Ajouter un dossier de cours (Drive)</button>
+  
+  <!-- ✅ BOUTONS SECONDAIRES -->
+  <button class="add-btn" onclick="window.addVideo('cours-${l.id}-${slugMat}')" style="font-size:11px; margin-bottom:6px;">🎥 Lien vidéo YouTube</button>
+  <button class="add-btn" onclick="window.up('cours-${l.id}-${slugMat}')" style="font-size:10px; opacity:0.8; border-style:dotted;" title="Uniquement pour les fichiers < 0,5 Mo">📄 Petit fichier (< 0,5 Mo)</button>
+</div>
             <div class="mat-section">
-              <h5>TD</h5>
-              <ul class="doc-list" id="td-${l.id}-${slugMat}"></ul>
-              <button class="add-btn" onclick="window.up('td-${l.id}-${slugMat}')">+ Ajouter (petit fichier)</button>
-              <button class="add-btn" onclick="window.addVideo('td-${l.id}-${slugMat}')">🎥 Lien vidéo YouTube</button>
-              <button class="add-btn" onclick="window.addDrive('td-${l.id}-${slugMat}')">🔗 Lien Drive/OneDrive</button>
-            </div>
+  <h5>TD</h5>
+  
+  <!-- ✅ BANNIÈRE EXPLICATIVE POUR LES PROFS -->
+  <div class="prof-only" style="background: #fff7e0; border-left: 4px solid var(--brass); padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px; color: #5c4300; line-height: 1.5;">
+    <b>💡 Conseil :</b> Privilégiez le bouton <b>📂 Dossier Drive</b> pour vos cours. Cela évite de saturer le stockage du site et permet d'héberger plusieurs fichiers par chapitre.
+  </div>
+
+  <ul class="doc-list" id="cours-${l.id}-${slugMat}"></ul>
+  
+  <!-- ✅ BOUTON DRIVE MIS EN AVANT -->
+  <button class="add-btn" onclick="window.addDrive('cours-${l.id}-${slugMat}')" style="background: var(--brass); color: #fff; border: none; font-size: 13px; padding: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(168,133,63,0.3); margin-bottom: 8px;">📂 RECOMMANDÉ : Ajouter un dossier de cours (Drive)</button>
+  
+  <!-- ✅ BOUTONS SECONDAIRES -->
+  <button class="add-btn" onclick="window.addVideo('cours-${l.id}-${slugMat}')" style="font-size:11px; margin-bottom:6px;">🎥 Lien vidéo YouTube</button>
+  <button class="add-btn" onclick="window.up('cours-${l.id}-${slugMat}')" style="font-size:10px; opacity:0.8; border-style:dotted;" title="Uniquement pour les fichiers < 0,5 Mo">📄 Petit fichier (< 0,5 Mo)</button>
+</div>
             <div class="mat-section">
               <h5>Devoirs</h5>
               <div class="devoirs-list" id="devoirs-${l.id}-${slugMat}"></div>
@@ -1720,27 +1740,52 @@ document.querySelectorAll('.cycle-tab').forEach(t => {
     input.click();
   };
 
-  window.up = async (id) => {
+  window.up = (id) => {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.style.display = 'none';
+  document.body.appendChild(input);
+  input.click();
+
+  input.onchange = async () => {
+    if (!input.files || !input.files[0]) { input.remove(); return; }
+    
+    // ✅ NOUVELLE LIMITE : 0,5 Mo (500 Ko)
+    const MAX_SIZE = 0.5 * 1024 * 1024; 
+    if (input.files[0].size > MAX_SIZE) {
+      alert(
+        "⚠️ Fichier trop volumineux (max 0,5 Mo pour l'envoi direct).\n\n" +
+        "Pour un cours complet, utilisez plutôt la méthode recommandée :\n" +
+        "👉 Cliquez sur « 📂 Ajouter un dossier de cours (Drive) »\n\n" +
+        "Cela ne consomme pas le stockage du site et permet d'héberger des fichiers plus lourds."
+      );
+      input.remove();
+      return;
+    }
+
     const titre = prompt('Nom du document :');
-    if (!titre) return;
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.onchange = async () => {
-      if (input.files[0].size > 5 * 1024 * 1024) { alert("Max 5 Mo. Utilisez plutôt un lien Drive."); return; }
-      try {
-        const fd = new FormData();
-        fd.append('file', input.files[0]);
-        fd.append('upload_preset', "lfakm_ressources");
-        const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
-        const data = await res.json();
-        const type = id.startsWith('cours-') ? 'cours' : 'td';
-        const slug = id.replace(/^cours-|^td-/, '');
-        await addDoc(collection(db, 'ressources', slug, type), { titre, url: data.secure_url, date: serverTimestamp() });
-        alert('✅ Document ajouté !');
-      } catch (e) { alert('❌ ' + e.message); }
-    };
-    input.click();
+    if (!titre) { input.remove(); return; }
+
+    try {
+      const fd = new FormData();
+      fd.append('file', input.files[0]);
+      fd.append('upload_preset', "lfakm_ressources");
+      const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      const type = id.startsWith('cours-') ? 'cours' : 'td';
+      const slug = id.replace(/^cours-|^td-/, '');
+      
+      await addDoc(collection(db, 'ressources', slug, type), {
+        titre, url: data.secure_url, date: serverTimestamp()
+      });
+      alert('✅ Document ajouté !');
+    } catch (e) {
+      alert('❌ Erreur: ' + e.message);
+    } finally {
+      input.remove();
+    }
   };
+};
 
   window.addVideo = async (id) => {
     const titre = prompt('Titre de la vidéo :');
