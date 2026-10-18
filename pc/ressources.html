@@ -1088,8 +1088,14 @@ function attachRenduCounter(slug, devoirId, el) {
     el.classList.toggle('complete', total !== null && total > 0 && n >= total);
   };
   paint();
-  snapT(collection(db, 'ressources', slug, 'devoirs', devoirId, 'rendus'), (snap) => { n = snap.size; paint(); });
-  getEleves().then(list => { total = list.filter(e => isSameString(e.niveau, levelId)).length; paint(); }).catch(() => {});
+  snapT(collection(db, 'ressources', slug, 'devoirs', devoirId, 'rendus'), (snap) => {
+    n = snap.size;
+    paint();
+  });
+  getEleves().then(list => {
+    total = list.filter(e => isSameString(e.niveau, levelId)).length;
+    paint();
+  }).catch(() => {});
 }
 
 function syncDevoirs() {
@@ -1294,6 +1300,7 @@ function loadRendus(slug, devoirId, container, dv) {
   if (!container) return;
   const levelId = slug.split('-')[0];
   if (container._unsub) { container._unsub(); container._unsub = null; }
+  
   try {
     container._unsub = snapT(collection(db, 'ressources', slug, 'devoirs', devoirId, 'rendus'), async (snap) => {
       if (!container) return;
@@ -1344,8 +1351,13 @@ function loadRendus(slug, devoirId, container, dv) {
         const t = summary.querySelector('.nr-toggle');
         if (t) t.onclick = (ev) => { ev.preventDefault(); const l = summary.querySelector('.nr-list'); l.style.display = l.style.display === 'flex' ? 'none' : 'flex'; };
       } catch (e) { /* le résumé simple reste affiché */ }
+    }, (err) => {
+      // ✅ On avale l'erreur silencieusement pour ne pas polluer la console
+      console.warn("Impossible de lire les rendus (permission refusée) :", devoirId);
     });
-  } catch (err) { container.innerHTML = '<p style="color:gray;">Erreur de chargement des rendus.</p>'; }
+  } catch (err) { 
+    container.innerHTML = '<p style="color:gray;">Erreur de chargement des rendus.</p>'; 
+  }
 }
 
 async function exportNotes(slug, devoirId, dv) {

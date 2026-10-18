@@ -1596,7 +1596,10 @@ document.querySelectorAll('.cycle-tab').forEach(t => {
         container.prepend(summary);
         const t = summary.querySelector('.nr-toggle');
         if (t) t.onclick = (ev) => { ev.preventDefault(); const l = summary.querySelector('.nr-list'); l.style.display = l.style.display === 'flex' ? 'none' : 'flex'; };
-      } catch (e) {}
+            } catch (e) {}
+    }, (err) => {
+      // ✅ On évite de polluer la console si les droits sont refusés
+      console.warn("Impossible de lire les rendus (permission refusée)");
     });
   }
 
