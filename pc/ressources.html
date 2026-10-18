@@ -503,7 +503,6 @@
         </li>
         <!-- PROF-PUBLISH-LINK auto-ajouté -->
         <li class="prof-only"><a href="/prof-news.html">📢 Publier pour ma classe</a></li>
-        <li class="prof-only"><a href="/pc/tutoriel-drive.html">📘 Tutoriel — Ajouter un cours</a></li>
         <li><button id="theme-toggle" type="button" aria-label="Basculer en mode sombre" title="Mode sombre">🌙</button></li>
         <li id="user-profile" class="profile-info" onclick="window.openProfil()" style="cursor:pointer;" title="Voir mon profil"></li>
         <li><a href="/identification.html" class="nav-cta" id="auth-link">Se connecter</a></li>
@@ -1579,9 +1578,8 @@ function initFeatures() {
         try { rememberOpen(element.parentElement); } catch (e) {}
     };
 
-        function buildUI() {
+            function buildUI() {
         let html = '';
-        // ✅ Barre "Tout déplier / Tout replier"
         html += `<div class="expand-collapse-bar">
           <button type="button" onclick="window.expandAllVisible?.()">📂 Tout déplier</button>
           <button type="button" onclick="window.collapseAllVisible?.()">📁 Tout replier</button>
@@ -1604,40 +1602,36 @@ function initFeatures() {
                                 <div class="subject-header" onclick="toggleAccordion(this)"><span class="hdr-title">${m}<span class="new-slot"></span></span> <span>▼</span></div>
                                 <div class="subject-content">
                                     <div class="subject-grid">
-                                        <div class="mat-section">
-  <h5>Cours</h5>
-  
-  <!-- ✅ BANNIÈRE EXPLICATIVE POUR LES PROFS -->
-  <div class="prof-only" style="background: #fff7e0; border-left: 4px solid var(--brass); padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px; color: #5c4300; line-height: 1.5;">
-    <b>💡 Conseil :</b> Privilégiez le bouton <b>📂 Dossier Drive</b> pour vos cours. Cela évite de saturer le stockage du site et permet d'héberger plusieurs fichiers par chapitre.
-  </div>
+                                        
+                                        <div class="doc-col">
+                                          <h5 style="display:flex; justify-content:space-between; align-items:center;">
+                                            Cours
+                                            <a href="/pc/tutoriel-drive.html" target="_blank" style="font-size:10px; color:var(--brass); text-decoration:none; text-transform:none; font-weight:normal;">❓ Comment faire ?</a>
+                                          </h5>
+                                          <div class="prof-only" style="background: #fff7e0; border-left: 4px solid var(--brass); padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px; color: #5c4300; line-height: 1.5;">
+                                            <b>💡 Conseil :</b> Privilégiez le bouton <b>📂 Dossier Drive</b> pour vos cours.
+                                          </div>
+                                          <ul class="doc-list" id="cours-${l.id}-${slugMat}"></ul>
+                                          <button class="add-btn" onclick="window.addDrive('cours-${l.id}-${slugMat}')" style="background: var(--brass); color: #fff; border: none; font-size: 13px; padding: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(168,133,63,0.3); margin-bottom: 8px;">📂 RECOMMANDÉ : Dossier Drive</button>
+                                          <button class="add-btn" onclick="window.addVideo('cours-${l.id}-${slugMat}')" style="font-size:11px; margin-bottom:6px;">🎥 Lien vidéo YouTube</button>
+                                          <button class="add-btn" onclick="window.up('cours-${l.id}-${slugMat}')" style="font-size:10px; opacity:0.8; border-style:dotted;" title="Uniquement pour les fichiers < 0,5 Mo">📄 Petit fichier (< 0,5 Mo)</button>
+                                        </div>
 
-  <ul class="doc-list" id="cours-${l.id}-${slugMat}"></ul>
-  
-  <!-- ✅ BOUTON DRIVE MIS EN AVANT -->
-  <button class="add-btn" onclick="window.addDrive('cours-${l.id}-${slugMat}')" style="background: var(--brass); color: #fff; border: none; font-size: 13px; padding: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(168,133,63,0.3); margin-bottom: 8px;">📂 RECOMMANDÉ : Ajouter un dossier de cours (Drive)</button>
-  
-  <!-- ✅ BOUTONS SECONDAIRES -->
-  <button class="add-btn" onclick="window.addVideo('cours-${l.id}-${slugMat}')" style="font-size:11px; margin-bottom:6px;">🎥 Lien vidéo YouTube</button>
-  <button class="add-btn" onclick="window.up('cours-${l.id}-${slugMat}')" style="font-size:10px; opacity:0.8; border-style:dotted;" title="Uniquement pour les fichiers < 0,5 Mo">📄 Petit fichier (< 0,5 Mo)</button>
-</div>
-<div class="mat-section">
-  <h5>TD</h5>
-  
-  <!-- ✅ BANNIÈRE EXPLICATIVE POUR LES PROFS -->
-  <div class="prof-only" style="background: #fff7e0; border-left: 4px solid var(--brass); padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px; color: #5c4300; line-height: 1.5;">
-    <b>💡 Conseil :</b> Privilégiez le bouton <b>📂 Dossier Drive</b> pour vos cours. Cela évite de saturer le stockage du site et permet d'héberger plusieurs fichiers par chapitre.
-  </div>
+                                        <div class="doc-col">
+                                          <h5 style="display:flex; justify-content:space-between; align-items:center;">
+                                            TD
+                                            <a href="/pc/tutoriel-drive.html" target="_blank" style="font-size:10px; color:var(--brass); text-decoration:none; text-transform:none; font-weight:normal;">❓ Comment faire ?</a>
+                                          </h5>
+                                          <div class="prof-only" style="background: #fff7e0; border-left: 4px solid var(--brass); padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px; color: #5c4300; line-height: 1.5;">
+                                            <b>💡 Conseil :</b> Privilégiez le bouton <b>📂 Dossier Drive</b> pour vos TD.
+                                          </div>
+                                          <ul class="doc-list" id="td-${l.id}-${slugMat}"></ul>
+                                          <button class="add-btn" onclick="window.addDrive('td-${l.id}-${slugMat}')" style="background: var(--brass); color: #fff; border: none; font-size: 13px; padding: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(168,133,63,0.3); margin-bottom: 8px;">📂 RECOMMANDÉ : Dossier Drive</button>
+                                          <button class="add-btn" onclick="window.addVideo('td-${l.id}-${slugMat}')" style="font-size:11px; margin-bottom:6px;">🎥 Lien vidéo YouTube</button>
+                                          <button class="add-btn" onclick="window.up('td-${l.id}-${slugMat}')" style="font-size:10px; opacity:0.8; border-style:dotted;" title="Uniquement pour les fichiers < 0,5 Mo">📄 Petit fichier (< 0,5 Mo)</button>
+                                        </div>
 
-  <ul class="doc-list" id="cours-${l.id}-${slugMat}"></ul>
-  
-  <!-- ✅ BOUTON DRIVE MIS EN AVANT -->
-  <button class="add-btn" onclick="window.addDrive('cours-${l.id}-${slugMat}')" style="background: var(--brass); color: #fff; border: none; font-size: 13px; padding: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(168,133,63,0.3); margin-bottom: 8px;">📂 RECOMMANDÉ : Ajouter un dossier de cours (Drive)</button>
-  
-  <!-- ✅ BOUTONS SECONDAIRES -->
-  <button class="add-btn" onclick="window.addVideo('cours-${l.id}-${slugMat}')" style="font-size:11px; margin-bottom:6px;">🎥 Lien vidéo YouTube</button>
-  <button class="add-btn" onclick="window.up('cours-${l.id}-${slugMat}')" style="font-size:10px; opacity:0.8; border-style:dotted;" title="Uniquement pour les fichiers < 0,5 Mo">📄 Petit fichier (< 0,5 Mo)</button>
-</div>
+                                    </div>
                                     <div class="devoirs-section"><h5>Devoirs</h5><div class="devoirs-list" id="devoirs-${l.id}-${slugMat}"></div><button class="add-btn" id="devoiradd-${l.id}-${slugMat}" onclick="window.newDevoir('${l.id}-${slugMat}')">+ Proposer un devoir</button></div>
                                 </div>
                             </div>`;
