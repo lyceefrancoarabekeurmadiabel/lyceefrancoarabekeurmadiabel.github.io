@@ -2547,7 +2547,7 @@ import { getFirestore, doc, getDoc, collectionGroup, getDocs } from "https://www
         }
       }
 
-      // ===== B3 — Rappels 24h =====
+            // ===== B3 — Rappels 24h =====
       if (p.role !== 'eleve') return;
       const niveau = p.niveau;
       if (!niveau) return;
@@ -2556,20 +2556,37 @@ import { getFirestore, doc, getDoc, collectionGroup, getDocs } from "https://www
       const KEY = 'lfakm.reminders-checked';
       if (localStorage.getItem(KEY) === today) return;
 
-      const snapDevoirs = await getDocs(collectionGroup(db, 'devoirs'));
-      const now = new Date();
-      const demain = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-      const rappels = [];
+      // ✅ NOUVEAU : Lecture ciblée sur la classe de l'élève (respecte les règles Firestore)
+      let rappels = [];
+      try {
+        const structureEleve = structure.find(l => 
+          l.id.toLowerCase() === niveau.toLowerCase()
+        );
+        
+        if (structureEleve) {
+          const now = new Date();
+          const demain = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
-      snapDevoirs.forEach(d => {
-        const slug = d.ref.parent.parent.id;
-        const levelId = slug.split('-')[0];
-        if (levelId !== niveau) return;
-        const dv = d.data();
-        if (!dv.dateLimite) return;
-        const lim = new Date(dv.dateLimite + 'T23:59:59');
-        if (lim >= now && lim <= demain) rappels.push(dv.titre);
-      });
+          for (const mat of structureEleve.mats) {
+            const slugMat = mat.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const slug = `${structureEleve.id}-${slugMat}`;
+            
+            try {
+              const snapDevoirs = await getDocs(collection(db, 'ressources', slug, 'devoirs'));
+              snapDevoirs.forEach(d => {
+                const dv = d.data();
+                if (!dv.dateLimite) return;
+                const lim = new Date(dv.dateLimite + 'T23:59:59');
+                if (lim >= now && lim <= demain) rappels.push(dv.titre);
+              });
+            } catch (e) { /* Si une matière est vide ou bloquée, on passe à la suivante */ }
+          }
+        }
+      } catch (err) {
+        console.warn("Rappels 24h : lecture impossible", err);
+        localStorage.setItem(KEY, today);
+        return;
+      }
 
       if (rappels.length > 0 && 'Notification' in window && Notification.permission === 'granted') {
         const msg = rappels.length === 1
