@@ -991,18 +991,18 @@ if (_isIOS && !_standalone) setTimeout(() => _showInstall(true), 0);
       document.querySelectorAll('.cycle-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       currentCycle = tab.dataset.cycle;
-      buildUI();                // ⬅️ régénère le HTML
-      applyLevelVisibility();   // ⬅️ applique les filtres
-      syncDocs();               // ⬅️ RÉATTACHE les snapshots
-      syncDevoirs();            // ⬅️ RÉATTACHE les snapshots
-      // ✅ Rafraîchir "Mes élèves" pour le cycle choisi
+      window.currentCycle = currentCycle; // Au cas où une autre fonction y fait référence
+      buildUI();
+      applyLevelVisibility();
+      syncDocs();
+      syncDevoirs();
       if (profile && (profile.role === 'professeur' || isAdmin(profile.role))) chargerMesEleves();
     });
   });
 
-          function buildUI() {
-        let html = '';
-        html += `<div class="expand-collapse-bar">
+  function buildUI() {
+    let html = '';
+    html += `<div class="expand-collapse-bar">
           <button type="button" onclick="window.expandAllVisible?.()">📂 Tout déplier</button>
           <button type="button" onclick="window.collapseAllVisible?.()">📁 Tout replier</button>
         </div>`;
@@ -1225,7 +1225,9 @@ document.querySelectorAll('.cycle-tab').forEach(t => {
       }
       
       // 2. Filtrer par cycle (Collège / Lycée)
-      if (area !== window.currentCycle) visible = false;
+      const activeTab = document.querySelector('.cycle-tab.active');
+      const cycleActuel = activeTab ? activeTab.dataset.cycle : currentCycle;
+      if (area !== cycleActuel) visible = false;
       
       levelEl.style.display = visible ? '' : 'none';
 
