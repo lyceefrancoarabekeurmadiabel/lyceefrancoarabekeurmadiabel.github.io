@@ -943,7 +943,8 @@ window.installApp = () => {
 if (_isIOS && !_standalone) setTimeout(() => _showInstall(true), 0);
 // ============================================================
   let profile = null;
-  let currentCycle = 'college-area';
+  // On l'attache à window pour qu'elle soit accessible par tous les blocs de script
+window.currentCycle = 'college-area';
   let currentDevoirSlug = null;
   let qcmQuestionCount = 0;
 
@@ -987,10 +988,10 @@ if (_isIOS && !_standalone) setTimeout(() => _showInstall(true), 0);
   backdrop.addEventListener('click', closeDrawer);
 
   document.querySelectorAll('.cycle-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.cycle-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      currentCycle = tab.dataset.cycle;
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.cycle-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    window.currentCycle = tab.dataset.cycle;
       buildUI();                // ⬅️ régénère le HTML
       applyLevelVisibility();   // ⬅️ applique les filtres
       syncDocs();               // ⬅️ RÉATTACHE les snapshots
@@ -1130,7 +1131,7 @@ function detecterCycleParDefaut() {
   return 'college-area';
 }
 
-currentCycle = detecterCycleParDefaut();
+window.currentCycle = detecterCycleParDefaut();
 // Mettre à jour l'onglet actif visuellement
 document.querySelectorAll('.cycle-tab').forEach(t => {
   t.classList.toggle('active', t.dataset.cycle === currentCycle);
@@ -1202,7 +1203,12 @@ document.querySelectorAll('.cycle-tab').forEach(t => {
       let visible = true;
       if (role === 'professeur') visible = matchesAny(lvlId, profile.assignedClasses);
       else if (role === 'eleve') visible = isSameString(profile.niveau, lvlId);
-      if (area !== currentCycle) visible = false;
+      // On utilise window.currentCycle et on met une sécurité
+      const cycleActif = window.currentCycle || 'college-area'; 
+      // On lit l'onglet actif directement dans le DOM pour être sûr à 100%
+      const activeTab = document.querySelector('.cycle-tab.active');
+      const cycleActuel = activeTab ? activeTab.dataset.cycle : (window.currentCycle || 'college-area');
+      if (area !== cycleActuel) visible = false;
       levelEl.style.display = visible ? '' : 'none';
       if (visible && role === 'professeur') {
         levelEl.querySelectorAll('.mat-accordion').forEach(matEl => {
