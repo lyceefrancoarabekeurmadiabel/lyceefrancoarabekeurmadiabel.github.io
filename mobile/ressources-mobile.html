@@ -943,7 +943,7 @@ window.installApp = () => {
 if (_isIOS && !_standalone) setTimeout(() => _showInstall(true), 0);
 // ============================================================
   let profile = null;
-  window.currentCycle = 'college-area'; // ✅ Rendu global
+  let currentCycle = 'college-area';
   let currentDevoirSlug = null;
   let qcmQuestionCount = 0;
 
@@ -990,7 +990,7 @@ if (_isIOS && !_standalone) setTimeout(() => _showInstall(true), 0);
     tab.addEventListener('click', () => {
       document.querySelectorAll('.cycle-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-      window.currentCycle = tab.dataset.cycle; // ✅ Mise à jour globale
+      currentCycle = tab.dataset.cycle;
       buildUI();                // ⬅️ régénère le HTML
       applyLevelVisibility();   // ⬅️ applique les filtres
       syncDocs();               // ⬅️ RÉATTACHE les snapshots
@@ -1113,16 +1113,15 @@ if (isAdmin(profile.role) || profile.role === 'president' || profile.role === 'm
 // ✅ Détecter le bon cycle selon les classes assignées (prof) ou le niveau (élève)
 function detecterCycleParDefaut() {
   if (!profile) return 'college-area';
-  if (profile.role === 'professeur' && Array.isArray(profile.assignedClasses)) {
-    // Vérifier si au moins une classe assignée est au lycée
-    const classesLycee = structure.filter(l => l.area === 'lycee-area').map(l => l.id);
-    const aUneClasseLycee = profile.assignedClasses.some(c => matchesAny(c, classesLycee));
-    const aUneClasseCollege = profile.assignedClasses.some(c => 
-      matchesAny(c, structure.filter(l => l.area === 'college-area').map(l => l.id))
-    );
-    if (aUneClasseLycee && !aUneClasseCollege) return 'lycee-area';
-    if (aUneClasseCollege && !aUneClasseLycee) return 'college-area';
-  }
+      if (profile.role === 'professeur' && Array.isArray(profile.assignedClasses) && profile.assignedClasses.length > 0) {
+      // Si le prof a des classes au lycée, on met lycée par défaut
+      const classesLycee = structure.filter(l => l.area === 'lycee-area').map(l => l.id);
+      const aUneClasseLycee = profile.assignedClasses.some(c => matchesAny(c, classesLycee));
+      if (aUneClasseLycee) return 'lycee-area';
+      
+      // Sinon, on met collège par défaut
+      return 'college-area';
+    }
   if (profile.role === 'eleve' && profile.niveau) {
     const niveauInfo = structure.find(l => matchesAny(l.id, [profile.niveau]));
     if (niveauInfo) return niveauInfo.area;
@@ -1130,10 +1129,10 @@ function detecterCycleParDefaut() {
   return 'college-area';
 }
 
-window.currentCycle = detecterCycleParDefaut();
+currentCycle = detecterCycleParDefaut();
 // Mettre à jour l'onglet actif visuellement
 document.querySelectorAll('.cycle-tab').forEach(t => {
-  t.classList.toggle('active', t.dataset.cycle === window.currentCycle);
+  t.classList.toggle('active', t.dataset.cycle === currentCycle);
 });
 
         buildUI();
@@ -1190,7 +1189,7 @@ document.querySelectorAll('.cycle-tab').forEach(t => {
     }
   }
 
-  function applyLevelVisibility() {
+    function applyLevelVisibility() {
     const role = profile?.role;
     const profMats = profile?.disciplines || [];
     const contentArea = document.getElementById('content-area');
@@ -1200,9 +1199,17 @@ document.querySelectorAll('.cycle-tab').forEach(t => {
       const lvlId = levelEl.dataset.level;
       const area = levelEl.dataset.area;
       let visible = true;
-      if (role === 'professeur') visible = matchesAny(lvlId, profile.assignedClasses);
-      else if (role === 'eleve') visible = isSameString(profile.niveau, lvlId);
-      if (area !== window.currentCycle) visible = false; // ✅ Utilisation globale
+      if (role === 'professeur') {
+        // On vérifie si la classe est dans assignedClasses
+        visible = matchesAny(lvlId, profile.assignedClasses);
+      } else if (role === 'eleve') {
+        visible = isSameString(profile.niveau, lvlId);
+      }
+      
+      // ✅ CORRECTION : On ne cache PAS les classes assignées à cause du cycle
+      // On ne cache que si la classe n'est pas assignée (déjà géré par visible = false)
+      // La ligne "if (area !== currentCycle) visible = false;" est SUPPRIMÉE.
+      
       levelEl.style.display = visible ? '' : 'none';
       if (visible && role === 'professeur') {
         levelEl.querySelectorAll('.mat-accordion').forEach(matEl => {
