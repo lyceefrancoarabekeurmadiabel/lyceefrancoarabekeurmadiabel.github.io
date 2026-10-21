@@ -1000,7 +1000,7 @@ if (_isIOS && !_standalone) setTimeout(() => _showInstall(true), 0);
     });
   });
 
-        function buildUI() {
+          function buildUI() {
         let html = '';
         html += `<div class="expand-collapse-bar">
           <button type="button" onclick="window.expandAllVisible?.()">📂 Tout déplier</button>
@@ -1013,50 +1013,59 @@ if (_isIOS && !_standalone) setTimeout(() => _showInstall(true), 0);
         cycles.forEach(cycle => {
             const levels = structure.filter(c => c.area === cycle.key);
             if (levels.length === 0) return;
-            html += `<h2 class="cycle-title" data-area="${cycle.key}"><span>${cycle.label}</span><img src="/logo-section.png" alt=""></h2>`;
+            
+            // ✅ On ne génère pas le titre global du cycle, on laisse les onglets gérer
             levels.forEach(l => {
-                html += `<div class="accordion-item level" data-level="${l.id}" data-area="${cycle.key}">
-                            <div class="accordion-header" onclick="toggleAccordion(this)"><span class="hdr-title">${l.name}<span class="new-slot"></span></span> <span>+</span></div>
-                            <div class="accordion-content">`;
+                // ✅ CORRECTION 1 : Utilisation des classes .level-accordion
+                html += `<div class="level-accordion" data-level="${l.id}" data-area="${cycle.key}">
+                            <div class="level-header" onclick="toggleAccordion(this)">
+                                <span class="hdr-title">${l.name}<span class="new-slot"></span></span>
+                                <span class="icon">▾</span>
+                            </div>
+                            <div class="level-body">`;
                 l.mats.forEach(m => {
                     const slugMat = m.toLowerCase().replace(/[^a-z0-9]/g, '');
-                    html += `<div class="subject-accordion" data-mat="${m}">
-                                <div class="subject-header" onclick="toggleAccordion(this)"><span class="hdr-title">${m}<span class="new-slot"></span></span> <span>▼</span></div>
-                                <div class="subject-content">
-                                    <div class="subject-grid">
-                                        
-                                        <div class="doc-col">
-                                          <h5 style="display:flex; justify-content:space-between; align-items:center;">
+                    // ✅ CORRECTION 2 : Utilisation des classes .mat-accordion et .mat-header
+                    html += `<div class="mat-accordion" data-mat="${m}">
+                                <div class="mat-header" onclick="toggleAccordion(this)">
+                                    <span class="hdr-title">${m}<span class="new-slot"></span></span>
+                                    <span class="icon">▾</span>
+                                </div>
+                                <div class="mat-body">
+                                    <div class="mat-section">
+                                        <h5 style="display:flex; justify-content:space-between; align-items:center;">
                                             Cours
                                             <a href="/pc/tutoriel-drive.html" target="_blank" style="font-size:10px; color:var(--brass); text-decoration:none; text-transform:none; font-weight:normal;">❓ Comment faire ?</a>
-                                          </h5>
-                                          <div class="prof-only" style="background: #fff7e0; border-left: 4px solid var(--brass); padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px; color: #5c4300; line-height: 1.5;">
+                                        </h5>
+                                        <div class="prof-only" style="background: #fff7e0; border-left: 4px solid var(--brass); padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px; color: #5c4300; line-height: 1.5;">
                                             <b>💡 Conseil :</b> Privilégiez le bouton <b>📂 Dossier Drive</b> pour vos cours.
-                                          </div>
-                                          <ul class="doc-list" id="cours-${l.id}-${slugMat}"></ul>
-                                          <button class="add-btn" onclick="window.addDrive('cours-${l.id}-${slugMat}')" style="background: var(--brass); color: #fff; border: none; font-size: 13px; padding: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(168,133,63,0.3); margin-bottom: 8px;">📂 RECOMMANDÉ : Dossier Drive</button>
-                                          <button class="add-btn" onclick="window.addVideo('cours-${l.id}-${slugMat}')" style="font-size:11px; margin-bottom:6px;">🎥 Lien vidéo YouTube</button>
-                                          <button class="add-btn" onclick="window.up('cours-${l.id}-${slugMat}')" style="font-size:10px; opacity:0.8; border-style:dotted;" title="Uniquement pour les fichiers < 0,5 Mo">📄 Petit fichier (< 0,5 Mo)</button>
                                         </div>
-
-                                        <div class="doc-col">
-                                          <h5 style="display:flex; justify-content:space-between; align-items:center;">
+                                        <ul class="doc-list" id="cours-${l.id}-${slugMat}"></ul>
+                                        <button class="add-btn" onclick="window.addDrive('cours-${l.id}-${slugMat}')" style="background: var(--brass); color: #fff; border: none; font-size: 13px; padding: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(168,133,63,0.3); margin-bottom: 8px;">📂 RECOMMANDÉ : Dossier Drive</button>
+                                        <button class="add-btn" onclick="window.addVideo('cours-${l.id}-${slugMat}')" style="font-size:11px; margin-bottom:6px;">🎥 Lien vidéo YouTube</button>
+                                        <button class="add-btn" onclick="window.up('cours-${l.id}-${slugMat}')" style="font-size:10px; opacity:0.8; border-style:dotted;" title="Uniquement pour les fichiers < 0,5 Mo">📄 Petit fichier (< 0,5 Mo)</button>
+                                    </div>
+                                    <div class="mat-section">
+                                        <h5 style="display:flex; justify-content:space-between; align-items:center;">
                                             TD
                                             <a href="/pc/tutoriel-drive.html" target="_blank" style="font-size:10px; color:var(--brass); text-decoration:none; text-transform:none; font-weight:normal;">❓ Comment faire ?</a>
-                                          </h5>
-                                          <div class="prof-only" style="background: #fff7e0; border-left: 4px solid var(--brass); padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px; color: #5c4300; line-height: 1.5;">
+                                        </h5>
+                                        <div class="prof-only" style="background: #fff7e0; border-left: 4px solid var(--brass); padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px; color: #5c4300; line-height: 1.5;">
                                             <b>💡 Conseil :</b> Privilégiez le bouton <b>📂 Dossier Drive</b> pour vos TD.
-                                          </div>
-                                          <ul class="doc-list" id="td-${l.id}-${slugMat}"></ul>
-                                          <button class="add-btn" onclick="window.addDrive('td-${l.id}-${slugMat}')" style="background: var(--brass); color: #fff; border: none; font-size: 13px; padding: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(168,133,63,0.3); margin-bottom: 8px;">📂 RECOMMANDÉ : Dossier Drive</button>
-                                          <button class="add-btn" onclick="window.addVideo('td-${l.id}-${slugMat}')" style="font-size:11px; margin-bottom:6px;">🎥 Lien vidéo YouTube</button>
-                                          <button class="add-btn" onclick="window.up('td-${l.id}-${slugMat}')" style="font-size:10px; opacity:0.8; border-style:dotted;" title="Uniquement pour les fichiers < 0,5 Mo">📄 Petit fichier (< 0,5 Mo)</button>
                                         </div>
-
+                                        <ul class="doc-list" id="td-${l.id}-${slugMat}"></ul>
+                                        <button class="add-btn" onclick="window.addDrive('td-${l.id}-${slugMat}')" style="background: var(--brass); color: #fff; border: none; font-size: 13px; padding: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(168,133,63,0.3); margin-bottom: 8px;">📂 RECOMMANDÉ : Dossier Drive</button>
+                                        <button class="add-btn" onclick="window.addVideo('td-${l.id}-${slugMat}')" style="font-size:11px; margin-bottom:6px;">🎥 Lien vidéo YouTube</button>
+                                        <button class="add-btn" onclick="window.up('td-${l.id}-${slugMat}')" style="font-size:10px; opacity:0.8; border-style:dotted;" title="Uniquement pour les fichiers < 0,5 Mo">📄 Petit fichier (< 0,5 Mo)</button>
                                     </div>
-                                    <div class="devoirs-section"><h5>Devoirs</h5><div class="devoirs-list" id="devoirs-${l.id}-${slugMat}"></div><button class="add-btn" id="devoiradd-${l.id}-${slugMat}" onclick="window.newDevoir('${l.id}-${slugMat}')">+ Proposer un devoir</button></div>
+                                    <div class="mat-section" style="border-bottom:none;">
+                                        <h5>Devoirs</h5>
+                                        <div class="devoirs-list" id="devoirs-${l.id}-${slugMat}"></div>
+                                        <button class="add-btn" id="devoiradd-${l.id}-${slugMat}" onclick="window.newDevoir('${l.id}-${slugMat}')">+ Proposer un devoir</button>
+                                    </div>
                                 </div>
-                            </div>`;
+                            </div>
+                        </div>`;
                 });
                 html += `</div></div>`;
             });
@@ -1189,35 +1198,60 @@ document.querySelectorAll('.cycle-tab').forEach(t => {
     }
   }
 
-    function applyLevelVisibility() {
+  function applyLevelVisibility() {
     const role = profile?.role;
     const profMats = profile?.disciplines || [];
     const contentArea = document.getElementById('content-area');
     if (!contentArea) return;
-    // ⚠️ Limiter au content-area UNIQUEMENT (ne pas toucher aux accordéons élèves)
+
+    // ✅ LOG DE DÉBOGAGE
+    console.log("=== DÉBOGAGE FILTRAGE ===");
+    console.log("Rôle :", role);
+    console.log("Matières du prof (depuis Firebase) :", profMats);
+    console.log("Classes assignées :", profile.assignedClasses);
+
+    let totalVisible = 0;
+
     contentArea.querySelectorAll('.level-accordion').forEach(levelEl => {
       const lvlId = levelEl.dataset.level;
       const area = levelEl.dataset.area;
       let visible = true;
+      
       if (role === 'professeur') {
-        // On vérifie si la classe est dans assignedClasses
         visible = matchesAny(lvlId, profile.assignedClasses);
       } else if (role === 'eleve') {
         visible = isSameString(profile.niveau, lvlId);
       }
       
-      // ✅ CORRECTION : On ne cache PAS les classes assignées à cause du cycle
-      // On ne cache que si la classe n'est pas assignée (déjà géré par visible = false)
-      // La ligne "if (area !== currentCycle) visible = false;" est SUPPRIMÉE.
+      if (area !== window.currentCycle) visible = false;
       
       levelEl.style.display = visible ? '' : 'none';
+
       if (visible && role === 'professeur') {
         levelEl.querySelectorAll('.mat-accordion').forEach(matEl => {
-          matEl.style.display = matchesAny(matEl.dataset.mat, profMats) ? '' : 'none';
+          const matName = matEl.dataset.mat;
+          
+          // ✅ COMPARAISON TOLÉRANTE (comme précédemment)
+          const estMaMatiere = profMats.some(profMat => {
+            const p = normalize(profMat);
+            const m = normalize(matName);
+            return m.includes(p) || p.includes(m);
+          });
+
+          // ✅ LOG DE DÉBOGAGE POUR CHAQUE MATIÈRE
+          console.log(`Matière "${matName}" (HTML) vs Profil [${profMats.join(', ')}] -> Affiché : ${estMaMatiere}`);
+
+          matEl.style.display = estMaMatiere ? '' : 'none';
+        });
+      } else if (visible && role === 'eleve') {
+        levelEl.querySelectorAll('.mat-accordion').forEach(matEl => {
+          matEl.style.display = '';
         });
       }
+      
+      if (visible) totalVisible++;
     });
-    const totalVisible = contentArea.querySelectorAll('.level-accordion:not([style*="display: none"])').length;
+
     if (totalVisible === 0) {
       contentArea.innerHTML = `<div class="empty-msg"><span class="icon">📚</span>Aucune ressource disponible pour vous dans ce cycle.</div>`;
     }
