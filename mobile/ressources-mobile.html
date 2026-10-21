@@ -1000,78 +1000,121 @@ if (_isIOS && !_standalone) setTimeout(() => _showInstall(true), 0);
     });
   });
 
+  // Fonctions utilitaires de filtrage strict
+  function getProfDisciplines(prof) {
+    if (!prof) return [];
+    const raw = prof.disciplines || prof.matieres || prof.discipline || prof.matiere || [];
+    const arr = Array.isArray(raw) ? raw : [raw];
+    return arr.map(s => String(s || '').trim()).filter(s => s.length > 0);
+  }
+
+  function estMatiereProf(matName, profDisciplines) {
+    if (!matName) return false;
+    const m = normalize(matName);
+    if (!m) return false;
+    const list = profDisciplines.map(d => normalize(d)).filter(d => d.length > 0);
+    if (list.length === 0) return false;
+    return list.some(p => m === p || (p.length >= 4 && m.includes(p)) || (m.length >= 4 && p.includes(m)));
+  }
+
   function buildUI() {
-    let html = '';
-    html += `<div class="expand-collapse-bar">
-          <button type="button" onclick="window.expandAllVisible?.()">📂 Tout déplier</button>
-          <button type="button" onclick="window.collapseAllVisible?.()">📁 Tout replier</button>
+    const contentArea = document.getElementById('content-area');
+    if (!contentArea) return;
+
+    const role = profile?.role;
+    const estProf = role === 'professeur';
+    const estElv = role === 'eleve';
+    const profMats = getProfDisciplines(profile);
+    const profClasses = (profile?.assignedClasses || []).map(c => normalize(c));
+
+    // Déterminer le cycle actif (onglet actif ou currentCycle)
+    const activeTab = document.querySelector('.cycle-tab.active');
+    const cycleActuel = activeTab ? activeTab.dataset.cycle : (currentCycle || 'college-area');
+
+    let html = `<div class="expand-collapse-bar">
+      <button type="button" onclick="window.expandAllVisible?.()">📂 Tout déplier</button>
+      <button type="button" onclick="window.collapseAllVisible?.()">📁 Tout replier</button>
+    </div>`;
+
+    let nbClassesAffichees = 0;
+    const levels = structure.filter(c => c.area === cycleActuel);
+
+    levels.forEach(l => {
+      // 1. Filtrer la classe
+      if (estProf) {
+        if (!profClasses.includes(normalize(l.id))) return; // Ignore les classes non assignées
+      } else if (estElv) {
+        if (!isSameString(profile?.niveau, l.id)) return; // Ignore les autres classes
+      }
+
+      // 2. Filtrer les matières : pour un prof, on ne garde QUE sa matière
+      let mats = l.mats;
+      if (estProf) {
+        mats = l.mats.filter(m => estMatiereProf(m, profMats));
+        if (mats.length === 0) return; // Si la classe n'a pas la matière du prof, on ne l'affiche pas
+      }
+
+      nbClassesAffichees++;
+
+      html += `<div class="level-accordion" data-level="${l.id}" data-area="${cycleActuel}">
+        <div class="level-header" onclick="window.toggleAccordion(this)">
+          <span class="hdr-title">${escapeHtml(l.name)}<span class="new-slot"></span></span>
+          <span class="icon">▾</span>
+        </div>
+        <div class="level-body">`;
+
+      mats.forEach(m => {
+        const slugMat = m.toLowerCase().replace(/[^a-z0-9]/g, '');
+        html += `<div class="mat-accordion" data-mat="${escapeHtml(m)}">
+          <div class="mat-header" onclick="window.toggleAccordion(this)">
+            <span class="hdr-title">${escapeHtml(m)}<span class="new-slot"></span></span>
+            <span class="icon">▾</span>
+          </div>
+          <div class="mat-body">
+            <div class="mat-section">
+              <h5 style="display:flex; justify-content:space-between; align-items:center;">
+                Cours
+                <a href="/pc/tutoriel-drive.html" target="_blank" style="font-size:10px; color:var(--brass); text-decoration:none; text-transform:none; font-weight:normal;">❓ Comment faire ?</a>
+              </h5>
+              <div class="prof-only" style="background: #fff7e0; border-left: 4px solid var(--brass); padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px; color: #5c4300; line-height: 1.5;">
+                <b>💡 Conseil :</b> Privilégiez le bouton <b>📂 Dossier Drive</b> pour vos cours.
+              </div>
+              <ul class="doc-list" id="cours-${l.id}-${slugMat}"></ul>
+              <button class="add-btn" onclick="window.addDrive('cours-${l.id}-${slugMat}')" style="background: var(--brass); color: #fff; border: none; font-size: 13px; padding: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(168,133,63,0.3); margin-bottom: 8px;">📂 RECOMMANDÉ : Dossier Drive</button>
+              <button class="add-btn" onclick="window.addVideo('cours-${l.id}-${slugMat}')" style="font-size:11px; margin-bottom:6px;">🎥 Lien vidéo YouTube</button>
+              <button class="add-btn" onclick="window.up('cours-${l.id}-${slugMat}')" style="font-size:10px; opacity:0.8; border-style:dotted;" title="Uniquement pour les fichiers < 0,5 Mo">📄 Petit fichier (< 0,5 Mo)</button>
+            </div>
+            <div class="mat-section">
+              <h5 style="display:flex; justify-content:space-between; align-items:center;">
+                TD
+                <a href="/pc/tutoriel-drive.html" target="_blank" style="font-size:10px; color:var(--brass); text-decoration:none; text-transform:none; font-weight:normal;">❓ Comment faire ?</a>
+              </h5>
+              <div class="prof-only" style="background: #fff7e0; border-left: 4px solid var(--brass); padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px; color: #5c4300; line-height: 1.5;">
+                <b>💡 Conseil :</b> Privilégiez le bouton <b>📂 Dossier Drive</b> pour vos TD.
+              </div>
+              <ul class="doc-list" id="td-${l.id}-${slugMat}"></ul>
+              <button class="add-btn" onclick="window.addDrive('td-${l.id}-${slugMat}')" style="background: var(--brass); color: #fff; border: none; font-size: 13px; padding: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(168,133,63,0.3); margin-bottom: 8px;">📂 RECOMMANDÉ : Dossier Drive</button>
+              <button class="add-btn" onclick="window.addVideo('td-${l.id}-${slugMat}')" style="font-size:11px; margin-bottom:6px;">🎥 Lien vidéo YouTube</button>
+              <button class="add-btn" onclick="window.up('td-${l.id}-${slugMat}')" style="font-size:10px; opacity:0.8; border-style:dotted;" title="Uniquement pour les fichiers < 0,5 Mo">📄 Petit fichier (< 0,5 Mo)</button>
+            </div>
+            <div class="mat-section" style="border-bottom:none;">
+              <h5>Devoirs</h5>
+              <div class="devoirs-list" id="devoirs-${l.id}-${slugMat}"></div>
+              <button class="add-btn" id="devoiradd-${l.id}-${slugMat}" onclick="window.newDevoir('${l.id}-${slugMat}')">+ Proposer un devoir</button>
+            </div>
+          </div>
         </div>`;
-        const cycles = [
-            { key: 'college-area', label: 'Collège' },
-            { key: 'lycee-area', label: 'Lycée' }
-        ];
-        cycles.forEach(cycle => {
-            const levels = structure.filter(c => c.area === cycle.key);
-            if (levels.length === 0) return;
-            
-            // ✅ On ne génère pas le titre global du cycle, on laisse les onglets gérer
-            levels.forEach(l => {
-                // ✅ CORRECTION 1 : Utilisation des classes .level-accordion
-                html += `<div class="level-accordion" data-level="${l.id}" data-area="${cycle.key}">
-                            <div class="level-header" onclick="toggleAccordion(this)">
-                                <span class="hdr-title">${l.name}<span class="new-slot"></span></span>
-                                <span class="icon">▾</span>
-                            </div>
-                            <div class="level-body">`;
-                l.mats.forEach(m => {
-                    const slugMat = m.toLowerCase().replace(/[^a-z0-9]/g, '');
-                    // ✅ CORRECTION 2 : Utilisation des classes .mat-accordion et .mat-header
-                    html += `<div class="mat-accordion" data-mat="${m}">
-                                <div class="mat-header" onclick="toggleAccordion(this)">
-                                    <span class="hdr-title">${m}<span class="new-slot"></span></span>
-                                    <span class="icon">▾</span>
-                                </div>
-                                <div class="mat-body">
-                                    <div class="mat-section">
-                                        <h5 style="display:flex; justify-content:space-between; align-items:center;">
-                                            Cours
-                                            <a href="/pc/tutoriel-drive.html" target="_blank" style="font-size:10px; color:var(--brass); text-decoration:none; text-transform:none; font-weight:normal;">❓ Comment faire ?</a>
-                                        </h5>
-                                        <div class="prof-only" style="background: #fff7e0; border-left: 4px solid var(--brass); padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px; color: #5c4300; line-height: 1.5;">
-                                            <b>💡 Conseil :</b> Privilégiez le bouton <b>📂 Dossier Drive</b> pour vos cours.
-                                        </div>
-                                        <ul class="doc-list" id="cours-${l.id}-${slugMat}"></ul>
-                                        <button class="add-btn" onclick="window.addDrive('cours-${l.id}-${slugMat}')" style="background: var(--brass); color: #fff; border: none; font-size: 13px; padding: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(168,133,63,0.3); margin-bottom: 8px;">📂 RECOMMANDÉ : Dossier Drive</button>
-                                        <button class="add-btn" onclick="window.addVideo('cours-${l.id}-${slugMat}')" style="font-size:11px; margin-bottom:6px;">🎥 Lien vidéo YouTube</button>
-                                        <button class="add-btn" onclick="window.up('cours-${l.id}-${slugMat}')" style="font-size:10px; opacity:0.8; border-style:dotted;" title="Uniquement pour les fichiers < 0,5 Mo">📄 Petit fichier (< 0,5 Mo)</button>
-                                    </div>
-                                    <div class="mat-section">
-                                        <h5 style="display:flex; justify-content:space-between; align-items:center;">
-                                            TD
-                                            <a href="/pc/tutoriel-drive.html" target="_blank" style="font-size:10px; color:var(--brass); text-decoration:none; text-transform:none; font-weight:normal;">❓ Comment faire ?</a>
-                                        </h5>
-                                        <div class="prof-only" style="background: #fff7e0; border-left: 4px solid var(--brass); padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px; color: #5c4300; line-height: 1.5;">
-                                            <b>💡 Conseil :</b> Privilégiez le bouton <b>📂 Dossier Drive</b> pour vos TD.
-                                        </div>
-                                        <ul class="doc-list" id="td-${l.id}-${slugMat}"></ul>
-                                        <button class="add-btn" onclick="window.addDrive('td-${l.id}-${slugMat}')" style="background: var(--brass); color: #fff; border: none; font-size: 13px; padding: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(168,133,63,0.3); margin-bottom: 8px;">📂 RECOMMANDÉ : Dossier Drive</button>
-                                        <button class="add-btn" onclick="window.addVideo('td-${l.id}-${slugMat}')" style="font-size:11px; margin-bottom:6px;">🎥 Lien vidéo YouTube</button>
-                                        <button class="add-btn" onclick="window.up('td-${l.id}-${slugMat}')" style="font-size:10px; opacity:0.8; border-style:dotted;" title="Uniquement pour les fichiers < 0,5 Mo">📄 Petit fichier (< 0,5 Mo)</button>
-                                    </div>
-                                    <div class="mat-section" style="border-bottom:none;">
-                                        <h5>Devoirs</h5>
-                                        <div class="devoirs-list" id="devoirs-${l.id}-${slugMat}"></div>
-                                        <button class="add-btn" id="devoiradd-${l.id}-${slugMat}" onclick="window.newDevoir('${l.id}-${slugMat}')">+ Proposer un devoir</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>`;
-                });
-                html += `</div></div>`;
-            });
-        });
-        document.getElementById('content-area').innerHTML = html;
+      });
+
+      html += `</div></div>`;
+    });
+
+    if (nbClassesAffichees === 0) {
+      html = `<div class="empty-msg"><span class="icon">📚</span>Aucune ressource disponible pour vous dans ce cycle.</div>`;
     }
+
+    contentArea.innerHTML = html;
+  }
 
   onAuthStateChanged(auth, async (user) => {
     const contentArea = document.getElementById('content-area');
@@ -1200,15 +1243,24 @@ document.querySelectorAll('.cycle-tab').forEach(t => {
 
   function applyLevelVisibility() {
     const role = profile?.role;
-    const profMats = profile?.disciplines || [];
     const contentArea = document.getElementById('content-area');
     if (!contentArea) return;
 
-    // ✅ LOG DE DÉBOGAGE (à supprimer plus tard si vous voulez)
-    console.log("=== DÉBOGAGE FILTRAGE ===");
-    console.log("Rôle :", role);
-    console.log("Matières du prof (depuis Firebase) :", profMats);
-    console.log("Classes assignées :", profile.assignedClasses);
+    // 1. Récupération propre et sécurisée des matières enseignées (nettoie les chaînes vides)
+    let profMats = [];
+    if (Array.isArray(profile?.disciplines)) profMats = profile.disciplines;
+    else if (typeof profile?.disciplines === 'string') profMats = [profile.disciplines];
+    else if (Array.isArray(profile?.matieres)) profMats = profile.matieres;
+    else if (profile?.matiere) profMats = [profile.matiere];
+    else if (profile?.discipline) profMats = [profile.discipline];
+
+    profMats = profMats
+      .map(m => String(m || '').trim())
+      .filter(m => m.length > 0);
+
+    // 2. Détection du cycle actif (Collège ou Lycée)
+    const activeTab = document.querySelector('.cycle-tab.active');
+    const cycleActuel = activeTab ? activeTab.dataset.cycle : (currentCycle || 'college-area');
 
     let totalVisible = 0;
 
@@ -1217,51 +1269,70 @@ document.querySelectorAll('.cycle-tab').forEach(t => {
       const area = levelEl.dataset.area;
       let visible = true;
       
-      // 1. Filtrer par classe (assignée au prof ou correspondant à l'élève)
+      // Filtrer par classe selon le rôle
       if (role === 'professeur') {
-        visible = matchesAny(lvlId, profile.assignedClasses || []);
+        visible = matchesAny(lvlId, profile?.assignedClasses || []);
       } else if (role === 'eleve') {
-        visible = isSameString(profile.niveau, lvlId);
+        visible = isSameString(profile?.niveau, lvlId);
       }
       
-      // 2. Filtrer par cycle (Collège / Lycée)
-      const activeTab = document.querySelector('.cycle-tab.active');
-      const cycleActuel = activeTab ? activeTab.dataset.cycle : currentCycle;
-      if (area !== cycleActuel) visible = false;
-      
-      levelEl.style.display = visible ? '' : 'none';
+      // Filtrer par cycle actif (Collège / Lycée)
+      if (area !== cycleActuel) {
+        visible = false;
+      }
 
-      // 3. Cacher les matières non enseignées par le professeur
+      // 3. Filtrer les matières à l'intérieur de la classe
       if (visible && role === 'professeur') {
+        let nbMatsVisibles = 0;
+
         levelEl.querySelectorAll('.mat-accordion').forEach(matEl => {
-          const matName = matEl.dataset.mat;
+          const matName = matEl.dataset.mat || '';
           
-          // ✅ COMPARAISON ULTRA-TOLÉRANTE : ignore les espaces et les tirets
+          // Vérification stricte : ignore la casse, accents et tirets, et rejette les chaînes vides
           const estMaMatiere = profMats.some(profMat => {
-            const p = normalize(profMat).replace(/[-\s]/g, '');
-            const m = normalize(matName).replace(/[-\s]/g, '');
-            return m === p || m.includes(p) || p.includes(m);
+            const p = normalize(profMat).replace(/[^a-z0-9]/g, '');
+            const m = normalize(matName).replace(/[^a-z0-9]/g, '');
+            if (!p || !m) return false;
+            return m === p || (p.length >= 3 && m.includes(p)) || (m.length >= 3 && p.includes(m));
           });
 
-          // Log pour vérifier dans la console
-          // console.log(`Matière "${matName}" vs Profil [${profMats.join(', ')}] -> Affiché : ${estMaMatiere}`);
-
-          matEl.style.display = estMaMatiere ? '' : 'none';
+          if (estMaMatiere) {
+            matEl.style.display = '';
+            nbMatsVisibles++;
+          } else {
+            matEl.style.display = 'none'; // Cache strictement toutes les autres matières
+          }
         });
+
+        // Si la classe ne contient AUCUNE matière enseignée par ce professeur, on masque la classe
+        if (nbMatsVisibles === 0) {
+          visible = false;
+        }
       } else if (visible && role === 'eleve') {
-        // Pour les élèves, on affiche toutes les matières de leur classe
+        // Pour les élèves, on affiche toutes les matières de leur niveau
         levelEl.querySelectorAll('.mat-accordion').forEach(matEl => {
           matEl.style.display = '';
         });
       }
       
-      // On compte les classes visibles
+      levelEl.style.display = visible ? '' : 'none';
       if (visible) totalVisible++;
     });
 
-    // 4. Afficher un message si tout est vide
+    // 4. Gestion du message vide sans détruire le DOM
+    let emptyMsg = document.getElementById('cycle-empty-msg');
     if (totalVisible === 0) {
-      contentArea.innerHTML = `<div class="empty-msg"><span class="icon">📚</span>Aucune ressource disponible pour vous dans ce cycle.</div>`;
+      if (!emptyMsg) {
+        emptyMsg = document.createElement('div');
+        emptyMsg.id = 'cycle-empty-msg';
+        emptyMsg.className = 'empty-msg';
+        emptyMsg.innerHTML = `<span class="icon">📚</span>Aucune ressource disponible pour vous dans ce cycle.`;
+        contentArea.appendChild(emptyMsg);
+      } else {
+        emptyMsg.style.display = 'block';
+      }
+    } else if (emptyMsg) {
+      emptyMsg.style.display = 'none';
     }
   }
 
