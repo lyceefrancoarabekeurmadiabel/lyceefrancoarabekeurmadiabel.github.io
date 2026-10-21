@@ -1204,7 +1204,7 @@ document.querySelectorAll('.cycle-tab').forEach(t => {
     const contentArea = document.getElementById('content-area');
     if (!contentArea) return;
 
-    // ✅ LOG DE DÉBOGAGE
+    // ✅ LOG DE DÉBOGAGE (à supprimer plus tard si vous voulez)
     console.log("=== DÉBOGAGE FILTRAGE ===");
     console.log("Rôle :", role);
     console.log("Matières du prof (depuis Firebase) :", profMats);
@@ -1217,41 +1217,47 @@ document.querySelectorAll('.cycle-tab').forEach(t => {
       const area = levelEl.dataset.area;
       let visible = true;
       
+      // 1. Filtrer par classe (assignée au prof ou correspondant à l'élève)
       if (role === 'professeur') {
-        visible = matchesAny(lvlId, profile.assignedClasses);
+        visible = matchesAny(lvlId, profile.assignedClasses || []);
       } else if (role === 'eleve') {
         visible = isSameString(profile.niveau, lvlId);
       }
       
+      // 2. Filtrer par cycle (Collège / Lycée)
       if (area !== window.currentCycle) visible = false;
       
       levelEl.style.display = visible ? '' : 'none';
 
+      // 3. Cacher les matières non enseignées par le professeur
       if (visible && role === 'professeur') {
         levelEl.querySelectorAll('.mat-accordion').forEach(matEl => {
           const matName = matEl.dataset.mat;
           
-          // ✅ COMPARAISON TOLÉRANTE (comme précédemment)
+          // ✅ COMPARAISON ULTRA-TOLÉRANTE : ignore les espaces et les tirets
           const estMaMatiere = profMats.some(profMat => {
-            const p = normalize(profMat);
-            const m = normalize(matName);
-            return m.includes(p) || p.includes(m);
+            const p = normalize(profMat).replace(/[-\s]/g, '');
+            const m = normalize(matName).replace(/[-\s]/g, '');
+            return m === p || m.includes(p) || p.includes(m);
           });
 
-          // ✅ LOG DE DÉBOGAGE POUR CHAQUE MATIÈRE
-          console.log(`Matière "${matName}" (HTML) vs Profil [${profMats.join(', ')}] -> Affiché : ${estMaMatiere}`);
+          // Log pour vérifier dans la console
+          // console.log(`Matière "${matName}" vs Profil [${profMats.join(', ')}] -> Affiché : ${estMaMatiere}`);
 
           matEl.style.display = estMaMatiere ? '' : 'none';
         });
       } else if (visible && role === 'eleve') {
+        // Pour les élèves, on affiche toutes les matières de leur classe
         levelEl.querySelectorAll('.mat-accordion').forEach(matEl => {
           matEl.style.display = '';
         });
       }
       
+      // On compte les classes visibles
       if (visible) totalVisible++;
     });
 
+    // 4. Afficher un message si tout est vide
     if (totalVisible === 0) {
       contentArea.innerHTML = `<div class="empty-msg"><span class="icon">📚</span>Aucune ressource disponible pour vous dans ce cycle.</div>`;
     }
