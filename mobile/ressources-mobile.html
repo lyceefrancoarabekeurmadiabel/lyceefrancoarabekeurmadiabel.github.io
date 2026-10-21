@@ -1137,16 +1137,23 @@ document.querySelectorAll('.cycle-tab').forEach(t => {
   t.classList.toggle('active', t.dataset.cycle === currentCycle);
 });
 
+                // 1. On construit l'interface (le HTML brut)
         buildUI();
+        
+        // 2. On applique le filtre (qui a besoin de profile.assignedClasses)
         applyLevelVisibility();
+        
+        // 3. On attache les écouteurs Firestore (seulement sur les classes visibles)
         syncDocs();
         syncDevoirs();
+        
+        // 4. Le reste
         initOffline();
         initSearch();
         initNotifBar();
         restoreOpenState();
 
-        // ✅ Charger "Mes élèves" une fois le cycle actif connu
+        // 5. Charger "Mes élèves"
         if (profile.role === 'professeur' || isAdmin(profile.role)) chargerMesEleves();
 
       } catch (err) {
